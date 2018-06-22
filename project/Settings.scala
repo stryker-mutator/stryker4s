@@ -16,7 +16,7 @@ object Settings {
   )
 
   val commonSettings = Seq(
-    scalaVersion := versions.scala,
+    crossScalaVersions := versions.crossScala,
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
