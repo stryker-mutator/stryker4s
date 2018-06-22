@@ -1,7 +1,7 @@
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     name := "stryker4s",
-    scalaVersion := Dependencies.versions.scala,
+    crossScalaVersions := Dependencies.versions.crossScala,
   )
   .aggregate(stryker4sCore, stryker4sUtil)
   .dependsOn(stryker4sCore) // So `sbt run` can be used in root project

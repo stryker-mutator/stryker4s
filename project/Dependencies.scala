@@ -3,8 +3,9 @@ import sbt._
 object Dependencies {
 
   object versions {
-    val scala = "2.12.6"
-
+    val scala212 = "2.12.6"
+    val scala211 = "2.11.12"
+    val crossScala = Seq(scala211, scala212)
     /** Use 3.3.1 until a Scalameta bug with transforming a Scalameta Parsed is fixed
       * See: https://github.com/scalameta/scalameta/issues/1526
       */
