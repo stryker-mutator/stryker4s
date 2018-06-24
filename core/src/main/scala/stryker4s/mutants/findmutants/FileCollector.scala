@@ -9,9 +9,14 @@ trait SourceCollector {
 
 class FileCollector(implicit config: Config) extends SourceCollector {
 
-  override def collectFiles(): Iterable[File] =
-    config.baseDir
-      .glob(config.files.mkString("{", ",", "}"))
-      .toIterable
+  private[this] val toMutateFiles: Seq[File] = toFileList(config.files)
+  private[this] val toExcludeFiles: Seq[File] = toFileList(config.excludedFiles)
 
+  override def collectFiles(): Iterable[File] = {
+  toMutateFiles.filterNot(file => toExcludeFiles.contains(file))
+  }
+
+  private[this] def toFileList(files: Seq[String]): Seq[File] = {
+    files.flatMap(config.baseDir.glob(_))
+  }
 }
