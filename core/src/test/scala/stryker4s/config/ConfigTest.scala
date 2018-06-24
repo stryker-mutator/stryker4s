@@ -14,15 +14,13 @@ class ConfigTest extends Stryker4sSuite {
         s"""stryker4s {
            |  base-dir = ${File.currentWorkingDirectory}
            |  files = [**/main/scala/**/*.scala]
-           |  excluded-files = []
            |}""".stripMargin
       result.toString should equal(expected.toString)
     }
 
     it("should print toString with changed values") {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
-      val excludedFilesPaths = List("**/main/**/Exclude.scala")
-      val sut = Config(filePaths, excludedFilesPaths, File("tmp"))
+      val sut = Config(filePaths, File("tmp"))
 
       val result = sut.toString
 
@@ -30,7 +28,6 @@ class ConfigTest extends Stryker4sSuite {
         s"""stryker4s {
            |  base-dir = ${File("tmp")}
            |  files = [**/main/scala/**/Foo.scala, **/main/scala/**/Bar.scala]
-           |  excluded-files = [**/main/**/Exclude.scala]
            |}""".stripMargin
       result.toString should equal(expected.toString)
     }

@@ -70,10 +70,32 @@ class FileCollectorTest extends Stryker4sSuite {
         results should contain only(basePath / "someFile.scala", basePath / "secondFile.scala")
       }
 
+      it("should only add a glob once even when it matches twice") {
+        implicit val config: Config =
+          Config(files = Seq("**/someFile.scala", "**/*.scala"), baseDir = filledDirPath)
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should have size 2
+        results should contain only(basePath / "someFile.scala", basePath / "secondFile.scala")
+      }
+
+      it("should not find a file twice when the patterns match on the same file twice") {
+        implicit val config: Config = Config(
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
+          baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should be(empty)
+      }
+
       it("Should exclude the file specified in the excluded files config") {
         implicit val config: Config = Config(
-          files = Seq("**/someFile.scala", "**/secondFile.scala"),
-          excludedFiles = Seq("**/someFile.scala"),
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala"),
           baseDir = filledDirPath)
 
         val sut = new FileCollector()
@@ -86,34 +108,31 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("Should exclude all files specified in the excluded files config") {
         implicit val config: Config = Config(
-          files = Seq("**/someFile.scala", "**/secondFile.scala"),
-          excludedFiles = Seq("**/someFile.scala", "**/secondFile.scala"),
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
           baseDir = filledDirPath)
 
         val sut = new FileCollector()
 
         val results = sut.collectFiles()
 
-        results should have size 0
+        results should be(empty)
       }
 
       it("Should exclude all files based on a wildcard") {
         implicit val config: Config = Config(
-          files = Seq("**/someFile.scala", "**/secondFile.scala"),
-          excludedFiles = Seq("**/*.scala"),
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala"),
           baseDir = filledDirPath)
 
         val sut = new FileCollector()
 
         val results = sut.collectFiles()
 
-        results should have size 0
+        results should be(empty)
       }
 
       it("Should not exclude a non existing file") {
         implicit val config: Config = Config(
-          files = Seq("**/someFile.scala", "**/secondFile.scala"),
-          excludedFiles = Seq("**/nonExistingFile.scala"),
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/nonExistingFile.scala"),
           baseDir = filledDirPath)
 
         val sut = new FileCollector()
