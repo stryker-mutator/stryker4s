@@ -19,8 +19,8 @@ class ConfigTest extends Stryker4sSuite {
     }
 
     it("should print toString with changed values") {
-      val filePats = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
-      val sut = Config(filePats, File("tmp"))
+      val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
+      val sut = Config(filePaths, File("tmp"))
 
       val result = sut.toString
 

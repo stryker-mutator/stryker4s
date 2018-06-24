@@ -18,6 +18,8 @@ With `files` you configure the subset of files to use for mutation testing.
 Generally speaking, these should be your own source files.  
 The default for this will find files in the common Scala project format. 
 
+You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
+
 #### base-dir
 
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  

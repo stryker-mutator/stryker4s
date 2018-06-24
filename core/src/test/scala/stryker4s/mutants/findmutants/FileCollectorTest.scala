@@ -23,8 +23,10 @@ class FileCollectorTest extends Stryker4sSuite {
 
     describe("on filled dir") {
       val filledDirPath = FileUtil.getResource("fileTests/filledDir")
+      val basePath = filledDirPath / "src/main/scala/package"
 
       assume(filledDirPath.exists(), "Filled test dir does not exist")
+      assume(basePath.exists(), "Basepath dir does not exist")
 
       it("should find all scala files and not the non-scala files with default config") {
         implicit val config: Config = Config(baseDir = filledDirPath)
@@ -33,8 +35,7 @@ class FileCollectorTest extends Stryker4sSuite {
         val results = sut.collectFiles()
 
         results should have size 2
-        val basePath = filledDirPath / "src/main/scala/package"
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala")
+        results should contain only(basePath / "someFile.scala", basePath / "secondFile.scala")
       }
 
       it("should find matching files with custom config match pattern") {
@@ -45,7 +46,7 @@ class FileCollectorTest extends Stryker4sSuite {
         val results = sut.collectFiles()
         val onlyResult = results.loneElement
 
-        onlyResult should equal(filledDirPath / "src/main/scala/package/secondFile.scala")
+        onlyResult should equal(basePath / "secondFile.scala")
       }
 
       it("should find no matches with a non-matching glob") {
@@ -66,9 +67,80 @@ class FileCollectorTest extends Stryker4sSuite {
         val results = sut.collectFiles()
 
         results should have size 2
+        results should contain only(basePath / "someFile.scala", basePath / "secondFile.scala")
+      }
 
-        val basePath = filledDirPath / "src/main/scala/package"
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala")
+      it("should only add a glob once even when it matches twice") {
+        implicit val config: Config =
+          Config(files = Seq("**/someFile.scala", "**/*.scala"), baseDir = filledDirPath)
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should have size 2
+        results should contain only(basePath / "someFile.scala", basePath / "secondFile.scala")
+      }
+
+      it("should not find a file twice when the patterns match on the same file twice") {
+        implicit val config: Config = Config(
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
+          baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should be(empty)
+      }
+
+      it("Should exclude the file specified in the excluded files config") {
+        implicit val config: Config = Config(
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala"),
+          baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should have size 1
+        results should contain only (basePath / "secondFile.scala")
+      }
+
+      it("Should exclude all files specified in the excluded files config") {
+        implicit val config: Config = Config(
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
+          baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should be(empty)
+      }
+
+      it("Should exclude all files based on a wildcard") {
+        implicit val config: Config = Config(
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala"),
+          baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should be(empty)
+      }
+
+      it("Should not exclude a non existing file") {
+        implicit val config: Config = Config(
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/nonExistingFile.scala"),
+          baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFiles()
+
+        results should have size 2
+        results should contain only(basePath / "someFile.scala", basePath / "secondFile.scala")
       }
     }
   }
