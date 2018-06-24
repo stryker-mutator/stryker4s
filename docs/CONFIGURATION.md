@@ -18,6 +18,14 @@ With `files` you configure the subset of files to use for mutation testing.
 Generally speaking, these should be your own source files.  
 The default for this will find files in the common Scala project format. 
 
+#### Files to exclude from mutating
+
+**Config file:** `exclude-files: [ "**/main/scala/**/*.scala" ]`  
+**Default value:** `[ ]`  
+**Mandatory**: No  
+**Description:**
+With `exclude-files` you configure the subset of files to exclude from mutation testing.
+
 #### base-dir
 
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  
