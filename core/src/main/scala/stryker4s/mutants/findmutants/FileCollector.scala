@@ -13,7 +13,7 @@ class FileCollector(implicit config: Config) extends SourceCollector {
   private[this] val toExcludeFiles: Seq[File] = toFileList(config.excludedFiles)
 
   override def collectFiles(): Iterable[File] = {
-  toMutateFiles.filterNot(file => toExcludeFiles.contains(file))
+    toMutateFiles.filterNot(file => toExcludeFiles.contains(file))
   }
 
   private[this] def toFileList(files: Seq[String]): Seq[File] = {
