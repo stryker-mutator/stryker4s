@@ -32,7 +32,6 @@ class LogRunReporter extends MutantRunReporter with Logging {
           }
           .mkString(lineSeparator()))
 
-    val mutationScore = ((detectedSize / totalMutants.toDouble) * 100).round
-    info(s"Mutation score: $mutationScore%")
+    info(s"Mutation score: ${runResults.mutationScore}%")
   }
 }
