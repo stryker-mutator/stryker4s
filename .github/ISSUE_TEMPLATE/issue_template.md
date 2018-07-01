@@ -36,5 +36,5 @@ stryker4s x.x.x
 | software         | version(s)
 | ---------------- | -------  
 | Scala version | 
-| Build tool & verison              | 
+| Build tool & version              | 
 | Operating System |
