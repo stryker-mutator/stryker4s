@@ -87,7 +87,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       )
     }
 
-    it("should return a mutationScore of 66.66 when 2 of 3 mutants are killed") {
+    it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
       val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(0))
       val sut = new ProcessMutantRunner(testProcessRunner)
       val mutant = Mutant(1, q"0", q"zero")
