@@ -16,7 +16,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   describe("buildMatch") {
     it("should transform 2 mutations into match statement with 2 mutated and 1 original") {
       // Arrange
-      val ids = Iterator.from(1)
+      val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
         .map(Mutant(ids.next(), originalStatement, _))
@@ -27,16 +27,16 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
       // Assert
       result.expr should equal(activeMutationExpr)
+      val someZero = someOf(0)
       val someOne = someOf(1)
-      val someTwo = someOf(2)
-      result.cases should contain inOrderOnly (p"case $someOne => x > 15", p"case $someTwo => x <= 15", p"case _ => x >= 15")
+      result.cases should contain inOrderOnly (p"case $someZero => x > 15", p"case $someOne => x <= 15", p"case _ => x >= 15")
     }
   }
 
   describe("buildNewSource") {
     it("should build a new tree with a case match in place of the 15 > 14 statement") {
       // Arrange
-      val ids = Iterator.from(1)
+      val ids = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
       val origStatement = source.find(q">").value.topStatement()
       val mutants = List(q"15 < 14", q"15 == 14")
@@ -52,9 +52,9 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val expected =
         """class Foo {
           |  def bar: Boolean = sys.env.get("ACTIVE_MUTATION") match {
-          |    case Some("1") =>
+          |    case Some("0") =>
           |      15 < 14
-          |    case Some("2") =>
+          |    case Some("1") =>
           |      15 == 14
           |    case _ =>
           |      15 > 14
@@ -65,7 +65,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
     it("should build a tree with multiple cases out of multiple transformedStatements") {
       // Arrange
-      val ids = Iterator.from(1)
+      val ids = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 && 14 >= 13 }".parse[Source].get
 
       val firstOrig = source.find(q">").value.topStatement()
@@ -89,16 +89,16 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val expected =
         """class Foo {
           |  def bar: Boolean = (sys.env.get("ACTIVE_MUTATION") match {
-          |    case Some("1") =>
+          |    case Some("0") =>
           |      15 < 14
-          |    case Some("2") =>
+          |    case Some("1") =>
           |      15 == 14
           |    case _ =>
           |      15 > 14
           |  }) && (sys.env.get("ACTIVE_MUTATION") match {
-          |    case Some("3") =>
+          |    case Some("2") =>
           |      14 > 13
-          |    case Some("4") =>
+          |    case Some("3") =>
           |      14 == 13
           |    case _ =>
           |      14 >= 13

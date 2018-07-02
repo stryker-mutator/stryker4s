@@ -15,8 +15,7 @@ class TestProcessRunner(testRunExitCode: Try[Int]*) extends ProcessRunner {
   override def apply(command: String, workingDir: File, envVar: (String, String)): Try[Int] = {
     timesCalled.next()
 
-    //Get the currently active test run and subtract 1 because currently the test runs start at 1 and not 0.
-    val testRun = envVar._2.toInt - 1
+    val testRun = envVar._2.toInt
     testRunExitCode(testRun)
   }
 }
