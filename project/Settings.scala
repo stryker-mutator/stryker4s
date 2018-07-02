@@ -1,5 +1,6 @@
 import Dependencies._
 import sbt.Keys._
+import sbt._
 
 object Settings {
   val scalacOpts = Seq(
@@ -20,12 +21,15 @@ object Settings {
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
+      Dependencies.test.slf4jTest,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.scalametaContrib,
       Dependencies.betterFiles,
       Dependencies.logback,
       Dependencies.grizzledSlf4j
-    )
+    ),
+    // Exclude logback so only slf4j-test SLF4J binding is found and can be used
+    excludeDependencies in Test += "ch.qos.logback" % "logback-classic"
   )
 }
