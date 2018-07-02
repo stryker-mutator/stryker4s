@@ -28,11 +28,11 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LoggerTests {
 
       val expected = """object Foo {
                        |  def bar = sys.env.get("ACTIVE_MUTATION") match {
-                       |    case Some("1") =>
+                       |    case Some("0") =>
                        |      15 >= 14
-                       |    case Some("2") =>
+                       |    case Some("1") =>
                        |      15 < 14
-                       |    case Some("3") =>
+                       |    case Some("2") =>
                        |      15 == 14
                        |    case _ =>
                        |      15 > 14

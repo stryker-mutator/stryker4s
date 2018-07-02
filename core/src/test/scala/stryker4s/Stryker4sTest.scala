@@ -26,20 +26,20 @@ class Stryker4sTest extends Stryker4sSuite {
       val reporter = new TestMutantReporter
 
       val sut = new Stryker4s(testSourceCollector,
-                             new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry),
-                                         new StatementTransformer,
-                                         new MatchBuilder),
-                             testMutantRunner,
-                             reporter)
+                              new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry),
+                                          new StatementTransformer,
+                                          new MatchBuilder),
+                              testMutantRunner,
+                              reporter)
 
       sut.run()
       val reportedResults = reporter.lastCall.value.results
 
       val expectedPath = Paths.get("simpleFile.scala")
       reportedResults should matchPattern {
-        case List(Killed(1, Mutant(1, _, _), `expectedPath`),
-                  Killed(1, Mutant(2, _, _), `expectedPath`),
-                  Killed(1, Mutant(3, _, _), `expectedPath`)) =>
+        case List(Killed(1, Mutant(0, _, _), `expectedPath`),
+                  Killed(1, Mutant(1, _, _), `expectedPath`),
+                  Killed(1, Mutant(2, _, _), `expectedPath`)) =>
       }
     }
   }
