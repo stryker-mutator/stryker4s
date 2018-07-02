@@ -20,7 +20,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
     it("should return a Survived mutant on an exitcode 0 process") {
       val testProcessRunner = new TestProcessRunner(Success(0))
       val sut = new ProcessMutantRunner(testProcessRunner)
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(1, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile =
         MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
@@ -28,6 +28,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val result = sut.apply(Seq(mutatedFile))
 
       testProcessRunner.timesCalled.next() should equal(1)
+      result.mutationScore shouldBe 00.00
       val loneResult = result.results.loneElement
       loneResult should equal(Survived(mutant, Paths.get("simpleFile.scala")))
     }
@@ -35,7 +36,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
     it("should return a Killed mutant on an exitcode 1 process") {
       val testProcessRunner = new TestProcessRunner(Success(1))
       val sut = new ProcessMutantRunner(testProcessRunner)
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(1, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile =
         MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
@@ -43,6 +44,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val result = sut.apply(Seq(mutatedFile))
 
       testProcessRunner.timesCalled.next() should equal(1)
+      result.mutationScore shouldBe 100.00
       val loneResult = result.results.loneElement
       loneResult should equal(Killed(1, mutant, Paths.get("simpleFile.scala")))
     }
@@ -51,7 +53,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val exception = new TimeoutException("Test")
       val testProcessRunner = new TestProcessRunner(Failure(exception))
       val sut = new ProcessMutantRunner(testProcessRunner)
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(1, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile =
         MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
@@ -59,15 +61,16 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val result = sut.apply(Seq(mutatedFile))
 
       testProcessRunner.timesCalled.next() should equal(1)
+      result.mutationScore shouldBe 100.00
       val loneResult = result.results.loneElement
       loneResult should equal(TimedOut(exception, mutant, Paths.get("simpleFile.scala")))
     }
 
     it("should return a combination of results on multiple runs") {
-      val testProcessRunner = new TestProcessRunner(Success(1))
+      val testProcessRunner = new TestProcessRunner(Success(1), Success(1))
       val sut = new ProcessMutantRunner(testProcessRunner)
-      val mutant = Mutant(0, q"0", q"zero")
-      val secondMutant = Mutant(1, q"1", q"one")
+      val mutant = Mutant(1, q"0", q"zero")
+      val secondMutant = Mutant(2, q"1", q"one")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant)
       val mutatedFile =
@@ -76,9 +79,33 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val result = sut.apply(Seq(mutatedFile))
 
       testProcessRunner.timesCalled.next() should equal(2)
+
+      result.mutationScore shouldBe 100.00
       result.results should contain only(
         Killed(1, mutant, Paths.get("simpleFile.scala")),
         Killed(1, secondMutant, Paths.get("simpleFile.scala"))
+      )
+    }
+
+    it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
+      val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(0))
+      val sut = new ProcessMutantRunner(testProcessRunner)
+      val mutant = Mutant(1, q"0", q"zero")
+      val secondMutant = Mutant(2, q"1", q"one")
+      val thirdMutant = Mutant(3, q"5", q"5")
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val mutants = Seq(mutant, secondMutant, thirdMutant)
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", mutants)))
+
+      val result = sut.apply(Seq(mutatedFile))
+
+      testProcessRunner.timesCalled.next() should equal(3)
+
+      result.mutationScore shouldBe 66.67
+      result.results should contain only(
+        Killed(1, mutant, Paths.get("simpleFile.scala")),
+        Killed(1, secondMutant, Paths.get("simpleFile.scala")),
+        Survived(thirdMutant, Paths.get("simpleFile.scala"))
       )
     }
   }
