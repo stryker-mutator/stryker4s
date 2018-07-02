@@ -16,9 +16,10 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   describe("buildMatch") {
     it("should transform 2 mutations into match statement with 2 mutated and 1 original") {
       // Arrange
+      val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(0, originalStatement, _))
+        .map(Mutant(ids.next(), originalStatement, _))
       val sut = new MatchBuilder
 
       // Act
@@ -35,10 +36,11 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   describe("buildNewSource") {
     it("should build a new tree with a case match in place of the 15 > 14 statement") {
       // Arrange
+      val ids = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
       val origStatement = source.find(q">").value.topStatement()
       val mutants = List(q"15 < 14", q"15 == 14")
-        .map(Mutant(0, origStatement, _))
+        .map(Mutant(ids.next(), origStatement, _))
       val transStatements =
         SourceTransformations(source, List(TransformedMutants(origStatement, mutants)))
       val sut = new MatchBuilder
@@ -63,16 +65,17 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
     it("should build a tree with multiple cases out of multiple transformedStatements") {
       // Arrange
+      val ids = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 && 14 >= 13 }".parse[Source].get
 
       val firstOrig = source.find(q">").value.topStatement()
       val firstMutants = List(q"15 < 14", q"15 == 14")
-        .map(Mutant(0, firstOrig, _))
+        .map(Mutant(ids.next(), firstOrig, _))
       val firstTrans = TransformedMutants(firstOrig, firstMutants)
 
       val secondOrig = source.find(q">=").value.topStatement()
       val secondMutants = List(q"14 > 13", q"14 == 13")
-        .map(Mutant(1, firstOrig, _))
+        .map(Mutant(ids.next(), firstOrig, _))
       val secondTrans = TransformedMutants(secondOrig, secondMutants)
 
       val transformedStatements =
