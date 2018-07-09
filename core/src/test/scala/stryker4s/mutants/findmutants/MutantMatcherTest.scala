@@ -28,11 +28,13 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       val found = tree collect sut.allMatchers()
 
-      found should have length 2
+      found should have length 3
       found.head.originalTree should equal(q">")
       found.head.mutations should contain only (q">=", q"<", q"==")
-      found(1).originalTree should equal(q"<")
-      found(1).mutations should contain only (q"<=", q">", q"==")
+      found(1).originalTree should equal(q"&&")
+      found(1).mutations should contain only q"||"
+      found(2).originalTree should equal(q"<")
+      found(2).mutations should contain only (q"<=", q">", q"==")
     }
 
     it("should match a method") {
@@ -52,11 +54,13 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       val found = tree collect sut.allMatchers()
 
-      found should have length 2
+      found should have length 3
       found.head.originalTree should equal(q"false")
       found.head.mutations should contain only q"true"
-      found(1).originalTree should equal(q">")
-      found(1).mutations should contain allOf (q">=", q"<", q"==")
+      found(1).originalTree should equal(q"&&")
+      found(1).mutations should contain only q"||"
+      found(2).originalTree should equal(q">")
+      found(2).mutations should contain allOf (q">=", q"<", q"==")
     }
 
     it("should match the default case of a constructor argument") {
@@ -142,6 +146,24 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         EqualTo
       )
     }
+
+    it("should match && to ||") {
+      checkMatch(
+        sut.matchConditionals(),
+        q"def foo = a && b",
+        And,
+        Or
+      )
+    }
+
+    it("should match || to &&") {
+      checkMatch(
+        sut.matchConditionals(),
+        q"def foo = a || b",
+        Or,
+        And
+      )
+    }
   }
 
   describe("matchMethods matcher") {
@@ -167,7 +189,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   describe("booleanSubstitutions matcher") {
     it("should match false to true") {
       checkMatch(
-        sut.matchBooleanSubstitutions(),
+        sut.matchLiterals(),
         q"def foo = false",
         False,
         True
@@ -176,7 +198,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match true to false") {
       checkMatch(
-        sut.matchBooleanSubstitutions(),
+        sut.matchLiterals(),
         q"def foo = true",
         True,
         False

@@ -26,6 +26,14 @@ case object NotEqualTo extends TermNameMutation {
   override val tree: Term.Name = Term.Name("!=")
 }
 
+case object And extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("&&")
+}
+
+case object Or extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("||")
+}
+
 case object Filter extends TermNameMutation {
   override val tree: Term.Name = Term.Name("filter")
 }

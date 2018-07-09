@@ -32,6 +32,14 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
       q"!=" should matchPattern { case NotEqualTo(_) => }
     }
 
+    it("&& to And") {
+      q"&&" should matchPattern { case And(_) => }
+    }
+
+    it("|| to Or") {
+      q"||" should matchPattern { case Or(_) => }
+    }
+
     it("filter to Filter") {
       q"filter" should matchPattern { case Filter(_) => }
     }

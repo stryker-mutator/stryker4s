@@ -14,6 +14,8 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | `<` | `<=`, `>`, `==` |
 | `==` | `!=` |
 | `!=` | `==` |
+| `&&` | `||` |
+| `||` | `&&` |
 
 ## Methods
 
@@ -22,7 +24,7 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | `a.filter(b)` | `a.filterNot(b)` |
 | `a.filterNot(b)` | `a.filter(b)` |
 
-## Boolean substitutions
+## Literal substitutions
 
 | Original | Mutated |
 | --- | --- |
