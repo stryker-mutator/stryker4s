@@ -33,8 +33,8 @@ stryker4s x.x.x
 ```
 
 ### Your Environment
-| software         | version(s)
-| ---------------- | -------  
-| Scala version | 
-| Build tool & version              | 
-| Operating System |
+| software             | version(s) |
+| -------------------- | ---------- |
+| Scala version        |            |
+| Build tool & version |            | 
+| Operating System     |            |

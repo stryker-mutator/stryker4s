@@ -5,7 +5,7 @@ import stryker4s.extensions.mutationtypes.Mutation
 import scala.meta.Tree
 
 /**
-  * Converts [[stryker4s.extensions.mutationtypes.Mutation]] to a [[scala.meta.Tree]]
+  * Converts [[stryker4s.extensions.mutationtypes.Mutation]] to a `scala.meta.Tree`
   *
   * {{{
   *  import stryker4s.extensions.ImplicitMutationConversion._
