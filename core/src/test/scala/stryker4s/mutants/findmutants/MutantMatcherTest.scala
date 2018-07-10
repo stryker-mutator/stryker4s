@@ -222,6 +222,16 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         StrykerWasHereString
       )
     }
+
+    it("should not match on interpolated strings") {
+      val interpolated = Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String("")), List(q"foo"))
+      val tree = q"""def foo = $interpolated """
+
+      val result = tree collect sut.allMatchers()
+
+      interpolated.syntax should equal("""s"interpolate $foo"""")
+      result should be (empty)
+    }
   }
 
 }

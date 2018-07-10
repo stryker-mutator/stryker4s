@@ -182,6 +182,15 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       result should equal(q"a == b && c")
     }
+
+    it("should include generic type") {
+      val tree = q"def foo = a.parse[Source]"
+      val subTree = tree.find(q"parse").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"a.parse[Source]")
+    }
   }
 
   describe("find") {
