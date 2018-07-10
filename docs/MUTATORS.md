@@ -30,3 +30,5 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | --- | --- |
 | `true` | `false` |
 | `false` | `true` |
+| `"foo"` (non-empty string) | `""` (empty string) |
+| `""` (empty string) | `"Stryker was here!"` |
