@@ -30,8 +30,10 @@ class MutantMatcher {
   }
 
   def matchLiterals(): PartialFunction[Tree, FoundMutant] = {
-    case True(orig)  => FoundMutant(orig, False)
-    case False(orig) => FoundMutant(orig, True)
+    case True(orig)           => FoundMutant(orig, False)
+    case False(orig)          => FoundMutant(orig, True)
+    case EmptyString(orig)    => FoundMutant(orig, StrykerWasHereString)
+    case NonEmptyString(orig) => FoundMutant(orig, EmptyString)
   }
 
 }

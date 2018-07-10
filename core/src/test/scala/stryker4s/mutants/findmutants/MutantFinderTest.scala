@@ -71,11 +71,16 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.findMutants(source)
 
-      val head = result.loneElement
+      val head = result.head
       head.originalStatement should equal(q"==")
-      val loneMutant = head.mutants.loneElement
-      loneMutant.original should equal(q"==")
-      loneMutant.mutated should equal(q"!=")
+      val firstMutant = head.mutants.loneElement
+      firstMutant.original should equal(q"==")
+      firstMutant.mutated should equal(q"!=")
+
+      val secondMutant = result(1).mutants.loneElement
+      result(1).originalStatement should equal(Lit.String("foobar"))
+      secondMutant.original should equal(Lit.String("foobar"))
+      secondMutant.mutated should equal(Lit.String(""))
     }
   }
 
@@ -87,11 +92,17 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
       val result = sut.mutantsInFile(file)
 
       result.source.children should not be empty
-      val head = result.mutants.loneElement
-      head.originalStatement should equal(q"==")
-      val loneMutant = head.mutants.loneElement
-      loneMutant.original should equal(q"==")
-      loneMutant.mutated should equal(q"!=")
+      val firstMutant = result.mutants.head
+      firstMutant.originalStatement should equal(q"==")
+      val firstLoneElement = firstMutant.mutants.loneElement
+      firstLoneElement.original should equal(q"==")
+      firstLoneElement.mutated should equal(q"!=")
+
+      val secondMutant = result.mutants(1).mutants.loneElement
+      result.mutants(1).originalStatement should equal(Lit.String("Hugo"))
+      secondMutant.original should equal(Lit.String("Hugo"))
+      secondMutant.mutated should equal(Lit.String(""))
+
     }
 
   }

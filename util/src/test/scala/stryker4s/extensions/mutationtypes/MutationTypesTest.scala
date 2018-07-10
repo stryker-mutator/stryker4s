@@ -7,7 +7,7 @@ import stryker4s.scalatest.TreeEquality
 import scala.meta._
 
 class MutationTypesTest extends Stryker4sSuite with TreeEquality {
-  describe("match") {
+  describe("match TermNameMutation") {
     it("> to GreaterThan") {
       q">" should matchPattern { case GreaterThan(_) => }
     }
@@ -48,14 +48,6 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
       q"filterNot" should matchPattern { case FilterNot(_) => }
     }
 
-    it("false to False") {
-      q"false" should matchPattern { case False(_) => }
-    }
-
-    it("true to True") {
-      q"true" should matchPattern { case True(_) => }
-    }
-
     it("should not match a different pattern") {
       q"filter" should not matchPattern { case FilterNot(_) => }
     }
@@ -68,6 +60,24 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
       }
 
       result should be theSameInstanceAs tree
+    }
+  }
+
+  describe("match LiteralMutation") {
+    it("false to False") {
+      q"false" should matchPattern { case False(_) => }
+    }
+
+    it("true to True") {
+      q"true" should matchPattern { case True(_) => }
+    }
+
+    it("foo string to NonEmptyString") {
+      q""""foo"""" should matchPattern { case NonEmptyString(_) => }
+    }
+
+    it("empty string to EmptyString") {
+      Lit.String("") should matchPattern { case EmptyString(_) => }
     }
   }
 
@@ -88,5 +98,4 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
 
     case class WrappedTree(term: Tree)
   }
-
 }

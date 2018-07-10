@@ -186,7 +186,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-  describe("booleanSubstitutions matcher") {
+  describe("literals matcher") {
     it("should match false to true") {
       checkMatch(
         sut.matchLiterals(),
@@ -202,6 +202,24 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         q"def foo = true",
         True,
         False
+      )
+    }
+
+    it("should match foo to NonEmptyString") {
+      checkMatch(
+        sut.matchLiterals(),
+        q"""def foo: String = "bar"""",
+        Lit.String("bar"),
+        EmptyString
+      )
+    }
+
+    it("should match empty string to StrykerWasHere") {
+      checkMatch(
+        sut.matchLiterals(),
+        q"""def foo = "" """,
+        EmptyString,
+        StrykerWasHereString
       )
     }
   }
