@@ -2,6 +2,7 @@ package stryker4s.extensions.mutationtypes
 
 import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
+import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
@@ -46,6 +47,38 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
 
     it("filterNot to FilterNot") {
       q"filterNot" should matchPattern { case FilterNot(_) => }
+    }
+
+    it("exists to Exists") {
+      q"exists" should matchPattern { case Exists(_) => }
+    }
+
+    it("forAll to ForAll") {
+      q"forAll" should matchPattern { case ForAll(_) => }
+    }
+
+    it("isEmpty to IsEmpty") {
+      q"isEmpty" should matchPattern { case IsEmpty(_) => }
+    }
+
+    it("nonEmpty to NonEmpty") {
+      q"nonEmpty" should matchPattern { case NonEmpty(_) => }
+    }
+
+    it("indexOf to IndexOf") {
+      q"indexOf" should matchPattern { case IndexOf(_) => }
+    }
+
+    it("lastIndexOf to LastIndexOf") {
+      q"lastIndexOf" should matchPattern { case LastIndexOf(_) => }
+    }
+
+    it("max to Max") {
+      q"max" should matchPattern { case Max(_) => }
+    }
+
+    it("min to Min") {
+      q"min" should matchPattern { case Min(_) => }
     }
 
     it("should not match a different pattern") {

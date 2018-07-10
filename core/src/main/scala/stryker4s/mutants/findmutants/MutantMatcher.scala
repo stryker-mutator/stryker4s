@@ -25,8 +25,16 @@ class MutantMatcher {
   }
 
   def matchMethods(): PartialFunction[Tree, FoundMutant] = {
-    case Filter(orig)    => FoundMutant(orig, FilterNot)
-    case FilterNot(orig) => FoundMutant(orig, Filter)
+    case Filter(orig)      => FoundMutant(orig, FilterNot)
+    case FilterNot(orig)   => FoundMutant(orig, Filter)
+    case Exists(orig)      => FoundMutant(orig, ForAll)
+    case ForAll(orig)      => FoundMutant(orig, Exists)
+    case IsEmpty(orig)     => FoundMutant(orig, NonEmpty)
+    case NonEmpty(orig)    => FoundMutant(orig, IsEmpty)
+    case IndexOf(orig)     => FoundMutant(orig, LastIndexOf)
+    case LastIndexOf(orig) => FoundMutant(orig, IndexOf)
+    case Max(orig)         => FoundMutant(orig, Min)
+    case Min(orig)         => FoundMutant(orig, Max)
   }
 
   def matchLiterals(): PartialFunction[Tree, FoundMutant] = {

@@ -23,6 +23,14 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | --- | --- |
 | `a.filter(b)` | `a.filterNot(b)` |
 | `a.filterNot(b)` | `a.filter(b)` |
+| `a.exists(b)` | `a.forAll(b)` |
+| `a.forAll(b)` | `a.exists(b)` |
+| `a.isEmpty` | `a.nonEmpty` |
+| `a.nonEmpty` | `a.isEmpty` |
+| `a.indexOf` | `a.lastIndexOf(b)` |
+| `a.lastIndexOf(b)` | `a.indexOf(b)` |
+| `a.max` | `a.min` |
+| `a.min` | `a.max` |
 
 ## Literal substitutions
 

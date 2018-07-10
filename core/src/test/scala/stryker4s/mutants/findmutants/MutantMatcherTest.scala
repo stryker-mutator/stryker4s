@@ -184,6 +184,78 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         Filter
       )
     }
+
+    it("should match exists to forAll") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
+        Exists,
+        ForAll
+      )
+    }
+
+    it("should match forAll to exists") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
+        ForAll,
+        Exists
+      )
+    }
+
+    it("should match isEmpty to nonEmpty") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).isEmpty",
+        IsEmpty,
+        NonEmpty
+      )
+    }
+
+    it("should match nonEmpty to isEmpty") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).nonEmpty",
+        NonEmpty,
+        IsEmpty
+      )
+    }
+
+    it("should match indexOf to lastIndexOf") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).indexOf(2)",
+        IndexOf,
+        LastIndexOf
+      )
+    }
+
+    it("should match lastIndexOf to indexOf") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).lastIndexOf(2)",
+        LastIndexOf,
+        IndexOf
+      )
+    }
+
+    it("should match max to min") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).max",
+        Max,
+        Min
+      )
+    }
+
+    it("should match min to max") {
+      checkMatch(
+        sut.matchMethods(),
+        q"def foo = List(1, 2, 3).min",
+        Min,
+        Max
+      )
+    }
   }
 
   describe("literals matcher") {
@@ -224,13 +296,14 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should not match on interpolated strings") {
-      val interpolated = Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String("")), List(q"foo"))
+      val interpolated =
+        Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String("")), List(q"foo"))
       val tree = q"""def foo = $interpolated """
 
       val result = tree collect sut.allMatchers()
 
       interpolated.syntax should equal("""s"interpolate $foo"""")
-      result should be (empty)
+      result should be(empty)
     }
   }
 

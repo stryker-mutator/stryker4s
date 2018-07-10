@@ -1,6 +1,6 @@
 package stryker4s.extensions.mutationtypes
 
-import scala.meta.Term
+import scala.meta.{Term, Tree}
 
 case object GreaterThan extends TermNameMutation {
   override val tree: Term.Name = Term.Name(">")
@@ -40,4 +40,36 @@ case object Filter extends TermNameMutation {
 
 case object FilterNot extends TermNameMutation {
   override val tree: Term.Name = Term.Name("filterNot")
+}
+
+case object Exists extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("exists")
+}
+
+case object ForAll extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("forAll")
+}
+
+case object IsEmpty extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("isEmpty")
+}
+
+case object NonEmpty extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("nonEmpty")
+}
+
+case object IndexOf extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("indexOf")
+}
+
+case object LastIndexOf extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("lastIndexOf")
+}
+
+case object Max extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("max")
+}
+
+case object Min extends TermNameMutation {
+  override val tree: Term.Name = Term.Name("min")
 }
