@@ -155,6 +155,33 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       result should equal(q"new Bar(4).filter(_ >= 3)")
     }
+
+    it("should include entire statement with && statement") {
+      val tree = q"def foo = a == b && b == c"
+      val subTree = tree.find(q"&&").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"a == b && b == c")
+    }
+
+    it("should include entire statement when && is not symmetrical on left") {
+      val tree = q"def foo = a && b == c"
+      val subTree = tree.find(q"&&").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"a && b == c")
+    }
+
+    it("should include entire statement when && is not symmetrical on right") {
+      val tree = q"def foo = a == b && c"
+      val subTree = tree.find(q"&&").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"a == b && c")
+    }
   }
 
   describe("find") {
