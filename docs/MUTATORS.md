@@ -23,14 +23,16 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | --- | --- |
 | `a.filter(b)` | `a.filterNot(b)` |
 | `a.filterNot(b)` | `a.filter(b)` |
-| `a.exists(b)` | `a.forAll(b)` |
+| `a.exists(b)` | `a.forAll(b)` <sup>1</sup>|
 | `a.forAll(b)` | `a.exists(b)` |
 | `a.isEmpty` | `a.nonEmpty` |
 | `a.nonEmpty` | `a.isEmpty` |
-| `a.indexOf` | `a.lastIndexOf(b)` |
+| `a.indexOf` | `a.lastIndexOf(b)` <sup>1</sup> |
 | `a.lastIndexOf(b)` | `a.indexOf(b)` |
 | `a.max` | `a.min` |
 | `a.min` | `a.max` |
+
+<sup>1: This can cause some false positives with unique lists, such as sets</sup>
 
 ## Literal substitutions
 
