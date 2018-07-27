@@ -2,7 +2,6 @@ package stryker4s.extensions.mutationtypes
 
 import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
-import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
@@ -111,6 +110,18 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
 
     it("empty string to EmptyString") {
       Lit.String("") should matchPattern { case EmptyString(_) => }
+    }
+
+    it("string interpolation to StringInterpolation") {
+      Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should matchPattern {
+        case StringInterpolation(_) =>
+      }
+    }
+
+    it("q interpolation should not match StringInterpolation") {
+      Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should not matchPattern {
+        case StringInterpolation(_) =>
+      }
     }
   }
 
