@@ -42,3 +42,5 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | `false` | `true` |
 | `"foo"` (non-empty string) | `""` (empty string) |
 | `""` (empty string) | `"Stryker was here!"` |
+| `s"foo ${bar}"` (string interpolation) | `s""` <sup>2</sup> |
+<sup>2: Only works with string interpolation and not others (like [Scalameta quasiquotes](https://scalameta.org/tutorial/#q%22Quasiquotes%22))to avoid compile errors</sup>
