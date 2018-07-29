@@ -21,9 +21,15 @@ object TreeExtensions {
       *
       */
     private object PartialStatement {
+
+      /**
+        * @return A Some of the parent if the given term is a partial statement,
+        *         else a None if the given term is a full statement
+        */
       def unapply(term: Term): Option[Term] = term.parent match {
         case Some(parent: Term.Apply)                             => Some(parent)
         case Some(parent: Term.Select)                            => Some(parent)
+        case Some(parent: Term.ApplyType)                         => Some(parent)
         case Some(_: Term.ApplyInfix) if term.is[Term.ApplyInfix] => None
         case Some(parent: Term.ApplyInfix)                        => Some(parent)
         case _                                                    => None
