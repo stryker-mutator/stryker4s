@@ -10,8 +10,6 @@ import stryker4s.run.report.mapper.MutantRunResultMapper
 class LogRunReporter extends MutantRunReporter with Logging with MutantRunResultMapper {
 
   override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
-    val bla  = toHtmlMutantRunResult(runResults, config)
-
     val detected = runResults.results collect { case d: Detected => d }
     val detectedSize = detected.size
 
