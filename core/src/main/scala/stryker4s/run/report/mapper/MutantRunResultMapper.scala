@@ -1,5 +1,5 @@
 package stryker4s.run.report.mapper
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 
 import better.files.File
 import stryker4s.config.Config
@@ -20,14 +20,13 @@ trait MutantRunResultMapper {
         val detectedSize = results.collect { case d: Detected     => d }.size
         val undetectedSize = results.collect { case d: Undetected => d }.size
 
-        path.getParent
         HtmlMutantRunResult(
           path.getFileName.toString,
           path.toAbsolutePath.toString,
           Totals(detectedSize, undetectedSize, 0, 0),
           calculateHealth(results),
           "scala",
-          File(path).contentAsString,
+          getFileSourceAsString(path),
           results
             .map(result => {
               HtmlMutant(result.mutant.id.toString,
@@ -66,5 +65,9 @@ trait MutantRunResultMapper {
                                            detectedMutants: Double): Double = {
     val mutationScore = detectedMutants / totalMutants * 100
     BigDecimal(mutationScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+  }
+
+  private[this] def getFileSourceAsString(path: Path)(implicit config: Config): String = {
+    File(Paths.get(config.baseDir.path.toString, path.toString)).contentAsString
   }
 }
