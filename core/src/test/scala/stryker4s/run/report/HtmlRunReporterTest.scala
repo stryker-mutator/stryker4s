@@ -17,7 +17,7 @@ class HtmlRunReporterTest extends Stryker4sSuite {
 
   describe("") {
     it("") {
-      val mutantRunResult = Killed(0, Mutant(0, GreaterThan, LesserThan), config.baseDir.relativize(File("/to/a/file")))
+      val mutantRunResult = Killed(0, Mutant(0, GreaterThan, LesserThan), config.baseDir.relativize(File("/core\\src\\main\\scala\\stryker4s\\config.scala")))
       val mutantRunResult2 = Killed(0, Mutant(0, GreaterThan, LesserThan), config.baseDir.relativize(File("/to/a/file")))
       val mutantRunResult3 = Killed(0, Mutant(0, GreaterThan, LesserThan), config.baseDir.relativize(File("/to/a/file2")))
       val mutantRunResult4 = Survived(Mutant(0, GreaterThan, LesserThan), config.baseDir.relativize(File("/to/a/file3")))

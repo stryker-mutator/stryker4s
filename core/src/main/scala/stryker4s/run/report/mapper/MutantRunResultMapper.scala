@@ -1,6 +1,7 @@
 package stryker4s.run.report.mapper
 import java.nio.file.Path
 
+import better.files.File
 import stryker4s.config.Config
 import stryker4s.model._
 
@@ -8,31 +9,25 @@ trait MutantRunResultMapper {
 
   def toHtmlMutantRunResult(runResults: MutantRunResults)(
       implicit config: Config): HtmlMutantRunResults = {
-    val detected = runResults.results collect { case d: Detected => d }
-    val detectedSize = detected.size
-
-    val undetected = runResults.results collect { case u: Undetected => u }
-    val undetectedSize = undetected.size
-
-    val totalMutants = detectedSize + undetectedSize
-
-    runResults.results.map {
-      case e: Killed => e
-      case _         => println("not intrested")
-    }.size
+    val detectedSize = runResults.results.collect { case d: Detected     => d }.size
+    val undetectedSize = runResults.results.collect { case u: Undetected => u }.size
 
     val sortedOnFile: Map[Path, Iterable[MutantRunResult]] =
       runResults.results.groupBy(result => result.fileSubPath)
 
     val htmlRunResults: List[HtmlMutantRunResult] = sortedOnFile.map {
-      case (path, results) => {
+      case (path, results) =>
+        val detectedSize = results.collect { case d: Detected     => d }.size
+        val undetectedSize = results.collect { case d: Undetected => d }.size
+
+        path.getParent
         HtmlMutantRunResult(
           path.getFileName.toString,
           path.toAbsolutePath.toString,
-          null,
+          Totals(detectedSize, undetectedSize, 0, 0),
           calculateHealth(results),
           "scala",
-          "",
+          File(path).contentAsString,
           results
             .map(result => {
               HtmlMutant(result.mutant.id.toString,
@@ -43,12 +38,11 @@ trait MutantRunResultMapper {
             })
             .toList
         )
-      }
     }.toList
 
     HtmlMutantRunResults("TODO",
                          config.baseDir.path.toString,
-                         null,
+                         Totals(detectedSize, undetectedSize, 0, 0),
                          calculateHealth(runResults.results),
                          htmlRunResults)
   }
