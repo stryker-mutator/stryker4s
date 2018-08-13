@@ -7,6 +7,7 @@ import better.files.File
 import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{ConfigReader => PConfigReader}
+import stryker4s.config.configreader.TestRunnerReader
 
 object ConfigReader extends Logging {
 
@@ -14,6 +15,7 @@ object ConfigReader extends Logging {
     *
     */
   private implicit val toFileReader: PConfigReader[File] = PConfigReader[Path].map(p => File(p))
+  private implicit val toTestRunner: PConfigReader[TestRunner] = TestRunnerReader
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */

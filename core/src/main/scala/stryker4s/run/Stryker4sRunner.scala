@@ -1,7 +1,7 @@
 package stryker4s.run
 
 import stryker4s.Stryker4s
-import stryker4s.config.{Config, ConfigReader}
+import stryker4s.config.{CommandRunner, Config, ConfigReader}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
@@ -16,9 +16,15 @@ object Stryker4sRunner extends App {
     new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry),
                 new StatementTransformer,
                 new MatchBuilder),
-    new ProcessMutantRunner(ProcessRunner.resolveRunner()),
+    resolveRunner(),
     new LogRunReporter()
   )
 
   stryker4s.run()
+
+  def resolveRunner()(implicit config: Config): MutantRunner = {
+    config.testRunner match {
+      case CommandRunner(command) => new ProcessMutantRunner(command, ProcessRunner.resolveRunner())
+    }
+  }
 }

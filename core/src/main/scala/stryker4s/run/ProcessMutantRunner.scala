@@ -12,7 +12,7 @@ import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
+class ProcessMutantRunner(command: String, process: ProcessRunner)(implicit config: Config)
     extends MutantRunner
     with Logging {
 
@@ -55,7 +55,7 @@ class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
   private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id
     info(s"Starting test-run $id...")
-    process("sbt test", workingDir, ("ACTIVE_MUTATION", id.toString)) match {
+    process(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)

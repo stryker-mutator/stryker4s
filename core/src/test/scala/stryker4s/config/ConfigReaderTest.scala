@@ -1,7 +1,7 @@
 package stryker4s.config
 
 import better.files.File
-import pureconfig.error.ConfigReaderException
+import pureconfig.error.{CannotParse, ConfigReaderException}
 import stryker4s.Stryker4sSuite
 import stryker4s.scalatest.FileUtil
 
@@ -16,7 +16,7 @@ class ConfigReaderTest extends Stryker4sSuite {
     }
 
     it("should fail on an empty config file") {
-      val confPath = FileUtil.getResource("emptyStryker4s.conf")
+      val confPath = FileUtil.getResource("stryker4sconfs/empty.conf")
 
       lazy val result = ConfigReader.readConfig(confPath)
       val exc = the[ConfigReaderException[_]] thrownBy result
@@ -25,15 +25,28 @@ class ConfigReaderTest extends Stryker4sSuite {
     }
 
     it("should load a config with customized properties") {
-      val confPath = FileUtil.getResource("filledStryker4s.conf")
+      val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
       val result = ConfigReader.readConfig(confPath)
 
       val expected = Config(
         files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
-        baseDir = File("/tmp/project")
+        baseDir = File("/tmp/project"),
+        testRunner = CommandRunner("mvn clean test")
       )
       result should equal(expected)
+    }
+
+    it("should return a failure on a misshapen test runner") {
+      val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
+
+      lazy val result = ConfigReader.readConfig(confPath)
+      val exc = the[ConfigReaderException[_]] thrownBy result
+
+      val head = exc.failures.head
+      head shouldBe a[CannotParse]
+      head.description should equal(
+        "Unable to parse the configuration: No configuration setting found for key 'command-runner.command'.")
     }
   }
 }

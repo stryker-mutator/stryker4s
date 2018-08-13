@@ -22,7 +22,7 @@ class Stryker4sTest extends Stryker4sSuite {
       val testFiles = Seq(file)
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(1))
-      val testMutantRunner = new ProcessMutantRunner(testProcessRunner)
+      val testMutantRunner = new ProcessMutantRunner("foo test", testProcessRunner)
       val reporter = new TestMutantReporter
 
       val sut = new Stryker4s(testSourceCollector,
