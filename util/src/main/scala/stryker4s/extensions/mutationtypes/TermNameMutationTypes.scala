@@ -1,6 +1,6 @@
 package stryker4s.extensions.mutationtypes
 
-import scala.meta.{Term, Tree}
+import scala.meta.Term
 
 case object GreaterThan extends TermNameMutation {
   override val tree: Term.Name = Term.Name(">")

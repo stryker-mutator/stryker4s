@@ -3,6 +3,7 @@ package stryker4s.config
 import better.files.File
 import pureconfig.error.{CannotParse, ConfigReaderException}
 import stryker4s.Stryker4sSuite
+import stryker4s.run.process.Command
 import stryker4s.scalatest.FileUtil
 
 class ConfigReaderTest extends Stryker4sSuite {
@@ -32,7 +33,7 @@ class ConfigReaderTest extends Stryker4sSuite {
       val expected = Config(
         files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
         baseDir = File("/tmp/project"),
-        testRunner = CommandRunner("mvn clean test")
+        testRunner = CommandRunner(Command("mvn", "clean test"))
       )
       result should equal(expected)
     }
@@ -46,7 +47,7 @@ class ConfigReaderTest extends Stryker4sSuite {
       val head = exc.failures.head
       head shouldBe a[CannotParse]
       head.description should equal(
-        "Unable to parse the configuration: No configuration setting found for key 'command-runner.command'.")
+        "Unable to parse the configuration: No configuration setting found for key 'command'.")
     }
   }
 }

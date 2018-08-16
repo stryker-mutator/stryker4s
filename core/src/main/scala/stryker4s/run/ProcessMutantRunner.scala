@@ -6,13 +6,13 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model._
-import stryker4s.run.process.ProcessRunner
+import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: String, process: ProcessRunner)(implicit config: Config)
+class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config)
     extends MutantRunner
     with Logging {
 
