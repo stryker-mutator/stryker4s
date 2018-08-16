@@ -12,7 +12,7 @@ stryker4s {
 
 **Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** `[ "**/main/scala/**/*.scala" ]`  
-**Mandatory**: No  
+**Mandatory:** No  
 **Description:**  
 With `files` you configure the subset of files to use for mutation testing. 
 Generally speaking, these should be your own source files.  
@@ -24,14 +24,14 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  
 **Default value:** The directory from which the process is started  
-**Mandatory**: No  
+**Mandatory:** No  
 **Description:**  
 With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is ran, which should be fine in most cases.
 
 #### test-runner
 
-**Config file:** `test-runner: '{ command-runner : { command: "sbt test" } }`  
-**Default value:** A command-runner with a `sbt test` command  
-**Mandatory**: No  
+**Config file:** `test-runner: { command-runner : { command: "sbt", args: "test" } }`  
+**Default value:** A command-runner with the `sbt test` command  
+**Mandatory:** No  
 **Description:**  
-With `test-runner` you can specify how stryker4s runs tests. The default for this will run the `sbt test` command. This can be changed to `mvn test`, `./gradlew test` or any other command to run your tests, including any parameters your tests might need.
+With `test-runner` you can specify how stryker4s runs tests. The default for this is a command-runner that will run the `sbt test` command. This can be changed to `mvn test`, `./gradlew test` or any other command to run your tests, including any parameters your tests might need.
