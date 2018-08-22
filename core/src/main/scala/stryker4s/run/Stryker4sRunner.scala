@@ -22,7 +22,7 @@ object Stryker4sRunner extends App {
 
   stryker4s.run()
 
-  def resolveRunner()(implicit config: Config): MutantRunner = {
+  private def resolveRunner()(implicit config: Config): MutantRunner = {
     config.testRunner match {
       case CommandRunner(command) => new ProcessMutantRunner(command, ProcessRunner.resolveRunner())
     }
