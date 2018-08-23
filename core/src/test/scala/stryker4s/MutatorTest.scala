@@ -52,15 +52,11 @@ class MutatorTest extends Stryker4sSuite with TreeEquality {
         new StatementTransformer,
         new MatchBuilder
       )
-//      val logger = loggerOf(sut)
-//
-//      sut.mutate(files)
-//
-//      val events = logger.getLoggingEvents
-//      events should contain inOrder (
-//        infoLog(s"Found 1 of 1 file(s) to be mutated."),
-//        infoLog(s"3 Mutant(s) generated")
-//      )
+
+      sut.mutate(files)
+
+      "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
+      "3 Mutant(s) generated" shouldBe loggedAsInfo
     }
   }
 }
