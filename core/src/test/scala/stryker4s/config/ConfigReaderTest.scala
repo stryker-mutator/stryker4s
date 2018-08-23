@@ -30,10 +30,10 @@ class ConfigReaderTest extends Stryker4sSuite {
 
       val result = ConfigReader.readConfig(confPath)
 
-      val expected =
-        Config(files =
-                 Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
-               baseDir = File("/tmp/project"))
+      val expected = Config(
+        files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
+        baseDir = File("/tmp/project")
+      )
       result should equal(expected)
     }
   }

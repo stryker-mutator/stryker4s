@@ -13,7 +13,7 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
-  extends MutantRunner
+    extends MutantRunner
     with Logging {
 
   override def apply(files: Iterable[MutatedFile]): MutantRunResults = {
@@ -57,12 +57,13 @@ class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
     info(s"Starting test-run $id...")
     process("sbt test", workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
-      case Success(exitCode) => Killed(exitCode, mutant, subPath)
-      case Failure(exc: TimeoutException) => TimedOut(exc, mutant, subPath)
+      case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
+      case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
     }
   }
 
-  private[this] def calculateMutationScore(totalMutants: Double, detectedMutants: Double): Double = {
+  private[this] def calculateMutationScore(totalMutants: Double,
+                                           detectedMutants: Double): Double = {
     val mutationScore = detectedMutants / totalMutants * 100
     BigDecimal(mutationScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
