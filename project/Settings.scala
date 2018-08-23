@@ -27,8 +27,6 @@ object Settings {
       Dependencies.betterFiles,
       Dependencies.logback,
       Dependencies.grizzledSlf4j
-    ),
-    // Exclude logback so only slf4j-test SLF4J binding is found and can be used
-    excludeDependencies in Test += "ch.qos.logback" % "logback-classic"
+    )
   )
 }
