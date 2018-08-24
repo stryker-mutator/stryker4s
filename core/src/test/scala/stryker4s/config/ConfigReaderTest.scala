@@ -1,11 +1,13 @@
 package stryker4s.config
 
 import better.files.File
+import org.scalatest.BeforeAndAfterEach
 import pureconfig.error.ConfigReaderException
-import stryker4s.Stryker4sSuite
+import stryker4s.{Stryker4sSuite, TestAppender}
 import stryker4s.scalatest.FileUtil
 
-class ConfigReaderTest extends Stryker4sSuite {
+class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
+
   describe("loadConfig") {
     it("should load default config with a nonexistent conf file") {
       val confPath = File("nonExistentFile.conf")
@@ -35,5 +37,32 @@ class ConfigReaderTest extends Stryker4sSuite {
       )
       result should equal(expected)
     }
+  }
+
+  describe("logs") {
+    it("should log when config file in directory is used") {
+      val confPath = FileUtil.getResource("filledStryker4s.conf")
+
+      ConfigReader.readConfig(confPath)
+
+      "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
+    }
+
+    it("should log warnings when no config file is found") {
+      val confPath = File("nonExistentFile.conf")
+
+      ConfigReader.readConfig(confPath)
+
+      s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
+      "Using default config instead..." shouldBe loggedAsWarning
+      s"""Config used: stryker4s {
+                                 |  base-dir = ${File.currentWorkingDirectory}
+                                 |  files = [**/main/scala/**/*.scala]
+                                 |}""".stripMargin shouldBe loggedAsDebug
+    }
+  }
+
+  override def afterEach(): Unit = {
+    TestAppender.reset()
   }
 }

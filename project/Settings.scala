@@ -1,5 +1,6 @@
 import Dependencies._
 import sbt.Keys._
+import sbt._
 
 object Settings {
   val scalacOpts = Seq(
