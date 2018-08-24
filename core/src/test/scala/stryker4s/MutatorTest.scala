@@ -1,5 +1,6 @@
 package stryker4s
 
+import org.scalatest.BeforeAndAfterEach
 import stryker4s.config.Config
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
@@ -10,7 +11,7 @@ import stryker4s.stubs.TestSourceCollector
 
 import scala.meta._
 
-class MutatorTest extends Stryker4sSuite with TreeEquality {
+class MutatorTest extends Stryker4sSuite with TreeEquality with BeforeAndAfterEach {
 
   describe("run") {
     it("should return a single Tree with changed pattern match") {
@@ -58,5 +59,9 @@ class MutatorTest extends Stryker4sSuite with TreeEquality {
       "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
       "3 Mutant(s) generated" shouldBe loggedAsInfo
     }
+  }
+
+  override def afterEach(): Unit = {
+    TestAppender.reset()
   }
 }
