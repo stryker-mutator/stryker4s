@@ -8,7 +8,7 @@ New features are welcome! Both as ideas or in the form of a pull request.
 
 1. Please [create an issue](https://github.com/stryker-mutator/stryker4s/issues/new) with your idea first or let us know via [Gitter](https://gitter.im/stryker-mutator/stryker4s).
 2. Create a fork on your GitHub account.
-3. When writing your code, please conform the existing coding style. This can be as easy as running `sbt scalafmt` to format your code, or use the latest version of IntelliJ and set the formatter to Scalafmt. It also helps to take a moment to review the [Scala style guide](https://docs.scala-lang.org/style/).
+3. When writing your code, please conform the existing coding style. We use Scalafmt as a code formatter. You can format your code by running `sbt scalafmt`, or use the latest version of IntelliJ and set the formatter to Scalafmt. It also helps to take a moment to review the [Scala style guide](https://docs.scala-lang.org/style/).
 4. Please create or edit unit/integration tests for any changed or added code.
 5. Confirm everything still works by running `sbt test`.
 6. Submit the pull request!
