@@ -24,3 +24,7 @@ See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.con
 
 ## Supported mutators
 See [MUTATORS.md](docs/MUTATORS.md) for our supported mutators.
+
+## Contributing
+
+Want to contribute? That's great! Please have a look at our [contributing guide](docs/CONTRIBUTING.md).
