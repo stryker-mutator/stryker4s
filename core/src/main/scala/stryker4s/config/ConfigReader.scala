@@ -34,7 +34,6 @@ object ConfigReader extends Logging {
       val defaultConf = Config()
 
       debug("Config used: " + defaultConf.toHoconString)
-
       defaultConf
     case _ =>
       error("Failures in reading config: ")

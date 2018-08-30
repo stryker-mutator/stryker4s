@@ -50,4 +50,9 @@ class ConfigReaderTest extends Stryker4sSuite {
         "Unable to parse the configuration: No configuration setting found for key 'command'.")
     }
   }
+  describe("logging") {
+    it("should log the default config statement used") {
+
+    }
+  }
 }

@@ -11,7 +11,7 @@ object Dependencies {
       * See: https://github.com/scalameta/scalameta/issues/1526
       */
     val scalameta = "3.3.1"
-    val pureconfig = "0.9.1"
+    val pureconfig = "0.9.2"
     val scalatest = "3.0.5"
     val betterFiles = "3.5.0"
     val logback = "1.2.3"
