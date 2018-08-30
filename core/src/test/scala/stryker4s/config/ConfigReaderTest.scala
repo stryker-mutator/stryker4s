@@ -33,7 +33,7 @@ class ConfigReaderTest extends Stryker4sSuite {
       val expected = Config(
         files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
         baseDir = File("/tmp/project"),
-        testRunner = CommandRunner(Command("mvn", "clean test"))
+        testRunner = CommandRunner("mvn", "clean test")
       )
       result should equal(expected)
     }

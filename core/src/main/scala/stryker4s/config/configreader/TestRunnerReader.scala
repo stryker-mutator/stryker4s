@@ -16,7 +16,7 @@ object TestRunnerReader extends ConfigReader[TestRunner] {
           val conf = value.toConfig.getConfig("command-runner")
           val command = conf.getString("command")
           val args = conf.getString("args")
-          Right(CommandRunner(Command(command, args)))
+          Right(CommandRunner(command, args))
         } catch {
           case e: ConfigException => cannotParseFailure(e.getMessage, cur)
         }
