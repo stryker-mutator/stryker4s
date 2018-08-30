@@ -1,12 +1,13 @@
 package stryker4s.config
 
 import better.files.File
+import org.scalatest.BeforeAndAfterEach
 import pureconfig.error.{CannotParse, ConfigReaderException}
-import stryker4s.Stryker4sSuite
-import stryker4s.run.process.Command
 import stryker4s.scalatest.FileUtil
+import stryker4s.{Stryker4sSuite, TestAppender}
 
-class ConfigReaderTest extends Stryker4sSuite {
+class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
+
   describe("loadConfig") {
     it("should load default config with a nonexistent conf file") {
       val confPath = File("nonExistentFile.conf")
@@ -51,8 +52,31 @@ class ConfigReaderTest extends Stryker4sSuite {
     }
   }
   describe("logging") {
-    it("should log the default config statement used") {
+    it("should log the default config statement used") {}
+  }
 
+  describe("logs") {
+    it("should log when config file in directory is used") {
+      val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
+
+      ConfigReader.readConfig(confPath)
+
+      "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
     }
+
+    it("should log warnings when no config file is found") {
+      val confPath = File("nonExistentFile.conf")
+
+      ConfigReader.readConfig(confPath)
+
+      s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
+      "Using default config instead..." shouldBe loggedAsWarning
+      val defaultConf = Config()
+      s"Config used: ${defaultConf.toHoconString}".stripMargin shouldBe loggedAsDebug
+    }
+  }
+
+  override def afterEach(): Unit = {
+    TestAppender.reset()
   }
 }
