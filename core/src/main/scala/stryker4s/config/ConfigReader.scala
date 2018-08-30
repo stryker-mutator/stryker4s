@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 import better.files.File
 import grizzled.slf4j.Logging
-import pureconfig.error._
+import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{ConfigReader => PConfigReader}
 object ConfigReader extends Logging {
 
