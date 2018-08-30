@@ -30,7 +30,7 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 
 #### test-runner
 
-**Config file:** `test-runner: { command-runner : { command: "sbt", args: "test" } }`  
+**Config file:** `test-runner: { type: "commandrunner", command: "sbt", args: "test" }`  
 **Default value:** A command-runner with the `sbt test` command  
 **Mandatory:** No  
 **Description:**  

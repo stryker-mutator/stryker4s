@@ -2,7 +2,7 @@ package stryker4s.config
 
 import better.files.File
 import org.scalatest.BeforeAndAfterEach
-import pureconfig.error.{CannotParse, ConfigReaderException}
+import pureconfig.error.{CannotParse, ConfigReaderException, ConvertFailure}
 import stryker4s.scalatest.FileUtil
 import stryker4s.{Stryker4sSuite, TestAppender}
 
@@ -46,13 +46,10 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val exc = the[ConfigReaderException[_]] thrownBy result
 
       val head = exc.failures.head
-      head shouldBe a[CannotParse]
+      head shouldBe a[ConvertFailure]
       head.description should equal(
-        "Unable to parse the configuration: No configuration setting found for key 'command'.")
+        s"""No valid coproduct choice found for '{"args":"foo","command":"bar","type":"someOtherTestRunner"}'.""")
     }
-  }
-  describe("logging") {
-    it("should log the default config statement used") {}
   }
 
   describe("logs") {
