@@ -38,7 +38,8 @@ trait LogMatchers {
     expectedLogLevel.equals(actualLogLevel)
   }
 
-  private[this] def getLoggingEventWithLogMessage(expectedLogMessage: String): Option[ILoggingEvent] = {
+  private[this] def getLoggingEventWithLogMessage(
+      expectedLogMessage: String): Option[ILoggingEvent] = {
     TestAppender.events.find(_.getFormattedMessage.contains(expectedLogMessage))
   }
 }
