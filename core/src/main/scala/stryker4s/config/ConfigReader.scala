@@ -7,7 +7,6 @@ import better.files.File
 import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{ConfigReader => PConfigReader}
-
 object ConfigReader extends Logging {
 
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
@@ -30,8 +29,7 @@ object ConfigReader extends Logging {
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
       val defaultConf = Config()
-      debug("Config used: " + defaultConf)
-
+      debug("Config used: " + defaultConf.toHoconString)
       defaultConf
     case _ =>
       error("Failures in reading config: ")

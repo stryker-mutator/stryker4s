@@ -2,9 +2,9 @@ package stryker4s.config
 
 import better.files.File
 import org.scalatest.BeforeAndAfterEach
-import pureconfig.error.ConfigReaderException
-import stryker4s.{Stryker4sSuite, TestAppender}
+import pureconfig.error.{CannotParse, ConfigReaderException, ConvertFailure}
 import stryker4s.scalatest.FileUtil
+import stryker4s.{Stryker4sSuite, TestAppender}
 
 class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
@@ -18,7 +18,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
     }
 
     it("should fail on an empty config file") {
-      val confPath = FileUtil.getResource("emptyStryker4s.conf")
+      val confPath = FileUtil.getResource("stryker4sconfs/empty.conf")
 
       lazy val result = ConfigReader.readConfig(confPath)
       val exc = the[ConfigReaderException[_]] thrownBy result
@@ -27,21 +27,34 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
     }
 
     it("should load a config with customized properties") {
-      val confPath = FileUtil.getResource("filledStryker4s.conf")
+      val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
       val result = ConfigReader.readConfig(confPath)
 
       val expected = Config(
         files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
-        baseDir = File("/tmp/project")
+        baseDir = File("/tmp/project"),
+        testRunner = CommandRunner("mvn", "clean test")
       )
       result should equal(expected)
+    }
+
+    it("should return a failure on a misshapen test runner") {
+      val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
+
+      lazy val result = ConfigReader.readConfig(confPath)
+      val exc = the[ConfigReaderException[_]] thrownBy result
+
+      val head = exc.failures.head
+      head shouldBe a[ConvertFailure]
+      head.description should equal(
+        s"""No valid coproduct choice found for '{"args":"foo","command":"bar","type":"someOtherTestRunner"}'.""")
     }
   }
 
   describe("logs") {
     it("should log when config file in directory is used") {
-      val confPath = FileUtil.getResource("filledStryker4s.conf")
+      val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
       ConfigReader.readConfig(confPath)
 
@@ -55,10 +68,8 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      s"""Config used: stryker4s {
-                                 |  base-dir = ${File.currentWorkingDirectory}
-                                 |  files = [**/main/scala/**/*.scala]
-                                 |}""".stripMargin shouldBe loggedAsDebug
+      val defaultConf = Config()
+      s"Config used: ${defaultConf.toHoconString}".stripMargin shouldBe loggedAsDebug
     }
   }
 

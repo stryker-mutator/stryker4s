@@ -19,7 +19,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {
       val testProcessRunner = new TestProcessRunner(Success(0))
-      val sut = new ProcessMutantRunner(testProcessRunner)
+      val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile =
@@ -35,7 +35,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
 
     it("should return a Killed mutant on an exitcode 1 process") {
       val testProcessRunner = new TestProcessRunner(Success(1))
-      val sut = new ProcessMutantRunner(testProcessRunner)
+      val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile =
@@ -52,7 +52,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
     it("should return a TimedOut mutant on a TimedOut process") {
       val exception = new TimeoutException("Test")
       val testProcessRunner = new TestProcessRunner(Failure(exception))
-      val sut = new ProcessMutantRunner(testProcessRunner)
+      val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile =
@@ -68,7 +68,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
 
     it("should return a combination of results on multiple runs") {
       val testProcessRunner = new TestProcessRunner(Success(1), Success(1))
-      val sut = new ProcessMutantRunner(testProcessRunner)
+      val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"0", q"zero")
       val secondMutant = Mutant(1, q"1", q"one")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
@@ -89,7 +89,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
 
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
       val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(0))
-      val sut = new ProcessMutantRunner(testProcessRunner)
+      val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"0", q"zero")
       val secondMutant = Mutant(1, q"1", q"one")
       val thirdMutant = Mutant(2, q"5", q"5")
