@@ -2,7 +2,8 @@ package stryker4s.config
 
 import better.files.File
 import org.scalatest.BeforeAndAfterEach
-import pureconfig.error.{CannotParse, ConfigReaderException, ConvertFailure}
+import pureconfig.error.{ConfigReaderException, ConvertFailure}
+import stryker4s.run.report.ConsoleReporter
 import stryker4s.scalatest.FileUtil
 import stryker4s.{Stryker4sSuite, TestAppender}
 
@@ -14,7 +15,11 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       val result = ConfigReader.readConfig(confPath)
 
-      result should equal(Config())
+      val expected = Config()
+      result.baseDir shouldBe expected.baseDir
+      result.files shouldBe expected.files
+      result.testRunner shouldBe expected.testRunner
+      result.reporters.head shouldBe an[ConsoleReporter]
     }
 
     it("should fail on an empty config file") {
@@ -24,6 +29,15 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val exc = the[ConfigReaderException[_]] thrownBy result
 
       exc.getMessage() should include("Key not found: 'stryker4s'.")
+    }
+
+    it("should fail on an unknown reporter") {
+      val confPath = FileUtil.getResource("stryker4sconfs/wrongReporter.conf")
+
+      lazy val result = ConfigReader.readConfig(confPath)
+      val exc = the[ConfigReaderException[_]] thrownBy result
+
+      exc.getMessage() should include("Cannot convert configuration")
     }
 
     it("should load a config with customized properties") {
@@ -36,7 +50,10 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
         baseDir = File("/tmp/project"),
         testRunner = CommandRunner("mvn", "clean test")
       )
-      result should equal(expected)
+      result.baseDir shouldBe expected.baseDir
+      result.files shouldBe expected.files
+      result.testRunner shouldBe expected.testRunner
+      result.reporters.head shouldBe an[ConsoleReporter]
     }
 
     it("should return a failure on a misshapen test runner") {

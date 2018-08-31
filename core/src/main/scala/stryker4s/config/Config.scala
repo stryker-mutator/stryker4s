@@ -5,14 +5,18 @@ import java.nio.file.Path
 import better.files._
 import com.typesafe.config.ConfigRenderOptions
 import pureconfig.ConfigWriter
+import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
-case class Config(files: Seq[String] = Seq("**/main/scala/**/*.scala"),
+case class Config(files: Seq[String] = Seq("**/main/scala/**/*.scala", "!**/ConfigReader.scala"),
                   baseDir: File = File.currentWorkingDirectory,
                   testRunner: TestRunner = CommandRunner("sbt", "test"),
-                  reporters: List[String] = List("console")) {
+                  reporters: List[MutantRunReporter] = List(new ConsoleReporter)) {
 
   def toHoconString: String = {
-    implicit val writer: ConfigWriter[File] = ConfigWriter[Path].contramap[File](c => c.path)
+    implicit val fileWriter: ConfigWriter[File] = ConfigWriter[Path].contramap[File](file => file.path)
+    implicit val reportersWriter: ConfigWriter[List[MutantRunReporter]] = ConfigWriter[List[String]]
+      .contramap(mutantRunReporters => mutantRunReporters.map(reporter => reporter.name))
+
     val options = ConfigRenderOptions
       .defaults()
       .setOriginComments(false)
