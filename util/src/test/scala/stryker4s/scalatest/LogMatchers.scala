@@ -33,7 +33,6 @@ trait LogMatchers {
   def loggedAsInfo = new LogMatcherWithLevel(Level.INFO)
   def loggedAsWarning = new LogMatcherWithLevel(Level.WARN)
   def loggedAsError = new LogMatcherWithLevel(Level.ERROR)
-  def notLoggedAtAll = new LogMatcherWithLevel(Level.OFF)
 
   private[this] def validateLogLevel(actualLogLevel: Level, expectedLogLevel: Level): Boolean = {
     expectedLogLevel.equals(actualLogLevel)
