@@ -8,7 +8,8 @@ import pureconfig.ConfigWriter
 
 case class Config(files: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
-                  testRunner: TestRunner = CommandRunner("sbt", "test")) {
+                  testRunner: TestRunner = CommandRunner("sbt", "test"),
+                  reporters: List[String] = List("console")) {
 
   def toHoconString: String = {
     implicit val writer: ConfigWriter[File] = ConfigWriter[Path].contramap[File](c => c.path)

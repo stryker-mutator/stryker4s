@@ -16,6 +16,9 @@ class ConfigTest extends Stryker4sSuite {
            |files=[
            |    "**/main/scala/**/*.scala"
            |]
+           |reporters=[
+           |    console
+           |]
            |test-runner {
            |    args=test
            |    command=sbt
@@ -28,7 +31,7 @@ class ConfigTest extends Stryker4sSuite {
     it("should print toString with changed values") {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut =
-        Config(filePaths, File("tmp"), testRunner = CommandRunner("mvn", "clean test"))
+        Config(filePaths, File("tmp"), testRunner = CommandRunner("mvn", "clean test"), reporters = List("test"))
 
       val result = sut.toHoconString
 
@@ -37,6 +40,9 @@ class ConfigTest extends Stryker4sSuite {
            |files=[
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
+           |]
+           |reporters=[
+           |    test
            |]
            |test-runner {
            |    args="clean test"

@@ -6,7 +6,7 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessRunner}
-import stryker4s.run.report.LogRunReporter
+import stryker4s.run.report.Reporter
 
 object Stryker4sRunner extends App {
   implicit val config: Config = ConfigReader.readConfig()
@@ -17,7 +17,7 @@ object Stryker4sRunner extends App {
                 new StatementTransformer,
                 new MatchBuilder),
     resolveRunner(),
-    new LogRunReporter()
+    new Reporter()
   )
 
   stryker4s.run()
