@@ -12,7 +12,7 @@ import scala.util.Try
 trait ProcessRunner extends Logging {
   def apply(command: Command, workingDir: File, envVar: (String, String)): Try[Int] = {
     val mutantProcess = Process(Seq(command.command, command.args), workingDir.toJava, envVar)
-      .run(ProcessLogger(s => debug(s)))
+      .run(ProcessLogger(debug(_)))
 
     val exitCodeFuture = Future(mutantProcess.exitValue())
     // TODO: Maybe don't use Await.result

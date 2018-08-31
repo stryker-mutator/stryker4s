@@ -1,12 +1,17 @@
 package stryker4s.config
 
 import better.files.File
+import ch.qos.logback.classic.Level
 import org.scalatest.BeforeAndAfterEach
-import pureconfig.error.{CannotParse, ConfigReaderException, ConvertFailure}
+import pureconfig.error.{ConfigReaderException, ConvertFailure}
 import stryker4s.scalatest.FileUtil
 import stryker4s.{Stryker4sSuite, TestAppender}
 
 class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
+
+  override protected def beforeEach(): Unit = {
+    TestAppender.reset()
+  }
 
   describe("loadConfig") {
     it("should load default config with a nonexistent conf file") {
@@ -34,6 +39,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val expected = Config(
         files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
         baseDir = File("/tmp/project"),
+        logLevel = Level.INFO,
         testRunner = CommandRunner("mvn", "clean test")
       )
       result should equal(expected)
