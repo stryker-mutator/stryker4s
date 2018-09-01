@@ -26,7 +26,7 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 **Default value:** The directory from which the process is started  
 **Mandatory:** No  
 **Description:**  
-With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is ran, which should be fine in most cases.
+With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases.
 
 #### test-runner
 
@@ -42,4 +42,13 @@ With `test-runner` you can specify how stryker4s runs tests. The default for thi
 **Default value:** A reporter that will report to console.  
 **Mandatory:** No  
 **Description:**  
-With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console. 
+With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console.
+
+#### log-level
+
+**Config file:** `log-level: INFO`
+**Default value:** INFO
+**Mandatory:** No
+**Description:**
+With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
+ 

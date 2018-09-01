@@ -1,6 +1,7 @@
 package stryker4s.config
 
 import better.files.File
+import ch.qos.logback.classic.Level
 import org.scalatest.BeforeAndAfterEach
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
 import stryker4s.run.report.ConsoleReporter
@@ -48,6 +49,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val expected = Config(
         files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
         baseDir = File("/tmp/project"),
+        logLevel = Level.INFO,
         testRunner = CommandRunner("mvn", "clean test")
       )
       result.baseDir shouldBe expected.baseDir

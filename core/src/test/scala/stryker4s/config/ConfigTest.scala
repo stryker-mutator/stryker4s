@@ -2,7 +2,6 @@ package stryker4s.config
 
 import better.files.File
 import stryker4s.Stryker4sSuite
-import stryker4s.run.report.ConsoleReporter
 
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {
@@ -16,6 +15,7 @@ class ConfigTest extends Stryker4sSuite {
            |files=[
            |    "**/main/scala/**/*.scala"
            |]
+           |log-level=INFO
            |reporters=[
            |    console
            |]
@@ -42,6 +42,7 @@ class ConfigTest extends Stryker4sSuite {
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
            |]
+           |log-level=INFO
            |reporters=[
            |    console
            |]
