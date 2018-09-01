@@ -23,7 +23,8 @@ case object StrykerWasHereString extends LiteralMutation[Lit.String] {
 }
 
 case object EmptyStringInterpolation extends Mutation[Term.Interpolate] {
-  override val tree: Term.Interpolate = Term.Interpolate(Term.Name("s"), List(Lit.String("")), Nil)
+  override val tree: Term.Interpolate =
+    Term.Interpolate(Term.Name("s"), List(Lit.String("")), Nil)
 }
 
 /** Not a mutation, just an extractor for pattern matching on empty string

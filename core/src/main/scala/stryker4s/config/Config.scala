@@ -12,6 +12,7 @@ case class Config(files: Seq[String] = Seq("**/main/scala/**/*.scala"),
 
   def toHoconString: String = {
     implicit val writer: ConfigWriter[File] = ConfigWriter[Path].contramap[File](c => c.path)
+
     val options = ConfigRenderOptions
       .defaults()
       .setOriginComments(false)

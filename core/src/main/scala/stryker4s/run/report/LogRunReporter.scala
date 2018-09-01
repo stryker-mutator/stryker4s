@@ -30,7 +30,8 @@ class LogRunReporter extends MutantRunReporter with Logging {
             s"${mrr.fileSubPath}:$line:$col:" + lineSeparator() +
               s"\tfrom ${mutant.original} to ${mutant.mutated}" + lineSeparator()
           }
-          .mkString(lineSeparator()))
+          .mkString(lineSeparator())
+    )
 
     info(s"Mutation score: ${runResults.mutationScore}%")
   }

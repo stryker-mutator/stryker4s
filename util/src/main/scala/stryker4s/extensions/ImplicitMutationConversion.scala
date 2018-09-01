@@ -16,5 +16,6 @@ object ImplicitMutationConversion {
   // Import implicitConversions to disable compiler warning
   import scala.language.implicitConversions
 
-  implicit def mutationToTree[T <: Tree](mutation: Mutation[T]): T = mutation.tree
+  implicit def mutationToTree[T <: Tree](mutation: Mutation[T]): T =
+    mutation.tree
 }

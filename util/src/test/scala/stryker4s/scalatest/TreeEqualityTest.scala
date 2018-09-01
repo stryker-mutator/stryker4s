@@ -43,15 +43,19 @@ class TreeEqualityInScopeTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("two sources with different syntax should not equal") {
-      val first: Source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
-      val second: Source = "class Foo { def bar: Boolean = 15 < 14 }".parse[Source].get
+      val first: Source =
+        "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
+      val second: Source =
+        "class Foo { def bar: Boolean = 15 < 14 }".parse[Source].get
 
       first should not equal second
     }
 
     it("two sources with same syntax should equal") {
-      val first: Source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
-      val second: Source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
+      val first: Source =
+        "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
+      val second: Source =
+        "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
 
       first should equal(second)
     }

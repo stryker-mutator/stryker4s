@@ -11,10 +11,7 @@ import scala.meta._
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   val sut = new MutantMatcher
 
-  def checkMatch(matchFun: PartialFunction[Tree, FoundMutant],
-                 tree: Tree,
-                 original: Term,
-                 matches: Term*): Unit = {
+  def checkMatch(matchFun: PartialFunction[Tree, FoundMutant], tree: Tree, original: Term, matches: Term*): Unit = {
     val found = tree collect matchFun
 
     val result = found.loneElement
@@ -38,7 +35,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match a method") {
-      val tree = q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
+      val tree =
+        q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
 
       val found = tree collect sut.allMatchers()
 
@@ -299,7 +297,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val interpolated =
         Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String("")), List(q"foo"))
       val tree = q"def foo = $interpolated"
-      val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
+      val emptyStringInterpolate =
+        Term.Interpolate(q"s", List(Lit.String("")), Nil)
 
       interpolated.syntax should equal("s\"interpolate $foo\"")
       checkMatch(
@@ -312,11 +311,10 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match once on interpolated strings with multiple parts") {
       val interpolated =
-        Term.Interpolate(q"s",
-                         List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
-                         List(q"fooVar", q"barVar + 1"))
+        Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")), List(q"fooVar", q"barVar + 1"))
       val tree = q"def foo = $interpolated"
-      val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
+      val emptyStringInterpolate =
+        Term.Interpolate(q"s", List(Lit.String("")), Nil)
 
       interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar + 1} bar\"")
       checkMatch(

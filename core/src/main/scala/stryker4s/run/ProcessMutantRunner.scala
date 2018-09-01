@@ -12,9 +12,7 @@ import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config)
-    extends MutantRunner
-    with Logging {
+class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config) extends MutantRunner with Logging {
 
   override def apply(files: Iterable[MutatedFile]): MutantRunResults = {
     val startTime = System.currentTimeMillis()
@@ -41,8 +39,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
       val id = mutant.id
-      info(
-        s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
 
@@ -62,9 +59,10 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     }
   }
 
-  private[this] def calculateMutationScore(totalMutants: Double,
-                                           detectedMutants: Double): Double = {
+  private[this] def calculateMutationScore(totalMutants: Double, detectedMutants: Double): Double = {
     val mutationScore = detectedMutants / totalMutants * 100
-    BigDecimal(mutationScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+    BigDecimal(mutationScore)
+      .setScale(2, BigDecimal.RoundingMode.HALF_UP)
+      .toDouble
   }
 }

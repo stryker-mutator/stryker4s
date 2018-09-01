@@ -39,7 +39,8 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should return top statement on multiple calls") {
-      val tree = q"def foo(list: List[Int]) = list.map(_ * 2).filter(_ >= 2).isEmpty"
+      val tree =
+        q"def foo(list: List[Int]) = list.map(_ * 2).filter(_ >= 2).isEmpty"
       val subTree = tree.find(q">=").value
 
       val result = subTree.topStatement()
@@ -57,7 +58,8 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should return top statement on multiple calls when mutation is last call") {
-      val tree = q"def foo(list: List[Int]) = list.map(_ * 2).filter(_ >= 2).isEmpty"
+      val tree =
+        q"def foo(list: List[Int]) = list.map(_ * 2).filter(_ >= 2).isEmpty"
       val subTree = tree.find(q"isEmpty").value
 
       val result = subTree.topStatement()

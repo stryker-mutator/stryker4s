@@ -22,8 +22,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutatedFile =
-        MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
 
       val result = sut.apply(Seq(mutatedFile))
 
@@ -38,8 +37,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutatedFile =
-        MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
 
       val result = sut.apply(Seq(mutatedFile))
 
@@ -55,8 +53,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutatedFile =
-        MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", Seq(mutant))))
 
       val result = sut.apply(Seq(mutatedFile))
 
@@ -73,8 +70,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val secondMutant = Mutant(1, q"1", q"one")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant)
-      val mutatedFile =
-        MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", mutants)))
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", mutants)))
 
       val result = sut.apply(Seq(mutatedFile))
 
@@ -95,7 +91,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val thirdMutant = Mutant(2, q"5", q"5")
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant, thirdMutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", mutants)))
+      val mutatedFile =
+        MutatedFile(file, q"def foo = 4", Seq(RegisteredMutant(q"4", mutants)))
 
       val result = sut.apply(Seq(mutatedFile))
 

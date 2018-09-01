@@ -17,23 +17,25 @@ object ConfigReader extends Logging {
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
   def readConfig(confFile: File = File.currentWorkingDirectory / "stryker4s.conf"): Config =
-    pureconfig.loadConfig[Config](confFile.path, namespace = "stryker4s") match {
+    pureconfig
+      .loadConfig[Config](confFile.path, namespace = "stryker4s") match {
       case Left(failures) => tryRecoverFromFailures(failures)
       case Right(config) =>
         info("Using stryker4s.conf in the current working directory")
         config
     }
 
-  private def tryRecoverFromFailures(failures: ConfigReaderFailures): Config = failures match {
-    case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
-      warn(s"Could not find config file $fileName")
-      warn("Using default config instead...")
-      val defaultConf = Config()
-      debug("Config used: " + defaultConf.toHoconString)
-      defaultConf
-    case _ =>
-      error("Failures in reading config: ")
-      error(failures.toList.map(_.description).mkString(System.lineSeparator))
-      throw ConfigReaderException(failures)
-  }
+  private def tryRecoverFromFailures(failures: ConfigReaderFailures): Config =
+    failures match {
+      case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
+        warn(s"Could not find config file $fileName")
+        warn("Using default config instead...")
+        val defaultConf = Config()
+        debug("Config used: " + defaultConf.toHoconString)
+        defaultConf
+      case _ =>
+        error("Failures in reading config: ")
+        error(failures.toList.map(_.description).mkString(System.lineSeparator))
+        throw ConfigReaderException(failures)
+    }
 }

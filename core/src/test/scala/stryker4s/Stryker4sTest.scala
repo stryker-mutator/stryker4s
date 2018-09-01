@@ -25,12 +25,11 @@ class Stryker4sTest extends Stryker4sSuite {
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val reporter = new TestMutantReporter
 
-      val sut = new Stryker4s(testSourceCollector,
-                              new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry),
-                                          new StatementTransformer,
-                                          new MatchBuilder),
-                              testMutantRunner,
-                              reporter)
+      val sut =
+        new Stryker4s(testSourceCollector,
+                      new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry), new StatementTransformer, new MatchBuilder),
+                      testMutantRunner,
+                      reporter)
 
       sut.run()
       val reportedResults = reporter.lastCall.value.results

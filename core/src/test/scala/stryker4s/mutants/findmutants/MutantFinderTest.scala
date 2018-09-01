@@ -13,6 +13,7 @@ import scala.meta.parsers.ParseException
 class MutantFinderTest extends Stryker4sSuite with TreeEquality {
 
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
+
   describe("parseFile") {
     it("should parse an existing file") {
       val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)

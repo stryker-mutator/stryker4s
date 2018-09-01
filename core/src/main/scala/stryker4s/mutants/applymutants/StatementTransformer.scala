@@ -8,8 +8,7 @@ import scala.meta.{Source, Term, Tree}
 
 class StatementTransformer {
 
-  def transformSource(source: Source,
-                      foundMutants: Seq[RegisteredMutant]): SourceTransformations = {
+  def transformSource(source: Source, foundMutants: Seq[RegisteredMutant]): SourceTransformations = {
     val transformedMutants = foundMutants.map(transformMutant)
     SourceTransformations(source, transformedMutants)
   }

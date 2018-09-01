@@ -34,9 +34,8 @@ class MutantRegistryTest extends Stryker4sSuite {
 
       val result = sut.registerMutant(mutant)
 
-      val expectedMutants = List(Mutant(0, GreaterThan, LesserThan),
-                                 Mutant(1, GreaterThan, GreaterThanEqualTo),
-                                 Mutant(2, GreaterThan, EqualTo))
+      val expectedMutants =
+        List(Mutant(0, GreaterThan, LesserThan), Mutant(1, GreaterThan, GreaterThanEqualTo), Mutant(2, GreaterThan, EqualTo))
       result should equal(RegisteredMutant(GreaterThan, expectedMutants))
     }
   }
