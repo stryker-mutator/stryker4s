@@ -64,7 +64,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       ConfigReader.readConfig(confPath)
 
-      "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
+      "Using stryker4s.conf in the current working directory" shouldBe loggedAsDebug
     }
 
     it("should log warnings when no config file is found") {
