@@ -311,9 +311,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match once on interpolated strings with multiple parts") {
       val interpolated =
-        Term.Interpolate(q"s",
-                         List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
-                         List(q"fooVar", q"barVar + 1"))
+        Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")), List(q"fooVar", q"barVar + 1"))
       val tree = q"def foo = $interpolated"
       val emptyStringInterpolate =
         Term.Interpolate(q"s", List(Lit.String("")), Nil)

@@ -14,18 +14,14 @@ class MutantMatcher {
       matchLiterals()
 
   def matchConditionals(): PartialFunction[Tree, FoundMutant] = {
-    case GreaterThanEqualTo(orig) =>
-      FoundMutant(orig, GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig) =>
-      FoundMutant(orig, GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig) =>
-      FoundMutant(orig, LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig) =>
-      FoundMutant(orig, LesserThanEqualTo, GreaterThan, EqualTo)
-    case EqualTo(orig)    => FoundMutant(orig, NotEqualTo)
-    case NotEqualTo(orig) => FoundMutant(orig, EqualTo)
-    case And(orig)        => FoundMutant(orig, Or)
-    case Or(orig)         => FoundMutant(orig, And)
+    case GreaterThanEqualTo(orig) => FoundMutant(orig, GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)        => FoundMutant(orig, GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig)  => FoundMutant(orig, LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)         => FoundMutant(orig, LesserThanEqualTo, GreaterThan, EqualTo)
+    case EqualTo(orig)            => FoundMutant(orig, NotEqualTo)
+    case NotEqualTo(orig)         => FoundMutant(orig, EqualTo)
+    case And(orig)                => FoundMutant(orig, Or)
+    case Or(orig)                 => FoundMutant(orig, And)
   }
 
   def matchMethods(): PartialFunction[Tree, FoundMutant] = {
@@ -42,12 +38,11 @@ class MutantMatcher {
   }
 
   def matchLiterals(): PartialFunction[Tree, FoundMutant] = {
-    case True(orig)           => FoundMutant(orig, False)
-    case False(orig)          => FoundMutant(orig, True)
-    case EmptyString(orig)    => FoundMutant(orig, StrykerWasHereString)
-    case NonEmptyString(orig) => FoundMutant(orig, EmptyString)
-    case StringInterpolation(orig) =>
-      FoundMutant(orig, EmptyStringInterpolation)
+    case True(orig)                => FoundMutant(orig, False)
+    case False(orig)               => FoundMutant(orig, True)
+    case EmptyString(orig)         => FoundMutant(orig, StrykerWasHereString)
+    case NonEmptyString(orig)      => FoundMutant(orig, EmptyString)
+    case StringInterpolation(orig) => FoundMutant(orig, EmptyStringInterpolation)
   }
 
 }

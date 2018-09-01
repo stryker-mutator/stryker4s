@@ -152,8 +152,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants
     */
-  private def toTransformed(source: Source, origStatement: Term, mutants: Term*)(
-      implicit ids: Iterator[Int]): TransformedMutants = {
+  private def toTransformed(source: Source, origStatement: Term, mutants: Term*)(implicit ids: Iterator[Int]): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m =>

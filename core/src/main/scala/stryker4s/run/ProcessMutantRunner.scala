@@ -12,9 +12,7 @@ import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config)
-    extends MutantRunner
-    with Logging {
+class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config) extends MutantRunner with Logging {
 
   override def apply(files: Iterable[MutatedFile]): MutantRunResults = {
     val startTime = System.currentTimeMillis()
