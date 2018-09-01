@@ -17,8 +17,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val originalTree = originalTopTree.find(q">=").value
       val topStatement = originalTree.topStatement()
 
-      val result =
-        sut.transformStatement(topStatement, originalTree, GreaterThan)
+      val result = sut.transformStatement(topStatement, originalTree, GreaterThan)
 
       result should equal(q"15 > 5")
     }
@@ -68,8 +67,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
         .map(Mutant(0, originalTree, _))
 
       // Act
-      val transformedMutant =
-        sut.transformMutant(RegisteredMutant(originalTree, mutants))
+      val transformedMutant = sut.transformMutant(RegisteredMutant(originalTree, mutants))
 
       // Assert
       val topStatement = transformedMutant.originalStatement
@@ -85,8 +83,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       // Arrange
       val source = "object Foo { def bar: Boolean = 15 >= 4 }".parse[Source].get
       val origTree = source.find(q">=").value
-      val mutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
-        .map(Mutant(0, origTree, _))
+      val mutants = List(EqualTo, GreaterThan, LesserThanEqualTo).map(Mutant(0, origTree, _))
       val registeredMutant = RegisteredMutant(origTree, mutants)
 
       // Act
@@ -106,13 +103,11 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       "object Foo { def bar: Boolean = 15 >= 4 && 14 < 20 }".parse[Source].get
 
     val firstOrigTree = source.find(q">=").value
-    val firstMutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
-      .map(Mutant(0, firstOrigTree, _))
+    val firstMutants = List(EqualTo, GreaterThan, LesserThanEqualTo).map(Mutant(0, firstOrigTree, _))
     val firstFoundMutant = RegisteredMutant(firstOrigTree, firstMutants)
 
     val secOrigTree = source.find(q"<").value
-    val secondMutants = List(LesserThanEqualTo, GreaterThan, EqualTo)
-      .map(Mutant(0, secOrigTree, _))
+    val secondMutants = List(LesserThanEqualTo, GreaterThan, EqualTo).map(Mutant(0, secOrigTree, _))
     val secFoundMutant = RegisteredMutant(secOrigTree, secondMutants)
 
     val statements = List(firstFoundMutant, secFoundMutant)

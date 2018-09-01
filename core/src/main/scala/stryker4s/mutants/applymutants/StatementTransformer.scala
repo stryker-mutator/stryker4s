@@ -20,8 +20,7 @@ class StatementTransformer {
     val topStatement = originalTree.topStatement()
     val transformedMutants =
       registered.mutants.map { mutant =>
-        val newMutated =
-          transformStatement(topStatement, mutant.original, mutant.mutated)
+        val newMutated = transformStatement(topStatement, mutant.original, mutant.mutated)
         Mutant(mutant.id, topStatement, newMutated)
       }.toList
 

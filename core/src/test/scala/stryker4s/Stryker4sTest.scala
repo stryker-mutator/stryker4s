@@ -17,15 +17,12 @@ import scala.util.Success
 class Stryker4sTest extends Stryker4sSuite {
   describe("run") {
     it("should call mutate files and report the results") {
-      implicit val conf: Config =
-        Config(baseDir = FileUtil.getResource("scalaFiles"))
+      implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val testFiles = Seq(file)
       val testSourceCollector = new TestSourceCollector(testFiles)
-      val testProcessRunner =
-        new TestProcessRunner(Success(1), Success(1), Success(1))
-      val testMutantRunner =
-        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+      val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(1))
+      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val reporter = new TestMutantReporter
 
       val sut =

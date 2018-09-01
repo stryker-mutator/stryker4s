@@ -43,8 +43,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
       result
     }
 
-    val duration =
-      Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
+    val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
 
     MutantRunResults(runResults, calculateMutationScore(totalMutants, detected.size), duration)

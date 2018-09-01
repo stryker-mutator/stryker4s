@@ -19,8 +19,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Arrange
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
-      val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _))
+      val mutants = List(q"x > 15", q"x <= 15").map(Mutant(ids.next(), originalStatement, _))
       val sut = new MatchBuilder
 
       // Act
@@ -42,8 +41,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
 
       val transformed = toTransformed(source, q">", q"<", q"==")
-      val transStatements =
-        SourceTransformations(source, List(transformed))
+      val transStatements = SourceTransformations(source, List(transformed))
       val sut = new MatchBuilder
 
       // Act
@@ -72,8 +70,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val firstTrans = toTransformed(source, q">", q"<", q"==")
       val secondTrans = toTransformed(source, q">=", q">", q"==")
 
-      val transformedStatements =
-        SourceTransformations(source, List(firstTrans, secondTrans))
+      val transformedStatements = SourceTransformations(source, List(firstTrans, secondTrans))
       val sut = new MatchBuilder
 
       // Act
@@ -106,14 +103,11 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
 
-      val firstTransformed =
-        toTransformed(source, Lit.String("foo"), Lit.String(""))
+      val firstTransformed = toTransformed(source, Lit.String("foo"), Lit.String(""))
       val secondTransformed = toTransformed(source, q"==", q"!=")
-      val thirdTransformed =
-        toTransformed(source, Lit.String(""), Lit.String("Stryker was here!"))
+      val thirdTransformed = toTransformed(source, Lit.String(""), Lit.String("Stryker was here!"))
 
-      val transformedStatements =
-        SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
+      val transformedStatements = SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
       val sut = new MatchBuilder
 
       // Act

@@ -28,8 +28,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
   /** Step 1: Find mutants in the found files
     */
-  private def findMutants(file: File): MutationsInSource =
-    mutantFinder.mutantsInFile(file)
+  private def findMutants(file: File): MutationsInSource = mutantFinder.mutantsInFile(file)
 
   /** Step 2: transform the statements of the found mutants (preparation of building pattern matches)
     */

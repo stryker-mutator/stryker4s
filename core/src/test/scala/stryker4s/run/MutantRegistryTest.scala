@@ -30,8 +30,7 @@ class MutantRegistryTest extends Stryker4sSuite {
 
     it("should register multiple mutants from a FoundMutant with multiple mutations") {
       val sut = new MutantRegistry
-      val mutant =
-        FoundMutant(GreaterThan, LesserThan, GreaterThanEqualTo, EqualTo)
+      val mutant = FoundMutant(GreaterThan, LesserThan, GreaterThanEqualTo, EqualTo)
 
       val result = sut.registerMutant(mutant)
 
