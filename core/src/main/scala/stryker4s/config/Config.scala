@@ -10,7 +10,7 @@ import pureconfig.ConfigWriter
 case class Config(files: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
                   testRunner: TestRunner = CommandRunner("sbt", "test"),
-                  logLevel: Level = Level.DEBUG) {
+                  logLevel: Level = Level.INFO) {
 
   // Support parsing logback.classic.Level logging levels by using their string representation
   // Note: Defaults to DEBUG if the value cannot be parsed

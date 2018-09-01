@@ -23,7 +23,7 @@ object ConfigReader extends Logging {
     pureconfig.loadConfig[Config](confFile.path, namespace = "stryker4s") match {
       case Left(failures) => tryRecoverFromFailures(failures)
       case Right(config) =>
-        info("Using stryker4s.conf in the current working directory")
+        debug("Using stryker4s.conf in the current working directory")
         config
     }
 
@@ -31,8 +31,11 @@ object ConfigReader extends Logging {
     case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
+
       val defaultConf = Config()
+
       debug("Config used: " + defaultConf.toHoconString)
+
       defaultConf
     case _ =>
       error("Failures in reading config: ")

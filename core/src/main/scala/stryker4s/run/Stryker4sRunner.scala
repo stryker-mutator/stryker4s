@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import ch.qos.logback.classic.{Level, Logger}
+import grizzled.slf4j.Logging
 import org.slf4j.{LoggerFactory, Logger => slf4jLogger}
 import stryker4s.Stryker4s
 import stryker4s.config.{CommandRunner, Config, ConfigReader}
@@ -10,7 +11,7 @@ import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.run.report.LogRunReporter
 
-object Stryker4sRunner extends App {
+object Stryker4sRunner extends App with Logging {
 
   implicit val config: Config = ConfigReader.readConfig()
   setLoggingLevel(config.logLevel)
@@ -34,6 +35,7 @@ object Stryker4sRunner extends App {
     */
   private def setLoggingLevel(level: Level): Unit = {
     LoggerFactory.getLogger(slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(level)
+    info(s"Setting logging level to $level.")
   }
 
   private def resolveRunner()(implicit config: Config): MutantRunner = {

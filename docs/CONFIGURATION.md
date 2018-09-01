@@ -38,8 +38,8 @@ With `test-runner` you can specify how stryker4s runs tests. The default for thi
 
 #### log-level
 
-**Config file:** `log-level: DEBUG`
-**Default value:** DEBUG
+**Config file:** `log-level: INFO`
+**Default value:** INFO
 **Mandatory:** No
 **Description:**
-With `log-level` you can override the default logging level of `DEBUG`. You can use one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
+With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
