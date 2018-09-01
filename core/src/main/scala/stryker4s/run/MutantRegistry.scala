@@ -6,9 +6,8 @@ class MutantRegistry {
   private val stream = Iterator.from(0)
 
   def registerMutant(foundMutant: FoundMutant): RegisteredMutant =
-    RegisteredMutant(foundMutant.originalTree,
-                     foundMutant.mutations.map(mutation => {
-                       Mutant(stream.next(), foundMutant.originalTree, mutation)
-                     }))
+    RegisteredMutant(foundMutant.originalTree, foundMutant.mutations.map(mutation => {
+      Mutant(stream.next(), foundMutant.originalTree, mutation)
+    }))
 
 }

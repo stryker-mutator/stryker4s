@@ -10,11 +10,7 @@ import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.run.process.Command
 import stryker4s.run.{MutantRegistry, ProcessMutantRunner}
 import stryker4s.scalatest.FileUtil
-import stryker4s.stubs.{
-  TestMutantReporter,
-  TestProcessRunner,
-  TestSourceCollector
-}
+import stryker4s.stubs.{TestMutantReporter, TestProcessRunner, TestSourceCollector}
 
 import scala.util.Success
 
@@ -33,8 +29,7 @@ class Stryker4sTest extends Stryker4sSuite {
       val reporter = new TestMutantReporter
 
       val sut = new Stryker4s(testSourceCollector,
-                              new Mutator(new MutantFinder(new MutantMatcher,
-                                                           new MutantRegistry),
+                              new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry),
                                           new StatementTransformer,
                                           new MatchBuilder),
                               testMutantRunner,

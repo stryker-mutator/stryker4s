@@ -6,10 +6,8 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 import stryker4s.run.report.MutantRunReporter
 
-class Stryker4s(fileCollector: SourceCollector,
-                mutator: Mutator,
-                runner: MutantRunner,
-                reporter: MutantRunReporter)(implicit config: Config) {
+class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner, reporter: MutantRunReporter)(
+    implicit config: Config) {
 
   def run() = {
     val files = fileCollector.collectFiles()

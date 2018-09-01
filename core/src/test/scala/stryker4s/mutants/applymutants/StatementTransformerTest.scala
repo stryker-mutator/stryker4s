@@ -33,8 +33,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       result should equal(q"15 == 5")
     }
 
-    it(
-      "should mutate a more complex tree statement with two similar statements") {
+    it("should mutate a more complex tree statement with two similar statements") {
       val tree =
         q"""def foo(list: List[Int], otherList: List[Int]) = {
         val firstResult = list
@@ -61,8 +60,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("transformFoundMutant") {
-    it(
-      "should give a list of transformed statements when multiple mutations are given") {
+    it("should give a list of transformed statements when multiple mutations are given") {
       // Arrange
       val originalTopTree = q"val x: Boolean = 15 >= 5"
       val originalTree = originalTopTree.find(q">=").value

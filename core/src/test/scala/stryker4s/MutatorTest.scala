@@ -11,16 +11,12 @@ import stryker4s.stubs.TestSourceCollector
 
 import scala.meta._
 
-class MutatorTest
-    extends Stryker4sSuite
-    with TreeEquality
-    with BeforeAndAfterEach {
+class MutatorTest extends Stryker4sSuite with TreeEquality with BeforeAndAfterEach {
 
   describe("run") {
     it("should return a single Tree with changed pattern match") {
       implicit val conf: Config = Config()
-      val files = new TestSourceCollector(
-        Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
+      val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFiles()
 
       val sut = new Mutator(
@@ -49,8 +45,7 @@ class MutatorTest
   describe("logs") {
     it("should log the amount of mutants found") {
       implicit val conf: Config = Config()
-      val files = new TestSourceCollector(
-        Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
+      val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFiles()
 
       val sut = new Mutator(

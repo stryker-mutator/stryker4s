@@ -8,8 +8,7 @@ import stryker4s.run.MutantRegistry
 import scala.meta.Source
 import scala.meta.parsers.{Parsed, XtensionParseInputLike}
 
-class MutantFinder(matcher: MutantMatcher, registry: MutantRegistry)
-    extends Logging {
+class MutantFinder(matcher: MutantMatcher, registry: MutantRegistry) extends Logging {
 
   def mutantsInFile(filePath: File): MutationsInSource = {
     val parsedSource = parseFile(filePath)

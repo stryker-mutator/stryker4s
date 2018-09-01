@@ -5,11 +5,7 @@ import java.nio.file.Path
 
 import better.files.File
 import grizzled.slf4j.Logging
-import pureconfig.error.{
-  CannotReadFile,
-  ConfigReaderException,
-  ConfigReaderFailures
-}
+import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{ConfigReader => PConfigReader}
 object ConfigReader extends Logging {
 
@@ -21,9 +17,7 @@ object ConfigReader extends Logging {
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
-  def readConfig(
-      confFile: File = File.currentWorkingDirectory / "stryker4s.conf")
-    : Config =
+  def readConfig(confFile: File = File.currentWorkingDirectory / "stryker4s.conf"): Config =
     pureconfig
       .loadConfig[Config](confFile.path, namespace = "stryker4s") match {
       case Left(failures) => tryRecoverFromFailures(failures)
@@ -34,9 +28,7 @@ object ConfigReader extends Logging {
 
   private def tryRecoverFromFailures(failures: ConfigReaderFailures): Config =
     failures match {
-      case ConfigReaderFailures(
-          CannotReadFile(fileName, Some(_: FileNotFoundException)),
-          _) =>
+      case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
         warn(s"Could not find config file $fileName")
         warn("Using default config instead...")
         val defaultConf = Config()

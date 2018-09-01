@@ -11,7 +11,6 @@ object FileUtil {
     val resource = Option(classLoader.getResource(name))
     resource
       .map(File(_))
-      .getOrElse(
-        throw new FileNotFoundException(s"File $name could not be found"))
+      .getOrElse(throw new FileNotFoundException(s"File $name could not be found"))
   }
 }

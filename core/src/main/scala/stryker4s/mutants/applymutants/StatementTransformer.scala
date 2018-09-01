@@ -8,9 +8,7 @@ import scala.meta.{Source, Term, Tree}
 
 class StatementTransformer {
 
-  def transformSource(
-      source: Source,
-      foundMutants: Seq[RegisteredMutant]): SourceTransformations = {
+  def transformSource(source: Source, foundMutants: Seq[RegisteredMutant]): SourceTransformations = {
     val transformedMutants = foundMutants.map(transformMutant)
     SourceTransformations(source, transformedMutants)
   }
@@ -32,13 +30,10 @@ class StatementTransformer {
 
   /** Transforms the statement to the given mutation
     */
-  def transformStatement(topStatement: Term,
-                         toMutate: Term,
-                         mutation: Term): Term =
+  def transformStatement(topStatement: Term, toMutate: Term, mutation: Term): Term =
     topStatement
       .transform {
-        case foundTree: Tree
-            if foundTree.isEqual(toMutate) && foundTree.pos == toMutate.pos =>
+        case foundTree: Tree if foundTree.isEqual(toMutate) && foundTree.pos == toMutate.pos =>
           mutation
       }
       .asInstanceOf[Term]

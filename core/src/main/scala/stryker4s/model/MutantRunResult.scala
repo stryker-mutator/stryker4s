@@ -5,9 +5,7 @@ import java.nio.file.Path
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.Duration
 
-case class MutantRunResults(results: Iterable[MutantRunResult],
-                            mutationScore: Double,
-                            duration: Duration)
+case class MutantRunResults(results: Iterable[MutantRunResult], mutationScore: Double, duration: Duration)
 
 /** The base result type of a mutant run.
   * Extends Product with Serializable to clean up the type signature, as all subtypes are case classes
@@ -21,11 +19,9 @@ sealed trait Detected extends MutantRunResult
 
 sealed trait Undetected extends MutantRunResult
 
-case class Killed(exitCode: Int, mutant: Mutant, fileSubPath: Path)
-    extends Detected
+case class Killed(exitCode: Int, mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class TimedOut(reason: TimeoutException, mutant: Mutant, fileSubPath: Path)
-    extends Detected
+case class TimedOut(reason: TimeoutException, mutant: Mutant, fileSubPath: Path) extends Detected
 
 case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
 

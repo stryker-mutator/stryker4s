@@ -8,9 +8,7 @@ import stryker4s.mutants.findmutants.MutantFinder
 
 import scala.meta.Tree
 
-class Mutator(mutantFinder: MutantFinder,
-              transformer: StatementTransformer,
-              matchBuilder: MatchBuilder)
+class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)
     extends Logging {
 
   def mutate(files: Iterable[File]): Iterable[MutatedFile] = {
@@ -25,8 +23,7 @@ class Mutator(mutantFinder: MutantFinder,
       .filter(_.mutants.nonEmpty)
 
     info(s"Found ${mutants.size} of ${files.size} file(s) to be mutated.")
-    info(
-      s"${mutants.flatMap(_.mutants).flatMap(_.mutants).size} Mutant(s) generated")
+    info(s"${mutants.flatMap(_.mutants).flatMap(_.mutants).size} Mutant(s) generated")
     mutants
   }
 
@@ -37,13 +34,11 @@ class Mutator(mutantFinder: MutantFinder,
 
   /** Step 2: transform the statements of the found mutants (preparation of building pattern matches)
     */
-  private def transformStatements(
-      mutants: MutationsInSource): SourceTransformations =
+  private def transformStatements(mutants: MutationsInSource): SourceTransformations =
     transformer.transformSource(mutants.source, mutants.mutants)
 
   /** Step 3: Build pattern matches from transformed trees
     */
-  private def buildMatches(
-      transformedMutantsInSource: SourceTransformations): Tree =
+  private def buildMatches(transformedMutantsInSource: SourceTransformations): Tree =
     matchBuilder.buildNewSource(transformedMutantsInSource)
 }

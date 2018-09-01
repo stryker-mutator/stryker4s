@@ -51,8 +51,7 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("should find no matches with a non-matching glob") {
         implicit val config: Config =
-          Config(files = Seq("**/noMatchesToBeFoundHere.scala"),
-                 baseDir = filledDirPath)
+          Config(files = Seq("**/noMatchesToBeFoundHere.scala"), baseDir = filledDirPath)
         val sut = new FileCollector()
 
         val results = sut.collectFiles()
@@ -62,8 +61,7 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("should match on multiple globs") {
         implicit val config: Config =
-          Config(files = Seq("**/someFile.scala", "**/secondFile.scala"),
-                 baseDir = filledDirPath)
+          Config(files = Seq("**/someFile.scala", "**/secondFile.scala"), baseDir = filledDirPath)
         val sut = new FileCollector()
 
         val results = sut.collectFiles()
@@ -74,8 +72,7 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("should only add a glob once even when it matches twice") {
         implicit val config: Config =
-          Config(files = Seq("**/someFile.scala", "**/*.scala"),
-                 baseDir = filledDirPath)
+          Config(files = Seq("**/someFile.scala", "**/*.scala"), baseDir = filledDirPath)
         val sut = new FileCollector()
 
         val results = sut.collectFiles()
@@ -85,11 +82,9 @@ class FileCollectorTest extends Stryker4sSuite {
       }
 
       it("should not find a file twice when the patterns match on the same file twice") {
-        implicit val config: Config = Config(files = Seq("**/someFile.scala",
-                                                         "**/secondFile.scala",
-                                                         "!**/*.scala",
-                                                         "!**/someFile.scala"),
-                                             baseDir = filledDirPath)
+        implicit val config: Config =
+          Config(files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
+                 baseDir = filledDirPath)
 
         val sut = new FileCollector()
 
@@ -100,9 +95,7 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("Should exclude the file specified in the excluded files config") {
         implicit val config: Config = Config(
-          files = Seq("**/someFile.scala",
-                      "**/secondFile.scala",
-                      "!**/someFile.scala"),
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala"),
           baseDir = filledDirPath
         )
 
@@ -115,12 +108,9 @@ class FileCollectorTest extends Stryker4sSuite {
       }
 
       it("Should exclude all files specified in the excluded files config") {
-        implicit val config: Config = Config(files =
-                                               Seq("**/someFile.scala",
-                                                   "**/secondFile.scala",
-                                                   "!**/someFile.scala",
-                                                   "!**/secondFile.scala"),
-                                             baseDir = filledDirPath)
+        implicit val config: Config =
+          Config(files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
+                 baseDir = filledDirPath)
 
         val sut = new FileCollector()
 
@@ -144,9 +134,7 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("Should not exclude a non existing file") {
         implicit val config: Config = Config(
-          files = Seq("**/someFile.scala",
-                      "**/secondFile.scala",
-                      "!**/nonExistingFile.scala"),
+          files = Seq("**/someFile.scala", "**/secondFile.scala", "!**/nonExistingFile.scala"),
           baseDir = filledDirPath
         )
 

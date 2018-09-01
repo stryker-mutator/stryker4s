@@ -113,17 +113,13 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("string interpolation to StringInterpolation") {
-      Term.Interpolate(q"s",
-                       List(Lit.String("foo "), Lit.String("")),
-                       List(q"foo")) should matchPattern {
+      Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should matchPattern {
         case StringInterpolation(_) =>
       }
     }
 
     it("q interpolation should not match StringInterpolation") {
-      Term.Interpolate(q"q",
-                       List(Lit.String("foo "), Lit.String("")),
-                       List(q"foo")) should not matchPattern {
+      Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should not matchPattern {
         case StringInterpolation(_) =>
       }
     }

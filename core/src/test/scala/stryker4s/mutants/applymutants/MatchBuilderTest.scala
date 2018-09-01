@@ -15,8 +15,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("buildMatch") {
-    it(
-      "should transform 2 mutations into match statement with 2 mutated and 1 original") {
+    it("should transform 2 mutations into match statement with 2 mutated and 1 original") {
       // Arrange
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
@@ -37,8 +36,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("buildNewSource") {
-    it(
-      "should build a new tree with a case match in place of the 15 > 14 statement") {
+    it("should build a new tree with a case match in place of the 15 > 14 statement") {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
@@ -66,8 +64,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       result should equal(expected)
     }
 
-    it(
-      "should build a tree with multiple cases out of multiple transformedStatements") {
+    it("should build a tree with multiple cases out of multiple transformedStatements") {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source =
@@ -116,9 +113,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
         toTransformed(source, Lit.String(""), Lit.String("Stryker was here!"))
 
       val transformedStatements =
-        SourceTransformations(
-          source,
-          List(firstTransformed, secondTransformed, thirdTransformed))
+        SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
       val sut = new MatchBuilder
 
       // Act
@@ -157,10 +152,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants
     */
-  private def toTransformed(
-      source: Source,
-      origStatement: Term,
-      mutants: Term*)(implicit ids: Iterator[Int]): TransformedMutants = {
+  private def toTransformed(source: Source, origStatement: Term, mutants: Term*)(
+      implicit ids: Iterator[Int]): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m =>

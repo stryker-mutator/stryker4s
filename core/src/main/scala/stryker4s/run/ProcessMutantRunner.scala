@@ -12,8 +12,7 @@ import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: Command, process: ProcessRunner)(
-    implicit config: Config)
+class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config)
     extends MutantRunner
     with Logging {
 
@@ -42,8 +41,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
       val id = mutant.id
-      info(
-        s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
 
@@ -51,14 +49,10 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(
       Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
 
-    MutantRunResults(runResults,
-                     calculateMutationScore(totalMutants, detected.size),
-                     duration)
+    MutantRunResults(runResults, calculateMutationScore(totalMutants, detected.size), duration)
   }
 
-  private[this] def runMutant(mutant: Mutant,
-                              workingDir: File,
-                              subPath: Path): MutantRunResult = {
+  private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id
     info(s"Starting test-run $id...")
     process(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
@@ -68,8 +62,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(
     }
   }
 
-  private[this] def calculateMutationScore(totalMutants: Double,
-                                           detectedMutants: Double): Double = {
+  private[this] def calculateMutationScore(totalMutants: Double, detectedMutants: Double): Double = {
     val mutationScore = detectedMutants / totalMutants * 100
     BigDecimal(mutationScore)
       .setScale(2, BigDecimal.RoundingMode.HALF_UP)
