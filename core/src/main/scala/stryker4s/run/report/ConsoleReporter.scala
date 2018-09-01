@@ -6,9 +6,7 @@ import grizzled.slf4j.Logging
 import stryker4s.model.{Detected, MutantRunResults, Undetected}
 
 class ConsoleReporter extends MutantRunReporter with Logging {
-
-  val name = "console"
-
+  
   override def report(runResults: MutantRunResults): Unit = {
     val detected = runResults.results collect { case d: Detected => d }
     val detectedSize = detected.size

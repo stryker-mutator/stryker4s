@@ -1,9 +1,8 @@
 package stryker4s.run.report
-import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model.MutantRunResults
 
-class Reporter extends Logging {
+class Reporter {
 
   /**
     * Generate a report for each reporter that is available.

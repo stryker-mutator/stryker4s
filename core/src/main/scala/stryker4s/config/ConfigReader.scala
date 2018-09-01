@@ -16,7 +16,7 @@ object ConfigReader extends Logging {
     */
   private[this] implicit val toFileReader: PConfigReader[File] = PConfigReader[Path].map(p => File(p))
   private[this] implicit val toReporterList: PConfigReader[List[MutantRunReporter]] = PConfigReader[List[String]].map(_.map {
-    case "console" => new ConsoleReporter
+    case MutantRunReporter.`consoleReporter` => new ConsoleReporter
   })
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
