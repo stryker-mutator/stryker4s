@@ -36,6 +36,14 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 **Description:**  
 With `test-runner` you can specify how stryker4s runs tests. The default for this is a command-runner that will run the `sbt test` command. This can be changed to `mvn test`, `./gradlew test` or any other command to run your tests, including any parameters your tests might need.
 
+#### reporters
+
+**Config file:** `reporters: ["console"]`  
+**Default value:** A reporter that will report to console.  
+**Mandatory:** No  
+**Description:**  
+With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console.
+
 #### log-level
 
 **Config file:** `log-level: INFO`
@@ -43,3 +51,4 @@ With `test-runner` you can specify how stryker4s runs tests. The default for thi
 **Mandatory:** No
 **Description:**
 With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
+ 

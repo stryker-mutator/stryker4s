@@ -8,14 +8,19 @@ import ch.qos.logback.classic.Level
 import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{ConfigReader => PConfigReader}
+import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
+
 object ConfigReader extends Logging {
 
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
     *
     */
-  private implicit val toFileReader: PConfigReader[File] = PConfigReader[Path].map(p => File(p))
-  private implicit val logLevelReader: PConfigReader[Level] = PConfigReader[String] map (level =>
+  private[this] implicit val toFileReader: PConfigReader[File] = PConfigReader[Path].map(p => File(p))
+  private[this] implicit val logLevelReader: PConfigReader[Level] = PConfigReader[String] map (level =>
     Level.toLevel(level))
+  private[this] implicit val toReporterList: PConfigReader[List[MutantRunReporter]] = PConfigReader[List[String]].map(_.map {
+    case MutantRunReporter.`consoleReporter` => new ConsoleReporter
+  })
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
@@ -23,7 +28,7 @@ object ConfigReader extends Logging {
     pureconfig.loadConfig[Config](confFile.path, namespace = "stryker4s") match {
       case Left(failures) => tryRecoverFromFailures(failures)
       case Right(config) =>
-        debug("Using stryker4s.conf in the current working directory")
+        info("Using stryker4s.conf in the current working directory")
         config
     }
 
