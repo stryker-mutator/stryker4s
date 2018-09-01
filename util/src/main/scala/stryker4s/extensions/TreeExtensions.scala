@@ -61,7 +61,8 @@ object TreeExtensions {
       transformer(thisTree)
     }
 
-    private class OnceTransformer(liftedFn: Tree => Option[Tree]) extends Transformer {
+    private class OnceTransformer(liftedFn: Tree => Option[Tree])
+        extends Transformer {
       override def apply(tree: Tree): Tree =
         liftedFn(tree).getOrElse(super.apply(tree))
     }

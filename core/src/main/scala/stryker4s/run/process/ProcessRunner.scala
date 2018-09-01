@@ -10,9 +10,12 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
 trait ProcessRunner extends Logging {
-  def apply(command: Command, workingDir: File, envVar: (String, String)): Try[Int] = {
-    val mutantProcess = Process(command.command + " " + command.args, workingDir.toJava, envVar)
-      .run(ProcessLogger(s => debug(s)))
+  def apply(command: Command,
+            workingDir: File,
+            envVar: (String, String)): Try[Int] = {
+    val mutantProcess =
+      Process(command.command + " " + command.args, workingDir.toJava, envVar)
+        .run(ProcessLogger(s => debug(s)))
 
     val exitCodeFuture = Future(mutantProcess.exitValue())
     // TODO: Maybe don't use Await.result
@@ -22,7 +25,8 @@ trait ProcessRunner extends Logging {
 }
 
 object ProcessRunner {
-  private val isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
+  private val isWindows: Boolean =
+    sys.props("os.name").toLowerCase.contains("windows")
 
   def resolveRunner(): ProcessRunner = {
     if (isWindows) new WindowsProcessRunner

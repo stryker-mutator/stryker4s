@@ -15,22 +15,23 @@ class LogRunReporter extends MutantRunReporter with Logging {
     val undetectedSize = undetected.size
 
     val totalMutants = detectedSize + undetectedSize
-    info(s"Mutation run finished! Took ${runResults.duration.toSeconds} seconds")
-    info(s"Total mutants: $totalMutants, detected: $detectedSize, undetected: $undetectedSize")
-
     info(
-      s"Undetected mutants:" + lineSeparator() +
-        undetected
-          .map { mrr =>
-            val mutant = mrr.mutant
+      s"Mutation run finished! Took ${runResults.duration.toSeconds} seconds")
+    info(
+      s"Total mutants: $totalMutants, detected: $detectedSize, undetected: $undetectedSize")
 
-            val line = mutant.original.pos.startLine + 1
-            val col = mutant.original.pos.startColumn + 1
+    info(s"Undetected mutants:" + lineSeparator() +
+      undetected
+        .map { mrr =>
+          val mutant = mrr.mutant
 
-            s"${mrr.fileSubPath}:$line:$col:" + lineSeparator() +
-              s"\tfrom ${mutant.original} to ${mutant.mutated}" + lineSeparator()
-          }
-          .mkString(lineSeparator()))
+          val line = mutant.original.pos.startLine + 1
+          val col = mutant.original.pos.startColumn + 1
+
+          s"${mrr.fileSubPath}:$line:$col:" + lineSeparator() +
+            s"\tfrom ${mutant.original} to ${mutant.mutated}" + lineSeparator()
+        }
+        .mkString(lineSeparator()))
 
     info(s"Mutation score: ${runResults.mutationScore}%")
   }

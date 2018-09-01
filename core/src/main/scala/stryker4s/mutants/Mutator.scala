@@ -25,21 +25,25 @@ class Mutator(mutantFinder: MutantFinder,
       .filter(_.mutants.nonEmpty)
 
     info(s"Found ${mutants.size} of ${files.size} file(s) to be mutated.")
-    info(s"${mutants.flatMap(_.mutants).flatMap(_.mutants).size} Mutant(s) generated")
+    info(
+      s"${mutants.flatMap(_.mutants).flatMap(_.mutants).size} Mutant(s) generated")
     mutants
   }
 
   /** Step 1: Find mutants in the found files
     */
-  private def findMutants(file: File): MutationsInSource = mutantFinder.mutantsInFile(file)
+  private def findMutants(file: File): MutationsInSource =
+    mutantFinder.mutantsInFile(file)
 
   /** Step 2: transform the statements of the found mutants (preparation of building pattern matches)
     */
-  private def transformStatements(mutants: MutationsInSource): SourceTransformations =
+  private def transformStatements(
+      mutants: MutationsInSource): SourceTransformations =
     transformer.transformSource(mutants.source, mutants.mutants)
 
   /** Step 3: Build pattern matches from transformed trees
     */
-  private def buildMatches(transformedMutantsInSource: SourceTransformations): Tree =
+  private def buildMatches(
+      transformedMutantsInSource: SourceTransformations): Tree =
     matchBuilder.buildNewSource(transformedMutantsInSource)
 }

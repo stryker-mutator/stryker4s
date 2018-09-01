@@ -12,7 +12,8 @@ class ConfigTest extends Stryker4sSuite {
       val result = sut.toHoconString
 
       val expected =
-        s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
+        s"""base-dir="${File.currentWorkingDirectory.pathAsString
+             .replace("\\", "\\\\")}"
            |files=[
            |    "**/main/scala/**/*.scala"
            |]
@@ -26,9 +27,12 @@ class ConfigTest extends Stryker4sSuite {
     }
 
     it("should print toString with changed values") {
-      val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
+      val filePaths =
+        List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut =
-        Config(filePaths, File("tmp"), testRunner = CommandRunner("mvn", "clean test"))
+        Config(filePaths,
+               File("tmp"),
+               testRunner = CommandRunner("mvn", "clean test"))
 
       val result = sut.toHoconString
 

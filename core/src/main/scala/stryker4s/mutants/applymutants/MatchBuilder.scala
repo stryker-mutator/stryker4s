@@ -18,7 +18,8 @@ class MatchBuilder {
         val origStatement = mutant.originalStatement
 
         rest transformOnce {
-          case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
+          case found
+              if found.isEqual(origStatement) && found.pos == origStatement.pos =>
             buildMatch(mutant)
         }
       }

@@ -17,7 +17,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val originalTree = originalTopTree.find(q">=").value
       val topStatement = originalTree.topStatement()
 
-      val result = sut.transformStatement(topStatement, originalTree, GreaterThan)
+      val result =
+        sut.transformStatement(topStatement, originalTree, GreaterThan)
 
       result should equal(q"15 > 5")
     }
@@ -32,7 +33,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       result should equal(q"15 == 5")
     }
 
-    it("should mutate a more complex tree statement with two similar statements") {
+    it(
+      "should mutate a more complex tree statement with two similar statements") {
       val tree =
         q"""def foo(list: List[Int], otherList: List[Int]) = {
         val firstResult = list
@@ -59,7 +61,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("transformFoundMutant") {
-    it("should give a list of transformed statements when multiple mutations are given") {
+    it(
+      "should give a list of transformed statements when multiple mutations are given") {
       // Arrange
       val originalTopTree = q"val x: Boolean = 15 >= 5"
       val originalTree = originalTopTree.find(q">=").value
@@ -67,7 +70,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
         .map(Mutant(0, originalTree, _))
 
       // Act
-      val transformedMutant = sut.transformMutant(RegisteredMutant(originalTree, mutants))
+      val transformedMutant =
+        sut.transformMutant(RegisteredMutant(originalTree, mutants))
 
       // Assert
       val topStatement = transformedMutant.originalStatement
@@ -100,7 +104,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
   it("should transform multiple found mutants into one TransformedStatements") {
     // Arrange
-    val source = "object Foo { def bar: Boolean = 15 >= 4 && 14 < 20 }".parse[Source].get
+    val source =
+      "object Foo { def bar: Boolean = 15 >= 4 && 14 < 20 }".parse[Source].get
 
     val firstOrigTree = source.find(q">=").value
     val firstMutants = List(EqualTo, GreaterThan, LesserThanEqualTo)

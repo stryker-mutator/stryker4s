@@ -2,7 +2,12 @@ package stryker4s.run
 
 import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
-import stryker4s.extensions.mutationtypes.{EqualTo, GreaterThan, GreaterThanEqualTo, LesserThan}
+import stryker4s.extensions.mutationtypes.{
+  EqualTo,
+  GreaterThan,
+  GreaterThanEqualTo,
+  LesserThan
+}
 import stryker4s.model.{FoundMutant, Mutant, RegisteredMutant}
 
 class MutantRegistryTest extends Stryker4sSuite {
@@ -13,7 +18,8 @@ class MutantRegistryTest extends Stryker4sSuite {
 
       val result = sut.registerMutant(mutant)
 
-      result should equal(RegisteredMutant(GreaterThan, List(Mutant(0, GreaterThan, LesserThan))))
+      result should equal(
+        RegisteredMutant(GreaterThan, List(Mutant(0, GreaterThan, LesserThan))))
     }
 
     it("should register two mutants with id 0 and 1") {
@@ -28,9 +34,11 @@ class MutantRegistryTest extends Stryker4sSuite {
       scndResult should equal(Mutant(1, LesserThan, GreaterThan))
     }
 
-    it("should register multiple mutants from a FoundMutant with multiple mutations") {
+    it(
+      "should register multiple mutants from a FoundMutant with multiple mutations") {
       val sut = new MutantRegistry
-      val mutant = FoundMutant(GreaterThan, LesserThan, GreaterThanEqualTo, EqualTo)
+      val mutant =
+        FoundMutant(GreaterThan, LesserThan, GreaterThanEqualTo, EqualTo)
 
       val result = sut.registerMutant(mutant)
 
