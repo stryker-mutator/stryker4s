@@ -21,6 +21,8 @@ object Settings {
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
+      Dependencies.test.sttp,
+      Dependencies.test.jsonSchemaValidator,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.scalametaContrib,

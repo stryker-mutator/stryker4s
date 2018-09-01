@@ -13,6 +13,8 @@ object Dependencies {
     val scalameta = "3.3.1"
     val pureconfig = "0.9.2"
     val scalatest = "3.0.5"
+    val sttp = "1.3.0"
+    val jsonSchemaValidator = "1.9.1"
     val betterFiles = "3.5.0"
     val logback = "1.2.3"
     val grizzledSlf4j = "1.3.2"
@@ -20,6 +22,8 @@ object Dependencies {
 
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
+    val sttp = "com.softwaremill.sttp" %% "core" % versions.sttp % Test
+    val jsonSchemaValidator = "com.github.everit-org.json-schema" % "org.everit.json.schema" % versions.jsonSchemaValidator % Test
   }
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
