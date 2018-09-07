@@ -10,7 +10,7 @@
             <!-- 15:05:32.145 grizzled.slf4j.Logger: 81 Mutant(s) generated -->
             <!-- 15:05:32.678 grizzled.slf4j.Logger: Starting test-run 0... -->
             <Pattern>
-                %d{HH:mm:ss.SSS} %-5level%logger{0}: %msg%n
+                %d{HH:mm:ss.SSS} %-5level %logger{0}: %msg%n
             </Pattern>
         </layout>
     </appender>
