@@ -14,7 +14,6 @@ import stryker4s.run.report.Reporter
 object Stryker4sRunner extends App with Logging {
 
   implicit val config: Config = ConfigReader.readConfig()
-  setLoggingLevel(config.logLevel)
 
   val stryker4s = new Stryker4s(
     new FileCollector,
@@ -26,17 +25,6 @@ object Stryker4sRunner extends App with Logging {
   )
 
   stryker4s.run()
-
-  /**
-    * Sets the logging level to one of the following levels:
-    * OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
-    *
-    * @param level the logging level to use
-    */
-  private def setLoggingLevel(level: Level): Unit = {
-    LoggerFactory.getLogger(slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(level)
-    info(s"Setting logging level to $level.")
-  }
 
   private def resolveRunner()(implicit config: Config): MutantRunner = {
     config.testRunner match {
