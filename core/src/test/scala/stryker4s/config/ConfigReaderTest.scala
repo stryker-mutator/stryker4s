@@ -19,7 +19,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       result.baseDir shouldBe File.currentWorkingDirectory
       result.files shouldBe Seq("**/main/scala/**/*.scala")
       result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.DEBUG
+      result.logLevel shouldBe Level.INFO
       result.reporters.head shouldBe an[ConsoleReporter]
     }
 
@@ -82,7 +82,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      s"Config used: ${sut.toHoconString}" shouldBe loggedAsDebug
+      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
   }
 

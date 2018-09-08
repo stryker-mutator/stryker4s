@@ -44,7 +44,7 @@ object ConfigReader extends Logging {
 
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
-      debug("Config used: " + defaultConf.toHoconString)
+      info("Config used: " + defaultConf.toHoconString)
 
       defaultConf
     case _ =>

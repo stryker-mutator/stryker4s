@@ -15,7 +15,7 @@ class ConfigTest extends Stryker4sSuite {
            |files=[
            |    "**/main/scala/**/*.scala"
            |]
-           |log-level=DEBUG
+           |log-level=INFO
            |reporters=[
            |    console
            |]
@@ -42,7 +42,7 @@ class ConfigTest extends Stryker4sSuite {
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
            |]
-           |log-level=DEBUG
+           |log-level=INFO
            |reporters=[
            |    console
            |]
