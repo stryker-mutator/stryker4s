@@ -7,25 +7,26 @@ import stryker4s.TestAppender
 
 trait LogMatchers {
 
-  class LogMatcherWithLevel[A](expectedLogLevel: Level)(implicit loggerClassName: String) extends BeMatcher[String] {
+  class LogMatcherWithLevel(expectedLogLevel: Level)(implicit loggerClassName: String)
+      extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {
-        getLoggingEventWithLogMessage(expectedLogMessage) match {
-          case None =>
-            MatchResult(
-              matches = false,
-              s"Log message $expectedLogMessage wasn't logged at any level.",
-              s"Log message $expectedLogMessage was logged as $expectedLogLevel."
-            )
-          case Some(loggingEvent) =>
-            val result = validateLogLevel(loggingEvent.getLevel, expectedLogLevel)
+      getLoggingEventWithLogMessage(expectedLogMessage) match {
+        case None =>
+          MatchResult(
+            matches = false,
+            s"Log message $expectedLogMessage wasn't logged at any level.",
+            s"Log message $expectedLogMessage was logged as $expectedLogLevel."
+          )
+        case Some(loggingEvent) =>
+          val result = validateLogLevel(loggingEvent.getLevel, expectedLogLevel)
 
-            MatchResult(
-              result,
-              s"Log message $expectedLogMessage was logged but not on correct log level, " +
-                s"expected [$expectedLogLevel] actual [${loggingEvent.getLevel}].",
-              s"Log message $expectedLogMessage was logged as $expectedLogLevel."
-            )
-        }
+          MatchResult(
+            result,
+            s"Log message $expectedLogMessage was logged but not on correct log level, " +
+              s"expected [$expectedLogLevel] actual [${loggingEvent.getLevel}].",
+            s"Log message $expectedLogMessage was logged as $expectedLogLevel."
+          )
+      }
     }
   }
 
@@ -38,7 +39,8 @@ trait LogMatchers {
     expectedLogLevel.equals(actualLogLevel)
   }
 
-  private[this] def getLoggingEventWithLogMessage(expectedLogMessage: String)(implicit loggerClassName: String): Option[ILoggingEvent] = {
+  private[this] def getLoggingEventWithLogMessage(expectedLogMessage: String)
+                                                 (implicit loggerClassName: String): Option[ILoggingEvent] = {
     TestAppender.events
       .filter(logEvent => logEvent.getLoggerName.contains(loggerClassName))
       .find(_.getFormattedMessage.contains(expectedLogMessage))

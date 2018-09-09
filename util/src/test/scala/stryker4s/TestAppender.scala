@@ -20,8 +20,6 @@ object TestAppender {
 class TestAppender extends AppenderBase[ILoggingEvent] {
 
   override def append(eventObject: ILoggingEvent): Unit = {
-    eventObject.getLoggerName
-
     TestAppender.events += eventObject
   }
 }
