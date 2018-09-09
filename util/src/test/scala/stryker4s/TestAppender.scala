@@ -13,7 +13,7 @@ object TestAppender {
     * Remove all previous logged events for a specific class.
     */
   def reset(implicit loggerClassName: String): Unit = {
-    events --= events.filterNot(event => event.getLoggerName.contains(loggerClassName))
+    events --= events.filter(event => event.getLoggerName.contains(loggerClassName))
   }
 }
 
