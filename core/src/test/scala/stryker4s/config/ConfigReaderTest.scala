@@ -16,10 +16,10 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       val result = ConfigReader.readConfig(confPath)
 
-      val expected = Config()
-      result.baseDir shouldBe expected.baseDir
-      result.files shouldBe expected.files
-      result.testRunner shouldBe expected.testRunner
+      result.baseDir shouldBe File.currentWorkingDirectory
+      result.files shouldBe Seq("**/main/scala/**/*.scala")
+      result.testRunner shouldBe an[CommandRunner]
+      result.logLevel shouldBe Level.INFO
       result.reporters.head shouldBe an[ConsoleReporter]
     }
 
@@ -46,15 +46,10 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       val result = ConfigReader.readConfig(confPath)
 
-      val expected = Config(
-        files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
-        baseDir = File("/tmp/project"),
-        logLevel = Level.INFO,
-        testRunner = CommandRunner("mvn", "clean test")
-      )
-      result.baseDir shouldBe expected.baseDir
-      result.files shouldBe expected.files
-      result.testRunner shouldBe expected.testRunner
+      result.baseDir shouldBe File("/tmp/project")
+      result.files shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      result.testRunner shouldBe an[CommandRunner]
+      result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
     }
 
@@ -83,12 +78,11 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
     it("should log warnings when no config file is found") {
       val confPath = File("nonExistentFile.conf")
 
-      ConfigReader.readConfig(confPath)
+      val sut = ConfigReader.readConfig(confPath)
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      val defaultConf = Config()
-      s"Config used: ${defaultConf.toHoconString}".stripMargin shouldBe loggedAsDebug
+      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
   }
 
