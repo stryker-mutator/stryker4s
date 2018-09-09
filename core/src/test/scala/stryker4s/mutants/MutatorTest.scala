@@ -62,6 +62,6 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with BeforeAndAfterEa
   }
 
   override def afterEach(): Unit = {
-    TestAppender.reset()
+    TestAppender.reset
   }
 }

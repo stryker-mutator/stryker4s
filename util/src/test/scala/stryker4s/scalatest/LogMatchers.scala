@@ -6,9 +6,8 @@ import org.scalatest.matchers.{BeMatcher, MatchResult}
 import stryker4s.TestAppender
 
 trait LogMatchers {
-  outer =>
 
-  class LogMatcherWithLevel[A](expectedLogLevel: Level) extends BeMatcher[String] {
+  class LogMatcherWithLevel[A](expectedLogLevel: Level)(implicit loggerClassName: String) extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {
         getLoggingEventWithLogMessage(expectedLogMessage) match {
           case None =>
@@ -30,26 +29,18 @@ trait LogMatchers {
     }
   }
 
-  def loggedAsDebug = new LogMatcherWithLevel(Level.DEBUG)
-  def loggedAsInfo = new LogMatcherWithLevel(Level.INFO)
-  def loggedAsWarning = new LogMatcherWithLevel(Level.WARN)
-  def loggedAsError = new LogMatcherWithLevel(Level.ERROR)
+  def loggedAsDebug(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.DEBUG)
+  def loggedAsInfo(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.INFO)
+  def loggedAsWarning(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.WARN)
+  def loggedAsError(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.ERROR)
 
   private[this] def validateLogLevel(actualLogLevel: Level, expectedLogLevel: Level): Boolean = {
     expectedLogLevel.equals(actualLogLevel)
   }
 
-  private[this] def getLoggingEventWithLogMessage(expectedLogMessage: String): Option[ILoggingEvent] = {
+  private[this] def getLoggingEventWithLogMessage(expectedLogMessage: String)(implicit loggerClassName: String): Option[ILoggingEvent] = {
     TestAppender.events
-      .filter(logEvent => logEvent.getLoggerName.contains(getClassName))
+      .filter(logEvent => logEvent.getLoggerName.contains(loggerClassName))
       .find(_.getFormattedMessage.contains(expectedLogMessage))
-  }
-
-  /**
-    * Gets the class name of the system under test.
-    * Is done by getting the executing test class and stripping off 'test'.
-    */
-  private[this] def getClassName: String = {
-    outer.getClass.getCanonicalName.replace("Test", "")
   }
 }

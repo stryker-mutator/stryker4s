@@ -93,6 +93,6 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
   }
 
   override def afterEach(): Unit = {
-    TestAppender.reset()
+    TestAppender.reset
   }
 }
