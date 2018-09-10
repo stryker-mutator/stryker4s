@@ -1,8 +1,6 @@
 package stryker4s.run
 
-import ch.qos.logback.classic.{Level, Logger}
 import grizzled.slf4j.Logging
-import org.slf4j.{LoggerFactory, Logger => slf4jLogger}
 import stryker4s.Stryker4s
 import stryker4s.config.{CommandRunner, Config, ConfigReader}
 import stryker4s.mutants.Mutator
@@ -17,7 +15,7 @@ object Stryker4sRunner extends App with Logging {
 
   val stryker4s = new Stryker4s(
     new FileCollector,
-    new Mutator(new MutantFinder(new MutantMatcher, new MutantRegistry),
+    new Mutator(new MutantFinder(new MutantMatcher),
                 new StatementTransformer,
                 new MatchBuilder),
     resolveRunner(),

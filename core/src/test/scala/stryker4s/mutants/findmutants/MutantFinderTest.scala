@@ -4,7 +4,6 @@ import java.nio.file.NoSuchFileException
 
 import better.files.File
 import stryker4s.Stryker4sSuite
-import stryker4s.run.MutantRegistry
 import stryker4s.scalatest.{FileUtil, TreeEquality}
 
 import scala.meta._
@@ -15,7 +14,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
   describe("parseFile") {
     it("should parse an existing file") {
-      val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)
+      val sut = new MutantFinder(new MutantMatcher)
       val file = exampleClassFile
 
       val result = sut.parseFile(file)
@@ -34,7 +33,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should throw an exception on a non-parseable file") {
-      val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)
+      val sut = new MutantFinder(new MutantMatcher)
       val file = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
       lazy val result = sut.parseFile(file)
@@ -43,7 +42,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should fail on a nonexistent file") {
-      val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)
+      val sut = new MutantFinder(new MutantMatcher)
       val noFile = File("this/does/not/exist.scala")
 
       lazy val result = sut.parseFile(noFile)
@@ -54,7 +53,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
 
   describe("findMutants") {
     it("should return empty list when given source has no possible mutations") {
-      val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)
+      val sut = new MutantFinder(new MutantMatcher)
       val source = source"case class Foo(s: String)"
 
       val result = sut.findMutants(source)
@@ -63,7 +62,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should contain a mutant when given source has a possible mutation") {
-      val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)
+      val sut = new MutantFinder(new MutantMatcher)
       val source =
         source"""case class Bar(s: String) {
                     def foobar = s == "foobar"
@@ -71,14 +70,11 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.findMutants(source)
 
-      val head = result.head
-      head.originalStatement should equal(q"==")
-      val firstMutant = head.mutants.loneElement
+      val firstMutant = result.head
       firstMutant.original should equal(q"==")
       firstMutant.mutated should equal(q"!=")
 
-      val secondMutant = result(1).mutants.loneElement
-      result(1).originalStatement should equal(Lit.String("foobar"))
+      val secondMutant = result(1)
       secondMutant.original should equal(Lit.String("foobar"))
       secondMutant.mutated should equal(Lit.String(""))
     }
@@ -86,23 +82,19 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
 
   describe("mutantsInFile") {
     it("should return a FoundMutantsInSource with correct mutants") {
-      val sut = new MutantFinder(new MutantMatcher, new MutantRegistry)
+      val sut = new MutantFinder(new MutantMatcher)
       val file = exampleClassFile
 
       val result = sut.mutantsInFile(file)
 
       result.source.children should not be empty
       val firstMutant = result.mutants.head
-      firstMutant.originalStatement should equal(q"==")
-      val firstLoneElement = firstMutant.mutants.loneElement
-      firstLoneElement.original should equal(q"==")
-      firstLoneElement.mutated should equal(q"!=")
+      firstMutant.original should equal(q"==")
+      firstMutant.mutated should equal(q"!=")
 
-      val secondMutant = result.mutants(1).mutants.loneElement
-      result.mutants(1).originalStatement should equal(Lit.String("Hugo"))
+      val secondMutant = result.mutants(1)
       secondMutant.original should equal(Lit.String("Hugo"))
       secondMutant.mutated should equal(Lit.String(""))
-
     }
 
   }

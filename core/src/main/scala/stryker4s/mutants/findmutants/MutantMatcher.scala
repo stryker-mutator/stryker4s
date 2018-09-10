@@ -2,47 +2,51 @@ package stryker4s.mutants.findmutants
 
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.FoundMutant
+import stryker4s.model.{Mutant, MutantCreator}
 
 import scala.meta.Tree
 
 class MutantMatcher {
 
-  def allMatchers(): PartialFunction[Tree, FoundMutant] =
-    matchConditionals() orElse
-      matchMethods() orElse
-      matchLiterals()
+  def allMatchers(): PartialFunction[Tree, Seq[Mutant]] =
+    matchBinaryOperators orElse
+      matchMethods orElse
+      matchString orElse
+      matchBooleanSubstitutions
 
-  def matchConditionals(): PartialFunction[Tree, FoundMutant] = {
-    case GreaterThanEqualTo(orig) => FoundMutant(orig, GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig)        => FoundMutant(orig, GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig)  => FoundMutant(orig, LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig)         => FoundMutant(orig, LesserThanEqualTo, GreaterThan, EqualTo)
-    case EqualTo(orig)            => FoundMutant(orig, NotEqualTo)
-    case NotEqualTo(orig)         => FoundMutant(orig, EqualTo)
-    case And(orig)                => FoundMutant(orig, Or)
-    case Or(orig)                 => FoundMutant(orig, And)
+  def matchBinaryOperators(): PartialFunction[Tree, Seq[Mutant]] = {
+    case GreaterThanEqualTo(orig) => MutantCreator.create(orig, GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)        => MutantCreator.create(orig, GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig)  => MutantCreator.create(orig, LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)         => MutantCreator.create(orig, LesserThanEqualTo, GreaterThan, EqualTo)
+    case EqualTo(orig)            => MutantCreator.create(orig, NotEqualTo)
+    case NotEqualTo(orig)         => MutantCreator.create(orig, EqualTo)
+    case And(orig)                => MutantCreator.create(orig, Or)
+    case Or(orig)                 => MutantCreator.create(orig, And)
   }
 
-  def matchMethods(): PartialFunction[Tree, FoundMutant] = {
-    case Filter(orig)      => FoundMutant(orig, FilterNot)
-    case FilterNot(orig)   => FoundMutant(orig, Filter)
-    case Exists(orig)      => FoundMutant(orig, ForAll)
-    case ForAll(orig)      => FoundMutant(orig, Exists)
-    case IsEmpty(orig)     => FoundMutant(orig, NonEmpty)
-    case NonEmpty(orig)    => FoundMutant(orig, IsEmpty)
-    case IndexOf(orig)     => FoundMutant(orig, LastIndexOf)
-    case LastIndexOf(orig) => FoundMutant(orig, IndexOf)
-    case Max(orig)         => FoundMutant(orig, Min)
-    case Min(orig)         => FoundMutant(orig, Max)
+  def matchMethods(): PartialFunction[Tree, Seq[Mutant]] = {
+    case Filter(orig)      => MutantCreator.create(orig, FilterNot)
+    case FilterNot(orig)   => MutantCreator.create(orig, Filter)
+    case Exists(orig)      => MutantCreator.create(orig, ForAll)
+    case ForAll(orig)      => MutantCreator.create(orig, Exists)
+    case IsEmpty(orig)     => MutantCreator.create(orig, NonEmpty)
+    case NonEmpty(orig)    => MutantCreator.create(orig, IsEmpty)
+    case IndexOf(orig)     => MutantCreator.create(orig, LastIndexOf)
+    case LastIndexOf(orig) => MutantCreator.create(orig, IndexOf)
+    case Max(orig)         => MutantCreator.create(orig, Min)
+    case Min(orig)         => MutantCreator.create(orig, Max)
   }
 
-  def matchLiterals(): PartialFunction[Tree, FoundMutant] = {
-    case True(orig)                => FoundMutant(orig, False)
-    case False(orig)               => FoundMutant(orig, True)
-    case EmptyString(orig)         => FoundMutant(orig, StrykerWasHereString)
-    case NonEmptyString(orig)      => FoundMutant(orig, EmptyString)
-    case StringInterpolation(orig) => FoundMutant(orig, EmptyStringInterpolation)
+  def matchString(): PartialFunction[Tree, Seq[Mutant]] = {
+    case EmptyString(orig)         => MutantCreator.create(orig, StrykerWasHereString)
+    case NonEmptyString(orig)      => MutantCreator.create(orig, EmptyString)
+    case StringInterpolation(orig) => MutantCreator.create(orig, EmptyStringInterpolation)
+  }
+
+  def matchBooleanSubstitutions(): PartialFunction[Tree, Seq[Mutant]] = {
+    case True(orig)  => MutantCreator.create(orig, False)
+    case False(orig) => MutantCreator.create(orig, True)
   }
 
 }

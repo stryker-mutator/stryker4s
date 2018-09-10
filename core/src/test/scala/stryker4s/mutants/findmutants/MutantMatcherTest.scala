@@ -3,7 +3,7 @@ package stryker4s.mutants.findmutants
 import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.FoundMutant
+import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
@@ -11,7 +11,7 @@ import scala.meta._
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   val sut = new MutantMatcher
 
-  def checkMatch(matchFun: PartialFunction[Tree, FoundMutant],
+  def checkMatch(matchFun: PartialFunction[Tree, Seq[Mutant]],
                  tree: Tree,
                  original: Term,
                  matches: Term*): Unit = {
@@ -87,7 +87,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   describe("matchConditionalStatements matcher") {
     it("should match >= sign with >, <, and ==") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = 18 >= 20",
         GreaterThanEqualTo,
         GreaterThan,
@@ -98,7 +98,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match > with >=, < and ==") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = 18 > 20",
         GreaterThan,
         GreaterThanEqualTo,
@@ -109,7 +109,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match <= to <, >= and ==") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = 18 <= 20",
         LesserThanEqualTo,
         LesserThan,
@@ -120,7 +120,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match < to <=, > and ==") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = 18 < 20",
         LesserThan,
         LesserThanEqualTo,
@@ -131,7 +131,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match == to !=") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = 18 == 20",
         EqualTo,
         NotEqualTo
@@ -140,7 +140,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match != to ==") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = 18 != 20",
         NotEqualTo,
         EqualTo
@@ -149,7 +149,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match && to ||") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = a && b",
         And,
         Or
@@ -158,7 +158,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match || to &&") {
       checkMatch(
-        sut.matchConditionals(),
+        sut.matchBinaryOperators(),
         q"def foo = a || b",
         Or,
         And
@@ -261,7 +261,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   describe("literals matcher") {
     it("should match false to true") {
       checkMatch(
-        sut.matchLiterals(),
+        sut.matchBooleanSubstitutions(),
         q"def foo = false",
         False,
         True
@@ -270,7 +270,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match true to false") {
       checkMatch(
-        sut.matchLiterals(),
+        sut.matchBooleanSubstitutions(),
         q"def foo = true",
         True,
         False
@@ -279,7 +279,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match foo to NonEmptyString") {
       checkMatch(
-        sut.matchLiterals(),
+        sut.matchString(),
         q"""def foo: String = "bar"""",
         Lit.String("bar"),
         EmptyString
@@ -288,7 +288,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match empty string to StrykerWasHere") {
       checkMatch(
-        sut.matchLiterals(),
+        sut.matchString(),
         q"""def foo = "" """,
         EmptyString,
         StrykerWasHereString
@@ -303,7 +303,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       interpolated.syntax should equal("s\"interpolate $foo\"")
       checkMatch(
-        sut.matchLiterals(),
+        sut.matchString(),
         tree,
         interpolated,
         emptyStringInterpolate
@@ -320,7 +320,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar + 1} bar\"")
       checkMatch(
-        sut.matchLiterals(),
+        sut.matchString(),
         tree,
         interpolated,
         emptyStringInterpolate

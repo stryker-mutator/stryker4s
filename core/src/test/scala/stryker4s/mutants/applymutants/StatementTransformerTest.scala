@@ -4,7 +4,7 @@ import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.TreeExtensions._
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.{Mutant, RegisteredMutant}
+import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
@@ -67,7 +67,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
         .map(Mutant(0, originalTree, _))
 
       // Act
-      val transformedMutant = sut.transformMutant(RegisteredMutant(originalTree, mutants))
+      val transformedMutant = sut.transformMutant(originalTree, mutants)
 
       // Assert
       val topStatement = transformedMutant.originalStatement
@@ -85,10 +85,9 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val origTree = source.find(q">=").value
       val mutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
         .map(Mutant(0, origTree, _))
-      val registeredMutant = RegisteredMutant(origTree, mutants)
 
       // Act
-      val result = sut.transformSource(source, List(registeredMutant))
+      val result = sut.transformSource(source, mutants)
 
       // Assert
       result.source should be theSameInstanceAs source
@@ -105,14 +104,12 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     val firstOrigTree = source.find(q">=").value
     val firstMutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
       .map(Mutant(0, firstOrigTree, _))
-    val firstFoundMutant = RegisteredMutant(firstOrigTree, firstMutants)
 
     val secOrigTree = source.find(q"<").value
     val secondMutants = List(LesserThanEqualTo, GreaterThan, EqualTo)
       .map(Mutant(0, secOrigTree, _))
-    val secFoundMutant = RegisteredMutant(secOrigTree, secondMutants)
 
-    val statements = List(firstFoundMutant, secFoundMutant)
+    val statements = firstMutants ++ secondMutants
 
     // Act
     val result = sut.transformSource(source, statements)
