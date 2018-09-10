@@ -4,7 +4,7 @@ Stryker4s supports a variety of mutators, which are listed below. Do you have a 
 
 An always up-to-date reference is also available in the [MutantMatcher source](../core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
 
-## Conditionals
+## Binary operators
 
 | Original | Mutated |
 | --- | --- |
@@ -17,7 +17,13 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | `&&` | `||` |
 | `||` | `&&` |
 
-## Methods
+## Boolean Substitutions
+| Original | Mutated |
+| --- | --- |
+| `true` | `false` |
+| `false` | `true` |
+
+## Method mutator
 
 | Original | Mutated |
 | --- | --- |
@@ -34,12 +40,10 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 
 <sup>1: This can cause some false positives with unique lists, such as sets</sup>
 
-## Literal substitutions
+## String mutator
 
 | Original | Mutated |
 | --- | --- |
-| `true` | `false` |
-| `false` | `true` |
 | `"foo"` (non-empty string) | `""` (empty string) |
 | `""` (empty string) | `"Stryker was here!"` |
 | `s"foo ${bar}"` (string interpolation) | `s""` <sup>2</sup> |
