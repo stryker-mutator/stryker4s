@@ -1,13 +1,13 @@
-package stryker4s
+package stryker4s.mutants
 
 import org.scalatest.BeforeAndAfterEach
 import stryker4s.config.Config
-import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.run.MutantRegistry
 import stryker4s.scalatest.{FileUtil, TreeEquality}
 import stryker4s.stubs.TestSourceCollector
+import stryker4s.{Stryker4sSuite, TestAppender}
 
 import scala.meta._
 
@@ -62,6 +62,6 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with BeforeAndAfterEa
   }
 
   override def afterEach(): Unit = {
-    TestAppender.reset()
+    TestAppender.reset
   }
 }

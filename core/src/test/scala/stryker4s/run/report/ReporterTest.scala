@@ -25,8 +25,4 @@ class ReporterTest extends Stryker4sSuite with BeforeAndAfterEach with Idiomatic
       verify(reporterMock).report(mutantRunResults)
     }
   }
-
-  override def afterEach(): Unit = {
-    TestAppender.reset()
-  }
 }
