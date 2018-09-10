@@ -7,7 +7,7 @@ import stryker4s.scalatest.TreeEquality
 import scala.meta._
 
 class MutationTypesTest extends Stryker4sSuite with TreeEquality {
-  describe("match TermNameMutation") {
+  describe("BinaryOperators") {
     it("> to GreaterThan") {
       q">" should matchPattern { case GreaterThan(_) => }
     }
@@ -31,7 +31,19 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     it("!= to NotEqualTo") {
       q"!=" should matchPattern { case NotEqualTo(_) => }
     }
+  }
 
+  describe("BooleanSubstitutions") {
+    it("false to False") {
+      q"false" should matchPattern { case False(_) => }
+    }
+
+    it("true to True") {
+      q"true" should matchPattern { case True(_) => }
+    }
+  }
+
+  describe("LogicalOperators") {
     it("&& to And") {
       q"&&" should matchPattern { case And(_) => }
     }
@@ -39,7 +51,30 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     it("|| to Or") {
       q"||" should matchPattern { case Or(_) => }
     }
+  }
 
+  describe("StringMutators") {
+    it("foo string to NonEmptyString") {
+      q""""foo"""" should matchPattern { case NonEmptyString(_) => }
+    }
+
+    it("empty string to EmptyString") {
+      Lit.String("") should matchPattern { case EmptyString(_) => }
+    }
+
+    it("string interpolation to StringInterpolation") {
+      Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should matchPattern {
+        case StringInterpolation(_) =>
+      }
+    }
+
+    it("q interpolation should not match StringInterpolation") {
+      Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should not matchPattern {
+        case StringInterpolation(_) =>
+      }
+    }
+  }
+  describe("MethodMutators") {
     it("filter to Filter") {
       q"filter" should matchPattern { case Filter(_) => }
     }
@@ -83,7 +118,9 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     it("should not match a different pattern") {
       q"filter" should not matchPattern { case FilterNot(_) => }
     }
+  }
 
+  describe("other cases") {
     it("should return original tree on match") {
       val tree = q">="
 
@@ -93,39 +130,7 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
 
       result should be theSameInstanceAs tree
     }
-  }
 
-  describe("match LiteralMutation") {
-    it("false to False") {
-      q"false" should matchPattern { case False(_) => }
-    }
-
-    it("true to True") {
-      q"true" should matchPattern { case True(_) => }
-    }
-
-    it("foo string to NonEmptyString") {
-      q""""foo"""" should matchPattern { case NonEmptyString(_) => }
-    }
-
-    it("empty string to EmptyString") {
-      Lit.String("") should matchPattern { case EmptyString(_) => }
-    }
-
-    it("string interpolation to StringInterpolation") {
-      Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should matchPattern {
-        case StringInterpolation(_) =>
-      }
-    }
-
-    it("q interpolation should not match StringInterpolation") {
-      Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should not matchPattern {
-        case StringInterpolation(_) =>
-      }
-    }
-  }
-
-  describe("implicit convert") {
     it("should convert GreaterThan to >") {
       val wrapped = WrappedTree(GreaterThan)
 
