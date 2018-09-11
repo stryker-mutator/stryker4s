@@ -7,6 +7,7 @@ import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
+import scala.collection.immutable
 import scala.meta._
 
 class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
@@ -101,12 +102,12 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     // Arrange
     val source = "object Foo { def bar: Boolean = 15 >= 4 && 14 < 20 }".parse[Source].get
 
-    val firstOrigTree = source.find(q">=").value
-    val firstMutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
+    val firstOrigTree = source.find(q"15 >= 4").value
+    val firstMutants: Seq[Mutant] = List(EqualTo, GreaterThan, LesserThanEqualTo)
       .map(Mutant(0, firstOrigTree, _))
 
-    val secOrigTree = source.find(q"<").value
-    val secondMutants = List(LesserThanEqualTo, GreaterThan, EqualTo)
+    val secOrigTree = source.find(q"14 < 20").value
+    val secondMutants: Seq[Mutant] = List(LesserThanEqualTo, GreaterThan, EqualTo)
       .map(Mutant(0, secOrigTree, _))
 
     val statements = firstMutants ++ secondMutants
@@ -116,11 +117,13 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
     // Assert
     result.source should be theSameInstanceAs source
+
     val first = result.transformedStatements.head
-    first.originalStatement should equal(q"15 >= 4")
-    first.mutantStatements.map(_.mutated) should contain only (q"15 == 4", q"15 > 4", q"15 <= 4")
-    val sec = result.transformedStatements(1)
-    sec.originalStatement should equal(q"14 < 20")
-    sec.mutantStatements.map(_.mutated) should contain only (q"14 <= 20", q"14 > 20", q"14 == 20")
+    first.originalStatement should equal(q"14 < 20")
+    first.mutantStatements should contain theSameElementsAs secondMutants
+
+    val second = result.transformedStatements(1)
+    second.originalStatement should equal(q"15 >= 4")
+    second.mutantStatements should contain theSameElementsAs firstMutants
   }
 }
