@@ -122,7 +122,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-  describe("matchConditionalStatements matcher") {
+  describe("matchBinaryOperators matcher") {
     it("should match >= sign with >, <, and ==") {
       checkMatch(
         sut.matchBinaryOperators(),
@@ -184,10 +184,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         EqualTo
       )
     }
-
+  }
+  describe("logicalOperators matcher") {
     it("should match && to ||") {
       checkMatch(
-        sut.matchBinaryOperators(),
+        sut.matchLogicalOperators(),
         q"def foo = a && b",
         And,
         Or
@@ -196,7 +197,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match || to &&") {
       checkMatch(
-        sut.matchBinaryOperators(),
+        sut.matchLogicalOperators(),
         q"def foo = a || b",
         Or,
         And
@@ -204,10 +205,10 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-  describe("matchMethods matcher") {
+  describe("matchMethodMutators matcher") {
     it("should match filter to filterNot") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).filter(_ % 2 == 0)",
         Filter,
         FilterNot
@@ -216,7 +217,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match filterNot to filter") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)",
         FilterNot,
         Filter
@@ -225,7 +226,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match exists to forAll") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
         Exists,
         ForAll
@@ -234,7 +235,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match forAll to exists") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
         ForAll,
         Exists
@@ -243,7 +244,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match isEmpty to nonEmpty") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).isEmpty",
         IsEmpty,
         NonEmpty
@@ -252,7 +253,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match nonEmpty to isEmpty") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).nonEmpty",
         NonEmpty,
         IsEmpty
@@ -261,7 +262,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match indexOf to lastIndexOf") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).indexOf(2)",
         IndexOf,
         LastIndexOf
@@ -270,7 +271,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match lastIndexOf to indexOf") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).lastIndexOf(2)",
         LastIndexOf,
         IndexOf
@@ -279,7 +280,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match max to min") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).max",
         Max,
         Min
@@ -288,7 +289,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match min to max") {
       checkMatch(
-        sut.matchMethods(),
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).min",
         Min,
         Max
@@ -296,7 +297,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-  describe("literals matcher") {
+  describe("matchBooleanSubstitutions matcher") {
     it("should match false to true") {
       checkMatch(
         sut.matchBooleanSubstitutions(),
@@ -314,10 +315,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         False
       )
     }
-
+  }
+  describe("stringMutators matcher") {
     it("should match foo to NonEmptyString") {
       checkMatch(
-        sut.matchString(),
+        sut.matchStringMutators(),
         q"""def foo: String = "bar"""",
         Lit.String("bar"),
         EmptyString
@@ -326,7 +328,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match empty string to StrykerWasHere") {
       checkMatch(
-        sut.matchString(),
+        sut.matchStringMutators(),
         q"""def foo = "" """,
         EmptyString,
         StrykerWasHereString
@@ -341,7 +343,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       interpolated.syntax should equal("s\"interpolate $foo\"")
       checkMatch(
-        sut.matchString(),
+        sut.matchStringMutators(),
         tree,
         interpolated,
         emptyStringInterpolate
@@ -358,7 +360,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar + 1} bar\"")
       checkMatch(
-        sut.matchString(),
+        sut.matchStringMutators(),
         tree,
         interpolated,
         emptyStringInterpolate
