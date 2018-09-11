@@ -70,6 +70,8 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.findMutants(source)
 
+      result should have length 2
+
       val firstMutant = result.head
       firstMutant.original should equal(q"==")
       firstMutant.mutated should equal(q"!=")
