@@ -119,11 +119,11 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     result.source should be theSameInstanceAs source
 
     val first = result.transformedStatements.head
-    first.originalStatement should equal(q"14 < 20")
-    first.mutantStatements should contain theSameElementsAs secondMutants
+    first.originalStatement should equal(q"15 >= 4")
+    first.mutantStatements should contain theSameElementsAs firstMutants
 
     val second = result.transformedStatements(1)
-    second.originalStatement should equal(q"15 >= 4")
-    second.mutantStatements should contain theSameElementsAs firstMutants
+    second.originalStatement should equal(q"14 < 20")
+    second.mutantStatements should contain theSameElementsAs secondMutants
   }
 }
