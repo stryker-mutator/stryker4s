@@ -4,7 +4,7 @@ import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.TreeExtensions._
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.Mutant
+import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
@@ -117,18 +117,18 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     // Assert
     result.source should be theSameInstanceAs source
 
-    val first = result.transformedStatements
-      .find(mutant => mutant.originalStatement.toString().equals("15 >= 4"))
-      .getOrElse(fail("mutant not found"))
-
+    val first = findTransformedStatement(result, q"15 >= 4")
     first.originalStatement should equal(q"15 >= 4")
     first.mutantStatements should contain theSameElementsAs firstMutants
 
-    val second = result.transformedStatements
-      .find(mutant => mutant.originalStatement.toString().equals("14 < 20"))
-      .getOrElse(fail("mutant not found"))
-
+    val second = findTransformedStatement(result, q"14 < 20")
     second.originalStatement should equal(q"14 < 20")
     second.mutantStatements should contain theSameElementsAs secondMutants
+  }
+
+  private[this] def findTransformedStatement(result: SourceTransformations, term: Term): TransformedMutants = {
+    result.transformedStatements
+      .find(mutant => mutant.originalStatement.syntax.equals(term.syntax))
+      .getOrElse(fail("mutant not found"))
   }
 }
