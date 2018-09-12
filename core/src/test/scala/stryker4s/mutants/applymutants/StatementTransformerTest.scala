@@ -7,7 +7,6 @@ import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
-import scala.collection.immutable
 import scala.meta._
 
 class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
@@ -118,11 +117,17 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     // Assert
     result.source should be theSameInstanceAs source
 
-    val first = result.transformedStatements.head
+    val first = result.transformedStatements
+      .find(mutant => mutant.originalStatement.toString().equals("15 >= 4"))
+      .getOrElse(fail("mutant not found"))
+
     first.originalStatement should equal(q"15 >= 4")
     first.mutantStatements should contain theSameElementsAs firstMutants
 
-    val second = result.transformedStatements(1)
+    val second = result.transformedStatements
+      .find(mutant => mutant.originalStatement.toString().equals("14 < 20"))
+      .getOrElse(fail("mutant not found"))
+
     second.originalStatement should equal(q"14 < 20")
     second.mutantStatements should contain theSameElementsAs secondMutants
   }
