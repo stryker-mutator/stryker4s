@@ -16,40 +16,40 @@ class MutantMatcher extends MutantCreator {
       matchMethodMutators()
 
   def matchBinaryOperators(): PartialFunction[Tree, Seq[Mutant]] = {
-    case GreaterThanEqualTo(orig) => create(orig, GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig)        => create(orig, GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig)  => create(orig, LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig)         => create(orig, LesserThanEqualTo, GreaterThan, EqualTo)
-    case EqualTo(orig)            => create(orig, NotEqualTo)
-    case NotEqualTo(orig)         => create(orig, EqualTo)
+    case GreaterThanEqualTo(orig) => orig ~~> (GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)        => orig ~~> (GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig)  => orig ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)         => orig ~~> (LesserThanEqualTo, GreaterThan, EqualTo)
+    case EqualTo(orig)            => orig ~~> NotEqualTo
+    case NotEqualTo(orig)         => orig ~~> EqualTo
   }
 
   def matchBooleanSubstitutions(): PartialFunction[Tree, Seq[Mutant]] = {
-    case True(orig)  => create(orig, False)
-    case False(orig) => create(orig, True)
+    case True(orig)  => orig ~~> False
+    case False(orig) => orig ~~> True
   }
 
   def matchLogicalOperators(): PartialFunction[Tree, Seq[Mutant]] = {
-    case And(orig) => create(orig, Or)
-    case Or(orig)  => create(orig, And)
+    case And(orig) => orig ~~> Or
+    case Or(orig)  => orig ~~> And
   }
 
   def matchStringMutators(): PartialFunction[Tree, Seq[Mutant]] = {
-    case EmptyString(orig)         => create(orig, StrykerWasHereString)
-    case NonEmptyString(orig)      => create(orig, EmptyString)
-    case StringInterpolation(orig) => create(orig, EmptyStringInterpolation)
+    case EmptyString(orig)         => orig ~~> StrykerWasHereString
+    case NonEmptyString(orig)      => orig ~~> EmptyString
+    case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
   }
 
   def matchMethodMutators(): PartialFunction[Tree, Seq[Mutant]] = {
-    case Filter(orig)      => create(orig, FilterNot)
-    case FilterNot(orig)   => create(orig, Filter)
-    case Exists(orig)      => create(orig, ForAll)
-    case ForAll(orig)      => create(orig, Exists)
-    case IsEmpty(orig)     => create(orig, NonEmpty)
-    case NonEmpty(orig)    => create(orig, IsEmpty)
-    case IndexOf(orig)     => create(orig, LastIndexOf)
-    case LastIndexOf(orig) => create(orig, IndexOf)
-    case Max(orig)         => create(orig, Min)
-    case Min(orig)         => create(orig, Max)
+    case Filter(orig)      => orig ~~> FilterNot
+    case FilterNot(orig)   => orig ~~> Filter
+    case Exists(orig)      => orig ~~> ForAll
+    case ForAll(orig)      => orig ~~> Exists
+    case IsEmpty(orig)     => orig ~~> NonEmpty
+    case NonEmpty(orig)    => orig ~~> IsEmpty
+    case IndexOf(orig)     => orig ~~> LastIndexOf
+    case LastIndexOf(orig) => orig ~~> IndexOf
+    case Max(orig)         => orig ~~> Min
+    case Min(orig)         => orig ~~> Max
   }
 }

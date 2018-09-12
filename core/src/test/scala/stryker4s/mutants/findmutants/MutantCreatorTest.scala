@@ -1,8 +1,8 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.Stryker4sSuite
-import stryker4s.extensions.mutationtypes.{EqualTo, GreaterThan, GreaterThanEqualTo, LesserThan}
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
+import stryker4s.extensions.mutationtypes.{EqualTo, GreaterThan, GreaterThanEqualTo, LesserThan}
 
 class MutantCreatorTest extends Stryker4sSuite {
 
@@ -11,9 +11,9 @@ class MutantCreatorTest extends Stryker4sSuite {
   describe("mutant id") {
     it("should register multiple mutants from a FoundMutant with multiple mutations") {
       val sut = Sut()
-      val mutants = sut.create(GreaterThan, LesserThan, GreaterThanEqualTo, EqualTo)
+      val mutants = sut.TermExtensions(GreaterThan) ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
 
-      mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0,1,2)
+      mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0, 1, 2)
     }
   }
 }
