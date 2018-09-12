@@ -26,33 +26,32 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     })
   }
 
+  private[this] def expectMutation(actualMutants: Seq[Mutant], original: Term, expectedMutation: Term) = {
+    val actualMutant = actualMutants
+      .find(mutant => mutant.mutated.syntax.equals(expectedMutation.syntax) &&
+                      mutant.original.syntax.equals(original.syntax))
+      .getOrElse(fail("mutant not found"))
+
+    actualMutant.original should equal(original)
+    actualMutant.mutated should equal(expectedMutation)
+  }
+
   describe("All Matchers") {
     it("should match a conditional statement") {
       val tree = q"def foo = 15 > 20 && 20 < 15"
 
-      val found = tree.collect(sut.allMatchers()).flatten
+      val found: Seq[Mutant] = tree.collect(sut.allMatchers()).flatten
 
       found should have length 7
-      found.head.original should equal(q">")
-      found.head.mutated should equal(q">=")
+      expectMutation(found, q">", q">=")
+      expectMutation(found, q">", q"<")
+      expectMutation(found, q">", q"==")
 
-      found(1).original should equal(q">")
-      found(1).mutated should equal(q"<")
+      expectMutation(found,q"&&", q"||")
 
-      found(2).original should equal(q">")
-      found(2).mutated should equal(q"==")
-
-      found(3).original should equal(q"&&")
-      found(3).mutated should equal(q"||")
-
-      found(4).original should equal(q"<")
-      found(4).mutated should equal(q"<=")
-
-      found(5).original should equal(q"<")
-      found(5).mutated should equal(q">")
-
-      found(6).original should equal(q"<")
-      found(6).mutated should equal(q"==")
+      expectMutation(found, q"<", q"<=")
+      expectMutation(found, q"<", q">")
+      expectMutation(found, q"<", q"==")
     }
 
     it("should match a method") {
@@ -61,10 +60,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found = tree.collect(sut.allMatchers()).flatten
 
       found should have length 2
-      found.head.original should equal(q"filterNot")
-      found.head.mutated should equal(q"filter")
-      found(1).original should equal(q"filter")
-      found(1).mutated should equal(q"filterNot")
+      expectMutation(found, q"filterNot", q"filter")
+      expectMutation(found, q"filter", q"filterNot")
     }
 
     it("should match a boolean and a conditional") {
@@ -73,20 +70,10 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found = tree.collect(sut.allMatchers()).flatten
 
       found should have length 5
-      found.head.original should equal(q"false")
-      found.head.mutated should equal(q"true")
-
-      found(1).original should equal(q"&&")
-      found(1).mutated should equal(q"||")
-
-      found(2).original should equal(q">")
-      found(2).mutated should equal(q">=")
-
-      found(3).original should equal(q">")
-      found(3).mutated should equal(q"<")
-
-      found(4).original should equal(q">")
-      found(4).mutated should equal(q"==")
+      expectMutation(found, q"false", q"true")
+      expectMutation(found, q"&&", q"||")
+      expectMutation(found, q">", q"<")
+      expectMutation(found, q">", q"==")
     }
 
     it("should match the default case of a constructor argument") {
@@ -95,14 +82,9 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found = tree.collect(sut.allMatchers()).flatten
 
       found should have length 3
-      found.head.original should equal(q">")
-      found.head.mutated should equal(q">=")
-
-      found(1).original should equal(q">")
-      found(1).mutated should equal(q"<")
-
-      found(2).original should equal(q">")
-      found(2).mutated should equal(q"==")
+      expectMutation(found, q">", q">=")
+      expectMutation(found, q">", q"<")
+      expectMutation(found, q">", q"==")
     }
 
     it("should match on the default case of a function argument") {
@@ -111,14 +93,9 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found = tree.collect(sut.allMatchers()).flatten
 
       found should have length 3
-      found.head.original should equal(q">")
-      found.head.mutated should equal(q">=")
-
-      found(1).original should equal(q">")
-      found(1).mutated should equal(q"<")
-
-      found(2).original should equal(q">")
-      found(2).mutated should equal(q"==")
+      expectMutation(found, q">", q">=")
+      expectMutation(found, q">", q"<")
+      expectMutation(found, q">", q"==")
     }
   }
 
