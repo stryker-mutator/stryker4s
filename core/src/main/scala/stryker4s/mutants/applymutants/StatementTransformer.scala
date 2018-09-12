@@ -12,9 +12,7 @@ class StatementTransformer {
 
     val transformedMutants: Seq[TransformedMutants] = foundMutants
       .groupBy(mutant => mutant.original)
-      .map {
-        case (original, mutants) => transformMutant(original, mutants)
-      }
+      .map { case (original, mutants) => transformMutant(original, mutants) }
       .toSeq
 
     SourceTransformations(source, transformedMutants)
