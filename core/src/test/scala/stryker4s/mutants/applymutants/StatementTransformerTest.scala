@@ -103,11 +103,11 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     // Arrange
     val source = "object Foo { def bar: Boolean = 15 >= 4 && 14 < 20 }".parse[Source].get
 
-    val firstOrigTree = source.find(q"15 >= 4").value
+    val firstOrigTree = source.find(q">=").value
     val firstMutants: Seq[Mutant] = List(EqualTo, GreaterThan, LesserThanEqualTo)
       .map(Mutant(0, firstOrigTree, _))
 
-    val secOrigTree = source.find(q"14 < 20").value
+    val secOrigTree = source.find(q"<").value
     val secondMutants: Seq[Mutant] = List(LesserThanEqualTo, GreaterThan, EqualTo)
       .map(Mutant(0, secOrigTree, _))
 
@@ -121,11 +121,13 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
     val first = findTransformedStatement(result, q"15 >= 4")
     first.originalStatement should equal(q"15 >= 4")
-    first.mutantStatements should contain theSameElementsAs firstMutants
+    first.mutantStatements.map(_.original) should contain only q"15 >= 4"
+    first.mutantStatements.map(_.mutated) should contain only (q"15 == 4", q"15 > 4", q"15 <= 4")
 
     val second = findTransformedStatement(result, q"14 < 20")
     second.originalStatement should equal(q"14 < 20")
-    second.mutantStatements should contain theSameElementsAs secondMutants
+    second.mutantStatements.map(_.original) should contain only q"14 < 20"
+    second.mutantStatements.map(_.mutated) should contain only (q"14 <= 20", q"14 > 20", q"14 == 20")
   }
 
   private[this] def findTransformedStatement(result: SourceTransformations, term: Term): TransformedMutants = {
