@@ -7,6 +7,7 @@ import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
+import scala.meta.contrib._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   val sut = new MutantMatcher
@@ -19,7 +20,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     matches.foreach(term => {
       val mutant = found
-        .find(mutant => mutant.mutated.syntax.equals(term.syntax))
+        .find(mutant => mutant.mutated.isEqual(term))
         .getOrElse(fail("Mutant not found"))
 
       mutant.mutated should equal(term)
@@ -28,8 +29,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
   private[this] def expectMutation(actualMutants: Seq[Mutant], original: Term, expectedMutation: Term) = {
     val actualMutant = actualMutants
-      .find(mutant => mutant.mutated.syntax.equals(expectedMutation.syntax) &&
-                      mutant.original.syntax.equals(original.syntax))
+      .find(mutant => mutant.mutated.isEqual(expectedMutation) &&
+                      mutant.original.isEqual(original))
       .getOrElse(fail("mutant not found"))
 
     actualMutant.original should equal(original)

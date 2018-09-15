@@ -6,7 +6,7 @@ import stryker4s.model.Mutant
 
 import scala.meta.{Term, Tree}
 
-class MutantMatcher extends MutantCreator {
+class MutantMatcher {
 
   private[this] val stream = Iterator.from(0)
 

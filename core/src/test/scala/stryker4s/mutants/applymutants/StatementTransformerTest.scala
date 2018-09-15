@@ -8,9 +8,11 @@ import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
+import scala.meta.contrib._
 
 class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
   val sut = new StatementTransformer
+
   describe("transformStatement") {
     it("should return a single new statement on single FoundMutant") {
       val originalTopTree = q"val x: Boolean = 15 >= 5"
@@ -128,7 +130,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
   private[this] def findTransformedStatement(result: SourceTransformations, term: Term): TransformedMutants = {
     result.transformedStatements
-      .find(mutant => mutant.originalStatement.syntax.equals(term.syntax))
+      .find(mutant => mutant.originalStatement.isEqual(term))
       .getOrElse(fail("mutant not found"))
   }
 }
