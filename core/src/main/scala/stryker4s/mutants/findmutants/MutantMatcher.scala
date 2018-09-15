@@ -4,9 +4,11 @@ import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
 
-import scala.meta.Tree
+import scala.meta.{Term, Tree}
 
 class MutantMatcher extends MutantCreator {
+
+  private[this] val stream = Iterator.from(0)
 
   def allMatchers(): PartialFunction[Tree, Seq[Mutant]] =
     matchBinaryOperators() orElse
@@ -51,5 +53,11 @@ class MutantMatcher extends MutantCreator {
     case LastIndexOf(orig) => orig ~~> IndexOf
     case Max(orig)         => orig ~~> Min
     case Min(orig)         => orig ~~> Max
+  }
+
+  implicit class TermExtensions(original: Term) {
+    def ~~>(mutated: Term*): Seq[Mutant] = {
+      mutated.map(mutant => Mutant(stream.next(), original, mutant))
+    }
   }
 }

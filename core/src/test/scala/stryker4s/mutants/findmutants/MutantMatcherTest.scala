@@ -356,4 +356,13 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
+  describe("Create mutant id's") {
+    it("should register multiple mutants from a found mutant with multiple mutations") {
+      val sut = new MutantMatcher
+      val mutants = sut.TermExtensions(GreaterThan) ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
+
+      mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0, 1, 2)
+    }
+  }
+
 }
