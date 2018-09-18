@@ -2,23 +2,21 @@ package stryker4s.mutants.findmutants
 
 import better.files.File
 import grizzled.slf4j.Logging
-import stryker4s.model.{MutationsInSource, RegisteredMutant}
-import stryker4s.run.MutantRegistry
+import stryker4s.model.{Mutant, MutationsInSource}
 
 import scala.meta.Source
 import scala.meta.parsers.{Parsed, XtensionParseInputLike}
 
-class MutantFinder(matcher: MutantMatcher, registry: MutantRegistry) extends Logging {
+class MutantFinder(matcher: MutantMatcher) extends Logging {
 
   def mutantsInFile(filePath: File): MutationsInSource = {
     val parsedSource = parseFile(filePath)
     MutationsInSource(parsedSource, findMutants(parsedSource))
   }
 
-  def findMutants(source: Source): Seq[RegisteredMutant] =
-    source collect
-      matcher.allMatchers() map
-      registry.registerMutant
+  def findMutants(source: Source): Seq[Mutant] = {
+    source.collect(matcher.allMatchers()).flatten
+  }
 
   def parseFile(file: File): Source =
     file.contentAsString

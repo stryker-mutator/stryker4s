@@ -31,13 +31,12 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
         filePath.overwrite(tree.syntax)
     }
 
-    val totalMutants = files.flatMap(_.mutants).flatMap(_.mutants).size
+    val totalMutants = files.flatMap(_.mutants).size
 
     val runResults = for {
       mutatedFile <- files
       subPath = config.baseDir.relativize(mutatedFile.fileOrigin)
-      registeredMutant <- mutatedFile.mutants
-      mutant <- registeredMutant.mutants
+      mutant <- mutatedFile.mutants
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
       val id = mutant.id

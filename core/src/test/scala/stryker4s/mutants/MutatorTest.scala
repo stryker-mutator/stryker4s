@@ -4,7 +4,6 @@ import org.scalatest.BeforeAndAfterEach
 import stryker4s.config.Config
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.run.MutantRegistry
 import stryker4s.scalatest.{FileUtil, TreeEquality}
 import stryker4s.stubs.TestSourceCollector
 import stryker4s.{Stryker4sSuite, TestAppender}
@@ -20,7 +19,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with BeforeAndAfterEa
         .collectFiles()
 
       val sut = new Mutator(
-        new MutantFinder(new MutantMatcher, new MutantRegistry),
+        new MutantFinder(new MutantMatcher),
         new StatementTransformer,
         new MatchBuilder
       )
@@ -49,7 +48,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with BeforeAndAfterEa
         .collectFiles()
 
       val sut = new Mutator(
-        new MutantFinder(new MutantMatcher, new MutantRegistry),
+        new MutantFinder(new MutantMatcher),
         new StatementTransformer,
         new MatchBuilder
       )
