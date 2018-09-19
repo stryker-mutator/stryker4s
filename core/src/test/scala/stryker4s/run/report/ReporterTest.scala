@@ -2,15 +2,14 @@ package stryker4s.run.report
 
 import org.mockito.IdiomaticMockito
 import org.mockito.MockitoSugar._
-import org.scalatest.BeforeAndAfterEach
+import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.model.MutantRunResults
-import stryker4s.{Stryker4sSuite, TestAppender}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class ReporterTest extends Stryker4sSuite with BeforeAndAfterEach with IdiomaticMockito {
+class ReporterTest extends Stryker4sSuite with IdiomaticMockito {
 
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {

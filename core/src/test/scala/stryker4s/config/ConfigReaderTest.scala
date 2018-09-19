@@ -2,13 +2,12 @@ package stryker4s.config
 
 import better.files.File
 import ch.qos.logback.classic.Level
-import org.scalatest.BeforeAndAfterEach
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
+import stryker4s.Stryker4sSuite
 import stryker4s.run.report.ConsoleReporter
-import stryker4s.scalatest.FileUtil
-import stryker4s.{Stryker4sSuite, TestAppender}
+import stryker4s.scalatest.{FileUtil, LogMatchers}
 
-class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
+class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
   describe("loadConfig") {
     it("should load default config with a nonexistent conf file") {
@@ -47,7 +46,9 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val result = ConfigReader.readConfig(confPath)
 
       result.baseDir shouldBe File("/tmp/project")
-      result.files shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      result.files shouldBe Seq("bar/src/main/**/*.scala",
+                                "foo/src/main/**/*.scala",
+                                "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
@@ -84,9 +85,5 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       "Using default config instead..." shouldBe loggedAsWarning
       s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
-  }
-
-  override def afterEach(): Unit = {
-    TestAppender.reset
   }
 }
