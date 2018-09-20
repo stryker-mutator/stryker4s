@@ -23,6 +23,7 @@ object Settings {
       Dependencies.test.scalatest,
       Dependencies.test.sttp,
       Dependencies.test.jsonSchemaValidator,
+      Dependencies.test.mockitoScala,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.scalametaContrib,

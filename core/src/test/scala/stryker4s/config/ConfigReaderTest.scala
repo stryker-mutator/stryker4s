@@ -4,14 +4,11 @@ import better.files.File
 import ch.qos.logback.classic.Level
 import org.scalatest.BeforeAndAfterEach
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
+import stryker4s.run.report.ConsoleReporter
 import stryker4s.scalatest.FileUtil
 import stryker4s.{Stryker4sSuite, TestAppender}
 
 class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
-
-  override protected def beforeEach(): Unit = {
-    TestAppender.reset()
-  }
 
   describe("loadConfig") {
     it("should load default config with a nonexistent conf file") {
@@ -19,7 +16,11 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       val result = ConfigReader.readConfig(confPath)
 
-      result should equal(Config())
+      result.baseDir shouldBe File.currentWorkingDirectory
+      result.files shouldBe Seq("**/main/scala/**/*.scala")
+      result.testRunner shouldBe an[CommandRunner]
+      result.logLevel shouldBe Level.INFO
+      result.reporters.head shouldBe an[ConsoleReporter]
     }
 
     it("should fail on an empty config file") {
@@ -31,18 +32,25 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       exc.getMessage() should include("Key not found: 'stryker4s'.")
     }
 
+    it("should fail on an unknown reporter") {
+      val confPath = FileUtil.getResource("stryker4sconfs/wrongReporter.conf")
+
+      lazy val result = ConfigReader.readConfig(confPath)
+      val exc = the[ConfigReaderException[_]] thrownBy result
+
+      exc.getMessage() should include("Cannot convert configuration")
+    }
+
     it("should load a config with customized properties") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
       val result = ConfigReader.readConfig(confPath)
 
-      val expected = Config(
-        files = Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala"),
-        baseDir = File("/tmp/project"),
-        logLevel = Level.INFO,
-        testRunner = CommandRunner("mvn", "clean test")
-      )
-      result should equal(expected)
+      result.baseDir shouldBe File("/tmp/project")
+      result.files shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      result.testRunner shouldBe an[CommandRunner]
+      result.logLevel shouldBe Level.DEBUG
+      result.reporters.head shouldBe an[ConsoleReporter]
     }
 
     it("should return a failure on a misshapen test runner") {
@@ -64,22 +72,21 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       ConfigReader.readConfig(confPath)
 
-      "Using stryker4s.conf in the current working directory" shouldBe loggedAsDebug
+      "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
     }
 
     it("should log warnings when no config file is found") {
       val confPath = File("nonExistentFile.conf")
 
-      ConfigReader.readConfig(confPath)
+      val sut = ConfigReader.readConfig(confPath)
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      val defaultConf = Config()
-      s"Config used: ${defaultConf.toHoconString}".stripMargin shouldBe loggedAsDebug
+      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
   }
 
   override def afterEach(): Unit = {
-    TestAppender.reset()
+    TestAppender.reset
   }
 }

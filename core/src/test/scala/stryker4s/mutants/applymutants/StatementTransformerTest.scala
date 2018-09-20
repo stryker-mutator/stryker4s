@@ -4,13 +4,15 @@ import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.TreeExtensions._
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.{Mutant, RegisteredMutant}
+import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
+import scala.meta.contrib._
 
 class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
   val sut = new StatementTransformer
+
   describe("transformStatement") {
     it("should return a single new statement on single FoundMutant") {
       val originalTopTree = q"val x: Boolean = 15 >= 5"
@@ -67,7 +69,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
         .map(Mutant(0, originalTree, _))
 
       // Act
-      val transformedMutant = sut.transformMutant(RegisteredMutant(originalTree, mutants))
+      val transformedMutant = sut.transformMutant(originalTree, mutants)
 
       // Assert
       val topStatement = transformedMutant.originalStatement
@@ -85,10 +87,9 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val origTree = source.find(q">=").value
       val mutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
         .map(Mutant(0, origTree, _))
-      val registeredMutant = RegisteredMutant(origTree, mutants)
 
       // Act
-      val result = sut.transformSource(source, List(registeredMutant))
+      val result = sut.transformSource(source, mutants)
 
       // Assert
       result.source should be theSameInstanceAs source
@@ -103,27 +104,35 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     val source = "object Foo { def bar: Boolean = 15 >= 4 && 14 < 20 }".parse[Source].get
 
     val firstOrigTree = source.find(q">=").value
-    val firstMutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
+    val firstMutants: Seq[Mutant] = List(EqualTo, GreaterThan, LesserThanEqualTo)
       .map(Mutant(0, firstOrigTree, _))
-    val firstFoundMutant = RegisteredMutant(firstOrigTree, firstMutants)
 
     val secOrigTree = source.find(q"<").value
-    val secondMutants = List(LesserThanEqualTo, GreaterThan, EqualTo)
+    val secondMutants: Seq[Mutant] = List(LesserThanEqualTo, GreaterThan, EqualTo)
       .map(Mutant(0, secOrigTree, _))
-    val secFoundMutant = RegisteredMutant(secOrigTree, secondMutants)
 
-    val statements = List(firstFoundMutant, secFoundMutant)
+    val statements = firstMutants ++ secondMutants
 
     // Act
     val result = sut.transformSource(source, statements)
 
     // Assert
     result.source should be theSameInstanceAs source
-    val first = result.transformedStatements.head
+
+    val first = findTransformedStatement(result, q"15 >= 4")
     first.originalStatement should equal(q"15 >= 4")
+    first.mutantStatements.map(_.original) should contain only q"15 >= 4"
     first.mutantStatements.map(_.mutated) should contain only (q"15 == 4", q"15 > 4", q"15 <= 4")
-    val sec = result.transformedStatements(1)
-    sec.originalStatement should equal(q"14 < 20")
-    sec.mutantStatements.map(_.mutated) should contain only (q"14 <= 20", q"14 > 20", q"14 == 20")
+
+    val second = findTransformedStatement(result, q"14 < 20")
+    second.originalStatement should equal(q"14 < 20")
+    second.mutantStatements.map(_.original) should contain only q"14 < 20"
+    second.mutantStatements.map(_.mutated) should contain only (q"14 <= 20", q"14 > 20", q"14 == 20")
+  }
+
+  private[this] def findTransformedStatement(result: SourceTransformations, term: Term): TransformedMutants = {
+    result.transformedStatements
+      .find(mutant => mutant.originalStatement.isEqual(term))
+      .getOrElse(fail("mutant not found"))
   }
 }
