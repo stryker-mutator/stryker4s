@@ -25,7 +25,8 @@ class StatementTransformer {
 
     val transformedMutants = registered.map { mutant =>
       val newMutated = transformStatement(topStatement, mutant.original, mutant.mutated)
-      Mutant(mutant.id, topStatement, newMutated)
+
+      mutant.copy(original = topStatement, mutated = newMutated)
     }.toList
 
     TransformedMutants(topStatement, transformedMutants)

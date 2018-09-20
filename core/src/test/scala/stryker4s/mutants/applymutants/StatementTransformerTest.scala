@@ -66,7 +66,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val originalTopTree = q"val x: Boolean = 15 >= 5"
       val originalTree = originalTopTree.find(q">=").value
       val mutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
-        .map(Mutant(0, originalTree, _))
+        .map(Mutant(0, originalTree, _, "testMutant"))
 
       // Act
       val transformedMutant = sut.transformMutant(originalTree, mutants)
@@ -86,7 +86,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val source = "object Foo { def bar: Boolean = 15 >= 4 }".parse[Source].get
       val origTree = source.find(q">=").value
       val mutants = List(EqualTo, GreaterThan, LesserThanEqualTo)
-        .map(Mutant(0, origTree, _))
+        .map(Mutant(0, origTree, _, "testMutant"))
 
       // Act
       val result = sut.transformSource(source, mutants)
@@ -105,11 +105,11 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
     val firstOrigTree = source.find(q">=").value
     val firstMutants: Seq[Mutant] = List(EqualTo, GreaterThan, LesserThanEqualTo)
-      .map(Mutant(0, firstOrigTree, _))
+      .map(Mutant(0, firstOrigTree, _, "testMutant"))
 
     val secOrigTree = source.find(q"<").value
     val secondMutants: Seq[Mutant] = List(LesserThanEqualTo, GreaterThan, EqualTo)
-      .map(Mutant(0, secOrigTree, _))
+      .map(Mutant(0, secOrigTree, _, "testMutant"))
 
     val statements = firstMutants ++ secondMutants
 

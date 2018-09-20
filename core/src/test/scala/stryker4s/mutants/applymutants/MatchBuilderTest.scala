@@ -20,7 +20,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _))
+        .map(Mutant(ids.next(), originalStatement, _, "testMutant"))
       val sut = new MatchBuilder
 
       // Act
@@ -152,7 +152,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m })
-      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term]))
+      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], "testMutant"))
       .toList
 
     TransformedMutants(topStatement, mutant)
