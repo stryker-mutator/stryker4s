@@ -12,12 +12,3 @@ class TestReporter extends Reporter {
   }
 }
 
-class TestMutantReporter extends MutantRunReporter {
-
-  val name = "testMutant"
-  var lastCall: Option[MutantRunResults] = None
-
-  override def report(runResults: MutantRunResults): Unit = {
-    lastCall = Some(runResults)
-  }
-}

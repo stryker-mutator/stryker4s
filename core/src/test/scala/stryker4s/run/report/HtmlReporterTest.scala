@@ -1,11 +1,19 @@
 package stryker4s.run.report
 
+import java.util.concurrent.TimeUnit
+
+import better.files.File
 import grizzled.slf4j.Logging
 import org.everit.json.schema.ValidationException
 import org.json.JSONObject
 import org.scalactic.Fail
+import stryker4s.config.Config
+import stryker4s.extensions.mutationtypes.{GreaterThan, LesserThan}
+import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
 import stryker4s.{MutationTestingElementsJsonSchema, Stryker4sSuite}
+import stryker4s.extensions.ImplicitMutationConversion._
 
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
 class HtmlReporterTest extends Stryker4sSuite with Logging {
@@ -15,7 +23,7 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
     */
   private[this] val testReport: String =
     """
-      |{  
+      |{
       |    "name": "src",
       |    "path":  "/usr/full/path/to/src",
       |    "totals": {
@@ -28,7 +36,7 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
       |    },
       |    "health": "ok",
       |    "childResults": [
-      |        { 
+      |        {
       |            "name": "src/Example.cs",
       |            "path":  "/usr/full/path/to/src/Example.cs",
       |            "totals": {
@@ -36,21 +44,36 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
       |               "undetected": 2,
       |               "valid": 3,
       |               "invalid": 1
-      |             },  
+      |             },
       |            "health": "danger",
       |            "language": "cs",
       |            "source": "using System; using.....",
       |            "mutants": [{
-      |                 "id": "321321", 
+      |                 "id": "321321",
       |                 "mutatorName": "BinaryMutator",
       |                 "replacement": "-",
-      |                 "span": [21,22], 
+      |                 "span": [21,22],
       |                 "status": "Killed"
       |            }]
-      |        }    
+      |        }
       |    ]
       |}
     """.stripMargin
+
+  describe("") {
+    it("") {
+      val sut = new HtmlReporter
+      implicit val config: Config = Config()
+
+      val mutantRunResult = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/core\\src\\main\\scala\\stryker4s\\config.scala")))
+      val mutantRunResult2 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file")))
+      val mutantRunResult3 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file2")))
+      val mutantRunResult4 = Survived(Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file3")))
+      val mutationRunResults = MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, Duration(10, TimeUnit.SECONDS))
+
+      sut.report(mutationRunResults)
+    }
+  }
 
   describe("html reporter output validation") {
     it("should validate to the `mutation-testing-elements` json schema.") {

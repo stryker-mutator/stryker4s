@@ -9,4 +9,5 @@ trait MutantRunReporter {
 
 object MutantRunReporter {
   val consoleReporter: String = "console"
+  val htmlReporter: String = "html"
 }

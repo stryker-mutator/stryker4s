@@ -29,11 +29,13 @@ trait MutantRunResultMapper {
           getFileSourceAsString(path),
           results
             .map(result => {
-              HtmlMutant(result.mutant.id.toString,
-                         "Not yet",
-                         result.mutant.mutated.toString(),
-                         calculateSpan(result.mutant),
-                         result.getClass.getSimpleName)
+              HtmlMutant(
+                result.mutant.id.toString,
+                result.mutant.mutatorName,
+                result.mutant.mutated.syntax,
+                calculateSpan(result.mutant).toList.toString(),
+                result.getClass.getSimpleName
+              )
             })
             .toList
         )
@@ -52,13 +54,21 @@ trait MutantRunResultMapper {
 
   private[this] def calculateHealth(results: Iterable[MutantRunResult]): String = {
     val detected: Long = results.collect { case d: Detected => d }.size
-    val mutationScore = calculateMutationScore(results.size, detected)
+    val mutationScore: Double = calculateMutationScore(results.size, detected)
 
     mutationScore match {
-      case score if 80 to 100 contains score   => "ok"
-      case score if 50 until 80 contains score => "warning"
-      case score if 0 until 50 contains score  => "danger"
+      case score if isInOkRange(score)      => "ok"
+      case score if isInWarningRange(score) => "warning"
+      case score if isInDangerRange(score)  => "danger"
     }
+  }
+
+  private[this] def isInOkRange(score: Double) = isBetween(score, 80.00, 100.00)
+  private[this] def isInWarningRange(score: Double) = isBetween(score, 50.00, 79.99)
+  private[this] def isInDangerRange(score: Double) = isBetween(score, 0.00, 49.99)
+
+  private[this] def isBetween(score: Double, lowerBound: Double, upperBound: Double): Boolean = {
+    score >= lowerBound && score <= upperBound
   }
 
   private[this] def calculateMutationScore(totalMutants: Double,

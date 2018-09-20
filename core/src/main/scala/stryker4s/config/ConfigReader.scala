@@ -9,7 +9,7 @@ import grizzled.slf4j.Logging
 import org.slf4j.{LoggerFactory, Logger => Slf4jLogger}
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{ConfigReader => PConfigReader}
-import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
+import stryker4s.run.report.{ConsoleReporter, HtmlReporter, MutantRunReporter}
 
 object ConfigReader extends Logging {
 
@@ -23,6 +23,7 @@ object ConfigReader extends Logging {
   private[this] implicit val toReporterList: PConfigReader[List[MutantRunReporter]] =
     PConfigReader[List[String]].map(_.map {
       case MutantRunReporter.`consoleReporter` => new ConsoleReporter
+      case MutantRunReporter.`htmlReporter`    => new HtmlReporter
     })
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.

@@ -38,11 +38,13 @@ With `test-runner` you can specify how stryker4s runs tests. The default for thi
 
 #### reporters
 
-**Config file:** `reporters: ["console"]`  
-**Default value:** A reporter that will report to console.  
+**Config file:** `reporters: ["console", "html"]`  
+**Default value:** A reporter that will report to `console`.  
 **Mandatory:** No  
 **Description:**  
 With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console.
+The `html` reporter is reporter that will generate a web page based report giving a full overview of the mutation run.
+
 
 #### log-level
 
