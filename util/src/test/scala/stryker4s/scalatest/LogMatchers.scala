@@ -2,11 +2,10 @@ package stryker4s.scalatest
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
-import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 import stryker4s.{Stryker4sSuite, TestAppender}
 
-trait LogMatchers extends BeforeAndAfterEach {
+trait LogMatchers {
   // Causes a compile error if LogMatchers is used without Stryker4sSuite
   this: Stryker4sSuite =>
 
@@ -21,9 +20,9 @@ trait LogMatchers extends BeforeAndAfterEach {
     * The className of the system under test.
     * Is done by getting the executing test class and stripping off 'test'.
     */
-  implicit val className: String = getClass.getCanonicalName.replace("Test", "")
+  private implicit val className: String = getClass.getCanonicalName.replace("Test", "")
 
-  class LogMatcherWithLevel(expectedLogLevel: Level)(implicit loggerClassName: String)
+  protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit loggerClassName: String)
       extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {
       getLoggingEventWithLogMessage(expectedLogMessage) match {
