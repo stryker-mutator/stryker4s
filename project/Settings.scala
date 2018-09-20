@@ -1,5 +1,6 @@
 import Dependencies._
 import sbt.Keys._
+import sbt._
 
 object Settings {
   val scalacOpts = Seq(
@@ -20,6 +21,9 @@ object Settings {
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
+      Dependencies.test.sttp,
+      Dependencies.test.jsonSchemaValidator,
+      Dependencies.test.mockitoScala,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.scalametaContrib,

@@ -7,7 +7,7 @@ import stryker4s.config.Config
 import stryker4s.model.{Detected, MutantRunResults, Undetected}
 import stryker4s.run.report.mapper.MutantRunResultMapper
 
-class LogRunReporter extends MutantRunReporter with Logging with MutantRunResultMapper {
+class ConsoleReporter extends MutantRunReporter with Logging with MutantRunResultMapper {
 
   override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
     val detected = runResults.results collect { case d: Detected => d }

@@ -6,3 +6,7 @@ import stryker4s.model.MutantRunResults
 trait MutantRunReporter {
   def report(runResults: MutantRunResults)(implicit config: Config): Unit
 }
+
+object MutantRunReporter {
+  val consoleReporter: String = "console"
+}

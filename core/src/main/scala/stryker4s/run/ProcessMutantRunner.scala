@@ -6,13 +6,13 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model._
-import stryker4s.run.process.ProcessRunner
+import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
+class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config)
     extends MutantRunner
     with Logging {
 
@@ -31,13 +31,12 @@ class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
         filePath.overwrite(tree.syntax)
     }
 
-    val totalMutants = files.flatMap(_.mutants).flatMap(_.mutants).size
+    val totalMutants = files.flatMap(_.mutants).size
 
     val runResults = for {
       mutatedFile <- files
       subPath = config.baseDir.relativize(mutatedFile.fileOrigin)
-      registeredMutant <- mutatedFile.mutants
-      mutant <- registeredMutant.mutants
+      mutant <- mutatedFile.mutants
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
       val id = mutant.id
@@ -55,7 +54,7 @@ class ProcessMutantRunner(process: ProcessRunner)(implicit config: Config)
   private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id
     info(s"Starting test-run $id...")
-    process("sbt test", workingDir, ("ACTIVE_MUTATION", id.toString)) match {
+    process(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
