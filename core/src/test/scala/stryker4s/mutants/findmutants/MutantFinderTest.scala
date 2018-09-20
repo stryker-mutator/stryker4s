@@ -3,13 +3,18 @@ package stryker4s.mutants.findmutants
 import java.nio.file.NoSuchFileException
 
 import better.files.File
-import stryker4s.Stryker4sSuite
-import stryker4s.scalatest.{FileUtil, TreeEquality}
+import org.scalatest.BeforeAndAfterEach
+import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
+import stryker4s.{Stryker4sSuite, TestAppender}
 
 import scala.meta._
 import scala.meta.parsers.ParseException
 
-class MutantFinderTest extends Stryker4sSuite with TreeEquality {
+class MutantFinderTest
+    extends Stryker4sSuite
+    with TreeEquality
+    with LogMatchers
+    with BeforeAndAfterEach {
 
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
   describe("parseFile") {
@@ -36,9 +41,9 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
       val sut = new MutantFinder(new MutantMatcher)
       val file = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
-      lazy val result = sut.parseFile(file)
+      val expectedException = the[ParseException] thrownBy sut.parseFile(file)
 
-      a[ParseException] should be thrownBy result
+      expectedException.shortMessage should be("expected class or object definition")
     }
 
     it("should fail on a nonexistent file") {
@@ -99,5 +104,30 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality {
       secondMutant.mutated should equal(Lit.String(""))
     }
 
+  }
+
+  describe("logging") {
+    it("should debug log a parsed file") {
+      val sut = new MutantFinder(new MutantMatcher)
+      val file = exampleClassFile
+
+      sut.parseFile(file)
+
+      s"Parsed file '$exampleClassFile'" should be(loggedAsDebug)
+    }
+
+    it("should error log an unfound file") {
+      val sut = new MutantFinder(new MutantMatcher)
+      val noFile = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
+
+      a[ParseException] should be thrownBy sut.parseFile(noFile)
+
+      s"Error while parsing file '$noFile', expected class or object definition" should be(
+        loggedAsError)
+    }
+  }
+
+  override def afterEach(): Unit = {
+    TestAppender.reset
   }
 }
