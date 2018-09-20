@@ -7,14 +7,11 @@ object Dependencies {
     val scala211 = "2.11.12"
     val crossScala = Seq(scala211, scala212)
 
-    /** Use 3.3.1 until a Scalameta bug with transforming a Scalameta Parsed is fixed
-      * See: https://github.com/scalameta/scalameta/issues/1526
-      */
-    val scalameta = "3.3.1"
+    val scalameta = "4.0.0"
     val pureconfig = "0.9.2"
     val scalatest = "3.0.5"
-    val mockitoScala = "0.4.2"
-    val betterFiles = "3.5.0"
+    val mockitoScala = "0.4.5"
+    val betterFiles = "3.6.0"
     val logback = "1.2.3"
     val grizzledSlf4j = "1.3.2"
   }

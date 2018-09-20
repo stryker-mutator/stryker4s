@@ -19,13 +19,12 @@ class MutantFinder(matcher: MutantMatcher) extends Logging {
   }
 
   def parseFile(file: File): Source =
-    file.contentAsString
-      .replace("\r\n", "\n")
-      .parse[Source] match {
+    file.toJava.parse[Source] match {
       case Parsed.Success(source) =>
+        debug(s"Parsed file '$file'")
         source
       case Parsed.Error(_, msg, ex) =>
-        error(s"Error while parsing file $file, $msg")
+        error(s"Error while parsing file '$file', $msg")
         throw ex
     }
 }
