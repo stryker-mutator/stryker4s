@@ -13,7 +13,13 @@ import scala.meta.{Lit, Term, Tree}
 sealed trait Mutation[T <: Tree] {
   val tree: T
 
-  def unapply(arg: T): Option[T] = Some(arg).filter(a => a.isEqual(tree))
+  def unapply(arg: T): Option[T] =
+    Some(arg)
+      .filter(_.isEqual(tree))
+      .filterNot(_ match { // Do not match on function definitions
+        case name: Term.Name => name.isDefinition
+        case _               => false
+      })
 }
 
 trait BinaryOperator extends Mutation[Term.Name]
