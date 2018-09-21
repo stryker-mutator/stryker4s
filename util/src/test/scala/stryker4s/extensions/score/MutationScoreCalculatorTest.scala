@@ -8,13 +8,19 @@ class MutationScoreCalculatorTest extends Stryker4sSuite {
   private val sut = Sut
 
   describe("Calculating the mutation score") {
-    it("Should give a mutation score of 0.0 if no mutants were found") {
+    it("Should give a mutation score of 0.00 if no mutants were found") {
       val mutationScore = sut.calculateMutationScore(0, 0)
 
       mutationScore shouldBe 0.00
     }
 
-    it("Should give a mutation score of 100.0 when all mutations are killed") {
+    it("Should give a mutation score of 0.00 if 1 mutant is found and non are detected") {
+      val mutationScore = sut.calculateMutationScore(1, 0)
+
+      mutationScore shouldBe 0.00
+    }
+
+    it("Should give a mutation score of 100.00 when all mutations are killed") {
       val mutationScore = sut.calculateMutationScore(100, 100)
 
       mutationScore shouldBe 100.00
