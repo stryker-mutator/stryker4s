@@ -3,18 +3,13 @@ package stryker4s.mutants.findmutants
 import java.nio.file.NoSuchFileException
 
 import better.files.File
-import org.scalatest.BeforeAndAfterEach
+import stryker4s.Stryker4sSuite
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
-import stryker4s.{Stryker4sSuite, TestAppender}
 
 import scala.meta._
 import scala.meta.parsers.ParseException
 
-class MutantFinderTest
-    extends Stryker4sSuite
-    with TreeEquality
-    with LogMatchers
-    with BeforeAndAfterEach {
+class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
   describe("parseFile") {
@@ -125,9 +120,5 @@ class MutantFinderTest
       s"Error while parsing file '$noFile', expected class or object definition" should be(
         loggedAsError)
     }
-  }
-
-  override def afterEach(): Unit = {
-    TestAppender.reset
   }
 }

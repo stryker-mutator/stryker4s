@@ -3,11 +3,26 @@ package stryker4s.scalatest
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
 import org.scalatest.matchers.{BeMatcher, MatchResult}
-import stryker4s.TestAppender
+import stryker4s.{Stryker4sSuite, TestAppender}
 
 trait LogMatchers {
+  // Causes a compile error if LogMatchers is used without Stryker4sSuite
+  this: Stryker4sSuite =>
 
-  class LogMatcherWithLevel(expectedLogLevel: Level)(implicit loggerClassName: String)
+  def loggedAsDebug = new LogMatcherWithLevel(Level.DEBUG)
+  def loggedAsInfo = new LogMatcherWithLevel(Level.INFO)
+  def loggedAsWarning = new LogMatcherWithLevel(Level.WARN)
+  def loggedAsError = new LogMatcherWithLevel(Level.ERROR)
+
+  override def afterEach(): Unit = TestAppender.reset
+
+  /**
+    * The className of the system under test.
+    * Is done by getting the executing test class and stripping off 'test'.
+    */
+  private implicit val className: String = getClass.getCanonicalName.replace("Test", "")
+
+  protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit loggerClassName: String)
       extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {
       getLoggingEventWithLogMessage(expectedLogMessage) match {
@@ -28,21 +43,15 @@ trait LogMatchers {
           )
       }
     }
-  }
 
-  def loggedAsDebug(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.DEBUG)
-  def loggedAsInfo(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.INFO)
-  def loggedAsWarning(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.WARN)
-  def loggedAsError(implicit loggerClassName: String) = new LogMatcherWithLevel(Level.ERROR)
+    private def validateLogLevel(actualLogLevel: Level, expectedLogLevel: Level): Boolean = {
+      expectedLogLevel.equals(actualLogLevel)
+    }
 
-  private[this] def validateLogLevel(actualLogLevel: Level, expectedLogLevel: Level): Boolean = {
-    expectedLogLevel.equals(actualLogLevel)
-  }
-
-  private[this] def getLoggingEventWithLogMessage(expectedLogMessage: String)
-                                                 (implicit loggerClassName: String): Option[ILoggingEvent] = {
-    TestAppender.events
-      .filter(logEvent => logEvent.getLoggerName.contains(loggerClassName))
-      .find(_.getFormattedMessage.contains(expectedLogMessage))
+    private def getLoggingEventWithLogMessage(expectedLogMessage: String): Option[ILoggingEvent] = {
+      TestAppender.events
+        .filter(logEvent => logEvent.getLoggerName.contains(loggerClassName))
+        .find(_.getFormattedMessage.contains(expectedLogMessage))
+    }
   }
 }
