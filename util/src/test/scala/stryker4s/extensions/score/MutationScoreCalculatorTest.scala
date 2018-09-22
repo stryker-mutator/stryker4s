@@ -31,5 +31,11 @@ class MutationScoreCalculatorTest extends Stryker4sSuite {
 
       mutationScore shouldBe 85.71
     }
+
+    it("Should give a mutation score of 66.67 when 6 of the 9 mutations are killed") {
+      val mutationScore = sut.calculateMutationScore(9, 6)
+
+      mutationScore shouldBe 66.67
+    }
   }
 }
