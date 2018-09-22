@@ -17,7 +17,7 @@ class MutantMatcher {
       matchStringMutators() orElse
       matchMethodMutators()
 
-  def matchBinaryOperators(implicit mutatorName: String = "BinaryOperator"): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchBinaryOperators(): PartialFunction[Tree, Seq[Mutant]] = {
     case GreaterThanEqualTo(orig) => orig ~~> (GreaterThan, LesserThan, EqualTo)
     case GreaterThan(orig)        => orig ~~> (GreaterThanEqualTo, LesserThan, EqualTo)
     case LesserThanEqualTo(orig)  => orig ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
@@ -26,23 +26,23 @@ class MutantMatcher {
     case NotEqualTo(orig)         => orig ~~> EqualTo
   }
 
-  def matchBooleanSubstitutions(implicit mutatorName: String = "BooleanSubstitution"): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchBooleanSubstitutions(): PartialFunction[Tree, Seq[Mutant]] = {
     case True(orig)  => orig ~~> False
     case False(orig) => orig ~~> True
   }
 
-  def matchLogicalOperators(implicit mutatorName: String = "LogicalOperator"): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchLogicalOperators(): PartialFunction[Tree, Seq[Mutant]] = {
     case And(orig) => orig ~~> Or
     case Or(orig)  => orig ~~> And
   }
 
-  def matchStringMutators(implicit mutatorName: String = "StringMutator"): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchStringMutators(): PartialFunction[Tree, Seq[Mutant]] = {
     case EmptyString(orig)         => orig ~~> StrykerWasHereString
     case NonEmptyString(orig)      => orig ~~> EmptyString
     case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
   }
 
-  def matchMethodMutators(implicit mutatorName: String = "MethodMutator"): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchMethodMutators(): PartialFunction[Tree, Seq[Mutant]] = {
     case Filter(orig)      => orig ~~> FilterNot
     case FilterNot(orig)   => orig ~~> Filter
     case Exists(orig)      => orig ~~> ForAll
@@ -55,9 +55,9 @@ class MutantMatcher {
     case Min(orig)         => orig ~~> Max
   }
 
-  implicit class TermExtensions(original: Term)(implicit mutatorName: String) {
-    def ~~>(mutated: Term*): Seq[Mutant] = {
-      mutated.map(mutant => Mutant(stream.next(), original, mutant, mutatorName))
+  implicit class TermExtensions(original: Term) {
+    def ~~>(mutated: Mutation[_ <: Term]*): Seq[Mutant] = {
+      mutated.map(mutant => Mutant(stream.next(), original, mutant, mutant.mutationName))
     }
   }
 }

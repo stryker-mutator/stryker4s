@@ -12,18 +12,29 @@ import scala.meta.{Lit, Term, Tree}
   */
 sealed trait Mutation[T <: Tree] {
   val tree: T
+  val mutationName: String
 
   def unapply(arg: T): Option[T] = Some(arg).filter(a => a.isEqual(tree))
 }
 
-trait BinaryOperator extends Mutation[Term.Name]
+trait BinaryOperator extends Mutation[Term.Name] {
+  override val mutationName: String = "BinaryOperator"
+}
 
-trait BooleanSubstitution extends Mutation[Lit.Boolean]
+trait BooleanSubstitution extends Mutation[Lit.Boolean] {
+  override val mutationName: String = "BooleanSubstitution"
+}
 
-trait LogicalOperator extends Mutation[Term.Name]
+trait LogicalOperator extends Mutation[Term.Name] {
+  override val mutationName: String = "LogicalOperator"
+}
 
-trait MethodMutator extends Mutation[Term.Name]
+trait MethodMutator extends Mutation[Term.Name] {
+  override val mutationName: String = "MethodMutator"
+}
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringMutator[T <: Term] extends Mutation[T]
+trait StringMutator[T <: Term] extends Mutation[T] {
+  override val mutationName: String = "StringMutator"
+}
