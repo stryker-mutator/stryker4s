@@ -16,10 +16,10 @@ sealed trait Mutation[T <: Tree] {
   def unapply(arg: T): Option[T] =
     Some(arg)
       .filter(_.isEqual(tree))
-      .filterNot(_ match { // Do not match on function definitions
+      .filterNot {
         case name: Term.Name => name.isDefinition
         case _               => false
-      })
+      }
 }
 
 trait BinaryOperator extends Mutation[Term.Name]
