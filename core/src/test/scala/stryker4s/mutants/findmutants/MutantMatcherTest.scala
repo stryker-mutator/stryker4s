@@ -21,11 +21,15 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
   }
 
-  def expectMutations(actualMutants: Seq[Mutant], original: Term, expectedMutations: Term*): Unit = {
+  def expectMutations(actualMutants: Seq[Mutant],
+                      original: Term,
+                      expectedMutations: Term*): Unit = {
     expectedMutations.foreach(expectedMutation => {
       val actualMutant = actualMutants
-        .find(mutant => mutant.mutated.isEqual(expectedMutation) &&
-          mutant.original.isEqual(original))
+        .find(
+          mutant =>
+            mutant.mutated.isEqual(expectedMutation) &&
+              mutant.original.isEqual(original))
         .getOrElse(fail("mutant not found"))
 
       actualMutant.original should equal(original)
@@ -351,4 +355,37 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
+  describe("no function name matching") {
+    it("should not match a function with a mutator name") {
+      val tree = q"def isEmpty = foo"
+
+      val result = tree collect sut.allMatchers()
+
+      result should be(empty)
+    }
+
+    it("should not match on a case class with a mutator name") {
+      val tree = q"case class indexOf(foo: String)"
+
+      val result = tree collect sut.allMatchers()
+
+      result should be(empty)
+    }
+
+    it("should not match on a variable with a mutator name") {
+      val tree = q"val min = 5"
+
+      val result = tree collect sut.allMatchers()
+
+      result should be(empty)
+    }
+
+    it("should match a function with a single expression") {
+      val tree = q"def isEmpty = exists"
+
+      val result = (tree collect sut.allMatchers()).flatten
+
+      result.map(_.original) should not contain q"isEmpty"
+    }
+  }
 }
