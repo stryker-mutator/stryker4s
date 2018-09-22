@@ -5,6 +5,7 @@ import java.nio.file.Path
 import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
+import stryker4s.extensions.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.run.process.{Command, ProcessRunner}
 
@@ -14,6 +15,7 @@ import scala.util.{Failure, Success}
 
 class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit config: Config)
     extends MutantRunner
+    with MutationScoreCalculator
     with Logging {
 
   override def apply(files: Iterable[MutatedFile]): MutantRunResults = {
@@ -59,11 +61,5 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
     }
-  }
-
-  private[this] def calculateMutationScore(totalMutants: Double,
-                                           detectedMutants: Double): Double = {
-    val mutationScore = detectedMutants / totalMutants * 100
-    BigDecimal(mutationScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 }
