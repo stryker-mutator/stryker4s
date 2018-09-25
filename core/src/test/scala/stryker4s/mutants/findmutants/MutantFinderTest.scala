@@ -4,14 +4,18 @@ import java.nio.file.NoSuchFileException
 
 import better.files.File
 import stryker4s.Stryker4sSuite
+import stryker4s.config.Config
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
-
+import stryker4s.extensions.FileExtensions._
 import scala.meta._
 import scala.meta.parsers.ParseException
 
 class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
+  private implicit val config: Config = Config()
+
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
+
   describe("parseFile") {
     it("should parse an existing file") {
       val sut = new MutantFinder(new MutantMatcher)
@@ -104,11 +108,12 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
   describe("logging") {
     it("should debug log a parsed file") {
       val sut = new MutantFinder(new MutantMatcher)
-      val file = exampleClassFile
+      val file = File.currentWorkingDirectory / "core/src/test/scala/stryker4s/mutants/findmutants/MutantFinderTest.scala"
 
       sut.parseFile(file)
 
-      s"Parsed file '$exampleClassFile'" should be(loggedAsDebug)
+      val relativePath = file.relativePath
+      s"Parsed file '$relativePath'" should be(loggedAsDebug)
     }
 
     it("should error log an unfound file") {
