@@ -111,13 +111,13 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
       result should equal(q"x >= 4")
     }
 
-    it("should return part of statement without && and || operator") {
+    it("should return whole statement with && and || operator") {
       val tree = q"def four(x: Int): Boolean = x >= 4 && x < 10 || x <= 0"
       val subTree = tree.find(q"<=").value
 
       val result = subTree.topStatement()
 
-      result should equal(q"x <= 0")
+      result should equal(q"x >= 4 && x < 10 || x <= 0")
     }
 
     it("should return whole statement on infix inside postfix statement") {
@@ -190,6 +190,30 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
       val result = subTree.topStatement()
 
       result should equal(q"a.parse[Source]")
+    }
+
+    it("should include the whole pattern match") {
+      val tree = q"variable match { case true => 1; case _ => 2 }"
+      val defTree = q"def foo(variable: Boolean) = $tree"
+      val subTree = defTree.find(q"true").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"variable match { case true => 1; case _ => 2 }")
+    }
+
+    it("should include the whole PartialFunction when matching on a def with a partialFunction") {
+      val pf = q"{ case false => 1; case _ => 2 }"
+      val defTree =
+        q"""def foo: PartialFunction[Boolean, Int] = {
+            val foo = bar
+            $pf
+          }"""
+      val subTree = defTree.find(q"false").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"{ case false => 1; case _ => 2 }")
     }
   }
 

@@ -119,20 +119,15 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
     // Assert
     result.source should be theSameInstanceAs source
 
-    val first = findTransformedStatement(result, q"15 >= 4")
-    first.originalStatement should equal(q"15 >= 4")
-    first.mutantStatements.map(_.original) should contain only q"15 >= 4"
-    first.mutantStatements.map(_.mutated) should contain only (q"15 == 4", q"15 > 4", q"15 <= 4")
+    result.transformedStatements should have size 2
+    val first = result.transformedStatements.head
+    first.originalStatement should equal(q"15 >= 4 && 14 < 20")
+    first.mutantStatements.map(_.original) should contain only q"15 >= 4 && 14 < 20"
+    first.mutantStatements.map(_.mutated) should contain only (q"15 >= 4 && 14 <= 20", q"15 >= 4 && 14 > 20", q"15 >= 4 && 14 == 20")
 
-    val second = findTransformedStatement(result, q"14 < 20")
-    second.originalStatement should equal(q"14 < 20")
-    second.mutantStatements.map(_.original) should contain only q"14 < 20"
-    second.mutantStatements.map(_.mutated) should contain only (q"14 <= 20", q"14 > 20", q"14 == 20")
-  }
-
-  private[this] def findTransformedStatement(result: SourceTransformations, term: Term): TransformedMutants = {
-    result.transformedStatements
-      .find(mutant => mutant.originalStatement.isEqual(term))
-      .getOrElse(fail("mutant not found"))
+    val second = result.transformedStatements.last
+    second.originalStatement should equal(q"15 >= 4 && 14 < 20")
+    second.mutantStatements.map(_.original) should contain only q"15 >= 4 && 14 < 20"
+    second.mutantStatements.map(_.mutated) should contain only (q"15 == 4 && 14 < 20", q"15 > 4 && 14 < 20", q"15 <= 4 && 14 < 20")
   }
 }

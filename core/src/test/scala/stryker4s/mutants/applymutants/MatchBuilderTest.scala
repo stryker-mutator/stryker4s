@@ -79,21 +79,21 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = (sys.env.get("ACTIVE_MUTATION") match {
+          |  def bar: Boolean = sys.env.get("ACTIVE_MUTATION") match {
           |    case Some("0") =>
-          |      15 < 14
+          |      15 < 14 && 14 >= 13
           |    case Some("1") =>
-          |      15 == 14
+          |      15 == 14 && 14 >= 13
           |    case _ =>
-          |      15 > 14
-          |  }) && (sys.env.get("ACTIVE_MUTATION") match {
-          |    case Some("2") =>
-          |      14 > 13
-          |    case Some("3") =>
-          |      14 == 13
-          |    case _ =>
-          |      14 >= 13
-          |  })
+          |      sys.env.get("ACTIVE_MUTATION") match {
+          |        case Some("2") =>
+          |          15 > 14 && 14 > 13
+          |        case Some("3") =>
+          |          15 > 14 && 14 == 13
+          |        case _ =>
+          |          15 > 14 && 14 >= 13
+          |      }
+          |  }
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
     }
