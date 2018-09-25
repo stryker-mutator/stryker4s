@@ -106,16 +106,6 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
   }
 
   describe("logging") {
-    it("should debug log a parsed file") {
-      val sut = new MutantFinder(new MutantMatcher)
-      val file = File.currentWorkingDirectory / "core/src/test/scala/stryker4s/mutants/findmutants/MutantFinderTest.scala"
-
-      sut.parseFile(file)
-
-      val relativePath = file.relativePath
-      s"Parsed file '$relativePath'" should be(loggedAsDebug)
-    }
-
     it("should error log an unfound file") {
       val sut = new MutantFinder(new MutantMatcher)
       val noFile = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
