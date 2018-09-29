@@ -5,6 +5,7 @@ import java.nio.file.Path
 import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
+import stryker4s.extensions.FileExtensions._
 import stryker4s.extensions.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.run.process.{Command, ProcessRunner}
@@ -45,7 +46,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     // Overwrite files to mutated files
     mutatedFiles foreach {
       case MutatedFile(file, tree, _) =>
-        val subPath = config.baseDir.relativize(file)
+        val subPath = file.relativePath
         val filePath = tmpDir / subPath.toString
         filePath.overwrite(tree.syntax)
     }
@@ -54,7 +55,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
     val runResults = for {
       mutatedFile <- mutatedFiles
-      subPath = config.baseDir.relativize(mutatedFile.fileOrigin)
+      subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
