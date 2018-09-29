@@ -18,25 +18,42 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     with MutationScoreCalculator
     with Logging {
 
-  override def apply(files: Iterable[MutatedFile]): MutantRunResults = {
+  override def apply(files: Iterable[File], mutatedFiles: Iterable[MutatedFile]): MutantRunResults = {
     val startTime = System.currentTimeMillis()
-    val tmpDir = File.newTemporaryDirectory("stryker4s-")
+    val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(config.baseDir / "target"))
     debug("Using temp directory: " + tmpDir)
 
-    config.baseDir.copyTo(tmpDir)
+    val parentDirName = config.baseDir.name
+
+    files.foreach(file => {
+
+      val bla1 = file.tokens().takeWhile(!_.equals(parentDirName))
+
+
+
+      val o = File(bla1.mkString("/"))
+
+      val dir = config.baseDir.name
+      val blabla = file.glob(config.baseDir.name)
+      val bla = file.relativize(config.baseDir)
+
+
+      file.copyToDirectory(tmpDir)
+    })
+    mutatedFiles.foreach(file => file.fileOrigin.copyTo(tmpDir))
 
     // Overwrite files to mutated files
-    files foreach {
+    mutatedFiles foreach {
       case MutatedFile(file, tree, _) =>
         val subPath = config.baseDir.relativize(file)
         val filePath = tmpDir / subPath.toString
         filePath.overwrite(tree.syntax)
     }
 
-    val totalMutants = files.flatMap(_.mutants).size
+    val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     val runResults = for {
-      mutatedFile <- files
+      mutatedFile <- mutatedFiles
       subPath = config.baseDir.relativize(mutatedFile.fileOrigin)
       mutant <- mutatedFile.mutants
     } yield {
