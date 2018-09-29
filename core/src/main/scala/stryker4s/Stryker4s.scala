@@ -14,7 +14,7 @@ class Stryker4s(fileCollector: SourceCollector,
   def run(): Unit = {
     val files = fileCollector.collectFiles()
     val mutatedFiles = mutator.mutate(files)
-    val runResults = runner(fileCollector.collectFiles(), mutatedFiles)
+    val runResults = runner(mutatedFiles, fileCollector)
     reporter.report(runResults)
   }
 }

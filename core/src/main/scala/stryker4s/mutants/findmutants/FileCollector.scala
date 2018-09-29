@@ -20,7 +20,7 @@ class FileCollector(implicit config: Config) extends SourceCollector {
     */
   def filesToCopy(processRunner: ProcessRunner): Iterable[File] = {
     processRunner(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir)
-      .map(File(_))
+      .map(config.baseDir / _)
       .distinct
   }
 

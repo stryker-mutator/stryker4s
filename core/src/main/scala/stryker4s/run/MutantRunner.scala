@@ -1,8 +1,8 @@
 package stryker4s.run
 
-import better.files.File
 import stryker4s.model._
+import stryker4s.mutants.findmutants.SourceCollector
 
 trait MutantRunner {
-  def apply(files: Iterable[File], mutatedFiles: Iterable[MutatedFile]): MutantRunResults
+  def apply(mutatedFiles: Iterable[MutatedFile], fileCollector: SourceCollector): MutantRunResults
 }
