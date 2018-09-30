@@ -8,11 +8,12 @@ import com.typesafe.config.ConfigRenderOptions
 import pureconfig.ConfigWriter
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
-case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
+case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala", "!target/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
                   testRunner: TestRunner = CommandRunner("sbt", "test"),
                   reporters: List[MutantRunReporter] = List(new ConsoleReporter),
-                  logLevel: Level = Level.INFO) {
+                  logLevel: Level = Level.INFO,
+                  files: Option[Seq[String]] = None) {
 
   def toHoconString: String = {
     implicit val fileWriter: ConfigWriter[File] = ConfigWriter[Path].contramap[File](_.path)
