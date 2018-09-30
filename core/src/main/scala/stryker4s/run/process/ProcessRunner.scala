@@ -11,9 +11,11 @@ import scala.util.Try
 
 trait ProcessRunner extends Logging {
 
-  def apply(command: Command, workingDir: File): Seq[String] = {
-    Process(s"${command.command} ${command.args}", workingDir.toJava)
-      .lineStream(ProcessLogger(debug(_)))
+  def apply(command: Command, workingDir: File): Try[Seq[String]] = {
+    Try {
+      Process(s"${command.command} ${command.args}", workingDir.toJava)
+        .lineStream(ProcessLogger(debug(_)))
+    }
   }
 
   def apply(command: Command, workingDir: File, envVar: (String, String)): Try[Int] = {
