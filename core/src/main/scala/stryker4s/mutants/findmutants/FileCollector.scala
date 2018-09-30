@@ -13,11 +13,11 @@ class FileCollector(implicit config: Config) extends SourceCollector {
 
   /**
     *  Collect all files that are going to be mutated.
-    *
-    * @return
     */
   override def collectFilesToMutate(): Iterable[File] = {
-    filesToMutate.filterNot(file => filesToExcludeFromMutation.contains(file))
+    filesToMutate
+      .filterNot(filesToExcludeFromMutation.contains(_))
+      .filterNot(stryker4sTmpFiles.contains(_))
   }
 
   /**
@@ -41,5 +41,15 @@ class FileCollector(implicit config: Config) extends SourceCollector {
       .filter(file => file.startsWith("!"))
       .flatMap(file => config.baseDir.glob(file.stripPrefix("!")))
       .distinct
+  }
+
+  /**
+    * List of all previously copied files if the target folder is not cleaned.
+    */
+  private[this] val stryker4sTmpFiles: Seq[File] = {
+    config.baseDir
+      .glob("target/stryker4s-*")
+      .flatMap(_.listRecursively)
+      .toSeq
   }
 }

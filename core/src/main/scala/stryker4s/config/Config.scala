@@ -8,7 +8,7 @@ import com.typesafe.config.ConfigRenderOptions
 import pureconfig.ConfigWriter
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
-case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala", "!target/**/*.scala"),
+case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
                   testRunner: TestRunner = CommandRunner("sbt", "test"),
                   reporters: List[MutantRunReporter] = List(new ConsoleReporter),

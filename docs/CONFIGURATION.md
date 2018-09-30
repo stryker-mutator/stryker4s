@@ -11,7 +11,7 @@ stryker4s {
 #### Files to mutate
 
 **Config file:** `mutate: [ "**/main/scala/**/*.scala" ]`  
-**Default value:** `[ "**/main/scala/**/*.scala", "!target/**/*.scala" ]`  
+**Default value:** `[ "**/main/scala/**/*.scala" ]`  
 **Mandatory:** No  
 **Description:**  
 With `mutate` you configure the subset of files to use for mutation testing. 

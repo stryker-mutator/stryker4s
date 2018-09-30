@@ -137,6 +137,17 @@ class FileCollectorTest extends Stryker4sSuite {
         results should be(empty)
       }
 
+      it("Should exclude all files from previous runs in the target folder") {
+        implicit val config: Config = Config(baseDir = filledDirPath)
+
+        val sut = new FileCollector()
+
+        val results = sut.collectFilesToMutate()
+
+        results should have size 2
+        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala")
+      }
+
       it("Should not exclude a non existing file") {
         implicit val config: Config = Config(
           mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/nonExistingFile.scala"),
