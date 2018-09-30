@@ -16,7 +16,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       val result = ConfigReader.readConfig(confPath)
 
       result.baseDir shouldBe File.currentWorkingDirectory
-      result.files shouldBe Seq("**/main/scala/**/*.scala")
+      result.mutate shouldBe Seq("**/main/scala/**/*.scala")
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.INFO
       result.reporters.head shouldBe an[ConsoleReporter]
@@ -46,7 +46,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       val result = ConfigReader.readConfig(confPath)
 
       result.baseDir shouldBe File("/tmp/project")
-      result.files shouldBe Seq("bar/src/main/**/*.scala",
+      result.mutate shouldBe Seq("bar/src/main/**/*.scala",
                                 "foo/src/main/**/*.scala",
                                 "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
