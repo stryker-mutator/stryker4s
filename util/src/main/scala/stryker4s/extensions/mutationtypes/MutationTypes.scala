@@ -1,5 +1,6 @@
 package stryker4s.extensions.mutationtypes
 
+import scala.meta.Term.{Apply, Block, Name, Select, Function}
 import scala.meta.contrib._
 import scala.meta.{Lit, Term, Tree}
 
@@ -27,6 +28,7 @@ trait BooleanSubstitution extends Mutation[Lit.Boolean]
 
 trait LogicalOperator extends Mutation[Term.Name]
 
+// TODO: check another mutators (maybe there is a better way to match them), find a common interface
 trait MethodMutator {
   protected val methodName: String
   def apply(f: String => Term): Term = f(methodName)
@@ -36,8 +38,12 @@ trait MethodMutator {
 trait OneArgMethodMutator extends MethodMutator {
 
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
-    case Term.Apply(Term.Select(q, Term.Name(`methodName`)), arg :: Nil) =>
-      Option(term, name => Term.Apply(Term.Select(q, Term.Name(name)), arg :: Nil))
+    case Apply(Select(q, Name(`methodName`)), Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
+      None
+    case Apply(Select(q, Name(`methodName`)), Function(_ :: _ :: _, _) :: Nil) =>
+      None
+    case Apply(Select(q, Name(`methodName`)), arg :: Nil) =>
+      Option(term, name => Apply(Term.Select(q, Name(name)), arg :: Nil))
     case _ => None
   }
 
@@ -46,8 +52,7 @@ trait OneArgMethodMutator extends MethodMutator {
 trait NonArgsMethodMutator extends MethodMutator {
 
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
-    case Term.Select(q, Term.Name(`methodName`)) =>
-      Option(term, name => Term.Select(q, Term.Name(name)))
+    case Select(q, Name(`methodName`)) => Option(term, name => Select(q, Name(name)))
     case _ => None
   }
 

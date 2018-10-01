@@ -49,15 +49,15 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       expectMutations(found, q"<", q"<=", q">", q"==")
     }
 
-//    it("should match a method") {
-//      val tree = q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
-//
-//      val found = tree.collect(sut.allMatchers()).flatten
-//
-//      found should have length 2
-//      expectMutations(found, q"filterNot", q"filter")
-//      expectMutations(found, q"filter", q"filterNot")
-//    }
+    it("should match a method") {
+      val tree = q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
+
+      val found = tree.collect(sut.allMatchers()).flatten
+
+      found should have length 2
+      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
+      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)", q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")
+    }
 
     it("should match a boolean and a conditional") {
       val tree = q"def foo = false && 15 > 4"
