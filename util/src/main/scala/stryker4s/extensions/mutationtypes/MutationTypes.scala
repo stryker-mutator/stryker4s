@@ -18,7 +18,7 @@ sealed trait Mutation[T <: Tree] {
       .filter(_.isEqual(tree))
       .filterNot {
         case name: Term.Name => name.isDefinition
-        case _ => false
+        case _               => false
       }
 }
 
@@ -32,7 +32,7 @@ trait LogicalOperator extends Mutation[Term.Name]
 trait MethodMutator {
   protected val methodName: String
   def apply(f: String => Term): Term = f(methodName)
-  def unapply(term:Term): Option[(Term, String => Term)]
+  def unapply(term: Term): Option[(Term, String => Term)]
 }
 
 trait OneArgMethodMutator extends MethodMutator {
@@ -53,7 +53,7 @@ trait NonArgsMethodMutator extends MethodMutator {
 
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
     case Select(q, Name(`methodName`)) => Option(term, name => Select(q, Name(name)))
-    case _ => None
+    case _                             => None
   }
 
 }
