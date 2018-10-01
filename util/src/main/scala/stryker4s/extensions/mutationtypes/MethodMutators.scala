@@ -1,43 +1,51 @@
 package stryker4s.extensions.mutationtypes
 
-import scala.meta.Term
+import scala.meta.{Term, Tree}
+
+//case object Filter extends MethodMutator {
+//  override val tree: Term.Name = Term.Name("filter")
+//}
 
 case object Filter extends MethodMutator {
-  override val tree: Term.Name = Term.Name("filter")
+  protected val methodName = "filter"
 }
 
+//case object FilterNot extends MethodMutator {
+//  override val tree: Term.Name = Term.Name("filterNot")
+//}
+
 case object FilterNot extends MethodMutator {
-  override val tree: Term.Name = Term.Name("filterNot")
+  protected val methodName = "filterNot"
 }
 
 case object Exists extends MethodMutator {
-  override val tree: Term.Name = Term.Name("exists")
+  protected val methodName = "exists"
 }
 
 case object ForAll extends MethodMutator {
-  override val tree: Term.Name = Term.Name("forAll")
+  protected val methodName = "forAll"
 }
 
 case object IsEmpty extends MethodMutator {
-  override val tree: Term.Name = Term.Name("isEmpty")
+  protected val methodName = "isEmpty"
 }
 
 case object NonEmpty extends MethodMutator {
-  override val tree: Term.Name = Term.Name("nonEmpty")
+  protected val methodName = "nonEmpty"
 }
 
 case object IndexOf extends MethodMutator {
-  override val tree: Term.Name = Term.Name("indexOf")
+  protected val methodName = "indexOf"
 }
 
 case object LastIndexOf extends MethodMutator {
-  override val tree: Term.Name = Term.Name("lastIndexOf")
+  protected val methodName = "lastIndexOf"
 }
 
 case object Max extends MethodMutator {
-  override val tree: Term.Name = Term.Name("max")
+  protected val methodName = "max"
 }
 
 case object Min extends MethodMutator {
-  override val tree: Term.Name = Term.Name("min")
+  protected val methodName = "min"
 }

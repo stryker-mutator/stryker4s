@@ -74,51 +74,82 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
       }
     }
   }
-  describe("MethodMutators") {
-    it("filter to Filter") {
-      q"filter" should matchPattern { case Filter(_) => }
-    }
 
-    it("filterNot to FilterNot") {
-      q"filterNot" should matchPattern { case FilterNot(_) => }
-    }
+  describe("test") {
+    it("adsa") {
 
-    it("exists to Exists") {
-      q"exists" should matchPattern { case Exists(_) => }
-    }
+      val tree =  q"foo.filter(args)"
+      val tree2 = q"filter(args)"
+      val tree3 = q"foo.bar.filter(args)"
+      val tree4 = q"foo.filter(args).bar"
+      val tree5 = q"foo.filter(args).bar.filter(args2)"
 
-    it("forAll to ForAll") {
-      q"forAll" should matchPattern { case ForAll(_) => }
-    }
+      def test(tree:Tree):Unit = {
+        println(tree.structure)
+        println(tree.transform {
+          case x @ Term.Apply(Term.Select(a, Term.Name("filter")), b :: Nil) => {
+            Term.Apply(Term.Select(a, Term.Name("filterNot")), b :: Nil)
+          }
+          case x => x
+        })
+      }
 
-    it("isEmpty to IsEmpty") {
-      q"isEmpty" should matchPattern { case IsEmpty(_) => }
-    }
+      test(tree)
+      test(tree2)
+      test(tree3)
+      test(tree4)
+      test(tree5)
 
-    it("nonEmpty to NonEmpty") {
-      q"nonEmpty" should matchPattern { case NonEmpty(_) => }
-    }
+      true should equal(true)
 
-    it("indexOf to IndexOf") {
-      q"indexOf" should matchPattern { case IndexOf(_) => }
-    }
-
-    it("lastIndexOf to LastIndexOf") {
-      q"lastIndexOf" should matchPattern { case LastIndexOf(_) => }
-    }
-
-    it("max to Max") {
-      q"max" should matchPattern { case Max(_) => }
-    }
-
-    it("min to Min") {
-      q"min" should matchPattern { case Min(_) => }
-    }
-
-    it("should not match a different pattern") {
-      q"filter" should not matchPattern { case FilterNot(_) => }
     }
   }
+
+//  describe("MethodMutators OLD") {
+//    it("filter to Filter") {
+//      q"filter" should matchPattern { case Filter(_) => }
+//    }
+//
+//    it("filterNot to FilterNot") {
+//      q"filterNot" should matchPattern { case FilterNot(_) => }
+//    }
+//
+//    it("exists to Exists") {
+//      q"exists" should matchPattern { case Exists(_) => }
+//    }
+//
+//    it("forAll to ForAll") {
+//      q"forAll" should matchPattern { case ForAll(_) => }
+//    }
+//
+//    it("isEmpty to IsEmpty") {
+//      q"isEmpty" should matchPattern { case IsEmpty(_) => }
+//    }
+//
+//    it("nonEmpty to NonEmpty") {
+//      q"nonEmpty" should matchPattern { case NonEmpty(_) => }
+//    }
+//
+//    it("indexOf to IndexOf") {
+//      q"indexOf" should matchPattern { case IndexOf(_) => }
+//    }
+//
+//    it("lastIndexOf to LastIndexOf") {
+//      q"lastIndexOf" should matchPattern { case LastIndexOf(_) => }
+//    }
+//
+//    it("max to Max") {
+//      q"max" should matchPattern { case Max(_) => }
+//    }
+//
+//    it("min to Min") {
+//      q"min" should matchPattern { case Min(_) => }
+//    }
+//
+//    it("should not match a different pattern") {
+//      q"filter" should not matchPattern { case FilterNot(_) => }
+//    }
+//  }
 
   describe("other cases") {
     it("should return original tree on match") {

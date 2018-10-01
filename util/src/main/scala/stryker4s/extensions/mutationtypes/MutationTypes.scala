@@ -12,13 +12,12 @@ import scala.meta.{Lit, Term, Tree}
   */
 sealed trait Mutation[T <: Tree] {
   val tree: T
-
   def unapply(arg: T): Option[T] =
     Some(arg)
       .filter(_.isEqual(tree))
       .filterNot {
         case name: Term.Name => name.isDefinition
-        case _               => false
+        case _ => false
       }
 }
 
@@ -28,7 +27,21 @@ trait BooleanSubstitution extends Mutation[Lit.Boolean]
 
 trait LogicalOperator extends Mutation[Term.Name]
 
-trait MethodMutator extends Mutation[Term.Name]
+trait MethodMutator {
+
+  protected val methodName: String
+
+  def apply(f: String => Term): Term = f(methodName)
+
+  def unapply(term: Term): Option[(Term, String => Term)] = term match {
+    case Term.Apply(Term.Select(q, Term.Name(`methodName`)), args) => {
+      Option(term, name => Term.Apply(Term.Select(q, Term.Name(name)), args))
+    }
+    case _ => None
+  }
+
+}
+
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
