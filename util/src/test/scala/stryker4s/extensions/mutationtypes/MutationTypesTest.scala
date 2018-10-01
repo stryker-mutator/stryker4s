@@ -105,6 +105,26 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
+  describe("test") {
+
+    case class X(a:Int) { def b = a }
+
+    it("asdad") {
+
+      val tree = q"List[List[Int]]().filter( x => x.exists(_ > 4) )"
+
+
+      val Filter(orig, f) = tree
+
+      println(orig)
+      println(f("filterNot").structure)
+
+      true should equal(true)
+
+    }
+
+  }
+
 //  describe("MethodMutators OLD") {
 //    it("filter to Filter") {
 //      q"filter" should matchPattern { case Filter(_) => }

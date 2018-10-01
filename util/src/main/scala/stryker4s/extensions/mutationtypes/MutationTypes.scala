@@ -28,20 +28,30 @@ trait BooleanSubstitution extends Mutation[Lit.Boolean]
 trait LogicalOperator extends Mutation[Term.Name]
 
 trait MethodMutator {
-
   protected val methodName: String
-
   def apply(f: String => Term): Term = f(methodName)
+  def unapply(term:Term): Option[(Term, String => Term)]
+}
+
+trait OneArgMethodMutator extends MethodMutator {
 
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
-    case Term.Apply(Term.Select(q, Term.Name(`methodName`)), args) => {
-      Option(term, name => Term.Apply(Term.Select(q, Term.Name(name)), args))
-    }
+    case Term.Apply(Term.Select(q, Term.Name(`methodName`)), arg :: Nil) =>
+      Option(term, name => Term.Apply(Term.Select(q, Term.Name(name)), arg :: Nil))
     case _ => None
   }
 
 }
 
+trait NonArgsMethodMutator extends MethodMutator {
+
+  def unapply(term: Term): Option[(Term, String => Term)] = term match {
+    case Term.Select(q, Term.Name(`methodName`)) =>
+      Option(term, name => Term.Select(q, Term.Name(name)))
+    case _ => None
+  }
+
+}
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */

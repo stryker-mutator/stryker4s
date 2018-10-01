@@ -53,11 +53,15 @@ class MutantMatcher {
     case LastIndexOf(orig, f) => orig ~~> IndexOf(f)
     case Max(orig, f)         => orig ~~> Min(f)
     case Min(orig, f)         => orig ~~> Max(f)
+    case MaxBy(orig, f)       => orig ~~> MinBy(f)
+    case MinBy(orig, f)       => orig ~~> MaxBy(f)
   }
 
   implicit class TermExtensions(original: Term) {
     def ~~>(mutated: Term*): Seq[Mutant] = {
-      mutated.map(mutant => Mutant(stream.next(), original, mutant))
+      mutated.map(mutant => {
+        Mutant(stream.next, original, mutant)
+      })
     }
   }
 
