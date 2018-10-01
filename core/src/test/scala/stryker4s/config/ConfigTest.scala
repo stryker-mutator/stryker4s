@@ -12,10 +12,10 @@ class ConfigTest extends Stryker4sSuite {
 
       val expected =
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
-           |files=[
+           |log-level=INFO
+           |mutate=[
            |    "**/main/scala/**/*.scala"
            |]
-           |log-level=INFO
            |reporters=[
            |    console
            |]
@@ -38,11 +38,11 @@ class ConfigTest extends Stryker4sSuite {
 
       val expected =
         s"""base-dir="${File("tmp").pathAsString.replace("\\", "\\\\")}"
-           |files=[
+           |log-level=INFO
+           |mutate=[
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
            |]
-           |log-level=INFO
            |reporters=[
            |    console
            |]

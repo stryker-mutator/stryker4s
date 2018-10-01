@@ -10,11 +10,11 @@ stryker4s {
 
 #### Files to mutate
 
-**Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
+**Config file:** `mutate: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** `[ "**/main/scala/**/*.scala" ]`  
 **Mandatory:** No  
 **Description:**  
-With `files` you configure the subset of files to use for mutation testing. 
+With `mutate` you configure the subset of files to use for mutation testing. 
 Generally speaking, these should be your own source files.  
 The default for this will find files in the common Scala project format. 
 

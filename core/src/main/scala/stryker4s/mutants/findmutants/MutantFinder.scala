@@ -2,12 +2,13 @@ package stryker4s.mutants.findmutants
 
 import better.files.File
 import grizzled.slf4j.Logging
+import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutationsInSource}
-
+import stryker4s.extensions.FileExtensions._
 import scala.meta.Source
 import scala.meta.parsers.{Parsed, XtensionParseInputLike}
 
-class MutantFinder(matcher: MutantMatcher) extends Logging {
+class MutantFinder(matcher: MutantMatcher)(implicit config: Config) extends Logging {
 
   def mutantsInFile(filePath: File): MutationsInSource = {
     val parsedSource = parseFile(filePath)
@@ -21,10 +22,9 @@ class MutantFinder(matcher: MutantMatcher) extends Logging {
   def parseFile(file: File): Source =
     file.toJava.parse[Source] match {
       case Parsed.Success(source) =>
-        debug(s"Parsed file '$file'")
         source
       case Parsed.Error(_, msg, ex) =>
-        error(s"Error while parsing file '$file', $msg")
+        error(s"Error while parsing file '${file.relativePath}', $msg")
         throw ex
     }
 }
