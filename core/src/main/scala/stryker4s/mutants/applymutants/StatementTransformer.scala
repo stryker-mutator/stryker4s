@@ -13,7 +13,7 @@ class StatementTransformer {
     val transformedMutants: Seq[TransformedMutants] = foundMutants
       .groupBy(mutant => mutant.original)
       .map { case (original, mutants) => transformMutant(original, mutants) }
-      .toSeq
+      .toSeq.sortBy(_.mutantStatements.map(_.id).max)
 
     SourceTransformations(source, transformedMutants)
   }
