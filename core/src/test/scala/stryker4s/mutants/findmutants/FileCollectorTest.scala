@@ -83,9 +83,9 @@ class FileCollectorTest extends Stryker4sSuite {
 
       it("should not find a file twice when the patterns match on the same file twice") {
         implicit val config: Config = Config(mutate = Seq("**/someFile.scala",
-                                                         "**/secondFile.scala",
-                                                         "!**/*.scala",
-                                                         "!**/someFile.scala"),
+                                                          "**/secondFile.scala",
+                                                          "!**/*.scala",
+                                                          "!**/someFile.scala"),
                                              baseDir = filledDirPath)
 
         val sut = new FileCollector()
@@ -110,11 +110,10 @@ class FileCollectorTest extends Stryker4sSuite {
       }
 
       it("Should exclude all files specified in the excluded files config") {
-        implicit val config: Config = Config(
-          mutate = Seq("**/someFile.scala",
-                                                         "**/secondFile.scala",
-                                                         "!**/someFile.scala",
-                                                         "!**/secondFile.scala"),
+        implicit val config: Config = Config(mutate = Seq("**/someFile.scala",
+                                                          "**/secondFile.scala",
+                                                          "!**/someFile.scala",
+                                                          "!**/secondFile.scala"),
                                              baseDir = filledDirPath)
 
         val sut = new FileCollector()

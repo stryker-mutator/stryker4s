@@ -63,7 +63,9 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   }
 
   private[this] val filesToExcludeFromMutation: Seq[File] = {
-    glob(config.mutate.filter(file => file.startsWith("!")))
+    glob(config.mutate
+      .filter(file => file.startsWith("!"))
+      .map(file => file.stripPrefix("!")))
   }
 
   /**
