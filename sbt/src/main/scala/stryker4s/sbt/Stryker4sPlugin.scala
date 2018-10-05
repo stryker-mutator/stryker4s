@@ -31,18 +31,20 @@ object Stryker4sPlugin extends AutoPlugin {
 
     val extracted: Extracted = Project.extract(currentState)
 
-    val tmpDir = File.newTemporaryDirectory("stryker4s-")
+//    val tmpDir = File.newTemporaryDirectory("stryker4s-")
 
-    val baseDir = extracted.get(LocalRootProject / baseDirectory)
-    val mainSource = extracted.get(Compile / scalaSource)
-    val testSource = extracted.get(Test / scalaSource)
+//    val baseDir = extracted.get(LocalRootProject / baseDirectory)
+//    val mainSource = extracted.get(Compile / scalaSource)
+//    val testSource = extracted.get(Test / scalaSource)
 
-    println(tmpDir)
-    println(baseDir)
-    println(mainSource)
-    println(testSource)
-
+//    println(tmpDir)
+//    println(baseDir)
+//    println(mainSource)
+//    println(testSource)
+//
     println("RUNNING STRYKER COMMAND")
+
+    new Stryker4sSbtRunner(extracted).run()
 
     currentState
   }
