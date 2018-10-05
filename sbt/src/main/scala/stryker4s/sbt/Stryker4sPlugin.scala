@@ -1,12 +1,12 @@
 package stryker4s.sbt
 
-import better.files.File
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
-import stryker4s.Stryker4s
-import stryker4s.config.Config
 
+/**
+  * This plugin adds a new command (stryker) to the project that allow you to run stryker mutation over your code
+  */
 object Stryker4sPlugin extends AutoPlugin {
 
   override def requires = JvmPlugin
@@ -21,43 +21,20 @@ object Stryker4sPlugin extends AutoPlugin {
 
   }
 
-  import autoImport._
-
   lazy val strykerDefaultSettings: Seq[Def.Setting[_]] = Seq(
     commands += stryker
   )
 
   def stryker = Command.command("stryker") { currentState =>
 
-    val extracted: Extracted = Project.extract(currentState)
+    new Stryker4sSbtRunner(currentState).run()
 
-//    val tmpDir = File.newTemporaryDirectory("stryker4s-")
-
-//    val baseDir = extracted.get(LocalRootProject / baseDirectory)
-//    val mainSource = extracted.get(Compile / scalaSource)
-//    val testSource = extracted.get(Test / scalaSource)
-
-//    println(tmpDir)
-//    println(baseDir)
-//    println(mainSource)
-//    println(testSource)
-//
-    println("RUNNING STRYKER COMMAND")
-
-    new Stryker4sSbtRunner(extracted).run()
-
+    // After running state doesn't change
     currentState
+
   }
 
+  // TODO: improve
   override lazy val projectSettings = strykerDefaultSettings
-
-
-//  override lazy val buildSettings = Seq(
-//    stryker := {
-//      val tests = (LocalRootProject / Test / definedTests).value
-//      val sbtRunner = new Stryker4sSbtRunner
-//      sbtRunner.run()
-//    }
-//  )
 
 }
