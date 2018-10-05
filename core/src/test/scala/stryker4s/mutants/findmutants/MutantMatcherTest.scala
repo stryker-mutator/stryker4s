@@ -37,6 +37,19 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     })
   }
 
+  /**
+    * Check if there is a mutant for every expected mutation
+    */
+  def expectedMutations(matchFun: PartialFunction[Tree, Seq[Mutant]],
+                        tree: Tree,
+                        original: MethodMutator,
+                        expectedMutations: MethodMutator*): Unit = {
+    val found: Seq[Mutant] = tree.collect(matchFun).flatten
+    expectedMutations.foreach {
+      expectedMutation => found.map(_.mutated).collectFirst { case expectedMutation(_, _) => }.getOrElse(fail("mutant not found"))
+    }
+  }
+
   describe("All Matchers") {
     it("should match a conditional statement") {
       val tree = q"def foo = 15 > 20 && 20 < 15"
@@ -172,97 +185,116 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-//  describe("matchMethodMutators matcher") {
-//    it("should match filter to filterNot") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).filter(_ % 2 == 0)",
-//        Filter,
-//        FilterNot
-//      )
-//    }
-//
-//    it("should match filterNot to filter") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)",
-//        FilterNot,
-//        Filter
-//      )
-//    }
-//
-//    it("should match exists to forAll") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
-//        Exists,
-//        ForAll
-//      )
-//    }
-//
-//    it("should match forAll to exists") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
-//        ForAll,
-//        Exists
-//      )
-//    }
-//
-//    it("should match isEmpty to nonEmpty") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).isEmpty",
-//        IsEmpty,
-//        NonEmpty
-//      )
-//    }
-//
-//    it("should match nonEmpty to isEmpty") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).nonEmpty",
-//        NonEmpty,
-//        IsEmpty
-//      )
-//    }
-//
-//    it("should match indexOf to lastIndexOf") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).indexOf(2)",
-//        IndexOf,
-//        LastIndexOf
-//      )
-//    }
-//
-//    it("should match lastIndexOf to indexOf") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).lastIndexOf(2)",
-//        LastIndexOf,
-//        IndexOf
-//      )
-//    }
-//
-//    it("should match max to min") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).max",
-//        Max,
-//        Min
-//      )
-//    }
-//
-//    it("should match min to max") {
-//      expectMutations(
-//        sut.matchMethodMutators(),
-//        q"def foo = List(1, 2, 3).min",
-//        Min,
-//        Max
-//      )
-//    }
-//  }
+  describe("matchMethodMutators matcher") {
+    it("should match filter to filterNot") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).filter(_ % 2 == 0)",
+        Filter,
+        FilterNot
+      )
+    }
+
+    it("should match filterNot to filter") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)",
+        FilterNot,
+        Filter
+      )
+    }
+
+    it("should match exists to forAll") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
+        Exists,
+        ForAll
+      )
+    }
+
+    it("should match forAll to exists") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
+        ForAll,
+        Exists
+      )
+    }
+
+    it("should match isEmpty to nonEmpty") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).isEmpty",
+        IsEmpty,
+        NonEmpty
+      )
+    }
+
+    it("should match nonEmpty to isEmpty") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).nonEmpty",
+        NonEmpty,
+        IsEmpty
+      )
+    }
+
+    it("should match indexOf to lastIndexOf") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).indexOf(2)",
+        IndexOf,
+        LastIndexOf
+      )
+    }
+
+    it("should match lastIndexOf to indexOf") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).lastIndexOf(2)",
+        LastIndexOf,
+        IndexOf
+      )
+    }
+
+    it("should match max to min") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).max",
+        Max,
+        Min
+      )
+    }
+
+    it("should match min to max") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).min",
+        Min,
+        Max
+      )
+    }
+
+    it("should match maxBy to minBy") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).maxBy(_.toString)",
+        MaxBy,
+        MinBy
+      )
+    }
+
+    it("should match minBy to maxBy") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).minBy(_.toString)",
+        MinBy,
+        MaxBy
+      )
+    }
+
+  }
 
   describe("matchBooleanSubstitutions matcher") {
     it("should match false to true") {
