@@ -46,9 +46,9 @@ With `reporters` you can specify reporters for stryker4s to use. By default the 
 
 #### log-level
 
-**Config file:** `log-level: INFO`
-**Default value:** INFO
-**Mandatory:** No
-**Description:**
+**Config file:** `log-level: INFO`  
+**Default value:** INFO  
+**Mandatory:** No  
+**Description:**  
 With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
  
