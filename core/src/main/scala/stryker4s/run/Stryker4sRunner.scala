@@ -15,9 +15,7 @@ object Stryker4sRunner extends App with Logging {
 
   val stryker4s = new Stryker4s(
     new FileCollector,
-    new Mutator(new MutantFinder(new MutantMatcher),
-                new StatementTransformer,
-                new MatchBuilder),
+    new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
     resolveRunner(),
     new Reporter()
   )
