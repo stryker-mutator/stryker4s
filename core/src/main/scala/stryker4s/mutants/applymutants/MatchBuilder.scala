@@ -30,7 +30,7 @@ class MatchBuilder {
 
     val activeMutationEnv = Lit.String("ACTIVE_MUTATION")
 
-    q"(sys.env.get($activeMutationEnv) match { ..case $cases })"
+    q"(sys.props.get($activeMutationEnv).orElse(sys.env.get($activeMutationEnv)) match { ..case $cases })"
   }
 
   private def mutantToCase(mutant: Mutant): Case =
