@@ -47,7 +47,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
 
         config.baseDir
           .glob("**/*.*")
-          .filterNot(file => file.path.toString.contains("target"))
+          .filterNot(file => file.path.toString.contains("/target/"))
           .toSeq ++: config.baseDir.glob("*.*").toSeq
     }
   }

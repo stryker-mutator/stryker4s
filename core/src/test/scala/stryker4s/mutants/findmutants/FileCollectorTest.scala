@@ -188,6 +188,20 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       results should contain theSameElementsAs expectedFileList
     }
 
+    it("Should copy over files with target in their name") {
+      implicit val config: Config = Config(baseDir = filledDirPath)
+      val filePath = "Target.scala"
+      val expectedFileList = Seq(config.baseDir / filePath)
+      val gitProcessResult = Try(Seq(filePath))
+      when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir)).thenReturn(gitProcessResult)
+
+      val sut = new FileCollector()
+
+      val results = sut.filesToCopy(processRunnerMock)
+
+      results should contain theSameElementsAs expectedFileList
+    }
+
     it("Should copy the files from the files config key when the target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
       val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala")
@@ -203,7 +217,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
     it("Should copy all files when no files config key is found and target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = filledDirPath, files = None)
-      val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala")
+      val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "otherFile.notScala")
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
@@ -211,8 +225,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
       val results = sut.filesToCopy(processRunnerMock)
 
-      //Should be zero because target is in the name of the path.
-      results should have size 0
+      results should have size 3
+      results should contain theSameElementsAs expectedFileList
     }
 
     describe("log tests"){
