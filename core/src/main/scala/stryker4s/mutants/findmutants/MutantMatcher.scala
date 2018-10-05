@@ -43,21 +43,26 @@ class MutantMatcher {
   }
 
   def matchMethodMutators(): PartialFunction[Tree, Seq[Mutant]] = {
-    case Filter(orig)      => orig ~~> FilterNot
-    case FilterNot(orig)   => orig ~~> Filter
-    case Exists(orig)      => orig ~~> ForAll
-    case ForAll(orig)      => orig ~~> Exists
-    case IsEmpty(orig)     => orig ~~> NonEmpty
-    case NonEmpty(orig)    => orig ~~> IsEmpty
-    case IndexOf(orig)     => orig ~~> LastIndexOf
-    case LastIndexOf(orig) => orig ~~> IndexOf
-    case Max(orig)         => orig ~~> Min
-    case Min(orig)         => orig ~~> Max
+    case Filter(orig, f)      => orig ~~> FilterNot(f)
+    case FilterNot(orig, f)   => orig ~~> Filter(f)
+    case Exists(orig, f)      => orig ~~> ForAll(f)
+    case ForAll(orig, f)      => orig ~~> Exists(f)
+    case IsEmpty(orig, f)     => orig ~~> NonEmpty(f)
+    case NonEmpty(orig, f)    => orig ~~> IsEmpty(f)
+    case IndexOf(orig, f)     => orig ~~> LastIndexOf(f)
+    case LastIndexOf(orig, f) => orig ~~> IndexOf(f)
+    case Max(orig, f)         => orig ~~> Min(f)
+    case Min(orig, f)         => orig ~~> Max(f)
+    case MaxBy(orig, f)       => orig ~~> MinBy(f)
+    case MinBy(orig, f)       => orig ~~> MaxBy(f)
   }
 
   implicit class TermExtensions(original: Term) {
     def ~~>(mutated: Term*): Seq[Mutant] = {
-      mutated.map(mutant => Mutant(stream.next(), original, mutant))
+      mutated.map(mutant => {
+        Mutant(stream.next, original, mutant)
+      })
     }
   }
+
 }

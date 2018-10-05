@@ -17,7 +17,8 @@ case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
 
   def toHoconString: String = {
     implicit val fileWriter: ConfigWriter[File] = ConfigWriter[Path].contramap[File](_.path)
-    implicit val logLevelWriter: ConfigWriter[Level] = ConfigWriter[String].contramap[Level](_.toString)
+    implicit val logLevelWriter: ConfigWriter[Level] =
+      ConfigWriter[String].contramap[Level](_.toString)
     implicit val reportersWriter: ConfigWriter[List[MutantRunReporter]] = ConfigWriter[List[String]]
       .contramap(mutantRunReporters =>
         mutantRunReporters.map {
