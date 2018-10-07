@@ -1,8 +1,9 @@
 package stryker4s.mutants.findmutants
 
 import better.files.File
-import org.mockito.MockitoSugar
+import ch.qos.logback.classic.Level
 import org.mockito.ArgumentMatchers._
+import org.mockito.MockitoSugar
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
@@ -174,12 +175,14 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
     val processRunnerMock: ProcessRunner = mock[ProcessRunner]
 
-    it("Should execute git process to collect files"){
+    it("Should execute git process to collect files") {
       implicit val config: Config = Config(baseDir = filledDirPath)
       val filePath = "Config.scala"
       val expectedFileList = Seq(config.baseDir / filePath)
       val gitProcessResult = Try(Seq(filePath))
-      when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir)).thenReturn(gitProcessResult)
+      when(
+        processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"),
+                          config.baseDir)).thenReturn(gitProcessResult)
 
       val sut = new FileCollector()
 
@@ -193,7 +196,9 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       val filePath = "Target.scala"
       val expectedFileList = Seq(config.baseDir / filePath)
       val gitProcessResult = Try(Seq(filePath))
-      when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir)).thenReturn(gitProcessResult)
+      when(
+        processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"),
+                          config.baseDir)).thenReturn(gitProcessResult)
 
       val sut = new FileCollector()
 
@@ -203,7 +208,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
     }
 
     it("Should copy the files from the files config key") {
-      implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
+      implicit val config: Config =
+        Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
       val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala")
 
       val sut = new FileCollector()
@@ -213,7 +219,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       results should contain theSameElementsAs expectedFileList
     }
 
-    it("Should not copy files out of the target folders when no files config key is found and target repo is not a git repo") {
+    it(
+      "Should not copy files out of the target folders when no files config key is found and target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = filledDirPath, files = None)
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
@@ -226,9 +233,9 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       results should have size 0
     }
 
-    describe("log tests"){
+    describe("log tests") {
       it("Should log that it's copying files based on configuration key") {
-        implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("")))
+        implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("")), logLevel = Level.DEBUG)
 
         val sut = new FileCollector()
 
@@ -238,7 +245,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       }
 
       it("Should log that it's copying files based on git ls-files") {
-        implicit val config: Config = Config(baseDir = filledDirPath)
+        implicit val config: Config = Config(baseDir = filledDirPath, logLevel = Level.DEBUG)
         when(processRunnerMock(any[Command], any[File])).thenReturn(Try(Seq("")))
 
         val sut = new FileCollector()
