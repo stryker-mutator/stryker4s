@@ -1,9 +1,11 @@
 package stryker4s.mutants.findmutants
 
 import better.files.File
-import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.{Level, Logger}
 import org.mockito.ArgumentMatchers._
 import org.mockito.MockitoSugar
+import org.slf4j.LoggerFactory
+import org.slf4j.{LoggerFactory, Logger => Slf4jLogger}
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
@@ -235,7 +237,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
     describe("log tests") {
       it("Should log that it's copying files based on configuration key") {
-        implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("")), logLevel = Level.DEBUG)
+        implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("")))
+        LoggerFactory.getLogger(Slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(Level.DEBUG)
 
         val sut = new FileCollector()
 
@@ -246,6 +249,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
       it("Should log that it's copying files based on git ls-files") {
         implicit val config: Config = Config(baseDir = filledDirPath, logLevel = Level.DEBUG)
+        LoggerFactory.getLogger(Slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(Level.DEBUG)
         when(processRunnerMock(any[Command], any[File])).thenReturn(Try(Seq("")))
 
         val sut = new FileCollector()
