@@ -215,7 +215,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       results should contain theSameElementsAs expectedFileList
     }
 
-    it("Should copy not copy files our of the target folders when no files config key is found and target repo is not a git repo") {
+    it("Should not copy files out of the target folders when no files config key is found and target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = filledDirPath, files = None)
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
