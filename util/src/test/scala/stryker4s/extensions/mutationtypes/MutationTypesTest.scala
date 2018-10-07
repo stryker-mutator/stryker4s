@@ -74,51 +74,6 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
       }
     }
   }
-  describe("MethodMutators") {
-    it("filter to Filter") {
-      q"filter" should matchPattern { case Filter(_) => }
-    }
-
-    it("filterNot to FilterNot") {
-      q"filterNot" should matchPattern { case FilterNot(_) => }
-    }
-
-    it("exists to Exists") {
-      q"exists" should matchPattern { case Exists(_) => }
-    }
-
-    it("forAll to ForAll") {
-      q"forAll" should matchPattern { case ForAll(_) => }
-    }
-
-    it("isEmpty to IsEmpty") {
-      q"isEmpty" should matchPattern { case IsEmpty(_) => }
-    }
-
-    it("nonEmpty to NonEmpty") {
-      q"nonEmpty" should matchPattern { case NonEmpty(_) => }
-    }
-
-    it("indexOf to IndexOf") {
-      q"indexOf" should matchPattern { case IndexOf(_) => }
-    }
-
-    it("lastIndexOf to LastIndexOf") {
-      q"lastIndexOf" should matchPattern { case LastIndexOf(_) => }
-    }
-
-    it("max to Max") {
-      q"max" should matchPattern { case Max(_) => }
-    }
-
-    it("min to Min") {
-      q"min" should matchPattern { case Min(_) => }
-    }
-
-    it("should not match a different pattern") {
-      q"filter" should not matchPattern { case FilterNot(_) => }
-    }
-  }
 
   describe("other cases") {
     it("should return original tree on match") {
