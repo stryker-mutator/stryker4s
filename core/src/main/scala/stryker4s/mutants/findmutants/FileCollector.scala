@@ -67,11 +67,10 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * List all files from the base directory specified in the Stryker4s basedir config key.
     */
   private[this] def listAllFiles(): Option[Iterable[File]] = {
-    Option(
-      (config.baseDir.glob("*.*") ++
-        config.baseDir
-          .glob("**/*.*")
-          .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))).toIterable)
+    Option(config.baseDir
+      .listRecursively
+      .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))
+      .toIterable)
   }
 
   private[this] def glob(list: Seq[String]): Seq[File] = {
