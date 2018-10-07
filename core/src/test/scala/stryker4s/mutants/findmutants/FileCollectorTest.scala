@@ -202,11 +202,9 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       results should contain theSameElementsAs expectedFileList
     }
 
-    it("Should copy the files from the files config key when the target repo is not a git repo") {
+    it("Should copy the files from the files config key") {
       implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
       val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala")
-      val gitProcessResult = Failure(new Exception("Exception"))
-      when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
       val sut = new FileCollector()
 
@@ -229,16 +227,25 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
     }
 
     describe("log tests"){
-      it("Should log that no git repo is found and is using fallback") {
-        implicit val config: Config = Config(baseDir = filledDirPath)
-        val gitProcessResult = Failure(new Exception(""))
-        when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
+      it("Should log that it's copying files based on configuration key") {
+        implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("")))
 
         val sut = new FileCollector()
 
         sut.filesToCopy(processRunnerMock)
 
-        "Not a git repo, falling back to 'files' configuration." shouldBe loggedAsInfo
+        "Collecting files based on 'files' configuration key." shouldBe loggedAsDebug
+      }
+
+      it("Should log that it's copying files based on git ls-files") {
+        implicit val config: Config = Config(baseDir = filledDirPath)
+        when(processRunnerMock(any[Command], any[File])).thenReturn(Try(Seq("")))
+
+        val sut = new FileCollector()
+
+        sut.filesToCopy(processRunnerMock)
+
+        "Collecting files based on 'git ls-files'." shouldBe loggedAsDebug
       }
 
       it("Should log that no files config option is found and is using fallback to copy all files") {
@@ -250,7 +257,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
         sut.filesToCopy(processRunnerMock)
 
-        "No 'files' specified, falling back to copying everything except the target/ folder(s)" shouldBe loggedAsWarning
+        "No 'files' specified and not a git repository." shouldBe loggedAsWarning
+        "Falling back to copying everything except the target/ folder(s)" shouldBe loggedAsWarning
       }
     }
   }

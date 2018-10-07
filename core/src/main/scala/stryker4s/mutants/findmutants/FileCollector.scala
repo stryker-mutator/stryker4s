@@ -31,31 +31,47 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   /**
     * Collect all files that are needed to be copied over to the Stryker4s-tmp folder.
     *
-    * Option 1: Copy every file that is listed by git.
-    * Option 2: Copy every file that is listed by the 'files' config setting
+    * Option 1: Copy every file that is listed by the 'files' config setting
+    * Option 2: Copy every file that is listed by git.
     * Option 3: Copy every file in the 'baseDir' excluding target folders.
     */
   override def filesToCopy(processRunner: ProcessRunner): Iterable[File] = {
+    (listFilesBasedOnConfiguration() orElse listFilesBasedOnGit(processRunner) orElse {
+      warn("No 'files' specified and not a git repository.")
+      warn("Falling back to copying everything except the target/ folder(s)")
+
+      listAllFiles()
+    }).getOrElse(Seq.empty)
+  }
+
+  /**
+    * List all files based on the 'files' configuration key from stryker4s.conf.
+    */
+  private[this] def listFilesBasedOnConfiguration(): Option[Iterable[File]] = {
+    debug("Collecting files based on 'files' configuration key.")
+    config.files.map { glob }
+  }
+
+  /**
+    * List all files based on `git ls-files` command.
+    */
+  private[this] def listFilesBasedOnGit(processRunner: ProcessRunner): Option[Iterable[File]] = {
+    debug("Collecting files based on 'git ls-files'.")
     processRunner(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir) match {
-      case Success(files) => files.map(config.baseDir / _).distinct
-      case Failure(_) =>
-        info("Not a git repo, falling back to 'files' configuration.")
-        fallBackToFilesConfiguration()
+      case Success(files) => Option(files.map(config.baseDir / _).distinct)
+      case Failure(_)     => None
     }
   }
 
-  private[this] def fallBackToFilesConfiguration(): Seq[File] = {
-    config.files match {
-      case Some(files) => glob(files)
-      case None =>
-        warn(
-          "No 'files' specified, falling back to copying everything except the target/ folder(s)")
-
+  /**
+    * List all files from the base directory specified in the Stryker4s basedir config key.
+    */
+  private[this] def listAllFiles(): Option[Iterable[File]] = {
+    Option(
+      (config.baseDir.glob("*.*") ++
         config.baseDir
           .glob("**/*.*")
-          .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))
-          .toSeq ++: config.baseDir.glob("*.*").toSeq
-    }
+          .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))).toIterable)
   }
 
   private[this] def glob(list: Seq[String]): Seq[File] = {
