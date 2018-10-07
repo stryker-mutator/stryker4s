@@ -2,7 +2,7 @@ package stryker4s.extensions
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.{Term, Transformer, Tree}
+import scala.meta.{Case, Lit, Term, Transformer, Tree}
 
 object TreeExtensions {
 
@@ -13,8 +13,9 @@ object TreeExtensions {
       */
     @tailrec
     final def topStatement(): Term = thisTerm match {
-      case PartialStatement(parent) => parent.topStatement()
-      case _                        => thisTerm
+      case PartialStatement(parent)    => parent.topStatement()
+      case LiteralPatternMatch(parent) => parent
+      case _                           => thisTerm
     }
 
     /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
@@ -26,13 +27,24 @@ object TreeExtensions {
         * @return A Some of the parent if the given term is a partial statement,
         *         else a None if the given term is a full statement
         */
-      def unapply(term: Term): Option[Term] = term.parent match {
-        case Some(parent: Term.Apply)                             => Some(parent)
-        case Some(parent: Term.Select)                            => Some(parent)
-        case Some(parent: Term.ApplyType)                         => Some(parent)
-        case Some(_: Term.ApplyInfix) if term.is[Term.ApplyInfix] => None
-        case Some(parent: Term.ApplyInfix)                        => Some(parent)
-        case _                                                    => None
+      def unapply(term: Term): Option[Term] = term.parent collect {
+        case parent: Term.Apply      => parent
+        case parent: Term.Select     => parent
+        case parent: Term.ApplyType  => parent
+        case parent: Term.ApplyInfix => parent
+      }
+    }
+
+    /** Extractor object to check if the [[scala.meta.Term]] is a literal inside a pattern match
+      *
+      */
+    private object LiteralPatternMatch {
+      def unapply(literal: Lit): Option[Term] = literal.parent match {
+        case Some(parent: Case) =>
+          parent.parent collect {
+            case topParent: Term => topParent.topStatement()
+          }
+        case _ => None
       }
     }
 
