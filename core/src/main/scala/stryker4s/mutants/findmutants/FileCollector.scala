@@ -15,6 +15,11 @@ trait SourceCollector {
 class FileCollector(implicit config: Config) extends SourceCollector with Logging {
 
   /**
+    * Get path separator because windows and unix systems have different separators.
+    */
+  private[this] val pathSeparator = config.baseDir.fileSystem.getSeparator
+
+  /**
     *  Collect all files that are going to be mutated.
     */
   override def collectFilesToMutate(): Iterable[File] = {
@@ -34,7 +39,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     processRunner(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir) match {
       case Success(files) => files.map(config.baseDir / _).distinct
       case Failure(_) =>
-        info("Not a git repo falling back to 'files' configuration.")
+        info("Not a git repo, falling back to 'files' configuration.")
         fallBackToFilesConfiguration()
     }
   }
@@ -43,11 +48,12 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     config.files match {
       case Some(files) => glob(files)
       case None =>
-        warn("No 'files' specified falling back to copying everything excluding target")
+        warn(
+          "No 'files' specified, falling back to copying everything except the target/ folder(s)")
 
         config.baseDir
           .glob("**/*.*")
-          .filterNot(file => file.path.toString.contains("/target/"))
+          .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))
           .toSeq ++: config.baseDir.glob("*.*").toSeq
     }
   }
@@ -63,9 +69,10 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   }
 
   private[this] val filesToExcludeFromMutation: Seq[File] = {
-    glob(config.mutate
-      .filter(file => file.startsWith("!"))
-      .map(file => file.stripPrefix("!")))
+    glob(
+      config.mutate
+        .filter(file => file.startsWith("!"))
+        .map(file => file.stripPrefix("!")))
   }
 
   /**
@@ -73,7 +80,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     */
   private[this] val stryker4sTmpFiles: Seq[File] = {
     config.baseDir
-      .glob("target/stryker4s-*")
+      .glob(s"target${pathSeparator}stryker4s-*")
       .flatMap(_.listRecursively)
       .toSeq
   }

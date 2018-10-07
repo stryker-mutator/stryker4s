@@ -215,9 +215,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       results should contain theSameElementsAs expectedFileList
     }
 
-    it("Should copy all files when no files config key is found and target repo is not a git repo") {
+    it("Should copy not copy files our of the target folders when no files config key is found and target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = filledDirPath, files = None)
-      val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "otherFile.notScala")
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
@@ -225,8 +224,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
       val results = sut.filesToCopy(processRunnerMock)
 
-      results should have size 3
-      results should contain theSameElementsAs expectedFileList
+      // Is always 0 because there is target in the folder path for tests.
+      results should have size 0
     }
 
     describe("log tests"){
@@ -239,7 +238,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
         sut.filesToCopy(processRunnerMock)
 
-        "Not a git repo falling back to 'files' configuration." shouldBe loggedAsInfo
+        "Not a git repo, falling back to 'files' configuration." shouldBe loggedAsInfo
       }
 
       it("Should log that no files config option is found and is using fallback to copy all files") {
@@ -251,7 +250,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
 
         sut.filesToCopy(processRunnerMock)
 
-        "No 'files' specified falling back to copying everything excluding target" shouldBe loggedAsWarning
+        "No 'files' specified, falling back to copying everything except the target/ folder(s)" shouldBe loggedAsWarning
       }
     }
   }
