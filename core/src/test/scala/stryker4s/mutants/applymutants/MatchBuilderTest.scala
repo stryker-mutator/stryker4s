@@ -40,7 +40,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
 
-      val transformed = toTransformed(source, q">", q"<", q"==")
+      val transformed = toTransformed(source, q">", q"<", q"==", q">=")
       val transStatements =
         SourceTransformations(source, List(transformed))
       val sut = new MatchBuilder
@@ -56,6 +56,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
           |      15 < 14
           |    case Some("1") =>
           |      15 == 14
+          |    case Some("2") =>
+          |      15 >= 14
           |    case _ =>
           |      15 > 14
           |  }
@@ -67,8 +69,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 && 14 >= 13 }".parse[Source].get
-      val firstTrans = toTransformed(source, q">", q"<", q"==")
-      val secondTrans = toTransformed(source, q">=", q">", q"==")
+      val firstTrans = toTransformed(source, q">", q"<", q"==", q">=")
+      val secondTrans = toTransformed(source, q">=", q">", q"==", q"<")
 
       val transformedStatements = SourceTransformations(source, List(firstTrans, secondTrans))
       val sut = new MatchBuilder
@@ -84,12 +86,16 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
           |      15 < 14 && 14 >= 13
           |    case Some("1") =>
           |      15 == 14 && 14 >= 13
+          |    case Some("2") =>
+          |      15 >= 14 && 14 >= 13
           |    case _ =>
           |      sys.env.get("ACTIVE_MUTATION") match {
-          |        case Some("2") =>
-          |          15 > 14 && 14 > 13
           |        case Some("3") =>
+          |          15 > 14 && 14 > 13
+          |        case Some("4") =>
           |          15 > 14 && 14 == 13
+          |       case Some("5") =>
+          |          15 > 14 && 14 < 13
           |        case _ =>
           |          15 > 14 && 14 >= 13
           |      }
