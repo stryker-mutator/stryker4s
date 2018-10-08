@@ -11,7 +11,7 @@ import scala.meta.contrib._
 class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   private val activeMutationExpr: Term.Apply = {
     val activeMutation = Lit.String("ACTIVE_MUTATION")
-    q"sys.env.get($activeMutation)"
+    q"sys.props.get($activeMutation).orElse(sys.env.get($activeMutation))"
   }
 
   describe("buildMatch") {
@@ -51,7 +51,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = sys.env.get("ACTIVE_MUTATION") match {
+          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |    case Some("0") =>
           |      15 < 14
           |    case Some("1") =>
@@ -81,7 +81,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = sys.env.get("ACTIVE_MUTATION") match {
+          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |    case Some("0") =>
           |      15 < 14 && 14 >= 13
           |    case Some("1") =>
@@ -89,7 +89,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
           |    case Some("2") =>
           |      15 >= 14 && 14 >= 13
           |    case _ =>
-          |      sys.env.get("ACTIVE_MUTATION") match {
+          |      sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |        case Some("3") =>
           |          15 > 14 && 14 > 13
           |        case Some("4") =>
@@ -123,15 +123,15 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def foo = sys.env.get("ACTIVE_MUTATION") match {
+          |  def foo = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |    case Some("0") =>
           |      "" == ""
           |    case _ =>
-          |      sys.env.get("ACTIVE_MUTATION") match {
+          |      sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |        case Some("1") =>
           |          "foo" != ""
           |        case _ =>
-          |          sys.env.get("ACTIVE_MUTATION") match {
+          |          sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |            case Some("2") =>
           |              "foo" == "Stryker was here!"
           |            case _ =>
