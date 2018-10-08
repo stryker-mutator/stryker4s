@@ -21,6 +21,7 @@ object Settings {
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
+      Dependencies.test.mockitoScala,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.scalametaContrib,

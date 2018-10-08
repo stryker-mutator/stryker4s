@@ -3,91 +3,109 @@ package stryker4s.mutants.findmutants
 import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.FoundMutant
+import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
+import scala.meta.contrib._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   val sut = new MutantMatcher
 
-  def checkMatch(matchFun: PartialFunction[Tree, FoundMutant],
-                 tree: Tree,
-                 original: Term,
-                 matches: Term*): Unit = {
-    val found = tree collect matchFun
+  def expectMutations(matchFun: PartialFunction[Tree, Seq[Mutant]],
+                      tree: Tree,
+                      original: Term,
+                      expectedTerms: Term*): Unit = {
+    val found: Seq[Mutant] = tree.collect(matchFun).flatten
 
-    val result = found.loneElement
-    result.originalTree should equal(original)
-    result.mutations should contain theSameElementsAs matches
+    expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
+  }
+
+  def expectMutations(actualMutants: Seq[Mutant],
+                      original: Term,
+                      expectedMutations: Term*): Unit = {
+    expectedMutations.foreach(expectedMutation => {
+      val actualMutant = actualMutants
+        .find(
+          mutant =>
+            mutant.mutated.isEqual(expectedMutation) &&
+              mutant.original.isEqual(original))
+        .getOrElse(fail("mutant not found"))
+
+      actualMutant.original should equal(original)
+      actualMutant.mutated should equal(expectedMutation)
+    })
+  }
+
+  /**
+    * Check if there is a mutant for every expected mutation
+    */
+  def expectedMutations(matchFun: PartialFunction[Tree, Seq[Mutant]],
+                        tree: Tree,
+                        original: MethodMutator,
+                        expectedMutations: MethodMutator*): Unit = {
+    val found: Seq[Mutant] = tree.collect(matchFun).flatten
+    expectedMutations.foreach {
+      expectedMutation => found.map(_.mutated).collectFirst { case expectedMutation(_, _) => }.getOrElse(fail("mutant not found"))
+    }
   }
 
   describe("All Matchers") {
     it("should match a conditional statement") {
       val tree = q"def foo = 15 > 20 && 20 < 15"
 
-      val found = tree collect sut.allMatchers()
+      val found: Seq[Mutant] = tree.collect(sut.allMatchers()).flatten
 
-      found should have length 3
-      found.head.originalTree should equal(q">")
-      found.head.mutations should contain only (q">=", q"<", q"==")
-      found(1).originalTree should equal(q"&&")
-      found(1).mutations should contain only q"||"
-      found(2).originalTree should equal(q"<")
-      found(2).mutations should contain only (q"<=", q">", q"==")
+      found should have length 7
+      expectMutations(found, q">", q">=", q"<", q"==")
+      expectMutations(found, q"&&", q"||")
+      expectMutations(found, q"<", q"<=", q">", q"==")
     }
 
     it("should match a method") {
       val tree = q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
 
-      val found = tree collect sut.allMatchers()
+      val found = tree.collect(sut.allMatchers()).flatten
 
       found should have length 2
-      found.head.originalTree should equal(q"filterNot")
-      found.head.mutations should contain only q"filter"
-      found(1).originalTree should equal(q"filter")
-      found(1).mutations should contain only q"filterNot"
+      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
+      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)", q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")
     }
 
     it("should match a boolean and a conditional") {
       val tree = q"def foo = false && 15 > 4"
 
-      val found = tree collect sut.allMatchers()
+      val found = tree.collect(sut.allMatchers()).flatten
 
-      found should have length 3
-      found.head.originalTree should equal(q"false")
-      found.head.mutations should contain only q"true"
-      found(1).originalTree should equal(q"&&")
-      found(1).mutations should contain only q"||"
-      found(2).originalTree should equal(q">")
-      found(2).mutations should contain allOf (q">=", q"<", q"==")
+      found should have length 5
+      expectMutations(found, q"false", q"true")
+      expectMutations(found, q"&&", q"||")
+      expectMutations(found, q">", q"<", q"==")
     }
 
     it("should match the default case of a constructor argument") {
       val tree = q"class Person(isOld: Boolean = 18 > 15) { }"
 
-      val found = tree collect sut.allMatchers()
+      val found = tree.collect(sut.allMatchers()).flatten
 
-      val head = found.loneElement
-      head.originalTree should equal(q">")
-      head.mutations should contain allOf (q">=", q"<", q"==")
+      found should have length 3
+      expectMutations(found, q">", q">=", q"<", q"==")
     }
 
     it("should match on the default case of a function argument") {
       val tree = q"def hasGoodBack(isOld: Boolean = age > 60): Boolean = isOld"
 
-      val found = tree collect sut.allMatchers()
+      val found = tree.collect(sut.allMatchers()).flatten
 
-      val head = found.loneElement
-      head.originalTree should equal(q">")
-      head.mutations should contain allOf (q">=", q"<", q"==")
+      found should have length 3
+      expectMutations(found, q">", q">=", q"<", q"==")
     }
   }
 
-  describe("matchConditionalStatements matcher") {
+  describe("matchBinaryOperators matcher") {
     it("should match >= sign with >, <, and ==") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchBinaryOperators(),
         q"def foo = 18 >= 20",
         GreaterThanEqualTo,
         GreaterThan,
@@ -97,8 +115,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match > with >=, < and ==") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchBinaryOperators(),
         q"def foo = 18 > 20",
         GreaterThan,
         GreaterThanEqualTo,
@@ -108,8 +126,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match <= to <, >= and ==") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchBinaryOperators(),
         q"def foo = 18 <= 20",
         LesserThanEqualTo,
         LesserThan,
@@ -119,8 +137,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match < to <=, > and ==") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchBinaryOperators(),
         q"def foo = 18 < 20",
         LesserThan,
         LesserThanEqualTo,
@@ -130,8 +148,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match == to !=") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchBinaryOperators(),
         q"def foo = 18 == 20",
         EqualTo,
         NotEqualTo
@@ -139,17 +157,18 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match != to ==") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchBinaryOperators(),
         q"def foo = 18 != 20",
         NotEqualTo,
         EqualTo
       )
     }
-
+  }
+  describe("logicalOperators matcher") {
     it("should match && to ||") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchLogicalOperators(),
         q"def foo = a && b",
         And,
         Or
@@ -157,8 +176,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match || to &&") {
-      checkMatch(
-        sut.matchConditionals(),
+      expectMutations(
+        sut.matchLogicalOperators(),
         q"def foo = a || b",
         Or,
         And
@@ -166,10 +185,10 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-  describe("matchMethods matcher") {
+  describe("matchMethodMutators matcher") {
     it("should match filter to filterNot") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).filter(_ % 2 == 0)",
         Filter,
         FilterNot
@@ -177,8 +196,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match filterNot to filter") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)",
         FilterNot,
         Filter
@@ -186,8 +205,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match exists to forAll") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
         Exists,
         ForAll
@@ -195,8 +214,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match forAll to exists") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
         ForAll,
         Exists
@@ -204,8 +223,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match isEmpty to nonEmpty") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).isEmpty",
         IsEmpty,
         NonEmpty
@@ -213,8 +232,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match nonEmpty to isEmpty") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).nonEmpty",
         NonEmpty,
         IsEmpty
@@ -222,8 +241,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match indexOf to lastIndexOf") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).indexOf(2)",
         IndexOf,
         LastIndexOf
@@ -231,8 +250,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match lastIndexOf to indexOf") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).lastIndexOf(2)",
         LastIndexOf,
         IndexOf
@@ -240,8 +259,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match max to min") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).max",
         Max,
         Min
@@ -249,19 +268,38 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match min to max") {
-      checkMatch(
-        sut.matchMethods(),
+      expectedMutations(
+        sut.matchMethodMutators(),
         q"def foo = List(1, 2, 3).min",
         Min,
         Max
       )
     }
+
+    it("should match maxBy to minBy") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).maxBy(_.toString)",
+        MaxBy,
+        MinBy
+      )
+    }
+
+    it("should match minBy to maxBy") {
+      expectedMutations(
+        sut.matchMethodMutators(),
+        q"def foo = List(1, 2, 3).minBy(_.toString)",
+        MinBy,
+        MaxBy
+      )
+    }
+
   }
 
-  describe("literals matcher") {
+  describe("matchBooleanSubstitutions matcher") {
     it("should match false to true") {
-      checkMatch(
-        sut.matchLiterals(),
+      expectMutations(
+        sut.matchBooleanSubstitutions(),
         q"def foo = false",
         False,
         True
@@ -269,17 +307,18 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match true to false") {
-      checkMatch(
-        sut.matchLiterals(),
+      expectMutations(
+        sut.matchBooleanSubstitutions(),
         q"def foo = true",
         True,
         False
       )
     }
-
+  }
+  describe("stringMutators matcher") {
     it("should match foo to NonEmptyString") {
-      checkMatch(
-        sut.matchLiterals(),
+      expectMutations(
+        sut.matchStringMutators(),
         q"""def foo: String = "bar"""",
         Lit.String("bar"),
         EmptyString
@@ -287,8 +326,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match empty string to StrykerWasHere") {
-      checkMatch(
-        sut.matchLiterals(),
+      expectMutations(
+        sut.matchStringMutators(),
         q"""def foo = "" """,
         EmptyString,
         StrykerWasHereString
@@ -302,8 +341,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
 
       interpolated.syntax should equal("s\"interpolate $foo\"")
-      checkMatch(
-        sut.matchLiterals(),
+      expectMutations(
+        sut.matchStringMutators(),
         tree,
         interpolated,
         emptyStringInterpolate
@@ -319,8 +358,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
 
       interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar + 1} bar\"")
-      checkMatch(
-        sut.matchLiterals(),
+      expectMutations(
+        sut.matchStringMutators(),
         tree,
         interpolated,
         emptyStringInterpolate
@@ -339,4 +378,46 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
+  describe("Create mutant id's") {
+    it("should register multiple mutants from a found mutant with multiple mutations") {
+      val sut = new MutantMatcher
+      val mutants = sut.TermExtensions(GreaterThan) ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
+
+      mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0, 1, 2)
+    }
+  }
+
+  describe("no function name matching") {
+    it("should not match a function with a mutator name") {
+      val tree = q"def isEmpty = foo"
+
+      val result = tree collect sut.allMatchers()
+
+      result should be(empty)
+    }
+
+    it("should not match on a case class with a mutator name") {
+      val tree = q"case class indexOf(foo: String)"
+
+      val result = tree collect sut.allMatchers()
+
+      result should be(empty)
+    }
+
+    it("should not match on a variable with a mutator name") {
+      val tree = q"val min = 5"
+
+      val result = tree collect sut.allMatchers()
+
+      result should be(empty)
+    }
+
+    it("should match a function with a single expression") {
+      val tree = q"def isEmpty = exists"
+
+      val result = (tree collect sut.allMatchers()).flatten
+
+      result.map(_.original) should not contain q"isEmpty"
+    }
+  }
 }

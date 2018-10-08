@@ -2,47 +2,67 @@ package stryker4s.mutants.findmutants
 
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.FoundMutant
+import stryker4s.model.Mutant
 
-import scala.meta.Tree
+import scala.meta.{Term, Tree}
 
 class MutantMatcher {
 
-  def allMatchers(): PartialFunction[Tree, FoundMutant] =
-    matchConditionals() orElse
-      matchMethods() orElse
-      matchLiterals()
+  private[this] val stream = Iterator.from(0)
 
-  def matchConditionals(): PartialFunction[Tree, FoundMutant] = {
-    case GreaterThanEqualTo(orig) => FoundMutant(orig, GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig)        => FoundMutant(orig, GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig)  => FoundMutant(orig, LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig)         => FoundMutant(orig, LesserThanEqualTo, GreaterThan, EqualTo)
-    case EqualTo(orig)            => FoundMutant(orig, NotEqualTo)
-    case NotEqualTo(orig)         => FoundMutant(orig, EqualTo)
-    case And(orig)                => FoundMutant(orig, Or)
-    case Or(orig)                 => FoundMutant(orig, And)
+  def allMatchers(): PartialFunction[Tree, Seq[Mutant]] =
+    matchBinaryOperators() orElse
+      matchBooleanSubstitutions() orElse
+      matchLogicalOperators() orElse
+      matchStringMutators() orElse
+      matchMethodMutators()
+
+  def matchBinaryOperators(): PartialFunction[Tree, Seq[Mutant]] = {
+    case GreaterThanEqualTo(orig) => orig ~~> (GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)        => orig ~~> (GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig)  => orig ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)         => orig ~~> (LesserThanEqualTo, GreaterThan, EqualTo)
+    case EqualTo(orig)            => orig ~~> NotEqualTo
+    case NotEqualTo(orig)         => orig ~~> EqualTo
   }
 
-  def matchMethods(): PartialFunction[Tree, FoundMutant] = {
-    case Filter(orig)      => FoundMutant(orig, FilterNot)
-    case FilterNot(orig)   => FoundMutant(orig, Filter)
-    case Exists(orig)      => FoundMutant(orig, ForAll)
-    case ForAll(orig)      => FoundMutant(orig, Exists)
-    case IsEmpty(orig)     => FoundMutant(orig, NonEmpty)
-    case NonEmpty(orig)    => FoundMutant(orig, IsEmpty)
-    case IndexOf(orig)     => FoundMutant(orig, LastIndexOf)
-    case LastIndexOf(orig) => FoundMutant(orig, IndexOf)
-    case Max(orig)         => FoundMutant(orig, Min)
-    case Min(orig)         => FoundMutant(orig, Max)
+  def matchBooleanSubstitutions(): PartialFunction[Tree, Seq[Mutant]] = {
+    case True(orig)  => orig ~~> False
+    case False(orig) => orig ~~> True
   }
 
-  def matchLiterals(): PartialFunction[Tree, FoundMutant] = {
-    case True(orig)                => FoundMutant(orig, False)
-    case False(orig)               => FoundMutant(orig, True)
-    case EmptyString(orig)         => FoundMutant(orig, StrykerWasHereString)
-    case NonEmptyString(orig)      => FoundMutant(orig, EmptyString)
-    case StringInterpolation(orig) => FoundMutant(orig, EmptyStringInterpolation)
+  def matchLogicalOperators(): PartialFunction[Tree, Seq[Mutant]] = {
+    case And(orig) => orig ~~> Or
+    case Or(orig)  => orig ~~> And
+  }
+
+  def matchStringMutators(): PartialFunction[Tree, Seq[Mutant]] = {
+    case EmptyString(orig)         => orig ~~> StrykerWasHereString
+    case NonEmptyString(orig)      => orig ~~> EmptyString
+    case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
+  }
+
+  def matchMethodMutators(): PartialFunction[Tree, Seq[Mutant]] = {
+    case Filter(orig, f)      => orig ~~> FilterNot(f)
+    case FilterNot(orig, f)   => orig ~~> Filter(f)
+    case Exists(orig, f)      => orig ~~> ForAll(f)
+    case ForAll(orig, f)      => orig ~~> Exists(f)
+    case IsEmpty(orig, f)     => orig ~~> NonEmpty(f)
+    case NonEmpty(orig, f)    => orig ~~> IsEmpty(f)
+    case IndexOf(orig, f)     => orig ~~> LastIndexOf(f)
+    case LastIndexOf(orig, f) => orig ~~> IndexOf(f)
+    case Max(orig, f)         => orig ~~> Min(f)
+    case Min(orig, f)         => orig ~~> Max(f)
+    case MaxBy(orig, f)       => orig ~~> MinBy(f)
+    case MinBy(orig, f)       => orig ~~> MaxBy(f)
+  }
+
+  implicit class TermExtensions(original: Term) {
+    def ~~>(mutated: Term*): Seq[Mutant] = {
+      mutated.map(mutant => {
+        Mutant(stream.next, original, mutant)
+      })
+    }
   }
 
 }

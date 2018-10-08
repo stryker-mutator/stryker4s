@@ -7,7 +7,7 @@ import stryker4s.scalatest.TreeEquality
 import scala.meta._
 
 class MutationTypesTest extends Stryker4sSuite with TreeEquality {
-  describe("match TermNameMutation") {
+  describe("BinaryOperators") {
     it("> to GreaterThan") {
       q">" should matchPattern { case GreaterThan(_) => }
     }
@@ -31,71 +31,9 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     it("!= to NotEqualTo") {
       q"!=" should matchPattern { case NotEqualTo(_) => }
     }
-
-    it("&& to And") {
-      q"&&" should matchPattern { case And(_) => }
-    }
-
-    it("|| to Or") {
-      q"||" should matchPattern { case Or(_) => }
-    }
-
-    it("filter to Filter") {
-      q"filter" should matchPattern { case Filter(_) => }
-    }
-
-    it("filterNot to FilterNot") {
-      q"filterNot" should matchPattern { case FilterNot(_) => }
-    }
-
-    it("exists to Exists") {
-      q"exists" should matchPattern { case Exists(_) => }
-    }
-
-    it("forAll to ForAll") {
-      q"forAll" should matchPattern { case ForAll(_) => }
-    }
-
-    it("isEmpty to IsEmpty") {
-      q"isEmpty" should matchPattern { case IsEmpty(_) => }
-    }
-
-    it("nonEmpty to NonEmpty") {
-      q"nonEmpty" should matchPattern { case NonEmpty(_) => }
-    }
-
-    it("indexOf to IndexOf") {
-      q"indexOf" should matchPattern { case IndexOf(_) => }
-    }
-
-    it("lastIndexOf to LastIndexOf") {
-      q"lastIndexOf" should matchPattern { case LastIndexOf(_) => }
-    }
-
-    it("max to Max") {
-      q"max" should matchPattern { case Max(_) => }
-    }
-
-    it("min to Min") {
-      q"min" should matchPattern { case Min(_) => }
-    }
-
-    it("should not match a different pattern") {
-      q"filter" should not matchPattern { case FilterNot(_) => }
-    }
-
-    it("should return original tree on match") {
-      val tree = q">="
-
-      val result = tree match {
-        case GreaterThanEqualTo(t) => t
-      }
-
-      result should be theSameInstanceAs tree
-    }
   }
 
-  describe("match LiteralMutation") {
+  describe("BooleanSubstitutions") {
     it("false to False") {
       q"false" should matchPattern { case False(_) => }
     }
@@ -103,7 +41,19 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     it("true to True") {
       q"true" should matchPattern { case True(_) => }
     }
+  }
 
+  describe("LogicalOperators") {
+    it("&& to And") {
+      q"&&" should matchPattern { case And(_) => }
+    }
+
+    it("|| to Or") {
+      q"||" should matchPattern { case Or(_) => }
+    }
+  }
+
+  describe("StringMutators") {
     it("foo string to NonEmptyString") {
       q""""foo"""" should matchPattern { case NonEmptyString(_) => }
     }
@@ -125,7 +75,17 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
     }
   }
 
-  describe("implicit convert") {
+  describe("other cases") {
+    it("should return original tree on match") {
+      val tree = q">="
+
+      val result = tree match {
+        case GreaterThanEqualTo(t) => t
+      }
+
+      result should be theSameInstanceAs tree
+    }
+
     it("should convert GreaterThan to >") {
       val wrapped = WrappedTree(GreaterThan)
 

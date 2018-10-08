@@ -8,22 +8,26 @@ import scala.meta.{Source, Term, Tree}
 
 class StatementTransformer {
 
-  def transformSource(source: Source,
-                      foundMutants: Seq[RegisteredMutant]): SourceTransformations = {
-    val transformedMutants = foundMutants.map(transformMutant)
+  def transformSource(source: Source, foundMutants: Seq[Mutant]): SourceTransformations = {
+
+    val transformedMutants: Seq[TransformedMutants] = foundMutants
+      .groupBy(mutant => mutant.original)
+      .map { case (original, mutants) => transformMutant(original, mutants) }
+      .toSeq
+      .sortBy(_.mutantStatements.map(_.id).max)
+
     SourceTransformations(source, transformedMutants)
   }
 
   /** Transforms the statement in the original tree of the FoundMutant to the given mutations
     */
-  def transformMutant(registered: RegisteredMutant): TransformedMutants = {
-    val originalTree = registered.originalStatement
-    val topStatement = originalTree.topStatement()
-    val transformedMutants =
-      registered.mutants.map { mutant =>
-        val newMutated = transformStatement(topStatement, mutant.original, mutant.mutated)
-        Mutant(mutant.id, topStatement, newMutated)
-      }.toList
+  def transformMutant(original: Term, registered: Seq[Mutant]): TransformedMutants = {
+    val topStatement = original.topStatement()
+
+    val transformedMutants = registered.map { mutant =>
+      val newMutated = transformStatement(topStatement, mutant.original, mutant.mutated)
+      Mutant(mutant.id, topStatement, newMutated)
+    }.toList
 
     TransformedMutants(topStatement, transformedMutants)
   }
