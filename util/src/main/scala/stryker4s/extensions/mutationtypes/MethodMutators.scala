@@ -1,43 +1,49 @@
 package stryker4s.extensions.mutationtypes
 
-import scala.meta.Term
-
-case object Filter extends MethodMutator {
-  override val tree: Term.Name = Term.Name("filter")
+case object Filter extends OneArgMethodMutator {
+  protected val methodName = "filter"
 }
 
-case object FilterNot extends MethodMutator {
-  override val tree: Term.Name = Term.Name("filterNot")
+case object FilterNot extends OneArgMethodMutator {
+  protected val methodName = "filterNot"
 }
 
-case object Exists extends MethodMutator {
-  override val tree: Term.Name = Term.Name("exists")
+case object Exists extends OneArgMethodMutator {
+  protected val methodName = "exists"
 }
 
-case object ForAll extends MethodMutator {
-  override val tree: Term.Name = Term.Name("forAll")
+case object ForAll extends OneArgMethodMutator {
+  protected val methodName = "forAll"
 }
 
-case object IsEmpty extends MethodMutator {
-  override val tree: Term.Name = Term.Name("isEmpty")
+case object IsEmpty extends NonArgsMethodMutator {
+  protected val methodName = "isEmpty"
 }
 
-case object NonEmpty extends MethodMutator {
-  override val tree: Term.Name = Term.Name("nonEmpty")
+case object NonEmpty extends NonArgsMethodMutator {
+  protected val methodName = "nonEmpty"
 }
 
-case object IndexOf extends MethodMutator {
-  override val tree: Term.Name = Term.Name("indexOf")
+case object IndexOf extends OneArgMethodMutator {
+  protected val methodName = "indexOf"
 }
 
-case object LastIndexOf extends MethodMutator {
-  override val tree: Term.Name = Term.Name("lastIndexOf")
+case object LastIndexOf extends OneArgMethodMutator {
+  protected val methodName = "lastIndexOf"
 }
 
-case object Max extends MethodMutator {
-  override val tree: Term.Name = Term.Name("max")
+case object Max extends NonArgsMethodMutator {
+  protected val methodName = "max"
 }
 
-case object Min extends MethodMutator {
-  override val tree: Term.Name = Term.Name("min")
+case object Min extends NonArgsMethodMutator {
+  protected val methodName = "min"
+}
+
+case object MaxBy extends OneArgMethodMutator {
+  protected val methodName = "maxBy"
+}
+
+case object MinBy extends OneArgMethodMutator {
+  protected val methodName = "minBy"
 }
