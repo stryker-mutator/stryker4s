@@ -2,6 +2,7 @@ package stryker4s.sbt
 
 import better.files.File
 import sbt.{Extracted, LocalRootProject}
+
 import stryker4s.Stryker4s
 import stryker4s.config.Config
 import stryker4s.mutants.Mutator
@@ -51,4 +52,3 @@ class Stryker4sSbtRunner(state:State) {
   }
 
 }
-
