@@ -235,29 +235,6 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
     }
 
     describe("log tests") {
-      it("Should log that it's copying files based on configuration key") {
-        implicit val config: Config = Config(baseDir = filledDirPath, files = Some(Seq("")))
-        LoggerFactory.getLogger(Slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(Level.DEBUG)
-
-        val sut = new FileCollector()
-
-        sut.filesToCopy(processRunnerMock)
-
-        "Collecting files based on 'files' configuration key." shouldBe loggedAsDebug
-      }
-
-      it("Should log that it's copying files based on git ls-files") {
-        implicit val config: Config = Config(baseDir = filledDirPath, logLevel = Level.DEBUG)
-        LoggerFactory.getLogger(Slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(Level.DEBUG)
-        when(processRunnerMock(any[Command], any[File])).thenReturn(Try(Seq("")))
-
-        val sut = new FileCollector()
-
-        sut.filesToCopy(processRunnerMock)
-
-        "Collecting files based on 'git ls-files'." shouldBe loggedAsDebug
-      }
-
       it("Should log that no files config option is found and is using fallback to copy all files") {
         implicit val config: Config = Config(baseDir = filledDirPath)
         val gitProcessResult = Failure(new Exception(""))

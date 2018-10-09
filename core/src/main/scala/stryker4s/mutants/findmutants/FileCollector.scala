@@ -48,7 +48,6 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * List all files based on the 'files' configuration key from stryker4s.conf.
     */
   private[this] def listFilesBasedOnConfiguration(): Option[Iterable[File]] = {
-    debug("Collecting files based on 'files' configuration key.")
     config.files.map { glob }
   }
 
@@ -56,7 +55,6 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * List all files based on `git ls-files` command.
     */
   private[this] def listFilesBasedOnGit(processRunner: ProcessRunner): Option[Iterable[File]] = {
-    debug("Collecting files based on 'git ls-files'.")
     processRunner(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir) match {
       case Success(files) => Option(files.map(config.baseDir / _).distinct)
       case Failure(_)     => None
