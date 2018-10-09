@@ -2,6 +2,7 @@ package stryker4s.mutants.applymutants
 
 import grizzled.slf4j.Logging
 import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
+import stryker4s.extensions.exceptions.UnableToBuildPatternMatchException
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 
 import scala.meta._
@@ -21,16 +22,19 @@ class MatchBuilder extends Logging {
         rest transformOnce {
           case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
             buildMatch(mutant)
+          throw new Exception("")
         } match {
           case Success(value) => value
           case Failure(exception) =>
-            error(
-              s"Failed to construct pattern match: original statement [$origStatement] " +
-                s"on line [${origStatement.pos.endLine}] for file [${origStatement.pos.input}].)")
+            error(s"Failed to construct pattern match: original statement [$origStatement]")
             error(s"Failed mutation(s) ${mutant.mutantStatements.mkString(",")}.")
-            debug(exception.getMessage)
+            error(s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}")
+            error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
 
-            throw exception
+            debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
+            debug("Please be so kind to copy the stacktrace into the issue", exception)
+
+            throw UnableToBuildPatternMatchException()
         }
       }
   }
