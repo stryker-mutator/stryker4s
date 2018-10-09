@@ -2,7 +2,7 @@ package stryker4s.sbt
 
 import sbt.Keys._
 import sbt._
-import sbt.plugins.JvmPlugin
+import sbt.plugins._
 
 /**
   * This plugin adds a new command (stryker) to the project that allow you to run stryker mutation over your code

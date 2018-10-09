@@ -1,4 +1,3 @@
-import Dependencies._
 import sbt.Keys._
 import sbt._
 
@@ -17,8 +16,6 @@ object Settings {
   )
 
   val commonSettings = Seq(
-    crossScalaVersions := versions.crossScala,
-    scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
@@ -39,6 +36,8 @@ object Settings {
         description := "Stryker4s the mutation testing framework for Scala.",
         organization := "io.stryker-mutator",
         organizationHomepage := Some(url("https://stryker-mutator.io/")),
+        crossScalaVersions := Dependencies.versions.crossScala,
+        scalacOptions ++= Settings.scalacOpts,
       ))
   }
 }

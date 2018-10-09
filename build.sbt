@@ -4,7 +4,6 @@ lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     Settings.buildLevelSettings,
     publishTo := sonatypePublishTo.value,
-    crossScalaVersions := Dependencies.versions.crossScala,
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sRunner")
   )
   .aggregate(stryker4sCore, stryker4sUtil, sbtStryker4s)
@@ -19,11 +18,13 @@ lazy val stryker4sUtil = (project withId "stryker4s-util" in file("util"))
   .settings(Settings.commonSettings)
 
 lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
+  .enablePlugins(SbtPlugin)
   .settings(
     Settings.buildLevelSettings,
-    sbtPlugin := true,
-    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
-      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    version := "0.1.0-SNAPSHOT",
+    scriptedLaunchOpts := {
+      scriptedLaunchOpts.value ++
+        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false
   )
