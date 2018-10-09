@@ -1,7 +1,7 @@
 package stryker4s.config
 
 import better.files.File
-import ch.qos.logback.classic.Level
+import org.apache.logging.log4j.Level
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
 import stryker4s.Stryker4sSuite
 import stryker4s.run.report.ConsoleReporter

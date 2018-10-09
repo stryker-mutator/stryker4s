@@ -1,6 +1,5 @@
 import Dependencies._
 import sbt.Keys._
-import sbt._
 
 object Settings {
   val scalacOpts = Seq(
@@ -26,7 +25,8 @@ object Settings {
       Dependencies.scalameta,
       Dependencies.scalametaContrib,
       Dependencies.betterFiles,
-      Dependencies.logback,
+      Dependencies.log4jApi,
+      Dependencies.log4jCore,
       Dependencies.grizzledSlf4j
     )
   )

@@ -9,6 +9,7 @@ lazy val root = (project withId "stryker4s" in file("."))
 
 lazy val stryker4sCore = (project withId "stryker4s-core" in file("core"))
   .settings(Settings.commonSettings)
+  .settings(libraryDependencies += Dependencies.log4jslf4jImpl)
   .dependsOn(stryker4sUtil)
   .dependsOn(stryker4sUtil % "test -> test")
 
