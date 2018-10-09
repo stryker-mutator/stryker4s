@@ -30,4 +30,10 @@ object Settings {
       Dependencies.grizzledSlf4j
     )
   )
+
+  val coreSettings = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.log4jslf4jImpl
+    )
+  )
 }

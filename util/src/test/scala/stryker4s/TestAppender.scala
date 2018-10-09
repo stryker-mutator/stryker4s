@@ -2,12 +2,7 @@ package stryker4s
 
 import org.apache.logging.log4j.core._
 import org.apache.logging.log4j.core.appender.AbstractAppender
-import org.apache.logging.log4j.core.config.plugins.{
-  Plugin,
-  PluginAttribute,
-  PluginElement,
-  PluginFactory
-}
+import org.apache.logging.log4j.core.config.plugins._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
