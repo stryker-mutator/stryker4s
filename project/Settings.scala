@@ -30,4 +30,15 @@ object Settings {
       Dependencies.grizzledSlf4j
     )
   )
+
+  def buildLevelSettings: Seq[Setting[_]] = {
+    inThisBuild(
+      Seq(
+        name := "stryker4s",
+        version := "0.0.1",
+        description := "Stryker4s the mutation testing framework for Scala.",
+        organization := "io.stryker-mutator",
+        organizationHomepage := Some(url("https://stryker-mutator.io/")),
+      ))
+  }
 }
