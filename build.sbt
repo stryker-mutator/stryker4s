@@ -4,7 +4,7 @@ lazy val root = (project withId "stryker4s" in file("."))
     crossScalaVersions := Dependencies.versions.crossScala,
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sRunner")
   )
-  .aggregate(stryker4sCore, stryker4sUtil)
+  .aggregate(stryker4sCore, stryker4sUtil, sbtStryker4s)
   .dependsOn(stryker4sCore)
 
 lazy val stryker4sCore = (project withId "stryker4s-core" in file("core"))
@@ -20,6 +20,10 @@ lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
     version := "0.0.1-SNAPSHOT",
     name := "sbt-stryker4s",
     organization := "io.stryker-mutator",
-    sbtPlugin := true
+    sbtPlugin := true,
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
   )
   .dependsOn(stryker4sCore)
