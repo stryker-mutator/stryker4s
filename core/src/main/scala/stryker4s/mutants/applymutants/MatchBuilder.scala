@@ -22,7 +22,6 @@ class MatchBuilder extends Logging {
         rest transformOnce {
           case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
             buildMatch(mutant)
-          throw new Exception("")
         } match {
           case Success(value) => value
           case Failure(exception) =>
