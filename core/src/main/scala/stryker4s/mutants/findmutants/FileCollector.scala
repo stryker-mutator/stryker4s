@@ -93,7 +93,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     */
   private[this] val stryker4sTmpFiles: Seq[File] = {
     config.baseDir
-      .glob(s"target${pathSeparator}stryker4s-*")
+      .glob(s"target/stryker4s-*")
       .flatMap(_.listRecursively)
       .toSeq
   }
