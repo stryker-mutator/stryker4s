@@ -1,13 +1,22 @@
 <configuration>
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
 
-    <appender name="STDOUT" class="stryker4s.TestAppender">
+    <appender name="TESTAPPENDER" class="stryker4s.TestAppender">
         <encoder>
             <pattern>%msg%n</pattern>
         </encoder>
     </appender>
 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{HH:mm:ss.SSS} %-5level %logger{0}: %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
     <root level="debug">
+        <appender-ref ref="TESTAPPENDER"/>
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

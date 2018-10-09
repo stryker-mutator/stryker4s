@@ -20,6 +20,19 @@ The default for this will find files in the common Scala project format.
 
 You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
 
+### Files in the sandbox
+
+**Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
+**Default value:** result of `git ls-files --others --exclude-standard --cached`
+**Mandatory:** No  
+**Description:**  
+With `files` you can choose which files should be included in your mutation run sandbox.
+This is normally not needed as it defaults to all files not ignored by git. If you do need 
+to override `files` (for example, when your project isn't in a git repository), you can override the `files` 
+config.
+
+You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
+
 #### base-dir
 
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  

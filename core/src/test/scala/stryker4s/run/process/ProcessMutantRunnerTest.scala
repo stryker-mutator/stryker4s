@@ -2,9 +2,11 @@ package stryker4s.run.process
 
 import java.nio.file.Paths
 
+import org.scalatest.mockito.MockitoSugar
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.model._
+import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.ProcessMutantRunner
 import stryker4s.scalatest.FileUtil
 import stryker4s.stubs.TestProcessRunner
@@ -12,9 +14,12 @@ import stryker4s.stubs.TestProcessRunner
 import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
+import org.mockito.Mockito._
 
-class ProcessMutantRunnerTest extends Stryker4sSuite {
-  implicit val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
+class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
+
+  private implicit val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
+  private val fileCollectorMock: SourceCollector = mock[SourceCollector]
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {
@@ -24,7 +29,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant))
 
-      val result = sut.apply(Seq(mutatedFile))
+      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+      val result = sut.apply(Seq(mutatedFile), fileCollectorMock)
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 00.00
@@ -39,7 +46,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant))
 
-      val result = sut.apply(Seq(mutatedFile))
+      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+      val result = sut.apply(Seq(mutatedFile), fileCollectorMock)
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
@@ -55,7 +64,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant))
 
-      val result = sut.apply(Seq(mutatedFile))
+      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+      val result = sut.apply(Seq(mutatedFile), fileCollectorMock)
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
@@ -72,7 +83,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val mutants = Seq(mutant, secondMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      val result = sut.apply(Seq(mutatedFile))
+      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+      val result = sut.apply(Seq(mutatedFile), fileCollectorMock)
 
       testProcessRunner.timesCalled.next() should equal(2)
 
@@ -93,7 +106,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite {
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      val result = sut.apply(Seq(mutatedFile))
+      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+      val result = sut.apply(Seq(mutatedFile), fileCollectorMock)
 
       testProcessRunner.timesCalled.next() should equal(3)
 

@@ -8,6 +8,7 @@ import stryker4s.config.Config
 import stryker4s.extensions.FileExtensions._
 import stryker4s.extensions.score.MutationScoreCalculator
 import stryker4s.model._
+import stryker4s.mutants.findmutants.{FileCollector, SourceCollector}
 import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.concurrent.TimeoutException
@@ -19,25 +20,36 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     with MutationScoreCalculator
     with Logging {
 
-  override def apply(files: Iterable[MutatedFile]): MutantRunResults = {
+  override def apply(mutatedFiles: Iterable[MutatedFile], fileCollector: SourceCollector): MutantRunResults = {
     val startTime = System.currentTimeMillis()
-    val tmpDir = File.newTemporaryDirectory("stryker4s-")
+    val targetFolder = config.baseDir / "target"
+    targetFolder.createDirectoryIfNotExists()
+
+    val files = fileCollector.filesToCopy(process)
+
+    val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
     debug("Using temp directory: " + tmpDir)
 
-    config.baseDir.copyTo(tmpDir)
+      files foreach { file =>
+        val subPath = file.relativePath
+        val filePath = tmpDir / subPath.toString
+
+        filePath.createFileIfNotExists(createParents = true)
+        file.copyTo(filePath, overwrite = true)
+      }
 
     // Overwrite files to mutated files
-    files foreach {
+    mutatedFiles foreach {
       case MutatedFile(file, tree, _) =>
         val subPath = file.relativePath
         val filePath = tmpDir / subPath.toString
         filePath.overwrite(tree.syntax)
     }
 
-    val totalMutants = files.flatMap(_.mutants).size
+    val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     val runResults = for {
-      mutatedFile <- files
+      mutatedFile <- mutatedFiles
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
