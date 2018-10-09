@@ -4,8 +4,8 @@ import grizzled.slf4j.Logging
 import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 
+import scala.meta._
 import scala.meta.contrib.implicits.Equality.XtensionTreeEquality
-import scala.meta.{Case, Lit, Pat, Term, Tree, _}
 import scala.util.{Failure, Success}
 
 class MatchBuilder extends Logging {
