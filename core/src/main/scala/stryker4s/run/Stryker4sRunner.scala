@@ -26,7 +26,7 @@ class Stryker4sRunner extends Logging {
     ).run()
   }
 
-  private def resolveRunner()(implicit config: Config): MutantRunner = {
+  def resolveRunner()(implicit config: Config): MutantRunner = {
     config.testRunner match {
       case CommandRunner(command, args) =>
         new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner())
