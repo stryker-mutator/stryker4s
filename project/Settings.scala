@@ -1,4 +1,5 @@
 import Dependencies._
+import sbt._
 import sbt.Keys._
 
 object Settings {
@@ -16,6 +17,7 @@ object Settings {
   )
 
   val commonSettings = Seq(
+    Test / parallelExecution := false, // For logging tests
     crossScalaVersions := versions.crossScala,
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
