@@ -9,18 +9,22 @@ import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.run.report.Reporter
 
-object Stryker4sRunner extends App with Logging {
+object Stryker4sRunner extends App {
+  new Stryker4sRunner().run()
+}
+
+class Stryker4sRunner extends Logging {
 
   implicit val config: Config = ConfigReader.readConfig()
 
-  val stryker4s = new Stryker4s(
-    new FileCollector,
-    new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
-    resolveRunner(),
-    new Reporter()
-  )
-
-  stryker4s.run()
+  def run(): Unit = {
+    new Stryker4s(
+      new FileCollector,
+      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+      resolveRunner(),
+      new Reporter()
+    ).run()
+  }
 
   private def resolveRunner()(implicit config: Config): MutantRunner = {
     config.testRunner match {
