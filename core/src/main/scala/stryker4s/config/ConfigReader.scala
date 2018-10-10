@@ -14,7 +14,6 @@ import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 object ConfigReader extends Logging {
 
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
-    *
     */
   private[this] implicit val toFileReader: PConfigReader[File] =
     PConfigReader[Path].map(p => File(p))
@@ -53,8 +52,7 @@ object ConfigReader extends Logging {
       throw ConfigReaderException(failures)
   }
 
-  /**
-    * Sets the logging level to one of the following levels:
+  /** Sets the logging level to one of the following levels:
     * OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
     *
     * @param level the logging level to use

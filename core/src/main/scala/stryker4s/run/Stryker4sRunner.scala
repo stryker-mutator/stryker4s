@@ -6,7 +6,7 @@ import stryker4s.config.{CommandRunner, Config, ConfigReader}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
-import stryker4s.run.process.{Command, ProcessRunner}
+import stryker4s.run.process.{Command, ProcessMutantRunner, ProcessRunner}
 import stryker4s.run.report.Reporter
 
 object Stryker4sRunner extends App {

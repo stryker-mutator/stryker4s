@@ -15,7 +15,7 @@ object Settings {
     "-Ywarn-dead-code" // Warn when dead code is identified.
   )
 
-  val commonSettings = Seq(
+  def commonSettings: Seq[Setting[_]] = Seq(
     Test / parallelExecution := false, // For logging tests
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
@@ -30,7 +30,7 @@ object Settings {
     )
   )
 
-  val coreSettings = Seq(
+  def coreSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.log4jslf4jImpl
     )
