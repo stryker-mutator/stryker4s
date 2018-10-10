@@ -1,10 +1,8 @@
 package stryker4s.mutants.findmutants
 
 import better.files.File
-import ch.qos.logback.classic.{Level, Logger}
 import org.mockito.ArgumentMatchers._
 import org.mockito.MockitoSugar
-import org.slf4j.{LoggerFactory, Logger => Slf4jLogger}
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}

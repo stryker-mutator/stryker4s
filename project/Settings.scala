@@ -1,6 +1,6 @@
 import Dependencies._
-import sbt.Keys._
 import sbt._
+import sbt.Keys._
 
 object Settings {
   val scalacOpts = Seq(
@@ -17,6 +17,7 @@ object Settings {
   )
 
   val commonSettings = Seq(
+    Test / parallelExecution := false, // For logging tests
     crossScalaVersions := versions.crossScala,
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
@@ -26,8 +27,15 @@ object Settings {
       Dependencies.scalameta,
       Dependencies.scalametaContrib,
       Dependencies.betterFiles,
-      Dependencies.logback,
+      Dependencies.log4jApi,
+      Dependencies.log4jCore,
       Dependencies.grizzledSlf4j
+    )
+  )
+
+  val coreSettings = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.log4jslf4jImpl
     )
   )
 }
