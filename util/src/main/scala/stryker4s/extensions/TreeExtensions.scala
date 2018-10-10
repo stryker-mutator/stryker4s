@@ -3,6 +3,7 @@ package stryker4s.extensions
 import scala.annotation.tailrec
 import scala.meta.contrib._
 import scala.meta.{Case, Lit, Term, Transformer, Tree}
+import scala.util.Try
 
 object TreeExtensions {
 
@@ -67,17 +68,17 @@ object TreeExtensions {
       * This causes a StackOverflowError when the transformation that is searched for is also present in the newly transformed tree. <br>
       * This function does not recursively go into the transformed tree
       */
-    def transformOnce(fn: PartialFunction[Tree, Tree]): Tree = {
-      val liftedFn = fn.lift
-      val transformer = new OnceTransformer(liftedFn)
-      transformer(thisTree)
+    def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
+      Try {
+        val liftedFn = fn.lift
+        val transformer = new OnceTransformer(liftedFn)
+        transformer(thisTree)
+      }
     }
 
     private class OnceTransformer(liftedFn: Tree => Option[Tree]) extends Transformer {
       override def apply(tree: Tree): Tree =
         liftedFn(tree).getOrElse(super.apply(tree))
     }
-
   }
-
 }
