@@ -3,8 +3,8 @@ package stryker4s.config
 import java.nio.file.Path
 
 import better.files._
-import ch.qos.logback.classic.Level
 import com.typesafe.config.ConfigRenderOptions
+import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 

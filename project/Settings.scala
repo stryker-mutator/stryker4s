@@ -16,6 +16,7 @@ object Settings {
   )
 
   val commonSettings = Seq(
+    Test / parallelExecution := false, // For logging tests
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
@@ -23,8 +24,15 @@ object Settings {
       Dependencies.scalameta,
       Dependencies.scalametaContrib,
       Dependencies.betterFiles,
-      Dependencies.logback,
+      Dependencies.log4jApi,
+      Dependencies.log4jCore,
       Dependencies.grizzledSlf4j
+    )
+  )
+
+  val coreSettings = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.log4jslf4jImpl
     )
   )
 
