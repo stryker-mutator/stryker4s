@@ -1,12 +1,13 @@
 package stryker4s.mutants.applymutants
 
-import stryker4s.Stryker4sSuite
+import stryker4s.{Stryker4sSuite, model}
 import stryker4s.extensions.TreeExtensions._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
 import scala.meta.contrib._
+import scala.language.postfixOps
 
 class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   private val activeMutationExpr: Term.Apply = {
@@ -157,7 +158,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       implicit ids: Iterator[Int]): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
-      .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m })
+      .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get )
       .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term]))
       .toList
 
