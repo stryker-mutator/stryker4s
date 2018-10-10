@@ -1,6 +1,9 @@
+import xerial.sbt.Sonatype.SonatypeKeys.sonatypePublishTo
+
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
-    name := "stryker4s",
+    Settings.buildLevelSettings,
+    publishTo := sonatypePublishTo.value,
     crossScalaVersions := Dependencies.versions.crossScala,
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sRunner")
   )
@@ -17,9 +20,7 @@ lazy val stryker4sUtil = (project withId "stryker4s-util" in file("util"))
 
 lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
   .settings(
-    version := "0.0.1-SNAPSHOT",
-    name := "sbt-stryker4s",
-    organization := "io.stryker-mutator",
+    Settings.buildLevelSettings,
     sbtPlugin := true,
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
