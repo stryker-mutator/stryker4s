@@ -5,8 +5,9 @@ import java.nio.file.NoSuchFileException
 import better.files.File
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
-import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 import stryker4s.extensions.FileExtensions._
+import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
+
 import scala.meta._
 import scala.meta.parsers.ParseException
 
