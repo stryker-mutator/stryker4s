@@ -54,9 +54,8 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
       mutant <- mutatedFile.mutants
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
-      val id = mutant.id
-      info(
-        s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      val id = mutant.id + 1
+      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
 
@@ -68,7 +67,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
   private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id
-    info(s"Starting test-run $id...")
+    info(s"Starting test-run ${id + 1}...")
     process(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
