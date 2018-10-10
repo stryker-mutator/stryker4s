@@ -2,21 +2,21 @@ package stryker4s.run.process
 
 import java.nio.file.Paths
 
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.ProcessMutantRunner
-import stryker4s.scalatest.FileUtil
+import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
-import org.mockito.Mockito._
 
-class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
+class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSugar with LogMatchers {
 
   private implicit val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
@@ -118,6 +118,41 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
         Killed(1, secondMutant, Paths.get("simpleFile.scala")),
         Survived(thirdMutant, Paths.get("simpleFile.scala"))
       )
+    }
+
+    describe("Log tests") {
+      it("Should log that test run 1 is started and finished when mutant id is 0") {
+        val testProcessRunner = new TestProcessRunner(Success(0))
+        val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+        val mutant = Mutant(0, q"4", q"5")
+        val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+        val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant))
+
+        when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+        sut.apply(Seq(mutatedFile), fileCollectorMock)
+
+        "Starting test-run 1..." shouldBe loggedAsInfo
+        "Finished mutation run 1/1 (100%)" shouldBe loggedAsInfo
+      }
+
+      it("Should log multiple test runs") {
+        val testProcessRunner = new TestProcessRunner(Success(0), Success(0))
+        val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+        val mutant0 = Mutant(0, q"4", q"5")
+        val mutant1 = Mutant(1, q"4", q"5")
+        val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+        val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant0, mutant1))
+
+        when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+
+        sut.apply(Seq(mutatedFile), fileCollectorMock)
+
+        "Starting test-run 1..." shouldBe loggedAsInfo
+        "Finished mutation run 1/2 (50%)" shouldBe loggedAsInfo
+        "Starting test-run 2..." shouldBe loggedAsInfo
+        "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
+      }
     }
   }
 }
