@@ -47,6 +47,8 @@ class MutantMatcher {
     case FilterNot(orig, f)   => orig ~~> Filter(f)
     case Exists(orig, f)      => orig ~~> ForAll(f)
     case ForAll(orig, f)      => orig ~~> Exists(f)
+    case Take(orig, f)        => orig ~~> Drop(f)
+    case Drop(orig, f)        => orig ~~> Take(f)
     case IsEmpty(orig, f)     => orig ~~> NonEmpty(f)
     case NonEmpty(orig, f)    => orig ~~> IsEmpty(f)
     case IndexOf(orig, f)     => orig ~~> LastIndexOf(f)
