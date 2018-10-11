@@ -10,7 +10,7 @@ import sbt.plugins._
 object Stryker4sPlugin extends AutoPlugin {
 
   override def requires = JvmPlugin
-  override def trigger  = allRequirements
+  override def trigger = allRequirements
 
   object autoImport {
 

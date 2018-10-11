@@ -15,7 +15,7 @@ class ProcessMutantRunner(command: Command, processRunner: ProcessRunner)(implic
 
   def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id
-    info(s"Starting test-run $id...")
+    info(s"Starting test-run ${id + 1}...")
     processRunner(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(0)                         => Survived(mutant, subPath)
       case Success(exitCode) if exitCode != 0 => Killed(mutant, subPath)

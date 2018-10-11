@@ -66,9 +66,8 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
       mutant <- mutatedFile.mutants
     } yield {
       val result = runMutant(mutant, tmpDir, subPath)
-      val id = mutant.id
-      info(
-        s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      val id = mutant.id + 1
+      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
   }
