@@ -16,6 +16,14 @@ case object ForAll extends OneArgMethodMutator {
   protected val methodName = "forAll"
 }
 
+case object Take extends OneArgMethodMutator {
+  protected val methodName = "take"
+}
+
+case object Drop extends OneArgMethodMutator {
+  protected val methodName = "drop"
+}
+
 case object IsEmpty extends NonArgsMethodMutator {
   protected val methodName = "isEmpty"
 }
