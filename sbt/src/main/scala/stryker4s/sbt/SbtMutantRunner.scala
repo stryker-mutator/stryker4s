@@ -21,13 +21,28 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
       case Some((_, Inc(_)))   => Killed(mutant, subPath)
     }
   }
-  // TODO: improve scalaSource values
-  //    val mainSource = extracted.get(Compile / scalaSource)
-  //    val testSource = extracted.get(Test / scalaSource)
-  private[this] def settings(tmpDir: File, mutation: Int) = Seq(
-    scalaSource in Compile := (scalaSource in Compile).transform(file(tmpDir.pathAsString)),
-    scalaSource in Test := tmpDir.toJava / "src" / "test" / "scala",
-    fork in Test := true,
-    javaOptions in Test := Seq(s"-DACTIVE_MUTATION=$mutation")
-  )
+
+  private[this] def settings(tmpDir: File, mutation: Int) = {
+
+    val mainPath = {
+      extracted.get(Compile / scalaSource).absolutePath.diff(
+        extracted.get(Compile / baseDirectory).absolutePath
+      )
+    }
+
+    val testPath = {
+      extracted.get(Test / scalaSource).absolutePath.diff(
+        extracted.get(Test / baseDirectory).absolutePath
+      )
+    }
+
+    Seq(
+      scalaSource in Compile := tmpDir.toJava / mainPath,
+      scalaSource in Test := tmpDir.toJava / testPath,
+      fork in Test := true,
+      javaOptions in Test := Seq(s"-DACTIVE_MUTATION=$mutation")
+    )
+
+  }
+
 }
