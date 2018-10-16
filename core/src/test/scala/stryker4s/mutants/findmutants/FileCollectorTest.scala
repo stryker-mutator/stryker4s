@@ -219,8 +219,9 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
     }
 
     it(
-      "Should not copy files out of the target folders when no files config key is found and target repo is not a git repo") {
-      implicit val config: Config = Config(baseDir = filledDirPath, files = None)
+      "Should copy files out of the target folders when no files config key is found and target repo is not a git repo") {
+      implicit val config: Config = Config(baseDir = basePath, files = None)
+      val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "otherFile.notScala")
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
@@ -229,7 +230,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
       val results = sut.filesToCopy(processRunnerMock)
 
       // Is always 0 because there is target in the folder path for tests.
-      results should have size 0
+      results should have size 3
+      results should contain theSameElementsAs expectedFileList
     }
 
     describe("log tests") {
@@ -243,7 +245,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with LogMatcher
         sut.filesToCopy(processRunnerMock)
 
         "No 'files' specified and not a git repository." shouldBe loggedAsWarning
-        "Falling back to copying everything except the target/ folder(s)" shouldBe loggedAsWarning
+        "Falling back to copying everything except the 'target/' folder(s)" shouldBe loggedAsWarning
       }
     }
   }

@@ -1,9 +1,9 @@
 package stryker4s.mutants.findmutants
 
-import better.files.File.VisitOptions
 import better.files._
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
+import stryker4s.extensions.FileExtensions.RelativePathExtension
 import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.util.{Failure, Success}
@@ -27,6 +27,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     filesToMutate
       .filterNot(filesToExcludeFromMutation.contains(_))
       .filterNot(isTarget)
+      .filterNot(_.isDirectory) // Directories aren't mutated
   }
 
   /**
@@ -37,11 +38,10 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * Option 3: Copy every file in the 'baseDir' excluding target folders.
     */
   override def filesToCopy(processRunner: ProcessRunner): Iterable[File] = {
-    listFilesBasedOnConfiguration() orElse listFilesBasedOnGit(processRunner) getOrElse {
-      warn("No 'files' specified and not a git repository.")
-      warn("Falling back to copying everything except the target/ folder(s)")
-      listAllFiles()
-    }
+    (listFilesBasedOnConfiguration() orElse
+      listFilesBasedOnGit(processRunner) getOrElse
+      listAllFiles())
+      .filterNot(isTarget)
   }
 
   /**
@@ -65,15 +65,11 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * List all files from the base directory specified in the Stryker4s basedir config key.
     */
   private[this] def listAllFiles(): Iterable[File] = {
-    config.baseDir
-      .listRecursively
-      .toIterable
-  }
+    warn("No 'files' specified and not a git repository.")
+    warn("Falling back to copying everything except the 'target/' folder(s)")
 
-  private[this] def isTarget(file:File):Boolean = {
-    file.pathAsString.contains(s"${pathSeparator}target$pathSeparator") || file.pathAsString.endsWith(s"${pathSeparator}target")
+    config.baseDir.listRecursively.toIterable
   }
-
 
   private[this] def glob(list: Seq[String]): Seq[File] = {
     list
@@ -81,24 +77,23 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
       .distinct
   }
 
-  private[this] val filesToMutate: Seq[File] = {
-    glob(config.mutate.filterNot(file => file.startsWith("!")))
-  }
+  private[this] val filesToMutate: Seq[File] = glob(
+    config.mutate.filterNot(file => file.startsWith("!"))
+  )
 
-  private[this] val filesToExcludeFromMutation: Seq[File] = {
-    glob(
-      config.mutate
-        .filter(file => file.startsWith("!"))
-        .map(file => file.stripPrefix("!")))
-  }
+  private[this] val filesToExcludeFromMutation: Seq[File] = glob(
+    config.mutate
+      .filter(file => file.startsWith("!"))
+      .map(file => file.stripPrefix("!"))
+  )
 
   /**
-    * List of all previously copied files if the target folder is not cleaned.
+    * Is the file in the target folder, and thus should not be copied over
     */
-  private[this] val stryker4sTmpFiles: Seq[File] = {
-    config.baseDir
-      .glob(s"target/stryker4s-*")
-      .flatMap(_.listRecursively)
-      .toSeq
+  private[this] def isTarget(file: File): Boolean = {
+    val relativePathString = file.relativePath.toString
+
+    relativePathString.contains(s"${pathSeparator}target$pathSeparator") ||
+    relativePathString.endsWith(s"${pathSeparator}target")
   }
 }
