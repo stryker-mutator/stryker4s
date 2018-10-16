@@ -26,7 +26,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   override def collectFilesToMutate(): Iterable[File] = {
     filesToMutate
       .filterNot(filesToExcludeFromMutation.contains(_))
-      .filterNot(stryker4sTmpFiles.contains(_))
+      .filterNot(isTarget)
   }
 
   /**
@@ -56,7 +56,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     */
   private[this] def listFilesBasedOnGit(processRunner: ProcessRunner): Option[Iterable[File]] = {
     processRunner(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir) match {
-      case Success(files) => Option(files.map(config.baseDir / _).filterNot(isTarget).distinct)
+      case Success(files) => Option(files.map(config.baseDir / _).distinct)
       case Failure(_)     => None
     }
   }
@@ -67,7 +67,6 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   private[this] def listAllFiles(): Iterable[File] = {
     config.baseDir
       .listRecursively
-      .filterNot(isTarget)
       .toIterable
   }
 
@@ -79,7 +78,6 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   private[this] def glob(list: Seq[String]): Seq[File] = {
     list
       .flatMap(config.baseDir.glob(_))
-      .filterNot(isTarget)
       .distinct
   }
 
