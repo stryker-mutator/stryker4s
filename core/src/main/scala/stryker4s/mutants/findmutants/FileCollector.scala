@@ -41,7 +41,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
       warn("No 'files' specified and not a git repository.")
       warn("Falling back to copying everything except the target/ folder(s)")
       listAllFiles()
-    }
+    }.filterNot(isTarget)
   }
 
   /**
