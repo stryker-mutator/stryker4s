@@ -1,5 +1,6 @@
 package stryker4s.mutants.findmutants
 
+import better.files.File.VisitOptions
 import better.files._
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
@@ -25,7 +26,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   override def collectFilesToMutate(): Iterable[File] = {
     filesToMutate
       .filterNot(filesToExcludeFromMutation.contains(_))
-      .filterNot(stryker4sTmpFiles.contains(_))
+      .filterNot(isTarget)
   }
 
   /**
@@ -36,12 +37,11 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * Option 3: Copy every file in the 'baseDir' excluding target folders.
     */
   override def filesToCopy(processRunner: ProcessRunner): Iterable[File] = {
-    (listFilesBasedOnConfiguration() orElse listFilesBasedOnGit(processRunner) orElse {
+    listFilesBasedOnConfiguration() orElse listFilesBasedOnGit(processRunner) getOrElse {
       warn("No 'files' specified and not a git repository.")
       warn("Falling back to copying everything except the target/ folder(s)")
-
       listAllFiles()
-    }).getOrElse(Seq.empty)
+    }
   }
 
   /**
@@ -64,12 +64,16 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   /**
     * List all files from the base directory specified in the Stryker4s basedir config key.
     */
-  private[this] def listAllFiles(): Option[Iterable[File]] = {
-    Option(config.baseDir
+  private[this] def listAllFiles(): Iterable[File] = {
+    config.baseDir
       .listRecursively
-      .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))
-      .toIterable)
+      .toIterable
   }
+
+  private[this] def isTarget(file:File):Boolean = {
+    file.pathAsString.contains(s"${pathSeparator}target$pathSeparator") || file.pathAsString.endsWith(s"${pathSeparator}target")
+  }
+
 
   private[this] def glob(list: Seq[String]): Seq[File] = {
     list

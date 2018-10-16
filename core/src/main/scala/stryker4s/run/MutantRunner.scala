@@ -1,5 +1,5 @@
 package stryker4s.run
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 import better.files.File
 import grizzled.slf4j.Logging
@@ -15,6 +15,7 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     extends MutationScoreCalculator
     with Logging {
+
   private val startTime = System.currentTimeMillis()
 
   def apply(mutatedFiles: Iterable[MutatedFile],
@@ -29,8 +30,8 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
   }
 
-  private def prepareEnv(mutatedFiles: Iterable[MutatedFile],
-                         sourceCollector: SourceCollector): File = {
+  private def prepareEnv(mutatedFiles: Iterable[MutatedFile], sourceCollector: SourceCollector): File = {
+
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
 
@@ -40,10 +41,16 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     debug("Using temp directory: " + tmpDir)
 
     files foreach { file =>
+
       val subPath = file.relativePath
       val filePath = tmpDir / subPath.toString
 
-      filePath.createFileIfNotExists(createParents = true)
+      if(file.isDirectory) {
+        filePath.createDirectoryIfNotExists(createParents = true)
+      } else {
+        filePath.createFileIfNotExists(createParents = true)
+      }
+
       file.copyTo(filePath, overwrite = true)
     }
 
