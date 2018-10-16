@@ -47,6 +47,8 @@ An always up-to-date reference is also available in the [MutantMatcher source](.
 | `a.filterNot(b)` | `a.filter(b)` |
 | `a.exists(b)` | `a.forAll(b)` <sup>2</sup>|
 | `a.forAll(b)` | `a.exists(b)` |
+| `a.drop(b)` | `a.take(b)` |
+| `a.take(b)` | `a.drop(b)` |
 | `a.isEmpty` | `a.nonEmpty` |
 | `a.nonEmpty` | `a.isEmpty` |
 | `a.indexOf` | `a.lastIndexOf(b)` <sup>2</sup> |
