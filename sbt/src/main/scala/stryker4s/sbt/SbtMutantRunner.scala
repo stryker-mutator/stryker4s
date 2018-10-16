@@ -16,31 +16,36 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val newState = extracted.appendWithSession(settings(workingDir, mutant.id), state)
     Project.runTask(test in Test, newState) match {
-      case None                => throw new RuntimeException("this cannot happend ever")
+      case None                => throw new RuntimeException(s"An unexpected error occured while running mutation ${mutant.id}")
       case Some((_, Value(_))) => Survived(mutant, subPath)
       case Some((_, Inc(_)))   => Killed(mutant, subPath)
     }
   }
 
-  private[this] def settings(tmpDir: File, mutation: Int) = {
-
+  private[this] def settings(tmpDir: File, mutation: Int): Seq[Def.Setting[_]] = {
     val mainPath = {
-      extracted.get(Compile / scalaSource).absolutePath.diff(
-        extracted.get(Compile / baseDirectory).absolutePath
-      )
+      extracted
+        .get(Compile / scalaSource)
+        .absolutePath
+        .diff(
+          extracted.get(Compile / baseDirectory).absolutePath
+        )
     }
 
     val testPath = {
-      extracted.get(Test / scalaSource).absolutePath.diff(
-        extracted.get(Test / baseDirectory).absolutePath
-      )
+      extracted
+        .get(Test / scalaSource)
+        .absolutePath
+        .diff(
+          extracted.get(Test / baseDirectory).absolutePath
+        )
     }
 
+    // Set active mutation
+    sys.props("ACTIVE_MUTATION") = mutation.toString
     Seq(
       scalaSource in Compile := tmpDir.toJava / mainPath,
-      scalaSource in Test := tmpDir.toJava / testPath,
-      fork in Test := true,
-      javaOptions in Test := Seq(s"-DACTIVE_MUTATION=$mutation")
+      scalaSource in Test := tmpDir.toJava / testPath
     )
 
   }
