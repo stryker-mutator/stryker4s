@@ -44,8 +44,8 @@ object Settings {
         description := "Stryker4s the mutation testing framework for Scala.",
         organization := "io.stryker-mutator",
         organizationHomepage := Some(url("https://stryker-mutator.io/")),
-        crossScalaVersions := Dependencies.versions.crossScala,
-        scalacOptions ++= Settings.scalacOpts,
+        scalaVersion := Dependencies.versions.scala212,
+        scalacOptions ++= Settings.scalacOpts
       ))
   }
 }

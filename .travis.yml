@@ -11,7 +11,6 @@ cache:
 
 scala:
    - 2.12.7
-   - 2.11.12
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates

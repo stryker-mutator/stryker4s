@@ -1,6 +1,6 @@
 package stryker4s.sbt
 
-import sbt.{Extracted, _}
+import sbt._
 import stryker4s.config.Config
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
@@ -11,8 +11,6 @@ import stryker4s.run.{MutantRunner, Stryker4sRunner}
   * @param state SBT project state (contains all the settings about the project)
   */
 class Stryker4sSbtRunner(state: State) extends Stryker4sRunner {
-
-  private val extracted: Extracted = Project.extract(state)
 
   override def resolveRunner()(implicit config: Config): MutantRunner = new SbtMutantRunner(state, ProcessRunner.resolveRunner())
 
