@@ -91,8 +91,10 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * Is the file in the target folder, and thus should not be copied over
     */
   private[this] def isTarget(file: File): Boolean = {
-    val pathString = file.toString
+    val pathString = file.relativePath.toString
 
+    (file.isDirectory && pathString == "target") ||
+    pathString.startsWith(s"target$pathSeparator") ||
     pathString.contains(s"${pathSeparator}target$pathSeparator") ||
     pathString.endsWith(s"${pathSeparator}target")
   }
