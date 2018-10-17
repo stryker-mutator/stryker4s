@@ -4,10 +4,6 @@ object Dependencies {
 
   object versions {
     val scala212 = "2.12.7"
-    val scala211 = "2.11.12"
-//    val crossScala = Seq(scala211, scala212)
-    val crossScala = Seq(scala212)
-
     val scalameta = "4.0.0"
     val pureconfig = "0.9.2"
     val scalatest = "3.0.5"
