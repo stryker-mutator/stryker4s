@@ -27,10 +27,19 @@ object Stryker4sPlugin extends AutoPlugin {
 
   def stryker = Command.command("stryker") { currentState =>
 
-    new Stryker4sSbtRunner(currentState).run()
+    // Force compile
+    Project.runTask(compile in Compile, currentState) match {
+      case None => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
+      case Some((newState, _)) => {
 
-    // After running state doesn't change
-    currentState
+        // Run Stryker
+        new Stryker4sSbtRunner(newState).run()
+
+        // After running state doesn't change
+        newState
+
+      }
+    }
 
   }
 
