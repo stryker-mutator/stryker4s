@@ -5,12 +5,23 @@ import stryker4s.config.Config
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
 
+import scala.meta.internal.tokenizers.PlatformTokenizerCache
+
 /**
   * This Runner run Stryker mutations in a single SBT session
   *
   * @param state SBT project state (contains all the settings about the project)
   */
 class Stryker4sSbtRunner(state: State) extends Stryker4sRunner {
+
+  /**
+    * Scalameta uses a cache file->tokens that exists at a process level
+    *
+    * if one file changes between runs (in the same SBT session) could lead to an error, so
+    * it is cleaned before it starts.
+    *
+    */
+  PlatformTokenizerCache.megaCache.clear()
 
   override def resolveRunner()(implicit config: Config): MutantRunner = new SbtMutantRunner(state, ProcessRunner.resolveRunner())
 
