@@ -16,7 +16,7 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config) extends Logg
   }
 
   def findMutants(source: Source): Seq[Mutant] = {
-    source.collect(matcher.allMatchers()).flatten
+    source.collect(matcher.allMatchers()).flatten.filterNot(config.excludedMutations.shouldExclude)
   }
 
   def parseFile(file: File): Source =

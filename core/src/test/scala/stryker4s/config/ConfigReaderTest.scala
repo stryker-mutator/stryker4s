@@ -52,6 +52,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
+      result.excludedMutations.exclusionStrings shouldBe List("BooleanSubstitution")
     }
 
     it("should return a failure on a misshapen test runner") {

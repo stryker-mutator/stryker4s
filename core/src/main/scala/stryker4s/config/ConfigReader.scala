@@ -8,7 +8,8 @@ import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
-import pureconfig.{ConfigReader => PConfigReader}
+import pureconfig.{Derivation, ConfigReader => PConfigReader}
+import stryker4s.model.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 object ConfigReader extends Logging {
@@ -24,6 +25,9 @@ object ConfigReader extends Logging {
     PConfigReader[List[String]].map(_.map {
       case MutantRunReporter.`consoleReporter` => new ConsoleReporter
     })
+
+  implicit val exclusions: PConfigReader[Exclusions] =
+    PConfigReader[List[String]].map(strings => Exclusions.apply(strings:_*))
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
