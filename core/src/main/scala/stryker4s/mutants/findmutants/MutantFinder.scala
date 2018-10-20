@@ -12,11 +12,12 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config) extends Logg
 
   def mutantsInFile(filePath: File): MutationsInSource = {
     val parsedSource = parseFile(filePath)
-    MutationsInSource(parsedSource, findMutants(parsedSource))
+    val (included, excluded) = findMutants(parsedSource)
+    MutationsInSource(parsedSource, included, excluded)
   }
 
-  def findMutants(source: Source): Seq[Mutant] = {
-    source.collect(matcher.allMatchers()).flatten.filterNot(config.excludedMutations.shouldExclude)
+  def findMutants(source: Source): (Seq[Mutant], Seq[Mutant]) = {
+    source.collect(matcher.allMatchers()).flatten.partition(m => !config.excludedMutations.shouldExclude(m))
   }
 
   def parseFile(file: File): Source =

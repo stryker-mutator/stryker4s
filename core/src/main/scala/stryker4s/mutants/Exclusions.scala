@@ -1,6 +1,7 @@
-package stryker4s.model
+package stryker4s.mutants
 
 import stryker4s.extensions.mutationtypes._
+import stryker4s.model.Mutant
 case class Exclusions(val exclusionStrings: String*) {
   private lazy val set = Set(exclusionStrings: _*)
 

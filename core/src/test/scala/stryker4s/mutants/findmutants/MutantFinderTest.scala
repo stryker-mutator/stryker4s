@@ -6,7 +6,7 @@ import better.files.File
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.extensions.FileExtensions._
-import stryker4s.model.Exclusions
+import stryker4s.mutants.Exclusions
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 
 import scala.meta._
@@ -62,7 +62,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val sut = new MutantFinder(new MutantMatcher)
       val source = source"case class Foo(s: String)"
 
-      val result = sut.findMutants(source)
+      val result = sut.findMutants(source)._1
 
       result should be(empty)
     }
@@ -74,7 +74,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
                     def foobar = s == "foobar"
                   }"""
 
-      val result = sut.findMutants(source)
+      val result = sut.findMutants(source)._1
 
       result should have length 2
 
@@ -94,7 +94,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
                     def and(a: Boolean, b: Boolean) = a && b
                   }"""
 
-      val result = sut.findMutants(source)
+      val result = sut.findMutants(source)._1
       result should have length 0
     }
   }

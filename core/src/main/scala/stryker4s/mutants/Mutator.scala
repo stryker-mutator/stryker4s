@@ -20,12 +20,12 @@ class Mutator(mutantFinder: MutantFinder,
         val transformed = transformStatements(mutationsInSource)
         val builtTree = buildMatches(transformed)
 
-        MutatedFile(file, builtTree, mutationsInSource.mutants)
+        MutatedFile(file, builtTree, mutationsInSource.mutants, mutationsInSource.excluded)
       }
       .filter(_.mutants.nonEmpty)
 
     info(s"Found ${mutants.size} of ${files.size} file(s) to be mutated.")
-    info(s"${mutants.flatMap(_.mutants).size} Mutant(s) generated")
+    info(s"${mutants.flatMap(_.mutants).size} Mutant(s) generated. ${mutants.flatMap(_.excludedMutants).size} excluded.")
     mutants
   }
 

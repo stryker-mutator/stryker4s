@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{Derivation, ConfigReader => PConfigReader}
-import stryker4s.model.Exclusions
+import stryker4s.mutants.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 object ConfigReader extends Logging {

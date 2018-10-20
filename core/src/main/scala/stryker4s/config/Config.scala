@@ -6,7 +6,7 @@ import better.files._
 import com.typesafe.config.ConfigRenderOptions
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
-import stryker4s.model.Exclusions
+import stryker4s.mutants.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
