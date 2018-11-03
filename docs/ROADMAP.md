@@ -1,4 +1,4 @@
-# Stryker4s vision of the future
+# Stryker4s, roadmap of the future
 
 First of all welcome to Stryker4s, this document will describe the vision @hugo-vrijswijk and @legopiraat currently have for the future of Stryker4s.
 Since this project is still in the early phase there is a lot of things we want to do and not everything fits into the issue list just yet. 
