@@ -14,7 +14,7 @@ class Mutator(mutantFinder: MutantFinder,
     extends Logging {
 
   def mutate(files: Iterable[File]): Iterable[MutatedFile] = {
-    val mutants = files
+    val mutatedFiles = files
       .map { file =>
         val mutationsInSource = findMutants(file)
         val transformed = transformStatements(mutationsInSource)
@@ -22,11 +22,11 @@ class Mutator(mutantFinder: MutantFinder,
 
         MutatedFile(file, builtTree, mutationsInSource.mutants, mutationsInSource.excluded)
       }
-      .filter(_.mutants.nonEmpty)
+      .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants.isEmpty)
 
-    info(s"Found ${mutants.size} of ${files.size} file(s) to be mutated.")
-    info(s"${mutants.flatMap(_.mutants).size} Mutant(s) generated. ${mutants.flatMap(_.excludedMutants).size} excluded.")
-    mutants
+    logMutationResult(mutatedFiles, files.size)
+
+    mutatedFiles
   }
 
   /** Step 1: Find mutants in the found files
@@ -42,4 +42,15 @@ class Mutator(mutantFinder: MutantFinder,
     */
   private def buildMatches(transformedMutantsInSource: SourceTransformations): Tree =
     matchBuilder.buildNewSource(transformedMutantsInSource)
+
+  private def logMutationResult(mutatedFiles: Iterable[MutatedFile], totalAmountOfFiles: Int): Unit = {
+    val includedMutants = mutatedFiles.flatMap(_.mutants).size
+    val excludedMutants = mutatedFiles.flatMap(_.excludedMutants).size
+
+    info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
+    info(s"${includedMutants + excludedMutants} Mutant(s) generated.")
+    if (excludedMutants > 0) {
+      info(s"Of which $excludedMutants Mutant(s) are excluded.")
+    }
+  }
 }

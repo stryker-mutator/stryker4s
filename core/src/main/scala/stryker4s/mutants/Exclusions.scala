@@ -2,8 +2,10 @@ package stryker4s.mutants
 
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
-case class Exclusions(val exclusionStrings: String*) {
-  private lazy val set = Set(exclusionStrings: _*)
+
+case class Exclusions(exclusionStrings: String*) {
+
+  private lazy val set: Set[String] = Set(exclusionStrings: _*)
 
   def shouldExclude(mutant: Mutant): Boolean = {
 

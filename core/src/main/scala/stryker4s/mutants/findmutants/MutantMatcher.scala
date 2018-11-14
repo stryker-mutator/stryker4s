@@ -1,6 +1,5 @@
 package stryker4s.mutants.findmutants
 
-//import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
 
