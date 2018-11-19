@@ -88,7 +88,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
     }
 
     it("should filter out excluded mutants") {
-      val sut = new MutantFinder(new MutantMatcher)(config.copy(excludedMutations = Exclusions("LogicalOperator")))
+      val sut = new MutantFinder(new MutantMatcher)(config.copy(excludedMutations = Exclusions(Set("LogicalOperator"))))
       val source =
         source"""case class Bar(s: String) {
                     def and(a: Boolean, b: Boolean) = a && b

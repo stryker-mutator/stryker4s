@@ -12,7 +12,7 @@ case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   reporters: List[MutantRunReporter] = List(new ConsoleReporter),
                   logLevel: Level = Level.INFO,
                   files: Option[Seq[String]] = None,
-                  excludedMutations: Exclusions = Exclusions()) {
+                  excludedMutations: Exclusions = Exclusions(Set.empty)) {
 
   def toHoconString: String = {
     import stryker4s.config.implicits.ConfigWriterImplicits._

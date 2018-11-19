@@ -24,5 +24,5 @@ trait ConfigReaderImplicits {
     })
 
   private[config] implicit val exclusions: ConfigReader[Exclusions] =
-    ConfigReader[List[String]].map(strings => Exclusions.apply(strings:_*))
+    ConfigReader[List[String]].map(exclusions => Exclusions(exclusions.toSet))
 }
