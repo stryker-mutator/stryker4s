@@ -40,7 +40,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
     // Overwrite files to mutated files
     mutatedFiles foreach {
-      case MutatedFile(file, tree, _) =>
+      case MutatedFile(file, tree, _, _) =>
         val subPath = file.relativePath
         val filePath = tmpDir / subPath.toString
         filePath.overwrite(tree.syntax)

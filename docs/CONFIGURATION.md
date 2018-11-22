@@ -65,3 +65,16 @@ With `reporters` you can specify reporters for stryker4s to use. By default the 
 **Description:**  
 With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
  
+
+#### excluded-mutations
+
+**Config file:** `excluded-mutations: ["BooleanSubstitution"]`
+**Default value:** `[]`
+**Mandatory:** No  
+**Description:** 
+With `excluded-mutations`, you can turn off certain mutations in the project. Allowed values are the following:
+- `BinaryOperator`   
+- `BooleanSubstitution`   
+- `LogicalOperator`   
+- `StringMutator`   
+- `MethodMutator`   
