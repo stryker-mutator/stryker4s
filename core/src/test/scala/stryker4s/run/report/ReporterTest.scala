@@ -1,7 +1,6 @@
 package stryker4s.run.report
 
-import org.mockito.IdiomaticMockito
-import org.mockito.MockitoSugar._
+import org.mockito.integrations.scalatest.MockitoFixture
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.model.MutantRunResults
@@ -9,7 +8,7 @@ import stryker4s.model.MutantRunResults
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class ReporterTest extends Stryker4sSuite with IdiomaticMockito {
+class ReporterTest extends Stryker4sSuite with MockitoFixture {
 
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {

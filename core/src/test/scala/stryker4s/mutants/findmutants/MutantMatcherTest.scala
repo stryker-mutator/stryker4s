@@ -45,8 +45,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
                         original: MethodMutator,
                         expectedMutations: MethodMutator*): Unit = {
     val found: Seq[Mutant] = tree.collect(matchFun).flatten
-    expectedMutations.foreach {
-      expectedMutation => found.map(_.mutated).collectFirst { case expectedMutation(_, _) => }.getOrElse(fail("mutant not found"))
+    expectedMutations foreach { expectedMutation =>
+      found
+        .map(_.mutated)
+        .collectFirst { case expectedMutation(_, _) => }
+        .getOrElse(fail("mutant not found"))
     }
   }
 
@@ -68,8 +71,12 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found = tree.collect(sut.allMatchers()).flatten
 
       found should have length 2
-      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
-      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)", q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")
+      expectMutations(found,
+                      q"List(1, 2).filterNot(filterNotFunc)",
+                      q"List(1, 2).filter(filterNotFunc)")
+      expectMutations(found,
+                      q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
+                      q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")
     }
 
     it("should match a boolean and a conditional") {
@@ -355,14 +362,17 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     it("should match on interpolated strings") {
       val interpolated =
         Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String("")), List(q"foo"))
+      val expectedBlockInterpolate =
+        Term.Interpolate(q"s",
+                         List(Lit.String("interpolate "), Lit.String("")),
+                         List(Term.Block(List(q"foo"))))
       val tree = q"def foo = $interpolated"
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
-
       interpolated.syntax should equal("s\"interpolate $foo\"")
       expectMutations(
         sut.matchStringMutators(),
         tree,
-        interpolated,
+        expectedBlockInterpolate,
         emptyStringInterpolate
       )
     }
@@ -376,12 +386,46 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
 
       interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar + 1} bar\"")
+      val expectedBlockInterpolate =
+        Term.Interpolate(q"s",
+                         List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
+                         List(Term.Block(List(q"fooVar")), q"barVar + 1"))
+
       expectMutations(
         sut.matchStringMutators(),
         tree,
-        interpolated,
+        expectedBlockInterpolate,
         emptyStringInterpolate
       )
+    }
+
+    it("should put an interpolated variable in a block") {
+      // This test can be removed once a bug in Scalameta is fixed: https://github.com/scalameta/scalameta/issues/1792
+      val interpolated =
+        Term.Interpolate(q"s",
+                         List(Lit.String("interpolate this "), Lit.String("bar")),
+                         List(q"foo"))
+      val expected =
+        Term.Interpolate(q"s",
+                         List(Lit.String("interpolate this "), Lit.String("bar")),
+                         List(Term.Block(List(q"foo"))))
+
+      val result = sut.matchStringMutators()(interpolated).loneElement
+      result.original should equal(expected)
+      result.mutated.syntax should equal("s\"\"")
+    }
+
+    it("checks if the Scalameta workaround is still needed") {
+      // If this test fails, the bug mentioned above is fixed, and the workaround can be removed
+      val interpolated =
+        Term.Interpolate(q"s",
+                         List(Lit.String("interpolate this"), Lit.String("bar")),
+                         List(q"foo"))
+
+      // We expect that after the fix the interpolate string will look as followed.
+      // interpolated.syntax should equal("""s"interpolate this${foo}bar"""")
+      
+      interpolated.syntax should equal("""s"interpolate this$foobar"""")
     }
 
     it("should not match non-string interpolation") {

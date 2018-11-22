@@ -4,4 +4,4 @@ import better.files.File
 
 import scala.meta.Tree
 
-case class MutatedFile(fileOrigin: File, tree: Tree, mutants: Seq[Mutant])
+case class MutatedFile(fileOrigin: File, tree: Tree, mutants: Seq[Mutant], excludedMutants: Seq[Mutant])

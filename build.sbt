@@ -22,7 +22,6 @@ lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
   .enablePlugins(SbtPlugin)
   .settings(
     Settings.buildLevelSettings,
-    version := "0.1.0-SNAPSHOT",
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

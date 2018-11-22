@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Settings {
-  val scalacOpts = Seq(
+  val scalacOpts: Seq[String] = Seq(
     "-deprecation", // Emit warning and location for usages of deprecated APIs.
     "-encoding",
     "utf-8", // Specify character encoding used by source files.
@@ -41,7 +41,7 @@ object Settings {
       Seq(
         name := "stryker4s",
         version := "0.1.0-SNAPSHOT",
-        description := "Stryker4s the mutation testing framework for Scala.",
+        description := "Stryker4s, the mutation testing framework for Scala.",
         organization := "io.stryker-mutator",
         organizationHomepage := Some(url("https://stryker-mutator.io/")),
         scalaVersion := Dependencies.versions.scala212,

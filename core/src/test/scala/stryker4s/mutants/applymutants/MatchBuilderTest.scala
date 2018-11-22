@@ -2,6 +2,7 @@ package stryker4s.mutants.applymutants
 
 import stryker4s.{Stryker4sSuite, model}
 import stryker4s.extensions.TreeExtensions._
+import stryker4s.extensions.mutationtypes._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
 
@@ -21,7 +22,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _))
+        .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
       val sut = new MatchBuilder
 
       // Act
@@ -41,7 +42,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 }".parse[Source].get
 
-      val transformed = toTransformed(source, q">", q"<", q"==", q">=")
+      val transformed = toTransformed(source, GreaterThan, q">", q"<", q"==", q">=")
       val transStatements =
         SourceTransformations(source, List(transformed))
       val sut = new MatchBuilder
@@ -70,8 +71,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = "class Foo { def bar: Boolean = 15 > 14 && 14 >= 13 }".parse[Source].get
-      val firstTrans = toTransformed(source, q">", q"<", q"==", q">=")
-      val secondTrans = toTransformed(source, q">=", q">", q"==", q"<")
+      val firstTrans = toTransformed(source, GreaterThan, q">", q"<", q"==", q">=")
+      val secondTrans = toTransformed(source, GreaterThanEqualTo, q">=", q">", q"==", q"<")
 
       val transformedStatements = SourceTransformations(source, List(firstTrans, secondTrans))
       val sut = new MatchBuilder
@@ -110,9 +111,9 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
 
-      val firstTransformed = toTransformed(source, Lit.String("foo"), Lit.String(""))
-      val secondTransformed = toTransformed(source, q"==", q"!=")
-      val thirdTransformed = toTransformed(source, Lit.String(""), Lit.String("Stryker was here!"))
+      val firstTransformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
+      val secondTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
+      val thirdTransformed = toTransformed(source, StrykerWasHereString, Lit.String(""), Lit.String("Stryker was here!"))
 
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
@@ -154,12 +155,12 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants
     */
-  private def toTransformed(source: Source, origStatement: Term, mutants: Term*)(
+  private def toTransformed(source: Source, mutation: Mutation[_ <: Tree], origStatement: Term, mutants: Term*)(
       implicit ids: Iterator[Int]): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get )
-      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term]))
+      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
       .toList
 
     TransformedMutants(topStatement, mutant)
