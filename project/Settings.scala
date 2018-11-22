@@ -1,6 +1,7 @@
 import Dependencies._
 import sbt._
 import sbt.Keys._
+import scoverage.ScoverageKeys._
 
 object Settings {
   val scalacOpts = Seq(
@@ -19,6 +20,8 @@ object Settings {
   val commonSettings = Seq(
     Test / parallelExecution := false, // For logging tests
     scalaVersion := versions.scala212,
+    coverageEnabled := true,
+    coverageMinimum := 75,
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
