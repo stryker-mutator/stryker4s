@@ -31,7 +31,17 @@ case object StringInterpolation {
   import scala.meta.contrib.implicits.Equality._
 
   def unapply(arg: Term.Interpolate): Option[Term.Interpolate] =
-    Some(arg).filter(_.prefix.isEqual(Term.Name("s")))
+    Some(arg).filter(_.prefix.isEqual(Term.Name("s"))) map wrapInterpolatedVariableInBlock
+
+  /** Wrap a `Term.Name` args of a `Term.Interpolate` args in a `Term.Block` to work around a bug in Scalameta: https://github.com/scalameta/scalameta/issues/1792
+    */
+  private def wrapInterpolatedVariableInBlock(interpolation: Term.Interpolate): Term.Interpolate = {
+    val Term.Interpolate(prefix, parts, args) = interpolation
+    Term.Interpolate(prefix, parts, args.map {
+      case t: Term.Name => Term.Block(List(t))
+      case other        => other
+    })
+  }
 }
 
 private object ParentIsInterpolatedString {
