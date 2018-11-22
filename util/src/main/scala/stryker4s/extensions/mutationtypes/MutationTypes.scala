@@ -7,7 +7,9 @@ import scala.meta.{Lit, Term, Tree}
 /**
   * Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
-sealed trait Mutation[T <: Tree]
+sealed trait Mutation[T <: Tree] {
+  val mutationName: String
+}
 
 /**
   * Base trait for substitution mutation
@@ -29,20 +31,29 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
       }
 }
 
-trait BinaryOperator extends SubstitutionMutation[Term.Name]
+trait BinaryOperator extends SubstitutionMutation[Term.Name]{
+  override val mutationName: String = "BinaryOperator"
+}
 
-trait BooleanSubstitution extends SubstitutionMutation[Lit.Boolean]
+trait BooleanSubstitution extends SubstitutionMutation[Lit.Boolean]{
+  override val mutationName: String = "BooleanSubstitution"
+}
 
-trait LogicalOperator extends SubstitutionMutation[Term.Name]
+trait LogicalOperator extends SubstitutionMutation[Term.Name] {
+  override val mutationName: String = "LogicalOperator"
+}
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringMutator[T <: Term] extends SubstitutionMutation[T]
+trait StringMutator[T <: Term] extends SubstitutionMutation[T] {
+  override val mutationName: String = "StringMutator"
+}
 
 /**
   * Base trait for method mutation
   */
 trait MethodMutator extends Mutation[Term] {
+  override val mutationName: String = "MethodMutator"
 
   /**
     * Method to be replaced or to replace
