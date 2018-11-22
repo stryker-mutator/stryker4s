@@ -18,7 +18,7 @@ object Settings {
 
   val commonSettings = Seq(
     Test / parallelExecution := false, // For logging tests
-    crossScalaVersions := versions.crossScala,
+    scalaVersion := versions.scala212,
     scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
