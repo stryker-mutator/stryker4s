@@ -11,6 +11,17 @@ sealed trait Mutation[T <: Tree] {
   val mutationName: String
 }
 
+object Mutation{
+  // List of mutations
+  val mutations: List[String] = List[String](
+    "BinaryOperator",
+    "BooleanSubstitution",
+    "LogicalOperator",
+    "StringMutator",
+    "MethodMutator"
+  )
+}
+
 /**
   * Base trait for substitution mutation
   *
