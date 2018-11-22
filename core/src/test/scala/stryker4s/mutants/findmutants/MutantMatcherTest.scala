@@ -422,6 +422,9 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
                          List(Lit.String("interpolate this"), Lit.String("bar")),
                          List(q"foo"))
 
+      // We expect that after the fix the interpolate string will look as followed.
+      // interpolated.syntax should equal("""s"interpolate this${foo}bar"""")
+      
       interpolated.syntax should equal("""s"interpolate this$foobar"""")
     }
 
