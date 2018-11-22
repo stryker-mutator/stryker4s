@@ -1,6 +1,6 @@
 import xerial.sbt.Sonatype._
 
-sonatypeProfileName := "io.stryker-muator"
+sonatypeProfileName := "io.stryker-mutator"
 publishMavenStyle := true
 licenses := Seq("Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE"))
 

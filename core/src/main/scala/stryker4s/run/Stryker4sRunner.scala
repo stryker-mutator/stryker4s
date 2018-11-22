@@ -21,13 +21,9 @@ class Stryker4sRunner extends Logging {
 
   def run(): Unit = {
 
-    /**
-      * Scalameta uses a cache file->tokens that exists at a process level
-      *
-      * if one file changes between runs (in the same process, eg a single SBT session) could lead to an error, so
-      * it is cleaned before it starts.
-      *
-      */
+    // Scalameta uses a cache file->tokens that exists at a process level
+    // if one file changes between runs (in the same process, eg a single SBT session) could lead to an error, so
+    // it is cleaned before it starts.
     PlatformTokenizerCache.megaCache.clear()
 
     new Stryker4s(
