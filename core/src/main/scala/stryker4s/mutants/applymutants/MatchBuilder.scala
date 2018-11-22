@@ -57,7 +57,7 @@ class MatchBuilder extends Logging {
       .groupBy(_.originalStatement)
       .mapValues(transformedMutants =>
         transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
-      .map(a => TransformedMutants(a._1, a._2.toList))
+      .map({case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList)})
       .toSeq
   }
 }
