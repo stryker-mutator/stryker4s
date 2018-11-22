@@ -63,19 +63,19 @@ trait OneArgMethodMutator extends MethodMutator {
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
 
     // foo.filter { (a,b) => a > b }
-    case Apply(Select(q, Name(`methodName`)), Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
+    case Apply(Select(_, Name(`methodName`)), Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
       None
 
     // foo.filter((a,b) => a > b)
-    case Apply(Select(q, Name(`methodName`)), Function(_ :: _ :: _, _) :: Nil) =>
+    case Apply(Select(_, Name(`methodName`)), Function(_ :: _ :: _, _) :: Nil) =>
       None
 
     // foo filter { (a,b) => a > b }
-    case ApplyInfix(q, Name(`methodName`), Nil, Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
+    case ApplyInfix(_, Name(`methodName`), Nil, Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
       None
 
     // foo filter((a,b) => a > b)
-    case ApplyInfix(q, Name(`methodName`), Nil, Function(_ :: _ :: _, _) :: Nil) =>
+    case ApplyInfix(_, Name(`methodName`), Nil, Function(_ :: _ :: _, _) :: Nil) =>
       None
 
     // foo.filter( a => a > 0 )

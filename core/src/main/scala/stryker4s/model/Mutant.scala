@@ -1,5 +1,7 @@
 package stryker4s.model
 
-import scala.meta.Term
+import stryker4s.extensions.mutationtypes.Mutation
 
-case class Mutant(id: Int, original: Term, mutated: Term)
+import scala.meta.{Term, Tree}
+
+case class Mutant(id: Int, original: Term, mutated: Term, mutationType: Mutation[_ <: Tree])
