@@ -58,6 +58,6 @@ class MatchBuilder extends Logging {
       .mapValues(transformedMutants =>
         transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
       .map(a => TransformedMutants(a._1, a._2.toList))
-      .toList
+      .toSeq
   }
 }
