@@ -34,7 +34,8 @@ class ConfigTest extends Stryker4sSuite {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut = Config(filePaths,
                        File("tmp"),
-                       testRunner = CommandRunner("mvn", "clean test"), excludedMutations = Exclusions(Set("BooleanSubstitution")))
+                       testRunner = CommandRunner("mvn", "clean test"),
+                       excludedMutations = Exclusions(Set("BooleanSubstitution")))
 
       val result = sut.toHoconString
 

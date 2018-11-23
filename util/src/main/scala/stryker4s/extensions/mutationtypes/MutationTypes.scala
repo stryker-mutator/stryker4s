@@ -7,7 +7,20 @@ import scala.meta.{Lit, Term, Tree}
 /**
   * Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
-sealed trait Mutation[T <: Tree]
+sealed trait Mutation[T <: Tree] {
+  val mutationName: String
+}
+
+object Mutation{
+  // List of mutations
+  val mutations: List[String] = List[String](
+    classOf[BinaryOperator].getSimpleName,
+    classOf[BooleanSubstitution].getSimpleName,
+    classOf[LogicalOperator].getSimpleName,
+    classOf[StringMutator[_]].getSimpleName,
+    classOf[MethodMutator].getSimpleName
+  )
+}
 
 /**
   * Base trait for substitution mutation
@@ -29,25 +42,34 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
       }
 }
 
-trait BinaryOperator extends SubstitutionMutation[Term.Name]
+trait BinaryOperator extends SubstitutionMutation[Term.Name]{
+  override val mutationName: String = classOf[BinaryOperator].getSimpleName
+}
 
-trait BooleanSubstitution extends SubstitutionMutation[Lit.Boolean]
+trait BooleanSubstitution extends SubstitutionMutation[Lit.Boolean]{
+  override val mutationName: String = classOf[BooleanSubstitution].getSimpleName
+}
 
-trait LogicalOperator extends SubstitutionMutation[Term.Name]
+trait LogicalOperator extends SubstitutionMutation[Term.Name]{
+  override val mutationName: String = classOf[LogicalOperator].getSimpleName
+}
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringMutator[T <: Term] extends SubstitutionMutation[T]
+trait StringMutator[T <: Term] extends SubstitutionMutation[T]{
+  override val mutationName: String = classOf[StringMutator[_]].getSimpleName
+}
 
 /**
   * Base trait for method mutation
   */
 trait MethodMutator extends Mutation[Term] {
-
   /**
     * Method to be replaced or to replace
     */
   protected val methodName: String
+
+  override val mutationName: String = classOf[MethodMutator].getSimpleName
 
   def apply(f: String => Term): Term = f(methodName)
 
