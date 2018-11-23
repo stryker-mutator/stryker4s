@@ -70,9 +70,12 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       val head = exc.failures.head
       head shouldBe a[ConvertFailure]
-      head.description should equal(
-        """Invalid exclusion option(s): 'Invalid, StillInvalid'
-          |Valid exclusions are BinaryOperator, BooleanSubstitution, LogicalOperator, StringMutator, MethodMutator.""".stripMargin)
+      val errorMessage =
+        s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
+          |Valid exclusions are BinaryOperator, BooleanSubstitution, LogicalOperator, StringMutator, MethodMutator."""
+          .stripMargin
+      head.description shouldBe errorMessage
+//      errorMessage shouldBe loggedAsError
     }
   }
 

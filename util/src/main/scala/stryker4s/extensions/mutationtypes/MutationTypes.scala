@@ -14,11 +14,11 @@ sealed trait Mutation[T <: Tree] {
 object Mutation{
   // List of mutations
   val mutations: List[String] = List[String](
-    "BinaryOperator",
-    "BooleanSubstitution",
-    "LogicalOperator",
-    "StringMutator",
-    "MethodMutator"
+    classOf[BinaryOperator].getSimpleName,
+    classOf[BooleanSubstitution].getSimpleName,
+    classOf[LogicalOperator].getSimpleName,
+    classOf[StringMutator[_]].getSimpleName,
+    classOf[MethodMutator].getSimpleName
   )
 }
 
@@ -43,33 +43,33 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
 }
 
 trait BinaryOperator extends SubstitutionMutation[Term.Name]{
-  override val mutationName: String = "BinaryOperator"
+  override val mutationName: String = classOf[BinaryOperator].getSimpleName
 }
 
 trait BooleanSubstitution extends SubstitutionMutation[Lit.Boolean]{
-  override val mutationName: String = "BooleanSubstitution"
+  override val mutationName: String = classOf[BooleanSubstitution].getSimpleName
 }
 
-trait LogicalOperator extends SubstitutionMutation[Term.Name] {
-  override val mutationName: String = "LogicalOperator"
+trait LogicalOperator extends SubstitutionMutation[Term.Name]{
+  override val mutationName: String = classOf[LogicalOperator].getSimpleName
 }
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringMutator[T <: Term] extends SubstitutionMutation[T] {
-  override val mutationName: String = "StringMutator"
+trait StringMutator[T <: Term] extends SubstitutionMutation[T]{
+  override val mutationName: String = classOf[StringMutator[_]].getSimpleName
 }
 
 /**
   * Base trait for method mutation
   */
 trait MethodMutator extends Mutation[Term] {
-  override val mutationName: String = "MethodMutator"
-
   /**
     * Method to be replaced or to replace
     */
   protected val methodName: String
+
+  override val mutationName: String = classOf[MethodMutator].getSimpleName
 
   def apply(f: String => Term): Term = f(methodName)
 
