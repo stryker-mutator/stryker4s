@@ -36,6 +36,14 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |    case _ =>
                        |      15 > 14
                        |  }
+                       |  def foobar = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
+                       |    case Some("3") =>
+                       |      s""
+                       |    case _ =>
+                       |      s"${{
+                       |        bar
+                       |      }}foo"
+                       |  }
                        |}""".stripMargin.parse[Source].get
       result.loneElement.tree should equal(expected)
     }
@@ -55,7 +63,23 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       sut.mutate(files)
 
       "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
-      "3 Mutant(s) generated" shouldBe loggedAsInfo
+      "4 Mutant(s) generated" shouldBe loggedAsInfo
+    }
+  }
+
+  describe("string interpolation") {
+
+    it("checks if the Scalameta workaround is still needed") {
+      // If this test fails, the bug mentioned above is fixed, and the workaround can be removed
+      val interpolated =
+        Term.Interpolate(q"s",
+          List(Lit.String("interpolate this"), Lit.String("bar")),
+          List(q"foo"))
+
+      // We expect that after the fix the interpolate string will look as followed.
+      // interpolated.syntax should equal("""s"interpolate this${foo}bar"""")
+
+      interpolated.syntax should equal("""s"interpolate this$foobar"""")
     }
   }
 }

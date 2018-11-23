@@ -1,5 +1,6 @@
 import sbt.Keys._
 import sbt._
+import scoverage.ScoverageKeys._
 
 object Settings {
   val scalacOpts: Seq[String] = Seq(
@@ -45,7 +46,8 @@ object Settings {
         organization := "io.stryker-mutator",
         organizationHomepage := Some(url("https://stryker-mutator.io/")),
         scalaVersion := Dependencies.versions.scala212,
-        scalacOptions ++= Settings.scalacOpts
+        scalacOptions ++= Settings.scalacOpts,
+        coverageMinimum := 75
       ))
   }
 }
