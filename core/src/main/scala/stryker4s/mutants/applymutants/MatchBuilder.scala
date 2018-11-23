@@ -13,34 +13,31 @@ class MatchBuilder extends Logging {
 
   def buildNewSource(transformedStatements: SourceTransformations): Tree = {
     val source = transformedStatements.source
-    val transformedMutants = transformedStatements.transformedStatements
 
-    transformedMutants
-      .foldLeft(source: Tree) { (rest, mutant) =>
-        val origStatement = mutant.originalStatement
+    groupTransformedStatements(transformedStatements).foldLeft(source: Tree) { (rest, mutants) =>
+      val origStatement = mutants.originalStatement
 
-        rest transformOnce {
-          case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
-            buildMatch(mutant)
-        } match {
-          case Success(value) => value
-          case Failure(exception) =>
-            error(s"Failed to construct pattern match: original statement [$origStatement]")
-            error(s"Failed mutation(s) ${mutant.mutantStatements.mkString(",")}.")
-            error(s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}")
-            error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
+      rest transformOnce {
+        case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
+          buildMatch(mutants)
+      } match {
+        case Success(value) => value
+        case Failure(exception) =>
+          error(s"Failed to construct pattern match: original statement [$origStatement]")
+          error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")
+          error(s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}")
+          error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
+          debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
+          debug("Please be so kind to copy the stacktrace into the issue", exception)
 
-            debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
-            debug("Please be so kind to copy the stacktrace into the issue", exception)
-
-            throw UnableToBuildPatternMatchException()
-        }
+          throw UnableToBuildPatternMatchException()
       }
+    }
   }
 
   def buildMatch(transformedMutant: TransformedMutants): Term.Match = {
-    val cases: List[Case] = transformedMutant.mutantStatements
-      .map(mutantToCase) :+ defaultCase(transformedMutant)
+    val cases: List[Case] = transformedMutant.mutantStatements.map(mutantToCase) :+ defaultCase(
+      transformedMutant.originalStatement)
 
     val activeMutationEnv = Lit.String("ACTIVE_MUTATION")
 
@@ -50,10 +47,17 @@ class MatchBuilder extends Logging {
   private def mutantToCase(mutant: Mutant): Case =
     buildCase(mutant.mutated, p"Some(${Lit.String(mutant.id.toString)})")
 
-  private def defaultCase(transformedMutant: TransformedMutants): Case =
-    buildCase(transformedMutant.originalStatement, p"_")
+  private def defaultCase(originalStatement: Term): Case = buildCase(originalStatement, p"_")
 
-  private def buildCase(expression: Term, pattern: Pat): Case =
-    p"case $pattern => $expression"
+  private def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 
+  private def groupTransformedStatements(
+      transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
+    transformedStatements.transformedStatements
+      .groupBy(_.originalStatement)
+      .mapValues(transformedMutants =>
+        transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
+      .map({case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList)})
+      .toSeq
+  }
 }

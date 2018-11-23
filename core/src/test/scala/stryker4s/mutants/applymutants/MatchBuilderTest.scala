@@ -1,14 +1,14 @@
 package stryker4s.mutants.applymutants
 
-import stryker4s.{Stryker4sSuite, model}
+import stryker4s.Stryker4sSuite
 import stryker4s.extensions.TreeExtensions._
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
 
+import scala.language.postfixOps
 import scala.meta._
 import scala.meta.contrib._
-import scala.language.postfixOps
 
 class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   private val activeMutationExpr: Term.Apply = {
@@ -90,17 +90,14 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
           |      15 == 14 && 14 >= 13
           |    case Some("2") =>
           |      15 >= 14 && 14 >= 13
+          |    case Some("3") =>
+          |      15 > 14 && 14 > 13
+          |    case Some("4") =>
+          |      15 > 14 && 14 == 13
+          |    case Some("5") =>
+          |      15 > 14 && 14 < 13
           |    case _ =>
-          |      sys.env.get("ACTIVE_MUTATION") match {
-          |        case Some("3") =>
-          |          15 > 14 && 14 > 13
-          |        case Some("4") =>
-          |          15 > 14 && 14 == 13
-          |       case Some("5") =>
-          |          15 > 14 && 14 < 13
-          |        case _ =>
-          |          15 > 14 && 14 >= 13
-          |      }
+          |      15 > 14 && 14 >= 13
           |  }
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
@@ -113,7 +110,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
       val firstTransformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
       val secondTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
-      val thirdTransformed = toTransformed(source, StrykerWasHereString, Lit.String(""), Lit.String("Stryker was here!"))
+      val thirdTransformed =
+        toTransformed(source, StrykerWasHereString, Lit.String(""), Lit.String("Stryker was here!"))
 
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
@@ -128,18 +126,12 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
           |  def foo = sys.env.get("ACTIVE_MUTATION") match {
           |    case Some("0") =>
           |      "" == ""
+          |    case Some("1") =>
+          |      "foo" != ""
+          |    case Some("2") =>
+          |      "foo" == "Stryker was here!"
           |    case _ =>
-          |      sys.env.get("ACTIVE_MUTATION") match {
-          |        case Some("1") =>
-          |          "foo" != ""
-          |        case _ =>
-          |          sys.env.get("ACTIVE_MUTATION") match {
-          |            case Some("2") =>
-          |              "foo" == "Stryker was here!"
-          |            case _ =>
-          |              "foo" == ""
-          |          }
-          |      }
+          |      "foo" == ""
           |  }
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
@@ -155,11 +147,13 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants
     */
-  private def toTransformed(source: Source, mutation: Mutation[_ <: Tree], origStatement: Term, mutants: Term*)(
-      implicit ids: Iterator[Int]): TransformedMutants = {
+  private def toTransformed(source: Source,
+                            mutation: Mutation[_ <: Tree],
+                            origStatement: Term,
+                            mutants: Term*)(implicit ids: Iterator[Int]): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
-      .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get )
+      .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get)
       .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
       .toList
 
