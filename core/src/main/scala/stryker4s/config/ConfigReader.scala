@@ -30,7 +30,9 @@ object ConfigReader extends Logging with ConfigReaderImplicits {
 
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
-      info("Config used: " + defaultConf.toHoconString)
+      // TODO: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
+      //  If that's fixed we can add this again
+      // info("Config used: " + defaultConf.toHoconString)
 
       defaultConf
     case _ =>
