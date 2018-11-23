@@ -74,8 +74,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
         s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
           |Valid exclusions are BinaryOperator, BooleanSubstitution, LogicalOperator, StringMutator, MethodMutator."""
           .stripMargin
-      head.description shouldBe errorMessage
-//      errorMessage shouldBe loggedAsError
+      errorMessage shouldBe loggedAsError
     }
   }
 

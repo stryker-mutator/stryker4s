@@ -4,9 +4,8 @@ import java.nio.file.Path
 import better.files.File
 import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
-import pureconfig.{ConfigCursor, ConfigReader}
-import pureconfig.error.ConfigReaderFailures
-import stryker4s.extensions.exceptions.InvalidExclusionsFailure
+import pureconfig.ConfigReader
+import stryker4s.extensions.exceptions.InvalidExclusionsException
 import stryker4s.extensions.mutationtypes.Mutation
 import stryker4s.mutants.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
@@ -28,25 +27,14 @@ trait ConfigReaderImplicits extends Logging {
     })
 
   private[config] implicit val exclusions: ConfigReader[Exclusions] =
-    ConfigReader.fromCursor[List[String]](errorOnInvalidExclusions)
+    ConfigReader[List[String]]
+      .map(errorOnInvalidExclusions)
       .map(exclusions => Exclusions(exclusions.toSet))
 
-  private def errorOnInvalidExclusions(configCursor: ConfigCursor): Either[ConfigReaderFailures, List[String]] = {
-    configCursor.asList.flatMap( cursorList => {
-      val partitioned = cursorList.map(_.asString).partition {
-        case Left(_)  => false
-        case Right(s) => Mutation.mutations.contains(s)
-      }
-      val validExclusions = partitioned._1.map(_.right.get)
-      val invalidExclusions = partitioned._2.filter(_.isRight).map(_.right.get)
-      val otherFailures = partitioned._2.filter(_.isLeft).flatMap(_.left.get.toList)
+  private def errorOnInvalidExclusions(list: List[String]): List[String] = {
+    val (valid, invalid) = list.partition(Mutation.mutations.contains)
+    if (invalid.nonEmpty) throw InvalidExclusionsException(invalid)
 
-      if(invalidExclusions.isEmpty && otherFailures.isEmpty) {
-        Right(validExclusions)
-      } else {
-        val failure = configCursor.failureFor(InvalidExclusionsFailure(invalidExclusions))
-        Left(ConfigReaderFailures(failure, otherFailures))
-      }
-    })
+    valid
   }
 }

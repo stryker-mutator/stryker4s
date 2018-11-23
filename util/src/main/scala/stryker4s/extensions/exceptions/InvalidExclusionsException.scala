@@ -1,9 +1,8 @@
 package stryker4s.extensions.exceptions
-import pureconfig.error.FailureReason
 import stryker4s.extensions.mutationtypes.Mutation
 
-case class InvalidExclusionsFailure(invalid: List[String]) extends FailureReason{
-  override def description: String = {
+case class InvalidExclusionsException(invalid: List[String]) extends Exception{
+  override def getMessage: String = {
     s"""Invalid exclusion option(s): '${invalid.mkString(", ")}'
        |Valid exclusions are ${Mutation.mutations.mkString(", ")}."""
       .stripMargin
