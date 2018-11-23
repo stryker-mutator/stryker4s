@@ -16,7 +16,9 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val newState = extracted.appendWithSession(settings(workingDir, mutant.id), state)
     Project.runTask(test in Test, newState) match {
-      case None                => throw new RuntimeException(s"An unexpected error occured while running mutation ${mutant.id}")
+      case None =>
+        throw new RuntimeException(
+          s"An unexpected error occurred while running mutation ${mutant.id}")
       case Some((_, Value(_))) => Survived(mutant, subPath)
       case Some((_, Inc(_)))   => Killed(mutant, subPath)
     }
@@ -42,7 +44,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
     }
 
     // Set active mutation
-    sys.props("ACTIVE_MUTATION") = mutation.toString
+    sys.props.put("ACTIVE_MUTATION", String.valueOf(mutation))
     Seq(
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
