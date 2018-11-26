@@ -55,16 +55,26 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.excludedMutations.exclusions shouldBe Set("BooleanSubstitution")
     }
 
-    it("should return a failure on a misshapen test runner") {
+    it("should return a failure on an invalid exclusion mutator") {
       val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
+
+      lazy val result = ConfigReader.readConfig(confPath)
+      val exc = the[ConfigReaderException[_]] thrownBy result
+    }
+
+    it("should return a failure on a misshapen test runner") {
+      val confPath = FileUtil.getResource("stryker4sconfs/invalidExcludedMutation.conf")
 
       lazy val result = ConfigReader.readConfig(confPath)
       val exc = the[ConfigReaderException[_]] thrownBy result
 
       val head = exc.failures.head
       head shouldBe a[ConvertFailure]
-      head.description should equal(
-        s"""No valid coproduct choice found for '{"args":"foo","command":"bar","type":"someOtherTestRunner"}'.""")
+      val errorMessage =
+        s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
+          |Valid exclusions are BinaryOperator, BooleanSubstitution, LogicalOperator, StringMutator, MethodMutator."""
+          .stripMargin
+      errorMessage shouldBe loggedAsError
     }
   }
 

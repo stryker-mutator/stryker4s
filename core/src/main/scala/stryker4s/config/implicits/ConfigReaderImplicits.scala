@@ -2,12 +2,15 @@ package stryker4s.config.implicits
 import java.nio.file.Path
 
 import better.files.File
+import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
+import stryker4s.extensions.exceptions.InvalidExclusionsException
+import stryker4s.extensions.mutationtypes.Mutation
 import stryker4s.mutants.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
-trait ConfigReaderImplicits {
+trait ConfigReaderImplicits extends Logging {
 
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
     *
@@ -24,5 +27,14 @@ trait ConfigReaderImplicits {
     }
 
   private[config] implicit val exclusions: ConfigReader[Exclusions] =
-    ConfigReader[List[String]] map (exclusions => Exclusions(exclusions.toSet))
+    ConfigReader[List[String]]
+      .map(errorOnInvalidExclusions)
+      .map(exclusions => Exclusions(exclusions.toSet))
+
+  private def errorOnInvalidExclusions(list: List[String]): List[String] = {
+    val (valid, invalid) = list.partition(Mutation.mutations.contains)
+    if (invalid.nonEmpty) throw InvalidExclusionsException(invalid)
+
+    valid
+  }
 }
