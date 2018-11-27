@@ -16,5 +16,7 @@ class Stryker4s(fileCollector: SourceCollector,
     val mutatedFiles = mutator.mutate(filesToMutate)
     val runResults = runner(mutatedFiles, fileCollector)
     reporter.report(runResults)
+    val exitCode = reporter.determineExitCode(runResults)
+    sys.exit(exitCode)
   }
 }
