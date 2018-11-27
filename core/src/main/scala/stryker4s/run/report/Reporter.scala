@@ -11,20 +11,4 @@ class Reporter extends Logging{
   def report(runResult: MutantRunResults)(implicit config: Config): Unit = {
     config.reporters.foreach { _.report(runResult) }
   }
-
-  def determineExitCode(runResults: MutantRunResults)(implicit config: Config): Int = {
-    config.thresholds.break match {
-      case Some(threshold) if runResults.mutationScore < threshold => {
-        error(s"Mutation score below threshold! Score: ${runResults.mutationScore}. Threshold: $threshold")
-        1
-      }
-      case None => {
-        debug("No breaking threshold configured. Won\'t fail the build no matter how low your mutation score is. Set `thresholds.break` to change this behavior.")
-        0
-      }
-      case _ =>
-        info(s"Mutation score ${runResults.mutationScore} was above the configured threshold. ")
-        0
-    }
-  }
 }

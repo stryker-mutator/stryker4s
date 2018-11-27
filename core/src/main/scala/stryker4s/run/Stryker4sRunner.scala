@@ -17,7 +17,8 @@ object Stryker4sRunner extends App with Logging {
     new FileCollector,
     new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
     resolveRunner(),
-    new Reporter()
+    new Reporter(),
+    new ThresholdChecker()
   )
 
   stryker4s.run()

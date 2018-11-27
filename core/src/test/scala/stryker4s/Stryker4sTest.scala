@@ -7,7 +7,7 @@ import stryker4s.model.{Killed, Mutant}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.run.ProcessMutantRunner
+import stryker4s.run.{ProcessMutantRunner, ThresholdChecker}
 import stryker4s.run.process.Command
 import stryker4s.scalatest.FileUtil
 import stryker4s.stubs.{TestProcessRunner, TestReporter, TestSourceCollector}
@@ -25,6 +25,7 @@ class Stryker4sTest extends Stryker4sSuite {
       val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val testReporter = new TestReporter
+      val thresholdChecker = new ThresholdChecker
 
       val sut = new Stryker4s(
         testSourceCollector,
@@ -32,7 +33,8 @@ class Stryker4sTest extends Stryker4sSuite {
                     new StatementTransformer,
                     new MatchBuilder),
         testMutantRunner,
-        testReporter
+        testReporter,
+        thresholdChecker
       )
 
       sut.run()

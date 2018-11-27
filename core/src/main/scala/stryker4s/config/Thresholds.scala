@@ -1,6 +1,6 @@
 package stryker4s.config
 
-case class Thresholds(// high: Double = 80, // TODO: Not supported yet
-                      // low: Double = 60,  // TODO: Not supported yet
-                      break: Option[Double] = None) {
+case class Thresholds(// high: Int = 80, // TODO: Not supported yet
+                      // low: Int = 60,  // TODO: Not supported yet
+                      break: Int = 0) {
 }
