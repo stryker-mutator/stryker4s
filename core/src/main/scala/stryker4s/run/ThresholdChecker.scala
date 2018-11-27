@@ -9,7 +9,7 @@ class ThresholdChecker extends Logging {
   def determineExitCode(runResults: MutantRunResults)(implicit config: Config): Int = {
     config.thresholds match {
       case None =>
-        debug("Threshold not configured. Won\'t fail the build no matter how low your mutation score is.")
+        debug("Threshold not configured. Won't fail the build no matter how low your mutation score is.")
         debug("Set `thresholds.break` to change this behavior.")
         0
       case Some(thresholds) if runResults.mutationScore < thresholds.break =>

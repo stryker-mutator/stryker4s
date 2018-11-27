@@ -10,7 +10,7 @@ import scala.language.postfixOps
 
 class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers{
 
-    describe("thresholdchecker ") {
+    describe("thresholdchecker") {
       it("should return exitcode 0 when no threshold is required") {
         implicit val config: Config = Config()
 
@@ -34,6 +34,19 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers{
 
         exitCode shouldBe 0
         "Mutation score 100.0 was above or equal to the configured threshold." shouldBe loggedAsInfo
+      }
+
+      it("should return exitcode 0 when the score equals threshold") {
+        val score = 20
+        implicit val config: Config = Config(thresholds = Some(Thresholds(break = score)))
+
+        val thresholdChecker = new ThresholdChecker()
+        val mutantRunResults = MutantRunResults(List.empty, score, 10 seconds)
+
+        val exitCode = thresholdChecker.determineExitCode(mutantRunResults)
+
+        exitCode shouldBe 0
+        "Mutation score 20.0 was above or equal to the configured threshold." shouldBe loggedAsInfo
       }
 
       it("should return exitcode 1 when the threshold is not met") {
