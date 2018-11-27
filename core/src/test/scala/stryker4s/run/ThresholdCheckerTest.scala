@@ -20,12 +20,12 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers{
         val exitCode = thresholdChecker.determineExitCode(mutantRunResults)
 
         exitCode shouldBe 0
-        "Threshold configured at 0. Won\'t fail the build no matter how low your mutation score is." shouldBe loggedAsDebug
-        "Set `thresholds.break` to a value higher than 0 to change this behavior." shouldBe loggedAsDebug
+        "Threshold not configured. Won\'t fail the build no matter how low your mutation score is." shouldBe loggedAsDebug
+        "Set `thresholds.break` to change this behavior." shouldBe loggedAsDebug
       }
 
       it("should return exitcode 0 when the threshold is met") {
-        implicit val config: Config = Config(thresholds = Thresholds(break = 10))
+        implicit val config: Config = Config(thresholds = Some(Thresholds(break = 10)))
 
         val thresholdChecker = new ThresholdChecker()
         val mutantRunResults = MutantRunResults(List.empty, 100.0, 10 seconds)
@@ -37,7 +37,7 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers{
       }
 
       it("should return exitcode 1 when the threshold is not met") {
-        implicit val config: Config = Config(thresholds = Thresholds(break = 50))
+        implicit val config: Config = Config(thresholds = Some(Thresholds(break = 50)))
 
         val thresholdChecker = new ThresholdChecker()
         val mutantRunResults = MutantRunResults(List.empty, 10.0, 10 seconds)
