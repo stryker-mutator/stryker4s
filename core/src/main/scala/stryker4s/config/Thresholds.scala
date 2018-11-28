@@ -1,6 +1,19 @@
 package stryker4s.config
+import stryker4s.extensions.exceptions.InvalidThresholdValueException
 
-case class Thresholds(high: Int = 80,
-                      low: Int = 60,
-                      break: Int = 0) {
+case class Thresholds(high: Int = 80, low: Int = 60, break: Int = 0){
+  failIfNotPercentage(high, low, break)
+  if(high <= low)
+    throw InvalidThresholdValueException(s"'high'($high) must be greater than 'low'($low).")
+  if(low <= break)
+    throw InvalidThresholdValueException(s"'low'($low) must be greater than 'break'($break).")
+  if(break >= low || break >= high)
+    throw InvalidThresholdValueException(s"'break'($break) must be smaller than both 'low'($low) and 'high'($high).")
+
+  private def failIfNotPercentage(values: Int*): Unit = {
+    values.foreach(value =>
+      if(value < 0 || value > 100)
+        throw InvalidThresholdValueException(s"Threshold values must be 0-100. Current: $value.")
+    )
+  }
 }
