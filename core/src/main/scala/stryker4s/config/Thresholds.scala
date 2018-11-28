@@ -7,8 +7,6 @@ case class Thresholds(high: Int = 80, low: Int = 60, break: Int = 0){
     throw InvalidThresholdValueException(s"'high'($high) must be greater than 'low'($low).")
   if(low <= break)
     throw InvalidThresholdValueException(s"'low'($low) must be greater than 'break'($break).")
-  if(break >= low || break >= high)
-    throw InvalidThresholdValueException(s"'break'($break) must be smaller than both 'low'($low) and 'high'($high).")
 
   private def failIfNotPercentage(values: Int*): Unit = {
     values.foreach(value =>
