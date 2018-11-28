@@ -67,7 +67,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
   private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path, id: Int): MutantRunResult = {
     info(s"Starting test-run $id...")
-    process(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
+    process(command, workingDir, ("ACTIVE_MUTATION", (id - 1).toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
