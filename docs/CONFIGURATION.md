@@ -77,4 +77,19 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 - `BooleanSubstitution`   
 - `LogicalOperator`   
 - `StringMutator`   
-- `MethodMutator`   
+- `MethodMutator`
+
+#### thresholds
+
+**Config file:** `thresholds{ high=80, low=60, break=0 }`
+**Default values:** high=80, low=60, break=0
+**Mandatory:** No
+**Description:**
+Specify the thresholds for mutation scores.
+
+* `mutation score >= high`: Success! Mutation score will be logged at the INFO level.
+* `high > mutation score >= low`: Warning! Mutation score will be logged at the WARN level.
+* `mutation score < low`: Dangerously low! Mutation score will be logged at the ERROR level with an extra warning.
+* `mutation score < break`: Error! Stryker will exit with exit code 1, indicating a build failure.
+
+Setting `break=0` (default value) ensures that the build will never fail.
