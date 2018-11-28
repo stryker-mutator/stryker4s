@@ -55,7 +55,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
       id = mutatedFiles.flatMap(_.mutants).toSeq.indexOf(mutant) + 1
     } yield {
       val result = runMutant(mutant, tmpDir, subPath, id)
-      info(s"Finished mutation run (id: ${mutant.id}) $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      info(s"Finished mutation run (id: $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
 
