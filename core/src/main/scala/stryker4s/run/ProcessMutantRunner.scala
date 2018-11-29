@@ -48,14 +48,16 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
-    val runResults = for {
+    val mutantsWithPath = for {
       mutatedFile <- mutatedFiles
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
-      id = mutatedFiles.flatMap(_.mutants).toSeq.indexOf(mutant) + 1
-    } yield {
+    } yield (mutant, subPath)
+
+    val runResults = mutantsWithPath.zipWithIndex.map{ case ((mutant, subPath), index) =>
+      val id = index + 1
       val result = runMutant(mutant, tmpDir, subPath, id)
-      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      info(s"Finished mutation run id(${mutant.id}) $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
 
@@ -67,7 +69,7 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
   private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path, id: Int): MutantRunResult = {
     info(s"Starting test-run $id...")
-    process(command, workingDir, ("ACTIVE_MUTATION", (id - 1).toString)) match {
+    process(command, workingDir, ("ACTIVE_MUTATION", mutant.id.toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
