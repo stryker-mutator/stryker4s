@@ -65,6 +65,24 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
       "4 Mutant(s) generated" shouldBe loggedAsInfo
     }
+
+    it("should log the amount of excluded mutants") {
+      implicit val conf: Config = Config(excludedMutations = Exclusions(Set("BinaryOperator")))
+      val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
+        .collectFilesToMutate()
+
+      val sut = new Mutator(
+        new MutantFinder(new MutantMatcher),
+        new StatementTransformer,
+        new MatchBuilder
+      )
+
+      sut.mutate(files)
+
+      "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
+      "4 Mutant(s) generated" shouldBe loggedAsInfo
+      s"Of which 3 Mutant(s) are excluded." shouldBe loggedAsInfo
+    }
   }
 
   describe("string interpolation") {

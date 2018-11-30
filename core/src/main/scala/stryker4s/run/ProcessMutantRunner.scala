@@ -20,7 +20,8 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     with MutationScoreCalculator
     with Logging {
 
-  override def apply(mutatedFiles: Iterable[MutatedFile], fileCollector: SourceCollector): MutantRunResults = {
+  override def apply(mutatedFiles: Iterable[MutatedFile],
+                     fileCollector: SourceCollector): MutantRunResults = {
     val startTime = System.currentTimeMillis()
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
@@ -30,13 +31,13 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
     debug("Using temp directory: " + tmpDir)
 
-      files foreach { file =>
-        val subPath = file.relativePath
-        val filePath = tmpDir / subPath.toString
+    files foreach { file =>
+      val subPath = file.relativePath
+      val filePath = tmpDir / subPath.toString
 
-        filePath.createFileIfNotExists(createParents = true)
-        file.copyTo(filePath, overwrite = true)
-      }
+      filePath.createFileIfNotExists(createParents = true)
+      file.copyTo(filePath, overwrite = true)
+    }
 
     // Overwrite files to mutated files
     mutatedFiles foreach {
@@ -48,15 +49,13 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
 
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
-    val mutantsWithPath = for {
+    val runResults = for {
       mutatedFile <- mutatedFiles
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
-    } yield (mutant, subPath)
-
-    val runResults = mutantsWithPath.zipWithIndex.map{ case ((mutant, subPath), index) =>
-      val id = index + 1
-      val result = runMutant(mutant, tmpDir, subPath, id)
+    } yield {
+      val result = runMutant(mutant, tmpDir, subPath)
+      val id = mutant.id + 1
       info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
@@ -67,9 +66,10 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     MutantRunResults(runResults, calculateMutationScore(totalMutants, detected.size), duration)
   }
 
-  private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path, id: Int): MutantRunResult = {
-    info(s"Starting test-run $id...")
-    process(command, workingDir, ("ACTIVE_MUTATION", mutant.id.toString)) match {
+  private[this] def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
+    val id = mutant.id
+    info(s"Starting test-run ${id + 1}...")
+    process(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(exitCode) if exitCode == 0 => Survived(mutant, subPath)
       case Success(exitCode)                  => Killed(exitCode, mutant, subPath)
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)

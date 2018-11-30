@@ -1,22 +1,23 @@
 package stryker4s.mutants.findmutants
 
+import stryker4s.config.Config
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
 
 import scala.meta.{Term, Tree}
 
-class MutantMatcher {
+class MutantMatcher()(implicit config: Config) {
 
   private[this] val stream = Iterator.from(0)
 
-  def allMatchers(): PartialFunction[Tree, Seq[Mutant]] =
+  def allMatchers(): PartialFunction[Tree, Seq[Option[Mutant]]] =
     matchBinaryOperators() orElse
       matchBooleanSubstitutions() orElse
       matchLogicalOperators() orElse
       matchStringMutators() orElse
       matchMethodMutators()
 
-  def matchBinaryOperators(): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchBinaryOperators(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case GreaterThanEqualTo(orig) => orig ~~> (GreaterThan, LesserThan, EqualTo)
     case GreaterThan(orig)        => orig ~~> (GreaterThanEqualTo, LesserThan, EqualTo)
     case LesserThanEqualTo(orig)  => orig ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
@@ -25,23 +26,23 @@ class MutantMatcher {
     case NotEqualTo(orig)         => orig ~~> EqualTo
   }
 
-  def matchBooleanSubstitutions(): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchBooleanSubstitutions(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case True(orig)  => orig ~~> False
     case False(orig) => orig ~~> True
   }
 
-  def matchLogicalOperators(): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchLogicalOperators(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case And(orig) => orig ~~> Or
     case Or(orig)  => orig ~~> And
   }
 
-  def matchStringMutators(): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchStringMutators(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case EmptyString(orig)         => orig ~~> StrykerWasHereString
     case NonEmptyString(orig)      => orig ~~> EmptyString
     case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
   }
 
-  def matchMethodMutators(): PartialFunction[Tree, Seq[Mutant]] = {
+  def matchMethodMutators(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case Filter(orig, f)      => orig ~~> (FilterNot, f)
     case FilterNot(orig, f)   => orig ~~> (Filter, f)
     case Exists(orig, f)      => orig ~~> (ForAll, f)
@@ -59,14 +60,20 @@ class MutantMatcher {
   }
 
   implicit class TermExtensions(original: Term) {
-    def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Mutant] = {
+    def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] = {
       mutated.map(mutation => {
-        Mutant(stream.next, original, mutation.tree, mutation)
+        if (config.excludedMutations.exclusions.contains(mutation.mutationName))
+          None
+        else
+          Some(Mutant(stream.next, original, mutation.tree, mutation))
       })
     }
 
-    def ~~>(mutated: MethodMutator, f: String => Term): Seq[Mutant] = {
-        Mutant(stream.next, original, mutated.apply(f), mutated) :: Nil
+    def ~~>(mutated: MethodMutator, f: String => Term): Seq[Option[Mutant]] = {
+      if (config.excludedMutations.exclusions.contains(mutated.mutationName))
+        None :: Nil
+      else
+        Some(Mutant(stream.next, original, mutated.apply(f), mutated)) :: Nil
     }
   }
 
