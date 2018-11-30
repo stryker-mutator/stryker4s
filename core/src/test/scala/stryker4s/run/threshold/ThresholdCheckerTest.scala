@@ -13,9 +13,7 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
 
   describe("thresholds") {
     def interceptThresholdException(high: Int = 80, low: Int = 60, break: Int = 0): Unit = {
-      intercept[InvalidThresholdValueException] {
-        Thresholds(high, low, break)
-      }
+      an[InvalidThresholdValueException] should be thrownBy Thresholds(high, low, break)
     }
 
     it("should throw an exception when any value does not conform to 0-100") {
@@ -27,9 +25,8 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
       interceptThresholdException(break = -1)
     }
 
-    it("should throw an exception when 'high' is smaller than or equal to 'low'") {
+    it("should throw an exception when 'high' is smaller than 'low'") {
       interceptThresholdException(high = 70, low = 80)
-      interceptThresholdException(high = 70, low = 70)
     }
 
     it("should throw an exception when 'low' is smaller than or equal to 'break'") {
@@ -79,6 +76,18 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
       exitCode shouldBe 1
     }
 
+    it("should never return warningstatus when 'high' is equal to 'low'") {
+      implicit val config: Config = Config(thresholds = Thresholds(high = 85, low = 85))
+
+      val lowerScoreStatus = ThresholdChecker.getScoreStatus(84)
+      val equalScoreStatus = ThresholdChecker.getScoreStatus(85)
+      val higherScoreStatus = ThresholdChecker.getScoreStatus(86)
+
+      lowerScoreStatus shouldBe DangerStatus
+      equalScoreStatus shouldBe SuccessStatus
+      higherScoreStatus shouldBe SuccessStatus
+    }
+
     it("should return success status when score is equal to or greater than 'high' threshold") {
       implicit val config: Config = Config(thresholds = Thresholds(high = 85))
 
@@ -89,8 +98,7 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
       higherScoreStatus shouldBe SuccessStatus
     }
 
-    it(
-      "should return warning status when score is below 'high' and above or equal to 'low' threshold") {
+    it("should return warning status when score is below 'high' and above or equal to 'low' threshold") {
       implicit val config: Config = Config(thresholds = Thresholds(low = 70))
 
       val equalScoreStatus = ThresholdChecker.getScoreStatus(70)
@@ -100,8 +108,7 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
       higherScoreStatus shouldBe WarningStatus
     }
 
-    it(
-      "should return danger status when score is below 'low' and above or equal to 'break' threshold") {
+    it("should return danger status when score is below 'low' and above or equal to 'break' threshold") {
       implicit val config: Config = Config(thresholds = Thresholds(low = 20, break = 10))
 
       val equalScoreStatus = ThresholdChecker.getScoreStatus(10)

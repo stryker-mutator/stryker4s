@@ -3,8 +3,8 @@ import stryker4s.extensions.exceptions.InvalidThresholdValueException
 
 case class Thresholds(high: Int = 80, low: Int = 60, break: Int = 0){
   failIfNotPercentage(high, low, break)
-  if(high <= low)
-    throw InvalidThresholdValueException(s"'high'($high) must be greater than 'low'($low).")
+  if(high < low)
+    throw InvalidThresholdValueException(s"'high'($high) must be greater than or equal to 'low'($low).")
   if(low <= break)
     throw InvalidThresholdValueException(s"'low'($low) must be greater than 'break'($break).")
 
