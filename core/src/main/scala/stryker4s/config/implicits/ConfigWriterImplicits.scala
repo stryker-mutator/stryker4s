@@ -12,7 +12,8 @@ object ConfigWriterImplicits {
   private[config] implicit val fileWriter: ConfigWriter[File] = ConfigWriter[Path].contramap[File](_.path)
   private[config] implicit val logLevelWriter: ConfigWriter[Level] =
     ConfigWriter[String].contramap[Level](_.toString)
-  private[config] implicit val exclusionsWriter: ConfigWriter[Set[String]] = ConfigWriter[Set[String]]
+  private[config] implicit val exclusionsWriter: ConfigWriter[Set[String]] =
+    ConfigWriter[List[String]].contramap[Set[String]](_.toList)
 
   private[config] implicit val reportersWriter: ConfigWriter[List[MutantRunReporter]] = ConfigWriter[List[String]]
     .contramap(mutantRunReporters =>
