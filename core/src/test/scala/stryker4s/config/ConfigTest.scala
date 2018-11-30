@@ -2,7 +2,6 @@ package stryker4s.config
 
 import better.files.File
 import stryker4s.Stryker4sSuite
-import stryker4s.mutants.Exclusions
 
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {
@@ -35,7 +34,7 @@ class ConfigTest extends Stryker4sSuite {
       val sut = Config(filePaths,
                        File("tmp"),
                        testRunner = CommandRunner("mvn", "clean test"),
-                       excludedMutations = Exclusions(Set("BooleanSubstitution")))
+                       excludedMutations = Set("BooleanSubstitution"))
 
       val result = sut.toHoconString
 

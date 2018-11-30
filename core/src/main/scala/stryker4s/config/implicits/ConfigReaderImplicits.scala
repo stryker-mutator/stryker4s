@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
 import stryker4s.extensions.exceptions.InvalidExclusionsException
 import stryker4s.extensions.mutationtypes.Mutation
-import stryker4s.mutants.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 trait ConfigReaderImplicits extends Logging {
@@ -26,13 +25,11 @@ trait ConfigReaderImplicits extends Logging {
       case MutantRunReporter.`consoleReporter` => new ConsoleReporter
     })
 
-  private[config] implicit val exclusions: ConfigReader[Exclusions] =
-    ConfigReader[List[String]]
-      .map(errorOnInvalidExclusions)
-      .map(exclusions => Exclusions(exclusions.toSet))
+  private[config] implicit val exclusions: ConfigReader[Set[String]] =
+    ConfigReader[List[String]].map(errorOnInvalidExclusions).map(_.toSet)
 
-  private def errorOnInvalidExclusions(list: List[String]): List[String] = {
-    val (valid, invalid) = list.partition(Mutation.mutations.contains)
+  private def errorOnInvalidExclusions(exclusions: List[String]): List[String] = {
+    val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
     if (invalid.nonEmpty) throw InvalidExclusionsException(invalid)
 
     valid

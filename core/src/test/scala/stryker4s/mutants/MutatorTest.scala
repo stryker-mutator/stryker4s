@@ -67,7 +67,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
     }
 
     it("should log the amount of excluded mutants") {
-      implicit val conf: Config = Config(excludedMutations = Exclusions(Set("BinaryOperator")))
+      implicit val conf: Config = Config(excludedMutations = Set("BinaryOperator"))
       val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFilesToMutate()
 

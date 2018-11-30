@@ -62,7 +62,7 @@ class MutantMatcher()(implicit config: Config) {
   implicit class TermExtensions(original: Term) {
     def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] = {
       mutated.map(mutation => {
-        if (config.excludedMutations.exclusions.contains(mutation.mutationName))
+        if (config.excludedMutations.contains(mutation.mutationName))
           None
         else
           Some(Mutant(stream.next, original, mutation.tree, mutation))
@@ -70,7 +70,7 @@ class MutantMatcher()(implicit config: Config) {
     }
 
     def ~~>(mutated: MethodMutator, f: String => Term): Seq[Option[Mutant]] = {
-      if (config.excludedMutations.exclusions.contains(mutated.mutationName))
+      if (config.excludedMutations.contains(mutated.mutationName))
         None :: Nil
       else
         Some(Mutant(stream.next, original, mutated.apply(f), mutated)) :: Nil
