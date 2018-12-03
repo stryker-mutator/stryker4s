@@ -14,7 +14,7 @@ import stryker4s.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta._
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
 
@@ -27,7 +27,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), Seq())
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
       when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 
@@ -44,7 +44,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), Seq())
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
       when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 
@@ -62,7 +62,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), Seq())
+      val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
       when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 
@@ -81,7 +81,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val secondMutant = Mutant(1, q"1", q"one", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq())
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
 
       when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 
@@ -104,7 +104,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val thirdMutant = Mutant(2, q"5", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant, thirdMutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq())
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
 
       when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 
@@ -126,7 +126,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
         val mutant = Mutant(0, q"4", q"5", EmptyString)
         val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-        val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), Seq())
+        val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
         when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 
@@ -142,7 +142,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         val mutant0 = Mutant(0, q"4", q"5", EmptyString)
         val mutant1 = Mutant(1, q"4", q"5", EmptyString)
         val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-        val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant0, mutant1), Seq())
+        val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant0, mutant1), 0)
 
         when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
 

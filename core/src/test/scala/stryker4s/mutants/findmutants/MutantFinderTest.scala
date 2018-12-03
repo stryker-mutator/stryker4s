@@ -6,7 +6,6 @@ import better.files.File
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.extensions.FileExtensions._
-import stryker4s.mutants.Exclusions
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 
 import scala.meta._
@@ -88,13 +87,16 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
     }
 
     it("should filter out excluded mutants") {
-      val sut = new MutantFinder(new MutantMatcher)(config.copy(excludedMutations = Exclusions(Set("LogicalOperator"))))
+      val conf: Config = config.copy(excludedMutations = Set("LogicalOperator"))
+      val sut = new MutantFinder(new MutantMatcher()(conf))(conf)
       val source =
         source"""case class Bar(s: String) {
                     def and(a: Boolean, b: Boolean) = a && b
                   }"""
 
       val result = sut.findMutants(source)._1
+      val excluded = sut.findMutants(source)._2
+      excluded shouldBe 1
       result should have length 0
     }
   }

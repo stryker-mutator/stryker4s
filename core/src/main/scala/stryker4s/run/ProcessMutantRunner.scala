@@ -20,7 +20,8 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     with MutationScoreCalculator
     with Logging {
 
-  override def apply(mutatedFiles: Iterable[MutatedFile], fileCollector: SourceCollector): MutantRunResults = {
+  override def apply(mutatedFiles: Iterable[MutatedFile],
+                     fileCollector: SourceCollector): MutantRunResults = {
     val startTime = System.currentTimeMillis()
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
@@ -30,13 +31,13 @@ class ProcessMutantRunner(command: Command, process: ProcessRunner)(implicit con
     val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
     debug("Using temp directory: " + tmpDir)
 
-      files foreach { file =>
-        val subPath = file.relativePath
-        val filePath = tmpDir / subPath.toString
+    files foreach { file =>
+      val subPath = file.relativePath
+      val filePath = tmpDir / subPath.toString
 
-        filePath.createFileIfNotExists(createParents = true)
-        file.copyTo(filePath, overwrite = true)
-      }
+      filePath.createFileIfNotExists(createParents = true)
+      file.copyTo(filePath, overwrite = true)
+    }
 
     // Overwrite files to mutated files
     mutatedFiles foreach {
