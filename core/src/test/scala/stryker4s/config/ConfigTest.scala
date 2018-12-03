@@ -25,6 +25,11 @@ class ConfigTest extends Stryker4sSuite {
            |    command=sbt
            |    type=commandrunner
            |}
+           |thresholds {
+           |    break=0
+           |    high=80
+           |    low=60
+           |}
            |""".stripMargin
       result.toString should equal(expected.toString)
     }
@@ -55,6 +60,11 @@ class ConfigTest extends Stryker4sSuite {
            |    args="clean test"
            |    command=mvn
            |    type=commandrunner
+           |}
+           |thresholds {
+           |    break=0
+           |    high=80
+           |    low=60
            |}
            |""".stripMargin
       result.toString should equal(expected.toString)
