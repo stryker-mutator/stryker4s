@@ -8,6 +8,7 @@ import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner, ProcessRunner}
 import stryker4s.run.report.Reporter
+import stryker4s.run.threshold.ThresholdChecker
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 
@@ -35,10 +36,16 @@ class Stryker4sRunner extends Logging {
 
   }
 
-  def resolveRunner()(implicit config: Config): MutantRunner = {
+  private def resolveRunner()(implicit config: Config): MutantRunner = {
     config.testRunner match {
       case CommandRunner(command, args) =>
         new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner())
     }
+  }
+  val exitCode = stryker4s.run()
+  this.exit()
+
+  private def exit(): Unit ={
+    sys.exit(exitCode)
   }
 }
