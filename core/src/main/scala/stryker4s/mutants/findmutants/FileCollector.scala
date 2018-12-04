@@ -67,7 +67,6 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   private[this] def listAllFiles(): Option[Iterable[File]] = {
     Option(config.baseDir
       .listRecursively
-      .filterNot(file => file.isDirectory)
       .filterNot(file => file.pathAsString.contains(s"${pathSeparator}target$pathSeparator"))
       .toIterable)
   }
