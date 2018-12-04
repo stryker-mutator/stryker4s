@@ -154,7 +154,6 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get)
-      .filterNot(_.isInAnnotation)
       .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
       .toList
 

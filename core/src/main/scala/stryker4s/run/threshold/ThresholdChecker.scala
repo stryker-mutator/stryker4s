@@ -11,7 +11,6 @@ object ThresholdChecker {
       case _           => 0
     }
   }
-
   def getScoreStatus(mutationScore: Double)(implicit config: Config): ScoreStatus = {
     mutationScore match {
       case score if score < config.thresholds.break => ErrorStatus

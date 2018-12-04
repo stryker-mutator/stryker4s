@@ -2,7 +2,7 @@ package stryker4s.extensions
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.{Case, Defn, Lit, Mod, Term, Transformer, Tree}
+import scala.meta.{Case, Lit, Mod, Term, Transformer, Tree}
 import scala.util.Try
 
 object TreeExtensions {
@@ -82,7 +82,7 @@ object TreeExtensions {
     }
 
     /** Returns if a tree is contained in an annotation.
-      * Recursively going up the tree until a annotation is found.
+      * Recursively going up the tree until an annotation is found.
       */
     @tailrec
     final def isInAnnotation: Boolean = {
