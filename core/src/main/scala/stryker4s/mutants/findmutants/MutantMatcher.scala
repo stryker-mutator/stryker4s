@@ -1,5 +1,6 @@
 package stryker4s.mutants.findmutants
 
+import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
 import stryker4s.config.Config
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
@@ -60,7 +61,7 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   implicit class TermExtensions(original: Term) {
-    def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] = {
+    def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] = ifNotInAnnotation {
       mutated.map(mutation => {
         if (matchExcluded(mutation))
           None
@@ -68,11 +69,16 @@ class MutantMatcher()(implicit config: Config) {
           Some(Mutant(stream.next, original, mutation.tree, mutation))
       })
     }
-    def ~~>(mutated: MethodMutator, f: String => Term): Seq[Option[Mutant]] = {
+    def ~~>(mutated: MethodMutator, f: String => Term): Seq[Option[Mutant]] = ifNotInAnnotation {
       if (matchExcluded(mutated))
         None :: Nil
       else
         Some(Mutant(stream.next, original, mutated.apply(f), mutated)) :: Nil
+    }
+
+    private def ifNotInAnnotation(fun: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
+      if (original.isInAnnotation) Nil
+      else fun
     }
 
     private def matchExcluded(mutation: Mutation[_]): Boolean = {

@@ -2,8 +2,7 @@ package stryker4s.extensions
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.internal.trees.InternalTree
-import scala.meta.{Case, Defn, Lit, Mod, Source, Term, Transformer, Tree}
+import scala.meta.{Case, Defn, Lit, Mod, Term, Transformer, Tree}
 import scala.util.Try
 
 object TreeExtensions {
@@ -18,28 +17,6 @@ object TreeExtensions {
       case PartialStatement(parent)    => parent.topStatement()
       case LiteralPatternMatch(parent) => parent
       case _                           => thisTerm
-    }
-
-    /** Returns if a tree is contained in an annotation
-      * Recursively going up the tree until a annotation is found.
-      */
-    final def isInAnnotation: Boolean = {
-      @tailrec
-      def loop(tree: Tree): Boolean = {
-        tree.parent match {
-          case Some(value) =>
-            value match {
-              case _: Mod.Annot   => true
-              case _: Term.Param  => false
-              case _: Defn.Def    => false
-              case _: Defn.Class  => false
-              case _: Defn.Object => false
-              case _              => loop(value)
-            }
-          case _ => false
-        }
-      }
-      loop(thisTerm)
     }
 
     /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
@@ -102,6 +79,29 @@ object TreeExtensions {
     private class OnceTransformer(liftedFn: Tree => Option[Tree]) extends Transformer {
       override def apply(tree: Tree): Tree =
         liftedFn(tree).getOrElse(super.apply(tree))
+    }
+
+    /** Returns if a tree is contained in an annotation.
+      * Recursively going up the tree until a annotation is found.
+      * Once an element is found which could contain an annotation,
+      * we know we are not inside an annotation.
+      */
+    @tailrec
+    final def isInAnnotation: Boolean = {
+      thisTree.parent match {
+        case Some(value) =>
+          value match {
+            case _: Mod.Annot   => true
+            case _: Term.Param  => false
+            case _: Defn.Val    => false
+            case _: Defn.Var    => false
+            case _: Defn.Def    => false
+            case _: Defn.Class  => false
+            case _: Defn.Object => false
+            case value: Tree    => value.isInAnnotation
+          }
+        case _ => false
+      }
     }
   }
 }

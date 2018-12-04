@@ -8,7 +8,7 @@ import stryker4s.config.Config
 import stryker4s.extensions.FileExtensions._
 import stryker4s.extensions.score.MutationScoreCalculator
 import stryker4s.model._
-import stryker4s.mutants.findmutants.{SourceCollector}
+import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.concurrent.TimeoutException

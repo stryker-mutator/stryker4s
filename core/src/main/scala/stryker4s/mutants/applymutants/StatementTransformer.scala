@@ -23,10 +23,6 @@ class StatementTransformer {
     */
   def transformMutant(original: Term, registered: Seq[Mutant]): TransformedMutants = {
     val topStatement = original.topStatement()
-    println("? Original: " + original)
-
-    println("Inside annotation: " + (if(original.isInAnnotation()) "yes" else "no"))
-    println
 
     val transformedMutants = registered.map { mutant =>
       val newMutated = transformStatement(topStatement, mutant.original, mutant.mutated)
