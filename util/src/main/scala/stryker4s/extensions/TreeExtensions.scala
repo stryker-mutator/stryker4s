@@ -83,24 +83,13 @@ object TreeExtensions {
 
     /** Returns if a tree is contained in an annotation.
       * Recursively going up the tree until a annotation is found.
-      * Once an element is found which could contain an annotation,
-      * we know we are not inside an annotation.
       */
     @tailrec
     final def isInAnnotation: Boolean = {
       thisTree.parent match {
-        case Some(value) =>
-          value match {
-            case _: Mod.Annot   => true
-            case _: Term.Param  => false
-            case _: Defn.Val    => false
-            case _: Defn.Var    => false
-            case _: Defn.Def    => false
-            case _: Defn.Class  => false
-            case _: Defn.Object => false
-            case value: Tree    => value.isInAnnotation
-          }
-        case _ => false
+        case Some(_: Mod.Annot) => true
+        case Some(value: Tree)  => value.isInAnnotation
+        case _                  => false
       }
     }
   }

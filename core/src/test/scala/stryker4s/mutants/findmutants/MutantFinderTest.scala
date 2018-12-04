@@ -94,10 +94,35 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
                     def and(a: Boolean, b: Boolean) = a && b
                   }"""
 
-      val result = sut.findMutants(source)._1
-      val excluded = sut.findMutants(source)._2
+      val (result, excluded) = sut.findMutants(source)
       excluded shouldBe 1
       result should have length 0
+    }
+
+    it("should filter out string mutants inside annotations") {
+      val sut = new MutantFinder(new MutantMatcher)
+      val source =
+        source"""@Annotation("Class Annotation")
+                 case class Bar(
+                    @Annotation("Parameter Annotation") s: String = "s") {
+
+                    @Annotation("Function Annotation")
+                    def aFunction(@Annotation("Parameter Annotation 2") param: String = "s") = {
+                      "aFunction"
+                    }
+
+                    @Annotation("Val Annotation") val x = { val l = "x"; l }
+                    @Annotation("Var Annotation") var y = { val k = "y"; k }
+                  }
+                  @Annotation("Object Annotation")
+                  object Foo {
+                    val value = "value"
+                  }
+          """
+
+      val (result, excluded) = sut.findMutants(source)
+      excluded shouldBe 0
+      result should have length 6
     }
   }
 
