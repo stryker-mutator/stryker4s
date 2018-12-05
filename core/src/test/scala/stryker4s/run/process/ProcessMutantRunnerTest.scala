@@ -8,7 +8,6 @@ import stryker4s.config.Config
 import stryker4s.extensions.mutationtypes.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.ProcessMutantRunner
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.stubs.TestProcessRunner
 
@@ -53,7 +52,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
       val loneResult = result.results.loneElement
-      loneResult should equal(Killed(1, mutant, Paths.get("simpleFile.scala")))
+      loneResult should equal(Killed(mutant, Paths.get("simpleFile.scala")))
     }
 
     it("should return a TimedOut mutant on a TimedOut process") {
@@ -91,8 +90,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       result.mutationScore shouldBe 100.00
       result.results should contain only (
-        Killed(1, mutant, Paths.get("simpleFile.scala")),
-        Killed(1, secondMutant, Paths.get("simpleFile.scala"))
+        Killed(mutant, Paths.get("simpleFile.scala")),
+        Killed(secondMutant, Paths.get("simpleFile.scala"))
       )
     }
 
@@ -114,8 +113,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       result.mutationScore shouldBe 66.67
       result.results should contain only (
-        Killed(1, mutant, Paths.get("simpleFile.scala")),
-        Killed(1, secondMutant, Paths.get("simpleFile.scala")),
+        Killed(mutant, Paths.get("simpleFile.scala")),
+        Killed(secondMutant, Paths.get("simpleFile.scala")),
         Survived(thirdMutant, Paths.get("simpleFile.scala"))
       )
     }

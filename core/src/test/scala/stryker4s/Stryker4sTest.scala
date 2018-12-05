@@ -7,8 +7,7 @@ import stryker4s.model.{Killed, Mutant}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.run.ProcessMutantRunner
-import stryker4s.run.process.Command
+import stryker4s.run.process.{Command, ProcessMutantRunner}
 import stryker4s.scalatest.FileUtil
 import stryker4s.stubs.{TestProcessRunner, TestReporter, TestSourceCollector}
 
@@ -43,10 +42,10 @@ class Stryker4sTest extends Stryker4sSuite {
 
       exitCode shouldBe 0
       reportedResults should matchPattern {
-        case List(Killed(1, Mutant(0, _, _, _), `expectedPath`),
-                  Killed(1, Mutant(1, _, _, _), `expectedPath`),
-                  Killed(1, Mutant(2, _, _, _), `expectedPath`),
-                  Killed(1, Mutant(3, _, _, _), `expectedPath`)) =>
+        case List(Killed(Mutant(0, _, _, _), `expectedPath`),
+                  Killed(Mutant(1, _, _, _), `expectedPath`),
+                  Killed(Mutant(2, _, _, _), `expectedPath`),
+                  Killed(Mutant(3, _, _, _), `expectedPath`)) =>
       }
     }
   }
