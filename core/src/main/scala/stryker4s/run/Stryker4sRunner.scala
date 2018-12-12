@@ -8,19 +8,23 @@ import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner, ProcessRunner}
 import stryker4s.run.report.Reporter
-import stryker4s.run.threshold.ThresholdChecker
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 
 object Stryker4sRunner extends App {
-  new Stryker4sRunner().run()
+  val exitCode = new Stryker4sRunner().run()
+  exit()
+
+  private def exit(): Unit = {
+    sys.exit(exitCode)
+  }
 }
 
 class Stryker4sRunner extends Logging {
 
   implicit val config: Config = ConfigReader.readConfig()
 
-  def run(): Unit = {
+  def run(): Int = {
 
     // Scalameta uses a cache file->tokens that exists at a process level
     // if one file changes between runs (in the same process, eg a single SBT session) could lead to an error, so
@@ -33,19 +37,12 @@ class Stryker4sRunner extends Logging {
       resolveRunner(),
       new Reporter()
     ).run()
-
   }
 
-  private def resolveRunner()(implicit config: Config): MutantRunner = {
+  protected def resolveRunner()(implicit config: Config): MutantRunner = {
     config.testRunner match {
       case CommandRunner(command, args) =>
         new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner())
     }
-  }
-  val exitCode = stryker4s.run()
-  this.exit()
-
-  private def exit(): Unit ={
-    sys.exit(exitCode)
   }
 }
