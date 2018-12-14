@@ -8,6 +8,7 @@ import stryker4s.mutants.findmutants.MutantFinder
 
 import scala.meta.{Term, Tree}
 
+
 class Mutator(mutantFinder: MutantFinder,
               transformer: StatementTransformer,
               matchBuilder: MatchBuilder)
@@ -20,7 +21,7 @@ class Mutator(mutantFinder: MutantFinder,
         val transformed = transformStatements(mutationsInSource)
         val builtTree = buildMatches(transformed)
         val interpolatedFix = wrapInterpolations(builtTree)
-        MutatedFile(file, interpolatedFix, mutationsInSource.mutants, mutationsInSource.excluded)
+        MutatedFile(file.path, interpolatedFix, mutationsInSource.mutants, mutationsInSource.excluded)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)
 

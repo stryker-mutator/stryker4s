@@ -4,9 +4,9 @@ import java.nio.file.Paths
 import better.files._
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
-import stryker4s.extensions.FileExtensions._
+import stryker4s.extensions.PathExtensions._
 
-class FileExtensionsTest extends Stryker4sSuite {
+class PathExtensionsTest extends Stryker4sSuite {
   describe("relativePath") {
     implicit val config: Config = Config()
 
@@ -15,7 +15,7 @@ class FileExtensionsTest extends Stryker4sSuite {
         Paths.get("util/src/test/scala/stryker4s/extensions/FileExtensions.scala")
       val sut = File.currentWorkingDirectory / expectedRelativePath.toString
 
-      val result = sut.relativePath
+      val result = sut.path.relative
 
       result should equal(expectedRelativePath)
     }
@@ -24,7 +24,7 @@ class FileExtensionsTest extends Stryker4sSuite {
       val expectedRelativePath = Paths.get("build.sbt")
       val sut = File.currentWorkingDirectory / expectedRelativePath.toString
 
-      val result = sut.relativePath
+      val result = sut.path.relative
 
       result should equal(expectedRelativePath)
     }

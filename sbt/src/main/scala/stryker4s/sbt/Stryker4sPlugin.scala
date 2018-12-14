@@ -26,20 +26,24 @@ object Stryker4sPlugin extends AutoPlugin {
   )
 
   def stryker = Command.command("stryker") { currentState =>
-    // Force compile
-    Project.runTask(compile in Compile, currentState) match {
-      case None => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
-      case Some((newState, _)) => {
 
-        // Run Stryker
-        new Stryker4sSbtRunner(newState).run() // ignore exit code
+//    if(Project.extract(currentState).structure.allProjectRefs.size > 1){
+//      println("Stryker does not support multi-module projects yet! Please run stryker on a specific module instead")
+//      currentState
+//    } else {
 
-        // After running state doesn't change
-        newState
+      // Force compile
+      Project.runTask(compile in Compile, currentState) match {
+        case None => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
+        case Some((newState, _)) => {
+//          println("DONE")
+//
+//          new Stryker4sSbtRunner(newState).run()
 
-      }
+          // After running state doesn't change
+          newState
+        }
     }
-
   }
 
   // TODO: improve

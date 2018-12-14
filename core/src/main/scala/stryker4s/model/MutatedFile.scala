@@ -1,7 +1,7 @@
 package stryker4s.model
 
-import better.files.File
+import java.nio.file.Path
 
 import scala.meta.Tree
 
-case class MutatedFile(fileOrigin: File, tree: Tree, mutants: Seq[Mutant], excludedMutants: Int)
+case class MutatedFile(fileOriginPath: Path, tree: Tree, mutants: Seq[Mutant], excludedMutants: Int)
