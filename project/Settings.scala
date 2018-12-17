@@ -47,7 +47,9 @@ object Settings {
         organizationHomepage := Some(url("https://stryker-mutator.io/")),
         scalaVersion := Dependencies.versions.scala212,
         scalacOptions ++= Settings.scalacOpts,
-        coverageMinimum := 75
-      ))
+        coverageMinimum := 75,
+        fork := true
+    )
+    )
   }
 }

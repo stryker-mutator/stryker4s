@@ -13,33 +13,17 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
     extends MutantRunner(processRunner) {
 
   val extracted: Extracted = Project.extract(state)
-  var generatedState: State = null
-
-  var killed: Killed = null
 
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
-    if(generatedState == null) generatedState = extracted.appendWithoutSession(settings(workingDir, mutant.id), state)
+    val newState = extracted.appendWithSession(settings(workingDir, mutant.id), state)
 
-    if(generatedState == null) killed = Killed(mutant, subPath)
-
-//    sys.props.put("ACTIVE_MUTATION", String.valueOf(mutant.id))
-
-//    Project.runTask(test in Test, generatedState) match {
-//      case None =>
-//        throw new RuntimeException(
-//          s"An unexpected error occurred while running mutation ${mutant.id}")
-//      case Some((state, Value(_))) => {
-//        generatedState = state
-//        Survived(mutant, subPath)
-//      }
-//      case Some((state, Inc(_)))   => {
-//        println("Exiting...")
-//        generatedState = state
-//        Killed(mutant, subPath)
-//      }
-//    }
-    killed
-
+    Project.runTask(test in Test, newState) match {
+      case None =>
+        throw new RuntimeException(
+          s"An unexpected error occurred while running mutation ${mutant.id}")
+      case Some((_, Value(_))) => Survived(mutant, subPath)
+      case Some((_, Inc(_)))   => Killed(mutant, subPath)
+    }
   }
 
   private[this] def settings(tmpDir: File, mutation: Int): Seq[Def.Setting[_]] = {
@@ -61,9 +45,9 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
         )
     }
 
-    // Set active mutation
-    sys.props.put("ACTIVE_MUTATION", String.valueOf(mutation))
     Seq(
+      // Set active mutation
+      javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}",
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
     )
