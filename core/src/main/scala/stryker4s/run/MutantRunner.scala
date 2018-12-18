@@ -1,5 +1,5 @@
 package stryker4s.run
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 
 import better.files.File
 import grizzled.slf4j.Logging
@@ -10,7 +10,6 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.process.ProcessRunner
 
-import scala.annotation.tailrec
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
@@ -23,7 +22,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
             sourceCollector: SourceCollector): MutantRunResults = {
     val tmpDir = prepareEnv(mutatedFiles, sourceCollector)
 
-    val runResults = runMutantsRec(mutatedFiles, tmpDir)
+    val runResults = runMutants(mutatedFiles, tmpDir)
 
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
@@ -64,42 +63,8 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     tmpDir
   }
 
-  private def runMutantsRec(mutatedFiles: Iterable[MutatedFile], tmpDir: File): Iterable[MutantRunResult] = {
-    val totalMutants = mutatedFiles.flatMap(_.mutants).size
-
-    @tailrec
-    def mutateNext(mutatedFilesIterator: Iterable[MutatedFile], runResultList: List[MutantRunResult]): Iterable[MutantRunResult] ={
-      mutatedFilesIterator match {
-        case Nil => runResultList
-        case mutatedFile :: tail => {
-          val subPath = mutatedFile.fileOriginPath.relative
-
-          @tailrec
-          def runNextMutant(mutantIterator: Seq[Mutant], mutantResultList: List[MutantRunResult]): List[MutantRunResult] = {
-            mutantIterator match {
-              case Nil => mutantResultList
-              case mutant :: (tail: List[Mutant]) => {
-                val result = runMutant(mutant, tmpDir, subPath)
-                val id = mutant.id + 1
-                info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
-
-                runNextMutant(tail, result :: mutantResultList)
-              }
-            }
-          }
-
-          val newResults = runNextMutant(mutatedFile.mutants, List[MutantRunResult]())
-          val newList = newResults ++ runResultList
-          mutateNext(tail, newList)
-        }
-      }
-    }
-    mutateNext(mutatedFiles, List[MutantRunResult]())
-  }
-
   private def runMutants(mutatedFiles: Iterable[MutatedFile],
                          tmpDir: File): Iterable[MutantRunResult] = {
-    // TODO: Decide if we want this or the tailrec function above
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     for {

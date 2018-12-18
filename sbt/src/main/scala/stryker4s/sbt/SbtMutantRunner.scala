@@ -44,6 +44,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
           extracted.get(Test / baseDirectory).absolutePath
         )
     }
+
     SbtStateSettings.noLoggingSettings ++ Seq(
       // Set active mutation
       javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}",

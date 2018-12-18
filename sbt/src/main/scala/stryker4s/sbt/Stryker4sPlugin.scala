@@ -2,7 +2,6 @@ package stryker4s.sbt
 
 import sbt.Keys._
 import sbt._
-import sbt.internal.util.ManagedLogger
 import sbt.plugins._
 
 /**
@@ -44,7 +43,7 @@ object Stryker4sPlugin extends AutoPlugin {
             newState.log.error("Initial test run failed! Please make sure all your tests pass before running stryker.")
             newState
           case Some((newState, Value(_))) =>
-            newState.log.info("Initial test run succeeded, starting Stryker...")
+            newState.log.info("Initial test run succeeded! Starting Stryker...")
             new Stryker4sSbtRunner(newState).run()
             // After running state doesn't change
             newState
