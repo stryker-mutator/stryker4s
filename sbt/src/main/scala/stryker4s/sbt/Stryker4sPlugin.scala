@@ -2,6 +2,7 @@ package stryker4s.sbt
 
 import sbt.Keys._
 import sbt._
+import sbt.internal.LogManager
 import sbt.plugins._
 
 /**
@@ -28,15 +29,19 @@ object Stryker4sPlugin extends AutoPlugin {
   def stryker = Command.command("stryker") { currentState =>
     // Force compile
     Project.runTask(compile in Compile, currentState) match {
-      case None => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
+      case None                    => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
       case Some((afterCompile, _)) =>
         // Initial test run
-        Project.runTask(test in Test, afterCompile) match {
+        val testRunState = Project
+          .extract(afterCompile)
+          .appendWithoutSession(SbtStateSettings.noLoggingSettings, afterCompile)
+
+        Project.runTask(test in Test, testRunState) match {
           case None =>
             throw new RuntimeException(s"An unexpected error occurred while running Stryker")
           case Some((_, Inc(_))) =>
             throw new RuntimeException(
-              s"Initial test run failed! Please make all your tests pass before running stryker.")
+              s"Initial test run failed! Please make sure all your tests pass before running stryker.")
           case Some((newState, Value(_))) =>
             new Stryker4sSbtRunner(newState).run()
             // After running state doesn't change

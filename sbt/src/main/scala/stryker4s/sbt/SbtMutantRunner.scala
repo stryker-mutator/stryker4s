@@ -15,14 +15,14 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
   val extracted: Extracted = Project.extract(state)
 
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
-    val newState = extracted.appendWithSession(settings(workingDir, mutant.id), state)
+    val newState = extracted.appendWithoutSession(settings(workingDir, mutant.id), state)
 
     Project.runTask(test in Test, newState) match {
       case None =>
         throw new RuntimeException(
           s"An unexpected error occurred while running mutation ${mutant.id}")
-      case Some((_, Value(_))) => Survived(mutant, subPath)
-      case Some((_, Inc(_)))   => Killed(mutant, subPath)
+      case Some((_, Value(_))) => newState.exit(true); Survived(mutant, subPath)
+      case Some((_, Inc(_)))   => newState.exit(true); Killed(mutant, subPath)
     }
   }
 
@@ -44,10 +44,10 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
           extracted.get(Test / baseDirectory).absolutePath
         )
     }
-
-    Seq(
+    SbtStateSettings.noLoggingSettings ++ Seq(
       // Set active mutation
       javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}",
+
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
     )
