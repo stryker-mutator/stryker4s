@@ -2,7 +2,7 @@ package stryker4s.sbt
 
 import sbt.Keys._
 import sbt._
-import sbt.internal.LogManager
+import sbt.internal.util.ManagedLogger
 import sbt.plugins._
 
 /**
@@ -35,6 +35,7 @@ object Stryker4sPlugin extends AutoPlugin {
         val testRunState = Project
           .extract(afterCompile)
           .appendWithoutSession(SbtStateSettings.noLoggingSettings, afterCompile)
+        currentState.log.info("Starting initial test run...")
 
         Project.runTask(test in Test, testRunState) match {
           case None =>
@@ -43,6 +44,7 @@ object Stryker4sPlugin extends AutoPlugin {
             throw new RuntimeException(
               s"Initial test run failed! Please make sure all your tests pass before running stryker.")
           case Some((newState, Value(_))) =>
+            newState.log.info("Initial test run succeeded, starting Stryker...")
             new Stryker4sSbtRunner(newState).run()
             // After running state doesn't change
             newState
