@@ -40,9 +40,9 @@ object Stryker4sPlugin extends AutoPlugin {
         Project.runTask(test in Test, testRunState) match {
           case None =>
             throw new RuntimeException(s"An unexpected error occurred while running Stryker")
-          case Some((_, Inc(_))) =>
-            throw new RuntimeException(
-              s"Initial test run failed! Please make sure all your tests pass before running stryker.")
+          case Some((newState, Inc(_))) =>
+            newState.log.error("Initial test run failed! Please make sure all your tests pass before running stryker.")
+            newState
           case Some((newState, Value(_))) =>
             newState.log.info("Initial test run succeeded, starting Stryker...")
             new Stryker4sSbtRunner(newState).run()
