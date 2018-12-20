@@ -7,7 +7,7 @@ import scala.util.Try
 
 object TreeExtensions {
 
-  implicit class ImplicitTermExtensions(thisTerm: Term) {
+  implicit class TopStatementExtension(thisTerm: Term) {
 
     /** Returns the statement this tree is part of.
       * Recursively going up the tree until a full statement is found.
@@ -48,10 +48,9 @@ object TreeExtensions {
         case _ => None
       }
     }
-
   }
 
-  implicit class ImplicitTreeExtensions(thisTree: Tree) {
+  implicit class FindExtension(thisTree: Tree) {
 
     /** Searches for the given statement in the tree
       *
@@ -63,6 +62,9 @@ object TreeExtensions {
       // The cast is done so the return type of this function is the same as the `toFind` parameter
       case found: Tree if found.isEqual(toFind) => found.asInstanceOf[T]
     }
+  }
+
+  implicit class TransformOnceExtension(thisTree: Tree) {
 
     /** The normal <code>Tree#transform</code> recursively transforms the tree each time a transformation is applied
       * This causes a StackOverflowError when the transformation that is searched for is also present in the newly transformed tree. <br>
@@ -80,6 +82,9 @@ object TreeExtensions {
       override def apply(tree: Tree): Tree =
         liftedFn(tree).getOrElse(super.apply(tree))
     }
+  }
+
+  implicit class IsInAnnotationExtensions(thisTree: Tree) {
 
     /** Returns if a tree is contained in an annotation.
       * Recursively going up the tree until an annotation is found.

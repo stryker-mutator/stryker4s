@@ -1,7 +1,7 @@
 package stryker4s.mutants.applymutants
 
 import grizzled.slf4j.Logging
-import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
+import stryker4s.extensions.TreeExtensions.TransformOnceExtension
 import stryker4s.extensions.exceptions.UnableToBuildPatternMatchException
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 

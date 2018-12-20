@@ -1,6 +1,6 @@
 package stryker4s.mutants.findmutants
 
-import stryker4s.extensions.TreeExtensions.ImplicitTreeExtensions
+import stryker4s.extensions.TreeExtensions.IsInAnnotationExtensions
 import stryker4s.config.Config
 import stryker4s.extensions.mutationtypes._
 import stryker4s.model.Mutant
@@ -11,14 +11,19 @@ class MutantMatcher()(implicit config: Config) {
 
   private[this] val stream = Iterator.from(0)
 
-  def allMatchers(): PartialFunction[Tree, Seq[Option[Mutant]]] =
-    matchEqualityOperator() orElse
-      matchBooleanLiteral() orElse
-      matchLogicalOperator() orElse
-      matchStringLiteral() orElse
-      matchMethodExpression()
+  def allMatchers: PartialFunction[Tree, Seq[Option[Mutant]]] =
+    matchBooleanLiteral orElse
+      matchEqualityOperator orElse
+      matchLogicalOperator orElse
+      matchMethodExpression orElse
+      matchStringLiteral
 
-  def matchEqualityOperator(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
+  def matchBooleanLiteral: PartialFunction[Tree, Seq[Option[Mutant]]] = {
+    case True(orig)  => orig ~~> False
+    case False(orig) => orig ~~> True
+  }
+
+  def matchEqualityOperator: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case GreaterThanEqualTo(orig) => orig ~~> (GreaterThan, LesserThan, EqualTo)
     case GreaterThan(orig)        => orig ~~> (GreaterThanEqualTo, LesserThan, EqualTo)
     case LesserThanEqualTo(orig)  => orig ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
@@ -27,23 +32,12 @@ class MutantMatcher()(implicit config: Config) {
     case NotEqualTo(orig)         => orig ~~> EqualTo
   }
 
-  def matchBooleanLiteral(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
-    case True(orig)  => orig ~~> False
-    case False(orig) => orig ~~> True
-  }
-
-  def matchLogicalOperator(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
+  def matchLogicalOperator: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case And(orig) => orig ~~> Or
     case Or(orig)  => orig ~~> And
   }
 
-  def matchStringLiteral(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
-    case EmptyString(orig)         => orig ~~> StrykerWasHereString
-    case NonEmptyString(orig)      => orig ~~> EmptyString
-    case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
-  }
-
-  def matchMethodExpression(): PartialFunction[Tree, Seq[Option[Mutant]]] = {
+  def matchMethodExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case Filter(orig, f)      => orig ~~> (FilterNot, f)
     case FilterNot(orig, f)   => orig ~~> (Filter, f)
     case Exists(orig, f)      => orig ~~> (ForAll, f)
@@ -60,30 +54,35 @@ class MutantMatcher()(implicit config: Config) {
     case MinBy(orig, f)       => orig ~~> (MaxBy, f)
   }
 
+  def matchStringLiteral: PartialFunction[Tree, Seq[Option[Mutant]]] = {
+    case EmptyString(orig)         => orig ~~> StrykerWasHereString
+    case NonEmptyString(orig)      => orig ~~> EmptyString
+    case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
+  }
+
   implicit class TermExtensions(original: Term) {
     def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] = ifNotInAnnotation {
-      mutated.map(mutation => {
-        if (matchExcluded(mutation))
-          None
-        else
-          Some(Mutant(stream.next, original, mutation.tree, mutation))
-      })
+      mutated map { mutation =>
+    if (matchExcluded(mutation))
+      None
+    else
+      Some(Mutant(stream.next, original, mutation.tree, mutation))
+  }
     }
     def ~~>(mutated: MethodExpression, f: String => Term): Seq[Option[Mutant]] = ifNotInAnnotation {
       if (matchExcluded(mutated))
         None :: Nil
       else
-        Some(Mutant(stream.next, original, mutated.apply(f), mutated)) :: Nil
+        Some(Mutant(stream.next, original, mutated(f), mutated)) :: Nil
     }
 
-    private def ifNotInAnnotation(fun: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
+    private def ifNotInAnnotation(maybeMutants: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
       if (original.isInAnnotation) Nil
-      else fun
+      else maybeMutants
     }
 
     private def matchExcluded(mutation: Mutation[_]): Boolean = {
       config.excludedMutations.contains(mutation.mutationName)
     }
   }
-
 }

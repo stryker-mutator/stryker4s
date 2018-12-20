@@ -1,6 +1,5 @@
 package stryker4s.extensions.mutationtypes
 
-import scala.meta.Term.{Apply, ApplyInfix, Block, Function, Name, Select}
 import scala.meta.contrib._
 import scala.meta.{Lit, Term, Tree}
 
@@ -11,7 +10,7 @@ sealed trait Mutation[T <: Tree] {
   val mutationName: String
 }
 
-object Mutation{
+object Mutation {
   // List of mutations
   val mutations: List[String] = List[String](
     classOf[EqualityOperator].getSimpleName,
@@ -42,21 +41,21 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
       }
 }
 
-trait EqualityOperator extends SubstitutionMutation[Term.Name]{
+trait EqualityOperator extends SubstitutionMutation[Term.Name] {
   override val mutationName: String = classOf[EqualityOperator].getSimpleName
 }
 
-trait BooleanLiteral extends SubstitutionMutation[Lit.Boolean]{
+trait BooleanLiteral extends SubstitutionMutation[Lit.Boolean] {
   override val mutationName: String = classOf[BooleanLiteral].getSimpleName
 }
 
-trait LogicalOperator extends SubstitutionMutation[Term.Name]{
+trait LogicalOperator extends SubstitutionMutation[Term.Name] {
   override val mutationName: String = classOf[LogicalOperator].getSimpleName
 }
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringLiteral[T <: Term] extends SubstitutionMutation[T]{
+trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
   override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
 }
 
@@ -64,6 +63,7 @@ trait StringLiteral[T <: Term] extends SubstitutionMutation[T]{
   * Base trait for method mutation
   */
 trait MethodExpression extends Mutation[Term] {
+
   /**
     * Method to be replaced or to replace
     */
@@ -76,4 +76,3 @@ trait MethodExpression extends Mutation[Term] {
   def unapply(term: Term): Option[(Term, String => Term)]
 
 }
-
