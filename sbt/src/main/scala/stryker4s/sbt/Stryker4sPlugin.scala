@@ -1,8 +1,9 @@
 package stryker4s.sbt
 
 import sbt.Keys._
-import sbt._
 import sbt.plugins._
+import sbt.{Def, _}
+import stryker4s.run.threshold.ErrorStatus
 
 /**
   * This plugin adds a new command (stryker) to the project that allow you to run stryker mutation over your code
@@ -12,46 +13,27 @@ object Stryker4sPlugin extends AutoPlugin {
   override def requires = JvmPlugin
   override def trigger = allRequirements
 
-  object autoImport {
-
-    // Settings
-    val strykerMutate = settingKey[Seq[String]]("Subset of files to use for mutation testing")
-    val strykerLogLevel = settingKey[String]("Logging level")
-    val strykerReporters = settingKey[Seq[String]]("Reporters for stryker4s to use")
-
-  }
+  object autoImport {}
 
   lazy val strykerDefaultSettings: Seq[Def.Setting[_]] = Seq(
     commands += stryker
   )
 
-  def stryker = Command.command("stryker") { currentState =>
+  def stryker: Command = Command.command("stryker") { currentState =>
     // Force compile
     Project.runTask(compile in Compile, currentState) match {
-      case None                    => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
-      case Some((afterCompile, _)) =>
-        // Initial test run
-        val testRunState = Project
-          .extract(afterCompile)
-          .appendWithoutSession(SbtStateSettings.noLoggingSettings, afterCompile)
-        currentState.log.info("Starting initial test run...")
+      case None                => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
+      case Some((newState, _)) =>
+        // Run Stryker
+        val result = new Stryker4sSbtRunner(newState).run()
 
-        Project.runTask(test in Test, testRunState) match {
-          case None =>
-            throw new RuntimeException(s"An unexpected error occurred while running Stryker")
-          case Some((newState, Inc(_))) =>
-            newState.log.error("Initial test run failed! Please make sure all your tests pass before running stryker.")
-            newState
-          case Some((newState, Value(_))) =>
-            newState.log.info("Initial test run succeeded! Starting Stryker...")
-            new Stryker4sSbtRunner(newState).run()
-            // After running state doesn't change
-            newState
+        result match {
+          case ErrorStatus => newState.fail
+          case _           => newState
         }
     }
   }
 
-  // TODO: improve
-  override lazy val projectSettings = strykerDefaultSettings
+  override lazy val projectSettings: Seq[Def.Setting[_]] = strykerDefaultSettings
 
 }
