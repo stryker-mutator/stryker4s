@@ -5,7 +5,7 @@ import java.nio.file.NoSuchFileException
 import better.files.File
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
-import stryker4s.extensions.PathExtensions._
+import stryker4s.extensions.FileExtensions._
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 
 import scala.meta._
@@ -152,7 +152,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       a[ParseException] should be thrownBy sut.parseFile(noFile)
 
-      s"Error while parsing file '${noFile.path.relative}', expected class or object definition" should be(
+      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(
         loggedAsError)
     }
   }

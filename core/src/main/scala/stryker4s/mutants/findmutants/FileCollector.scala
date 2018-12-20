@@ -3,7 +3,7 @@ package stryker4s.mutants.findmutants
 import better.files._
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
-import stryker4s.extensions.PathExtensions.RelativePathExtension
+import stryker4s.extensions.FileExtensions.RelativePathExtension
 import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.util.{Failure, Success}
@@ -91,7 +91,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * Is the file in the target folder, and thus should not be copied over
     */
   private[this] def isTarget(file: File): Boolean = {
-    val pathString = file.path.relative.toString
+    val pathString = file.relativePath.toString
 
     (file.isDirectory && pathString == "target") ||
     pathString.startsWith(s"target$pathSeparator") ||

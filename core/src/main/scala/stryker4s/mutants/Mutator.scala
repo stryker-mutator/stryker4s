@@ -21,7 +21,7 @@ class Mutator(mutantFinder: MutantFinder,
         val transformed = transformStatements(mutationsInSource)
         val builtTree = buildMatches(transformed)
         val interpolatedFix = wrapInterpolations(builtTree)
-        MutatedFile(file.path, interpolatedFix, mutationsInSource.mutants, mutationsInSource.excluded)
+        MutatedFile(file, interpolatedFix, mutationsInSource.mutants, mutationsInSource.excluded)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)
 
