@@ -2,7 +2,7 @@ package stryker4s.extensions
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.{Case, Lit, Term, Transformer, Tree}
+import scala.meta.{Case, Lit, Mod, Term, Transformer, Tree}
 import scala.util.Try
 
 object TreeExtensions {
@@ -79,6 +79,18 @@ object TreeExtensions {
     private class OnceTransformer(liftedFn: Tree => Option[Tree]) extends Transformer {
       override def apply(tree: Tree): Tree =
         liftedFn(tree).getOrElse(super.apply(tree))
+    }
+
+    /** Returns if a tree is contained in an annotation.
+      * Recursively going up the tree until an annotation is found.
+      */
+    @tailrec
+    final def isInAnnotation: Boolean = {
+      thisTree.parent match {
+        case Some(_: Mod.Annot) => true
+        case Some(value: Tree)  => value.isInAnnotation
+        case _                  => false
+      }
     }
   }
 }

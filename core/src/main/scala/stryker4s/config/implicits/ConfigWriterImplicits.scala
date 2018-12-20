@@ -5,21 +5,20 @@ import better.files.File
 import com.typesafe.config.ConfigRenderOptions
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
-import stryker4s.mutants.Exclusions
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 object ConfigWriterImplicits {
 
-  private[config] implicit lazy val fileWriter: ConfigWriter[File] =
+  private[config] implicit val fileWriter: ConfigWriter[File] =
     ConfigWriter[Path] contramap (_.path)
 
-  private[config] implicit lazy val logLevelWriter: ConfigWriter[Level] =
+  private[config] implicit val logLevelWriter: ConfigWriter[Level] =
     ConfigWriter[String] contramap (_.toString)
 
-  private[config] implicit lazy val exclusionsWriter: ConfigWriter[Exclusions] =
-    ConfigWriter[List[String]] contramap (_.exclusions.toList)
+  private[config] implicit val exclusionsWriter: ConfigWriter[Set[String]] =
+    ConfigWriter[List[String]] contramap (_.toList)
 
-  private[config] implicit lazy val reportersWriter: ConfigWriter[MutantRunReporter] =
+  private[config] implicit val reportersWriter: ConfigWriter[MutantRunReporter] =
     ConfigWriter[String] contramap {
       case _: ConsoleReporter => MutantRunReporter.consoleReporter
     }
