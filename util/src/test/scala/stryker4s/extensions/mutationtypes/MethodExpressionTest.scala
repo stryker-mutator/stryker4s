@@ -5,7 +5,7 @@ import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
 
-class MethodMutatorTest extends Stryker4sSuite with TreeEquality {
+class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
 
   describe("OneArgMethodMutator") {
 
