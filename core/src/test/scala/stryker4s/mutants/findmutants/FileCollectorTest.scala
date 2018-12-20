@@ -228,7 +228,6 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
 
       val results = sut.filesToCopy(processRunnerMock)
 
-      // Is always 0 because there is target in the folder path for tests.
       results should have size 3
       results should contain theSameElementsAs expectedFileList
     }

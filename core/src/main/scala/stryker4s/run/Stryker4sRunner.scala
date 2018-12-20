@@ -13,9 +13,7 @@ import stryker4s.run.threshold.{ErrorStatus, ScoreStatus}
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 
 object Stryker4sRunner extends App {
-  val stryker4s = new Stryker4sRunner()
-
-  val result = stryker4s.run()
+  val result = new Stryker4sRunner().run()
 
   val exitCode = result match {
     case ErrorStatus => 1
