@@ -22,4 +22,12 @@ class ProcessMutantRunner(command: Command, processRunner: ProcessRunner)(implic
       case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
     }
   }
+
+  override def runInitialTest(workingDir: File): Boolean = {
+    processRunner(command, workingDir, ("ACTIVE_MUTATION", "None")) match {
+      case Success(0)                         => true
+      case Success(exitCode) if exitCode != 0 => false
+      case Failure(exc: TimeoutException)     => false
+    }
+  }
 }

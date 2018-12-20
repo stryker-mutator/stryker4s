@@ -5,7 +5,7 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 import stryker4s.run.report.Reporter
-import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
+import stryker4s.run.threshold.{ErrorStatus, ScoreStatus, ThresholdChecker}
 
 class Stryker4s(fileCollector: SourceCollector,
                 mutator: Mutator,

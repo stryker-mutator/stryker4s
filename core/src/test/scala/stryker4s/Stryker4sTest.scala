@@ -22,7 +22,7 @@ class Stryker4sTest extends Stryker4sSuite {
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val testFiles = Seq(file)
       val testSourceCollector = new TestSourceCollector(testFiles)
-      val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
+      val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val testReporter = new TestReporter
 
@@ -41,7 +41,7 @@ class Stryker4sTest extends Stryker4sSuite {
 
       val expectedPath = Paths.get("simpleFile.scala")
 
-      result shouldBe SuccessStatus
+      result shouldBe null
       reportedResults should matchPattern {
         case List(Killed(Mutant(0, _, _, _), `expectedPath`),
                   Killed(Mutant(1, _, _, _), `expectedPath`),

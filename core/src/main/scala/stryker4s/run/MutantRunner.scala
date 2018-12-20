@@ -5,6 +5,7 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extensions.FileExtensions._
+import stryker4s.extensions.exceptions.InitialTestRunFailedException
 import stryker4s.extensions.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
@@ -18,9 +19,15 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
 
   private val startTime = System.currentTimeMillis()
 
-  def apply(mutatedFiles: Iterable[MutatedFile],
-            sourceCollector: SourceCollector): MutantRunResults = {
+  def apply(mutatedFiles: Iterable[MutatedFile], sourceCollector: SourceCollector): MutantRunResults = {
     val tmpDir = prepareEnv(mutatedFiles, sourceCollector)
+
+    info("Starting initial test run...")
+    if(!runInitialTest(tmpDir)) {
+      throw InitialTestRunFailedException(
+        "Initial test run failed. Please make sure your tests pass before running Stryker4s.")
+    }
+    info("Initial test run succeeded! Testing mutants...")
 
     val runResults = runMutants(mutatedFiles, tmpDir)
 
@@ -80,5 +87,6 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
   }
 
   def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult
+  def runInitialTest(workingDir: File): Boolean
 
 }

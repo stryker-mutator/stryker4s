@@ -1,23 +1,22 @@
 package stryker4s.sbt
-import java.io.{BufferedOutputStream, PrintStream}
 
-import sbt.{ConsoleOut, CustomOutput, ForkOptions}
-import sbt.Keys.{fork, forkOptions, logManager}
+import grizzled.slf4j.Logging
+import sbt.Keys.fork
 import sbt._
-import sbt.internal.LogManager
 
-object SbtStateSettings {
+object SbtStateSettings extends Logging {
 
   /**
     *  Include these settings to prevent all test logging
     */
-  val noLoggingSettings = Seq(
+  def noLoggingSettings(envVars : scala.collection.immutable.Map[_root_.scala.Predef.String, _root_.scala.Predef.String] = Map()) = Seq(
     fork in Test := true,
-    forkOptions in Test := ForkOptions().withOutputStrategy(Some(CustomOutput(
-      new BufferedOutputStream((_: Int) => {}) // Empty stream
-    ))),
-    logManager in Test := LogManager.defaultManager(ConsoleOut.printStreamOut(
-      new PrintStream((_: Int) => {}) // Empty stream
-    ))
+//    forkOptions in Test := {
+//      ForkOptions().withEnvVars(envVars).withOutputStrategy(Some(CustomOutput(
+//        new BufferedOutputStream((_: Int) => {}))))
+//    },
+//    logManager in Test := LogManager.defaultManager(ConsoleOut.printWriterOut(
+//      new PrintWriter((_: Int) => {}) // Empty stream
+//    ))
   )
 }
