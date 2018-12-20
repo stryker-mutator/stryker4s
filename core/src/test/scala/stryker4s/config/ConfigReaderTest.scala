@@ -86,15 +86,15 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
     }
 
-    ignore("Ignored due to transitive dependency clash in sbt") {
-//    it("should log warnings when no config file is found") {
+    it("should log warnings when no config file is found") {
       val confPath = File("nonExistentFile.conf")
 
       val sut = ConfigReader.readConfig(confPath)
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-//      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+      // Ignored due to transitive dependency clash in sbt
+      // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
   }
 }

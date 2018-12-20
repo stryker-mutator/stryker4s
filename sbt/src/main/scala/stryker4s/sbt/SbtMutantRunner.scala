@@ -21,8 +21,8 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
       case None =>
         throw new RuntimeException(
           s"An unexpected error occurred while running mutation ${mutant.id}")
-      case Some((_, Value(_))) => newState.exit(true); Survived(mutant, subPath)
-      case Some((_, Inc(_)))   => newState.exit(true); Killed(mutant, subPath)
+      case Some((_, Value(_))) => Survived(mutant, subPath)
+      case Some((_, Inc(_)))   => Killed(mutant, subPath)
     }
   }
 
@@ -45,10 +45,10 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
         )
     }
 
-    SbtStateSettings.noLoggingSettings ++ Seq(
+    Seq(
+      fork in Test := true,
       // Set active mutation
-      javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}",
-
+      javaOptions in Test += s"-DACTIVE_MUTATION=$mutation",
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
     )
