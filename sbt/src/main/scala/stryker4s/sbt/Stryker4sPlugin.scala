@@ -1,8 +1,8 @@
 package stryker4s.sbt
 
 import sbt.Keys._
-import sbt._
 import sbt.plugins._
+import sbt.{Def, _}
 import stryker4s.run.threshold.ErrorStatus
 
 /**
@@ -13,14 +13,7 @@ object Stryker4sPlugin extends AutoPlugin {
   override def requires = JvmPlugin
   override def trigger = allRequirements
 
-  object autoImport {
-
-    // Settings
-    val strykerMutate = settingKey[Seq[String]]("Subset of files to use for mutation testing")
-    val strykerLogLevel = settingKey[String]("Logging level")
-    val strykerReporters = settingKey[Seq[String]]("Reporters for stryker4s to use")
-
-  }
+  object autoImport {}
 
   lazy val strykerDefaultSettings: Seq[Def.Setting[_]] = Seq(
     commands += stryker
@@ -29,7 +22,7 @@ object Stryker4sPlugin extends AutoPlugin {
   def stryker: Command = Command.command("stryker") { currentState =>
     // Force compile
     Project.runTask(compile in Compile, currentState) match {
-      case None => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
+      case None                => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
       case Some((newState, _)) =>
         // Run Stryker
         val result = new Stryker4sSbtRunner(newState).run()
@@ -41,7 +34,6 @@ object Stryker4sPlugin extends AutoPlugin {
     }
   }
 
-  // TODO: improve
-  override lazy val projectSettings = strykerDefaultSettings
+  override lazy val projectSettings: Seq[Def.Setting[_]] = strykerDefaultSettings
 
 }
