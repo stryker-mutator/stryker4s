@@ -13,7 +13,7 @@ import stryker4s.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
 

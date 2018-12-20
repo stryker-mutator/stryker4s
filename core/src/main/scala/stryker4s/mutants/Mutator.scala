@@ -8,6 +8,7 @@ import stryker4s.mutants.findmutants.MutantFinder
 
 import scala.meta.{Term, Tree}
 
+
 class Mutator(mutantFinder: MutantFinder,
               transformer: StatementTransformer,
               matchBuilder: MatchBuilder)

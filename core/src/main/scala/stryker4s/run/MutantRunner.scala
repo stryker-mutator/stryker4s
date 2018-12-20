@@ -1,5 +1,5 @@
 package stryker4s.run
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 
 import better.files.File
 import grizzled.slf4j.Logging

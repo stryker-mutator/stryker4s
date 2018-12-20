@@ -48,6 +48,7 @@ object Settings {
         scalaVersion := Dependencies.versions.scala212,
         scalacOptions ++= Settings.scalacOpts,
         coverageMinimum := 75
-      ))
+      )
+    )
   }
 }

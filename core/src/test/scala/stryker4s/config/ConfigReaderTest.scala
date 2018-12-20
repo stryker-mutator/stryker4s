@@ -94,7 +94,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+//      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
   }
 }
