@@ -1,18 +1,18 @@
 package stryker4s.extensions.mutationtypes
 import scala.meta.{Lit, Term}
 
-case object EmptyString extends StringMutator[Lit.String] {
+case object EmptyString extends StringLiteral[Lit.String] {
   override val tree: Lit.String = Lit.String("")
 
   override def unapply(arg: Lit.String): Option[Lit.String] =
     super.unapply(arg).filterNot(ParentIsInterpolatedString(_))
 }
 
-case object StrykerWasHereString extends StringMutator[Lit.String] {
+case object StrykerWasHereString extends StringLiteral[Lit.String] {
   override val tree: Lit.String = Lit.String("Stryker was here!")
 }
 
-case object EmptyStringInterpolation extends StringMutator[Term.Interpolate] {
+case object EmptyStringInterpolation extends StringLiteral[Term.Interpolate] {
   override val tree: Term.Interpolate = Term.Interpolate(Term.Name("s"), List(Lit.String("")), Nil)
 }
 
