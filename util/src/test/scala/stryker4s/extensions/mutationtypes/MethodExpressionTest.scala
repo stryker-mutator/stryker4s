@@ -7,7 +7,7 @@ import scala.meta._
 
 class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
 
-  describe("OneArgMethodMutator") {
+  describe("ArgMethodExpression") {
 
     it("should match with a filter call (one argument)") {
       q"list.filter( _ => true )" should matchPattern { case Filter(_, _) => }
@@ -83,7 +83,7 @@ class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
 
   }
 
-  describe("NonArgsMethodMutator") {
+  describe("NoArgMethodExpression") {
 
     it("should not match with an isEmpty call (one argument)") {
       q"list.isEmpty( arg )" should not matchPattern { case IsEmpty(_, _) => }
