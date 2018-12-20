@@ -17,9 +17,9 @@ class ProcessMutantRunner(command: Command, processRunner: ProcessRunner)(implic
     val id = mutant.id
     info(s"Starting test-run ${id + 1}...")
     processRunner(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
-      case Success(0)                         => Survived(mutant, subPath.toString)
-      case Success(exitCode) if exitCode != 0 => Killed(mutant, subPath.toString)
-      case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath.toString)
+      case Success(0)                         => Survived(mutant, subPath)
+      case Success(exitCode) if exitCode != 0 => Killed(mutant, subPath)
+      case Failure(exc: TimeoutException)     => TimedOut(exc, mutant, subPath)
     }
   }
 }

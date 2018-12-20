@@ -35,7 +35,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 00.00
       val loneResult = result.results.loneElement
-      loneResult should equal(Survived(mutant, Paths.get("simpleFile.scala").toString))
+      loneResult should equal(Survived(mutant, Paths.get("simpleFile.scala")))
     }
 
     it("should return a Killed mutant on an exitcode 1 process") {
@@ -52,7 +52,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
       val loneResult = result.results.loneElement
-      loneResult should equal(Killed(mutant, Paths.get("simpleFile.scala").toString))
+      loneResult should equal(Killed(mutant, Paths.get("simpleFile.scala")))
     }
 
     it("should return a TimedOut mutant on a TimedOut process") {
@@ -70,7 +70,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
       val loneResult = result.results.loneElement
-      loneResult should equal(TimedOut(exception, mutant, Paths.get("simpleFile.scala").toString))
+      loneResult should equal(TimedOut(exception, mutant, Paths.get("simpleFile.scala")))
     }
 
     it("should return a combination of results on multiple runs") {
@@ -90,8 +90,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       result.mutationScore shouldBe 100.00
       result.results should contain only (
-        Killed(mutant, Paths.get("simpleFile.scala").toString),
-        Killed(secondMutant, Paths.get("simpleFile.scala").toString)
+        Killed(mutant, Paths.get("simpleFile.scala")),
+        Killed(secondMutant, Paths.get("simpleFile.scala"))
       )
     }
 
@@ -113,9 +113,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       result.mutationScore shouldBe 66.67
       result.results should contain only (
-        Killed(mutant, Paths.get("simpleFile.scala").toString),
-        Killed(secondMutant, Paths.get("simpleFile.scala").toString),
-        Survived(thirdMutant, Paths.get("simpleFile.scala").toString)
+        Killed(mutant, Paths.get("simpleFile.scala")),
+        Killed(secondMutant, Paths.get("simpleFile.scala")),
+        Survived(thirdMutant, Paths.get("simpleFile.scala"))
       )
     }
 

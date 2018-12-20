@@ -1,5 +1,7 @@
 package stryker4s.model
 
+import java.nio.file.Path
+
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.Duration
 
@@ -12,23 +14,23 @@ case class MutantRunResults(results: Iterable[MutantRunResult],
   */
 sealed trait MutantRunResult extends Product with Serializable {
   val mutant: Mutant
-  val fileSubPath: String
+  val fileSubPath: Path
 }
 
 sealed trait Detected extends MutantRunResult
 
 sealed trait Undetected extends MutantRunResult
 
-case class Killed(mutant: Mutant, fileSubPath: String) extends Detected
+case class Killed(mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class TimedOut(reason: TimeoutException, mutant: Mutant, fileSubPath: String) extends Detected
+case class TimedOut(reason: TimeoutException, mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class Survived(mutant: Mutant, fileSubPath: String) extends Undetected
-
-/** TODO: Not supported yet
-  */
-case class NoCoverage(mutant: Mutant, fileSubPath: String) extends Undetected
+case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
 
 /** TODO: Not supported yet
   */
-case class Error(mutant: Mutant, fileSubPath: String) extends MutantRunResult
+case class NoCoverage(mutant: Mutant, fileSubPath: Path) extends Undetected
+
+/** TODO: Not supported yet
+  */
+case class Error(mutant: Mutant, fileSubPath: Path) extends MutantRunResult

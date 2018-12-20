@@ -21,8 +21,8 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
       case None =>
         throw new RuntimeException(
           s"An unexpected error occurred while running mutation ${mutant.id}")
-      case Some((_, Value(_))) => newState.exit(true); Survived(mutant, subPath.toString)
-      case Some((_, Inc(_)))   => newState.exit(true); Killed(mutant, subPath.toString)
+      case Some((_, Value(_))) => newState.exit(true); Survived(mutant, subPath)
+      case Some((_, Inc(_)))   => newState.exit(true); Killed(mutant, subPath)
     }
   }
 

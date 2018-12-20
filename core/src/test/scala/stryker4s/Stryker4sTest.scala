@@ -39,7 +39,7 @@ class Stryker4sTest extends Stryker4sSuite {
 
       val reportedResults = testReporter.testMutantReporter.lastCall.value.results
 
-      val expectedPath = Paths.get("simpleFile.scala").toString
+      val expectedPath = Paths.get("simpleFile.scala")
 
       result shouldBe SuccessStatus
       reportedResults should matchPattern {
