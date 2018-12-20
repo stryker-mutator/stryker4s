@@ -39,14 +39,14 @@ class ConfigTest extends Stryker4sSuite {
       val sut = Config(filePaths,
                        File("tmp"),
                        testRunner = CommandRunner("mvn", "clean test"),
-                       excludedMutations = Set("BooleanSubstitution"))
+                       excludedMutations = Set("BooleanLiteral"))
 
       val result = sut.toHoconString
 
       val expected =
         s"""base-dir="${File("tmp").pathAsString.replace("\\", "\\\\")}"
            |excluded-mutations=[
-           |    BooleanSubstitution
+           |    BooleanLiteral
            |]
            |log-level=INFO
            |mutate=[

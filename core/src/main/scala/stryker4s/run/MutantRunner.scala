@@ -47,27 +47,29 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
     debug("Using temp directory: " + tmpDir)
 
-    files foreach { file =>
-
-      val subPath = file.relativePath
-      val filePath = tmpDir / subPath.toString
-
-      if(file.isDirectory) {
-        filePath.createDirectoryIfNotExists(createParents = true)
-      } else {
-        filePath.createFileIfNotExists(createParents = true)
-      }
-
-      file.copyTo(filePath, overwrite = true)
-    }
+    files foreach (copyFile(_, tmpDir))
 
     // Overwrite files to mutated files
-    mutatedFiles foreach { mutatedFile =>
-      val subPath = mutatedFile.fileOrigin.relativePath
-      val filePath = tmpDir / subPath.toString
-      filePath.overwrite(mutatedFile.tree.syntax)
-    }
+    mutatedFiles foreach (writeMutatedFile(_, tmpDir))
     tmpDir
+  }
+
+  private def copyFile(file: File, tmpDir: File): Unit = {
+    val filePath = tmpDir / file.relativePath.toString
+
+    if (file.isDirectory) {
+      filePath.createDirectoryIfNotExists(createParents = true)
+    } else {
+      filePath.createFileIfNotExists(createParents = true)
+    }
+
+    file.copyTo(filePath, overwrite = true)
+  }
+
+  private def writeMutatedFile(mutatedFile: MutatedFile, tmpDir: File): File = {
+    val subPath = mutatedFile.fileOrigin.relativePath
+    val filePath = tmpDir / subPath.toString
+    filePath.overwrite(mutatedFile.tree.syntax)
   }
 
   private def runMutants(mutatedFiles: Iterable[MutatedFile],

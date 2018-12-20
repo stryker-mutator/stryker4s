@@ -52,7 +52,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
-      result.excludedMutations shouldBe Set("BooleanSubstitution")
+      result.excludedMutations shouldBe Set("BooleanLiteral")
     }
 
     it("should return a failure on an invalid exclusion mutator") {
@@ -72,7 +72,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       head shouldBe a[ConvertFailure]
       val errorMessage =
         s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
-          |Valid exclusions are BinaryOperator, BooleanSubstitution, LogicalOperator, StringMutator, MethodMutator.""".stripMargin
+          |Valid exclusions are EqualityOperator, BooleanLiteral, LogicalOperator, StringLiteral, MethodExpression.""".stripMargin
       errorMessage shouldBe loggedAsError
     }
   }
@@ -86,16 +86,15 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
     }
 
-    ignore("Ignored due to transitive dependency clash in sbt") {
-      it("should log warnings when no config file is found") {
-        val confPath = File("nonExistentFile.conf")
+    it("should log warnings when no config file is found") {
+      val confPath = File("nonExistentFile.conf")
 
-        val sut = ConfigReader.readConfig(confPath)
+      val sut = ConfigReader.readConfig(confPath)
 
-        s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
-        "Using default config instead..." shouldBe loggedAsWarning
-        s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
-      }
+      s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
+      "Using default config instead..." shouldBe loggedAsWarning
+      // Ignored due to transitive dependency clash in sbt
+      // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
   }
 }
