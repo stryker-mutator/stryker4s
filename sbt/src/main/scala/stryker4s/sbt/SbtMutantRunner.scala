@@ -26,7 +26,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
   }
 
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
-    val newState = extracted.appendWithoutSession(settings(workingDir, mutant.id), state)
+    val newState = extracted.appendWithoutSession(settings(workingDir) ++ mutationSetting(mutant.id), state)
 
     Project.runTask(test in Test, newState) match {
       case None =>

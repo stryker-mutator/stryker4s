@@ -41,7 +41,7 @@ class Stryker4sTest extends Stryker4sSuite {
 
       val expectedPath = Paths.get("simpleFile.scala")
 
-      result shouldBe null
+      result shouldBe SuccessStatus
       reportedResults should matchPattern {
         case List(Killed(Mutant(0, _, _, _), `expectedPath`),
                   Killed(Mutant(1, _, _, _), `expectedPath`),
