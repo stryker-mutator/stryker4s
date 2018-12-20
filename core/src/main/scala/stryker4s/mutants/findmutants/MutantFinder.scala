@@ -17,7 +17,7 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config) extends Logg
   }
 
   def findMutants(source: Source): (Seq[Mutant], Int) = {
-    val (included, excluded) = source.collect(matcher.allMatchers()).flatten.partition(_.isDefined)
+    val (included, excluded) = source.collect(matcher.allMatchers).flatten.partition(_.isDefined)
     (included.flatten, excluded.size)
   }
 

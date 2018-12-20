@@ -68,16 +68,16 @@ With `log-level` you can override the default logging level with one of the foll
 
 #### excluded-mutations
 
-**Config file:** `excluded-mutations: ["BooleanSubstitution"]`
+**Config file:** `excluded-mutations: ["BooleanLiteral"]`
 **Default value:** `[]`
 **Mandatory:** No  
 **Description:** 
 With `excluded-mutations`, you can turn off certain mutations in the project. Allowed values are the following:
-- `BinaryOperator`   
-- `BooleanSubstitution`   
+- `EqualityOperator`   
+- `BooleanLiteral`   
 - `LogicalOperator`   
-- `StringMutator`   
-- `MethodMutator`
+- `StringLiteral`   
+- `MethodExpression`
 
 #### thresholds
 
