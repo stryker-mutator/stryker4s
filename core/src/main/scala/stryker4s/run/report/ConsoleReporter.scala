@@ -33,7 +33,7 @@ class ConsoleReporter extends MutantRunReporter with Logging {
           }
           .mkString(lineSeparator()))
 
-    val scoreStatus = ThresholdChecker.getScoreStatus(runResults.mutationScore)
+    val scoreStatus = ThresholdChecker.determineScoreStatus(runResults.mutationScore)
     scoreStatus match {
       case SuccessStatus => info(s"Mutation score: ${runResults.mutationScore}%")
       case WarningStatus => warn(s"Mutation score: ${runResults.mutationScore}%")

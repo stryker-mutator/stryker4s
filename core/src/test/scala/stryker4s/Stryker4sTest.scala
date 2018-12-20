@@ -8,6 +8,7 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner}
+import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.FileUtil
 import stryker4s.stubs.{TestProcessRunner, TestReporter, TestSourceCollector}
 
@@ -34,13 +35,13 @@ class Stryker4sTest extends Stryker4sSuite {
         testReporter
       )
 
-      val exitCode = sut.run()
+      val result = sut.run()
 
       val reportedResults = testReporter.testMutantReporter.lastCall.value.results
 
       val expectedPath = Paths.get("simpleFile.scala")
 
-      exitCode shouldBe 0
+      result shouldBe SuccessStatus
       reportedResults should matchPattern {
         case List(Killed(Mutant(0, _, _, _), `expectedPath`),
                   Killed(Mutant(1, _, _, _), `expectedPath`),
