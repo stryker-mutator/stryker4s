@@ -22,12 +22,13 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
 
   /**
     *  Collect all files that are going to be mutated.
+    * Files that are configured to be excluded, in the target folder, or directories are skipped
     */
   override def collectFilesToMutate(): Iterable[File] = {
     filesToMutate
       .filterNot(filesToExcludeFromMutation.contains(_))
-      .filterNot(isTarget)
-      .filterNot(_.isDirectory) // Directories aren't mutated
+      .filterNot(isInTargetDirectory)
+      .filterNot(_.isDirectory)
   }
 
   /**
@@ -41,7 +42,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     (listFilesBasedOnConfiguration() orElse
       listFilesBasedOnGit(processRunner) getOrElse
       listAllFiles())
-      .filterNot(isTarget)
+      .filterNot(isInTargetDirectory)
   }
 
   /**
@@ -90,7 +91,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
   /**
     * Is the file in the target folder, and thus should not be copied over
     */
-  private[this] def isTarget(file: File): Boolean = {
+  private[this] def isInTargetDirectory(file: File): Boolean = {
     val pathString = file.relativePath.toString
 
     (file.isDirectory && pathString == "target") ||

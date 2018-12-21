@@ -5,6 +5,7 @@ import better.files.File
 import sbt.Keys._
 import sbt._
 import stryker4s.config.Config
+import stryker4s.extensions.exceptions.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.run.MutantRunner
 import stryker4s.run.process.ProcessRunner
@@ -18,8 +19,8 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
     val newState = extracted.appendWithoutSession(settings(workingDir), state)
     Project.runTask(test in Test, newState) match {
       case None =>
-        throw new RuntimeException(
-          s"An unexpected error occurred while running initial test run")
+        throw InitialTestRunFailedException(
+          s"Unable to execute initial test run. Sbt is unable to find the task 'test'.")
       case Some((_, Value(_))) => true
       case Some((_, Inc(_)))   => false
     }
