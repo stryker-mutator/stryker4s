@@ -1,10 +1,9 @@
-import Dependencies._
-import sbt._
 import sbt.Keys._
+import sbt._
 import scoverage.ScoverageKeys._
 
 object Settings {
-  val scalacOpts = Seq(
+  val scalacOpts: Seq[String] = Seq(
     "-deprecation", // Emit warning and location for usages of deprecated APIs.
     "-encoding",
     "utf-8", // Specify character encoding used by source files.
@@ -17,12 +16,8 @@ object Settings {
     "-Ywarn-dead-code" // Warn when dead code is identified.
   )
 
-  val commonSettings = Seq(
+  def commonSettings: Seq[Setting[_]] = Seq(
     Test / parallelExecution := false, // For logging tests
-    scalaVersion := versions.scala212,
-    coverageEnabled := true,
-    coverageMinimum := 75,
-    scalacOptions ++= scalacOpts,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
@@ -36,9 +31,22 @@ object Settings {
     )
   )
 
-  val coreSettings = Seq(
+  def coreSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.log4jslf4jImpl
+    )
+  )
+
+  def buildLevelSettings: Seq[Setting[_]] = inThisBuild(
+    Seq(
+      name := "stryker4s",
+      version := "0.1.0",
+      description := "Stryker4s, the mutation testing framework for Scala.",
+      organization := "io.stryker-mutator",
+      organizationHomepage := Some(url("https://stryker-mutator.io/")),
+      scalaVersion := Dependencies.versions.scala212,
+      scalacOptions ++= Settings.scalacOpts,
+      coverageMinimum := 75
     )
   )
 }

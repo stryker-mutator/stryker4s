@@ -30,7 +30,10 @@ object ConfigReader extends Logging with ConfigReaderImplicits {
 
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
-      info("Config used: " + defaultConf.toHoconString)
+      // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
+      //  If that's fixed we can add this again
+      //  https://github.com/stryker-mutator/stryker4s/issues/116
+      // info("Config used: " + defaultConf.toHoconString)
 
       defaultConf
     case _ =>
@@ -39,8 +42,7 @@ object ConfigReader extends Logging with ConfigReaderImplicits {
       throw ConfigReaderException(failures)
   }
 
-  /**
-    * Sets the logging level to one of the following levels:
+  /** Sets the logging level to one of the following levels:
     * OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
     *
     * @param level the logging level to use

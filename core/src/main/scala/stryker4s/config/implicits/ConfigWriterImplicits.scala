@@ -9,19 +9,21 @@ import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 object ConfigWriterImplicits {
 
-  private[config] implicit val fileWriter: ConfigWriter[File] = ConfigWriter[Path].contramap[File](_.path)
+  private[config] implicit val fileWriter: ConfigWriter[File] =
+    ConfigWriter[Path] contramap (_.path)
+
   private[config] implicit val logLevelWriter: ConfigWriter[Level] =
-    ConfigWriter[String].contramap[Level](_.toString)
+    ConfigWriter[String] contramap (_.toString)
+
   private[config] implicit val exclusionsWriter: ConfigWriter[Set[String]] =
-    ConfigWriter[List[String]].contramap[Set[String]](_.toList)
+    ConfigWriter[List[String]] contramap (_.toList)
 
-  private[config] implicit val reportersWriter: ConfigWriter[List[MutantRunReporter]] = ConfigWriter[List[String]]
-    .contramap(mutantRunReporters =>
-      mutantRunReporters.map {
-        case _: ConsoleReporter => MutantRunReporter.consoleReporter
-    })
+  private[config] implicit val reportersWriter: ConfigWriter[MutantRunReporter] =
+    ConfigWriter[String] contramap {
+      case _: ConsoleReporter => MutantRunReporter.consoleReporter
+    }
 
-  private[config] implicit val options: ConfigRenderOptions = ConfigRenderOptions
+  private[config] val options: ConfigRenderOptions = ConfigRenderOptions
     .defaults()
     .setOriginComments(false)
     .setJson(false)

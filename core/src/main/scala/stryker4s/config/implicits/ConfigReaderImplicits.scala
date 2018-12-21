@@ -15,15 +15,15 @@ trait ConfigReaderImplicits extends Logging {
     *
     */
   private[config] implicit val toFileReader: ConfigReader[File] =
-    ConfigReader[Path].map(p => File(p))
+    ConfigReader[Path] map (p => File(p))
 
-  private[config] implicit val logLevelReader: ConfigReader[Level] = ConfigReader[String] map (
-      level => Level.valueOf(level))
+  private[config] implicit val logLevelReader: ConfigReader[Level] =
+    ConfigReader[String] map (level => Level.valueOf(level))
 
-  private[config] implicit val toReporterList: ConfigReader[List[MutantRunReporter]] =
-    ConfigReader[List[String]].map(_.map {
+  private[config] implicit val toReporterList: ConfigReader[MutantRunReporter] =
+    ConfigReader[String] map {
       case MutantRunReporter.`consoleReporter` => new ConsoleReporter
-    })
+    }
 
   private[config] implicit val exclusions: ConfigReader[Set[String]] =
     ConfigReader[List[String]].map(errorOnInvalidExclusions).map(_.toSet)

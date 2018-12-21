@@ -5,16 +5,16 @@ import java.nio.file.Paths
 import org.mockito.integrations.scalatest.MockitoFixture
 import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
+import stryker4s.extensions.exceptions.InitialTestRunFailedException
 import stryker4s.extensions.mutationtypes.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.ProcessMutantRunner
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
 
@@ -23,7 +23,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {
-      val testProcessRunner = new TestProcessRunner(Success(0))
+      val testProcessRunner = TestProcessRunner(Success(0))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
@@ -40,7 +40,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
     }
 
     it("should return a Killed mutant on an exitcode 1 process") {
-      val testProcessRunner = new TestProcessRunner(Success(1))
+      val testProcessRunner = TestProcessRunner(Success(1))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
@@ -53,12 +53,12 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
       val loneResult = result.results.loneElement
-      loneResult should equal(Killed(1, mutant, Paths.get("simpleFile.scala")))
+      loneResult should equal(Killed(mutant, Paths.get("simpleFile.scala")))
     }
 
     it("should return a TimedOut mutant on a TimedOut process") {
       val exception = new TimeoutException("Test")
-      val testProcessRunner = new TestProcessRunner(Failure(exception))
+      val testProcessRunner = TestProcessRunner(Failure(exception))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
@@ -75,7 +75,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
     }
 
     it("should return a combination of results on multiple runs") {
-      val testProcessRunner = new TestProcessRunner(Success(1), Success(1))
+      val testProcessRunner = TestProcessRunner(Success(1), Success(1))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"0", q"zero", EmptyString)
       val secondMutant = Mutant(1, q"1", q"one", EmptyString)
@@ -91,13 +91,13 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       result.mutationScore shouldBe 100.00
       result.results should contain only (
-        Killed(1, mutant, Paths.get("simpleFile.scala")),
-        Killed(1, secondMutant, Paths.get("simpleFile.scala"))
+        Killed(mutant, Paths.get("simpleFile.scala")),
+        Killed(secondMutant, Paths.get("simpleFile.scala"))
       )
     }
 
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
-      val testProcessRunner = new TestProcessRunner(Success(1), Success(1), Success(0))
+      val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(0))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val mutant = Mutant(0, q"0", q"zero", EmptyString)
       val secondMutant = Mutant(1, q"1", q"one", EmptyString)
@@ -114,15 +114,24 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       result.mutationScore shouldBe 66.67
       result.results should contain only (
-        Killed(1, mutant, Paths.get("simpleFile.scala")),
-        Killed(1, secondMutant, Paths.get("simpleFile.scala")),
+        Killed(mutant, Paths.get("simpleFile.scala")),
+        Killed(secondMutant, Paths.get("simpleFile.scala")),
         Survived(thirdMutant, Paths.get("simpleFile.scala"))
       )
     }
 
+    it("should throw an exception when the initial test run fails") {
+      val testProcessRunner = TestProcessRunner.failInitialTestRun()
+      val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+
+      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List.empty)
+
+      a [InitialTestRunFailedException] shouldBe thrownBy( sut.apply(Seq.empty, fileCollectorMock) )
+    }
+
     describe("Log tests") {
       it("Should log that test run 1 is started and finished when mutant id is 0") {
-        val testProcessRunner = new TestProcessRunner(Success(0))
+        val testProcessRunner = TestProcessRunner(Success(0))
         val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
         val mutant = Mutant(0, q"4", q"5", EmptyString)
         val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
@@ -137,7 +146,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       }
 
       it("Should log multiple test runs") {
-        val testProcessRunner = new TestProcessRunner(Success(0), Success(0))
+        val testProcessRunner = TestProcessRunner(Success(0), Success(0))
         val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
         val mutant0 = Mutant(0, q"4", q"5", EmptyString)
         val mutant1 = Mutant(1, q"4", q"5", EmptyString)
@@ -152,6 +161,19 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         "Finished mutation run 1/2 (50%)" shouldBe loggedAsInfo
         "Starting test-run 2..." shouldBe loggedAsInfo
         "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
+      }
+
+
+      it("should properly log the initial test run") {
+        val testProcessRunner = TestProcessRunner()
+        val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+
+        when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List.empty)
+
+        sut.apply(Seq.empty, fileCollectorMock)
+
+        "Starting initial test run..." shouldBe loggedAsInfo
+        "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
       }
     }
   }
