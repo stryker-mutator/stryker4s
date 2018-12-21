@@ -2,7 +2,7 @@
 
 ## Version 0.1.0 (21-12-2018)
 
-This is the first version of `Stryker4s` only the bigger feature will be described here.
+This is the first version of `Stryker4s` only the more substantional features will be described here.
 
 ### Features
 
