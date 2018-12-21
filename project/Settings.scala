@@ -1,6 +1,7 @@
 import sbt.Keys._
 import sbt._
 import scoverage.ScoverageKeys._
+import xerial.sbt.Sonatype.autoImport.sonatypePublishTo
 
 object Settings {
   val scalacOpts: Seq[String] = Seq(
@@ -17,6 +18,7 @@ object Settings {
   )
 
   def commonSettings: Seq[Setting[_]] = Seq(
+    publishTo := sonatypePublishTo.value,
     Test / parallelExecution := false, // For logging tests
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
@@ -38,15 +40,29 @@ object Settings {
   )
 
   def buildLevelSettings: Seq[Setting[_]] = inThisBuild(
-    Seq(
-      name := "stryker4s",
-      version := "0.1.0",
-      description := "Stryker4s, the mutation testing framework for Scala.",
-      organization := "io.stryker-mutator",
-      organizationHomepage := Some(url("https://stryker-mutator.io/")),
-      scalaVersion := Dependencies.versions.scala212,
-      scalacOptions ++= Settings.scalacOpts,
-      coverageMinimum := 75
-    )
+    buildInfo ++
+      Seq(
+        scalaVersion := Dependencies.versions.scala212,
+        scalacOptions ++= Settings.scalacOpts,
+        coverageMinimum := 75
+      )
+  )
+
+  lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
+    name := "stryker4s",
+    version := "0.1.0",
+    description := "Stryker4s, the mutation testing framework for Scala.",
+    organization := "io.stryker-mutator",
+    organizationHomepage := Some(url("https://stryker-mutator.io/")),
+    homepage := Some(url("https://stryker-mutator.io/")),
+    licenses := Seq(
+      "Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
+    scmInfo := Some(
+      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"),
+              "scm:git@github.com:stryker-mutator/stryker4s.git")),
+    developers := List(
+      Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
+      Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
+    ),
   )
 }
