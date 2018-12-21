@@ -13,7 +13,7 @@ For an introduction to mutation testing and Stryker's features, see [stryker-mut
 
 ## Getting Started
 
-For the quickstart, see [our website's quickstart](https://stryker-mutator.io/stryker4s/quickstart)
+For the quickstart, see [our website's quickstart](https://stryker-mutator.io/stryker4s/quickstart).
 
 Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs. Depending on your project setup, there are multiple ways to get started with Stryker4s.
 
@@ -29,24 +29,23 @@ After adding the plugin, Stryker4s can be used by running `sbt stryker` in the r
 
 ### Memory usage
 
-Mutation testing can be very taxing on your computer's resources. After all, all your tests are ran for each mutant. Sbt also has the tendency to build up memory in a running session. It's wise to give sbt some more memory by setting the following environment variable: `export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G"`. The amount of memory needed is dependent on the project you are running Stryker4s on.
+Mutation testing can be very taxing on your computer's resources. After all, your tests are run for each mutant. Sbt also has the tendency to [build up memory in a running session](https://github.com/sbt/sbt/issues/3983). It's wise to give sbt some extra memory by setting the following environment variable: `export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G"`. The amount of memory needed depends on the size of the project you are running Stryker4s on.
 
 ### Multi-module projects
 
-Multi-module projects are not yet fully supported. However, there is a workaround while we work on a better solution. Set the submodule you want to run Stryker4s on before as the active one with `sbt "project $projectname" stryker`.
-
-We do not (yet) have a SBT plugin or other easy ways to run the project. However, the [command test-runner](docs/CONFIGURATION.md#test-runner) should allow you to run the project with any build-tool. The easiest way to test the project right now is by cloning the repository, creating a `stryker4s.conf` file with a `base-dir` of your project and running Stryker4s with `sbt run`.
+Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/CONFIGURATION.md#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
 
 ## Configuration
 
-See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.conf` file.
+See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.conf` file (optional).
 
 ## Supported mutators
 
 See [MUTATORS.md](docs/MUTATORS.md) for our supported mutators.
 
 ## Changelog
-See [CHANGELOG.md](CHANGELOG.md) for all the latest change made.
+
+See [CHANGELOG.md](CHANGELOG.md) for all the latest changes made.
 
 ## Contributing
 
