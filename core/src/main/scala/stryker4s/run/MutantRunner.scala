@@ -47,10 +47,10 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
     debug("Using temp directory: " + tmpDir)
 
-    files foreach (copyFile(_, tmpDir))
+    files.foreach(copyFile(_, tmpDir))
 
     // Overwrite files to mutated files
-    mutatedFiles foreach (writeMutatedFile(_, tmpDir))
+    mutatedFiles.foreach(writeMutatedFile(_, tmpDir))
     tmpDir
   }
 
