@@ -1,24 +1,21 @@
 # How to release Stryker4s to Sonatype
 
-Releasing to Sonatype is fairly easy to do this when using this step by step approach. 
-Most, if the things needed, are already configured in Stryker4s such as name, license, GitHub repository etc.
+Releasing to Sonatype is fairly easy to do when using this step by step approach.
+Most of the things needed are already configured in Stryker4s such as  the name, license, GitHub repository, etc.
 
-## Extra configuration
+Inspired by: https://www.scala-sbt.org/release/docs/Using-Sonatype.html
 
-### Credentials
+## Credentials
+
 To be able to publish you need to configure the strykermutator credentials on your own local machine.
-This can be done by adding the following code to your `~/.sbt/1.0/sonatype.sbt` or `$HOME/.sbt/1.0/sonatype.sbt` on windows.
+This can be done by adding the following code to `~/.sbt/1.0/sonatype.sbt`.
 
 ```scala
 credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org",
                            "strykermutator","(Sonatype password)")
 ```
 
-This needs to be done on our machines to make sure the credentials are safely stored.
-
-### GPG key
-
-Don't know how to do this yet, maybe this works: [create PGP](https://support.symantec.com/en_US/article.HOWTO42070.html)
+This needs to be done on your own machine to make sure the credentials are safely stored.
 
 ## Releasing Stryker4s
 
@@ -30,4 +27,4 @@ Don't know how to do this yet, maybe this works: [create PGP](https://support.sy
 
 ## Extra information
 
-Extra information about the release plugin used to deploy to Sonatype can be found on the [github page]( https://github.com/xerial/sbt-sonatype).
+Extra information about the release plugin used to deploy to Sonatype can be found on the [github page](https://github.com/xerial/sbt-sonatype).

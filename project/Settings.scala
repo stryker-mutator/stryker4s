@@ -37,18 +37,16 @@ object Settings {
     )
   )
 
-  def buildLevelSettings: Seq[Setting[_]] = {
-    inThisBuild(
-      Seq(
-        name := "stryker4s",
-        version := "0.1.0-SNAPSHOT",
-        description := "Stryker4s, the mutation testing framework for Scala.",
-        organization := "io.stryker-mutator",
-        organizationHomepage := Some(url("https://stryker-mutator.io/")),
-        scalaVersion := Dependencies.versions.scala212,
-        scalacOptions ++= Settings.scalacOpts,
-        coverageMinimum := 75
-      )
+  def buildLevelSettings: Seq[Setting[_]] = inThisBuild(
+    Seq(
+      name := "stryker4s",
+      version := "0.1.0",
+      description := "Stryker4s, the mutation testing framework for Scala.",
+      organization := "io.stryker-mutator",
+      organizationHomepage := Some(url("https://stryker-mutator.io/")),
+      scalaVersion := Dependencies.versions.scala212,
+      scalacOptions ++= Settings.scalacOpts,
+      coverageMinimum := 75
     )
-  }
+  )
 }

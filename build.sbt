@@ -1,9 +1,7 @@
-import xerial.sbt.Sonatype.SonatypeKeys.sonatypePublishTo
-
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     Settings.buildLevelSettings,
-    publishTo := sonatypePublishTo.value,
+    skip in publish := true,
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sRunner")
   )
   .aggregate(stryker4sCore, stryker4sUtil, sbtStryker4s)
