@@ -40,6 +40,7 @@ object TreeExtensions {
       *
       */
     private object LiteralPatternMatch {
+
       def unapply(literal: Lit): Option[Term] = literal.parent match {
         case Some(parent: Case) =>
           parent.parent collect {

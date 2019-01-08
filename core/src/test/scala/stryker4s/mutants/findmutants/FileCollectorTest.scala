@@ -88,11 +88,9 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       }
 
       it("should not find a file twice when the patterns match on the same file twice") {
-        implicit val config: Config = Config(mutate = Seq("**/someFile.scala",
-                                                          "**/secondFile.scala",
-                                                          "!**/*.scala",
-                                                          "!**/someFile.scala"),
-                                             baseDir = filledDirPath)
+        implicit val config: Config =
+          Config(mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
+                 baseDir = filledDirPath)
 
         val sut = new FileCollector()
 
@@ -116,11 +114,9 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       }
 
       it("Should exclude all files specified in the excluded files config") {
-        implicit val config: Config = Config(mutate = Seq("**/someFile.scala",
-                                                          "**/secondFile.scala",
-                                                          "!**/someFile.scala",
-                                                          "!**/secondFile.scala"),
-                                             baseDir = filledDirPath)
+        implicit val config: Config =
+          Config(mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
+                 baseDir = filledDirPath)
 
         val sut = new FileCollector()
 
@@ -178,9 +174,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       val filePath = "Config.scala"
       val expectedFileList = Seq(config.baseDir / filePath)
       val gitProcessResult = Try(Seq(filePath))
-      when(
-        processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"),
-                          config.baseDir)).thenReturn(gitProcessResult)
+      when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir))
+        .thenReturn(gitProcessResult)
 
       val sut = new FileCollector()
 
@@ -194,9 +189,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       val filePath = "Target.scala"
       val expectedFileList = Seq(config.baseDir / filePath)
       val gitProcessResult = Try(Seq(filePath))
-      when(
-        processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"),
-                          config.baseDir)).thenReturn(gitProcessResult)
+      when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir))
+        .thenReturn(gitProcessResult)
 
       val sut = new FileCollector()
 
@@ -220,7 +214,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
     it(
       "Should copy files out of the target folders when no files config key is found and target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = basePath, files = None)
-      val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "otherFile.notScala")
+      val expectedFileList =
+        Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "otherFile.notScala")
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 

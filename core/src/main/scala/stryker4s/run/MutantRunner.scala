@@ -1,4 +1,5 @@
 package stryker4s.run
+
 import java.nio.file.Path
 
 import better.files.File
@@ -57,7 +58,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
   private def copyFile(file: File, tmpDir: File): Unit = {
     val filePath = tmpDir / file.relativePath.toString
 
-    if (file.isDirectory) {
+    if(file.isDirectory) {
       filePath.createDirectoryIfNotExists(createParents = true)
     } else {
       filePath.createFileIfNotExists(createParents = true)
@@ -72,8 +73,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     filePath.overwrite(mutatedFile.tree.syntax)
   }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile],
-                         tmpDir: File): Iterable[MutantRunResult] = {
+  private def runMutants(mutatedFiles: Iterable[MutatedFile], tmpDir: File): Iterable[MutantRunResult] = {
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     for {

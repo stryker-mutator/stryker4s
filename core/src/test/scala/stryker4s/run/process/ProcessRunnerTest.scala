@@ -8,7 +8,7 @@ class ProcessRunnerTest extends Stryker4sSuite {
       val os = sys.props("os.name")
       val result = ProcessRunner.resolveRunner()
 
-      if (os.toLowerCase.contains("windows"))
+      if(os.toLowerCase.contains("windows"))
         result shouldBe a[WindowsProcessRunner]
       else
         result shouldBe a[UnixProcessRunner]

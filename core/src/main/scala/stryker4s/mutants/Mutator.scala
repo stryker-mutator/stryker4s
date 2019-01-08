@@ -8,9 +8,7 @@ import stryker4s.mutants.findmutants.MutantFinder
 
 import scala.meta.{Term, Tree}
 
-class Mutator(mutantFinder: MutantFinder,
-              transformer: StatementTransformer,
-              matchBuilder: MatchBuilder)
+class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)
     extends Logging {
 
   def mutate(files: Iterable[File]): Iterable[MutatedFile] = {
@@ -43,14 +41,13 @@ class Mutator(mutantFinder: MutantFinder,
   private def buildMatches(transformedMutantsInSource: SourceTransformations): Tree =
     matchBuilder.buildNewSource(transformedMutantsInSource)
 
-  private def logMutationResult(mutatedFiles: Iterable[MutatedFile],
-                                totalAmountOfFiles: Int): Unit = {
+  private def logMutationResult(mutatedFiles: Iterable[MutatedFile], totalAmountOfFiles: Int): Unit = {
     val includedMutants = mutatedFiles.flatMap(_.mutants).size
     val excludedMutants = mutatedFiles.map(_.excludedMutants).sum
 
     info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
     info(s"${includedMutants + excludedMutants} Mutant(s) generated.")
-    if (excludedMutants > 0) {
+    if(excludedMutants > 0) {
       info(s"Of which $excludedMutants Mutant(s) are excluded.")
     }
   }
@@ -61,7 +58,7 @@ class Mutator(mutantFinder: MutantFinder,
     case Term.Interpolate(prefix, parts, args) =>
       Term.Interpolate(prefix, parts, args map {
         case t: Term.Name => Term.Block(List(t))
-        case other => other
+        case other        => other
       })
   }
 }

@@ -33,7 +33,7 @@ object ProcessRunner {
   private val isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
 
   def resolveRunner(): ProcessRunner = {
-    if (isWindows) new WindowsProcessRunner
+    if(isWindows) new WindowsProcessRunner
     else new UnixProcessRunner
   }
 }
