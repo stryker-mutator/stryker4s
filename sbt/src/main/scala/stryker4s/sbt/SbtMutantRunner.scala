@@ -2,6 +2,8 @@ package stryker4s.sbt
 import java.nio.file.Path
 
 import better.files.File
+import sbt._
+import sbt.Keys._
 import stryker4s.config.Config
 import stryker4s.extensions.exceptions.InitialTestRunFailedException
 import stryker4s.model._

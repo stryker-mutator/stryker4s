@@ -1,5 +1,8 @@
 package stryker4s.sbt
 
+import sbt.Keys._
+import sbt.plugins._
+import sbt._
 import stryker4s.run.threshold.ErrorStatus
 
 /**
