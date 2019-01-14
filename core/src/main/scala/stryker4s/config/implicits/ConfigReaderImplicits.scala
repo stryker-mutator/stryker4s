@@ -31,7 +31,7 @@ trait ConfigReaderImplicits extends Logging {
 
   private def errorOnInvalidExclusions(exclusions: List[String]): List[String] = {
     val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
-    if(invalid.nonEmpty) throw InvalidExclusionsException(invalid)
+    if (invalid.nonEmpty) throw InvalidExclusionsException(invalid)
 
     valid
   }

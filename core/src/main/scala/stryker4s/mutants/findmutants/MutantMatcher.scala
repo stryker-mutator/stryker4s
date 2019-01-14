@@ -64,7 +64,7 @@ class MutantMatcher()(implicit config: Config) {
 
     def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] = ifNotInAnnotation {
       mutated map { mutation =>
-        if(matchExcluded(mutation))
+        if (matchExcluded(mutation))
           None
         else
           Some(Mutant(stream.next, original, mutation.tree, mutation))
@@ -72,14 +72,14 @@ class MutantMatcher()(implicit config: Config) {
     }
 
     def ~~>(mutated: MethodExpression, f: String => Term): Seq[Option[Mutant]] = ifNotInAnnotation {
-      if(matchExcluded(mutated))
+      if (matchExcluded(mutated))
         None :: Nil
       else
         Some(Mutant(stream.next, original, mutated(f), mutated)) :: Nil
     }
 
     private def ifNotInAnnotation(maybeMutants: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
-      if(original.isInAnnotation)
+      if (original.isInAnnotation)
         Nil
       else
         maybeMutants

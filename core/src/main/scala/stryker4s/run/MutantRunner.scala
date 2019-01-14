@@ -24,7 +24,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     val tmpDir = prepareEnv(mutatedFiles, sourceCollector)
 
     info("Starting initial test run...")
-    if(!runInitialTest(tmpDir)) {
+    if (!runInitialTest(tmpDir)) {
       throw InitialTestRunFailedException(
         "Initial test run failed. Please make sure your tests pass before running Stryker4s.")
     }
@@ -58,7 +58,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
   private def copyFile(file: File, tmpDir: File): Unit = {
     val filePath = tmpDir / file.relativePath.toString
 
-    if(file.isDirectory) {
+    if (file.isDirectory) {
       filePath.createDirectoryIfNotExists(createParents = true)
     } else {
       filePath.createFileIfNotExists(createParents = true)

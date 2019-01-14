@@ -47,7 +47,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
     info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
     info(s"${includedMutants + excludedMutants} Mutant(s) generated.")
-    if(excludedMutants > 0) {
+    if (excludedMutants > 0) {
       info(s"Of which $excludedMutants Mutant(s) are excluded.")
     }
   }
