@@ -7,6 +7,7 @@ import stryker4s.scalatest.TreeEquality
 import scala.meta._
 
 class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
+
   describe("topStatement") {
     it("should return top statement in a simple statement") {
       val tree = q"x.times(2)"

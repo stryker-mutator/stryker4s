@@ -2,8 +2,8 @@ package stryker4s.sbt
 import java.nio.file.Path
 
 import better.files.File
-import sbt.Keys._
 import sbt._
+import sbt.Keys._
 import stryker4s.config.Config
 import stryker4s.extensions.exceptions.InitialTestRunFailedException
 import stryker4s.model._
@@ -31,8 +31,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
 
     Project.runTask(test in Test, newState) match {
       case None =>
-        throw new RuntimeException(
-          s"An unexpected error occurred while running mutation ${mutant.id}")
+        throw new RuntimeException(s"An unexpected error occurred while running mutation ${mutant.id}")
       case Some((_, Value(_))) => Survived(mutant, subPath)
       case Some((_, Inc(_)))   => Killed(mutant, subPath)
     }

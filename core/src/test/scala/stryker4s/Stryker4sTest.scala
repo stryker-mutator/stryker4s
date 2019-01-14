@@ -28,9 +28,7 @@ class Stryker4sTest extends Stryker4sSuite {
 
       val sut = new Stryker4s(
         testSourceCollector,
-        new Mutator(new MutantFinder(new MutantMatcher),
-                    new StatementTransformer,
-                    new MatchBuilder),
+        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
         testMutantRunner,
         testReporter
       )

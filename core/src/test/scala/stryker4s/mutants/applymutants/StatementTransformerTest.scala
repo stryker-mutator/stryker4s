@@ -4,11 +4,10 @@ import stryker4s.Stryker4sSuite
 import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4s.extensions.TreeExtensions._
 import stryker4s.extensions.mutationtypes._
-import stryker4s.model.{Mutant, TransformedMutants}
+import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
 
 import scala.meta._
-import scala.meta.contrib._
 
 class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
   val sut = new StatementTransformer

@@ -21,8 +21,8 @@ trait LogMatchers {
     */
   private implicit val threadName: String = Thread.currentThread().getName
 
-  protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit threadName: String)
-      extends BeMatcher[String] {
+  protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit threadName: String) extends BeMatcher[String] {
+
     def apply(expectedLogMessage: String): MatchResult = {
       getLoggingEventWithLogMessage(expectedLogMessage) match {
         case None =>

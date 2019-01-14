@@ -1,4 +1,5 @@
 package stryker4s.run
+
 import java.nio.file.Path
 
 import better.files.File
@@ -23,7 +24,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     val tmpDir = prepareEnv(mutatedFiles, sourceCollector)
 
     info("Starting initial test run...")
-    if(!runInitialTest(tmpDir)) {
+    if (!runInitialTest(tmpDir)) {
       throw InitialTestRunFailedException(
         "Initial test run failed. Please make sure your tests pass before running Stryker4s.")
     }
@@ -72,8 +73,7 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     filePath.overwrite(mutatedFile.tree.syntax)
   }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile],
-                         tmpDir: File): Iterable[MutantRunResult] = {
+  private def runMutants(mutatedFiles: Iterable[MutatedFile], tmpDir: File): Iterable[MutantRunResult] = {
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     for {

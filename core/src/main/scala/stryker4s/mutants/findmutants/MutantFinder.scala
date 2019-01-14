@@ -3,8 +3,9 @@ package stryker4s.mutants.findmutants
 import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
-import stryker4s.model.{Mutant, MutationsInSource}
 import stryker4s.extensions.FileExtensions._
+import stryker4s.model.{Mutant, MutationsInSource}
+
 import scala.meta.Source
 import scala.meta.parsers.{Parsed, XtensionParseInputLike}
 

@@ -152,8 +152,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       a[ParseException] should be thrownBy sut.parseFile(noFile)
 
-      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(
-        loggedAsError)
+      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(loggedAsError)
     }
   }
 }

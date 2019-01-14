@@ -1,4 +1,5 @@
 package stryker4s.extensions.mutationtypes
+
 import scala.meta.Term
 
 case object And extends LogicalOperator {

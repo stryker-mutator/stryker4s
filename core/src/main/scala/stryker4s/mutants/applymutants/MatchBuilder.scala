@@ -25,7 +25,8 @@ class MatchBuilder extends Logging {
         case Failure(exception) =>
           error(s"Failed to construct pattern match: original statement [$origStatement]")
           error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")
-          error(s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}")
+          error(
+            s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}")
           error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
           debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
           debug("Please be so kind to copy the stacktrace into the issue", exception)
@@ -51,13 +52,12 @@ class MatchBuilder extends Logging {
 
   private def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 
-  private def groupTransformedStatements(
-      transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
+  private def groupTransformedStatements(transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
     transformedStatements.transformedStatements
       .groupBy(_.originalStatement)
       .mapValues(transformedMutants =>
         transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
-      .map({case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList)})
+      .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq
   }
 }

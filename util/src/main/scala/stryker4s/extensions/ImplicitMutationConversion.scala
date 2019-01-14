@@ -1,7 +1,8 @@
 package stryker4s.extensions
 
-import stryker4s.extensions.mutationtypes.{Mutation, SubstitutionMutation}
+import stryker4s.extensions.mutationtypes.SubstitutionMutation
 
+import scala.language.implicitConversions
 import scala.meta.Tree
 
 /**
@@ -13,7 +14,6 @@ import scala.meta.Tree
   * }}}
   */
 object ImplicitMutationConversion {
-  // Import implicitConversions to disable compiler warning
-  import scala.language.implicitConversions
+
   implicit def mutationToTree[T <: Tree](mutation: SubstitutionMutation[T]): T = mutation.tree
 }
