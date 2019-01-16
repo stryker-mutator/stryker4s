@@ -90,9 +90,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
     it("checks if the Scalameta workaround is still needed") {
       // If this test fails, the bug mentioned above is fixed, and the workaround can be removed
       val interpolated =
-        Term.Interpolate(q"s",
-          List(Lit.String("interpolate this"), Lit.String("bar")),
-          List(q"foo"))
+        Term.Interpolate(q"s", List(Lit.String("interpolate this"), Lit.String("bar")), List(q"foo"))
 
       // We expect that after the fix the interpolate string will look as followed.
       // interpolated.syntax should equal("""s"interpolate this${foo}bar"""")

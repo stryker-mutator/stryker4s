@@ -126,7 +126,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
       when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List.empty)
 
-      a [InitialTestRunFailedException] shouldBe thrownBy( sut.apply(Seq.empty, fileCollectorMock) )
+      a[InitialTestRunFailedException] shouldBe thrownBy(sut.apply(Seq.empty, fileCollectorMock))
     }
 
     describe("Log tests") {
@@ -162,7 +162,6 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         "Starting test-run 2..." shouldBe loggedAsInfo
         "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
       }
-
 
       it("should properly log the initial test run") {
         val testProcessRunner = TestProcessRunner()

@@ -11,6 +11,7 @@ sealed trait Mutation[T <: Tree] {
 }
 
 object Mutation {
+
   // List of mutations
   val mutations: List[String] = List[String](
     classOf[EqualityOperator].getSimpleName,
@@ -31,7 +32,9 @@ object Mutation {
   *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
   */
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
+
   val tree: T
+
   def unapply(arg: T): Option[T] =
     Some(arg)
       .filter(_.isEqual(tree))

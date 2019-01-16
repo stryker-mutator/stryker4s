@@ -12,6 +12,7 @@ import stryker4s.run.{MutantRunner, Stryker4sRunner}
   */
 class Stryker4sSbtRunner(state: State) extends Stryker4sRunner {
 
-  override def resolveRunner()(implicit config: Config): MutantRunner = new SbtMutantRunner(state, ProcessRunner.resolveRunner())
+  override def resolveRunner()(implicit config: Config): MutantRunner =
+    new SbtMutantRunner(state, ProcessRunner.resolveRunner())
 
 }

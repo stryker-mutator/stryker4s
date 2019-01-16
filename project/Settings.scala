@@ -4,6 +4,7 @@ import scoverage.ScoverageKeys._
 import xerial.sbt.Sonatype.autoImport.sonatypePublishTo
 
 object Settings {
+
   val scalacOpts: Seq[String] = Seq(
     "-deprecation", // Emit warning and location for usages of deprecated APIs.
     "-encoding",
@@ -55,11 +56,9 @@ object Settings {
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),
     homepage := Some(url("https://stryker-mutator.io/")),
-    licenses := Seq(
-      "Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
+    licenses := Seq("Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
     scmInfo := Some(
-      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"),
-              "scm:git@github.com:stryker-mutator/stryker4s.git")),
+      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"), "scm:git@github.com:stryker-mutator/stryker4s.git")),
     developers := List(
       Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))

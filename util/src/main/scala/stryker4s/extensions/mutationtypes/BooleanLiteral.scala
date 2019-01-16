@@ -1,4 +1,5 @@
 package stryker4s.extensions.mutationtypes
+
 import scala.meta.Lit
 
 case object True extends BooleanLiteral {

@@ -8,6 +8,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 object TestAppender {
+
   val events: mutable.Map[String, ListBuffer[LogEvent]] =
     new mutable.HashMap[String, ListBuffer[LogEvent]]().withDefaultValue(ListBuffer.empty)
 

@@ -1,4 +1,5 @@
 package stryker4s.extensions.mutationtypes
+
 import scala.meta.{Lit, Term}
 
 case object EmptyString extends StringLiteral[Lit.String] {
@@ -19,6 +20,7 @@ case object EmptyStringInterpolation extends StringLiteral[Term.Interpolate] {
 /** Not a mutation, just an extractor for pattern matching on empty string
   */
 case object NonEmptyString {
+
   def unapply(arg: Lit.String): Option[Lit.String] =
     Some(arg)
       .filter(_.value.nonEmpty)
@@ -36,6 +38,7 @@ case object StringInterpolation {
 }
 
 private object ParentIsInterpolatedString {
+
   def apply(arg: Lit.String): Boolean = arg.parent match {
     // Do not mutate interpolated strings
     case Some(_: Term.Interpolate) => true

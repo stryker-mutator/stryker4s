@@ -11,7 +11,8 @@ import scala.meta._
 import scala.meta.contrib._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
-  val sut = new MutantMatcher()(config = Config())
+
+  private val sut = new MutantMatcher()(config = Config())
 
   def expectMutations(matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
                       tree: Tree,
@@ -22,15 +23,12 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
   }
 
-  def expectMutations(actualMutants: Seq[Option[Mutant]],
-                      original: Term,
-                      expectedMutations: Term*): Unit = {
+  def expectMutations(actualMutants: Seq[Option[Mutant]], original: Term, expectedMutations: Term*): Unit = {
     expectedMutations.foreach(expectedMutation => {
       val actualMutant = actualMutants.flatten
-        .find(
-          mutant =>
-            mutant.mutated.isEqual(expectedMutation) &&
-              mutant.original.isEqual(original))
+        .find(mutant =>
+          mutant.mutated.isEqual(expectedMutation) &&
+            mutant.original.isEqual(original))
         .getOrElse(fail("mutant not found"))
 
       actualMutant.original should equal(original)
@@ -72,9 +70,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
 
       found should have length 2
-      expectMutations(found,
-                      q"List(1, 2).filterNot(filterNotFunc)",
-                      q"List(1, 2).filter(filterNotFunc)")
+      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
       expectMutations(found,
                       q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
                       q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")

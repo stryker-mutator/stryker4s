@@ -1,4 +1,5 @@
 package stryker4s.config.implicits
+
 import java.nio.file.Path
 
 import better.files.File
