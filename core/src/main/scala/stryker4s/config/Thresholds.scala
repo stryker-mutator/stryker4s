@@ -1,6 +1,6 @@
 package stryker4s.config
 
-import stryker4s.extensions.exceptions.InvalidThresholdValueException
+import stryker4s.extension.exception.InvalidThresholdValueException
 
 case class Thresholds(high: Int = 80, low: Int = 60, break: Int = 0) {
   failIfNotPercentage(high, low, break)

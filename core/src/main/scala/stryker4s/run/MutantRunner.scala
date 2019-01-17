@@ -5,9 +5,9 @@ import java.nio.file.Path
 import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
-import stryker4s.extensions.FileExtensions._
-import stryker4s.extensions.exceptions.InitialTestRunFailedException
-import stryker4s.extensions.score.MutationScoreCalculator
+import stryker4s.extension.FileExtensions._
+import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.process.ProcessRunner

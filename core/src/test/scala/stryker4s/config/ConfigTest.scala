@@ -1,7 +1,7 @@
 package stryker4s.config
 
 import better.files.File
-import stryker4s.Stryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {

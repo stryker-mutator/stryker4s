@@ -1,10 +1,10 @@
 package stryker4s.mutants.applymutants
 
-import stryker4s.Stryker4sSuite
-import stryker4s.extensions.TreeExtensions._
-import stryker4s.extensions.mutationtypes._
+import stryker4s.extension.TreeExtensions._
+import stryker4s.extension.mutationtype._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 import scala.meta._
