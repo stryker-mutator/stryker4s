@@ -23,11 +23,8 @@ lazy val stryker4sIntegrationTests = (project withId "stryker4s-integration-test
   .settings(Settings.commonSettings)
 
 /**
-  * Command Runners
+  * Runners
   */
-lazy val stryker4sRunners = (project withId "stryker4s-runners" in file("runners"))
-  .settings(Settings.commonSettings)
-
 lazy val stryker4sCommandRunner = (project withId "stryker4s-command-runner" in file("runners/command-runner"))
   .settings(Settings.commonSettings)
 
