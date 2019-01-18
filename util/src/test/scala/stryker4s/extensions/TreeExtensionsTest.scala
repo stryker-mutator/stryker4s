@@ -216,6 +216,27 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       result should equal(q"{ case false => 1; case _ => 2 }")
     }
+
+    it("should match on more than the single variable in a Pat.Alternative") {
+      val tree = q"variable match { case 1 | 2 => 3; case _ => 4 }"
+      val defTree = q"def foo(variable: Int) = $tree"
+      val subTree = defTree.find(q"2").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"variable match { case 1 | 2 => 3; case _ => 4 }")
+    }
+
+    it("should match on more than the single variable in a Pat.Extract") {
+      val hello = Lit.String("hello")
+      val tree = q"variable match { case GET -> Root / $hello => 3; case _ => 4 }"
+      val defTree = q"def foo(variable: Int) = $tree"
+      val subTree = defTree.find(hello).value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"variable match { case GET -> Root / $hello => 3; case _ => 4 }")
+    }
   }
 
   describe("find") {
