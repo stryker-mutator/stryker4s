@@ -1,11 +1,12 @@
 import sbt.Keys._
-import sbt._
+import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
+import sbt.{Def, _}
 import scoverage.ScoverageKeys._
 import xerial.sbt.Sonatype.autoImport.sonatypePublishTo
 
 object Settings {
 
-  val scalacOpts: Seq[String] = Seq(
+  lazy val scalacOpts: Seq[String] = Seq(
     "-deprecation", // Emit warning and location for usages of deprecated APIs.
     "-encoding",
     "utf-8", // Specify character encoding used by source files.
@@ -18,7 +19,7 @@ object Settings {
     "-Ywarn-dead-code" // Warn when dead code is identified.
   )
 
-  def commonSettings: Seq[Setting[_]] = Seq(
+  lazy val commonSettings: Seq[Setting[_]] = Seq(
     publishTo := sonatypePublishTo.value,
     Test / parallelExecution := false, // For logging tests
     libraryDependencies ++= Seq(
@@ -34,13 +35,21 @@ object Settings {
     )
   )
 
-  def coreSettings: Seq[Setting[_]] = Seq(
+  lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.log4jslf4jImpl
     )
   )
 
-  def buildLevelSettings: Seq[Setting[_]] = inThisBuild(
+  lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(
+    scriptedLaunchOpts := {
+      scriptedLaunchOpts.value ++
+        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
+  )
+
+  lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
     buildInfo ++
       Seq(
         scalaVersion := Dependencies.versions.scala212,

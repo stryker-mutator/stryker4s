@@ -5,11 +5,10 @@ lazy val root = (project withId "stryker4s" in file("."))
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sRunner")
   )
   .aggregate(stryker4sCore, sbtStryker4s)
-  .dependsOn(stryker4sCore)
+  .dependsOn(stryker4sCommandRunner)
 
 lazy val stryker4sCore = (project withId "stryker4s-core" in file("core"))
   .settings(Settings.commonSettings)
-  .settings(Settings.coreSettings)
 
 lazy val stryker4sReporter = (project withId "stryker4s-reporter" in file("reporter"))
   .settings(Settings.commonSettings)
@@ -21,16 +20,10 @@ lazy val stryker4sIntegrationTests = (project withId "stryker4s-integration-test
   * Runners
   */
 lazy val stryker4sCommandRunner = (project withId "stryker4s-command-runner" in file("runners/command-runner"))
-  .settings(Settings.commonSettings)
+  .settings(Settings.commonSettings, Settings.commandRunnerSettings)
+  .dependsOn(stryker4sCore)
 
 lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("runners/sbt"))
   .enablePlugins(SbtPlugin)
-  .settings(
-    Settings.commonSettings,
-    scriptedLaunchOpts := {
-      scriptedLaunchOpts.value ++
-        Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-    },
-    scriptedBufferLog := false
-  )
+  .settings(Settings.commonSettings, Settings.sbtPluginSettings)
   .dependsOn(stryker4sCore)
