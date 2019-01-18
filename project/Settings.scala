@@ -36,9 +36,7 @@ object Settings {
   )
 
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
-    libraryDependencies ++= Seq(
-      Dependencies.log4jslf4jImpl
-    )
+    libraryDependencies += Dependencies.log4jslf4jImpl
   )
 
   lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(

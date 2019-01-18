@@ -2,10 +2,10 @@ lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     Settings.buildLevelSettings,
     skip in publish := true,
-    mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sRunner")
+    mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sCommandRunner")
   )
   .aggregate(stryker4sCore, sbtStryker4s)
-  .dependsOn(stryker4sCommandRunner)
+  .dependsOn(stryker4sCommandRunner) // So 'run' command also works from root of project
 
 lazy val stryker4sCore = (project withId "stryker4s-core" in file("core"))
   .settings(Settings.commonSettings)
@@ -14,7 +14,10 @@ lazy val stryker4sReporter = (project withId "stryker4s-reporter" in file("repor
   .settings(Settings.commonSettings)
 
 lazy val stryker4sIntegrationTests = (project withId "stryker4s-integration-tests" in file("integration-tests"))
-  .settings(Settings.commonSettings)
+  .settings(
+    Settings.commonSettings,
+    skip in publish := true
+  )
 
 /**
   * Runners
