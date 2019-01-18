@@ -12,8 +12,8 @@ final case class InitialTestRunFailedException(message: String) extends Stryker4
 final case class InvalidThresholdValueException(message: String) extends Stryker4sException(message)
 
 final case class InvalidExclusionsException(invalid: Iterable[String])
-  extends Stryker4sException(
-    s"""Invalid exclusion option(s): '${invalid.mkString(", ")}'
+    extends Stryker4sException(
+      s"""Invalid exclusion option(s): '${invalid.mkString(", ")}'
        |Valid exclusions are ${Mutation.mutations
-      .mkString(", ")}.""".stripMargin
-  )
+           .mkString(", ")}""".stripMargin
+    )

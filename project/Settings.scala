@@ -31,7 +31,8 @@ object Settings {
       Dependencies.betterFiles,
       Dependencies.log4jApi,
       Dependencies.log4jCore,
-      Dependencies.grizzledSlf4j
+      Dependencies.grizzledSlf4j,
+      Dependencies.log4jslf4jImpl % Test // Logging tests need a slf4j implementation
     )
   )
 
