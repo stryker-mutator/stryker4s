@@ -51,8 +51,8 @@ case object Exists extends ArgMethodExpression {
   protected val methodName = "exists"
 }
 
-case object ForAll extends ArgMethodExpression {
-  protected val methodName = "forAll"
+case object Forall extends ArgMethodExpression {
+  protected val methodName = "forall"
 }
 
 case object Take extends ArgMethodExpression {
