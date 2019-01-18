@@ -13,12 +13,6 @@ lazy val stryker4sCore = (project withId "stryker4s-core" in file("core"))
 lazy val stryker4sReporter = (project withId "stryker4s-reporter" in file("reporter"))
   .settings(Settings.commonSettings)
 
-lazy val stryker4sIntegrationTests = (project withId "stryker4s-integration-tests" in file("integration-tests"))
-  .settings(
-    Settings.commonSettings,
-    skip in publish := true
-  )
-
 /**
   * Runners
   */
