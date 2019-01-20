@@ -22,6 +22,9 @@ object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     publishTo := sonatypePublishTo.value,
     Test / parallelExecution := false, // For logging tests
+  )
+
+  lazy val coreSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,

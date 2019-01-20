@@ -8,10 +8,8 @@ lazy val root = (project withId "stryker4s" in file("."))
   .dependsOn(stryker4sCommandRunner) // So 'run' command also works from root of project
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
+  .settings(Settings.coreSettings)
 
-/**
-  * Runners
-  */
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "runners/command-runner")
   .settings(Settings.commandRunnerSettings)
   .dependsOn(stryker4sCore)
