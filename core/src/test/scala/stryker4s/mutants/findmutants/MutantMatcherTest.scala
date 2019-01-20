@@ -208,20 +208,20 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       )
     }
 
-    it("should match exists to forAll") {
+    it("should match exists to forall") {
       expectedMutations(
         sut.matchMethodExpression,
         q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
         Exists,
-        ForAll
+        Forall
       )
     }
 
-    it("should match forAll to exists") {
+    it("should match forall to exists") {
       expectedMutations(
         sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
-        ForAll,
+        q"def foo = List(1, 2, 3).forall(_ % 2 == 0)",
+        Forall,
         Exists
       )
     }
