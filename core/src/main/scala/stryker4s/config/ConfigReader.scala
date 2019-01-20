@@ -1,30 +1,15 @@
 package stryker4s.config
 
 import java.io.FileNotFoundException
-import java.nio.file.Path
 
 import better.files.File
-import ch.qos.logback.classic.{Level, Logger}
 import grizzled.slf4j.Logging
-import org.slf4j.{LoggerFactory, Logger => Slf4jLogger}
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.core.config.Configurator
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
-import pureconfig.{ConfigReader => PConfigReader}
-import stryker4s.run.report.{ConsoleReporter, HtmlReporter, MutantRunReporter}
+import stryker4s.config.implicits.ConfigReaderImplicits
 
-object ConfigReader extends Logging {
-
-  /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
-    *
-    */
-  private[this] implicit val toFileReader: PConfigReader[File] =
-    PConfigReader[Path].map(p => File(p))
-  private[this] implicit val logLevelReader: PConfigReader[Level] = PConfigReader[String] map (
-      level => Level.toLevel(level))
-  private[this] implicit val toReporterList: PConfigReader[List[MutantRunReporter]] =
-    PConfigReader[List[String]].map(_.map {
-      case MutantRunReporter.`consoleReporter` => new ConsoleReporter
-      case MutantRunReporter.`htmlReporter`    => new HtmlReporter
-    })
+object ConfigReader extends Logging with ConfigReaderImplicits {
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
@@ -45,7 +30,10 @@ object ConfigReader extends Logging {
 
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
-      info("Config used: " + defaultConf.toHoconString)
+      // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
+      //  If that's fixed we can add this again
+      //  https://github.com/stryker-mutator/stryker4s/issues/116
+      // info("Config used: " + defaultConf.toHoconString)
 
       defaultConf
     case _ =>
@@ -54,14 +42,13 @@ object ConfigReader extends Logging {
       throw ConfigReaderException(failures)
   }
 
-  /**
-    * Sets the logging level to one of the following levels:
+  /** Sets the logging level to one of the following levels:
     * OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
     *
     * @param level the logging level to use
     */
   private def setLoggingLevel(level: Level): Unit = {
-    LoggerFactory.getLogger(Slf4jLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger].setLevel(level)
-    info(s"Setting logging level to $level.")
+    Configurator.setRootLevel(level)
+    info(s"Set logging level to $level.")
   }
 }

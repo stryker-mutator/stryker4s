@@ -3,20 +3,20 @@ package stryker4s.mutants.findmutants
 import java.nio.file.NoSuchFileException
 
 import better.files.File
-import org.scalatest.BeforeAndAfterEach
+import stryker4s.config.Config
+import stryker4s.extension.FileExtensions._
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
-import stryker4s.{Stryker4sSuite, TestAppender}
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 import scala.meta.parsers.ParseException
 
-class MutantFinderTest
-    extends Stryker4sSuite
-    with TreeEquality
-    with LogMatchers
-    with BeforeAndAfterEach {
+class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
+
+  private implicit val config: Config = Config()
 
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
+
   describe("parseFile") {
     it("should parse an existing file") {
       val sut = new MutantFinder(new MutantMatcher)
@@ -61,7 +61,7 @@ class MutantFinderTest
       val sut = new MutantFinder(new MutantMatcher)
       val source = source"case class Foo(s: String)"
 
-      val result = sut.findMutants(source)
+      val result = sut.findMutants(source)._1
 
       result should be(empty)
     }
@@ -73,7 +73,7 @@ class MutantFinderTest
                     def foobar = s == "foobar"
                   }"""
 
-      val result = sut.findMutants(source)
+      val result = sut.findMutants(source)._1
 
       result should have length 2
 
@@ -84,6 +84,45 @@ class MutantFinderTest
       val secondMutant = result(1)
       secondMutant.original should equal(Lit.String("foobar"))
       secondMutant.mutated should equal(Lit.String(""))
+    }
+
+    it("should filter out excluded mutants") {
+      val conf: Config = config.copy(excludedMutations = Set("LogicalOperator"))
+      val sut = new MutantFinder(new MutantMatcher()(conf))(conf)
+      val source =
+        source"""case class Bar(s: String) {
+                    def and(a: Boolean, b: Boolean) = a && b
+                  }"""
+
+      val (result, excluded) = sut.findMutants(source)
+      excluded shouldBe 1
+      result should have length 0
+    }
+
+    it("should filter out string mutants inside annotations") {
+      val sut = new MutantFinder(new MutantMatcher)
+      val source =
+        source"""@Annotation("Class Annotation")
+                 case class Bar(
+                    @Annotation("Parameter Annotation") s: String = "s") {
+
+                    @Annotation("Function Annotation")
+                    def aFunction(@Annotation("Parameter Annotation 2") param: String = "s") = {
+                      "aFunction"
+                    }
+
+                    @Annotation("Val Annotation") val x = { val l = "x"; l }
+                    @Annotation("Var Annotation") var y = { val k = "y"; k }
+                  }
+                  @Annotation("Object Annotation")
+                  object Foo {
+                    val value = "value"
+                  }
+          """
+
+      val (result, excluded) = sut.findMutants(source)
+      excluded shouldBe 0
+      result should have length 6
     }
   }
 
@@ -107,27 +146,13 @@ class MutantFinderTest
   }
 
   describe("logging") {
-    it("should debug log a parsed file") {
-      val sut = new MutantFinder(new MutantMatcher)
-      val file = exampleClassFile
-
-      sut.parseFile(file)
-
-      s"Parsed file '$exampleClassFile'" should be(loggedAsDebug)
-    }
-
     it("should error log an unfound file") {
       val sut = new MutantFinder(new MutantMatcher)
       val noFile = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
       a[ParseException] should be thrownBy sut.parseFile(noFile)
 
-      s"Error while parsing file '$noFile', expected class or object definition" should be(
-        loggedAsError)
+      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(loggedAsError)
     }
-  }
-
-  override def afterEach(): Unit = {
-    TestAppender.reset
   }
 }

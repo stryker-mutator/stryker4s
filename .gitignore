@@ -62,3 +62,7 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+!core/src/test/resources/fileTests/target/IgnoredFile.scala
+
+# stryker specific
+stryker4s.conf

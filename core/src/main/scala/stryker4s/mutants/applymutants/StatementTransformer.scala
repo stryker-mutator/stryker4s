@@ -1,6 +1,6 @@
 package stryker4s.mutants.applymutants
 
-import stryker4s.extensions.TreeExtensions._
+import stryker4s.extension.TreeExtensions._
 import stryker4s.model._
 
 import scala.meta.contrib._
@@ -14,6 +14,7 @@ class StatementTransformer {
       .groupBy(mutant => mutant.original)
       .map { case (original, mutants) => transformMutant(original, mutants) }
       .toSeq
+      .sortBy(_.mutantStatements.map(_.id).max)
 
     SourceTransformations(source, transformedMutants)
   }
@@ -26,7 +27,7 @@ class StatementTransformer {
     val transformedMutants = registered.map { mutant =>
       val newMutated = transformStatement(topStatement, mutant.original, mutant.mutated)
 
-      mutant.copy(original = topStatement, mutated = newMutated)
+      Mutant(mutant.id, topStatement, newMutated, mutant.mutationType)
     }.toList
 
     TransformedMutants(topStatement, transformedMutants)

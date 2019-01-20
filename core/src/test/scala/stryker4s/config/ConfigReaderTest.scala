@@ -1,14 +1,13 @@
 package stryker4s.config
 
 import better.files.File
-import ch.qos.logback.classic.Level
-import org.scalatest.BeforeAndAfterEach
+import org.apache.logging.log4j.Level
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
 import stryker4s.run.report.ConsoleReporter
-import stryker4s.scalatest.FileUtil
-import stryker4s.{Stryker4sSuite, TestAppender}
+import stryker4s.scalatest.{FileUtil, LogMatchers}
+import stryker4s.testutil.Stryker4sSuite
 
-class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
+class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
   describe("loadConfig") {
     it("should load default config with a nonexistent conf file") {
@@ -17,7 +16,7 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val result = ConfigReader.readConfig(confPath)
 
       result.baseDir shouldBe File.currentWorkingDirectory
-      result.files shouldBe Seq("**/main/scala/**/*.scala")
+      result.mutate shouldBe Seq("**/main/scala/**/*.scala")
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.INFO
       result.reporters.head shouldBe an[ConsoleReporter]
@@ -47,22 +46,32 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
       val result = ConfigReader.readConfig(confPath)
 
       result.baseDir shouldBe File("/tmp/project")
-      result.files shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
+      result.excludedMutations shouldBe Set("BooleanLiteral")
+    }
+
+    it("should return a failure on an invalid exclusion mutator") {
+      val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
+
+      lazy val result = ConfigReader.readConfig(confPath)
+      val exc = the[ConfigReaderException[_]] thrownBy result
     }
 
     it("should return a failure on a misshapen test runner") {
-      val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
+      val confPath = FileUtil.getResource("stryker4sconfs/invalidExcludedMutation.conf")
 
       lazy val result = ConfigReader.readConfig(confPath)
       val exc = the[ConfigReaderException[_]] thrownBy result
 
       val head = exc.failures.head
       head shouldBe a[ConvertFailure]
-      head.description should equal(
-        s"""No valid coproduct choice found for '{"args":"foo","command":"bar","type":"someOtherTestRunner"}'.""")
+      val errorMessage =
+        s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
+           |Valid exclusions are EqualityOperator, BooleanLiteral, LogicalOperator, StringLiteral, MethodExpression.""".stripMargin
+      errorMessage shouldBe loggedAsError
     }
   }
 
@@ -82,11 +91,8 @@ class ConfigReaderTest extends Stryker4sSuite with BeforeAndAfterEach {
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+      // Ignored due to transitive dependency clash in sbt
+      // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
     }
-  }
-
-  override def afterEach(): Unit = {
-    TestAppender.reset
   }
 }

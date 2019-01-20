@@ -10,8 +10,10 @@ cache:
     - $HOME/.sbt
 
 scala:
-   - 2.12.6
-   - 2.11.12
+   - 2.12.8
+
+script:
+  - sbt clean coverage test coverageReport
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates

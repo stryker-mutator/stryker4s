@@ -1,7 +1,7 @@
 package stryker4s.config
 
 import better.files.File
-import stryker4s.Stryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {
@@ -12,10 +12,11 @@ class ConfigTest extends Stryker4sSuite {
 
       val expected =
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
-           |files=[
+           |excluded-mutations=[]
+           |log-level=INFO
+           |mutate=[
            |    "**/main/scala/**/*.scala"
            |]
-           |log-level=INFO
            |reporters=[
            |    console
            |]
@@ -23,6 +24,11 @@ class ConfigTest extends Stryker4sSuite {
            |    args=test
            |    command=sbt
            |    type=commandrunner
+           |}
+           |thresholds {
+           |    break=0
+           |    high=80
+           |    low=60
            |}
            |""".stripMargin
       result.toString should equal(expected.toString)
@@ -32,17 +38,21 @@ class ConfigTest extends Stryker4sSuite {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut = Config(filePaths,
                        File("tmp"),
-                       testRunner = CommandRunner("mvn", "clean test"))
+                       testRunner = CommandRunner("mvn", "clean test"),
+                       excludedMutations = Set("BooleanLiteral"))
 
       val result = sut.toHoconString
 
       val expected =
         s"""base-dir="${File("tmp").pathAsString.replace("\\", "\\\\")}"
-           |files=[
+           |excluded-mutations=[
+           |    BooleanLiteral
+           |]
+           |log-level=INFO
+           |mutate=[
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
            |]
-           |log-level=INFO
            |reporters=[
            |    console
            |]
@@ -50,6 +60,11 @@ class ConfigTest extends Stryker4sSuite {
            |    args="clean test"
            |    command=mvn
            |    type=commandrunner
+           |}
+           |thresholds {
+           |    break=0
+           |    high=80
+           |    low=60
            |}
            |""".stripMargin
       result.toString should equal(expected.toString)

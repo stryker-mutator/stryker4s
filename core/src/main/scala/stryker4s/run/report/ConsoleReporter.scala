@@ -6,6 +6,7 @@ import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model.{Detected, MutantRunResults, Undetected}
 import stryker4s.run.report.mapper.MutantRunResultMapper
+import stryker4s.run.threshold._
 
 class ConsoleReporter extends MutantRunReporter with Logging with MutantRunResultMapper {
 
@@ -34,6 +35,16 @@ class ConsoleReporter extends MutantRunReporter with Logging with MutantRunResul
           }
           .mkString(lineSeparator()))
 
-    info(s"Mutation score: ${runResults.mutationScore}%")
+    val scoreStatus = ThresholdChecker.determineScoreStatus(runResults.mutationScore)
+    scoreStatus match {
+      case SuccessStatus => info(s"Mutation score: ${runResults.mutationScore}%")
+      case WarningStatus => warn(s"Mutation score: ${runResults.mutationScore}%")
+      case DangerStatus =>
+        error(s"Mutation score dangerously low!")
+        error(s"Mutation score: ${runResults.mutationScore}%.")
+      case ErrorStatus =>
+        error(
+          s"Mutation score below threshold! Score: ${runResults.mutationScore}. Threshold: ${config.thresholds.break}")
+    }
   }
 }
