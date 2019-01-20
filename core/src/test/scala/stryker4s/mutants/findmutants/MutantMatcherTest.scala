@@ -1,11 +1,11 @@
 package stryker4s.mutants.findmutants
 
-import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
-import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
-import stryker4s.extensions.mutationtypes._
+import stryker4s.extension.ImplicitMutationConversion.mutationToTree
+import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 import scala.meta.contrib._

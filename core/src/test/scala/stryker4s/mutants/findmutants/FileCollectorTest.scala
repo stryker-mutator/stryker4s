@@ -2,10 +2,10 @@ package stryker4s.mutants.findmutants
 
 import better.files.File
 import org.mockito.integrations.scalatest.MockitoFixture
-import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.util.{Failure, Try}
 

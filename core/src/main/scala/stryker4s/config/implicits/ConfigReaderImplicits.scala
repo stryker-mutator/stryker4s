@@ -6,8 +6,8 @@ import better.files.File
 import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
-import stryker4s.extensions.exceptions.InvalidExclusionsException
-import stryker4s.extensions.mutationtypes.Mutation
+import stryker4s.extension.exception.InvalidExclusionsException
+import stryker4s.extension.mutationtype.Mutation
 import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
 
 trait ConfigReaderImplicits extends Logging {

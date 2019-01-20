@@ -1,8 +1,8 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.config.Config
-import stryker4s.extensions.TreeExtensions.IsInAnnotationExtensions
-import stryker4s.extensions.mutationtypes._
+import stryker4s.extension.TreeExtensions.IsInAnnotationExtensions
+import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 
 import scala.meta.{Term, Tree}
