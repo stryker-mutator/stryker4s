@@ -1,11 +1,19 @@
 package stryker4s.run.report
 
+import java.util.concurrent.TimeUnit
+
+import better.files.File
 import grizzled.slf4j.Logging
 import org.everit.json.schema.ValidationException
 import org.json.JSONObject
 import org.scalactic.Fail
+import stryker4s.config.Config
+import stryker4s.extension.mutationtype.EmptyString
+import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
 import stryker4s.testutil.{MutationTestingElementsJsonSchema, Stryker4sSuite}
 
+import scala.concurrent.duration.Duration
+import scala.meta._
 import scala.util.{Failure, Success, Try}
 
 class HtmlReporterTest extends Stryker4sSuite with Logging {
@@ -52,19 +60,23 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
       |}
     """.stripMargin
 
-  describe("") {
-//    it("") {
-//      val sut = new HtmlReporter
-//      implicit val config: Config = Config()
-//
-//      val mutantRunResult = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/core\\src\\main\\scala\\stryker4s\\config.scala")))
-//      val mutantRunResult2 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file")))
-//      val mutantRunResult3 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file2")))
-//      val mutantRunResult4 = Survived(Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file3")))
-//      val mutationRunResults = MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, Duration(10, TimeUnit.SECONDS))
-//
-//      sut.report(mutationRunResults)
-//    }
+  describe("dsa") {
+    it("dsa") {
+      val sut = new HtmlReporter
+      implicit val config: Config = Config()
+
+      val mutantRunResult = Killed(Mutant(0, q"4", q"5", EmptyString), config.baseDir.relativize(File("C:\\Users\\Legopiraat\\Programming\\Projects\\stryker\\stryker4s\\core\\src\\main\\scala\\stryker4s\\extension\\mutationtype\\BooleanLiteral.scala")))
+      val mutantRunResult2 = Killed(Mutant(0, q"4", q"5", EmptyString), config.baseDir.relativize(File("C:\\Users\\Legopiraat\\Programming\\Projects\\stryker\\stryker4s\\core\\src\\main\\scala\\stryker4s\\extension\\mutationtype\\BooleanLiteral.scala")))
+      val mutantRunResult3 = Killed(Mutant(0, q"4", q"5", EmptyString), config.baseDir.relativize(File("C:\\Users\\Legopiraat\\Programming\\Projects\\stryker\\stryker4s\\core\\src\\main\\scala\\stryker4s\\run\\report\\ConsoleReporter.scala")))
+      val mutantRunResult4 = Survived(Mutant(0, q"<", q">", EmptyString), config.baseDir.relativize(File("C:\\Users\\Legopiraat\\Programming\\Projects\\stryker\\stryker4s\\core\\src\\main\\scala\\stryker4s\\run\\report\\mapper\\MutantRunResultMapper.scala")))
+
+      val mutationRunResults =
+        MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4),
+                         100.0,
+                         Duration(10, TimeUnit.SECONDS))
+
+      sut.report(mutationRunResults)
+    }
   }
 
   describe("html reporter output validation") {

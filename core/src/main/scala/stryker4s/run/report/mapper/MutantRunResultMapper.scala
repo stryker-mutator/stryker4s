@@ -3,9 +3,10 @@ import java.nio.file.{Path, Paths}
 
 import better.files.File
 import stryker4s.config.Config
+import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 
-trait MutantRunResultMapper {
+trait MutantRunResultMapper extends MutationScoreCalculator {
 
   def toHtmlMutantRunResult(runResults: MutantRunResults)(implicit config: Config): HtmlMutantRunResults = {
     val detectedSize = runResults.results.collect { case d: Detected     => d }.size
@@ -32,7 +33,7 @@ trait MutantRunResultMapper {
                 result.mutant.id.toString,
                 result.mutant.mutationType.mutationName,
                 result.mutant.mutated.syntax,
-                calculateSpan(result.mutant).toList.toString(),
+                determineLocationInFile(result.mutant),
                 result.getClass.getSimpleName
               )
             })
@@ -47,8 +48,9 @@ trait MutantRunResultMapper {
                          htmlRunResults)
   }
 
-  private[this] def calculateSpan(mutant: Mutant): Array[Int] = {
-    Array(mutant.original.pos.startColumn, mutant.original.pos.endColumn)
+  private[this] def determineLocationInFile(mutant: Mutant): Location = {
+    val pos = mutant.original.pos
+    Location(Position(pos.startLine + 1, pos.startColumn), Position(pos.endLine + 1, pos.endColumn))
   }
 
   private[this] def calculateHealth(results: Iterable[MutantRunResult]): String = {
@@ -68,11 +70,6 @@ trait MutantRunResultMapper {
 
   private[this] def isBetween(score: Double, lowerBound: Double, upperBound: Double): Boolean = {
     score >= lowerBound && score <= upperBound
-  }
-
-  private[this] def calculateMutationScore(totalMutants: Double, detectedMutants: Double): Double = {
-    val mutationScore = detectedMutants / totalMutants * 100
-    BigDecimal(mutationScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
   private[this] def getFileSourceAsString(path: Path)(implicit config: Config): String = {
