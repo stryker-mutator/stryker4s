@@ -7,8 +7,7 @@ import stryker4s.model._
 
 trait MutantRunResultMapper {
 
-  def toHtmlMutantRunResult(runResults: MutantRunResults)(
-      implicit config: Config): HtmlMutantRunResults = {
+  def toHtmlMutantRunResult(runResults: MutantRunResults)(implicit config: Config): HtmlMutantRunResults = {
     val detectedSize = runResults.results.collect { case d: Detected     => d }.size
     val undetectedSize = runResults.results.collect { case u: Undetected => u }.size
 
@@ -31,7 +30,7 @@ trait MutantRunResultMapper {
             .map(result => {
               HtmlMutant(
                 result.mutant.id.toString,
-                result.mutant.mutatorName,
+                result.mutant.mutationType.mutationName,
                 result.mutant.mutated.syntax,
                 calculateSpan(result.mutant).toList.toString(),
                 result.getClass.getSimpleName
@@ -71,8 +70,7 @@ trait MutantRunResultMapper {
     score >= lowerBound && score <= upperBound
   }
 
-  private[this] def calculateMutationScore(totalMutants: Double,
-                                           detectedMutants: Double): Double = {
+  private[this] def calculateMutationScore(totalMutants: Double, detectedMutants: Double): Double = {
     val mutationScore = detectedMutants / totalMutants * 100
     BigDecimal(mutationScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
   }

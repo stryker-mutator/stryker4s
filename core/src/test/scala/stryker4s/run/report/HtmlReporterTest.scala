@@ -1,25 +1,17 @@
 package stryker4s.run.report
 
-import java.util.concurrent.TimeUnit
-
-import better.files.File
 import grizzled.slf4j.Logging
 import org.everit.json.schema.ValidationException
 import org.json.JSONObject
 import org.scalactic.Fail
-import stryker4s.config.Config
-import stryker4s.extensions.mutationtypes.{GreaterThan, LesserThan}
-import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
-import stryker4s.{MutationTestingElementsJsonSchema, Stryker4sSuite}
-import stryker4s.extensions.ImplicitMutationConversion._
+import stryker4s.testutil.{MutationTestingElementsJsonSchema, Stryker4sSuite}
 
-import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success, Try}
 
 class HtmlReporterTest extends Stryker4sSuite with Logging {
 
   /**
-  * Test report should be replaced by the html reporter output but this isn't available yet.
+    * Test report should be replaced by the html reporter output but this isn't available yet.
     */
   private[this] val testReport: String =
     """
@@ -61,18 +53,18 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
     """.stripMargin
 
   describe("") {
-    it("") {
-      val sut = new HtmlReporter
-      implicit val config: Config = Config()
-
-      val mutantRunResult = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/core\\src\\main\\scala\\stryker4s\\config.scala")))
-      val mutantRunResult2 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file")))
-      val mutantRunResult3 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file2")))
-      val mutantRunResult4 = Survived(Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file3")))
-      val mutationRunResults = MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, Duration(10, TimeUnit.SECONDS))
-
-      sut.report(mutationRunResults)
-    }
+//    it("") {
+//      val sut = new HtmlReporter
+//      implicit val config: Config = Config()
+//
+//      val mutantRunResult = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/core\\src\\main\\scala\\stryker4s\\config.scala")))
+//      val mutantRunResult2 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file")))
+//      val mutantRunResult3 = Killed(0, Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file2")))
+//      val mutantRunResult4 = Survived(Mutant(0, GreaterThan, LesserThan, "test"), config.baseDir.relativize(File("/to/a/file3")))
+//      val mutationRunResults = MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, Duration(10, TimeUnit.SECONDS))
+//
+//      sut.report(mutationRunResults)
+//    }
   }
 
   describe("html reporter output validation") {
@@ -92,11 +84,11 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
       MutationTestingElementsJsonSchema.mutationTestingElementsJsonSchema match {
         case Some(schema) =>
           Try(schema.validate(new JSONObject("{}"))) match {
-            case Success(_)         => fail("Should fail because input was not correct")
+            case Success(_) => fail("Should fail because input was not correct")
             case Failure(exception) =>
               val validationException = exception.asInstanceOf[ValidationException]
 
-              validationException.getAllMessages should  contain ("#: required key [name] not found")
+              validationException.getAllMessages should contain("#: required key [name] not found")
           }
         case None =>
           Fail("Schema could not be retrieved")
