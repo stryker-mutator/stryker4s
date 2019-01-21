@@ -3,6 +3,17 @@ sudo: false
 
 language: scala
 
+jdk:
+  - oraclejdk8
+  - oraclejdk11
+  - openjdk8
+  - openjdk11
+  - openjdk-ea
+
+matrix:
+  allow_failures:
+    - jdk: openjdk-ea # Allow build failures for pre-release JDK
+
 # These directories are cached to S3 at the end of the build
 cache:
   directories:
