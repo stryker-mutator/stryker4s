@@ -3,9 +3,9 @@ package stryker4s.config
 import better.files.File
 import org.apache.logging.log4j.Level
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
-import stryker4s.Stryker4sSuite
 import stryker4s.run.report.ConsoleReporter
 import stryker4s.scalatest.{FileUtil, LogMatchers}
+import stryker4s.testutil.Stryker4sSuite
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 

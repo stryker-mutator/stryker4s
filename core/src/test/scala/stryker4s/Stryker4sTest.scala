@@ -10,7 +10,8 @@ import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner}
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.FileUtil
-import stryker4s.stubs.{TestProcessRunner, TestReporter, TestSourceCollector}
+import stryker4s.testutil.stubs.{TestProcessRunner, TestReporter, TestSourceCollector}
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.util.Success
 

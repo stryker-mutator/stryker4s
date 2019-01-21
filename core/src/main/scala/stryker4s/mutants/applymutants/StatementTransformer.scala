@@ -1,6 +1,6 @@
 package stryker4s.mutants.applymutants
 
-import stryker4s.extensions.TreeExtensions._
+import stryker4s.extension.TreeExtensions._
 import stryker4s.model._
 
 import scala.meta.contrib._

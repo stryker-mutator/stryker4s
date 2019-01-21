@@ -1,10 +1,10 @@
 package stryker4s.run.threshold
 
 import org.scalatest.Assertion
-import stryker4s.Stryker4sSuite
 import stryker4s.config.{Config, Thresholds}
-import stryker4s.extensions.exceptions.InvalidThresholdValueException
+import stryker4s.extension.exception.InvalidThresholdValueException
 import stryker4s.scalatest.LogMatchers
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 

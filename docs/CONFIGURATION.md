@@ -8,7 +8,7 @@ stryker4s {
 }
 ```
 
-#### Files to mutate
+#### mutate
 
 **Config file:** `mutate: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** `[ "**/main/scala/**/*.scala" ]`  
@@ -20,10 +20,9 @@ The default for this will find files in the common Scala project format.
 
 You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
 
-#### Files in the sandbox
-
+#### files
 **Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
-**Default value:** result of `git ls-files --others --exclude-standard --cached`
+**Default value:** result of `git ls-files --others --exclude-standard --cached`  
 **Mandatory:** No  
 **Description:**  
 With `files` you can choose which files should be included in your mutation run sandbox.
@@ -37,7 +36,7 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 **Default value:** The directory from which the process is started  
 **Mandatory:** No  
 **Description:**  
-With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases.
+With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases. This value can also be relative to the current working directory, E.G.: `base-dir: submodule1` to set the base-dir to a submodule of your project.
 
 #### test-runner
 
@@ -67,8 +66,8 @@ With `log-level` you can override the default logging level with one of the foll
 
 #### excluded-mutations
 
-**Config file:** `excluded-mutations: ["BooleanLiteral"]`
-**Default value:** `[]`
+**Config file:** `excluded-mutations: ["BooleanLiteral"]`  
+**Default value:** `[]`  
 **Mandatory:** No  
 **Description:**  
 With `excluded-mutations`, you can turn off certain mutations in the project. Allowed values are the following:
@@ -81,10 +80,10 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 
 #### thresholds
 
-**Config file:** `thresholds{ high=80, low=60, break=0 }`
-**Default values:** high=80, low=60, break=0
-**Mandatory:** No
-**Description:**
+**Config file:** `thresholds{ high=80, low=60, break=0 }`  
+**Default values:** high=80, low=60, break=0  
+**Mandatory:** No  
+**Description:**  
 Specify the thresholds for mutation scores.
 
 - `mutation score >= high`: Success! Mutation score will be logged at the INFO level.

@@ -1,11 +1,11 @@
 package stryker4s.mutants.findmutants
 
-import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
-import stryker4s.extensions.ImplicitMutationConversion.mutationToTree
-import stryker4s.extensions.mutationtypes._
+import stryker4s.extension.ImplicitMutationConversion.mutationToTree
+import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 import scala.meta.contrib._
@@ -208,20 +208,20 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       )
     }
 
-    it("should match exists to forAll") {
+    it("should match exists to forall") {
       expectedMutations(
         sut.matchMethodExpression,
         q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
         Exists,
-        ForAll
+        Forall
       )
     }
 
-    it("should match forAll to exists") {
+    it("should match forall to exists") {
       expectedMutations(
         sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).forAll(_ % 2 == 0)",
-        ForAll,
+        q"def foo = List(1, 2, 3).forall(_ % 2 == 0)",
+        Forall,
         Exists
       )
     }
