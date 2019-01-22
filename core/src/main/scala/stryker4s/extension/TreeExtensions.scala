@@ -49,16 +49,17 @@ object TreeExtensions {
         */
       @tailrec
       private def parentOf(tree: Tree): Option[Term] = tree.parent match {
-        case Some(caseTree: Case) => // Case is found, go into that
-          caseTree.parent match {
-            case Some(term: Term) => Some(term) // Great success!
-            case Some(other)      => parentOf(other) // Keep going up
-            case None             => None
-          }
-        case Some(other) => parentOf(other) // Keep going up
-        case None        => None // Top of tree is reached, we better stop
+        case Some(caseTree: Case) => findInsideCase(caseTree) // Case is found, go into that
+        case Some(other)          => parentOf(other) // Keep going up
+        case None                 => None // Top of tree is reached, we better stop
       }
 
+      @tailrec
+      private def findInsideCase(caseTree: Tree): Option[Term] = caseTree.parent match {
+        case Some(term: Term) => Some(term) // Great success!
+        case Some(other)      => findInsideCase(other) // Keep going up
+        case None             => None
+      }
     }
   }
 
