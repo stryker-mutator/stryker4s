@@ -2,7 +2,8 @@ package stryker4s.extension
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.{Case, Lit, Mod, Term, Transformer, Tree}
+import scala.meta.{Case, Term, Transformer, Tree}
+import scala.reflect.ClassTag
 import scala.util.Try
 
 object TreeExtensions {
@@ -14,9 +15,9 @@ object TreeExtensions {
       */
     @tailrec
     final def topStatement(): Term = thisTerm match {
-      case PartialStatement(parent)    => parent.topStatement()
-      case LiteralPatternMatch(parent) => parent
-      case _                           => thisTerm
+      case PartialStatement(parent)     => parent.topStatement()
+      case ParentIsPatternMatch(parent) => parent
+      case _                            => thisTerm
     }
 
     /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
@@ -28,7 +29,7 @@ object TreeExtensions {
         * @return A Some of the parent if the given term is a partial statement,
         *         else a None if the given term is a full statement
         */
-      def unapply(term: Term): Option[Term] = term.parent collect {
+      final def unapply(term: Term): Option[Term] = term.parent collect {
         case parent: Term.Apply      => parent
         case parent: Term.Select     => parent
         case parent: Term.ApplyType  => parent
@@ -36,18 +37,28 @@ object TreeExtensions {
       }
     }
 
-    /** Extractor object to check if the [[scala.meta.Term]] is a literal inside a pattern match
+    /** Extractor object to check if the [[scala.meta.Term]] is inside a pattern match
       *
       */
-    private object LiteralPatternMatch {
+    private object ParentIsPatternMatch {
 
-      def unapply(literal: Lit): Option[Term] = literal.parent match {
-        case Some(parent: Case) =>
-          parent.parent collect {
-            case topParent: Term => topParent.topStatement()
+      final def unapply(term: Term): Option[Term] = if (term.isIn[Case]) parentOf(term) else None
+
+      /** Go up the tree, until a Case is found, then go up until a `Term` is found
+        *
+        */
+      @tailrec
+      private def parentOf(tree: Tree): Option[Term] = tree.parent match {
+        case Some(caseTree: Case) => // Case is found, go into that
+          caseTree.parent match {
+            case Some(term: Term) => Some(term) // Great success!
+            case Some(other)      => parentOf(other) // Keep going up
+            case None             => None
           }
-        case _ => None
+        case Some(other) => parentOf(other) // Keep going up
+        case None        => None // Top of tree is reached, we better stop
       }
+
     }
   }
 
