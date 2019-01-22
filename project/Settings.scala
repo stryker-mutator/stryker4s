@@ -51,6 +51,13 @@ object Settings {
     scriptedBufferLog := false
   )
 
+  lazy val mavenPluginSettings: Seq[Setting[_]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.mavenPlugin,
+      Dependencies.mavenPluginAnnotations
+    )
+  )
+
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
     buildInfo ++
       Seq(
