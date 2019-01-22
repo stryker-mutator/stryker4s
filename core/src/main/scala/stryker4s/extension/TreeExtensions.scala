@@ -85,18 +85,16 @@ object TreeExtensions {
     }
   }
 
-  implicit class IsInAnnotationExtensions(thisTree: Tree) {
+  implicit class TreeIsInExtension(thisTree: Tree) {
 
-    /** Returns if a tree is contained in an annotation.
+    /** Returns if a tree is contained in an tree of type `[T]`.
       * Recursively going up the tree until an annotation is found.
       */
     @tailrec
-    final def isInAnnotation: Boolean = {
-      thisTree.parent match {
-        case Some(_: Mod.Annot) => true
-        case Some(value: Tree)  => value.isInAnnotation
-        case _                  => false
-      }
+    final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean = thisTree.parent match {
+      case Some(_: T)        => true
+      case Some(value: Tree) => value.isIn[T]
+      case _                 => false
     }
   }
 }
