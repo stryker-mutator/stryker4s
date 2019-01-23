@@ -163,21 +163,6 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
         results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala")
       }
     }
-
-    it("should filter out files that don't exist") {
-      val processRunnerMock: ProcessRunner = mock[ProcessRunner]
-      implicit val config: Config = Config(baseDir = filledDirPath)
-      val filePath = "src/main/scala/package/doesnotexist.scala"
-      val gitProcessResult = Try(Seq(filePath))
-      when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir))
-        .thenReturn(gitProcessResult)
-
-      val sut = new FileCollector()
-
-      val results = sut.collectFilesToMutate(processRunnerMock)
-
-      results should be (empty)
-    }
   }
 
   describe("Collect files to copy over to tmp folder") {
