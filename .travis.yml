@@ -1,27 +1,16 @@
-# Use container-based infrastructure
-sudo: false
-
 language: scala
+
+scala:
+  - 2.12.8
 
 jdk:
   - oraclejdk8
-  - oraclejdk11
-  - openjdk8
   - openjdk11
   - openjdk-ea
 
 matrix:
   allow_failures:
     - jdk: openjdk-ea # Allow build failures for pre-release JDK
-
-# These directories are cached to S3 at the end of the build
-cache:
-  directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt
-
-scala:
-   - 2.12.8
 
 script:
   - sbt clean coverage test coverageReport
@@ -30,3 +19,9 @@ before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
+
+cache:
+  # These directories are cached to S3 at the end of the build
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
