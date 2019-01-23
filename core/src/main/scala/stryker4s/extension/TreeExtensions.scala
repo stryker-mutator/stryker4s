@@ -42,23 +42,16 @@ object TreeExtensions {
       */
     private object ParentIsPatternMatch {
 
-      final def unapply(term: Term): Option[Term] = if (term.isIn[Case]) parentOf(term) else None
-
       /** Go up the tree, until a Case is found, then go up until a `Term` is found
         *
         */
-      @tailrec
-      private def parentOf(tree: Tree): Option[Term] = tree.parent match {
-        case Some(caseTree: Case) => findInsideCase(caseTree) // Case is found, go into that
-        case Some(other)          => parentOf(other) // Keep going up
-        case None                 => None // Top of tree is reached, we better stop
-      }
+      final def unapply(term: Term): Option[Term] = findParent[Case](term) flatMap findParent[Term]
 
       @tailrec
-      private def findInsideCase(caseTree: Tree): Option[Term] = caseTree.parent match {
-        case Some(term: Term) => Some(term) // Great success!
-        case Some(other)      => findInsideCase(other) // Keep going up
-        case None             => None
+      private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] = tree.parent match {
+        case Some(term: T) => Some(term)
+        case Some(other)   => findParent(other)
+        case None          => None
       }
     }
   }
@@ -70,10 +63,8 @@ object TreeExtensions {
       * @param toFind Statement to find
       * @return A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
-    def find[T <: Tree](toFind: T): Option[T] = thisTree.collectFirst {
-      // We can safely cast because the structure is the same anyway.
-      // The cast is done so the return type of this function is the same as the `toFind` parameter
-      case found: Tree if found.isEqual(toFind) => found.asInstanceOf[T]
+    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] = thisTree.collectFirst {
+      case found: T if found.isEqual(toFind) => found
     }
   }
 
@@ -85,15 +76,12 @@ object TreeExtensions {
       */
     def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
       Try {
-        val liftedFn = fn.lift
-        val transformer = new OnceTransformer(liftedFn)
-        transformer(thisTree)
+        OnceTransformer(fn, thisTree)
       }
     }
 
-    private class OnceTransformer(liftedFn: Tree => Option[Tree]) extends Transformer {
-      override def apply(tree: Tree): Tree =
-        liftedFn(tree).getOrElse(super.apply(tree))
+    private object OnceTransformer extends Transformer {
+      def apply(fn: PartialFunction[Tree, Tree], tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
     }
   }
 
