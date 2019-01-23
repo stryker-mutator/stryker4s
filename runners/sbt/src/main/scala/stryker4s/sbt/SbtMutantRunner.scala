@@ -58,6 +58,14 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
 
     Seq(
       fork in Test := true,
+      javaOptions in Test ++= {
+        val props = sys.props.toList
+        // TODO -> Make configurable
+        props.filterNot(s => s._1 == "java.class.path")
+          .map {
+          case (key, value) => s"-D$key=$value"
+        }
+      },
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
     )
