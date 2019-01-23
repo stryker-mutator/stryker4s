@@ -15,8 +15,8 @@ stages:
 
 jobs:
   include:
-    - stage: test
-      script: sbt clean coverage test coverageReport
+    # Default stage is test
+    - script: sbt clean coverage test coverageReport
     # run ci-release only if previous stages passed
     - stage: release
       script: sbt ci-release
