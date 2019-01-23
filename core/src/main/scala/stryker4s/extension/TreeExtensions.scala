@@ -8,6 +8,14 @@ import scala.util.Try
 
 object TreeExtensions {
 
+  @tailrec
+  private def mapParent[T <: Tree, U](tree: Tree, ifFound: T => U, defaultValue: => U)(implicit classTag: ClassTag[T]): U =
+    tree.parent match {
+      case Some(value: T)   => ifFound(value)
+      case Some(otherValue) => mapParent(otherValue, ifFound, defaultValue)
+      case _                => defaultValue
+    }
+
   implicit class TopStatementExtension(thisTerm: Term) {
 
     /** Returns the statement this tree is part of.
@@ -47,12 +55,8 @@ object TreeExtensions {
         */
       final def unapply(term: Term): Option[Term] = findParent[Case](term) flatMap findParent[Term]
 
-      @tailrec
-      private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] = tree.parent match {
-        case Some(term: T) => Some(term)
-        case Some(other)   => findParent(other)
-        case None          => None
-      }
+      private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
+        mapParent[T, Option[T]](tree, Some(_), None)
     }
   }
 
@@ -76,12 +80,13 @@ object TreeExtensions {
       */
     def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
       Try {
-        OnceTransformer(fn, thisTree)
+        val onceTransformer = new OnceTransformer(fn)
+        onceTransformer(thisTree)
       }
     }
 
-    private object OnceTransformer extends Transformer {
-      def apply(fn: PartialFunction[Tree, Tree], tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
+    private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
+      override def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
     }
   }
 
@@ -90,11 +95,6 @@ object TreeExtensions {
     /** Returns if a tree is contained in an tree of type `[T]`.
       * Recursively going up the tree until an annotation is found.
       */
-    @tailrec
-    final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean = thisTree.parent match {
-      case Some(_: T)        => true
-      case Some(value: Tree) => value.isIn[T]
-      case _                 => false
-    }
+    final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean = mapParent[T, Boolean](thisTree, _ => true, false)
   }
 }
