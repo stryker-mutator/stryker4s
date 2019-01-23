@@ -3,17 +3,27 @@ language: scala
 scala:
   - 2.12.8
 
-jdk:
-  - oraclejdk8
-  - openjdk11
-  - openjdk-ea
+stages:
+  - name: test
+  - name: release
+    if: (branch = master AND type = push) OR (tag IS present)
+
+jobs:
+  include:
+    - stage: test
+      script: sbt clean coverage test coverageReport
+      jdk:
+        - oraclejdk8
+        - openjdk11
+        - openjdk-ea
+    # run ci-release only if previous stages passed
+    - stage: release
+      script: sbt ci-release
+      jdk: openjdk11
 
 matrix:
   allow_failures:
     - jdk: openjdk-ea # Allow build failures for pre-release JDK
-
-script:
-  - sbt clean coverage test coverageReport
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -25,3 +35,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
+
+before_install:
+  # Ensure that git tags are always fetched so that sbt-dynver can pick up the correct version
+  - git fetch --tags
