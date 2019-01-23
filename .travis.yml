@@ -15,8 +15,7 @@ stages:
 
 jobs:
   include:
-    # Default stage is test
-    - script: sbt clean coverage test coverageReport
+    # Default stage test is already added
     # run ci-release only if previous stages passed
     - stage: release
       script: sbt ci-release
@@ -25,6 +24,8 @@ jobs:
 matrix:
   allow_failures:
     - jdk: openjdk-ea # Allow build failures for pre-release JDK
+
+script: sbt clean coverage test coverageReport
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
