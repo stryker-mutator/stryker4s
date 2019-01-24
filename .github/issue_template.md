@@ -1,9 +1,3 @@
----
-name: ISSUE_TEMPLATE
-about: Create a report to help us improve
-
----
-
 <!---
 Thanks for filing an issue 😄 ! Before you submit, please read the following:
 
@@ -17,7 +11,7 @@ If you have a feature request, feel free to ignore the template.
 
 <!--- Provide a general summary of the issue in the title above -->
 
-### Stryker config
+### Stryker4s config
 
 <!--- Please place your stryker4s config below. Feel free to change paths in the files and mutate arrays if you cannot share them. -->
 
