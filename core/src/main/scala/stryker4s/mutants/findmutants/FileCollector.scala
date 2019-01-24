@@ -43,6 +43,7 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
       listFilesBasedOnGit(processRunner) getOrElse
       listAllFiles())
       .filterNot(isInTargetDirectory)
+      .filter(_.exists)
   }
 
   /**
