@@ -40,6 +40,16 @@ Mutation testing can be very taxing on your computer's resources. After all, you
 
 Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/CONFIGURATION.md#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
 
+## Pre-release versions
+
+We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `build.sbt`:
+
+```scala
+resolvers += Resolver.sonatypeRepo("snapshots")
+```
+
+Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/)
+
 ## Configuration
 
 See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.conf` file (optional).
