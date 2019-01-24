@@ -14,14 +14,22 @@ import stryker4s.run.process.ProcessRunner
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
+abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceCollector)(implicit config: Config)
     extends MutationScoreCalculator
     with Logging {
 
   private val startTime = System.currentTimeMillis()
 
-  def apply(mutatedFiles: Iterable[MutatedFile], sourceCollector: SourceCollector): MutantRunResults = {
-    val tmpDir = prepareEnv(mutatedFiles, sourceCollector)
+  val tmpDir: File = {
+    val targetFolder = config.baseDir / "target"
+    targetFolder.createDirectoryIfNotExists()
+
+
+    File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
+  }
+
+  def apply(mutatedFiles: Iterable[MutatedFile]): MutantRunResults = {
+    val tmpDir = prepareEnv(mutatedFiles)
 
     info("Starting initial test run...")
     if (!runInitialTest(tmpDir)) {
@@ -38,14 +46,9 @@ abstract class MutantRunner(process: ProcessRunner)(implicit config: Config)
     MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
   }
 
-  private def prepareEnv(mutatedFiles: Iterable[MutatedFile], sourceCollector: SourceCollector): File = {
-
-    val targetFolder = config.baseDir / "target"
-    targetFolder.createDirectoryIfNotExists()
-
+  private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): File = {
     val files = sourceCollector.filesToCopy(process)
 
-    val tmpDir = File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
     debug("Using temp directory: " + tmpDir)
 
     files.foreach(copyFile(_, tmpDir))

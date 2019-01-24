@@ -13,7 +13,7 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
   def run(): ScoreStatus = {
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
-    val runResults = runner(mutatedFiles, fileCollector)
+    val runResults = runner(mutatedFiles)
     reporter.report(runResults)
     ThresholdChecker.determineScoreStatus(runResults.mutationScore)
   }

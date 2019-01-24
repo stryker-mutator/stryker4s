@@ -5,13 +5,14 @@ import java.nio.file.Path
 import better.files.File
 import stryker4s.config.Config
 import stryker4s.model._
+import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: Command, processRunner: ProcessRunner)(implicit config: Config)
-    extends MutantRunner(processRunner) {
+class ProcessMutantRunner(command: Command, processRunner: ProcessRunner, sourceCollector: SourceCollector)(implicit config: Config)
+    extends MutantRunner(processRunner, sourceCollector) {
 
   def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id

@@ -1,8 +1,8 @@
 package stryker4s.sbt
 
 import sbt.Keys._
-import sbt.plugins._
 import sbt._
+import sbt.plugins._
 import stryker4s.run.threshold.ErrorStatus
 
 /**
@@ -20,18 +20,14 @@ object Stryker4sPlugin extends AutoPlugin {
   )
 
   def stryker: Command = Command.command("stryker") { currentState =>
-    // Force compile
-    Project.runTask(compile in Compile, currentState) match {
-      case None                => throw new RuntimeException(s"An unexpected error occurred while running Stryker")
-      case Some((newState, _)) =>
-        // Run Stryker
-        val result = new Stryker4sSbtRunner(newState).run()
+    // Run Stryker
+    val result = new Stryker4sSbtRunner(currentState).run()
 
-        result match {
-          case ErrorStatus => newState.fail
-          case _           => newState
-        }
+    result match {
+      case ErrorStatus => currentState.fail
+      case _           => currentState
     }
+
   }
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = strykerDefaultSettings
