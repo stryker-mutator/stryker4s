@@ -6,7 +6,6 @@ scala:
 jdk:
   - oraclejdk8
   - openjdk11
-  - openjdk-ea
 
 stages:
   - name: test
@@ -20,10 +19,6 @@ jobs:
     - stage: release
       script: sbt ci-release
       jdk: openjdk11
-
-matrix:
-  allow_failures:
-    - jdk: openjdk-ea # Allow build failures for pre-release JDK
 
 script: sbt clean coverage test coverageReport
 
