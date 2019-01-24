@@ -1,8 +1,3 @@
----
-name: PULL_REQUEST_TEMPLATE
-about: Create a pull request for an awesome new feature or bug fix
----
-
 <!---
 Thanks for your pull request 😄! Please fill in the information below so we can quickly review and merge your PR.
 
