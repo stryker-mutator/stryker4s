@@ -20,6 +20,7 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    console
            |]
+           |system-properties=[]
            |test-runner {
            |    args=test
            |    command=sbt
@@ -39,7 +40,7 @@ class ConfigTest extends Stryker4sSuite {
       val sut = Config(filePaths,
                        File("tmp"),
                        testRunner = CommandRunner("mvn", "clean test"),
-                       excludedMutations = Set("BooleanLiteral"))
+                       excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
 
       val result = sut.toHoconString
 
@@ -56,6 +57,7 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    console
            |]
+           |system-properties=[]
            |test-runner {
            |    args="clean test"
            |    command=mvn

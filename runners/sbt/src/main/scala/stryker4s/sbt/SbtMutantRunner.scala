@@ -60,9 +60,8 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
       fork in Test := true,
       javaOptions in Test ++= {
         val props = sys.props.toList
-        // TODO -> Make configurable
-        props.filterNot(s => s._1 == "java.class.path")
-          .map {
+
+        props.filter(s => config.systemProperties.contains(s._1)).map {
           case (key, value) => s"-D$key=$value"
         }
       },
