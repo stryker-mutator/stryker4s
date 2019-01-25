@@ -2,8 +2,8 @@ package stryker4s.sbt
 import java.nio.file.Path
 
 import better.files.File
-import sbt._
 import sbt.Keys._
+import sbt._
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
@@ -61,9 +61,9 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
       javaOptions in Test ++= {
         val props = sys.props.toList
 
-        props.filter(s => config.systemProperties.contains(s._1)).map {
-          case (key, value) => s"-D$key=$value"
-        }
+        props
+          .filter { case (key, _) => config.systemProperties.contains(key) }
+          .map { case (key, value) => s"-D$key=$value" }
       },
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
