@@ -51,13 +51,6 @@ object Settings {
     scriptedBufferLog := false
   )
 
-  lazy val mavenPluginSettings: Seq[Setting[_]] = Seq(
-    libraryDependencies ++= Seq(
-      Dependencies.mavenPlugin,
-      Dependencies.mavenPluginAnnotations
-    )
-  )
-
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
     buildInfo ++
       Seq(
@@ -69,7 +62,7 @@ object Settings {
 
   lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
     name := "stryker4s",
-    version := "0.1.0",
+    version := "0.1.1-SNAPSHOT",
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),

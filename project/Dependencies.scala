@@ -12,7 +12,6 @@ object Dependencies {
     val betterFiles = "3.7.0"
     val log4j = "2.11.1"
     val grizzledSlf4j = "1.3.3"
-    val mavenPlugin = "3.6.0"
   }
 
   object test {
@@ -28,7 +27,5 @@ object Dependencies {
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
   val log4jslf4jImpl = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
-  val mavenPlugin = "org.apache.maven" % "maven-plugin-api" % versions.mavenPlugin
-  val mavenPluginAnnotations = "org.apache.maven.plugin-tools" % "maven-plugin-annotations" % versions.mavenPlugin
 
 }

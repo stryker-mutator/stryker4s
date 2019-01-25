@@ -19,9 +19,5 @@ lazy val sbtStryker4s = newProject("sbt-stryker4s", "runners/sbt")
   .settings(Settings.sbtPluginSettings)
   .dependsOn(stryker4sCore)
 
-lazy val stryker4sMaven = newProject("stryker4s-maven-plugin", "runners/maven")
-  .settings(Settings.mavenPluginSettings)
-  .dependsOn(stryker4sCore)
-
 def newProject(projectName: String, dir: String): Project = sbt.Project(projectName, file(dir))
     .settings(Settings.commonSettings)
