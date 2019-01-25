@@ -56,13 +56,13 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
     javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
 
   private def tmpDirFor(conf: Configuration): Def.Initialize[JFile] = {
-    val sourceDef = pathOf(scalaSource, conf)
-    val baseDef = pathOf(baseDirectory, conf)
+    val sourceDirDef = (scalaSource in conf)(_.absolutePath)
+    val baseDirDef = (baseDirectory in conf)(_.absolutePath)
 
-    (sourceDef zipWith baseDef)(_ diff _)(tmpDir.toJava / _)
+    sourceDirDef.zipWith(baseDirDef) { (sourceDir, baseDir) =>
+      val relativePath = sourceDir diff baseDir
+
+      tmpDir.toJava / relativePath
+    }
   }
-
-  private def pathOf(key: SettingKey[JFile], conf: sbt.Configuration): Def.Initialize[String] =
-    (key in conf)(_.absolutePath)
-
 }
