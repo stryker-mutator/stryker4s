@@ -215,7 +215,10 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       "Should copy files out of the target folders when no files config key is found and target repo is not a git repo") {
       implicit val config: Config = Config(baseDir = basePath, files = None)
       val expectedFileList =
-        Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "otherFile.notScala", basePath / "target.scala")
+        Seq(basePath / "someFile.scala",
+            basePath / "secondFile.scala",
+            basePath / "otherFile.notScala",
+            basePath / "target.scala")
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
@@ -238,7 +241,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
 
       val results = sut.filesToCopy(processRunnerMock)
 
-      results should be (empty)
+      results should be(empty)
     }
 
     describe("log tests") {

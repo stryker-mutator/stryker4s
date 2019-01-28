@@ -1,6 +1,6 @@
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
-import sbt.{Def, _}
+import sbt._
 import scoverage.ScoverageKeys._
 import xerial.sbt.Sonatype.autoImport.sonatypePublishTo
 
@@ -21,7 +21,7 @@ object Settings {
 
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     publishTo := sonatypePublishTo.value,
-    Test / parallelExecution := false, // For logging tests
+    Test / parallelExecution := false // For logging tests
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
