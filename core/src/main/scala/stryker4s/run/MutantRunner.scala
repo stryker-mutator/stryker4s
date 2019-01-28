@@ -24,7 +24,6 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
 
-
     File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
   }
 
