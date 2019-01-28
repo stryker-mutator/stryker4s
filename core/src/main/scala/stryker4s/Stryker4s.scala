@@ -9,13 +9,14 @@ import stryker4s.run.report.Reporter
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
 class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(
-    implicit config: Config) extends Logging {
+    implicit config: Config)
+    extends Logging {
 
   def run(): ScoreStatus = {
     preRunLogs()
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
-    val runResults = runner(mutatedFiles, fileCollector)
+    val runResults = runner(mutatedFiles)
     reporter.report(runResults)
     ThresholdChecker.determineScoreStatus(runResults.mutationScore)
   }
@@ -25,7 +26,8 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     // to encourage the user to make a decision here.
     if (!jvmMemory2GBOrHigher) {
       warn("The JVM has less than 2GB memory available. We advise increasing this to 4GB when running Stryker4s.")
-      warn("This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" ")
+      warn(
+        "This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" ")
       warn("Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info.")
     }
   }
