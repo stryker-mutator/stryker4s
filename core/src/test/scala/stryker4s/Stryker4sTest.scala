@@ -56,20 +56,43 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val testReporter = new TestReporter
 
-      val sut = new TestStryker4s(
-        jvmEnoughMemory = false,
+      val sut: Stryker4s = new Stryker4s(
         testSourceCollector,
         new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
         testMutantRunner,
-        testReporter
-      )
+        testReporter) {
+
+        override def jvmMemory2GBOrHigher: Boolean = false
+      }
 
       sut.run()
 
-      "The JVM doesn't have a lot of memory assigned to it. " +
-        "It's wise to increase the maximum memory when running stryker." shouldBe loggedAsWarning
-      "This can be done in SBT by adding setting an environment variable: " +
-        "SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" " shouldBe loggedAsWarning
+      "The JVM has less than 2GB memory available. We advise increasing this to 4GB when running Stryker4s." shouldBe loggedAsWarning
+      "This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" " shouldBe loggedAsWarning
+      "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info." shouldBe loggedAsWarning
+    }
+
+    it("should not log a warning when JVM max memory is high enough") {
+      implicit val conf: Config = Config()
+      val testSourceCollector = new TestSourceCollector(Seq())
+      val testProcessRunner = TestProcessRunner()
+      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+      val testReporter = new TestReporter
+
+      val sut: Stryker4s = new Stryker4s(
+        testSourceCollector,
+        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+        testMutantRunner,
+        testReporter) {
+
+        override def jvmMemory2GBOrHigher: Boolean = true
+      }
+
+      sut.run()
+
+      "The JVM has less than 2GB memory available. We advise increasing this to 4GB when running Stryker4s." should not be loggedAsWarning
+      "This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" " should not be loggedAsWarning
+      "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info." should not be loggedAsWarning
     }
   }
 }

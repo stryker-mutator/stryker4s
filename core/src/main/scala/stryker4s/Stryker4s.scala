@@ -21,12 +21,15 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
   }
 
   private def preRunLogs(): Unit = {
-    // If JVM max memory is less than 2GB, log warning
-    if (!jvmHasEnoughMemory) {
-      warn("The JVM doesn't have a lot of memory assigned to it. It's wise to increase the maximum memory when running stryker.")
-      warn("This can be done in SBT by adding setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" ")
+    // sbt grants 1 GB to the JVM by default. We log a warning when the JVM has less than 2 GB,
+    // to encourage the user to make a decision here.
+    if (!jvmMemory2GBOrHigher) {
+      warn("The JVM has less than 2GB memory available. We advise increasing this to 4GB when running Stryker4s.")
+      warn("This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" ")
+      warn("Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info.")
     }
   }
-  protected def jvmHasEnoughMemory: Boolean =
+  protected def jvmMemory2GBOrHigher: Boolean =
+    // Setting SBT_OPTS to 2GB gives 1820 MB here
     (Runtime.getRuntime.maxMemory / 1024 / 1024) >= 1820
 }
