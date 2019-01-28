@@ -51,10 +51,9 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
     if (excludedMutants > 0) {
       info(s"Of which $excludedMutants Mutant(s) are excluded.")
     }
-    if (totalMutants == 0) {
-      warn("It's a mutant-free world, nothing to test.")
-      warn("This is likely an issue with configuration.")
-      warn("Please check your configuration and try again.")
+    if (includedMutants == 0) {
+      info("It's a mutant-free world, nothing to test.")
+      info("If this is not intended, please check your configuration and try again.")
     }
   }
 

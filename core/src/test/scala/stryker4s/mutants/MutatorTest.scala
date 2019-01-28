@@ -80,7 +80,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
       "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
       "4 Mutant(s) generated" shouldBe loggedAsInfo
-      s"Of which 3 Mutant(s) are excluded." shouldBe loggedAsInfo
+      "Of which 3 Mutant(s) are excluded." shouldBe loggedAsInfo
     }
 
     it("should log a warning if no mutants are found") {
@@ -96,9 +96,8 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
       sut.mutate(files)
 
-      "It's a mutant-free world, nothing to test." shouldBe loggedAsWarning
-      "This is likely an issue with configuration." shouldBe loggedAsWarning
-      "Please check your configuration and try again." shouldBe loggedAsWarning
+      "It's a mutant-free world, nothing to test." shouldBe loggedAsInfo
+      "If this is not intended, please check your configuration and try again." shouldBe loggedAsInfo
     }
 
     it("should not log a no-mutants-found warning when mutants are found") {
@@ -114,9 +113,8 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
       sut.mutate(files)
 
-      "It's a mutant-free world, nothing to test." should not be loggedAsWarning
-      "This is likely an issue with configuration." should not be loggedAsWarning
-      "Please check your configuration and try again." should not be loggedAsWarning
+      "It's a mutant-free world, nothing to test." should not be loggedAsInfo
+      "If this is not intended, please check your configuration and try again." should not be loggedAsInfo
     }
   }
 
