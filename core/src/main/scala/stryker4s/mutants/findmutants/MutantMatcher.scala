@@ -1,11 +1,11 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.config.Config
-import stryker4s.extension.TreeExtensions.IsInAnnotationExtensions
+import stryker4s.extension.TreeExtensions.TreeIsInExtension
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 
-import scala.meta.{Term, Tree}
+import scala.meta.{Mod, Term, Tree}
 
 class MutantMatcher()(implicit config: Config) {
 
@@ -79,7 +79,7 @@ class MutantMatcher()(implicit config: Config) {
     }
 
     private def ifNotInAnnotation(maybeMutants: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
-      if (original.isInAnnotation)
+      if (original.isIn[Mod.Annot])
         Nil
       else
         maybeMutants
