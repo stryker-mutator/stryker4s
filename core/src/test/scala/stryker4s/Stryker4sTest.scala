@@ -53,7 +53,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       implicit val conf: Config = Config()
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
       val testReporter = new TestReporter
 
       val sut: Stryker4s =
@@ -76,7 +76,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       implicit val conf: Config = Config()
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
+      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
       val testReporter = new TestReporter
 
       val sut: Stryker4s =
