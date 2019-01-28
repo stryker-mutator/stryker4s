@@ -44,11 +44,16 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
   private def logMutationResult(mutatedFiles: Iterable[MutatedFile], totalAmountOfFiles: Int): Unit = {
     val includedMutants = mutatedFiles.flatMap(_.mutants).size
     val excludedMutants = mutatedFiles.map(_.excludedMutants).sum
+    val totalMutants = includedMutants + excludedMutants
 
     info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
-    info(s"${includedMutants + excludedMutants} Mutant(s) generated.")
+    info(s"$totalMutants Mutant(s) generated.")
     if (excludedMutants > 0) {
       info(s"Of which $excludedMutants Mutant(s) are excluded.")
+    }
+    if (includedMutants == 0) {
+      warn("0 mutants are found. This is likely an issue with configuration.")
+      warn("Please check your configuration and try again.")
     }
   }
 

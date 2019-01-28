@@ -82,6 +82,23 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       "4 Mutant(s) generated" shouldBe loggedAsInfo
       s"Of which 3 Mutant(s) are excluded." shouldBe loggedAsInfo
     }
+
+    it("should log a warning if no mutants are found") {
+      implicit val conf: Config = Config()
+      val files = new TestSourceCollector(Seq(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala")))
+        .collectFilesToMutate()
+
+      val sut = new Mutator(
+        new MutantFinder(new MutantMatcher),
+        new StatementTransformer,
+        new MatchBuilder
+      )
+
+      sut.mutate(files)
+
+      "0 mutants are found. This is likely an issue with configuration." shouldBe loggedAsWarning
+      s"Please check your configuration and try again." shouldBe loggedAsWarning
+    }
   }
 
   describe("string interpolation") {
