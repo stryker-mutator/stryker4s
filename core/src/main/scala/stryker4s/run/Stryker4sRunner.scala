@@ -18,8 +18,8 @@ class Stryker4sRunner {
   def run(): ScoreStatus = {
 
     // Scalameta uses a cache file->tokens that exists at a process level
-     // if one file changes between runs (in the same process, eg a single SBT session) could lead to an error, so
-     // it is cleaned before it starts.
+    // if one file changes between runs (in the same process, eg a single SBT session) could lead to an error, so
+    // it is cleaned before it starts.
     PlatformTokenizerCache.megaCache.clear()
 
     val collector = new FileCollector
@@ -33,7 +33,8 @@ class Stryker4sRunner {
   }
 
   def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner = config.testRunner match {
-    case CommandRunner(command, args) => new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
+    case CommandRunner(command, args) =>
+      new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
   }
 
 }

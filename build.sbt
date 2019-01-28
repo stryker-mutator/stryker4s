@@ -19,5 +19,7 @@ lazy val sbtStryker4s = newProject("sbt-stryker4s", "runners/sbt")
   .settings(Settings.sbtPluginSettings)
   .dependsOn(stryker4sCore)
 
-def newProject(projectName: String, dir: String): Project = sbt.Project(projectName, file(dir))
+def newProject(projectName: String, dir: String): Project =
+  sbt
+    .Project(projectName, file(dir))
     .settings(Settings.commonSettings)

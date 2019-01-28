@@ -56,14 +56,14 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val testReporter = new TestReporter
 
-      val sut: Stryker4s = new Stryker4s(
-        testSourceCollector,
-        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
-        testMutantRunner,
-        testReporter) {
+      val sut: Stryker4s =
+        new Stryker4s(testSourceCollector,
+                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+                      testMutantRunner,
+                      testReporter) {
 
-        override def jvmMemory2GBOrHigher: Boolean = false
-      }
+          override def jvmMemory2GBOrHigher: Boolean = false
+        }
 
       sut.run()
 
@@ -79,14 +79,14 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner)
       val testReporter = new TestReporter
 
-      val sut: Stryker4s = new Stryker4s(
-        testSourceCollector,
-        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
-        testMutantRunner,
-        testReporter) {
+      val sut: Stryker4s =
+        new Stryker4s(testSourceCollector,
+                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+                      testMutantRunner,
+                      testReporter) {
 
-        override def jvmMemory2GBOrHigher: Boolean = true
-      }
+          override def jvmMemory2GBOrHigher: Boolean = true
+        }
 
       sut.run()
 
