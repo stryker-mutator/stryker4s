@@ -441,5 +441,33 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       result.map(_.original) should not contain q"isEmpty"
     }
+
+    it("should create a mutator for each case in a match that removes that case") {
+      val tree = q"object c { variable match { case 1 => 1; case 2 => 2; case _ => 3} }"
+
+      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+
+      found should have length 3
+      expectMutations(found,
+        q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
+        q"(variable: @unchecked) match { case 2 => 2; case _ => 3 }")
+
+      expectMutations(found,
+        q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
+        q"(variable: @unchecked) match { case 1 => 1; case _ => 3 }")
+
+      expectMutations(found,
+        q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
+        q"(variable: @unchecked) match { case 1 => 1; case 2 => 2 }")
+    }
+
+    it("should not mutate a match with only one case") {
+      val tree = q"object c { variable match { case 1 => 1 } }"
+
+      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+
+      found should have length 0
+    }
+
   }
 }

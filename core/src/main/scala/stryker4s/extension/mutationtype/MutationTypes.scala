@@ -18,7 +18,8 @@ object Mutation {
     classOf[BooleanLiteral].getSimpleName,
     classOf[LogicalOperator].getSimpleName,
     classOf[StringLiteral[_]].getSimpleName,
-    classOf[MethodExpression].getSimpleName
+    classOf[MethodExpression].getSimpleName,
+    classOf[PatternMatchExpression].getSimpleName
   )
 }
 
@@ -28,13 +29,22 @@ object Mutation {
   * Can implicitly be converted to the appropriate `scala.meta.Tree` by importing [[stryker4s.extension.ImplicitMutationConversion]]
   *
   * @tparam T Has to be a subtype of Tree.
-  *           This is so that the tree value and unapply methods return the appropriate type.
+  *           This is so that the tree value return the appropriate type.
   *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
+  *
+  *
   */
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
-
   val tree: T
+}
 
+/**
+  * Base trait for predefined substitution mutations
+  *
+  * @tparam T Has to be a subtype of Tree.
+  *           This is so that the unapply methods return the appropriate type.
+  */
+trait FixedSubstitutionMutation[T <: Tree] extends SubstitutionMutation[T] {
   def unapply(arg: T): Option[T] =
     Some(arg)
       .filter(_.isEqual(tree))
@@ -44,22 +54,26 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
       }
 }
 
-trait EqualityOperator extends SubstitutionMutation[Term.Name] {
+trait EqualityOperator extends FixedSubstitutionMutation[Term.Name] {
   override val mutationName: String = classOf[EqualityOperator].getSimpleName
 }
 
-trait BooleanLiteral extends SubstitutionMutation[Lit.Boolean] {
+trait BooleanLiteral extends FixedSubstitutionMutation[Lit.Boolean] {
   override val mutationName: String = classOf[BooleanLiteral].getSimpleName
 }
 
-trait LogicalOperator extends SubstitutionMutation[Term.Name] {
+trait LogicalOperator extends FixedSubstitutionMutation[Term.Name] {
   override val mutationName: String = classOf[LogicalOperator].getSimpleName
 }
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
+trait StringLiteral[T <: Term] extends FixedSubstitutionMutation[T] {
   override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
+}
+
+trait PatternMatchExpression extends SubstitutionMutation[Term.Match]{
+  override val mutationName: String = classOf[PatternMatchExpression].getSimpleName
 }
 
 /**

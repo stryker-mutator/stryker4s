@@ -16,7 +16,8 @@ class MutantMatcher()(implicit config: Config) {
       matchEqualityOperator orElse
       matchLogicalOperator orElse
       matchMethodExpression orElse
-      matchStringLiteral
+      matchStringLiteral orElse
+      matchPatternMatch
 
   def matchBooleanLiteral: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case True(orig)  => orig ~~> False
@@ -35,6 +36,10 @@ class MutantMatcher()(implicit config: Config) {
   def matchLogicalOperator: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case And(orig) => orig ~~> Or
     case Or(orig)  => orig ~~> And
+  }
+
+  def matchPatternMatch: PartialFunction[Tree, Seq[Option[Mutant]]] = {
+    case PatternMatch(orig, mutatedTerms) => orig ~~> (mutatedTerms: _*)
   }
 
   def matchMethodExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
