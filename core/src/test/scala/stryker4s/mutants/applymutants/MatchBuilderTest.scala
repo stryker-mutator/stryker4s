@@ -1,10 +1,10 @@
 package stryker4s.mutants.applymutants
 
-import stryker4s.Stryker4sSuite
-import stryker4s.extensions.TreeExtensions._
-import stryker4s.extensions.mutationtypes._
+import stryker4s.extension.TreeExtensions._
+import stryker4s.extension.mutationtype._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.TreeEquality
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 import scala.meta._
@@ -13,7 +13,7 @@ import scala.meta.contrib._
 class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   private val activeMutationExpr: Term.Apply = {
     val activeMutation = Lit.String("ACTIVE_MUTATION")
-    q"sys.env.get($activeMutation)"
+    q"sys.props.get($activeMutation).orElse(sys.env.get($activeMutation))"
   }
 
   describe("buildMatch") {
@@ -53,7 +53,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = sys.env.get("ACTIVE_MUTATION") match {
+          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |    case Some("0") =>
           |      15 < 14
           |    case Some("1") =>
@@ -83,7 +83,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = sys.env.get("ACTIVE_MUTATION") match {
+          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |    case Some("0") =>
           |      15 < 14 && 14 >= 13
           |    case Some("1") =>
@@ -123,7 +123,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def foo = sys.env.get("ACTIVE_MUTATION") match {
+          |  def foo = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
           |    case Some("0") =>
           |      "" == ""
           |    case Some("1") =>
@@ -147,10 +147,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants
     */
-  private def toTransformed(source: Source,
-                            mutation: Mutation[_ <: Tree],
-                            origStatement: Term,
-                            mutants: Term*)(implicit ids: Iterator[Int]): TransformedMutants = {
+  private def toTransformed(source: Source, mutation: Mutation[_ <: Tree], origStatement: Term, mutants: Term*)(
+      implicit ids: Iterator[Int]): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get)

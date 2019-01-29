@@ -1,6 +1,6 @@
 package stryker4s.model
 
-import stryker4s.extensions.mutationtypes.Mutation
+import stryker4s.extension.mutationtype.Mutation
 
 import scala.meta.{Term, Tree}
 

@@ -1,8 +1,7 @@
 package stryker4s.config
 
 import better.files.File
-import stryker4s.Stryker4sSuite
-import stryker4s.mutants.Exclusions
+import stryker4s.testutil.Stryker4sSuite
 
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {
@@ -26,6 +25,11 @@ class ConfigTest extends Stryker4sSuite {
            |    command=sbt
            |    type=commandrunner
            |}
+           |thresholds {
+           |    break=0
+           |    high=80
+           |    low=60
+           |}
            |""".stripMargin
       result.toString should equal(expected.toString)
     }
@@ -34,14 +38,15 @@ class ConfigTest extends Stryker4sSuite {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut = Config(filePaths,
                        File("tmp"),
-                       testRunner = CommandRunner("mvn", "clean test"), excludedMutations = Exclusions(Set("BooleanSubstitution")))
+                       testRunner = CommandRunner("mvn", "clean test"),
+                       excludedMutations = Set("BooleanLiteral"))
 
       val result = sut.toHoconString
 
       val expected =
         s"""base-dir="${File("tmp").pathAsString.replace("\\", "\\\\")}"
            |excluded-mutations=[
-           |    BooleanSubstitution
+           |    BooleanLiteral
            |]
            |log-level=INFO
            |mutate=[
@@ -55,6 +60,11 @@ class ConfigTest extends Stryker4sSuite {
            |    args="clean test"
            |    command=mvn
            |    type=commandrunner
+           |}
+           |thresholds {
+           |    break=0
+           |    high=80
+           |    low=60
            |}
            |""".stripMargin
       result.toString should equal(expected.toString)

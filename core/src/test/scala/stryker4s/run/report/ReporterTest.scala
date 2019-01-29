@@ -1,9 +1,9 @@
 package stryker4s.run.report
 
 import org.mockito.integrations.scalatest.MockitoFixture
-import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
 import stryker4s.model.MutantRunResults
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.concurrent.duration._
 import scala.language.postfixOps

@@ -3,11 +3,10 @@ package stryker4s.mutants.findmutants
 import java.nio.file.NoSuchFileException
 
 import better.files.File
-import stryker4s.Stryker4sSuite
 import stryker4s.config.Config
-import stryker4s.extensions.FileExtensions._
-import stryker4s.mutants.Exclusions
+import stryker4s.extension.FileExtensions._
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 import scala.meta.parsers.ParseException
@@ -88,14 +87,42 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
     }
 
     it("should filter out excluded mutants") {
-      val sut = new MutantFinder(new MutantMatcher)(config.copy(excludedMutations = Exclusions(Set("LogicalOperator"))))
+      val conf: Config = config.copy(excludedMutations = Set("LogicalOperator"))
+      val sut = new MutantFinder(new MutantMatcher()(conf))(conf)
       val source =
         source"""case class Bar(s: String) {
                     def and(a: Boolean, b: Boolean) = a && b
                   }"""
 
-      val result = sut.findMutants(source)._1
+      val (result, excluded) = sut.findMutants(source)
+      excluded shouldBe 1
       result should have length 0
+    }
+
+    it("should filter out string mutants inside annotations") {
+      val sut = new MutantFinder(new MutantMatcher)
+      val source =
+        source"""@Annotation("Class Annotation")
+                 case class Bar(
+                    @Annotation("Parameter Annotation") s: String = "s") {
+
+                    @Annotation("Function Annotation")
+                    def aFunction(@Annotation("Parameter Annotation 2") param: String = "s") = {
+                      "aFunction"
+                    }
+
+                    @Annotation("Val Annotation") val x = { val l = "x"; l }
+                    @Annotation("Var Annotation") var y = { val k = "y"; k }
+                  }
+                  @Annotation("Object Annotation")
+                  object Foo {
+                    val value = "value"
+                  }
+          """
+
+      val (result, excluded) = sut.findMutants(source)
+      excluded shouldBe 0
+      result should have length 6
     }
   }
 
@@ -125,8 +152,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       a[ParseException] should be thrownBy sut.parseFile(noFile)
 
-      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(
-        loggedAsError)
+      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(loggedAsError)
     }
   }
 }
