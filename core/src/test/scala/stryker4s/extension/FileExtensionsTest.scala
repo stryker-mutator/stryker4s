@@ -33,7 +33,7 @@ class FileExtensionsTest extends Stryker4sSuite {
   }
 
   describe("inSubDir") {
-    it("should") {
+    it("should calculate a path relative to the new subDir") {
       val baseDir = File("/home/projects/myProject")
       implicit val config: Config = Config(baseDir = baseDir)
       val sut = baseDir / "src" / "main"
