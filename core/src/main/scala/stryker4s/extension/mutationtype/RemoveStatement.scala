@@ -20,5 +20,21 @@ case object PatternMatch {
       )
     } else None
   }
-  case class PatternMatchMutation(tree: Term.Match) extends PatternMatchExpression
+  case class PatternMatchMutation(tree: Term.Match) extends RemoveStatement[Term.Match]
+}
+
+case object PartialFunction {
+
+  def unapply(tree: Term.PartialFunction): Option[(Term, Seq[PartialFunctionMutation])] = {
+    // We don't mutate a match that only has one case
+    if (tree.cases.length > 1) {
+      Some(
+        tree,
+        tree.cases.map { caze =>
+          PartialFunctionMutation(tree.copy(cases = tree.cases.filterNot(_ == caze)))
+        }
+      )
+    } else None
+  }
+  case class PartialFunctionMutation(tree: Term.PartialFunction) extends RemoveStatement[Term.PartialFunction]
 }

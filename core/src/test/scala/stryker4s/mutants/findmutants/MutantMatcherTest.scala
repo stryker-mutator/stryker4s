@@ -469,5 +469,18 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       found should have length 0
     }
 
+    it("should mutate partial functions") {
+      val tree =
+        q"""object c {
+              def partial: PartialFunction[String, Option[String]] = {
+                case s if s.length.equals(5) => Some(s)
+                case _ => None
+              }
+            }"""
+
+      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+
+      found should have length 2
+    }
   }
 }

@@ -19,7 +19,7 @@ object Mutation {
     classOf[LogicalOperator].getSimpleName,
     classOf[StringLiteral[_]].getSimpleName,
     classOf[MethodExpression].getSimpleName,
-    classOf[PatternMatchExpression].getSimpleName
+    classOf[RemoveStatement[_]].getSimpleName
   )
 }
 
@@ -72,8 +72,8 @@ trait StringLiteral[T <: Term] extends FixedSubstitutionMutation[T] {
   override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
 }
 
-trait PatternMatchExpression extends SubstitutionMutation[Term.Match]{
-  override val mutationName: String = classOf[PatternMatchExpression].getSimpleName
+trait RemoveStatement[T <: Term] extends SubstitutionMutation[T]{
+  override val mutationName: String = classOf[RemoveStatement[_]].getSimpleName
 }
 
 /**

@@ -40,6 +40,7 @@ class MutantMatcher()(implicit config: Config) {
 
   def matchPatternMatch: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case PatternMatch(orig, mutatedTerms) => orig ~~> (mutatedTerms: _*)
+    case PartialFunction(orig, mutatedTerms) => orig ~~> (mutatedTerms: _*)
   }
 
   def matchMethodExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {

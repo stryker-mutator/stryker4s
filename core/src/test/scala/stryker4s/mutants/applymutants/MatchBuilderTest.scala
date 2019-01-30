@@ -1,16 +1,17 @@
 package stryker4s.mutants.applymutants
 
 import stryker4s.extension.TreeExtensions._
+import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
-import stryker4s.scalatest.TreeEquality
+import stryker4s.scalatest.{LogMatchers, TreeEquality}
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 import scala.meta._
 import scala.meta.contrib._
 
-class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
+class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
   private val activeMutationExpr: Term.Apply = {
     val activeMutation = Lit.String("ACTIVE_MUTATION")
     q"sys.props.get($activeMutation).orElse(sys.env.get($activeMutation))"
