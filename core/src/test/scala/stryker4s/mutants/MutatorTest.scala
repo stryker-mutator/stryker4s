@@ -1,6 +1,6 @@
 package stryker4s.mutants
 import stryker4s.config.Config
-import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
+import stryker4s.mutants.applymutants.{MatchBuilder, Props, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 import stryker4s.testutil.stubs.TestSourceCollector
@@ -19,13 +19,13 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder
+        new MatchBuilder(Props)
       )
 
       val result = sut.mutate(files)
 
       val expected = """object Foo {
-                       |  def bar = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
+                       |  def bar = sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("0") =>
                        |      15 >= 14
                        |    case Some("1") =>
@@ -35,7 +35,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |    case _ =>
                        |      15 > 14
                        |  }
-                       |  def foobar = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
+                       |  def foobar = sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("3") =>
                        |      s""
                        |    case _ =>
@@ -56,7 +56,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder
+        new MatchBuilder(Props)
       )
 
       sut.mutate(files)
@@ -73,7 +73,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder
+        new MatchBuilder(Props)
       )
 
       sut.mutate(files)

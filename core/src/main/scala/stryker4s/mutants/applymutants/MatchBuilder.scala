@@ -9,7 +9,7 @@ import scala.meta._
 import scala.meta.contrib.implicits.Equality.XtensionTreeEquality
 import scala.util.{Failure, Success}
 
-class MatchBuilder extends Logging {
+class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
 
   def buildNewSource(transformedStatements: SourceTransformations): Tree = {
     val source = transformedStatements.source
@@ -41,8 +41,7 @@ class MatchBuilder extends Logging {
       transformedMutant.originalStatement)
 
     val activeMutationEnv = Lit.String("ACTIVE_MUTATION")
-
-    q"(sys.props.get($activeMutationEnv).orElse(sys.env.get($activeMutationEnv)) match { ..case $cases })"
+    q"(sys.${mutationContext.name}.get($activeMutationEnv) match { ..case $cases })"
   }
 
   private def mutantToCase(mutant: Mutant): Case =

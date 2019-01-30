@@ -5,7 +5,7 @@ import java.nio.file.Paths
 import stryker4s.config.Config
 import stryker4s.model.{Killed, Mutant}
 import stryker4s.mutants.Mutator
-import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
+import stryker4s.mutants.applymutants.{MatchBuilder, Props, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner}
 import stryker4s.run.threshold.SuccessStatus
@@ -29,7 +29,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
       val sut = new Stryker4s(
         testSourceCollector,
-        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(Props)),
         testMutantRunner,
         testReporter
       )
@@ -58,7 +58,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
       val sut: Stryker4s =
         new Stryker4s(testSourceCollector,
-                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(Props)),
                       testMutantRunner,
                       testReporter) {
 
@@ -81,7 +81,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
       val sut: Stryker4s =
         new Stryker4s(testSourceCollector,
-                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder),
+                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(Props)),
                       testMutantRunner,
                       testReporter) {
 
