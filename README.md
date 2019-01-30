@@ -42,7 +42,7 @@ Multi-module projects are not yet fully supported. However, there is a workaroun
 
 ## Pre-release versions
 
-We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `build.sbt`:
+We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:
 
 ```scala
 resolvers += Resolver.sonatypeRepo("snapshots")
