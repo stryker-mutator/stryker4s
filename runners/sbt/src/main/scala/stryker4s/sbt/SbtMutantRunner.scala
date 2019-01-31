@@ -37,6 +37,23 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
     }
   }
 
+  private lazy val filteredSystemProperties = {
+    // Matches strings that start with one of the options between brackets
+    val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|user).*"
+
+    val filteredProps =
+      sys.props.toList
+        .filterNot { case (key, _) => key.matches(regex) }
+        .map { case (key, value) => s"-D$key=$value" }
+
+    if (filteredProps.nonEmpty) {
+      debug("System properties added to the forked JVM")
+      filteredProps.foreach(debug(_))
+    }
+
+    filteredProps
+  }
+
   private[this] def settings(tmpDir: File): Seq[Def.Setting[_]] = {
     val mainPath = {
       extracted
@@ -59,11 +76,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner)(implicit confi
     Seq(
       fork in Test := true,
       javaOptions in Test ++= {
-        val props = sys.props.toList
-
-        props
-          .filter { case (key, _) => config.systemProperties.contains(key) }
-          .map { case (key, value) => s"-D$key=$value" }
+        filteredSystemProperties
       },
       scalaSource in Compile := tmpDir.toJava / mainPath,
       scalaSource in Test := tmpDir.toJava / testPath
