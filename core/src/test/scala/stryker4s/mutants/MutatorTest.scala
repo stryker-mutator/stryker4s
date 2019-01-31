@@ -86,8 +86,9 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
     it("should log a warning if no mutants are found") {
       implicit val conf: Config = Config()
-      val files = new TestSourceCollector(Seq(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala")))
-        .collectFilesToMutate()
+      val files =
+        new TestSourceCollector(Seq(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala")))
+          .collectFilesToMutate()
 
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
