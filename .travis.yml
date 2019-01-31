@@ -6,9 +6,21 @@ scala:
 jdk:
   - oraclejdk8
   - openjdk11
-  
-script:
-  - sbt clean coverage test coverageReport
+
+stages:
+  - name: test
+  - name: release
+    if: (branch = master AND type = push) OR (tag IS present)
+
+jobs:
+  include:
+    # Default stage test is already added
+    # run ci-release only if previous stages passed
+    - stage: release
+      script: sbt ci-release
+      jdk: openjdk11
+
+script: sbt clean coverage test coverageReport
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -20,3 +32,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
+
+before_install:
+  # Ensure that git tags are always fetched so that sbt-dynver can pick up the correct version
+  - git fetch --tags
