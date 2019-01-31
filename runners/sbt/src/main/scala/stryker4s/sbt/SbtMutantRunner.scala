@@ -18,7 +18,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
 
   private lazy val filteredSystemProperties = {
     // Matches strings that start with one of the options between brackets
-    val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|user).*"
+    val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|user|graal).*"
 
     val filteredProps =
       sys.props.toList
