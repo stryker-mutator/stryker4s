@@ -26,7 +26,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
     } yield param
 
     filteredProps match {
-      case Nil => None
+      case Nil                => None
       case list: List[String] => Some(list)
     }
   }
