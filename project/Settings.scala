@@ -61,8 +61,6 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
-    name := "stryker4s",
-    version := "0.1.0",
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),
@@ -73,6 +71,6 @@ object Settings {
     developers := List(
       Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
-    ),
+    )
   )
 }

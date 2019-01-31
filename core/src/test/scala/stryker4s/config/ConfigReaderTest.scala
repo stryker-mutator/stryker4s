@@ -50,7 +50,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
-      result.excludedMutations shouldBe Set("BooleanLiteral")
+      result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 
     it("should return a failure on an invalid exclusion mutator") {

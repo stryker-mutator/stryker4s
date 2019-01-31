@@ -39,7 +39,7 @@ class ConfigTest extends Stryker4sSuite {
       val sut = Config(filePaths,
                        File("tmp"),
                        testRunner = CommandRunner("mvn", "clean test"),
-                       excludedMutations = Set("BooleanLiteral"))
+                       excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
 
       val result = sut.toHoconString
 
