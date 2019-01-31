@@ -17,14 +17,33 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
     implicit config: Config)
     extends MutantRunner(processRunner, sourceCollector) {
 
+  private lazy val filteredSystemProperties: Option[List[String]] = {
+    // Matches strings that start with one of the options between brackets
+    val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal).*"
+
+    val filteredProps = for {
+      (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
+      param = s"-D$key=$value"
+    } yield param
+
+    filteredProps match {
+      case Nil                => None
+      case list: List[String] => Some(list)
+    }
+  }
+
   private val settings: Seq[Def.Setting[_]] = Seq(
     fork in Test := true,
     scalaSource in Compile := tmpDirFor(Compile).value
-  )
+  ) ++
+    filteredSystemProperties.map(properties => {
+      debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
+      javaOptions in Test ++= properties
+    })
 
   private val extracted = Project.extract(state)
 
-  private val newState = extracted.appendWithoutSession(settings, state)
+  private val newState = extracted.appendWithSession(settings, state)
 
   override def runInitialTest(workingDir: File): Boolean = runTests(
     newState,
