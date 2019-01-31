@@ -38,12 +38,12 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
   ) ++
     filteredSystemProperties.map(properties => {
       debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
-      javaOptions ++= properties
+      javaOptions in Test ++= properties
     })
 
   private val extracted = Project.extract(state)
 
-  private val newState = extracted.appendWithoutSession(settings, state)
+  private val newState = extracted.appendWithSession(settings, state)
 
   override def runInitialTest(workingDir: File): Boolean = runTests(
     newState,
