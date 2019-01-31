@@ -5,7 +5,7 @@ import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 import stryker4s.testutil.stubs.TestSourceCollector
 import stryker4s.testutil.Stryker4sSuite
-
+import stryker4s.mutants.applymutants.Props
 import scala.meta._
 
 class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
@@ -92,7 +92,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder
+        new MatchBuilder(Props)
       )
 
       sut.mutate(files)
@@ -111,7 +111,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder
+        new MatchBuilder(Props)
       )
 
       sut.mutate(files)
@@ -133,7 +133,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder
+        new MatchBuilder(Props)
       )
 
       sut.mutate(files)
