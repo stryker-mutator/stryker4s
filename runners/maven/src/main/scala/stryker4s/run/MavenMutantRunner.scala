@@ -1,6 +1,5 @@
 package stryker4s.run
 import java.nio.file.Path
-import java.util.Properties
 
 import better.files._
 import org.apache.maven.project.MavenProject
@@ -29,8 +28,8 @@ class MavenMutantRunner(project: MavenProject,
     debug("New sources: " + newSources.mkString(", "))
     debug("Existing sources: " + project.getCompileSourceRoots)
     newSources foreach project.addCompileSourceRoot
-    val request = createRequest(workingDir)
-    request.setGoals(goals)
+
+    val request = createRequest
 
     val result = invoker.execute(request)
 
@@ -38,8 +37,7 @@ class MavenMutantRunner(project: MavenProject,
   }
 
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
-    debug("Existing sources: " + project.getCompileSourceRoots)
-    val request = createRequest(workingDir)
+    val request = createRequestWithMutation(mutant)
     request.addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
 
     val result = invoker.execute(request)
@@ -50,10 +48,14 @@ class MavenMutantRunner(project: MavenProject,
     }
   }
 
-  private def createRequest(tmpDir: File): InvocationRequest = {
+  private def createRequest: InvocationRequest =
     new DefaultInvocationRequest()
       .setGoals(goals)
       .setOutputHandler(debug(_))
       .setBatchMode(true)
-  }
+
+  private def createRequestWithMutation(mutant: Mutant): InvocationRequest =
+    createRequest
+      .addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
+
 }
