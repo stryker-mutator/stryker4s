@@ -20,7 +20,6 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    console
            |]
-           |system-properties=[]
            |test-runner {
            |    args=test
            |    command=sbt
@@ -57,7 +56,6 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    console
            |]
-           |system-properties=[]
            |test-runner {
            |    args="clean test"
            |    command=mvn
