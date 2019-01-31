@@ -34,6 +34,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
+    - $HOME/.cache/coursier # Used by scalafmt script
 
 before_install:
   # Ensure that git tags are always fetched so that sbt-dynver can pick up the correct version
