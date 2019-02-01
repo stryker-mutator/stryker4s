@@ -90,7 +90,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
           testSourceCollector,
           new Mutator(new MutantFinder(new MutantMatcher),
                       new StatementTransformer,
-                      new MatchBuilder(ActiveMutationContext.envVar)),
+                      new MatchBuilder(ActiveMutationContext.sysProps)),
           testMutantRunner,
           testReporter
         ) {

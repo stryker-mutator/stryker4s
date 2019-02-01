@@ -18,5 +18,5 @@ class Stryker4sSbtRunner(state: State) extends Stryker4sRunner {
   override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
     new SbtMutantRunner(state, ProcessRunner.resolveRunner(), collector)
 
-  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.envVar
+  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.sysProps
 }

@@ -19,7 +19,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.envVar)
+        new MatchBuilder(ActiveMutationContext.sysProps)
       )
 
       val result = sut.mutate(files)
@@ -56,7 +56,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.envVar)
+        new MatchBuilder(ActiveMutationContext.sysProps)
       )
 
       sut.mutate(files)
@@ -73,7 +73,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.envVar)
+        new MatchBuilder(ActiveMutationContext.sysProps)
       )
 
       sut.mutate(files)
@@ -93,7 +93,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.envVar)
+        new MatchBuilder(ActiveMutationContext.sysProps)
       )
 
       sut.mutate(files)
@@ -112,7 +112,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.envVar)
+        new MatchBuilder(ActiveMutationContext.sysProps)
       )
 
       sut.mutate(files)
@@ -135,7 +135,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.envVar)
+        new MatchBuilder(ActiveMutationContext.sysProps)
       )
 
       sut.mutate(files)

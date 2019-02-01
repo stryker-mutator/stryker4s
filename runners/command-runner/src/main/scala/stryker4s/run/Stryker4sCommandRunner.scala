@@ -27,6 +27,6 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
         new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
     }
 
-  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.sysProps
+  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.envVar
 
 }
