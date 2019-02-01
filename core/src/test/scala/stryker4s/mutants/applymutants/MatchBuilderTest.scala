@@ -21,7 +21,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
         .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
-      val sut = new MatchBuilder(Props)
+      val sut = new MatchBuilder(ActiveMutationContext.envVar)
 
       // Act
       val result = sut.buildMatch(TransformedMutants(originalStatement, mutants))
@@ -43,7 +43,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val transformed = toTransformed(source, GreaterThan, q">", q"<", q"==", q">=")
       val transStatements =
         SourceTransformations(source, List(transformed))
-      val sut = new MatchBuilder(Props)
+      val sut = new MatchBuilder(ActiveMutationContext.envVar)
 
       // Act
       val result = sut.buildNewSource(transStatements)
@@ -73,7 +73,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       val secondTrans = toTransformed(source, GreaterThanEqualTo, q">=", q">", q"==", q"<")
 
       val transformedStatements = SourceTransformations(source, List(firstTrans, secondTrans))
-      val sut = new MatchBuilder(Props)
+      val sut = new MatchBuilder(ActiveMutationContext.envVar)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -113,7 +113,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
-      val sut = new MatchBuilder(Props)
+      val sut = new MatchBuilder(ActiveMutationContext.envVar)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -138,7 +138,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
 
   describe("mutationActivation") {
     it("should build a pattern match with sys.props if Props is given") {
-      val sut = new MatchBuilder(Props)
+      val sut = new MatchBuilder(ActiveMutationContext.envVar)
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
       val transformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
@@ -149,7 +149,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should build a pattern match with sys.env if Env is given") {
-      val sut = new MatchBuilder(Env)
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
       val transformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))

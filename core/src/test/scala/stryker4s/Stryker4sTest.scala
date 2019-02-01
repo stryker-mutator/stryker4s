@@ -5,13 +5,13 @@ import java.nio.file.Paths
 import stryker4s.config.Config
 import stryker4s.model.{Killed, Mutant}
 import stryker4s.mutants.Mutator
-import stryker4s.mutants.applymutants.{MatchBuilder, Props, StatementTransformer}
+import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner}
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.stubs._
 import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.stubs._
 
 import scala.util.Success
 
@@ -29,7 +29,9 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
       val sut = new Stryker4s(
         testSourceCollector,
-        new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(Props)),
+        new Mutator(new MutantFinder(new MutantMatcher),
+                    new StatementTransformer,
+                    new MatchBuilder(ActiveMutationContext.sysProps)),
         testMutantRunner,
         testReporter
       )
@@ -57,10 +59,14 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testReporter = new TestReporter
 
       val sut: Stryker4s =
-        new Stryker4s(testSourceCollector,
-                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(Props)),
-                      testMutantRunner,
-                      testReporter) {
+        new Stryker4s(
+          testSourceCollector,
+          new Mutator(new MutantFinder(new MutantMatcher),
+                      new StatementTransformer,
+                      new MatchBuilder(ActiveMutationContext.sysProps)),
+          testMutantRunner,
+          testReporter
+        ) {
 
           override def jvmMemory2GBOrHigher: Boolean = false
         }
@@ -80,10 +86,14 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testReporter = new TestReporter
 
       val sut: Stryker4s =
-        new Stryker4s(testSourceCollector,
-                      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(Props)),
-                      testMutantRunner,
-                      testReporter) {
+        new Stryker4s(
+          testSourceCollector,
+          new Mutator(new MutantFinder(new MutantMatcher),
+                      new StatementTransformer,
+                      new MatchBuilder(ActiveMutationContext.envVar)),
+          testMutantRunner,
+          testReporter
+        ) {
 
           override def jvmMemory2GBOrHigher: Boolean = true
         }

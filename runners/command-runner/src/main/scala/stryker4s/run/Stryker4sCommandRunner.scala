@@ -1,7 +1,8 @@
 package stryker4s.run
 
 import stryker4s.config.{CommandRunner, Config}
-import stryker4s.mutants.applymutants.{ActiveMutationContext, Env}
+import stryker4s.mutants.applymutants.ActiveMutationContext
+import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.process.{Command, ProcessMutantRunner, ProcessRunner}
 import stryker4s.run.threshold.ErrorStatus
@@ -26,6 +27,6 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
         new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
     }
 
-  override val mutationActivation: ActiveMutationContext = Env
+  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.sysProps
 
 }

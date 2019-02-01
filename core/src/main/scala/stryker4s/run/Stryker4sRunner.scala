@@ -3,7 +3,8 @@ package stryker4s.run
 import stryker4s.Stryker4s
 import stryker4s.config.{Config, ConfigReader}
 import stryker4s.mutants.Mutator
-import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
+import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
+import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.run.report.Reporter
 import stryker4s.run.threshold.ScoreStatus

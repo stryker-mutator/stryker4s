@@ -1,11 +1,11 @@
 package stryker4s.mutants
-import stryker4s.mutants.applymutants.{MatchBuilder, Props, StatementTransformer}
 import stryker4s.config.{Config, ExcludedMutations}
+import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
-import stryker4s.testutil.stubs.TestSourceCollector
 import stryker4s.testutil.Stryker4sSuite
-import stryker4s.mutants.applymutants.Props
+import stryker4s.testutil.stubs.TestSourceCollector
+
 import scala.meta._
 
 class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
@@ -19,7 +19,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(Props)
+        new MatchBuilder(ActiveMutationContext.envVar)
       )
 
       val result = sut.mutate(files)
@@ -56,7 +56,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(Props)
+        new MatchBuilder(ActiveMutationContext.envVar)
       )
 
       sut.mutate(files)
@@ -73,7 +73,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(Props)
+        new MatchBuilder(ActiveMutationContext.envVar)
       )
 
       sut.mutate(files)
@@ -86,13 +86,14 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
     it("should log a warning if no mutants are found") {
       implicit val conf: Config = Config()
-      val files = new TestSourceCollector(Seq(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala")))
-        .collectFilesToMutate()
+      val files =
+        new TestSourceCollector(Seq(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala")))
+          .collectFilesToMutate()
 
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(Props)
+        new MatchBuilder(ActiveMutationContext.envVar)
       )
 
       sut.mutate(files)
@@ -111,7 +112,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(Props)
+        new MatchBuilder(ActiveMutationContext.envVar)
       )
 
       sut.mutate(files)
@@ -126,14 +127,15 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
     }
 
     it("should log if all mutations are excluded") {
-      implicit val conf: Config = Config(excludedMutations = ExcludedMutations(Set("EqualityOperator", "StringLiteral")))
+      implicit val conf: Config =
+        Config(excludedMutations = ExcludedMutations(Set("EqualityOperator", "StringLiteral")))
       val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFilesToMutate()
 
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(Props)
+        new MatchBuilder(ActiveMutationContext.envVar)
       )
 
       sut.mutate(files)
