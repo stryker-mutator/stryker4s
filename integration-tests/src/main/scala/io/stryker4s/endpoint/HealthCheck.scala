@@ -8,17 +8,17 @@ import org.http4s.dsl.Http4sDsl
 
 import scala.language.higherKinds
 
-object HelloWorldEndpoint {
+object HealthCheck {
   def endpoints[F[_] : Effect](): HttpRoutes[F] = {
-    new HelloWorldEndpoint[F].endpoints()
+    new HealthCheck[F].endpoints()
   }
 }
 
-class HelloWorldEndpoint[F[_] : Effect] extends Http4sDsl[F] {
+class HealthCheck[F[_] : Effect] extends Http4sDsl[F] {
 
   def endpoints(): HttpRoutes[F] = HttpRoutes.of[F] {
-    case GET -> Root / "hello" / name =>
-      Ok(Json.obj("message" -> Json.fromString(s"Hello, $name")))
+    case GET -> Root / "health" =>
+      Ok(Json.obj("health" -> Json.fromString("UP")))
   }
 }
 
