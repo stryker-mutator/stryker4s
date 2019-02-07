@@ -5,7 +5,6 @@ import java.io.FileNotFoundException
 import better.files.File
 import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.config.Configurator
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import stryker4s.config.implicits.ConfigReaderImplicits
 
@@ -48,7 +47,7 @@ object ConfigReader extends Logging with ConfigReaderImplicits {
     * @param level the logging level to use
     */
   private def setLoggingLevel(level: Level): Unit = {
-    Configurator.setRootLevel(level)
-    info(s"Set logging level to $level.")
+//    Configurator.setRootLevel(level)
+//    info(s"Set logging level to $level.")
   }
 }
