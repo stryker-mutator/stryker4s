@@ -1,16 +1,22 @@
 package stryker4s.run
 
+import grizzled.slf4j.Logging
 import javax.inject.Inject
-import org.apache.maven.plugin.AbstractMojo
+import org.apache.maven.plugin.{AbstractMojo, MojoFailureException}
 import org.apache.maven.plugins.annotations.{Mojo, Parameter}
 import org.apache.maven.project.MavenProject
+import stryker4s.run.threshold.ErrorStatus
 
 /** The main goal for this plugin. Starts Stryker4s.
   */
 @Mojo(name = "run")
 class Stryker4sMavenPlugin @Inject()(@Parameter(defaultValue = "${project}") project: MavenProject)
-    extends AbstractMojo {
+    extends AbstractMojo
+    with Logging {
   override def execute(): Unit = {
-    new Stryker4sMavenRunner(project).run()
+    new Stryker4sMavenRunner(project).run() match {
+      case ErrorStatus => throw new MojoFailureException("Mutation score was below configured threshold")
+      case _           =>
+    }
   }
 }
