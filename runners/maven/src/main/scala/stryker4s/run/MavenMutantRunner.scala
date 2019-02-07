@@ -1,11 +1,11 @@
 package stryker4s.run
 import java.nio.file.Path
+import java.util.Properties
 
 import better.files._
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
 import stryker4s.config.Config
-import stryker4s.extension.FileExtensions._
 import stryker4s.model.{Killed, Mutant, MutantRunResult, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.process.ProcessRunner
@@ -15,19 +15,17 @@ import scala.collection.JavaConverters._
 class MavenMutantRunner(project: MavenProject,
                         invoker: Invoker,
                         processRunner: ProcessRunner,
-                        sourceCollector: SourceCollector)(
-    implicit config: Config
-) extends MutantRunner(processRunner, sourceCollector) {
+                        sourceCollector: SourceCollector)(implicit config: Config)
+    extends MutantRunner(processRunner, sourceCollector) {
 
   private val goals = List("test").asJava
 
+  private val properties = new Properties(project.getProperties)
+  properties.setProperty("surefire.skipAfterFailureCount", 1.toString) // Stop after first failure. Only works with surefire plugin, not scalatest
+
   override def runInitialTest(workingDir: File): Boolean = {
     // Set source once, settings is persistent among goals
-    val newSources = project.getCompileSourceRoots.asScala
-      .map(sources => workingDir / File(sources).relativePath.toString) map (_.pathAsString)
-    debug("New sources: " + newSources.mkString(", "))
-    debug("Existing sources: " + project.getCompileSourceRoots)
-    newSources foreach project.addCompileSourceRoot
+    invoker.setWorkingDirectory(workingDir.toJava)
 
     val request = createRequest
 
@@ -53,6 +51,7 @@ class MavenMutantRunner(project: MavenProject,
       .setGoals(goals)
       .setOutputHandler(debug(_))
       .setBatchMode(true)
+      .setProperties(properties)
 
   private def createRequestWithMutation(mutant: Mutant): InvocationRequest =
     createRequest
