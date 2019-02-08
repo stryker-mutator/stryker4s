@@ -12,7 +12,7 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 import stryker4s.run.process.ProcessRunner
-import stryker4s.sbt.Stryker4sPlugin.autoImport.Stryker
+import stryker4s.sbt.Stryker4sPlugin.autoImport.stryker
 
 class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollector: SourceCollector)(
     implicit config: Config)
@@ -40,7 +40,7 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
     scalaSource in Compile := tmpDirFor(Compile).value,
     scalaSource in Test := tmpDirFor(Test).value,
     logManager := {
-      if((logLevel in Stryker).value == Level.Debug) logManager.value
+      if((logLevel in stryker).value == Level.Debug) logManager.value
       else emptyLogManager
     }
   ) ++

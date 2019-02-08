@@ -16,21 +16,20 @@ object Stryker4sPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    val Stryker = config("stryker") extend Test
     val stryker = taskKey[State]("Run Stryker4s")
   }
   import autoImport._
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
     stryker := strykerTask.value,
-    logLevel in Stryker := Level.Info,
+    logLevel in stryker := Level.Info
   )
 
   val strykerTask = Def.task {
     // Run Stryker4s
     val currentState = state.value
 
-    val log4jLevel: org.apache.logging.log4j.Level = (logLevel in Stryker).value match {
+    val log4jLevel: org.apache.logging.log4j.Level = (logLevel in stryker).value match {
       case Level.Warn => org.apache.logging.log4j.Level.WARN
       case Level.Error => org.apache.logging.log4j.Level.ERROR
       case Level.Debug => org.apache.logging.log4j.Level.DEBUG
