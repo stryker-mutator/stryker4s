@@ -18,14 +18,6 @@ object Stryker4sArgumentHandler extends Logging {
 
   private def setLogLevel(level: Level): Unit = {
     Configurator.setRootLevel(level)
-    val message = s"Set logging level to $level"
-    level match {
-      case Level.ERROR => error(message)
-      case Level.WARN => warn(message)
-      case Level.INFO | Level.ALL => info(message)
-      case Level.DEBUG => debug(message)
-      case Level.TRACE => trace(message)
-      case _ => // ignore on OFF and FATAL
-    }
+    info(s"Set logging level to $level")
   }
 }
