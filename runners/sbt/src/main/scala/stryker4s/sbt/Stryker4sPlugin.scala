@@ -29,20 +29,25 @@ object Stryker4sPlugin extends AutoPlugin {
     // Run Stryker4s
     val currentState = state.value
 
-    val log4jLevel: org.apache.logging.log4j.Level = (logLevel in stryker).value match {
-      case Level.Warn => org.apache.logging.log4j.Level.WARN
-      case Level.Error => org.apache.logging.log4j.Level.ERROR
-      case Level.Debug => org.apache.logging.log4j.Level.DEBUG
-      case _ => org.apache.logging.log4j.Level.INFO
-    }
     // Set the log level used for stryker log messages
+    val log4jLevel: org.apache.logging.log4j.Level = sbtLogLevelToLog4j((logLevel in stryker).value)
     Configurator.setRootLevel(log4jLevel)
+    sLog.value.info(s"Set stryker logging level to $log4jLevel")
 
     val result = new Stryker4sSbtRunner(currentState).run()
 
     result match {
       case ErrorStatus => throw new MessageOnlyException("Mutation score is below configured threshold")
       case _           => currentState
+    }
+  }
+
+  private def sbtLogLevelToLog4j(level: Level.Value): org.apache.logging.log4j.Level = {
+    level match {
+      case Level.Warn => org.apache.logging.log4j.Level.WARN
+      case Level.Error => org.apache.logging.log4j.Level.ERROR
+      case Level.Debug => org.apache.logging.log4j.Level.DEBUG
+      case _ => org.apache.logging.log4j.Level.INFO
     }
   }
 }
