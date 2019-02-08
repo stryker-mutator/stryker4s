@@ -9,6 +9,16 @@ import stryker4s.run.threshold.ErrorStatus
 
 object Stryker4sCommandRunner extends App with Stryker4sRunner {
 
+  Stryker4sArgumentHandler.parseArgs(args)
+
+  override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
+    config.testRunner match {
+      case CommandRunner(command, args) =>
+        new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
+    }
+
+  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.envVar
+
   val result = run()
 
   val exitCode = result match {
@@ -20,13 +30,4 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
   private def exit(): Unit = {
     sys.exit(exitCode)
   }
-
-  override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
-    config.testRunner match {
-      case CommandRunner(command, args) =>
-        new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
-    }
-
-  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.envVar
-
 }
