@@ -22,7 +22,8 @@ object Stryker4sPlugin extends AutoPlugin {
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
     stryker := strykerTask.value,
-    logLevel in stryker := Level.Info
+    logLevel in stryker := Level.Info,
+    onLoadMessage := "", // Prevents "[info] Set current project to ..." inbetween mutations
   )
 
   val strykerTask = Def.task {
