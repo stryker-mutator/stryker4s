@@ -19,6 +19,9 @@ jobs:
     - stage: release
       script: sbt ci-release
       jdk: openjdk11
+      env:
+        - CI_RELEASE=stryker4sPublish
+        - CI_SNAPSHOT_RELEASE=stryker4sPublishSigned
 
 script: sbt clean coverage test coverageReport
 
