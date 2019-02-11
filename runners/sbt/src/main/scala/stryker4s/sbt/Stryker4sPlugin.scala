@@ -1,5 +1,6 @@
 package stryker4s.sbt
 
+import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configurator
 import sbt.Keys._
 import sbt._
@@ -31,9 +32,7 @@ object Stryker4sPlugin extends AutoPlugin {
     val currentState = state.value
 
     // Set the log level used for stryker log messages
-    val log4jLevel: org.apache.logging.log4j.Level = sbtLogLevelToLog4j((logLevel in stryker).value)
-    Configurator.setRootLevel(log4jLevel)
-    sLog.value.info(s"Set stryker logging level to $log4jLevel")
+    setStrykerLogLevel((logLevel in stryker).value)
 
     val result = new Stryker4sSbtRunner(currentState).run()
 
@@ -50,5 +49,11 @@ object Stryker4sPlugin extends AutoPlugin {
       case Level.Debug => org.apache.logging.log4j.Level.DEBUG
       case _ => org.apache.logging.log4j.Level.INFO
     }
+  }
+
+  private def setStrykerLogLevel(level: Level.Value): Unit = {
+    val log4jLevel: org.apache.logging.log4j.Level = sbtLogLevelToLog4j(level)
+    Configurator.setRootLevel(log4jLevel)
+    LoggerContext.getContext(false).getRootLogger.info(s"Set stryker logging level to $log4jLevel")
   }
 }
