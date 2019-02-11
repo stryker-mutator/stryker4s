@@ -24,7 +24,7 @@ object Stryker4sPlugin extends AutoPlugin {
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
     stryker := strykerTask.value,
     logLevel in stryker := Level.Info,
-    onLoadMessage := "", // Prevents "[info] Set current project to ..." inbetween mutations
+    onLoadMessage := "" // Prevents "[info] Set current project to ..." inbetween mutations
   )
 
   val strykerTask = Def.task {
@@ -44,10 +44,10 @@ object Stryker4sPlugin extends AutoPlugin {
 
   private def sbtLogLevelToLog4j(level: Level.Value): org.apache.logging.log4j.Level = {
     level match {
-      case Level.Warn => org.apache.logging.log4j.Level.WARN
+      case Level.Warn  => org.apache.logging.log4j.Level.WARN
       case Level.Error => org.apache.logging.log4j.Level.ERROR
       case Level.Debug => org.apache.logging.log4j.Level.DEBUG
-      case _ => org.apache.logging.log4j.Level.INFO
+      case _           => org.apache.logging.log4j.Level.INFO
     }
   }
 
