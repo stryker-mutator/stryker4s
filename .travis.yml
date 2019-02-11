@@ -20,8 +20,8 @@ jobs:
       script: sbt ci-release
       jdk: openjdk11
       env:
-        - CI_RELEASE=stryker4sPublish
-        - CI_SNAPSHOT_RELEASE=stryker4sPublishSigned
+        - CI_RELEASE=stryker4sPublishSigned
+        - CI_SNAPSHOT_RELEASE=stryker4sPublish
 
 script: sbt clean coverage test coverageReport
 

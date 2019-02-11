@@ -1,21 +1,77 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>io.stryker-mutator</groupId>
     <artifactId>stryker4s-maven-plugin</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
-    <name>${project.artifactId}</name>
-    <description>Maven plugin for Stryker4s</description>
-    <inceptionYear>2018</inceptionYear>
+    <version>SET-BY-SBT-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
+    <name>Stryker4s Maven plugin</name>
+    <description>Stryker4s, the mutation testing framework for Scala.</description>
+    <url>https://stryker-mutator.io/</url>
+    <inceptionYear>2019</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>hugo-vrijswijk</name>
+            <id>Hugo</id>
+            <url>https://github.com/hugo-vrijswijk</url>
+        </developer>
+        <developer>
+            <name>legopiraat</name>
+            <id>Legopiraat</id>
+            <url>https://github.com/legopiraat</url>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/stryker-mutator/stryker4s/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/stryker-mutator/stryker4s.git</connection>
+        <developerConnection>scm:git:https://github.com/stryker-mutator/stryker4s.git</developerConnection>
+        <url>https://github.com/stryker-mutator/stryker4s</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.version>3.6.0</maven.version>
         <encoding>UTF-8</encoding>
+        <maven-plugin.version>3.6.0</maven-plugin.version>
         <scala.version>2.12.8</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
+
+        <scala-maven.version>3.4.4</scala-maven.version>
+        <maven-invoker.version>3.0.1</maven-invoker.version>
+
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+        <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+
     </properties>
 
     <dependencies>
@@ -24,7 +80,13 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.stryker-mutator</groupId>
+            <artifactId>stryker4s-core_${scala.compat.version}</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
+        <!-- Maven plugin -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
@@ -38,7 +100,7 @@
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-invoker</artifactId>
-            <version>3.0.1</version>
+            <version>${maven-invoker.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
@@ -47,13 +109,8 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.stryker-mutator</groupId>
-            <artifactId>stryker4s-core_${scala.compat.version}</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
+    </dependencies>
 
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
@@ -61,12 +118,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven.version}</version>
+                <version>${maven-plugin.version}</version>
             </plugin>
+
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.4.4</version>
+                <version>${scala-maven.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -78,4 +136,90 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                    <id>strykermutator</id>
+                                    <passphrase>${env.PGP_PASSPHRASE}</passphrase>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus-staging-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>${maven-deploy-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
