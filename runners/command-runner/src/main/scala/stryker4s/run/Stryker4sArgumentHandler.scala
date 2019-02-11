@@ -10,10 +10,13 @@ object Stryker4sArgumentHandler extends Logging {
   def parseArgs(args: Array[String]): Unit = {
     // Collect and handle log level argument
     args
-      .filter(_.head == '-')
-      .map(_.drop(1))
-      .collectFirst { case arg if logLevels.contains(arg) => setLogLevel(logLevels(arg)) }
-      .getOrElse(setLogLevel(Level.INFO))
+      .filter(_.startsWith("--"))
+      .map(_.drop(2))
+      .map(_.toLowerCase)
+      .find(logLevels.contains) match {
+      case Some(arg) => setLogLevel(logLevels(arg))
+      case None      => setLogLevel(Level.INFO)
+    }
   }
 
   private def setLogLevel(level: Level): Unit = {

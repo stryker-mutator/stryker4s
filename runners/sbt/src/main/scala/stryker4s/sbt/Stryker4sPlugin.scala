@@ -42,14 +42,13 @@ object Stryker4sPlugin extends AutoPlugin {
     }
   }
 
-  private def sbtLogLevelToLog4j(level: Level.Value): org.apache.logging.log4j.Level = {
+  private def sbtLogLevelToLog4j(level: Level.Value): org.apache.logging.log4j.Level =
     level match {
       case Level.Warn  => org.apache.logging.log4j.Level.WARN
       case Level.Error => org.apache.logging.log4j.Level.ERROR
       case Level.Debug => org.apache.logging.log4j.Level.DEBUG
       case _           => org.apache.logging.log4j.Level.INFO
     }
-  }
 
   private def setStrykerLogLevel(level: Level.Value): Unit = {
     val log4jLevel: org.apache.logging.log4j.Level = sbtLogLevelToLog4j(level)
