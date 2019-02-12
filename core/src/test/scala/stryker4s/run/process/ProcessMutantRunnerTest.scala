@@ -142,7 +142,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         sut(Seq(mutatedFile))
 
         "Starting test-run 1..." shouldBe loggedAsInfo
-        "Finished mutation run 1/1 (100%)" shouldBe loggedAsInfo
+        "Finished mutation run 1/1 (100%). 0 minutes and 0 seconds remaining." shouldBe loggedAsInfo
       }
 
       it("Should log multiple test runs") {
@@ -158,9 +158,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         sut(Seq(mutatedFile))
 
         "Starting test-run 1..." shouldBe loggedAsInfo
-        "Finished mutation run 1/2 (50%)" shouldBe loggedAsInfo
+        "Finished mutation run 1/2 (50%). 0 minutes and 0 seconds remaining." shouldBe loggedAsInfo
         "Starting test-run 2..." shouldBe loggedAsInfo
-        "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
+        "Finished mutation run 2/2 (100%). 0 minutes and 0 seconds remaining." shouldBe loggedAsInfo
       }
 
       it("should properly log the initial test run") {
