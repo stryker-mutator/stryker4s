@@ -23,7 +23,10 @@ jobs:
         - CI_RELEASE=stryker4sPublishSigned
         - CI_SNAPSHOT_RELEASE=stryker4sPublish
 
-script: sbt clean coverage test coverageReport
+script:
+  - sbt clean coverage test coverageReport
+  - cd runners/maven
+  - mvn test
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
