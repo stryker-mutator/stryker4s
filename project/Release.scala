@@ -16,9 +16,9 @@ object Release {
   private val `+publish` = "+publish"
   private val `+publishSigned` = "+publishSigned"
 
-  lazy val releaseCommands: Setting[Seq[Command]] = {
+  lazy val releaseCommands: Setting[Seq[Command]] = commands ++= {
     val versionNumber = version.value
-    commands ++= Seq(
+    Seq(
       // Called by sbt-ci-release
       Command.command(stryker4sPublish)(stryker4sMvnSetup :: `+publish` :: stryker4sMvnDeploy :: _),
       Command.command(stryker4sPublishSigned)(stryker4sMvnSetup :: `+publishSigned` :: stryker4sMvnDeploy :: _),
