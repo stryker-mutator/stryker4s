@@ -26,13 +26,13 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
   }
 
   def apply(mutatedFiles: Iterable[MutatedFile]): MutantRunResults = {
-    val tmpDir = prepareEnv(mutatedFiles)
+    prepareEnv(mutatedFiles)
 
     initialTestRun(tmpDir)
 
     val startTime = System.currentTimeMillis()
 
-    val runResults = runMutants(mutatedFiles, tmpDir)
+    val runResults = runMutants(mutatedFiles)
 
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
@@ -40,19 +40,18 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
   }
 
-  private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): File = {
+  private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Unit = {
     val files = sourceCollector.filesToCopy(process)
 
     debug("Using temp directory: " + tmpDir)
 
-    files.foreach(copyFile(_, tmpDir))
+    files.foreach(copyFile)
 
     // Overwrite files to mutated files
-    mutatedFiles.foreach(writeMutatedFile(_, tmpDir))
-    tmpDir
+    mutatedFiles.foreach(writeMutatedFile)
   }
 
-  private def copyFile(file: File, tmpDir: File): Unit = {
+  private def copyFile(file: File): Unit = {
     val filePath = tmpDir / file.relativePath.toString
 
     filePath.createIfNotExists(file.isDirectory, createParents = true)
@@ -60,13 +59,13 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     file.copyTo(filePath, overwrite = true)
   }
 
-  private def writeMutatedFile(mutatedFile: MutatedFile, tmpDir: File): File = {
+  private def writeMutatedFile(mutatedFile: MutatedFile): File = {
     val subPath = mutatedFile.fileOrigin.relativePath
     val filePath = tmpDir / subPath.toString
     filePath.overwrite(mutatedFile.tree.syntax)
   }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile], tmpDir: File): Iterable[MutantRunResult] = {
+  private def runMutants(mutatedFiles: Iterable[MutatedFile]): Iterable[MutantRunResult] = {
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     for {
