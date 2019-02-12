@@ -83,14 +83,14 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
-      val result = runMutant(mutant, tmpDir, subPath)
+      val result = runMutant(mutant, tmpDir)(subPath)
       val id = mutant.id + 1
       info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
       result
     }
   }
 
-  def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult
+  def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult
   def runInitialTest(workingDir: File): Boolean
 
 }
