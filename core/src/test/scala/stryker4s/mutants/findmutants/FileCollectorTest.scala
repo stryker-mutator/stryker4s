@@ -178,7 +178,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir))
         .thenReturn(gitProcessResult)
 
-      val sut = new FileCollector(TestProcessRunner())
+      val sut = new FileCollector(processRunnerMock)
 
       val results = sut.filesToCopy
 
@@ -193,7 +193,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir))
         .thenReturn(gitProcessResult)
 
-      val sut = new FileCollector(TestProcessRunner())
+      val sut = new FileCollector(processRunnerMock)
 
       val results = sut.filesToCopy
 
@@ -205,7 +205,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
         Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
       val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "target.scala")
 
-      val sut = new FileCollector(TestProcessRunner())
+      val sut = new FileCollector(processRunnerMock)
 
       val results = sut.filesToCopy
 
@@ -223,7 +223,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
-      val sut = new FileCollector(TestProcessRunner())
+      val sut = new FileCollector(processRunnerMock)
 
       val results = sut.filesToCopy
 
@@ -238,7 +238,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
       when(processRunnerMock(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir))
         .thenReturn(gitProcessResult)
 
-      val sut = new FileCollector(TestProcessRunner())
+      val sut = new FileCollector(processRunnerMock)
 
       val results = sut.filesToCopy
 
@@ -251,7 +251,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatch
         val gitProcessResult = Failure(new Exception(""))
         when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 
-        val sut = new FileCollector(TestProcessRunner())
+        val sut = new FileCollector(processRunnerMock)
 
         sut.filesToCopy
 
