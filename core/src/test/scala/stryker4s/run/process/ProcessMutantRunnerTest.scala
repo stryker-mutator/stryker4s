@@ -29,7 +29,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
-      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+      when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
       val result = sut(Seq(mutatedFile))
 
@@ -46,7 +46,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
-      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+      when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
       val result = sut(Seq(mutatedFile))
 
@@ -64,7 +64,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
-      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+      when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
       val result = sut(Seq(mutatedFile))
 
@@ -83,7 +83,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val mutants = Seq(mutant, secondMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
 
-      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+      when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
       val result = sut(Seq(mutatedFile))
 
@@ -106,7 +106,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
 
-      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+      when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
       val result = sut(Seq(mutatedFile))
 
@@ -124,7 +124,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val testProcessRunner = TestProcessRunner.failInitialTestRun()
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock)
 
-      when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List.empty)
+      when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
       a[InitialTestRunFailedException] shouldBe thrownBy(sut(Seq.empty))
     }
@@ -137,7 +137,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
         val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
-        when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+        when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
         sut(Seq(mutatedFile))
 
@@ -153,7 +153,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
         val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant0, mutant1), 0)
 
-        when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List(file))
+        when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
         sut(Seq(mutatedFile))
 
@@ -167,7 +167,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
         val testProcessRunner = TestProcessRunner()
         val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock)
 
-        when(fileCollectorMock.filesToCopy(testProcessRunner)).thenReturn(List.empty)
+        when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
         sut(Seq.empty)
 

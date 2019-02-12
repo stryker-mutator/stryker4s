@@ -9,11 +9,10 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.process.ProcessRunner
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceCollector)(implicit config: Config)
+abstract class MutantRunner(sourceCollector: SourceCollector)(implicit config: Config)
     extends InitialTestRun
     with MutationScoreCalculator
     with Logging {
@@ -41,7 +40,7 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
   }
 
   private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Unit = {
-    val files = sourceCollector.filesToCopy(process)
+    val files = sourceCollector.filesToCopy
 
     debug("Using temp directory: " + tmpDir)
 

@@ -13,7 +13,7 @@ import scala.util.{Failure, Success}
 
 class ProcessMutantRunner(command: Command, processRunner: ProcessRunner, sourceCollector: SourceCollector)(
     implicit config: Config)
-    extends MutantRunner(processRunner, sourceCollector) {
+    extends MutantRunner(sourceCollector) {
 
   def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult = {
     val id = mutant.id
