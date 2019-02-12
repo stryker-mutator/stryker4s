@@ -30,7 +30,7 @@ class ProcessMutantRunner(command: Command, processRunner: ProcessRunner, source
     processRunner(command, workingDir, ("ACTIVE_MUTATION", "None")) match {
       case Success(0)                         => true
       case Success(exitCode) if exitCode != 0 => false
-      case Failure(_: TimeoutException)     => false
+      case Failure(_: TimeoutException)       => false
     }
   }
 }

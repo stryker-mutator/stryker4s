@@ -6,7 +6,6 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
-import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
@@ -15,27 +14,23 @@ import stryker4s.run.process.ProcessRunner
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceCollector)(implicit config: Config)
-    extends MutationScoreCalculator
+    extends InitialTestRun
+    with MutationScoreCalculator
     with Logging {
-
-  private val startTime = System.currentTimeMillis()
 
   val tmpDir: File = {
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
 
-    File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
+    File.newTemporaryDirectory("stryker4s-", Some(targetFolder))
   }
 
   def apply(mutatedFiles: Iterable[MutatedFile]): MutantRunResults = {
     val tmpDir = prepareEnv(mutatedFiles)
 
-    info("Starting initial test run...")
-    if (!runInitialTest(tmpDir)) {
-      throw InitialTestRunFailedException(
-        "Initial test run failed. Please make sure your tests pass before running Stryker4s.")
-    }
-    info("Initial test run succeeded! Testing mutants...")
+    initialTestRun(tmpDir)
+
+    val startTime = System.currentTimeMillis()
 
     val runResults = runMutants(mutatedFiles, tmpDir)
 
@@ -60,11 +55,7 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
   private def copyFile(file: File, tmpDir: File): Unit = {
     val filePath = tmpDir / file.relativePath.toString
 
-    if (file.isDirectory) {
-      filePath.createDirectoryIfNotExists(createParents = true)
-    } else {
-      filePath.createFileIfNotExists(createParents = true)
-    }
+    filePath.createIfNotExists(file.isDirectory, createParents = true)
 
     file.copyTo(filePath, overwrite = true)
   }
@@ -91,6 +82,5 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
   }
 
   def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult
-  def runInitialTest(workingDir: File): Boolean
 
 }
