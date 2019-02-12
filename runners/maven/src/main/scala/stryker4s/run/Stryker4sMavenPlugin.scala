@@ -1,6 +1,5 @@
 package stryker4s.run
 
-import grizzled.slf4j.Logging
 import javax.inject.Inject
 import org.apache.maven.plugin.{AbstractMojo, MojoFailureException}
 import org.apache.maven.plugins.annotations.{Mojo, Parameter}
