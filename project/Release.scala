@@ -17,31 +17,24 @@ object Release {
   private val `+publishSigned` = "+publishSigned"
 
   lazy val releaseCommands: Setting[Seq[Command]] = {
-    commands ++= {
-      val versionNumber = version.value // Remember the version because sbt-dynver will try to set another one after changes in runner/maven/pom.xml
-      Seq(
-        // Called by sbt-ci-release
-        Command.command(stryker4sPublish)(stryker4sMvnSetup :: `+publish` :: stryker4sMvnDeploy :: _),
-        Command.command(stryker4sPublishSigned)(stryker4sMvnSetup :: `+publishSigned` :: stryker4sMvnDeploy :: _),
-        // Called by stryker4sPublish(signed)
-        Command.command(stryker4sMvnSetup)(publishM2 :: stryker4sMvnPackage :: setVersion(versionNumber) :: _),
-        Command.command(stryker4sMvnPackage)(mvnPackage(versionNumber, baseDirectory.value)),
-        Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value))
-      )
-    }
+    val versionNumber = version.value
+    commands ++= Seq(
+      // Called by sbt-ci-release
+      Command.command(stryker4sPublish)(stryker4sMvnSetup :: `+publish` :: stryker4sMvnDeploy :: _),
+      Command.command(stryker4sPublishSigned)(stryker4sMvnSetup :: `+publishSigned` :: stryker4sMvnDeploy :: _),
+      // Called by stryker4sPublish(signed)
+      Command.command(stryker4sMvnSetup)(publishM2 :: stryker4sMvnPackage :: setVersion(versionNumber) :: _),
+      Command.command(stryker4sMvnPackage)(mvnPackage(versionNumber, baseDirectory.value)),
+      Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value))
+    )
   }
 
-  /** First publish `stryker4s-core` to local '''maven''' repository,
-    * then set new version and run `mvn install`
-    */
   private def mvnPackage(version: String, baseDir: File): State => State = handleProcessResult(
     _,
     mvnGoal(s"versions:set -DnewVersion=$version", baseDir) #&&
       mvnGoal("package", baseDir)
   )
 
-  /** Deploy the maven plugin project
-    */
   private def mvnDeploy(baseDir: File): State => State = handleProcessResult(
     _,
     mvnGoal(s"deploy --settings settings.xml", baseDir)
@@ -54,16 +47,13 @@ object Release {
     case _ => state.fail
   }
 
-  /** Returns a `ProcessBuilder` that runs the given command in the maven subdirectory
-    *
-    * @param command: The command to run in the maven project
+  /** Returns a `ProcessBuilder` that runs the given maven command in the maven subdirectory
     */
   private def mvnGoal(command: String, baseDir: File): process.ProcessBuilder =
     process.Process(s"mvn --batch-mode $command -P release", baseDir / "runners" / "maven")
 
-  /** After setting the version in the sbt project, there will be local git changes.
-    * this causes `sbt-dynver` to add the timestamp to the end of the version.
-    * To get around this, the version is remembered from the start, and set again after any maven goals
-    */
+  // After setting the version in the sbt project, there will be local git changes.
+  // this causes `sbt-dynver` to add the timestamp to the end of the version.
+  // To get around this, the version is remembered from the start, and set again after any maven goals
   private def setVersion(newVersion: String): String = s"""set version in ThisBuild := "$newVersion""""
 }

@@ -36,7 +36,6 @@ class MavenMutantRunner(project: MavenProject,
 
   override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val request = createRequestWithMutation(mutant)
-    request.addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
 
     val result = invoker.execute(request)
 
