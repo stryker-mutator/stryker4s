@@ -15,6 +15,9 @@ stages:
 jobs:
   include:
     # Default stage test is already added
+    - stage: test
+      script: cd runners/maven && mvn test
+      name: Maven plugin
     # run ci-release only if previous stages passed
     - stage: release
       script: sbt ci-release
@@ -23,10 +26,7 @@ jobs:
         - CI_RELEASE=stryker4sPublishSigned
         - CI_SNAPSHOT_RELEASE=stryker4sPublish
 
-script:
-  - sbt clean coverage test coverageReport
-  - cd runners/maven
-  - mvn test
+script: sbt clean coverage test coverageReport
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -38,6 +38,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
+    - $HOME/.m2/repository
 
 before_install:
   # Ensure that git tags are always fetched so that sbt-dynver can pick up the correct version
