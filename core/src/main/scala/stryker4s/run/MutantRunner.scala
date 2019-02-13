@@ -59,8 +59,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector)(implicit config: C
   }
 
   private def writeMutatedFile(mutatedFile: MutatedFile): File = {
-    val subPath = mutatedFile.fileOrigin.relativePath
-    val filePath = tmpDir / subPath.toString
+    val filePath = mutatedFile.fileOrigin.inSubDir(tmpDir)
     filePath.overwrite(mutatedFile.tree.syntax)
   }
 

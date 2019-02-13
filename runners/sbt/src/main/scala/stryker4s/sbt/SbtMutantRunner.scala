@@ -2,16 +2,18 @@ package stryker4s.sbt
 import java.io.{File => JFile}
 import java.nio.file.Path
 
-import better.files.File
+import better.files.{File, _}
 import sbt.Keys._
 import sbt._
 import stryker4s.config.Config
+import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
+import stryker4s.run.process.ProcessRunner
 
-class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
+class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollector: SourceCollector)(
     implicit config: Config)
     extends MutantRunner(sourceCollector) {
 
@@ -32,8 +34,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
 
   private val settings: Seq[Def.Setting[_]] = Seq(
     fork in Test := true,
-    scalaSource in Compile := tmpDirFor(Compile).value,
-    scalaSource in Test := tmpDirFor(Test).value,
+    scalaSource in Compile := tmpDirFor(Compile).value
   ) ++
     filteredSystemProperties.map(properties => {
       debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
@@ -75,14 +76,6 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
   private def mutationSetting(mutation: Int): Def.Setting[_] =
     javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
 
-  private def tmpDirFor(conf: Configuration): Def.Initialize[JFile] = {
-    val sourceDirDef = (scalaSource in conf)(_.absolutePath)
-    val baseDirDef = (baseDirectory in conf)(_.absolutePath)
-
-    sourceDirDef.zipWith(baseDirDef) { (sourceDir, baseDir) =>
-      val relativePath = sourceDir diff baseDir
-
-      tmpDir.toJava / relativePath
-    }
-  }
+  private def tmpDirFor(conf: Configuration): Def.Initialize[JFile] =
+    (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
 }
