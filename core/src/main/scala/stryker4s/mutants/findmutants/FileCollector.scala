@@ -15,7 +15,9 @@ trait SourceCollector {
   def filesToCopy: Iterable[File]
 }
 
-class FileCollector(protected val processRunner: ProcessRunner)(implicit config: Config) extends SourceCollector with Logging {
+class FileCollector(protected val processRunner: ProcessRunner)(implicit config: Config)
+    extends SourceCollector
+    with Logging {
 
   /**
     * Get path separator because windows and unix systems have different separators.

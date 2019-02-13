@@ -24,7 +24,8 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testFiles = Seq(file)
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector(testProcessRunner))
+      val testMutantRunner =
+        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector(testProcessRunner))
       val testReporter = new TestReporter
 
       val sut = new Stryker4s(
