@@ -9,7 +9,7 @@ class EtaCalculator(amountOfMutants: Int) extends Logging {
   val runResults: Array[Long] = new Array(amountOfMutants)
   private[this] val stream = Iterator.range(0, amountOfMutants)
 
-  def time[T](fun: => T, log: String => Unit): T = {
+  def time[T](fun: => T): (T, String) = {
     val startTime = System.currentTimeMillis()
 
     // Run the function
@@ -20,10 +20,7 @@ class EtaCalculator(amountOfMutants: Int) extends Logging {
     val runNr = stream.next()
     runResults(runNr) = duration
 
-    // Log estimate
-    log(calculateETA(runNr + 1))
-
-    result
+    (result, calculateETA(runNr + 1))
   }
 
   def calculateETA(currentRun: Int): String = {

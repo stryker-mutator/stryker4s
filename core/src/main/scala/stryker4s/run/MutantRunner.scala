@@ -75,8 +75,7 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     filePath.overwrite(mutatedFile.tree.syntax)
   }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile],
-                         tmpDir: File): Iterable[MutantRunResult] = {
+  private def runMutants(mutatedFiles: Iterable[MutatedFile], tmpDir: File): Iterable[MutantRunResult] = {
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
     val etaCalculator = new EtaCalculator(totalMutants)
 
@@ -85,14 +84,11 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
-      etaCalculator.time(
-        runMutant(mutant, tmpDir, subPath),
-        estimate => {
-          val id = mutant.id + 1
-          info(
-            s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%). $estimate remaining.")
-        }
-      )
+      val (result, estimate) = etaCalculator.time(runMutant(mutant, tmpDir, subPath))
+      val id = mutant.id + 1
+      info(
+        s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%). $estimate remaining.")
+      result
     }
   }
 
