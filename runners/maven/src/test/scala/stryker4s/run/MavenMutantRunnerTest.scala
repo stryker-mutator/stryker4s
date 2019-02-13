@@ -69,7 +69,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
 
       val cwd = File.currentWorkingDirectory
-      val result = sut.runMutant(model.Mutant(1, q">", q"<"), cwd)
+      val result = sut.runMutant(model.Mutant(1, q">", q"<"), cwd)(cwd.path)
 
       result shouldBe a[Killed]
     }
@@ -82,7 +82,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
 
       val cwd = File.currentWorkingDirectory
-      val result = sut.runMutant(model.Mutant(1, q">", q"<"), cwd)
+      val result = sut.runMutant(model.Mutant(1, q">", q"<"), cwd)(cwd.path)
 
       result shouldBe a[Survived]
     }
