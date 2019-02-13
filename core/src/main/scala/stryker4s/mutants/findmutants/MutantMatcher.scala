@@ -67,7 +67,7 @@ class MutantMatcher()(implicit config: Config) {
         if (matchExcluded(mutation))
           None
         else
-          Some(Mutant(stream.next, original, mutation.tree, mutation))
+          Some(Mutant(stream.next, original, mutation.tree))
       }
     }
 
@@ -75,7 +75,7 @@ class MutantMatcher()(implicit config: Config) {
       if (matchExcluded(mutated))
         None :: Nil
       else
-        Some(Mutant(stream.next, original, mutated(f), mutated)) :: Nil
+        Some(Mutant(stream.next, original, mutated(f))) :: Nil
     }
 
     private def ifNotInAnnotation(maybeMutants: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
