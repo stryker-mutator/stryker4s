@@ -11,9 +11,8 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
-import stryker4s.run.process.ProcessRunner
 
-class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollector: SourceCollector)(
+class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
     implicit config: Config)
     extends MutantRunner(sourceCollector) {
 
