@@ -6,6 +6,7 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
+import stryker4s.run.process.ProcessRunner
 import stryker4s.run.report.Reporter
 import stryker4s.run.threshold.ScoreStatus
 
@@ -21,7 +22,7 @@ trait Stryker4sRunner {
     // it is cleaned before it starts.
     PlatformTokenizerCache.megaCache.clear()
 
-    val collector = new FileCollector
+    val collector = new FileCollector(ProcessRunner())
     val stryker4s = new Stryker4s(
       collector,
       new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(mutationActivation)),
