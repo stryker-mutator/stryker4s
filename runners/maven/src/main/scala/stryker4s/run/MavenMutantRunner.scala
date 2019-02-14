@@ -24,7 +24,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
     // Set source once, settings is persistent among goals
     invoker.setWorkingDirectory(workingDir.toJava)
 
-    val request = createRequest
+    val request = createRequest()
 
     val result = invoker.execute(request)
 
@@ -42,7 +42,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
     }
   }
 
-  private def createRequest: InvocationRequest =
+  private def createRequest(): InvocationRequest =
     new DefaultInvocationRequest()
       .setGoals(goals)
       .setOutputHandler(debug(_))
@@ -50,7 +50,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
       .setProperties(properties)
 
   private def createRequestWithMutation(mutant: Mutant): InvocationRequest =
-    createRequest
+    createRequest()
       .addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
 
 }
