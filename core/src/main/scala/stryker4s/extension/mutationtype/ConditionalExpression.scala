@@ -2,15 +2,15 @@ package stryker4s.extension.mutationtype
 
 import scala.meta.{Lit, Term}
 
-case object IfStatement {
-  def unapply(tree: Term.If): Option[(Term, Seq[IfStatementMutation])] = {
+object IfStatement {
+  def unapply(tree: Term.If): Option[(Term, Seq[IfStatement])] = {
     Some(
       tree,
       Seq(
-        IfStatementMutation(tree.copy(cond = Lit.Boolean(true))),
-        IfStatementMutation(tree.copy(cond = Lit.Boolean(false))),
+        new IfStatement(tree.copy(cond = Lit.Boolean(true))),
+        new IfStatement(tree.copy(cond = Lit.Boolean(false))),
       )
     )
   }
-  case class IfStatementMutation(tree: Term.If) extends ConditionalExpression[Term.If]
 }
+class IfStatement(val tree: Term.If) extends ConditionalExpression[Term.If]

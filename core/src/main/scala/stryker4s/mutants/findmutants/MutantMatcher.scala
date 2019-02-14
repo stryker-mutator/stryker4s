@@ -39,7 +39,7 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   def matchConditionalExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
-      case IfStatement(orig, mutatedTerms) => orig ~~> (mutatedTerms: _*)
+    case IfStatement(orig, mutatedTerms)  => orig ~~> (mutatedTerms: _*)
   }
 
   def matchMethodExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
