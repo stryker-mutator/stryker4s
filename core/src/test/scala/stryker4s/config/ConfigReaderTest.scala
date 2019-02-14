@@ -70,7 +70,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       head shouldBe a[ConvertFailure]
       val errorMessage =
         s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
-           |Valid exclusions are EqualityOperator, BooleanLiteral, LogicalOperator, StringLiteral, MethodExpression.""".stripMargin
+           |Valid exclusions are EqualityOperator, BooleanLiteral, LogicalOperator, ConditionalExpression, StringLiteral, MethodExpression.""".stripMargin
       errorMessage shouldBe loggedAsError
     }
   }
