@@ -20,10 +20,9 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
   private val properties = new Properties(project.getProperties)
   properties.setProperty("surefire.skipAfterFailureCount", 1.toString) // Stop after first failure. Only works with surefire plugin, not scalatest
 
-  override def runInitialTest(workingDir: File): Boolean = {
-    // Set source once, settings is persistent among goals
-    invoker.setWorkingDirectory(workingDir.toJava)
+  invoker.setWorkingDirectory(tmpDir.toJava)
 
+  override def runInitialTest(workingDir: File): Boolean = {
     val request = createRequest()
 
     val result = invoker.execute(request)
