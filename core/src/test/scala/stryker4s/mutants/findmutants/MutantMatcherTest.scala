@@ -443,13 +443,13 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should mutate if statements with true and false for condition") {
-      val tree = q"""if(aVariable) { println }"""
+      val tree = q"if(aVariable) { println }"
 
       val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
 
       found should have length 2
-      expectMutations(found, tree, q"if(true) { println }")
-      expectMutations(found, tree, q"if(false) { println }")
+      expectMutations(found, q"aVariable", q"true")
+      expectMutations(found, q"aVariable", q"false")
     }
 
   }
