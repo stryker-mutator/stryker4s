@@ -81,6 +81,38 @@ class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
       q"filter.foo" should not matchPattern { case Filter(_, _) => }
     }
 
+    it("should match exists to Exists") {
+      q"list.exists(_ == 1)" should matchPattern { case Exists(_, _) => }
+    }
+
+    it("should match forall to Forall") {
+      q"list.forall(_ == 1)" should matchPattern { case Forall(_, _) => }
+    }
+
+    it("should match take to Take") {
+      q"list.take(1)" should matchPattern { case Take(_, _) => }
+    }
+
+    it("should match drop to Drop") {
+      q"list.drop(1)" should matchPattern { case Drop(_, _) => }
+    }
+
+    it("should match takeRight to TakeRight") {
+      q"list.takeRight(1)" should matchPattern { case TakeRight(_, _) => }
+    }
+
+    it("should match dropRight to DropRight") {
+      q"list.dropRight(1)" should matchPattern { case DropRight(_, _) => }
+    }
+
+    it("should match takeWhile to TakeWhile") {
+      q"list.takeWhile(_ < 2)" should matchPattern { case TakeWhile(_, _) => }
+    }
+
+    it("should match dropWhile to DropWhile") {
+      q"list.dropWhile(_ < 2)" should matchPattern { case DropWhile(_, _) => }
+    }
+
   }
 
   describe("NoArgMethodExpression") {
