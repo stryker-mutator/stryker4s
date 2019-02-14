@@ -9,7 +9,7 @@ import stryker4s.run.threshold._
 
 class ConsoleReporter extends MutantRunReporter with Logging {
 
-  override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
+  override def reportFinishedRun(runResults: MutantRunResults)(implicit config: Config): Unit = {
     val detected = runResults.results collect { case d: Detected => d }
     val detectedSize = detected.size
 

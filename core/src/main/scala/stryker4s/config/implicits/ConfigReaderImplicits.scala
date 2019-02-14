@@ -3,13 +3,12 @@ package stryker4s.config.implicits
 import java.nio.file.Path
 
 import better.files.File
-import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
-import stryker4s.config.ExcludedMutations
-import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
+import stryker4s.config.{ConsoleReporter, ExcludedMutations, Reporter}
+import stryker4s.run.report.MutantRunReporter
 
-trait ConfigReaderImplicits extends Logging {
+trait ConfigReaderImplicits {
 
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
     *
@@ -20,9 +19,9 @@ trait ConfigReaderImplicits extends Logging {
   private[config] implicit val logLevelReader: ConfigReader[Level] =
     ConfigReader[String] map (level => Level.valueOf(level))
 
-  private[config] implicit val toReporterList: ConfigReader[MutantRunReporter] =
+  private[config] implicit val toReporterList: ConfigReader[Reporter] =
     ConfigReader[String] map {
-      case MutantRunReporter.`consoleReporter` => new ConsoleReporter
+      case MutantRunReporter.`consoleReporter` => ConsoleReporter()
     }
   private[config] implicit val exclusions: ConfigReader[ExcludedMutations] =
     ConfigReader[List[String]] map (exclusions => ExcludedMutations(exclusions.toSet))

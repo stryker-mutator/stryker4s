@@ -20,7 +20,7 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
 
       sut.report(mutantRunResults)
 
-      verify(reporterMock).report(mutantRunResults)
+      verify(reporterMock).reportFinishedRun(mutantRunResults)
     }
   }
 }

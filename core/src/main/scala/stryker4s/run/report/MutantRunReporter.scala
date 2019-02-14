@@ -1,10 +1,11 @@
 package stryker4s.run.report
 
-import stryker4s.config.Config
-import stryker4s.model.MutantRunResults
+import stryker4s.model.{MutantRunResult, MutantRunResults}
 
 trait MutantRunReporter {
-  def report(runResults: MutantRunResults)(implicit config: Config): Unit
+  def reportFinishedRun(runResults: MutantRunResults): Unit
+
+  def reportFinishedMutation(result: MutantRunResult): Unit
 }
 
 object MutantRunReporter {
