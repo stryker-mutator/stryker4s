@@ -2,14 +2,14 @@
 <Configuration packages="stryker4s" status="WARN">
     <Appenders>
         <TestAppender name="TestAppender"/>
-        <!--<Console name="Console" target="SYSTEM_OUT">-->
-            <!--<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{0}: %msg%n"/>-->
-        <!--</Console>-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %logger{0}: %msg%n"/>
+        </Console>
     </Appenders>
     <Loggers>
         <Root level="DEBUG">
             <AppenderRef ref="TestAppender"/>
-            <!--<AppenderRef ref="Console"/>-->
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>

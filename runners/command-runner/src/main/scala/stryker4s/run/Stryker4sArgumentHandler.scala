@@ -7,7 +7,7 @@ object Stryker4sArgumentHandler extends Logging {
   private lazy val logLevels: Map[String, Level] =
     Level.values().map(level => (level.toString.toLowerCase, level)).toMap
 
-  def parseArgs(args: Array[String]): Unit = {
+  def handleArgs(args: Array[String]): Unit = {
     // Collect and handle log level argument
     args
       .filter(_.startsWith("--"))

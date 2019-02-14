@@ -21,7 +21,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
+        .map((mutated: Term.ApplyInfix) => Mutant(ids.next(), originalStatement, mutated))
       val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
@@ -54,7 +54,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       // Assert
       "Failed to construct pattern match: original statement [true]" shouldBe loggedAsError
-      "Failed mutation(s) Mutant(0,true,false,EmptyString)." shouldBe loggedAsError
+      "Failed mutation(s) Mutant(0,true,false)." shouldBe loggedAsError
       "at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
       "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s." shouldBe loggedAsError
 
@@ -201,7 +201,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get)
-      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
+      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term]))
       .toList
 
     TransformedMutants(topStatement, mutant)
