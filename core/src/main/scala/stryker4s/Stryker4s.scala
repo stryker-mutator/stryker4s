@@ -14,6 +14,7 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
 
   def run(): ScoreStatus = {
     preRunLogs()
+
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
     val runResults = runner(mutatedFiles)

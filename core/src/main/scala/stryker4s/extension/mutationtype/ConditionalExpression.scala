@@ -3,16 +3,18 @@ package stryker4s.extension.mutationtype
 import scala.meta._
 
 case object If {
-
-  def unapply(term: Term): Option[Term] =
-    term.parent collect {
-      case Term.If(cond, _, _) if cond == term => term
-    } filterNot (_.is[Lit.Boolean])
+  def unapply(ifStatement: Term.If): Option[Term] = Some(ifStatement.cond).filterNot(_.is[Lit.Boolean])
+}
+case object While {
+  def unapply(whileStatement: Term.While): Option[Term] = Some(whileStatement.expr).filterNot(_.is[Lit.Boolean])
+}
+case object Do {
+  def unapply(whileStatement: Term.Do): Option[Term] = Some(whileStatement.expr).filterNot(_.is[Lit.Boolean])
 }
 
-case object IfTrue extends ConditionalExpression {
+case object ConditionalTrue extends ConditionalExpression {
   override  val tree: Lit.Boolean = Lit.Boolean(true)
 }
-case object IfFalse extends ConditionalExpression {
+case object ConditionalFalse extends ConditionalExpression {
   override  val tree: Lit.Boolean = Lit.Boolean(false)
 }
