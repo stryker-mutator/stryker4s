@@ -6,7 +6,6 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
-import stryker4s.extension.FuncExtensions._
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
@@ -38,8 +37,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: MutantRu
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
 
-    MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration) butFirst
-      reporter.reportFinishedRun
+    val result = MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
+    reporter.reportFinishedRun(result)
+    result
   }
 
   private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Unit = {
@@ -74,7 +74,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: MutantRu
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
-      runMutant(mutant, tmpDir)(subPath) butFirst (reporter.reportFinishedMutation(_, totalMutants))
+      val result = runMutant(mutant, tmpDir)(subPath)
+      reporter.reportFinishedMutation(result, totalMutants)
+      result
     }
   }
 

@@ -1,12 +1,9 @@
 package stryker4s.run.report
 
-import java.lang.System.lineSeparator
-
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.run.threshold._
-import stryker4s.extension.ImplicitMutationConversion._
 
 class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Logging {
 
@@ -20,34 +17,39 @@ class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Lo
   }
 
   override def reportFinishedRun(runResults: MutantRunResults): Unit = {
-    val detected = runResults.results collect { case d: Detected => d }
-    val detectedSize = detected.size
+    val (detected, rest) = runResults.results partition (_.isInstanceOf[Detected])
+    val (undetected, _) = rest partition (_.isInstanceOf[Undetected])
 
-    val undetected = runResults.results collect { case u: Undetected => u }
+    val detectedSize = detected.size
     val undetectedSize = undetected.size
 
     val totalMutants = detectedSize + undetectedSize
     info(s"Mutation run finished! Took ${runResults.duration.toSeconds} seconds")
     info(s"Total mutants: $totalMutants, detected: $detectedSize, undetected: $undetectedSize")
 
-    info(
-      s"Undetected mutants:" + lineSeparator() +
-        undetected
-          .map(mutantDiff)
-          .mkString(lineSeparator()))
+    debug(resultsString("Detected", detected))
+    info(resultsString("Undetected", undetected))
 
     val scoreStatus = ThresholdChecker.determineScoreStatus(runResults.mutationScore)
     scoreStatus match {
-      case SuccessStatus => info(s"Mutation score: ${runResults.mutationScore}%")
-      case WarningStatus => warn(s"Mutation score: ${runResults.mutationScore}%")
+      case SuccessStatus => info(mutationScoreString(runResults.mutationScore))
+      case WarningStatus => warn(mutationScoreString(runResults.mutationScore))
       case DangerStatus =>
         error(s"Mutation score dangerously low!")
-        error(s"Mutation score: ${runResults.mutationScore}%.")
+        error(mutationScoreString(runResults.mutationScore))
       case ErrorStatus =>
         error(
-          s"Mutation score below threshold! Score: ${runResults.mutationScore}. Threshold: ${config.thresholds.break}")
+          s"Mutation score below threshold! Score: ${runResults.mutationScore}%. Threshold: ${config.thresholds.break}%")
     }
   }
+
+  private def resultsString[T <: MutantRunResult](name: String, mutants: Iterable[T]): String =
+    s"$name mutants:\n" +
+      mutants
+        .map(mutantDiff)
+        .mkString("\n")
+
+  private def mutationScoreString(score: Double) = s"Mutation score: $score%"
 
   private def mutantDiff(mrr: MutantRunResult): String = {
     val mutant = mrr.mutant
@@ -55,10 +57,10 @@ class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Lo
     val line = mutant.original.pos.startLine + 1
     val col = mutant.original.pos.startColumn + 1
 
-    s"${mrr.fileSubPath}:$line:$col:" + lineSeparator() +
-      s"\tfrom ${mutant.original} to ${mutant.mutated}" + lineSeparator()
-
-
-    s"""${mutant.id}. [${mrr.getClass.getSimpleName}] ${mutant.mutationType.mutationName}"""
+    s"""${mutant.id}. [${mrr.getClass.getSimpleName}]
+       |${mrr.fileSubPath}:$line:$col
+       |-\t${mutant.original}
+       |+\t${mutant.mutated}
+       |""".stripMargin
   }
 }

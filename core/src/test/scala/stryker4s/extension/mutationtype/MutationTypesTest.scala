@@ -1,7 +1,6 @@
 package stryker4s.extension.mutationtype
 
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
-import stryker4s.extension.mutationtype._
 import stryker4s.scalatest.TreeEquality
 import stryker4s.testutil.Stryker4sSuite
 
