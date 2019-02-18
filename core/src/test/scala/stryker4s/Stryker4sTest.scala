@@ -17,7 +17,6 @@ import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 
-import scala.collection.Iterable
 import scala.util.Success
 
 class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar with Inside {
@@ -29,16 +28,16 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       val testFiles = Seq(file)
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector())
       val testReporter = mock[MutantRunReporter]
+      val testMutantRunner =
+        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector(), testReporter)
 
       val sut = new Stryker4s(
         testSourceCollector,
         new Mutator(new MutantFinder(new MutantMatcher),
                     new StatementTransformer,
                     new MatchBuilder(ActiveMutationContext.sysProps)),
-        testMutantRunner,
-        testReporter
+        testMutantRunner
       )
 
       val result = sut.run()
@@ -52,9 +51,9 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       result shouldBe SuccessStatus
       reportedResults should matchPattern {
         case Seq(Killed(Mutant(0, _, _, _), `expectedPath`),
-                  Killed(Mutant(1, _, _, _), `expectedPath`),
-                  Killed(Mutant(2, _, _, _), `expectedPath`),
-                  Killed(Mutant(3, _, _, _), `expectedPath`)) =>
+                 Killed(Mutant(1, _, _, _), `expectedPath`),
+                 Killed(Mutant(2, _, _, _), `expectedPath`),
+                 Killed(Mutant(3, _, _, _), `expectedPath`)) =>
       }
     }
 
@@ -62,8 +61,9 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       implicit val conf: Config = Config()
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
       val testReporter = mock[MutantRunReporter]
+      val testMutantRunner =
+        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, testReporter)
 
       val sut: Stryker4s =
         new Stryker4s(
@@ -71,8 +71,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
           new Mutator(new MutantFinder(new MutantMatcher),
                       new StatementTransformer,
                       new MatchBuilder(ActiveMutationContext.sysProps)),
-          testMutantRunner,
-          testReporter
+          testMutantRunner
         ) {
 
           override def jvmMemory2GBOrHigher: Boolean = false
@@ -89,8 +88,8 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       implicit val conf: Config = Config()
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
       val testReporter = mock[MutantRunReporter]
+      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, testReporter)
 
       val sut: Stryker4s =
         new Stryker4s(
@@ -98,8 +97,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
           new Mutator(new MutantFinder(new MutantMatcher),
                       new StatementTransformer,
                       new MatchBuilder(ActiveMutationContext.sysProps)),
-          testMutantRunner,
-          testReporter
+          testMutantRunner
         ) {
 
           override def jvmMemory2GBOrHigher: Boolean = true

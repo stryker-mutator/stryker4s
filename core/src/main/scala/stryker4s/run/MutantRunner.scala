@@ -6,15 +6,18 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
+import stryker4s.extension.FuncExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.process.ProcessRunner
+import stryker4s.run.report.MutantRunReporter
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceCollector)(implicit config: Config)
+abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
+    implicit config: Config)
     extends MutationScoreCalculator
     with Logging {
 
@@ -42,7 +45,8 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
 
-    MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
+    MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration) butFirst
+      reporter.reportFinishedRun
   }
 
   private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): File = {
@@ -82,10 +86,8 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
-      val result = runMutant(mutant, tmpDir, subPath)
-      val id = mutant.id + 1
-      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
-      result
+      reporter.reportStartRun(mutant)
+      runMutant(mutant, tmpDir, subPath) butFirst (reporter.reportFinishedMutation(_, totalMutants))
     }
   }
 

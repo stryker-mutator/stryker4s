@@ -4,10 +4,20 @@ import java.lang.System.lineSeparator
 
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
-import stryker4s.model.{Detected, MutantRunResult, MutantRunResults, Undetected}
+import stryker4s.model._
 import stryker4s.run.threshold._
+import stryker4s.extension.ImplicitMutationConversion._
 
 class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Logging {
+
+  override def reportStartRun(mutant: Mutant): Unit = {
+    info(s"Starting test-run ${mutant.id + 1}...")
+  }
+
+  override def reportFinishedMutation(mutant: MutantRunResult, totalMutants: Int): Unit = {
+    val id = mutant.mutant.id + 1
+    info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+  }
 
   override def reportFinishedRun(runResults: MutantRunResults): Unit = {
     val detected = runResults.results collect { case d: Detected => d }
@@ -23,15 +33,7 @@ class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Lo
     info(
       s"Undetected mutants:" + lineSeparator() +
         undetected
-          .map { mrr =>
-            val mutant = mrr.mutant
-
-            val line = mutant.original.pos.startLine + 1
-            val col = mutant.original.pos.startColumn + 1
-
-            s"${mrr.fileSubPath}:$line:$col:" + lineSeparator() +
-              s"\tfrom ${mutant.original} to ${mutant.mutated}" + lineSeparator()
-          }
+          .map(mutantDiff)
           .mkString(lineSeparator()))
 
     val scoreStatus = ThresholdChecker.determineScoreStatus(runResults.mutationScore)
@@ -46,5 +48,17 @@ class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Lo
           s"Mutation score below threshold! Score: ${runResults.mutationScore}. Threshold: ${config.thresholds.break}")
     }
   }
-  override def reportFinishedMutation(result: MutantRunResult): Unit = ???
+
+  private def mutantDiff(mrr: MutantRunResult): String = {
+    val mutant = mrr.mutant
+
+    val line = mutant.original.pos.startLine + 1
+    val col = mutant.original.pos.startColumn + 1
+
+    s"${mrr.fileSubPath}:$line:$col:" + lineSeparator() +
+      s"\tfrom ${mutant.original} to ${mutant.mutated}" + lineSeparator()
+
+
+    s"""${mutant.id}. [${mrr.getClass.getSimpleName}] ${mutant.mutationType.mutationName}"""
+  }
 }

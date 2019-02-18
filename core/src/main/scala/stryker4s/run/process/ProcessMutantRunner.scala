@@ -7,17 +7,17 @@ import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
+import stryker4s.run.report.MutantRunReporter
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: Command, processRunner: ProcessRunner, sourceCollector: SourceCollector)(
+class ProcessMutantRunner(command: Command, processRunner: ProcessRunner, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
     implicit config: Config)
-    extends MutantRunner(processRunner, sourceCollector) {
+    extends MutantRunner(processRunner, sourceCollector, reporter) {
 
   def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
     val id = mutant.id
-    info(s"Starting test-run ${id + 1}...")
     processRunner(command, workingDir, ("ACTIVE_MUTATION", id.toString)) match {
       case Success(0)                         => Survived(mutant, subPath)
       case Success(exitCode) if exitCode != 0 => Killed(mutant, subPath)

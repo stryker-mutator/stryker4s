@@ -5,11 +5,9 @@ import stryker4s.config.Config
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
-import stryker4s.run.report.MutantRunReporter
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
-class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner, reporter: MutantRunReporter)(
-    implicit config: Config)
+class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner)(implicit config: Config)
     extends Logging {
 
   def run(): ScoreStatus = {
@@ -17,7 +15,6 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
     val runResults = runner(mutatedFiles)
-    reporter.reportFinishedRun(runResults)
     ThresholdChecker.determineScoreStatus(runResults.mutationScore)
   }
 

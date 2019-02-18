@@ -25,8 +25,7 @@ trait Stryker4sRunner {
     val stryker4s = new Stryker4s(
       collector,
       new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(mutationActivation)),
-      resolveRunner(collector),
-      new CombinedReporter(resolveReporters)
+      resolveRunner(collector)
     )
     stryker4s.run()
   }
@@ -35,9 +34,8 @@ trait Stryker4sRunner {
 
   def mutationActivation: ActiveMutationContext
 
-  private def resolveReporters(implicit config: Config): Seq[MutantRunReporter] = {
-    config.reporters collect  {
+  def resolveReporters(implicit config: Config): MutantRunReporter =
+    new CombinedReporter(config.reporters collect {
       case ConsoleReporter => new ConsoleReporter()
-    }
-  }
+    })
 }
