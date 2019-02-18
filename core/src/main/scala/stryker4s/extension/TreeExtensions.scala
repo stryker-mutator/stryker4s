@@ -98,15 +98,4 @@ object TreeExtensions {
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
       mapParent[T, Boolean](thisTree, _ => true, false)
   }
-
-  implicit class IsConditionOfIf(thisTree: Tree) {
-    /** Returns if a tree is a direct condition of an if statement
-      */
-    final def isConditionOfIf: Boolean = {
-      thisTree.parent match {
-        case Some(parent: Term.If) => parent.cond == thisTree
-        case _ => false
-      }
-    }
-  }
 }
