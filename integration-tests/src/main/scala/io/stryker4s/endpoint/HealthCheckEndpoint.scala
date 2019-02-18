@@ -8,13 +8,13 @@ import org.http4s.dsl.Http4sDsl
 
 import scala.language.higherKinds
 
-object HealthCheck {
+object HealthCheckEndpoint {
   def endpoints[F[_] : Effect](): HttpRoutes[F] = {
-    new HealthCheck[F].endpoints()
+    new HealthCheckEndpoint[F].endpoints()
   }
 }
 
-class HealthCheck[F[_] : Effect] extends Http4sDsl[F] {
+class HealthCheckEndpoint[F[_] : Effect] extends Http4sDsl[F] {
 
   def endpoints(): HttpRoutes[F] = HttpRoutes.of[F] {
     case GET -> Root / "health" =>

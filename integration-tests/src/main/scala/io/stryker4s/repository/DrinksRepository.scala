@@ -15,10 +15,10 @@ object DrinksRepository {
     Drink("Robo water", 0.50, isAlcoholic = false)
   )
 
-  def apply[F[_]: Applicative]() = new DrinksRepository[F](drinks)
+  def apply[F[_]: Applicative](): DrinksRepository[F] = new DrinksRepository[F](drinks)
 }
 
-class DrinksRepository[F[_]: Applicative](private[this] val drinks: List[Drink]) {
+class DrinksRepository[F[_]: Applicative](drinks: List[Drink]) {
 
   def findAll(): F[List[Drink]] = {
     drinks.pure[F]
@@ -28,7 +28,7 @@ class DrinksRepository[F[_]: Applicative](private[this] val drinks: List[Drink])
     drinks.find(_.name == name).pure[F]
   }
 
-  def findAllByIsAlcoholic(isAlcoholic: Boolean): F[List[Drink]] = {
+  def findByIsAlcoholic(isAlcoholic: Boolean): F[List[Drink]] = {
     drinks.filter(_.isAlcoholic == isAlcoholic).pure[F]
   }
 

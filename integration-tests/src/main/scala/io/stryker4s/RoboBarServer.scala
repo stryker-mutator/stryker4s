@@ -2,8 +2,9 @@ package io.stryker4s
 
 import cats.effect._
 import cats.implicits._
-import io.stryker4s.endpoint.{DrinksEndpoint, HealthCheck, OrderEndpoint}
-import io.stryker4s.repository.DrinksRepository
+import io.stryker4s.endpoint.{DrinksEndpoint, HealthCheckEndpoint, OrderEndpoint}
+import io.stryker4s.repository.{DrinksRepository, OrderRepository}
+import io.stryker4s.service.DrinksService
 import org.http4s.implicits._
 import org.http4s.server.blaze._
 import org.http4s.server.{Router, Server}
@@ -18,15 +19,18 @@ object RoboBarServer extends IOApp {
 
   def createServer[F[_] : ContextShift : ConcurrentEffect : Timer](): Resource[F, Server[F]] = {
     val drinksRepository = DrinksRepository[F]()
-    val services = HealthCheck.endpoints() <+>
+    val drinksService = DrinksService[F](drinksRepository)
+
+    val orderRepository = OrderRepository[F]()
+
+    val services = HealthCheckEndpoint.endpoints() <+>
       OrderEndpoint.endpoints("RoboBar") <+>
-      DrinksEndpoint.endpoints(drinksRepository)
+      DrinksEndpoint.endpoints(drinksService)
     val httpApp = Router(root -> services).orNotFound
 
     BlazeServerBuilder[F]
       .bindHttp(8080, "0.0.0.0")
       .withHttpApp(httpApp)
       .resource
-
   }
 }

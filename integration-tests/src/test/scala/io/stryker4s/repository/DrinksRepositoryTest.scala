@@ -29,7 +29,7 @@ class DrinksRepositoryTest extends FunSpec with Matchers {
     }
 
     it("returns all non alcoholic drinks when isAlcoholic is false") {
-      val drinks = sut.findAllByIsAlcoholic(false).unsafeRunSync()
+      val drinks = sut.findByIsAlcoholic(false).unsafeRunSync()
 
       // Intentional weak assertion the list has 4 drinks.
       // This will always return true because there are 2 alcoholic drinks and 2 non alcoholic drinks.
@@ -39,7 +39,7 @@ class DrinksRepositoryTest extends FunSpec with Matchers {
     it("returns all alcoholic drinks when isAlcoholic is true") {
       val expectedDrinks = List("Robo Beer", "Rob(w)ine")
 
-      val drinks = sut.findAllByIsAlcoholic(true).unsafeRunSync()
+      val drinks = sut.findByIsAlcoholic(true).unsafeRunSync()
 
       drinks.size shouldBe 2
       drinks.map(_.name) should contain theSameElementsAs expectedDrinks

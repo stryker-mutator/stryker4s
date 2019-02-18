@@ -8,9 +8,9 @@ import org.http4s.implicits._
 import org.http4s.{Request, Response, Status, Uri}
 import org.scalatest.{FunSpec, Matchers}
 
-class HealthCheckTest extends FunSpec with Matchers with Http4sDsl[IO] with Http4sClientDsl[IO] {
+class HealthCheckEndpointTest extends FunSpec with Matchers with Http4sDsl[IO] with Http4sClientDsl[IO] {
 
-  private[this] val sut: Kleisli[IO, Request[IO], Response[IO]] = HealthCheck.endpoints[IO]().orNotFound
+  private[this] val sut: Kleisli[IO, Request[IO], Response[IO]] = HealthCheckEndpoint.endpoints[IO]().orNotFound
 
   describe("A health check api") {
 
