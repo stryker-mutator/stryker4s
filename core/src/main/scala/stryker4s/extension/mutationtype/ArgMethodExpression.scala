@@ -63,6 +63,22 @@ case object Drop extends ArgMethodExpression {
   protected val methodName = "drop"
 }
 
+case object TakeRight extends ArgMethodExpression {
+  protected val methodName = "takeRight"
+}
+
+case object DropRight extends ArgMethodExpression {
+  protected val methodName = "dropRight"
+}
+
+case object TakeWhile extends ArgMethodExpression {
+  protected val methodName = "takeWhile"
+}
+
+case object DropWhile extends ArgMethodExpression {
+  protected val methodName = "dropWhile"
+}
+
 case object IndexOf extends ArgMethodExpression {
   protected val methodName = "indexOf"
 }

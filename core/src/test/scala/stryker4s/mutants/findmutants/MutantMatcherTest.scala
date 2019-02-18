@@ -244,6 +244,42 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       )
     }
 
+    it("should match takeRight to dropRight") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).takeRight(2)",
+        TakeRight,
+        DropRight
+      )
+    }
+
+    it("should match dropRight to takeRight") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).dropRight(2)",
+        DropRight,
+        TakeRight
+      )
+    }
+
+    it("should match takeWhile to dropWhile") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).dropWhile(_ < 2)",
+        DropWhile,
+        TakeWhile
+      )
+    }
+
+    it("should match dropWhile to takeWhile") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).takeWhile(_ < 2)",
+        TakeWhile,
+        DropWhile
+      )
+    }
+
     it("should match isEmpty to nonEmpty") {
       expectedMutations(
         sut.matchMethodExpression,
