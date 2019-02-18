@@ -7,16 +7,15 @@ import sbt.Keys._
 import sbt._
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
-import stryker4s.extension.exception.{InitialTestRunFailedException, MutationRunFailedException, Stryker4sException}
+import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
-import stryker4s.run.process.ProcessRunner
 import stryker4s.run.report.MutantRunReporter
 
-class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
+class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
     implicit config: Config)
-    extends MutantRunner(processRunner, sourceCollector, reporter) {
+    extends MutantRunner(sourceCollector, reporter) {
 
   private lazy val filteredSystemProperties: Option[List[String]] = {
     // Matches strings that start with one of the options between brackets
@@ -48,26 +47,28 @@ class SbtMutantRunner(state: State, processRunner: ProcessRunner, sourceCollecto
 
   override def runInitialTest(workingDir: File): Boolean = runTests(
     newState,
-    InitialTestRunFailedException(s"Unable to execute initial test run. Sbt is unable to find the task 'test'."),
+    throw InitialTestRunFailedException(s"Unable to execute initial test run. Sbt is unable to find the task 'test'."),
     onSuccess = true,
     onFailed = false
   )
 
-  override def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult = {
+  override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult = {
     val mutationState = extracted.appendWithSession(settings :+ mutationSetting(mutant.id), newState)
     runTests(
-      mutationState,
-      MutationRunFailedException(s"An unexpected error occurred while running mutation ${mutant.id}"),
-      Survived(mutant, subPath),
-      Killed(mutant, subPath)
+      mutationState, { p: Path =>
+        error(s"An unexpected error occurred while running mutation ${mutant.id}")
+        Error(mutant, p)
+      },
+      Survived(mutant, _),
+      Killed(mutant, _)
     )
   }
 
   /** Runs tests with the giving state, calls the corresponding parameter on each result
     */
-  private def runTests[T](state: State, onError: => Stryker4sException, onSuccess: => T, onFailed: => T): T =
+  private def runTests[T](state: State, onError: => T, onSuccess: => T, onFailed: => T): T =
     Project.runTask(test in Test, state) match {
-      case None                => throw onError
+      case None                => onError
       case Some((_, Value(_))) => onSuccess
       case Some((_, Inc(_)))   => onFailed
     }

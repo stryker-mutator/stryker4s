@@ -29,8 +29,10 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val testReporter = mock[MutantRunReporter]
-      val testMutantRunner =
-        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector(), testReporter)
+      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"),
+                                                     testProcessRunner,
+                                                     new FileCollector(testProcessRunner),
+                                                     testReporter)
 
       val sut = new Stryker4s(
         testSourceCollector,
@@ -50,10 +52,10 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
 
       result shouldBe SuccessStatus
       reportedResults should matchPattern {
-        case Seq(Killed(Mutant(0, _, _, _), `expectedPath`),
-                 Killed(Mutant(1, _, _, _), `expectedPath`),
-                 Killed(Mutant(2, _, _, _), `expectedPath`),
-                 Killed(Mutant(3, _, _, _), `expectedPath`)) =>
+        case List(Killed(Mutant(0, _, _), `expectedPath`),
+                  Killed(Mutant(1, _, _), `expectedPath`),
+                  Killed(Mutant(2, _, _), `expectedPath`),
+                  Killed(Mutant(3, _, _), `expectedPath`)) =>
       }
     }
 
@@ -89,7 +91,8 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
       val testReporter = mock[MutantRunReporter]
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, testReporter)
+      val testMutantRunner =
+        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, testReporter)
 
       val sut: Stryker4s =
         new Stryker4s(
