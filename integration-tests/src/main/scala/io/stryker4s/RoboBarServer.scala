@@ -4,7 +4,8 @@ import cats.effect._
 import cats.implicits._
 import io.stryker4s.endpoint.{DrinksEndpoint, HealthCheckEndpoint, OrderEndpoint}
 import io.stryker4s.repository.{DrinksRepository, OrderRepository}
-import io.stryker4s.service.DrinksService
+import io.stryker4s.service.{DrinksService, OrderService}
+import io.stryker4s.validator.OrderValidator
 import org.http4s.implicits._
 import org.http4s.server.blaze._
 import org.http4s.server.{Router, Server}
@@ -21,10 +22,12 @@ object RoboBarServer extends IOApp {
     val drinksRepository = DrinksRepository[F]()
     val drinksService = DrinksService[F](drinksRepository)
 
+    val orderValidator = OrderValidator[F]()
     val orderRepository = OrderRepository[F]()
+    val orderService = OrderService[F](orderRepository, orderValidator)
 
     val services = HealthCheckEndpoint.endpoints() <+>
-      OrderEndpoint.endpoints("RoboBar") <+>
+      OrderEndpoint.endpoints(orderService) <+>
       DrinksEndpoint.endpoints(drinksService)
     val httpApp = Router(root -> services).orNotFound
 
