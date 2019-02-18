@@ -100,7 +100,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       sut.reportFinishedRun(results)
 
       "Mutation run finished! Took 15 seconds" shouldBe loggedAsInfo
-      "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
+      "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived]
          |stryker4s:0:0
