@@ -1,5 +1,9 @@
 package stryker4s.config
 
-sealed trait Reporter
+sealed trait Reporter {
+  val name: String
+}
 
-final case class ConsoleReporter(logSurvived: Boolean = false) extends Reporter
+case object ConsoleReporter extends Reporter {
+  override val name: String = "console"
+}

@@ -7,7 +7,3 @@ trait MutantRunReporter {
 
   def reportFinishedMutation(result: MutantRunResult): Unit
 }
-
-object MutantRunReporter {
-  val consoleReporter: String = "console"
-}

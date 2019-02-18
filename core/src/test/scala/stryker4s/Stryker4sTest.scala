@@ -2,20 +2,25 @@ package stryker4s
 
 import java.nio.file.Paths
 
+import org.mockito.MockitoSugar
+import org.mockito.captor.ArgCaptor
+import org.scalatest.Inside
 import stryker4s.config.Config
-import stryker4s.model.{Killed, Mutant}
+import stryker4s.model.{Killed, Mutant, MutantRunResults}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner}
+import stryker4s.run.report.MutantRunReporter
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
-import stryker4s.testutil.stubs._
+import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 
+import scala.collection.Iterable
 import scala.util.Success
 
-class Stryker4sTest extends Stryker4sSuite with LogMatchers {
+class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar with Inside {
 
   describe("run") {
     it("should call mutate files and report the results") {
@@ -25,7 +30,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector())
-      val testReporter = new TestReporter
+      val testReporter = mock[MutantRunReporter]
 
       val sut = new Stryker4s(
         testSourceCollector,
@@ -38,13 +43,15 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
       val result = sut.run()
 
-      val reportedResults = testReporter.testMutantReporter.lastCall.value.results
+      val captor = ArgCaptor[MutantRunResults]
+      verify(testReporter).reportFinishedRun(captor)
+      val reportedResults = captor.value.results
 
       val expectedPath = Paths.get("simpleFile.scala")
 
       result shouldBe SuccessStatus
       reportedResults should matchPattern {
-        case List(Killed(Mutant(0, _, _, _), `expectedPath`),
+        case Seq(Killed(Mutant(0, _, _, _), `expectedPath`),
                   Killed(Mutant(1, _, _, _), `expectedPath`),
                   Killed(Mutant(2, _, _, _), `expectedPath`),
                   Killed(Mutant(3, _, _, _), `expectedPath`)) =>
@@ -56,7 +63,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
-      val testReporter = new TestReporter
+      val testReporter = mock[MutantRunReporter]
 
       val sut: Stryker4s =
         new Stryker4s(
@@ -83,7 +90,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
-      val testReporter = new TestReporter
+      val testReporter = mock[MutantRunReporter]
 
       val sut: Stryker4s =
         new Stryker4s(

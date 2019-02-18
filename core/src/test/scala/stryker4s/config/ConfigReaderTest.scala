@@ -3,7 +3,6 @@ package stryker4s.config
 import better.files.File
 import org.apache.logging.log4j.Level
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
-import stryker4s.run.report.ConsoleReporter
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 
@@ -19,7 +18,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.mutate shouldBe Seq("**/main/scala/**/*.scala")
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.INFO
-      result.reporters.head shouldBe an[ConsoleReporter]
+      result.reporters.loneElement shouldBe ConsoleReporter
     }
 
     it("should fail on an empty config file") {
@@ -49,7 +48,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
       result.logLevel shouldBe Level.DEBUG
-      result.reporters.head shouldBe an[ConsoleReporter]
+      result.reporters.loneElement shouldBe ConsoleReporter
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 

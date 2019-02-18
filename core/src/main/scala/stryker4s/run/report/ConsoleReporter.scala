@@ -4,12 +4,12 @@ import java.lang.System.lineSeparator
 
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
-import stryker4s.model.{Detected, MutantRunResults, Undetected}
+import stryker4s.model.{Detected, MutantRunResult, MutantRunResults, Undetected}
 import stryker4s.run.threshold._
 
-class ConsoleReporter extends MutantRunReporter with Logging {
+class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Logging {
 
-  override def reportFinishedRun(runResults: MutantRunResults)(implicit config: Config): Unit = {
+  override def reportFinishedRun(runResults: MutantRunResults): Unit = {
     val detected = runResults.results collect { case d: Detected => d }
     val detectedSize = detected.size
 
@@ -46,4 +46,5 @@ class ConsoleReporter extends MutantRunReporter with Logging {
           s"Mutation score below threshold! Score: ${runResults.mutationScore}. Threshold: ${config.thresholds.break}")
     }
   }
+  override def reportFinishedMutation(result: MutantRunResult): Unit = ???
 }

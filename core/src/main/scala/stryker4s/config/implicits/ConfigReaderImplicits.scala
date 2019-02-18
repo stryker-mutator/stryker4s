@@ -6,7 +6,6 @@ import better.files.File
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
 import stryker4s.config.{ConsoleReporter, ExcludedMutations, Reporter}
-import stryker4s.run.report.MutantRunReporter
 
 trait ConfigReaderImplicits {
 
@@ -21,8 +20,9 @@ trait ConfigReaderImplicits {
 
   private[config] implicit val toReporterList: ConfigReader[Reporter] =
     ConfigReader[String] map {
-      case MutantRunReporter.`consoleReporter` => ConsoleReporter()
+      case ConsoleReporter.name => ConsoleReporter
     }
+
   private[config] implicit val exclusions: ConfigReader[ExcludedMutations] =
     ConfigReader[List[String]] map (exclusions => ExcludedMutations(exclusions.toSet))
 }

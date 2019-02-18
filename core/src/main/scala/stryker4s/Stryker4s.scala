@@ -5,10 +5,10 @@ import stryker4s.config.Config
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
-import stryker4s.run.report.Reporter
+import stryker4s.run.report.MutantRunReporter
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
-class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(
+class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner, reporter: MutantRunReporter)(
     implicit config: Config)
     extends Logging {
 
@@ -17,7 +17,7 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
     val runResults = runner(mutatedFiles)
-    reporter.report(runResults)
+    reporter.reportFinishedRun(runResults)
     ThresholdChecker.determineScoreStatus(runResults.mutationScore)
   }
 
