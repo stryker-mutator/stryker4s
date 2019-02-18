@@ -45,7 +45,8 @@ class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Lo
 
   private def resultsString[T <: MutantRunResult](name: String, mutants: Iterable[T]): String =
     s"$name mutants:\n" +
-      mutants
+      mutants.toSeq
+        .sortBy(_.mutant.id)
         .map(mutantDiff)
         .mkString("\n")
 

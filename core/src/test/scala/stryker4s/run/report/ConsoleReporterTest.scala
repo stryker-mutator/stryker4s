@@ -85,6 +85,40 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
          |""".stripMargin shouldBe loggedAsInfo
     }
 
+    it("should log mutants sorted by id") {
+      implicit val config: Config = Config()
+      val sut = new ConsoleReporter()
+      val results = model.MutantRunResults(
+        Seq(
+          Survived(Mutant(0, q"4", q"5"), Paths.get("stryker4s")),
+          Survived(Mutant(2, q"1", q"2"), Paths.get("stryker4s/subPath")),
+          Survived(Mutant(1, q"0", q"1"), Paths.get("stryker4s"))
+        ),
+        50,
+        15.seconds
+      )
+      sut.reportFinishedRun(results)
+
+      "Mutation run finished! Took 15 seconds" shouldBe loggedAsInfo
+      "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
+      s"""Undetected mutants:
+         |0. [Survived]
+         |stryker4s:0:0
+         |-	4
+         |+	5
+         |
+         |1. [Survived]
+         |stryker4s:0:0
+         |-	0
+         |+	1
+         |
+         |2. [Survived]
+         |stryker4s${pathSeparator}subPath:0:0
+         |-	1
+         |+	2
+         |""".stripMargin shouldBe loggedAsInfo
+    }
+
     it("should report the mutation score when it is dangerously low") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
