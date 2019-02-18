@@ -9,7 +9,7 @@ case object While {
   def unapply(whileStatement: Term.While): Option[Term] = Some(whileStatement.expr).filterNot(_.is[Lit.Boolean])
 }
 case object Do {
-  def unapply(whileStatement: Term.Do): Option[Term] = Some(whileStatement.expr).filterNot(_.is[Lit.Boolean])
+  def unapply(doStatement: Term.Do): Option[Term] = Some(doStatement.expr).filterNot(_.is[Lit.Boolean])
 }
 
 case object ConditionalTrue extends ConditionalExpression {
