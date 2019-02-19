@@ -32,6 +32,5 @@ object Dependencies {
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
-  val circeParser = "io.circe" %% "circe-parser" % versions.circe
 
 }
