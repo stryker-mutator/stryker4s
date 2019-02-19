@@ -27,7 +27,6 @@ object Settings {
   lazy val coreSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
-      Dependencies.test.sttp,
       Dependencies.test.jsonSchemaValidator,
       Dependencies.test.mockitoScala,
       Dependencies.pureconfig,
