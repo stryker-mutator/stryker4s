@@ -6,59 +6,62 @@ import io.circe.Json
 import stryker4s.config.Config
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
+import stryker4s.run.report.html.{MutationTestResult, Position}
 
 trait MutantRunResultMapper extends MutationScoreCalculator {
+
 
   def toJsonReport(runResults: MutantRunResults)(implicit config: Config): Json = {
     import io.circe.generic.auto._
     import io.circe.syntax._
-    toHtmlMutantRunResult(runResults).asJson
+    ???
+//    toHtmlMutantRunResult(runResults).asJson
   }
 
-  def toHtmlMutantRunResult(runResults: MutantRunResults)(implicit config: Config): HtmlMutantRunResults = {
-    val detectedSize = runResults.results.collect { case d: Detected     => d }.size
-    val undetectedSize = runResults.results.collect { case u: Undetected => u }.size
-
-    val sortedOnFile: Map[Path, Iterable[MutantRunResult]] =
-      runResults.results.groupBy(result => result.fileSubPath)
-
-    val htmlRunResults: List[HtmlMutantRunResult] = sortedOnFile.map {
-      case (path, results) =>
-        val detectedSize = results.collect { case d: Detected     => d }.size
-        val undetectedSize = results.collect { case d: Undetected => d }.size
-
-        HtmlMutantRunResult(
-          path.getFileName.toString,
-          path.toAbsolutePath.toString,
-          Totals(detectedSize, undetectedSize, 0, 0),
-          calculateHealth(results),
-          "scala",
-          getFileSourceAsString(path),
-          results
-            .map(result => {
-              HtmlMutant(
-                result.mutant.id.toString,
-                result.mutant.mutationType.mutationName,
-                result.mutant.mutated.syntax,
-                determineLocationInFile(result.mutant),
-                result.getClass.getSimpleName
-              )
-            })
-            .toList
-        )
-    }.toList
-
-    HtmlMutantRunResults("TODO",
-                         config.baseDir.path.toString,
-                         Totals(detectedSize, undetectedSize, 0, 0),
-                         calculateHealth(runResults.results),
-                         htmlRunResults)
-  }
-
-  private[this] def determineLocationInFile(mutant: Mutant): Location = {
-    val pos = mutant.original.pos
-    Location(Position(pos.startLine + 1, pos.startColumn), Position(pos.endLine + 1, pos.endColumn))
-  }
+//  def toHtmlMutantRunResult(runResults: MutantRunResults)(implicit config: Config): HtmlMutantRunResults = {
+//    val detectedSize = runResults.results.collect { case d: Detected     => d }.size
+//    val undetectedSize = runResults.results.collect { case u: Undetected => u }.size
+//
+//    val sortedOnFile: Map[Path, Iterable[MutantRunResult]] =
+//      runResults.results.groupBy(result => result.fileSubPath)
+//
+//    val htmlRunResults: List[HtmlMutantRunResult] = sortedOnFile.map {
+//      case (path, results) =>
+//        val detectedSize = results.collect { case d: Detected     => d }.size
+//        val undetectedSize = results.collect { case d: Undetected => d }.size
+//
+//        HtmlMutantRunResult(
+//          path.getFileName.toString,
+//          path.toAbsolutePath.toString,
+//          Totals(detectedSize, undetectedSize, 0, 0),
+//          calculateHealth(results),
+//          "scala",
+//          getFileSourceAsString(path),
+//          results
+//            .map(result => {
+//              HtmlMutant(
+//                result.mutant.id.toString,
+//                result.mutant.mutationType.mutationName,
+//                result.mutant.mutated.syntax,
+//                determineLocationInFile(result.mutant),
+//                result.getClass.getSimpleName
+//              )
+//            })
+//            .toList
+//        )
+//    }.toList
+//
+//    HtmlMutantRunResults("TODO",
+//                         config.baseDir.path.toString,
+//                         Totals(detectedSize, undetectedSize, 0, 0),
+//                         calculateHealth(runResults.results),
+//                         htmlRunResults)
+//  }
+//
+//  private[this] def determineLocationInFile(mutant: Mutant): Location = {
+//    val pos = mutant.original.pos
+//    Location(Position(pos.startLine + 1, pos.startColumn), Position(pos.endLine + 1, pos.endColumn))
+//  }
 
   private[this] def calculateHealth(results: Iterable[MutantRunResult]): String = {
     val detected: Long = results.collect { case d: Detected => d }.size
