@@ -16,6 +16,7 @@ object Mutation {
   val mutations: List[String] = List[String](
     classOf[EqualityOperator].getSimpleName,
     classOf[BooleanLiteral].getSimpleName,
+    classOf[ConditionalExpression].getSimpleName,
     classOf[LogicalOperator].getSimpleName,
     classOf[StringLiteral[_]].getSimpleName,
     classOf[MethodExpression].getSimpleName
@@ -50,6 +51,10 @@ trait EqualityOperator extends SubstitutionMutation[Term.Name] {
 
 trait BooleanLiteral extends SubstitutionMutation[Lit.Boolean] {
   override val mutationName: String = classOf[BooleanLiteral].getSimpleName
+}
+
+trait ConditionalExpression extends SubstitutionMutation[Lit.Boolean] {
+  override val mutationName: String = classOf[ConditionalExpression].getSimpleName
 }
 
 trait LogicalOperator extends SubstitutionMutation[Term.Name] {
