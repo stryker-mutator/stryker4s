@@ -2,11 +2,18 @@ package stryker4s.run.report.mapper
 import java.nio.file.{Path, Paths}
 
 import better.files.File
+import io.circe.Json
 import stryker4s.config.Config
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 
 trait MutantRunResultMapper extends MutationScoreCalculator {
+
+  def toJsonReport(runResults: MutantRunResults)(implicit config: Config): Json = {
+    import io.circe.generic.auto._
+    import io.circe.syntax._
+    toHtmlMutantRunResult(runResults).asJson
+  }
 
   def toHtmlMutantRunResult(runResults: MutantRunResults)(implicit config: Config): HtmlMutantRunResults = {
     val detectedSize = runResults.results.collect { case d: Detected     => d }.size

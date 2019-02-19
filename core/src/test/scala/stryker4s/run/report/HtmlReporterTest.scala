@@ -85,7 +85,15 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
       val mutationRunResults =
         MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, 10.seconds)
 
-      val result = sut.toHtmlMutantRunResult(mutationRunResults)
+      val result = new JSONObject(sut.toJsonReport(mutationRunResults))
+
+      try {
+        schema.validate(result)
+      } catch {
+        case exc: ValidationException =>
+          // For testing purposes, to log failing validations
+          fail(s"ValidationException occurred: ${exc.getAllMessages}", exc)
+      }
     }
   }
 

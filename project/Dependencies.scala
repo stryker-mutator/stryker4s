@@ -13,6 +13,7 @@ object Dependencies {
     val log4j = "2.11.1"
     val grizzledSlf4j = "1.3.3"
     val jsonSchemaValidator = "1.5.1"
+    val circe = "0.11.1"
   }
 
   object test {
@@ -29,5 +30,8 @@ object Dependencies {
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
   val log4jslf4jImpl = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
+  val circeCore = "io.circe" %% "circe-core" % versions.circe
+  val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
+  val circeParser = "io.circe" %% "circe-parser" % versions.circe
 
 }
