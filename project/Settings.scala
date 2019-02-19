@@ -1,6 +1,6 @@
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
-import sbt.{Def, _}
+import sbt._
 import scoverage.ScoverageKeys._
 import xerial.sbt.Sonatype.autoImport.sonatypePublishTo
 
@@ -21,7 +21,7 @@ object Settings {
 
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     publishTo := sonatypePublishTo.value,
-    Test / parallelExecution := false, // For logging tests
+    Test / parallelExecution := false // For logging tests
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
@@ -66,8 +66,6 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
-    name := "stryker4s",
-    version := "0.1.0",
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),
@@ -78,6 +76,6 @@ object Settings {
     developers := List(
       Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
-    ),
+    )
   )
 }

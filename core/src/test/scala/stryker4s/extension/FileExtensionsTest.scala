@@ -31,4 +31,17 @@ class FileExtensionsTest extends Stryker4sSuite {
       result should equal(expectedRelativePath)
     }
   }
+
+  describe("inSubDir") {
+    it("should calculate a path relative to the new subDir") {
+      val baseDir = File("/home/projects/myProject")
+      implicit val config: Config = Config(baseDir = baseDir)
+      val sut = baseDir / "src" / "main"
+      val subDir = baseDir / "target" / "tmp"
+
+      val result = sut.inSubDir(subDir)
+
+      result should equal(File("/home/projects/myProject/target/tmp/src/main"))
+    }
+  }
 }

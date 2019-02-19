@@ -2,10 +2,19 @@ package stryker4s.extension
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.{Case, Lit, Mod, Term, Transformer, Tree}
+import scala.meta.{Case, Term, Transformer, Tree}
+import scala.reflect.ClassTag
 import scala.util.Try
 
 object TreeExtensions {
+
+  @tailrec
+  private def mapParent[T <: Tree, U](tree: Tree, ifFound: T => U, notFound: => U)(implicit classTag: ClassTag[T]): U =
+    tree.parent match {
+      case Some(value: T)   => ifFound(value)
+      case Some(otherValue) => mapParent(otherValue, ifFound, notFound)
+      case _                => notFound
+    }
 
   implicit class TopStatementExtension(thisTerm: Term) {
 
@@ -14,9 +23,9 @@ object TreeExtensions {
       */
     @tailrec
     final def topStatement(): Term = thisTerm match {
-      case PartialStatement(parent)    => parent.topStatement()
-      case LiteralPatternMatch(parent) => parent
-      case _                           => thisTerm
+      case PartialStatement(parent)     => parent.topStatement()
+      case ParentIsPatternMatch(parent) => parent
+      case _                            => thisTerm
     }
 
     /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
@@ -28,7 +37,7 @@ object TreeExtensions {
         * @return A Some of the parent if the given term is a partial statement,
         *         else a None if the given term is a full statement
         */
-      def unapply(term: Term): Option[Term] = term.parent collect {
+      final def unapply(term: Term): Option[Term] = term.parent collect {
         case parent: Term.Apply      => parent
         case parent: Term.Select     => parent
         case parent: Term.ApplyType  => parent
@@ -36,18 +45,18 @@ object TreeExtensions {
       }
     }
 
-    /** Extractor object to check if the [[scala.meta.Term]] is a literal inside a pattern match
+    /** Extractor object to check if the [[scala.meta.Term]] is inside a pattern match
       *
       */
-    private object LiteralPatternMatch {
+    private object ParentIsPatternMatch {
 
-      def unapply(literal: Lit): Option[Term] = literal.parent match {
-        case Some(parent: Case) =>
-          parent.parent collect {
-            case topParent: Term => topParent.topStatement()
-          }
-        case _ => None
-      }
+      /** Go up the tree, until a Case is found, then go up until a `Term` is found
+        *
+        */
+      final def unapply(term: Term): Option[Term] = findParent[Case](term) flatMap findParent[Term]
+
+      private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
+        mapParent[T, Option[T]](tree, Some(_), None)
     }
   }
 
@@ -58,10 +67,8 @@ object TreeExtensions {
       * @param toFind Statement to find
       * @return A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
-    def find[T <: Tree](toFind: T): Option[T] = thisTree.collectFirst {
-      // We can safely cast because the structure is the same anyway.
-      // The cast is done so the return type of this function is the same as the `toFind` parameter
-      case found: Tree if found.isEqual(toFind) => found.asInstanceOf[T]
+    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] = thisTree.collectFirst {
+      case found: T if found.isEqual(toFind) => found
     }
   }
 
@@ -73,30 +80,22 @@ object TreeExtensions {
       */
     def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
       Try {
-        val liftedFn = fn.lift
-        val transformer = new OnceTransformer(liftedFn)
-        transformer(thisTree)
+        val onceTransformer = new OnceTransformer(fn)
+        onceTransformer(thisTree)
       }
     }
 
-    private class OnceTransformer(liftedFn: Tree => Option[Tree]) extends Transformer {
-      override def apply(tree: Tree): Tree =
-        liftedFn(tree).getOrElse(super.apply(tree))
+    private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
+      override def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
     }
   }
 
-  implicit class IsInAnnotationExtensions(thisTree: Tree) {
+  implicit class TreeIsInExtension(thisTree: Tree) {
 
-    /** Returns if a tree is contained in an annotation.
+    /** Returns if a tree is contained in an tree of type `[T]`.
       * Recursively going up the tree until an annotation is found.
       */
-    @tailrec
-    final def isInAnnotation: Boolean = {
-      thisTree.parent match {
-        case Some(_: Mod.Annot) => true
-        case Some(value: Tree)  => value.isInAnnotation
-        case _                  => false
-      }
-    }
+    final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
+      mapParent[T, Boolean](thisTree, _ => true, false)
   }
 }

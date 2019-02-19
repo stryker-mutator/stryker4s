@@ -9,11 +9,13 @@ import stryker4s.run.process.{Command, ProcessRunner}
 import scala.util.{Failure, Success}
 
 trait SourceCollector {
+  protected val processRunner: ProcessRunner
+
   def collectFilesToMutate(): Iterable[File]
-  def filesToCopy(processRunner: ProcessRunner): Iterable[File]
+  def filesToCopy: Iterable[File]
 }
 
-class FileCollector(implicit config: Config) extends SourceCollector with Logging {
+class FileCollector(protected val processRunner: ProcessRunner)(implicit config: Config) extends SourceCollector with Logging {
 
   /**
     * Get path separator because windows and unix systems have different separators.
@@ -38,11 +40,12 @@ class FileCollector(implicit config: Config) extends SourceCollector with Loggin
     * Option 2: Copy every file that is listed by git.
     * Option 3: Copy every file in the 'baseDir' excluding target folders.
     */
-  override def filesToCopy(processRunner: ProcessRunner): Iterable[File] = {
+  override def filesToCopy: Iterable[File] = {
     (listFilesBasedOnConfiguration() orElse
       listFilesBasedOnGit(processRunner) getOrElse
       listAllFiles())
       .filterNot(isInTargetDirectory)
+      .filter(_.exists)
   }
 
   /**

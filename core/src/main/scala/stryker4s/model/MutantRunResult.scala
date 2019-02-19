@@ -21,7 +21,7 @@ sealed trait Undetected extends MutantRunResult
 
 case class Killed(mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class TimedOut(reason: TimeoutException, mutant: Mutant, fileSubPath: Path) extends Detected
+case class TimedOut(mutant: Mutant, fileSubPath: Path) extends Detected
 
 case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
 
