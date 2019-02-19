@@ -1,6 +1,5 @@
 package stryker4s.testutil
 
-
 import grizzled.slf4j.Logging
 import org.everit.json.schema.Schema
 import org.everit.json.schema.loader.SchemaLoader
@@ -14,12 +13,12 @@ object MutationTestingElementsJsonSchema extends Logging {
     */
   def mutationTestingElementsJsonSchema: Schema = {
     val schema = FileUtil.getResource("mutation-testing-report-schema.json").contentAsString
-      SchemaLoader
-        .builder()
-        .schemaJson(new JSONObject(schema))
-        .build()
-        .load()
-        .build()
+    SchemaLoader
+      .builder()
+      .schemaJson(new JSONObject(schema))
+      .build()
+      .load()
+      .build()
   }
 
 }
