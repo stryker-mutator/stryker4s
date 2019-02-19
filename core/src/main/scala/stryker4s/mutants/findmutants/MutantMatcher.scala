@@ -15,6 +15,7 @@ class MutantMatcher()(implicit config: Config) {
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
       matchLogicalOperator orElse
+      matchConditionalExpression orElse
       matchMethodExpression orElse
       matchStringLiteral
 
@@ -35,6 +36,12 @@ class MutantMatcher()(implicit config: Config) {
   def matchLogicalOperator: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case And(orig) => orig ~~> Or
     case Or(orig)  => orig ~~> And
+  }
+
+  def matchConditionalExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
+    case If(condition)      => condition ~~> (ConditionalTrue, ConditionalFalse)
+    case While(condition)   => condition ~~> ConditionalFalse
+    case DoWhile(condition) => condition ~~> ConditionalFalse
   }
 
   def matchMethodExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
@@ -72,7 +79,8 @@ class MutantMatcher()(implicit config: Config) {
     def ~~>(f: String => Term, mutated: MethodExpression*): Seq[Option[Mutant]] =
       createMutants[MethodExpression](mutated, _(f))
 
-    private def createMutants[T <: Mutation[_ <: Tree]](mutations: Seq[T], mutationToTerm: T => Term): Seq[Option[Mutant]] =
+    private def createMutants[T <: Mutation[_ <: Tree]](mutations: Seq[T],
+                                                        mutationToTerm: T => Term): Seq[Option[Mutant]] =
       ifNotInAnnotation {
         mutations map { mutated =>
           if (matchExcluded(mutated))
