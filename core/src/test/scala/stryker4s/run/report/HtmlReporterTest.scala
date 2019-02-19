@@ -85,7 +85,7 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
       val mutationRunResults =
         MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, 10.seconds)
 
-      val result = new JSONObject(sut.toJsonReport(mutationRunResults))
+      val result = new JSONObject(sut.toJsonReport(mutationRunResults).spaces2)
 
       try {
         schema.validate(result)

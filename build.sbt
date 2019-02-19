@@ -1,5 +1,3 @@
-resolvers += "jitpack.io" at "https://jitpack.io"
-
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     Settings.buildLevelSettings,

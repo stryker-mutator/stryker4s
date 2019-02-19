@@ -12,14 +12,14 @@ object Dependencies {
     val betterFiles = "3.7.0"
     val log4j = "2.11.1"
     val grizzledSlf4j = "1.3.3"
-    val jsonSchemaValidator = "1.5.1"
+    val everitJsonSchema = "1.11.0"
     val circe = "0.11.1"
   }
 
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala" % versions.mockitoScala % Test
-    val jsonSchemaValidator = "org.everit.json" % "org.everit.json.schema" % versions.jsonSchemaValidator % Test
+    val everitJsonSchema = "com.github.everit-org.json-schema" % "org.everit.json.schema" % versions.everitJsonSchema % Test
   }
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig

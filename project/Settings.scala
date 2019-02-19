@@ -25,9 +25,10 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
+    resolvers +=  "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
-      Dependencies.test.jsonSchemaValidator,
+      Dependencies.test.everitJsonSchema,
       Dependencies.test.mockitoScala,
       Dependencies.pureconfig,
       Dependencies.scalameta,
