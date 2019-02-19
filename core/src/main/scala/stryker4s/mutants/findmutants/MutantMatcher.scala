@@ -39,9 +39,9 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   def matchConditionalExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {
-    case If(condition)    => condition ~~> (ConditionalTrue, ConditionalFalse)
-    case While(condition) => condition ~~> ConditionalFalse
-    case Do(condition)    => condition ~~> ConditionalFalse
+    case If(condition)      => condition ~~> (ConditionalTrue, ConditionalFalse)
+    case While(condition)   => condition ~~> ConditionalFalse
+    case DoWhile(condition) => condition ~~> ConditionalFalse
   }
 
   def matchMethodExpression: PartialFunction[Tree, Seq[Option[Mutant]]] = {

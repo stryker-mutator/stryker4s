@@ -8,7 +8,7 @@ case object If {
 case object While {
   def unapply(whileStatement: Term.While): Option[Term] = Some(whileStatement.expr).filterNot(_.is[Lit.Boolean])
 }
-case object Do {
+case object DoWhile {
   def unapply(doStatement: Term.Do): Option[Term] = Some(doStatement.expr).filterNot(_.is[Lit.Boolean])
 }
 
