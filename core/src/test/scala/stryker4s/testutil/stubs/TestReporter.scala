@@ -2,7 +2,7 @@ package stryker4s.testutil.stubs
 
 import stryker4s.config.Config
 import stryker4s.model.MutantRunResults
-import stryker4s.run.report.{MutantRunReporter, Reporter}
+import stryker4s.report.{MutantRunReporter, Reporter}
 
 class TestReporter extends Reporter {
   val testMutantReporter = new TestMutantReporter

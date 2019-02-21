@@ -7,7 +7,7 @@ import com.typesafe.config.ConfigRenderOptions
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
 import stryker4s.config.ExcludedMutations
-import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
+import stryker4s.report.{ConsoleReporter, MutantRunReporter}
 
 object ConfigWriterImplicits {
 

@@ -1,11 +1,11 @@
-package stryker4s.run.report
+package stryker4s.report
 
 import java.lang.System.lineSeparator
 
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model.{Detected, MutantRunResults, Undetected}
-import stryker4s.run.report.mapper.MutantRunResultMapper
+import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.run.threshold._
 
 class ConsoleReporter extends MutantRunReporter with Logging with MutantRunResultMapper {

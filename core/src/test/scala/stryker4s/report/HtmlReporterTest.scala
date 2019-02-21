@@ -1,4 +1,4 @@
-package stryker4s.run.report
+package stryker4s.report
 
 import java.nio.file.Paths
 
@@ -8,7 +8,7 @@ import org.json.JSONObject
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
-import stryker4s.run.report.mapper.MutantRunResultMapper
+import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.testutil.{MutationTestingElementsJsonSchema, Stryker4sSuite}
 
 import scala.concurrent.duration._

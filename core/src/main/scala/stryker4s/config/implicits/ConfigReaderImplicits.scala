@@ -7,7 +7,7 @@ import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
 import stryker4s.config.ExcludedMutations
-import stryker4s.run.report.{ConsoleReporter, HtmlReporter, MutantRunReporter}
+import stryker4s.report.{ConsoleReporter, HtmlReporter, MutantRunReporter}
 
 trait ConfigReaderImplicits extends Logging {
 

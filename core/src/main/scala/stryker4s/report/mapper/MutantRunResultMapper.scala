@@ -1,4 +1,4 @@
-package stryker4s.run.report.mapper
+package stryker4s.report.mapper
 import java.nio.file.{Path, Paths}
 
 import better.files.File
@@ -6,7 +6,6 @@ import io.circe.Json
 import stryker4s.config.Config
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
-import stryker4s.run.report.html.{MutationTestResult, Position}
 
 trait MutantRunResultMapper extends MutationScoreCalculator {
 

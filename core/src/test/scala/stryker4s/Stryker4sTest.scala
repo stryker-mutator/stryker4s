@@ -11,7 +11,7 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
 import stryker4s.run.process.{Command, ProcessMutantRunner}
-import stryker4s.run.report.{ConsoleReporter, HtmlReporter, Reporter}
+import stryker4s.report.{ConsoleReporter, HtmlReporter, Reporter}
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite

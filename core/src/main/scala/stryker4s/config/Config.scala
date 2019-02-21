@@ -3,7 +3,7 @@ package stryker4s.config
 import better.files._
 import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
-import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
+import stryker4s.report.{ConsoleReporter, MutantRunReporter}
 
 case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,

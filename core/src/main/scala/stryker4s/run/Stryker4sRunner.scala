@@ -7,7 +7,7 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.run.process.ProcessRunner
-import stryker4s.run.report.Reporter
+import stryker4s.report.Reporter
 import stryker4s.run.threshold.ScoreStatus
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
