@@ -24,39 +24,33 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
   private[this] val testReport: String =
     """
       |{
-      |    "name": "src",
-      |    "path":  "/usr/full/path/to/src",
-      |    "totals": {
-      |       "choose": 8,
-      |       "custom": 1,
-      |       "columns": 1,
-      |       "here": 0,
-      |       "like": 2,
-      |       "mutation score": 80
+      |    "schemaVersion": "1",
+      |    "thresholds": {
+      |        "high": 80,
+      |        "low": 60
       |    },
-      |    "health": "ok",
-      |    "childResults": [
-      |        {
-      |            "name": "src/Example.cs",
-      |            "path":  "/usr/full/path/to/src/Example.cs",
-      |            "totals": {
-      |               "detected": 1,
-      |               "undetected": 2,
-      |               "valid": 3,
-      |               "invalid": 1
-      |             },
-      |            "health": "danger",
+      |    "files": {
+      |        "src/module1/Example.cs": {
       |            "language": "cs",
       |            "source": "using System; using.....",
       |            "mutants": [{
-      |                 "id": "321321",
-      |                 "mutatorName": "BinaryMutator",
-      |                 "replacement": "-",
-      |                 "span": [21,22],
-      |                 "status": "Killed"
+      |                "id": "321321",
+      |                "mutatorName": "BinaryMutator",
+      |                "replacement": "-",
+      |                "location": {
+      |                    "start": {
+      |                        "line": 4,
+      |                        "column": 3
+      |                    },
+      |                    "end": {
+      |                        "line": 5,
+      |                        "column": 2
+      |                    }
+      |                },
+      |                "status": "Killed"
       |            }]
       |        }
-      |    ]
+      |    }
       |}
     """.stripMargin
 
@@ -103,9 +97,4 @@ class HtmlReporterTest extends Stryker4sSuite with Logging {
     }
   }
 
-  it("should fail when an empty json string is provided because not all required elements are available.") {
-    val exception = the[ValidationException] thrownBy schema.validate(new JSONObject("{}"))
-
-    exception.getAllMessages should contain("#: required key [name] not found")
-  }
 }
