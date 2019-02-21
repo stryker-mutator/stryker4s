@@ -1,225 +1,189 @@
 {
-  "$id": "http://example.com/example.json",
-  "type": "object",
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://stryker-mutator.io/report.schema.json",
+  "title": "Schema for a mutation testing report.",
+  "type": "object",
   "required": [
-    "name",
-    "path",
-    "totals",
-    "health",
-    "childResults"
+    "schemaVersion",
+    "thresholds",
+    "files"
   ],
+  "additionalProperties": false,
   "properties": {
-    "name": {
-      "$id": "/properties/name",
+    "schemaVersion": {
+      "id": "#/properties/schemaVersion",
       "type": "string",
-      "title": "Root of the directory result.",
+      "title": "Major version of this report. Used for compatibility.",
       "examples": [
-        "src"
+        "1"
       ]
     },
-    "path": {
-      "$id": "/properties/path",
-      "type": "string",
-      "title": "Absolute path to the source code.",
-      "examples": [
-        "/usr/full/path/to/src"
-      ]
-    },
-    "totals": {
-      "$id": "/properties/totals",
+    "thresholds": {
+      "$id": "/properties/thresholds",
       "type": "object",
+      "title": "Thresholds for the status of the reported application.",
+      "required": [
+        "high",
+        "low"
+      ],
+      "additionalProperties": false,
       "properties": {
-        "customColumn": {
-          "$id": "/properties/totals/properties/customColumn",
+        "high": {
+          "id": "#/properties/thresholds/properties/high",
           "type": "integer",
-          "title": "Custom columns can be added as key value pairs. Such as mutationsScore, killed, survived etc.",
+          "title": "Higher bound threshold.",
+          "minimum": 0,
+          "maximum": 100,
           "examples": [
-            8
+            80
+          ]
+        },
+        "low": {
+          "id": "#/properties/thresholds/properties/low",
+          "type": "integer",
+          "title": "Lower bound threshold.",
+          "minimum": 0,
+          "maximum": 100,
+          "examples": [
+            60
           ]
         }
       }
     },
-    "health": {
-      "$id": "/properties/health",
-      "type": "string",
-      "title": "Application status based on mutation score",
-      "enum": [
-        "ok",
-        "warning",
-        "danger"
-      ],
-      "examples": [
-        "ok",
-        "warning",
-        "danger"
-      ]
-    },
-    "childResults": {
-      "$id": "/properties/childResults",
-      "type": "array",
-      "items": {
-        "$id": "/properties/childResults/items",
+    "files": {
+      "$id": "#/properties/files",
+      "type": "object",
+      "title": "All mutated files.",
+      "definitions": {
+        "position": {
+          "type": "object",
+          "title": "Position of a mutation. Both line and column start at one.",
+          "required": [
+            "line",
+            "column"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "line": {
+              "type": "integer",
+              "minimum": 1,
+              "examples": [
+                4
+              ]
+            },
+            "column": {
+              "type": "integer",
+              "minimum": 1,
+              "examples": [
+                3
+              ]
+            }
+          }
+        }
+      },
+      "additionalProperties": {
+        "$id": "#/properties/files/additionalProperties/file",
         "type": "object",
+        "title": "Mutated file, with the relative path of the file as the key.",
         "required": [
-          "name",
-          "path",
-          "totals",
-          "health",
           "language",
           "source",
           "mutants"
         ],
+        "additionalProperties": false,
         "properties": {
-          "name": {
-            "$id": "/properties/childResults/items/properties/name",
-            "type": "string",
-            "title": "Name of the mutated file",
-            "examples": [
-              "Example.cs"
-            ]
-          },
-          "path": {
-            "$id": "/properties/childResults/items/properties/path",
-            "type": "string",
-            "title": "Absolute path to the mutated file",
-            "examples": [
-              "/usr/full/path/to/src/Example.cs"
-            ]
-          },
-          "totals": {
-            "$id": "/properties/childResults/items/properties/totals",
-            "type": "object",
-            "required": [
-              "detected",
-              "undetected",
-              "valid",
-              "invalid"
-            ],
-            "properties": {
-              "detected": {
-                "$id": "/properties/childResults/items/properties/totals/properties/detected",
-                "type": "integer",
-                "title": "Amount of detected mutations for this specific file",
-                "examples": [
-                  10
-                ]
-              },
-              "undetected": {
-                "$id": "/properties/childResults/items/properties/totals/properties/undetected",
-                "type": "integer",
-                "title": "Amount of undetected mutations for this specific file",
-                "examples": [
-                  2
-                ]
-              },
-              "valid": {
-                "$id": "/properties/childResults/items/properties/totals/properties/valid",
-                "type": "integer",
-                "title": "Amount of valid mutations for this specific file.",
-                "examples": [
-                  3
-                ]
-              },
-              "invalid": {
-                "$id": "/properties/childResults/items/properties/totals/properties/invalid",
-                "type": "integer",
-                "title": "Amount of invalid mutations for this specific file.",
-                "examples": [
-                  1
-                ]
-              }
-            }
-          },
-          "health": {
-            "$id": "/properties/childResults/items/properties/health",
-            "type": "string",
-            "title": "Health for this specific class",
-            "enum": [
-              "ok",
-              "warning",
-              "danger"
-            ],
-            "examples": [
-              "danger"
-            ]
-          },
           "language": {
-            "$id": "/properties/childResults/items/properties/language",
+            "$id": "#/properties/files/additionalProperties/file/properties/language",
             "type": "string",
-            "title": "The programming language that is used. Used for code highlighting, see https://highlightjs.org/static/demo/",
+            "title": "Programming language that is used. Used for code highlighting, see https://highlightjs.org/static/demo/.",
             "examples": [
-              "cs"
+              "javascript",
+              "typescript",
+              "cs",
+              "scala"
             ]
           },
           "source": {
-            "$id": "/properties/childResults/items/properties/source",
+            "$id": "#/properties/files/additionalProperties/file/properties/source",
             "type": "string",
-            "title": "The full source code of the mutated file, this is used for highlighting",
+            "title": "Full source code of the mutated file, this is used for highlighting.",
             "examples": [
               "using System; using....."
             ]
           },
           "mutants": {
-            "$id": "/properties/childResults/items/properties/mutants",
+            "$id": "#/properties/files/additionalProperties/file/properties/mutants",
             "type": "array",
+            "uniqueItems": true,
             "items": {
-              "$id": "/properties/childResults/items/properties/mutants/items",
+              "$id": "#/properties/files/additionalProperties/file/properties/mutants/items",
               "type": "object",
+              "title": "Single mutation.",
               "required": [
                 "id",
                 "mutatorName",
                 "replacement",
-                "span",
+                "location",
                 "status"
               ],
+              "additionalProperties": false,
               "properties": {
                 "id": {
-                  "$id": "/properties/childResults/items/properties/mutants/items/properties/id",
+                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/id",
                   "type": "string",
-                  "title": "A unique id, can be used to correlate this mutant with other reports",
+                  "title": "Unique id, can be used to correlate this mutant with other reports.",
                   "examples": [
-                    "66bf5ebf-50a1-498b-94d9-0e10f87b45d7"
+                    "321321"
                   ]
                 },
                 "mutatorName": {
-                  "$id": "/properties/childResults/items/properties/mutants/items/properties/mutatorName",
+                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/mutatorName",
                   "type": "string",
-                  "title": "The category of the mutation",
+                  "title": "Category of the mutation.",
                   "examples": [
-                    "BinaryOperator",
-                    "BooleanSubstitutions",
+                    "ConditionalExpression",
+                    "EqualityOperator",
                     "LogicalOperator"
                   ]
                 },
                 "replacement": {
-                  "$id": "/properties/childResults/items/properties/mutants/items/properties/replacement",
+                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/replacement",
                   "type": "string",
-                  "title": "The actual mutation that has been applied",
+                  "title": "Actual mutation that has been applied.",
                   "examples": [
-                    "-"
+                    "-",
+                    "+",
+                    "&&",
+                    "||"
                   ]
                 },
-                "span": {
-                  "$id": "/properties/childResults/items/properties/mutants/items/properties/span",
-                  "type": "array",
-                  "minItems": 2,
-                  "maxItems": 2,
-                  "items": {
-                    "$id": "/properties/childResults/items/properties/mutants/items/properties/span/items",
-                    "type": "integer",
-                    "title": "The span of the mutation. Start at position (inclusive), ends at position(exlusive)",
-                    "examples": [
-                      21,
-                      22
-                    ]
+                "location": {
+                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/location",
+                  "type": "object",
+                  "title": "Location of the applied mutation.",
+                  "required": [
+                    "start",
+                    "end"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "start": {
+                      "$ref": "#/properties/files/definitions/position",
+                      "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/location/properties/start",
+                      "title": "Start position of the mutation. Inclusive."
+                    },
+                    "end": {
+                      "$ref": "#/properties/files/definitions/position",
+                      "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/location/properties/end",
+                      "type": "object",
+                      "title": "End position of the mutation. Exclusive."
+                    }
                   }
                 },
                 "status": {
-                  "$id": "/properties/childResults/items/properties/mutants/items/properties/status",
+                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/status",
                   "type": "string",
-                  "title": "The result of the mutation",
+                  "title": "Result of the mutation.",
                   "enum": [
                     "Killed",
                     "Survived",
