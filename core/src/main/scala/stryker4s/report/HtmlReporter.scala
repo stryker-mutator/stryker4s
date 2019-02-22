@@ -6,9 +6,7 @@ import stryker4s.report.mapper.MutantRunResultMapper
 class HtmlReporter extends MutantRunReporter with MutantRunResultMapper {
 
   override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
-    val mapped = toJsonReport(runResults)
-
-
+    val mapped = toReport(runResults).toJson
 
       println(mapped)
   }
