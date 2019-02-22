@@ -11,7 +11,6 @@ import stryker4s.report.model._
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.concurrent.duration._
-import scala.meta.quasiquotes._
 import scala.meta.{Lit, Term, Tree}
 
 class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
@@ -44,7 +43,6 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
         MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, 10.seconds)
 
       val result: MutationTestReport = sut.toReport(mutationRunResults)
-
       inside(result) {
         case MutationTestReport(schemaVersion, thresholds, files) =>
           schemaVersion shouldBe "1"
@@ -73,7 +71,6 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
 
   private def toMutant(id: Int, original: Term, to: Term, category: Mutation[_ <: Tree], file: Path): Mutant = {
     import stryker4s.extension.TreeExtensions.FindExtension
-
     import scala.meta._
     val parsed = File(file).contentAsString.parse[Source]
     val foundOrig = parsed.get.find(original).value
