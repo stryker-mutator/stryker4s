@@ -22,8 +22,8 @@ trait ConfigReaderImplicits extends Logging {
 
   private[config] implicit val toReporterList: ConfigReader[MutantRunReporter] =
     ConfigReader[String] map {
-      case MutantRunReporter.consoleReporter => new ConsoleReporter
-      case MutantRunReporter.htmlReporter    => new HtmlReporter
+      case MutantRunReporter.`consoleReporter` => new ConsoleReporter
+      case MutantRunReporter.`htmlReporter`    => new HtmlReporter
     }
   private[config] implicit val exclusions: ConfigReader[ExcludedMutations] =
     ConfigReader[List[String]] map (exclusions => ExcludedMutations(exclusions.toSet))

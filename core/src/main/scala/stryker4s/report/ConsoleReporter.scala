@@ -5,10 +5,9 @@ import java.lang.System.lineSeparator
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.model.{Detected, MutantRunResults, Undetected}
-import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.run.threshold._
 
-class ConsoleReporter extends MutantRunReporter with Logging with MutantRunResultMapper {
+class ConsoleReporter extends MutantRunReporter with Logging {
 
   override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
     val detected = runResults.results collect { case d: Detected => d }
