@@ -5,6 +5,7 @@ import java.nio.file.Paths
 import org.mockito.integrations.scalatest.MockitoFixture
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.MutantRunReporter
@@ -26,7 +27,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
     it("should return a Survived mutant on an exitcode 0 process") {
       val testProcessRunner = TestProcessRunner(Success(0))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock, reporterMock)
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
@@ -43,7 +44,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
     it("should return a Killed mutant on an exitcode 1 process") {
       val testProcessRunner = TestProcessRunner(Success(1))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock, reporterMock)
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
@@ -61,7 +62,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
       val exception = new TimeoutException("Test")
       val testProcessRunner = TestProcessRunner(Failure(exception))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock, reporterMock)
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(0, q"4", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutatedFile = MutatedFile(file, q"def foo = 4", Seq(mutant), 0)
 
@@ -78,8 +79,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
     it("should return a combination of results on multiple runs") {
       val testProcessRunner = TestProcessRunner(Success(1), Success(1))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock, reporterMock)
-      val mutant = Mutant(0, q"0", q"zero")
-      val secondMutant = Mutant(1, q"1", q"one")
+      val mutant = Mutant(0, q"0", q"zero", EmptyString)
+      val secondMutant = Mutant(1, q"1", q"one", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
@@ -100,9 +101,9 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(0))
       val sut = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, fileCollectorMock, reporterMock)
-      val mutant = Mutant(0, q"0", q"zero")
-      val secondMutant = Mutant(1, q"1", q"one")
-      val thirdMutant = Mutant(2, q"5", q"5")
+      val mutant = Mutant(0, q"0", q"zero", EmptyString)
+      val secondMutant = Mutant(1, q"1", q"one", EmptyString)
+      val thirdMutant = Mutant(2, q"5", q"5", EmptyString)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)

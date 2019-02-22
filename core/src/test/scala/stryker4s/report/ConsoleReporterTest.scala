@@ -3,6 +3,7 @@ import java.io.File
 import java.nio.file.Paths
 
 import stryker4s.config.{Config, Thresholds}
+import stryker4s.extension.mutationtype.{GreaterThan, LesserThan, LesserThanEqualTo}
 import stryker4s.model
 import stryker4s.model.{Killed, Mutant, Survived}
 import stryker4s.scalatest.LogMatchers
@@ -16,7 +17,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
     it("Should log that test run 1 is started when mutant id is 0") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
-      val mutant = Mutant(0, q"4", q"5")
+      val mutant = Mutant(0, q">", q"<", GreaterThan)
 
       sut.reportStartRun(mutant)
 
@@ -26,8 +27,8 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
     it("should log multiple test runs") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
-      val mutant1 = Mutant(0, q"4", q"5")
-      val mutant2 = Mutant(1, q"0", q"1")
+      val mutant1 = Mutant(0, q">", q"<", GreaterThan)
+      val mutant2 = Mutant(1, q">", q"<", GreaterThan)
 
       sut.reportStartRun(mutant1)
       sut.reportStartRun(mutant2)
@@ -43,8 +44,8 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
     it("Should log multiple test runs") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
-      val mutant1 = Killed(Mutant(0, q"4", q"5"), Paths.get("stryker4s"))
-      val mutant2 = Survived(Mutant(1, q"0", q"1"), Paths.get("stryker4s"))
+      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan), Paths.get("stryker4s"))
+      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan), Paths.get("stryker4s"))
 
       sut.reportFinishedMutation(mutant1, 2)
       sut.reportFinishedMutation(mutant2, 2)
@@ -61,9 +62,9 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
       val results = model.MutantRunResults(
         Seq(
-          Killed(Mutant(0, q"4", q"5"), Paths.get("stryker4s")),
-          Survived(Mutant(1, q"0", q"1"), Paths.get("stryker4s")),
-          Survived(Mutant(2, q"1", q"2"), Paths.get("stryker4s/subPath"))
+          Killed(Mutant(0, q"4", q"5", GreaterThan), Paths.get("stryker4s")),
+          Survived(Mutant(1, q"0", q"1", LesserThan), Paths.get("stryker4s")),
+          Survived(Mutant(2, q"1", q"2", LesserThanEqualTo), Paths.get("stryker4s/subPath"))
         ),
         50,
         15.seconds
@@ -90,9 +91,9 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
       val results = model.MutantRunResults(
         Seq(
-          Survived(Mutant(0, q"4", q"5"), Paths.get("stryker4s")),
-          Survived(Mutant(2, q"1", q"2"), Paths.get("stryker4s/subPath")),
-          Survived(Mutant(1, q"0", q"1"), Paths.get("stryker4s"))
+          Survived(Mutant(0, q"4", q"5", GreaterThan), Paths.get("stryker4s")),
+          Survived(Mutant(1, q"0", q"1", LesserThan), Paths.get("stryker4s")),
+          Survived(Mutant(2, q"1", q"2", LesserThanEqualTo), Paths.get("stryker4s/subPath"))
         ),
         50,
         15.seconds
