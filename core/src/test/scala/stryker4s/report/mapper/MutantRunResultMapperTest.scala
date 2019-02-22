@@ -69,6 +69,8 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
     }
   }
 
+  /** Helper method to create a [[stryker4s.model.Mutant]], with the `original` param having the correct `Location` property
+    */
   private def toMutant(id: Int, original: Term, to: Term, category: Mutation[_ <: Tree], file: Path): Mutant = {
     import stryker4s.extension.TreeExtensions.FindExtension
     import scala.meta._

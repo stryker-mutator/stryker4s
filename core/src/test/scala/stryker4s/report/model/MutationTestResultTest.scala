@@ -33,7 +33,7 @@ class MutationTestResultTest extends Stryker4sSuite {
         schema.validate(result)
       } catch {
         case exc: ValidationException =>
-          // For testing purposes, to log failing validations
+          // Log failing validations
           fail(s"ValidationException occurred: ${exc.getAllMessages}", exc)
       }
     }
