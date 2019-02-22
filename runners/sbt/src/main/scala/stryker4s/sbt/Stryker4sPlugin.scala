@@ -20,8 +20,25 @@ object Stryker4sPlugin extends AutoPlugin {
   import autoImport._
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
-    stryker := strykerTask.value
+    stryker := strykerTask.value,
+    stryker := strykerTaskWrapper.value
   )
+
+  val strykerTaskWrapper = Def.task {
+    // Handle stryker task result
+    stryker.result.value match {
+      case Inc(inc: Incomplete) =>
+        // Stryker failed, log the exception if it's available
+        if (inc.directCause.isDefined) {
+          sLog.value.error(s"Stryker failed with ${inc.directCause.get}")
+          throw inc.directCause.get
+        } else {
+          sLog.value.error(s"Stryker failed for an unknown reason. :(")
+          throw new Exception("Unknown failure")
+        }
+      case _ => state.value // Stryker succeeded, do nothing
+    }
+  }
 
   val strykerTask = Def.task {
     // Run Stryker
