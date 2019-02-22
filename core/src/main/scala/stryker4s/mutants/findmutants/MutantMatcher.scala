@@ -86,7 +86,7 @@ class MutantMatcher()(implicit config: Config) {
           if (matchExcluded(mutated))
             None
           else
-            Some(Mutant(stream.next, original, mutationToTerm(mutated)))
+            Some(Mutant(stream.next, original, mutationToTerm(mutated), mutated))
         }
       }
 

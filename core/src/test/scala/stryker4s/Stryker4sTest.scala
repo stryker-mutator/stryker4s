@@ -45,10 +45,10 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
       result shouldBe SuccessStatus
       reportedResults should matchPattern {
-        case List(Killed(Mutant(0, _, _), `expectedPath`),
-                  Killed(Mutant(1, _, _), `expectedPath`),
-                  Killed(Mutant(2, _, _), `expectedPath`),
-                  Killed(Mutant(3, _, _), `expectedPath`)) =>
+        case List(Killed(Mutant(0, _, _, _), `expectedPath`),
+                  Killed(Mutant(1, _, _, _), `expectedPath`),
+                  Killed(Mutant(2, _, _, _), `expectedPath`),
+                  Killed(Mutant(3, _, _, _), `expectedPath`)) =>
       }
     }
 
