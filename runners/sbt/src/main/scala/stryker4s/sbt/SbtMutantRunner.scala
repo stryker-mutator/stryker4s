@@ -11,7 +11,7 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
-import stryker4s.run.report.MutantRunReporter
+import stryker4s.report.MutantRunReporter
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
     implicit config: Config)

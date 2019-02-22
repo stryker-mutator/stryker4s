@@ -1,4 +1,4 @@
-package stryker4s.run.report
+package stryker4s.report
 
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 

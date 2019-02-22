@@ -1,4 +1,4 @@
-package stryker4s.run.report
+package stryker4s.report
 
 import grizzled.slf4j.Logging
 import stryker4s.config.Config

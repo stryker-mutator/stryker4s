@@ -7,7 +7,7 @@ import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.report.MutantRunReporter
+import stryker4s.report.MutantRunReporter
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import stryker4s.testutil.stubs.TestProcessRunner

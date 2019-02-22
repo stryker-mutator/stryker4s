@@ -1,4 +1,4 @@
-package stryker4s.run.report
+package stryker4s.report
 import java.io.File
 import java.nio.file.Paths
 

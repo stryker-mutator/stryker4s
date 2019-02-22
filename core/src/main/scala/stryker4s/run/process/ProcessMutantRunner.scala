@@ -7,7 +7,7 @@ import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
-import stryker4s.run.report.MutantRunReporter
+import stryker4s.report.MutantRunReporter
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}

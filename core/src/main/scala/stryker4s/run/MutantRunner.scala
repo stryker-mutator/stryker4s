@@ -9,7 +9,7 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.report.MutantRunReporter
+import stryker4s.report.MutantRunReporter
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 

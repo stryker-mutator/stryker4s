@@ -1,4 +1,4 @@
-package stryker4s.run.report
+package stryker4s.report
 
 import org.mockito.integrations.scalatest.MockitoFixture
 import stryker4s.config.Config
