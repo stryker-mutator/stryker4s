@@ -19,7 +19,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       val sut = new MutantRunResultMapper {}
       implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
 
-      val path = Paths.get("src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala")
+      val path = Paths.get("core/src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala")
       val mutantRunResult = Killed(
         toMutant(0, True, False, True, path),
         path
@@ -28,12 +28,12 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
         toMutant(1, False, True, False, path),
         path
       )
-      val path3 = Paths.get("src/main/scala/stryker4s/report/ConsoleReporter.scala")
+      val path3 = Paths.get("core/src/main/scala/stryker4s/report/ConsoleReporter.scala")
       val mutantRunResult3 = Killed(
         toMutant(0, Lit.String("Mutation score dangerously low!"), EmptyString, EmptyString, path3),
         path3
       )
-      val path4 = Paths.get("src/main/scala/stryker4s/report/mapper/MutantRunResultMapper.scala")
+      val path4 = Paths.get("core/src/main/scala/stryker4s/report/mapper/MutantRunResultMapper.scala")
       val mutantRunResult4 = Survived(
         toMutant(0, Lit.String("1"), EmptyString, EmptyString, path4),
         path4
@@ -47,7 +47,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
         case MutationTestReport(schemaVersion, thresholds, files) =>
           schemaVersion shouldBe "1"
           thresholds should equal(Thresholds(high = 60, low = 40))
-          inside(files("src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala")) {
+          inside(files("core/src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala")) {
             case MutationTestResult(source, mutants, language) =>
               language should equal("scala")
               mutants should contain only (
@@ -63,7 +63,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
                              MutantStatus.Survived)
               )
               source should equal(
-                File("src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala").contentAsString)
+                File("core/src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala").contentAsString)
           }
       }
     }
