@@ -12,8 +12,7 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 
-class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
-    implicit config: Config)
+class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(implicit config: Config)
     extends MutantRunner(sourceCollector) {
 
   private lazy val filteredSystemProperties: Option[List[String]] = {
