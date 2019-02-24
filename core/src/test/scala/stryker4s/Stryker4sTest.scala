@@ -81,9 +81,8 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
 
       sut.run()
 
-      "The JVM has less than 2GB memory available. We advise increasing this to 4GB when running Stryker4s." shouldBe loggedAsWarning
-      "This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" " shouldBe loggedAsWarning
-      "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info." shouldBe loggedAsWarning
+      "The JVM has less than 2GB memory available. We advise to allocate 4GB memory when running Stryker4s." shouldBe loggedAsWarning
+      " Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM." shouldBe loggedAsWarning
     }
 
     it("should not log a warning when JVM max memory is high enough") {
@@ -108,9 +107,8 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
 
       sut.run()
 
-      "The JVM has less than 2GB memory available. We advise increasing this to 4GB when running Stryker4s." should not be loggedAsWarning
-      "This can be done in sbt by setting an environment variable: SBT_OPTS=\"-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G\" " should not be loggedAsWarning
-      "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info." should not be loggedAsWarning
+      "The JVM has less than 2GB memory available. We advise to allocate 4GB memory when running Stryker4s." should not be loggedAsWarning
+      " Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM." should not be loggedAsWarning
     }
   }
 }
