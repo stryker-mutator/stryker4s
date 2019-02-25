@@ -244,6 +244,42 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       )
     }
 
+    it("should match takeRight to dropRight") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).takeRight(2)",
+        TakeRight,
+        DropRight
+      )
+    }
+
+    it("should match dropRight to takeRight") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).dropRight(2)",
+        DropRight,
+        TakeRight
+      )
+    }
+
+    it("should match takeWhile to dropWhile") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).dropWhile(_ < 2)",
+        DropWhile,
+        TakeWhile
+      )
+    }
+
+    it("should match dropWhile to takeWhile") {
+      expectedMutations(
+        sut.matchMethodExpression,
+        q"def foo = List(1, 2, 3).takeWhile(_ < 2)",
+        TakeWhile,
+        DropWhile
+      )
+    }
+
     it("should match isEmpty to nonEmpty") {
       expectedMutations(
         sut.matchMethodExpression,
@@ -481,6 +517,47 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
 
       found should have length 2
+    }
+
+    it("should mutate if statements with true and false as condition") {
+      val tree = q"if(aVariable) { println }"
+
+      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+
+      found should have length 2
+      expectMutations(found, q"aVariable", q"true")
+      expectMutations(found, q"aVariable", q"false")
+    }
+
+    it("should mutate while statements with false as condition") {
+      val tree = q"while(aVariable) { println }"
+
+      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+
+      found should have length 1
+      expectMutations(found, q"aVariable", q"false")
+    }
+
+    it("should mutate do while statements with false as condition") {
+      val tree = q"do { println } while(aVariable)"
+
+      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+
+      found should have length 1
+      expectMutations(found, q"aVariable", q"false")
+    }
+
+    it("should mutate conditional statements that have a literal boolean as condition only once") {
+      val trueTree = q"if(true) { println }"
+      val falseTree = q"if(false) { println }"
+
+      val trueFound: Seq[Option[Mutant]] = trueTree.collect(sut.allMatchers).flatten
+      val falseFound: Seq[Option[Mutant]] = falseTree.collect(sut.allMatchers).flatten
+
+      trueFound should have length 1
+      falseFound should have length 1
+      expectMutations(trueFound, q"true", q"false")
+      expectMutations(falseFound, q"false", q"true")
     }
   }
 }

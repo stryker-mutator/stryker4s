@@ -11,11 +11,9 @@ import scala.language.postfixOps
 import scala.meta._
 import scala.meta.contrib._
 
-class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
-  private val activeMutationExpr: Term.Apply = {
-    val activeMutation = Lit.String("ACTIVE_MUTATION")
-    q"sys.props.get($activeMutation).orElse(sys.env.get($activeMutation))"
-  }
+class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
+  private val activeMutationString = Lit.String("ACTIVE_MUTATION")
+  private val activeMutationPropsExpr: Term.Apply = q"sys.props.get($activeMutationString)"
 
   describe("buildMatch") {
     it("should transform 2 mutations into match statement with 2 mutated and 1 original") {
@@ -24,13 +22,13 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
         .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
-      val sut = new MatchBuilder
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
       val result = sut.buildMatch(TransformedMutants(originalStatement, mutants))
 
       // Assert
-      result.expr should equal(activeMutationExpr)
+      result.expr should equal(activeMutationPropsExpr)
       val someZero = someOf(0)
       val someOne = someOf(1)
       result.cases should contain inOrderOnly (p"case $someZero => x > 15", p"case $someOne => x <= 15", p"case _ => x >= 15")
@@ -46,7 +44,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val transformed = toTransformed(source, GreaterThan, q">", q"<", q"==", q">=")
       val transStatements =
         SourceTransformations(source, List(transformed))
-      val sut = new MatchBuilder
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
       val result = sut.buildNewSource(transStatements)
@@ -54,7 +52,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
+          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION") match {
           |    case Some("0") =>
           |      15 < 14
           |    case Some("1") =>
@@ -76,7 +74,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val secondTrans = toTransformed(source, GreaterThanEqualTo, q">=", q">", q"==", q"<")
 
       val transformedStatements = SourceTransformations(source, List(firstTrans, secondTrans))
-      val sut = new MatchBuilder
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -84,7 +82,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       // Assert
       val expected =
         """class Foo {
-          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
+          |  def bar: Boolean = sys.props.get("ACTIVE_MUTATION") match {
           |    case Some("0") =>
           |      15 < 14 && 14 >= 13
           |    case Some("1") =>
@@ -116,7 +114,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
-      val sut = new MatchBuilder
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -124,7 +122,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       // Assert
       val expected =
         """class Foo {
-          |  def foo = sys.props.get("ACTIVE_MUTATION").orElse(sys.env.get("ACTIVE_MUTATION")) match {
+          |  def foo = sys.props.get("ACTIVE_MUTATION") match {
           |    case Some("0") =>
           |      "" == ""
           |    case Some("1") =>
@@ -136,6 +134,30 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
           |  }
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
+    }
+  }
+
+  describe("mutationActivation") {
+    it("should build a pattern match with sys.props if sysProps is given") {
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
+      val transformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
+
+      val result = sut.buildMatch(transformed)
+
+      result.expr should equal(q"sys.props.get($activeMutationString)")
+    }
+
+    it("should build a pattern match with sys.env if envVar is given") {
+      val sut = new MatchBuilder(ActiveMutationContext.envVar)
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
+      val transformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
+
+      val result = sut.buildMatch(transformed)
+
+      result.expr should equal(q"sys.env.get($activeMutationString)")
     }
   }
 

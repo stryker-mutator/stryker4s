@@ -66,3 +66,5 @@ project/plugins/project/
 
 # stryker specific
 stryker4s.conf
+
+!bin/scalafmt
