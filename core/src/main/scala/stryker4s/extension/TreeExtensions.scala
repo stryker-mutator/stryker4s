@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import scala.annotation.tailrec
 import scala.meta.contrib._
-import scala.meta.{Case, Term, Transformer, Tree}
+import scala.meta.{Case, Lit, Term, Transformer, Tree}
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -23,8 +23,9 @@ object TreeExtensions {
       */
     @tailrec
     final def topStatement(): Term = thisTerm match {
-      case PartialStatement(parent)     => parent.topStatement()
       case ParentIsPatternMatch(parent) => parent
+      case _: Lit                       => thisTerm
+      case PartialStatement(parent)     => parent.topStatement()
       case _                            => thisTerm
     }
 
@@ -38,6 +39,7 @@ object TreeExtensions {
         *         else a None if the given term is a full statement
         */
       final def unapply(term: Term): Option[Term] = term.parent collect {
+        case parent: Term.Name       => parent
         case parent: Term.Apply      => parent
         case parent: Term.Select     => parent
         case parent: Term.ApplyType  => parent
