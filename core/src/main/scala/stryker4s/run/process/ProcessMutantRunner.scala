@@ -12,8 +12,10 @@ import stryker4s.report.MutantRunReporter
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunner(command: Command, processRunner: ProcessRunner, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
-    implicit config: Config)
+class ProcessMutantRunner(command: Command,
+                          processRunner: ProcessRunner,
+                          sourceCollector: SourceCollector,
+                          reporter: MutantRunReporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
 
   def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult = {

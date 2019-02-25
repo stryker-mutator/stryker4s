@@ -29,5 +29,4 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
         new ProcessMutantRunner(Command(command, args), ProcessRunner(), collector, resolveReporters)
     }
 
-
 }
