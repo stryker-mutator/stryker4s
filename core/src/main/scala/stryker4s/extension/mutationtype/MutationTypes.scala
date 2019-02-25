@@ -46,6 +46,7 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
   *           This is so that the unapply methods return the appropriate type.
   */
 trait FixedSubstitutionMutation[T <: Tree] extends SubstitutionMutation[T] {
+
   def unapply(arg: T): Option[T] =
     Some(arg)
       .filter(_.isEqual(tree))
@@ -77,7 +78,7 @@ trait StringLiteral[T <: Term] extends FixedSubstitutionMutation[T] {
   override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
 }
 
-trait RemoveStatement[T <: Term] extends SubstitutionMutation[T]{
+trait RemoveStatement[T <: Term] extends SubstitutionMutation[T] {
   override val mutationName: String = classOf[RemoveStatement[_]].getSimpleName
 }
 

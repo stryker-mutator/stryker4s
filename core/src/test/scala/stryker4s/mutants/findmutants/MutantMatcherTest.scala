@@ -485,16 +485,16 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       found should have length 3
       expectMutations(found,
-        q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
-        q"(variable: @unchecked) match { case 2 => 2; case _ => 3 }")
+                      q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
+                      q"(variable: @unchecked) match { case 2 => 2; case _ => 3 }")
 
       expectMutations(found,
-        q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
-        q"(variable: @unchecked) match { case 1 => 1; case _ => 3 }")
+                      q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
+                      q"(variable: @unchecked) match { case 1 => 1; case _ => 3 }")
 
       expectMutations(found,
-        q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
-        q"(variable: @unchecked) match { case 1 => 1; case 2 => 2 }")
+                      q"variable match { case 1 => 1; case 2 => 2; case _ => 3}",
+                      q"(variable: @unchecked) match { case 1 => 1; case 2 => 2 }")
     }
 
     it("should not mutate a match with only one case") {
