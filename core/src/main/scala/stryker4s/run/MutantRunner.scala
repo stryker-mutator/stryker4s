@@ -6,38 +6,32 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
-import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.process.ProcessRunner
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceCollector)(implicit config: Config)
-    extends MutationScoreCalculator
+abstract class MutantRunner(sourceCollector: SourceCollector)(implicit config: Config)
+    extends InitialTestRun
+    with MutationScoreCalculator
     with Logging {
-
-  private val startTime = System.currentTimeMillis()
 
   val tmpDir: File = {
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
 
-    File.newTemporaryDirectory("stryker4s-", Option(targetFolder))
+    File.newTemporaryDirectory("stryker4s-", Some(targetFolder))
   }
 
   def apply(mutatedFiles: Iterable[MutatedFile]): MutantRunResults = {
-    val tmpDir = prepareEnv(mutatedFiles)
+    prepareEnv(mutatedFiles)
 
-    info("Starting initial test run...")
-    if (!runInitialTest(tmpDir)) {
-      throw InitialTestRunFailedException(
-        "Initial test run failed. Please make sure your tests pass before running Stryker4s.")
-    }
-    info("Initial test run succeeded! Testing mutants...")
+    initialTestRun(tmpDir)
 
-    val runResults = runMutants(mutatedFiles, tmpDir)
+    val startTime = System.currentTimeMillis()
+
+    val runResults = runMutants(mutatedFiles)
 
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
@@ -45,37 +39,31 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
   }
 
-  private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): File = {
-    val files = sourceCollector.filesToCopy(process)
+  private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Unit = {
+    val files = sourceCollector.filesToCopy
 
     debug("Using temp directory: " + tmpDir)
 
-    files.foreach(copyFile(_, tmpDir))
+    files.foreach(copyFile)
 
     // Overwrite files to mutated files
-    mutatedFiles.foreach(writeMutatedFile(_, tmpDir))
-    tmpDir
+    mutatedFiles.foreach(writeMutatedFile)
   }
 
-  private def copyFile(file: File, tmpDir: File): Unit = {
+  private def copyFile(file: File): Unit = {
     val filePath = tmpDir / file.relativePath.toString
 
-    if (file.isDirectory) {
-      filePath.createDirectoryIfNotExists(createParents = true)
-    } else {
-      filePath.createFileIfNotExists(createParents = true)
-    }
+    filePath.createIfNotExists(file.isDirectory, createParents = true)
 
     file.copyTo(filePath, overwrite = true)
   }
 
-  private def writeMutatedFile(mutatedFile: MutatedFile, tmpDir: File): File = {
-    val subPath = mutatedFile.fileOrigin.relativePath
-    val filePath = tmpDir / subPath.toString
+  private def writeMutatedFile(mutatedFile: MutatedFile): File = {
+    val filePath = mutatedFile.fileOrigin.inSubDir(tmpDir)
     filePath.overwrite(mutatedFile.tree.syntax)
   }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile], tmpDir: File): Iterable[MutantRunResult] = {
+  private def runMutants(mutatedFiles: Iterable[MutatedFile]): Iterable[MutantRunResult] = {
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
     val etaCalculator = new EtaCalculator(totalMutants)
 
@@ -84,7 +72,8 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
-      val (result, estimate) = etaCalculator.time(runMutant(mutant, tmpDir, subPath))
+      val (resultFunc, estimate) = etaCalculator.time(runMutant(mutant, tmpDir))
+      val result = resultFunc(subPath)
       val id = mutant.id + 1
       info(
         s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%). $estimate remaining.")
@@ -92,7 +81,6 @@ abstract class MutantRunner(process: ProcessRunner, sourceCollector: SourceColle
     }
   }
 
-  def runMutant(mutant: Mutant, workingDir: File, subPath: Path): MutantRunResult
-  def runInitialTest(workingDir: File): Boolean
+  def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult
 
 }

@@ -1,3 +1,1 @@
-object Foo {
-
-}
+object Foo {}

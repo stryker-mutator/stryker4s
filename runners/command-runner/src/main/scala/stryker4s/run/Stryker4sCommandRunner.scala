@@ -26,7 +26,7 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
   override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
     config.testRunner match {
       case CommandRunner(command, args) =>
-        new ProcessMutantRunner(Command(command, args), ProcessRunner.resolveRunner(), collector)
+        new ProcessMutantRunner(Command(command, args), ProcessRunner(), collector)
     }
 
 }
