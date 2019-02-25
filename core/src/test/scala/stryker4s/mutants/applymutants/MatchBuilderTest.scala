@@ -121,16 +121,13 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       // Assert
       val expected =
         """class Foo {
-          |  def foo = sys.props.get("ACTIVE_MUTATION") match {
-          |    case Some("0") =>
-          |      "" == ""
-          |    case Some("1") =>
-          |      "foo" != ""
-          |    case Some("2") =>
-          |      "foo" == "Stryker was here!"
-          |    case _ =>
-          |      "foo" == ""
-          |  }
+          |  def foo = (sys.props.get("ACTIVE_MUTATION") match {
+          |    case Some("0") => ""
+          |    case _ => "foo"
+          |  }) == (sys.props.get("ACTIVE_MUTATION") match {
+          |    case Some("2") => "Stryker was here!"
+          |    case _ => ""
+          |  })
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
     }
