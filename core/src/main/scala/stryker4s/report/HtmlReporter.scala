@@ -8,6 +8,6 @@ class HtmlReporter extends MutantRunReporter with MutantRunResultMapper {
   override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
     val mapped = toReport(runResults).toJson
 
-      println(mapped)
+    println(mapped)
   }
 }
