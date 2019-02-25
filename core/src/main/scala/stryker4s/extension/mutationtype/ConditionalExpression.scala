@@ -13,8 +13,8 @@ case object DoWhile {
 }
 
 case object ConditionalTrue extends ConditionalExpression {
-  override  val tree: Lit.Boolean = Lit.Boolean(true)
+  override val tree: Lit.Boolean = Lit.Boolean(true)
 }
 case object ConditionalFalse extends ConditionalExpression {
-  override  val tree: Lit.Boolean = Lit.Boolean(false)
+  override val tree: Lit.Boolean = Lit.Boolean(false)
 }

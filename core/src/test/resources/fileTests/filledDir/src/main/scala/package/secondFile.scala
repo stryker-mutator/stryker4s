@@ -1,3 +1,1 @@
-object Bar {
-
-}
+object Bar {}
