@@ -48,7 +48,8 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
     info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
     info(s"$totalMutants Mutant(s) generated.${if (excludedMutants > 0)
-      s" Of which $excludedMutants Mutant(s) are excluded." else ""}")
+      s" Of which $excludedMutants Mutant(s) are excluded."
+    else ""}")
 
     if (totalAmountOfFiles == 0) {
       warn(s"No files marked to be mutated. ${dryRunText("mutate")}")

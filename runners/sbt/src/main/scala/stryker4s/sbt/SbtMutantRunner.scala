@@ -14,8 +14,7 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 import stryker4s.sbt.Stryker4sPlugin.autoImport.stryker
 
-class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
-    implicit config: Config)
+class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(implicit config: Config)
     extends MutantRunner(sourceCollector) {
 
   private lazy val filteredSystemProperties: Option[List[String]] = {
@@ -33,13 +32,14 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(
     }
   }
 
-  private lazy val emptyLogManager = LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
+  private lazy val emptyLogManager =
+    LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
 
   private val settings: Seq[Def.Setting[_]] = Seq(
     fork in Test := true,
     scalaSource in Compile := tmpDirFor(Compile).value,
     logManager := {
-      if((logLevel in stryker).value == Level.Debug) logManager.value
+      if ((logLevel in stryker).value == Level.Debug) logManager.value
       else emptyLogManager
     }
   ) ++

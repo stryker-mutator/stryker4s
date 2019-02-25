@@ -5,7 +5,7 @@ import org.apache.logging.log4j.core.LoggerContext
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
-class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers{
+class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
   describe("parseArgs") {
     it("should set the default logLevel to INFO") {
       Stryker4sArgumentHandler.handleArgs(Array(""))
@@ -29,7 +29,7 @@ class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers{
       })
     }
 
-    it("should parse regardless of casing"){
+    it("should parse regardless of casing") {
       Stryker4sArgumentHandler.handleArgs(Array("--DeBUg"))
       "Set logging level to DEBUG" shouldBe loggedAsInfo
       LoggerContext.getContext(false).getRootLogger.getLevel shouldEqual Level.DEBUG
