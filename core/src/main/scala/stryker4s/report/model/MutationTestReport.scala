@@ -1,5 +1,5 @@
 package stryker4s.report.model
-import io.circe.{Encoder, Json}
+import io.circe.Encoder
 import stryker4s.report.model.MutantStatus.MutantStatus
 
 final case class MutationTestReport(schemaVersion: String,
@@ -8,9 +8,9 @@ final case class MutationTestReport(schemaVersion: String,
 
   private implicit val encoder: Encoder[MutantStatus] = Encoder.enumEncoder(MutantStatus)
 
-  def toJson: Json = {
+  def toJson: String = {
     import io.circe.generic.auto._
     import io.circe.syntax._
-    this.asJson
+    this.asJson.noSpaces
   }
 }

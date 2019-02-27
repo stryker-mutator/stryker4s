@@ -27,8 +27,7 @@ class MutationTestResultTest extends Stryker4sSuite {
           )
         )
       )
-      val result = new JSONObject(sut.toJson.toString())
-
+      val result = new JSONObject(sut.toJson)
       try {
         schema.validate(result)
       } catch {
@@ -37,6 +36,30 @@ class MutationTestResultTest extends Stryker4sSuite {
           fail(s"ValidationException occurred: ${exc.getAllMessages}", exc)
       }
     }
-  }
 
+    it("should print json on 1 line (uglified)") {
+      val sut = MutationTestReport(
+        schemaVersion = "1",
+        thresholds = Thresholds(high = 80, low = 10),
+        files = Map(
+          "src/stryker4s/Stryker4s.scala" -> MutationTestResult(
+            source = "case class Stryker4s(\nfoo: String\n)",
+            mutants = Seq(
+              MutantResult("1",
+                           "BinaryOperator",
+                           "-",
+                           Location(
+                             Position(1, 2),
+                             Position(2, 3)
+                           ),
+                           status = MutantStatus.Killed)
+            )
+          )
+        )
+      )
+      val result = sut.toJson
+
+      result.linesIterator should have size 1
+    }
+  }
 }
