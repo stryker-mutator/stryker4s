@@ -14,6 +14,7 @@ object Dependencies {
     val grizzledSlf4j = "1.3.3"
     val everitJsonSchema = "1.11.0"
     val circe = "0.11.1"
+    val mutationTestingElements = "0.0.7" // When updating, change the version both here and in `core/src/main/scala/stryker4s/report/HtmlReporter.scala`
   }
 
   object test {
@@ -32,5 +33,6 @@ object Dependencies {
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
+  val mutationTestingElements = "org.webjars.npm" % "mutation-testing-elements" % versions.mutationTestingElements
 
 }
