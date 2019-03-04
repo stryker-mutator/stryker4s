@@ -7,7 +7,7 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.run.process.ProcessRunner
-import stryker4s.report.{CombinedReporter, ConsoleReporter, MutantRunReporter}
+import stryker4s.report.{CombinedReporter, ConsoleReporter, FinishedRunReporter, ProgressReporter}
 import stryker4s.run.threshold.ScoreStatus
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
@@ -35,7 +35,7 @@ trait Stryker4sRunner {
 
   def mutationActivation: ActiveMutationContext
 
-  def resolveReporters(implicit config: Config): MutantRunReporter =
+  def combineReporters()(implicit config: Config): CombinedReporter =
     new CombinedReporter(config.reporters collect {
       case ConsoleReporter => new ConsoleReporter()
     })

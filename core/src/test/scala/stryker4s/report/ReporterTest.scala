@@ -12,15 +12,15 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
 
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {
-      val reporterMock = mock[MutantRunReporter]
+      val reporterMock = mock[FinishedRunReporter]
       implicit val conf: Config = Config()
 
       val sut: CombinedReporter = new CombinedReporter(Seq(reporterMock))
       val mutantRunResults = MutantRunResults(List.empty, 100.0, 10 seconds)
 
-      sut.reportFinishedRun(mutantRunResults)
+      sut.reportRunFinished(mutantRunResults)
 
-      verify(reporterMock).reportFinishedRun(mutantRunResults)
+      verify(reporterMock).reportRunFinished(mutantRunResults)
     }
   }
 }

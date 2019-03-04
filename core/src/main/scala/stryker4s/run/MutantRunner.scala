@@ -9,11 +9,12 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.MutantRunReporter
+import stryker4s.report.{FinishedRunReporter, ProgressReporter}
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(sourceCollector: SourceCollector, reporter: MutantRunReporter)(implicit config: Config)
+abstract class MutantRunner(sourceCollector: SourceCollector, reporter: ProgressReporter with FinishedRunReporter)(
+    implicit config: Config)
     extends InitialTestRun
     with MutationScoreCalculator
     with Logging {
@@ -38,7 +39,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: MutantRu
     val detected = runResults collect { case d: Detected => d }
 
     val result = MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
-    reporter.reportFinishedRun(result)
+    reporter.reportRunFinished(result)
     result
   }
 
@@ -74,8 +75,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: MutantRu
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
+      reporter.reportMutationStart(mutant)
       val result = runMutant(mutant, tmpDir)(subPath)
-      reporter.reportFinishedMutation(result, totalMutants)
+      reporter.reportMutationComplete(result, totalMutants)
       result
     }
   }

@@ -5,18 +5,18 @@ import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.run.threshold._
 
-class ConsoleReporter(implicit config: Config) extends MutantRunReporter with Logging {
+class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
 
-  override def reportStartRun(mutant: Mutant): Unit = {
+  override def reportMutationStart(mutant: Mutant): Unit = {
     info(s"Starting test-run ${mutant.id + 1}...")
   }
 
-  override def reportFinishedMutation(mutant: MutantRunResult, totalMutants: Int): Unit = {
+  override def reportMutationComplete(mutant: MutantRunResult, totalMutants: Int): Unit = {
     val id = mutant.mutant.id + 1
     info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
   }
 
-  override def reportFinishedRun(runResults: MutantRunResults): Unit = {
+  override def reportRunFinished(runResults: MutantRunResults): Unit = {
     val (detected, rest) = runResults.results partition (_.isInstanceOf[Detected])
     val (undetected, _) = rest partition (_.isInstanceOf[Undetected])
 

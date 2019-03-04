@@ -8,10 +8,9 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.MutantRunReporter
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
-import stryker4s.testutil.stubs.TestProcessRunner
+import stryker4s.testutil.stubs.{TestProcessRunner, TestReporter}
 
 import scala.concurrent.TimeoutException
 import scala.meta._
@@ -21,7 +20,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with Lo
 
   private implicit val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
-  private val reporterMock: MutantRunReporter = mock[MutantRunReporter]
+  private val reporterMock = mock[TestReporter]
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {
