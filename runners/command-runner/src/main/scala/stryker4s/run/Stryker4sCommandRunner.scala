@@ -1,13 +1,19 @@
 package stryker4s.run
 
-import stryker4s.config.{CommandRunner, Config}
+import pureconfig.error.ConfigReaderException
+import stryker4s.config.{Config, ProcessRunnerConfig}
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.process.{Command, ProcessMutantRunner, ProcessRunner}
+import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ErrorStatus
 
 object Stryker4sCommandRunner extends App with Stryker4sRunner {
+
+  val processRunnerConfig: ProcessRunnerConfig = pureconfig.loadConfig[ProcessRunnerConfig] match {
+    case Left(failures) => throw ConfigReaderException(failures)
+    case Right(config)  => config
+  }
 
   Stryker4sArgumentHandler.handleArgs(args)
 
@@ -26,8 +32,5 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
   }
 
   override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
-    config.testRunner match {
-      case CommandRunner(command, args) =>
-        new ProcessMutantRunner(Command(command, args), ProcessRunner(), collector)
-    }
+    new ProcessMutantRunner(processRunnerConfig.testRunnerCommand, ProcessRunner(), collector)
 }

@@ -1,4 +1,4 @@
-package stryker4s.run.process
+package stryker4s.run
 
 import java.nio.file.Paths
 
@@ -8,9 +8,10 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.stubs.TestProcessRunner
 import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta._

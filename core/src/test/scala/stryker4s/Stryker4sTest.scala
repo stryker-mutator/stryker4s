@@ -1,13 +1,14 @@
 package stryker4s
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
+import better.files.File
 import stryker4s.config.Config
-import stryker4s.model.{Killed, Mutant}
+import stryker4s.model.{Killed, Mutant, MutantRunResult}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
-import stryker4s.run.process.{Command, ProcessMutantRunner, ProcessRunner}
+import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
+import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
@@ -17,6 +18,15 @@ import scala.util.Success
 
 class Stryker4sTest extends Stryker4sSuite with LogMatchers {
 
+  class TestMutantRunner(sourceCollector: SourceCollector)(implicit config: Config)
+      extends MutantRunner(sourceCollector) {
+    private[this] val stream = Iterator.from(0)
+
+    override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult =
+      path => Killed(Mutant(stream.next, null, null, null), path)
+    override def runInitialTest(workingDir: File): Boolean = true
+  }
+
   describe("run") {
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
@@ -24,8 +34,8 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       val testFiles = Seq(file)
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
-      val testMutantRunner =
-        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, new FileCollector(testProcessRunner))
+      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner))
+
       val testReporter = new TestReporter
 
       val sut = new Stryker4s(
@@ -56,7 +66,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       implicit val conf: Config = Config()
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
+      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner))
       val testReporter = new TestReporter
 
       val sut: Stryker4s =
@@ -83,7 +93,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers {
       implicit val conf: Config = Config()
       val testSourceCollector = new TestSourceCollector(Seq())
       val testProcessRunner = TestProcessRunner()
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector)
+      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner))
       val testReporter = new TestReporter
 
       val sut: Stryker4s =
