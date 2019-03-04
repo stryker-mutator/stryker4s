@@ -17,7 +17,6 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**/*.scala")
       result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.INFO
       result.reporters.loneElement shouldBe ConsoleReporter
     }
 
@@ -47,7 +46,6 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.DEBUG
       result.reporters.loneElement shouldBe ConsoleReporter
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }

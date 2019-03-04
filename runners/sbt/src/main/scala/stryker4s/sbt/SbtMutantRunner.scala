@@ -1,17 +1,19 @@
 package stryker4s.sbt
-import java.io.{File => JFile}
+import java.io.{PrintStream, File => JFile}
 import java.nio.file.Path
 
 import better.files.{File, _}
 import sbt.Keys._
 import sbt._
+import sbt.internal.LogManager
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.run.MutantRunner
 import stryker4s.report.MutantRunReporter
+import stryker4s.run.MutantRunner
+import stryker4s.sbt.Stryker4sPlugin.autoImport.stryker
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: MutantRunReporter)(
     implicit config: Config)
@@ -32,9 +34,16 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     }
   }
 
+  private lazy val emptyLogManager =
+    LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
+
   private val settings: Seq[Def.Setting[_]] = Seq(
     fork in Test := true,
-    scalaSource in Compile := tmpDirFor(Compile).value
+    scalaSource in Compile := tmpDirFor(Compile).value,
+    logManager := {
+      if ((logLevel in stryker).value == Level.Debug) logManager.value
+      else emptyLogManager
+    }
   ) ++
     filteredSystemProperties.map(properties => {
       debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
