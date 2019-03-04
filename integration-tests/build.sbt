@@ -10,7 +10,6 @@ lazy val root = (project in file("."))
       Dependencies.catsCore,
       Dependencies.circeGeneric,
       Dependencies.logback,
-
       Dependencies.Testing.scalatest,
       Dependencies.Testing.scalactic,
       Dependencies.Testing.mockitoScala,
@@ -22,7 +21,8 @@ lazy val root = (project in file("."))
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
-  "-encoding", "utf-8", // Specify character encoding used by source files.
+  "-encoding",
+  "utf-8", // Specify character encoding used by source files.
   "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
   "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
   "-Ywarn-unused:locals", // Warn if a local definition is unused.
