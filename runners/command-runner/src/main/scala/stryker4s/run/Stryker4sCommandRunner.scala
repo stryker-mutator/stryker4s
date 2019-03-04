@@ -13,10 +13,11 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
 
   private[this] val configFile: File = File.currentWorkingDirectory / "stryker4s.conf"
 
-  private[this] val processRunnerConfig: ProcessRunnerConfig = pureconfig.loadConfig[ProcessRunnerConfig](configFile.path, namespace = "stryker4s") match {
-    case Left(failures) => throw ConfigReaderException(failures)
-    case Right(config)  => config
-  }
+  private[this] val processRunnerConfig: ProcessRunnerConfig =
+    pureconfig.loadConfig[ProcessRunnerConfig](configFile.path, namespace = "stryker4s") match {
+      case Left(failures) => throw ConfigReaderException(failures)
+      case Right(config)  => config
+    }
 
   Stryker4sArgumentHandler.handleArgs(args)
 
