@@ -1,5 +1,6 @@
 package stryker4s.run
 
+import better.files.File
 import pureconfig.error.ConfigReaderException
 import stryker4s.config.{Config, ProcessRunnerConfig}
 import stryker4s.mutants.applymutants.ActiveMutationContext
@@ -10,7 +11,9 @@ import stryker4s.run.threshold.ErrorStatus
 
 object Stryker4sCommandRunner extends App with Stryker4sRunner {
 
-  val processRunnerConfig: ProcessRunnerConfig = pureconfig.loadConfig[ProcessRunnerConfig] match {
+  private[this] val configFile: File = File.currentWorkingDirectory / "stryker4s.conf"
+
+  private[this] val processRunnerConfig: ProcessRunnerConfig = pureconfig.loadConfig[ProcessRunnerConfig](configFile.path, namespace = "stryker4s") match {
     case Left(failures) => throw ConfigReaderException(failures)
     case Right(config)  => config
   }

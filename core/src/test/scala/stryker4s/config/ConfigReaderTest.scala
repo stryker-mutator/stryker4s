@@ -49,13 +49,6 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 
-//    it("should return a failure on an invalid exclusion mutator") {
-//      val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
-//
-//      lazy val result = ConfigReader.readConfig(confPath)
-//      val exc = the[ConfigReaderException[_]] thrownBy result
-//    }
-
     it("should return a failure on a misshapen test runner") {
       val confPath = FileUtil.getResource("stryker4sconfs/invalidExcludedMutation.conf")
 
