@@ -1,16 +1,17 @@
 package stryker4s.mutants.applymutants
 
 import stryker4s.extension.TreeExtensions._
+import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
-import stryker4s.scalatest.TreeEquality
+import stryker4s.scalatest.{LogMatchers, TreeEquality}
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 import scala.meta._
 import scala.meta.contrib._
 
-class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
+class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
   private val activeMutationString = Lit.String("ACTIVE_MUTATION")
   private val activeMutationPropsExpr: Term.Apply = q"sys.props.get($activeMutationString)"
 
@@ -35,6 +36,32 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("buildNewSource") {
+    it("should log failures correctly") {
+      // Arrange
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = """class Foo { def foo = true }""".parse[Source].get
+
+      val firstTransformed = toTransformed(source, EmptyString, Lit.Boolean(true), Lit.Boolean(false))
+
+      val transformedStatements = SourceTransformations(source, List(firstTransformed))
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps) {
+        override def buildMatch(transformedMutant: TransformedMutants): Term.Match =
+          throw new Exception()
+      }
+
+      // Act
+      val expectedException = the[UnableToBuildPatternMatchException] thrownBy sut.buildNewSource(transformedStatements)
+
+      // Assert
+      "Failed to construct pattern match: original statement [true]" shouldBe loggedAsError
+      "Failed mutation(s) Mutant(0,true,false,EmptyString)." shouldBe loggedAsError
+      "at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
+      "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s." shouldBe loggedAsError
+
+      "Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new" shouldBe loggedAsDebug
+      "Please be so kind to copy the stacktrace into the issue" shouldBe loggedAsDebug
+    }
+
     it("should build a new tree with a case match in place of the 15 > 14 statement") {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
