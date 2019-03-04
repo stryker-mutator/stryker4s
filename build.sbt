@@ -15,7 +15,7 @@ lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "runner
     Settings.commandRunnerSettings,
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sCommandRunner")
   )
-  .dependsOn(stryker4sCore)
+  .dependsOn(stryker4sCore, stryker4sCore % "test->test")
 
 lazy val sbtStryker4s = newProject("sbt-stryker4s", "runners/sbt")
   .enablePlugins(SbtPlugin)
