@@ -19,4 +19,10 @@ class OrderRepository[F[_] : Applicative] {
     orders += (order.id -> order)
     order.pure[F]
   }
+
+  def find(orderId: Int): F[Option[Order]] = {
+    orders.collectFirst {
+      case (id, order) if id == orderId => order
+    }.pure[F]
+  }
 }

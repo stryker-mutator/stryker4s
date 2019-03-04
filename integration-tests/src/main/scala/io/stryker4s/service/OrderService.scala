@@ -20,4 +20,8 @@ class OrderService[F[_]](orderRepository: OrderRepository[F], orderValidator: Or
       saved <- EitherT.liftF(orderRepository.create(order))
     } yield saved
   }
+
+  def find(id: Int)(implicit M: Monad[F]): EitherT[F, OrderNotFound.type, Order] = {
+    EitherT.fromOptionF(orderRepository.find(id), OrderNotFound)
+  }
 }
