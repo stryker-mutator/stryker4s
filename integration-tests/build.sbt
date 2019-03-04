@@ -1,6 +1,6 @@
 lazy val root = (project in file("."))
   .settings(
-    organization := "io.stryker4s",
+    organization := "io.stryker-mutator",
     name := "integration-tests",
     scalaVersion := "2.12.8",
     libraryDependencies ++= Seq(
