@@ -18,7 +18,6 @@ object Dependencies {
   val http4sDsl = "org.http4s" %% "http4s-dsl" % Version.http4s
   val logback = "ch.qos.logback" % "logback-classic" % Version.Logback
 
-
   object Testing {
     val scalactic = "org.scalactic" %% "scalactic" % Version.scalatest % Test
     val scalatest = "org.scalatest" %% "scalatest" % Version.scalatest % Test
