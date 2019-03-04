@@ -46,11 +46,7 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
       val startCaptor = ArgCaptor[Mutant]
       verify(testReporter, times(4)).reportMutationStart(startCaptor)
       startCaptor.values should matchPattern {
-        case List(
-        Mutant(0, _, _, _),
-        Mutant(1, _, _, _),
-        Mutant(2, _, _, _),
-        Mutant(3, _, _, _)) =>
+        case List(Mutant(0, _, _, _), Mutant(1, _, _, _), Mutant(2, _, _, _), Mutant(3, _, _, _)) =>
       }
       val runResultCaptor = ArgCaptor[MutantRunResults]
       verify(testReporter).reportRunFinished(runResultCaptor)

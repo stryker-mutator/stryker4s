@@ -4,7 +4,7 @@ import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 
 class CombinedReporter(reporters: Seq[Reporter]) extends FinishedRunReporter with ProgressReporter {
 
-  private[this] val progressReporters = reporters collect { case r: ProgressReporter   => r }
+  private[this] val progressReporters = reporters collect { case r: ProgressReporter     => r }
   private[this] val runResultReporters = reporters collect { case r: FinishedRunReporter => r }
 
   override def reportMutationStart(mutant: Mutant): Unit =
