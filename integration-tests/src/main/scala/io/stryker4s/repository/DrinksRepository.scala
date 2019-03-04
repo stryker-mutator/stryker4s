@@ -15,10 +15,10 @@ object DrinksRepository {
     Drink("Robo water", 0.50, isAlcoholic = false)
   )
 
-  def apply[F[_] : Applicative](): DrinksRepository[F] = new DrinksRepository[F](drinks)
+  def apply[F[_]: Applicative](): DrinksRepository[F] = new DrinksRepository[F](drinks)
 }
 
-class DrinksRepository[F[_] : Applicative](drinks: List[Drink]) {
+class DrinksRepository[F[_]: Applicative](drinks: List[Drink]) {
 
   def findAll(): F[List[Drink]] = {
     drinks.pure[F]

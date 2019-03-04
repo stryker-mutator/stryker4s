@@ -13,23 +13,24 @@ import org.http4s.{EntityDecoder, HttpRoutes}
 import scala.language.higherKinds
 
 object OrderEndpoint {
-  def endpoints[F[_] : Effect](orderService: OrderService[F]): HttpRoutes[F] = {
+
+  def endpoints[F[_]: Effect](orderService: OrderService[F]): HttpRoutes[F] = {
     new OrderEndpoint[F].service(orderService)
   }
 }
 
-class OrderEndpoint[F[_] : Effect]() extends Http4sDsl[F] {
+class OrderEndpoint[F[_]: Effect]() extends Http4sDsl[F] {
 
   implicit val orderDecoder: EntityDecoder[F, Order] = jsonOf[F, Order]
 
   def service(orderService: OrderService[F]): HttpRoutes[F] = HttpRoutes.of[F] {
     case GET -> Root / "order" / IntVar(id) =>
       orderService.find(id).value.flatMap {
-        case Right(order) => Ok(order.asJson)
+        case Right(order)        => Ok(order.asJson)
         case Left(OrderNotFound) => NotFound(s"Order $id could not be found.")
       }
 
-    case req@POST -> Root / "order" =>
+    case req @ POST -> Root / "order" =>
       val action = for {
         order <- req.as[Order]
         result <- orderService.placeOrder(order).value

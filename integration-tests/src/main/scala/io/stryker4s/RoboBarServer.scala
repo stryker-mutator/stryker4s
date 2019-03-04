@@ -18,7 +18,7 @@ object RoboBarServer extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = createServer().use(_ => IO.never).as(ExitCode.Success)
 
-  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer](): Resource[F, Server[F]] = {
+  def createServer[F[_]: ContextShift: ConcurrentEffect: Timer](): Resource[F, Server[F]] = {
     val drinksRepository = DrinksRepository[F]()
     val drinksService = DrinksService[F](drinksRepository)
 

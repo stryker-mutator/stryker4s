@@ -9,7 +9,9 @@ import io.stryker4s.validator.OrderValidator
 import scala.language.higherKinds
 
 object OrderService {
-  def apply[F[_]](orderRepository: OrderRepository[F], orderValidator: OrderValidator[F]): OrderService[F] = new OrderService(orderRepository, orderValidator)
+
+  def apply[F[_]](orderRepository: OrderRepository[F], orderValidator: OrderValidator[F]): OrderService[F] =
+    new OrderService(orderRepository, orderValidator)
 }
 
 class OrderService[F[_]](orderRepository: OrderRepository[F], orderValidator: OrderValidator[F]) {

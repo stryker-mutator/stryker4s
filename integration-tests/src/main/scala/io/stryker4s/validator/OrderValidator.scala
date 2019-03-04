@@ -7,10 +7,10 @@ import io.stryker4s.service.OrderNotAllowed
 import scala.language.higherKinds
 
 object OrderValidator {
-  def apply[F[_] : Monad](): OrderValidator[F] = new OrderValidator[F]()
+  def apply[F[_]: Monad](): OrderValidator[F] = new OrderValidator[F]()
 }
 
-class OrderValidator[F[_] : Monad] {
+class OrderValidator[F[_]: Monad] {
 
   def allowedToOrderDrinks(age: Int, drinks: List[Drink]): Either[OrderNotAllowed, Unit] = {
     if (!canDrink(age)) {

@@ -12,12 +12,13 @@ import org.http4s.dsl.Http4sDsl
 import scala.language.higherKinds
 
 object DrinksEndpoint {
-  def endpoints[F[_] : Effect](drinksService: DrinksService[F]): HttpRoutes[F] = {
+
+  def endpoints[F[_]: Effect](drinksService: DrinksService[F]): HttpRoutes[F] = {
     new DrinksEndpoint[F].endpoints(drinksService)
   }
 }
 
-class DrinksEndpoint[F[_] : Effect] extends Http4sDsl[F] {
+class DrinksEndpoint[F[_]: Effect] extends Http4sDsl[F] {
 
   object IsAlcoholicQueryParamMatcher extends QueryParamDecoderMatcher[Boolean]("isAlcoholic")
 
@@ -34,9 +35,11 @@ class DrinksEndpoint[F[_] : Effect] extends Http4sDsl[F] {
 
     case GET -> Root / "drinks" / name =>
       drinksService
-        .findByName(name).value.flatMap {
-        case Right(drink) => Ok(drink.asJson)
-        case Left(DrinkNotFound) => NotFound("The Robobar doesn't service this drink.")
-      }
+        .findByName(name)
+        .value
+        .flatMap {
+          case Right(drink)        => Ok(drink.asJson)
+          case Left(DrinkNotFound) => NotFound("The Robobar doesn't service this drink.")
+        }
   }
 }

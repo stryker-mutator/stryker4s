@@ -8,10 +8,10 @@ import scala.collection.concurrent.TrieMap
 import scala.language.higherKinds
 
 object OrderRepository {
-  def apply[F[_] : Applicative](): OrderRepository[F] = new OrderRepository[F]()
+  def apply[F[_]: Applicative](): OrderRepository[F] = new OrderRepository[F]()
 }
 
-class OrderRepository[F[_] : Applicative] {
+class OrderRepository[F[_]: Applicative] {
 
   private val orders = new TrieMap[Int, Order]
 
@@ -21,8 +21,10 @@ class OrderRepository[F[_] : Applicative] {
   }
 
   def find(orderId: Int): F[Option[Order]] = {
-    orders.collectFirst {
-      case (id, order) if id == orderId => order
-    }.pure[F]
+    orders
+      .collectFirst {
+        case (id, order) if id == orderId => order
+      }
+      .pure[F]
   }
 }
