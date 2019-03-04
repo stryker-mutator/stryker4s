@@ -81,7 +81,7 @@ Specify the thresholds for mutation scores.
 Setting `break=0` (default value) ensures that the build will never fail.
 
 ## Process runner config
-#### test-runner
+#### test-runner-command
 
 **Config file:** `test-runner-command: { command: "sbt", args: "test" }`    
 **Mandatory:** Yes  
