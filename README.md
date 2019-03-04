@@ -1,5 +1,5 @@
 [![Build status](https://img.shields.io/travis/stryker-mutator/stryker4s/master.svg)](https://travis-ci.org/stryker-mutator/stryker4s)
-[![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Centra&colorB=brightgreen)](https://search.maven.org/search?q=g:io.stryker-mutator)
+[![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/search?q=g:io.stryker-mutator)
 [![Gitter](https://badges.gitter.im/stryker-mutator/stryker.svg)](https://gitter.im/stryker-mutator/stryker4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![BCH compliance](https://bettercodehub.com/edge/badge/stryker-mutator/stryker4s?branch=master)](https://bettercodehub.com/)
 
@@ -27,7 +27,7 @@ Stryker4s is a mutation testing framework for Scala. It allows you to test your 
 Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt`:
 
 ```scala
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.1.0")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.2.1")
 ```
 
 After adding the plugin, Stryker4s can be used by running `sbt stryker` in the root of your project.

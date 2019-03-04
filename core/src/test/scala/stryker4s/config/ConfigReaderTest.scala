@@ -18,7 +18,6 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**/*.scala")
       result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.INFO
       result.reporters.head shouldBe an[ConsoleReporter]
     }
 
@@ -48,9 +47,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.DEBUG
       result.reporters.head shouldBe an[ConsoleReporter]
-      result.excludedMutations shouldBe Set("BooleanLiteral")
+      result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 
     it("should return a failure on an invalid exclusion mutator") {
@@ -70,7 +68,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       head shouldBe a[ConvertFailure]
       val errorMessage =
         s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
-           |Valid exclusions are EqualityOperator, BooleanLiteral, LogicalOperator, StringLiteral, MethodExpression.""".stripMargin
+           |Valid exclusions are EqualityOperator, BooleanLiteral, ConditionalExpression, LogicalOperator, StringLiteral, MethodExpression.""".stripMargin
       errorMessage shouldBe loggedAsError
     }
   }

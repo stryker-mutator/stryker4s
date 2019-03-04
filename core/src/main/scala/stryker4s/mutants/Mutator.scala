@@ -44,17 +44,30 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
   private def logMutationResult(mutatedFiles: Iterable[MutatedFile], totalAmountOfFiles: Int): Unit = {
     val includedMutants = mutatedFiles.flatMap(_.mutants).size
     val excludedMutants = mutatedFiles.map(_.excludedMutants).sum
+    val totalMutants = includedMutants + excludedMutants
 
     info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
-    info(s"${includedMutants + excludedMutants} Mutant(s) generated.")
-    if (excludedMutants > 0) {
-      info(s"Of which $excludedMutants Mutant(s) are excluded.")
+    info(s"$totalMutants Mutant(s) generated.${if (excludedMutants > 0)
+      s" Of which $excludedMutants Mutant(s) are excluded."
+    else ""}")
+
+    if (totalAmountOfFiles == 0) {
+      warn(s"No files marked to be mutated. ${dryRunText("mutate")}")
+    } else if (includedMutants == 0 && excludedMutants > 0) {
+      warn(s"All found mutations are excluded. ${dryRunText("excluded-mutations")}")
+    } else if (totalMutants == 0) {
+      info("Files to be mutated are found, but no mutations were found in those files.")
+      info("If this is not intended, please check your configuration and try again.")
     }
+
+    def dryRunText(configProperty: String): String =
+      s"""Stryker4s will perform a dry-run without actually mutating anything.
+         |You can configure the `$configProperty` property in your configuration""".stripMargin
   }
 
   /** Wrap a `Term.Name` args of a `Term.Interpolate` args in a `Term.Block` to work around a bug in Scalameta: https://github.com/scalameta/scalameta/issues/1792
     */
-  private def wrapInterpolations(builtTree: Tree) = builtTree transform {
+  private def wrapInterpolations(builtTree: Tree): Tree = builtTree transform {
     case Term.Interpolate(prefix, parts, args) =>
       Term.Interpolate(prefix, parts, args map {
         case t: Term.Name => Term.Block(List(t))

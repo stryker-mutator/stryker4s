@@ -9,9 +9,8 @@ case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
                   testRunner: TestRunner = CommandRunner("sbt", "test"),
                   reporters: List[MutantRunReporter] = List(new ConsoleReporter),
-                  logLevel: Level = Level.INFO,
                   files: Option[Seq[String]] = None,
-                  excludedMutations: Set[String] = Set.empty,
+                  excludedMutations: ExcludedMutations = ExcludedMutations(),
                   thresholds: Thresholds = Thresholds()) {
 
   def toHoconString: String = {
