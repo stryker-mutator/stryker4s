@@ -9,22 +9,19 @@ import stryker4s.config.implicits.ConfigReaderImplicits
 
 object ConfigReader extends Logging with ConfigReaderImplicits {
 
-  private[this] val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
+  val defaultNamespace = "stryker4s"
+  val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
   def readConfig(confFile: File = defaultConfigFileLocation): Config =
-    readConfig[Config](confFile.path) match {
+    pureconfig.loadConfig[Config](confFile.path, namespace = defaultNamespace) match {
       case Left(failures) => tryRecoverFromFailures(failures)
       case Right(config) =>
         info("Using stryker4s.conf in the current working directory")
 
         config
     }
-
-  def readConfig[T](confFile: File = defaultConfigFileLocation): Either[ConfigReaderFailures, T] = {
-    pureconfig.loadConfig[T](confFile.path, namespace = "stryker4s")
-  }
 
   private def tryRecoverFromFailures(failures: ConfigReaderFailures): Config = failures match {
     case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
