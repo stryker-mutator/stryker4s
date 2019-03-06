@@ -2,7 +2,7 @@ package stryker4s.command
 
 import pureconfig.error.ConfigReaderException
 import stryker4s.command.config.ProcessRunnerConfig
-import stryker4s.config.ConfigReader._
+import stryker4s.config.ConfigReader
 import stryker4s.run.threshold.ErrorStatus
 
 // TODO: We need a unified way of naming this starter class.
@@ -12,7 +12,7 @@ object AStarterClass extends App {
   Stryker4sArgumentHandler.handleArgs(args)
 
   private[this] val processRunnerConfig: ProcessRunnerConfig = {
-    pureconfig.loadConfig[ProcessRunnerConfig](defaultConfigFileLocation.path, namespace = defaultNamespace) match {
+    ConfigReader.readConfig[ProcessRunnerConfig]() match {
       case Left(failures) => throw ConfigReaderException(failures)
       case Right(config)  => config
     }
