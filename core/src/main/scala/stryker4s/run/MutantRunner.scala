@@ -9,12 +9,11 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.{FinishedRunReporter, ProgressReporter}
+import stryker4s.report.Reporter
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(sourceCollector: SourceCollector, reporter: ProgressReporter with FinishedRunReporter)(
-    implicit config: Config)
+abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends InitialTestRun
     with MutationScoreCalculator
     with Logging {

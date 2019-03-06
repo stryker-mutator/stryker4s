@@ -1,11 +1,18 @@
 package stryker4s.report
 
+import stryker4s.config.{Config, ConsoleReporterType}
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 
-class CombinedReporter(reporters: Seq[Reporter]) extends FinishedRunReporter with ProgressReporter {
+class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter {
+
+  def reporters: Seq[MutationRunReporter] = {
+    config.reporters collect {
+      case ConsoleReporterType => new ConsoleReporter()
+    }
+  }
 
   private[this] val progressReporters = reporters collect { case r: ProgressReporter     => r }
-  private[this] val runResultReporters = reporters collect { case r: FinishedRunReporter => r }
+  private[this] val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
 
   override def reportMutationStart(mutant: Mutant): Unit =
     progressReporters.foreach(_.reportMutationStart(mutant))
@@ -14,6 +21,6 @@ class CombinedReporter(reporters: Seq[Reporter]) extends FinishedRunReporter wit
     progressReporters.foreach(_.reportMutationComplete(result, totalMutants))
 
   override def reportRunFinished(runResults: MutantRunResults): Unit =
-    runResultReporters.foreach(_.reportRunFinished(runResults))
+    finishedRunReporters.foreach(_.reportRunFinished(runResults))
 
 }

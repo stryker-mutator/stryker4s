@@ -3,9 +3,8 @@ package stryker4s.config.implicits
 import java.nio.file.Path
 
 import better.files.File
-import org.apache.logging.log4j.Level
 import pureconfig.ConfigReader
-import stryker4s.config.{ConsoleReporter, ExcludedMutations, Reporter}
+import stryker4s.config.{ConsoleReporterType, ExcludedMutations, ReporterType}
 
 trait ConfigReaderImplicits {
 
@@ -15,9 +14,9 @@ trait ConfigReaderImplicits {
   private[config] implicit val toFileReader: ConfigReader[File] =
     ConfigReader[Path] map (p => File(p))
 
-  private[config] implicit val toReporterList: ConfigReader[Reporter] =
+  private[config] implicit val toReporterList: ConfigReader[ReporterType] =
     ConfigReader[String] map {
-      case ConsoleReporter.name => ConsoleReporter
+      case ConsoleReporterType.name => ConsoleReporterType
     }
 
   private[config] implicit val exclusions: ConfigReader[ExcludedMutations] =

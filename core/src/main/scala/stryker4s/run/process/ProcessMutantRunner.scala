@@ -6,8 +6,8 @@ import better.files.File
 import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
-import stryker4s.report.{FinishedRunReporter, ProgressReporter}
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
@@ -15,7 +15,7 @@ import scala.util.{Failure, Success}
 class ProcessMutantRunner(command: Command,
                           processRunner: ProcessRunner,
                           sourceCollector: SourceCollector,
-                          reporter: ProgressReporter with FinishedRunReporter)(implicit config: Config)
+                          reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
 
   def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult = {

@@ -1,9 +1,9 @@
 package stryker4s.config
 
-sealed trait Reporter {
+sealed trait ReporterType {
   val name: String
 }
 
-case object ConsoleReporter extends Reporter {
+case object ConsoleReporterType extends ReporterType {
   override val name: String = "console"
 }

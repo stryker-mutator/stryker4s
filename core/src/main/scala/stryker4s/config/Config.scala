@@ -7,7 +7,7 @@ import pureconfig.ConfigWriter
 case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
                   testRunner: TestRunner = CommandRunner("sbt", "test"),
-                  reporters: Seq[Reporter] = Seq(ConsoleReporter),
+                  reporters: Seq[ReporterType] = Seq(ConsoleReporterType),
                   files: Option[Seq[String]] = None,
                   excludedMutations: ExcludedMutations = ExcludedMutations(),
                   thresholds: Thresholds = Thresholds()) {
