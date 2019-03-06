@@ -14,7 +14,7 @@ import scala.language.higherKinds
 
 object RoboBarServer extends IOApp {
 
-  private[this] val root = "/stryker4s"
+  private[this] val root = "/robobar"
 
   def run(args: List[String]): IO[ExitCode] = createServer().use(_ => IO.never).as(ExitCode.Success)
 

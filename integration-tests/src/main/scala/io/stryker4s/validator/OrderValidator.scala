@@ -13,15 +13,13 @@ object OrderValidator {
 class OrderValidator[F[_]: Monad] {
 
   def allowedToOrderDrinks(age: Int, drinks: List[Drink]): Either[OrderNotAllowed, Unit] = {
-    if (!canDrink(age)) {
-      if (drinks.exists(_.isAlcoholic)) {
+    if(drinks.exists(_.isAlcoholic)) {
+      if(!canDrink(age))  {
         Left(OrderNotAllowed(s"Customer is not allowed to order alcoholic drinks at $age years old"))
-      } else {
-        Right(())
       }
-    } else {
-      Right(())
     }
+
+    Right(())
   }
 
   private[this] def canDrink(age: Int): Boolean = {
