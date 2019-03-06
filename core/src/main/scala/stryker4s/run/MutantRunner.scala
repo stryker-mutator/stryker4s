@@ -9,10 +9,11 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.score.MutationScoreCalculator
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 
-abstract class MutantRunner(sourceCollector: SourceCollector)(implicit config: Config)
+abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends InitialTestRun
     with MutationScoreCalculator
     with Logging {
@@ -36,7 +37,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector)(implicit config: C
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val detected = runResults collect { case d: Detected => d }
 
-    MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
+    val result = MutantRunResults(runResults, calculateMutationScore(runResults.size, detected.size), duration)
+    reporter.reportRunFinished(result)
+    result
   }
 
   private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Unit = {
@@ -71,9 +74,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector)(implicit config: C
       subPath = mutatedFile.fileOrigin.relativePath
       mutant <- mutatedFile.mutants
     } yield {
+      reporter.reportMutationStart(mutant)
       val result = runMutant(mutant, tmpDir)(subPath)
-      val id = mutant.id + 1
-      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      reporter.reportMutationComplete(result, totalMutants)
       result
     }
   }

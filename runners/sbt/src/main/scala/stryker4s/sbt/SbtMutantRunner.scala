@@ -11,11 +11,12 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.sbt.Stryker4sPlugin.autoImport.stryker
 
-class SbtMutantRunner(state: State, sourceCollector: SourceCollector)(implicit config: Config)
-    extends MutantRunner(sourceCollector) {
+class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
+    extends MutantRunner(sourceCollector, reporter) {
 
   private lazy val filteredSystemProperties: Option[List[String]] = {
     // Matches strings that start with one of the options between brackets
