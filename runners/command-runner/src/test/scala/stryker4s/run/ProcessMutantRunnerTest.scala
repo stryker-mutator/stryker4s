@@ -3,6 +3,7 @@ package stryker4s.run
 import java.nio.file.Paths
 
 import org.mockito.integrations.scalatest.MockitoFixture
+import stryker4s.command.runner.ProcessMutantRunner
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString

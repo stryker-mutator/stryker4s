@@ -9,7 +9,7 @@ import stryker4s.config.implicits.ConfigReaderImplicits
 
 object ConfigReader extends Logging with ConfigReaderImplicits {
 
-  private[this] val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf")
+  private[this] val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
