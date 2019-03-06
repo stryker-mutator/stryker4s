@@ -11,7 +11,7 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
     }
   }
 
-  private[this] val progressReporters = reporters collect { case r: ProgressReporter     => r }
+  private[this] val progressReporters = reporters collect { case r: ProgressReporter       => r }
   private[this] val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
 
   override def reportMutationStart(mutant: Mutant): Unit =
