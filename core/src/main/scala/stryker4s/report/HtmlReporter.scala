@@ -4,7 +4,7 @@ import stryker4s.config.Config
 import stryker4s.model.MutantRunResults
 import stryker4s.report.mapper.MutantRunResultMapper
 
-class HtmlReporter extends MutantRunReporter with MutantRunResultMapper {
+class HtmlReporter(implicit config: Config) extends FinishedRunReporter with MutantRunResultMapper {
 
   private val reportVersion = "0.0.7"
 
@@ -26,7 +26,7 @@ class HtmlReporter extends MutantRunReporter with MutantRunResultMapper {
        |</html>""".stripMargin
   }
 
-  override def report(runResults: MutantRunResults)(implicit config: Config): Unit = {
+  override def reportRunFinished(runResults: MutantRunResults): Unit = {
     val mapped = toReport(runResults).toJson
 
     println(mapped)

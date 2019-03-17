@@ -58,14 +58,6 @@ With `reporters` you can specify reporters for stryker4s to use. By default the 
 The `html` reporter is reporter that will generate a web page based report giving a full overview of the mutation run.
 
 
-#### log-level
-
-**Config file:** `log-level: INFO`  
-**Default value:** INFO  
-**Mandatory:** No  
-**Description:**  
-With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
-
 #### excluded-mutations
 
 **Config file:** `excluded-mutations: ["BooleanLiteral"]`  
@@ -94,3 +86,19 @@ Specify the thresholds for mutation scores.
 - `mutation score < break`: Error! Stryker will exit with exit code 1, indicating a build failure.
 
 Setting `break=0` (default value) ensures that the build will never fail.
+
+## Other configuration options
+#### log-level
+
+**Default value:** INFO  
+**Mandatory:** No  
+**Description:**  
+How to adjust the loglevel depends on how you run stryker4s:  
+- sbt plugin
+  - Add `logLevel in stryker := Level.Debug` to your the in your build.sbt
+  - Options: `Debug`, `Info`, `Warn`, `Error`
+- Commandrunner
+  - Pass the loglevel as a parameter when running, like so: `--debug`
+  - Options: `--off`, `--error`, `--warn`, `--info`, `--debug`, `--trace`, `--all` (not case sensitive)
+- Maven plugin
+  - // Under construction
