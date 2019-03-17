@@ -12,25 +12,26 @@ trait MutantRunResultMapper {
 
   def toReport(mutantRunResults: MutantRunResults)(implicit config: Config): MutationTestReport = MutationTestReport(
     schemaVersion,
-    toThreshold(config.thresholds),
-    toFiles(mutantRunResults.results.toSeq)
+    toThresholds(config.thresholds),
+    toMutationTestResultMap(mutantRunResults.results.toSeq)
   )
 
-  def toThreshold(thresholds: ConfigThresholds): Thresholds =
+  private def toThresholds(thresholds: ConfigThresholds): Thresholds =
     Thresholds(high = thresholds.high, low = thresholds.low)
 
-  def toFiles(results: Seq[MutantRunResult])(implicit config: Config): Map[String, MutationTestResult] =
+  private def toMutationTestResultMap(results: Seq[MutantRunResult])(
+      implicit config: Config): Map[String, MutationTestResult] =
     results groupBy (_.fileSubPath) map {
-      case (path, runResults) => path.toString.replace('\\', '/') -> toMutationTestResults(runResults)
+      case (path, runResults) => path.toString.replace('\\', '/') -> toMutationTestResult(runResults)
     }
 
-  def toMutationTestResults(runResults: Seq[MutantRunResult])(implicit config: Config): MutationTestResult =
+  private def toMutationTestResult(runResults: Seq[MutantRunResult])(implicit config: Config): MutationTestResult =
     MutationTestResult(
       fileContentAsString(runResults.head.fileSubPath),
-      runResults.map(toMutantRunResult)
+      runResults.map(toMutantResult)
     )
 
-  def toMutantRunResult(runResult: MutantRunResult): MutantResult = {
+  private def toMutantResult(runResult: MutantRunResult): MutantResult = {
     val mutant = runResult.mutant
     MutantResult(
       mutant.id.toString,
@@ -41,12 +42,12 @@ trait MutantRunResultMapper {
     )
   }
 
-  def toLocation(pos: scala.meta.inputs.Position): Location = Location(
+  private def toLocation(pos: scala.meta.inputs.Position): Location = Location(
     start = Position(line = pos.startLine + 1, column = pos.startColumn + 1),
     end = Position(line = pos.endLine + 1, column = pos.endColumn + 1)
   )
 
-  def toMutantStatus(mutant: MutantRunResult): MutantStatus = mutant match {
+  private def toMutantStatus(mutant: MutantRunResult): MutantStatus = mutant match {
     case _: Survived   => MutantStatus.Survived
     case _: Killed     => MutantStatus.Killed
     case _: NoCoverage => MutantStatus.NoCoverage
@@ -54,7 +55,7 @@ trait MutantRunResultMapper {
     case _: Error      => MutantStatus.CompileError
   }
 
-  private[this] def fileContentAsString(path: Path)(implicit config: Config): String =
+  private def fileContentAsString(path: Path)(implicit config: Config): String =
     (config.baseDir / path.toString).contentAsString
 
 }
