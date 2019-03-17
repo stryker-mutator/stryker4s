@@ -4,12 +4,13 @@ import org.apache.maven.shared.invoker.{DefaultInvoker, Invoker}
 import stryker4s.config.Config
 import stryker4s.mutants.applymutants.ActiveMutationContext.{ActiveMutationContext, envVar}
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 
 class Stryker4sMavenRunner(project: MavenProject) extends Stryker4sRunner {
-  override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
-    new MavenMutantRunner(project, resolveInvoker, collector)
+  override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
+    new MavenMutantRunner(project, resolveInvoker(), collector, reporter)
 
-  override def mutationActivation: ActiveMutationContext = envVar
+  override val mutationActivation: ActiveMutationContext = envVar
 
-  private def resolveInvoker: Invoker = new DefaultInvoker
+  private def resolveInvoker(): Invoker = new DefaultInvoker
 }

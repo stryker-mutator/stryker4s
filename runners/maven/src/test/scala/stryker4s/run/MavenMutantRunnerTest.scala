@@ -10,6 +10,7 @@ import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model
 import stryker4s.model.{Killed, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.collection.JavaConverters._
@@ -24,7 +25,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
 
       0 willBe returned by mockResult.getExitCode
       mockResult willBe returned by invokerMock.execute(*)
-      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val result = sut.runInitialTest(File.currentWorkingDirectory)
 
@@ -36,7 +37,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       val mockResult = mock[InvocationResult]
       1 willBe returned by mockResult.getExitCode
       mockResult willBe returned by invokerMock.execute(*)
-      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val result = sut.runInitialTest(File.currentWorkingDirectory)
 
@@ -49,7 +50,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       0 willBe returned by mockResult.getExitCode
       mockResult willBe returned by invokerMock.execute(*)
       val captor = ArgCaptor[InvocationRequest]
-      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
       val result = sut.runInitialTest(cwd)
@@ -67,7 +68,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       val mockResult = mock[InvocationResult]
       1 willBe returned by mockResult.getExitCode
       mockResult willBe returned by invokerMock.execute(*)
-      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
       val result = sut.runMutant(model.Mutant(1, q">", q"<", LesserThan), cwd)(cwd.path)
@@ -80,7 +81,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       val mockResult = mock[InvocationResult]
       0 willBe returned by mockResult.getExitCode
       mockResult willBe returned by invokerMock.execute(*)
-      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
       val result = sut.runMutant(model.Mutant(1, q">", q"<", LesserThan), cwd)(cwd.path)
@@ -94,7 +95,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with IdiomaticMockito with Ar
       1 willBe returned by mockResult.getExitCode
       mockResult willBe returned by invokerMock.execute(*)
       val captor = ArgCaptor[InvocationRequest]
-      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector])
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
       sut.runMutant(model.Mutant(1, q">", q"<", LesserThan), cwd)

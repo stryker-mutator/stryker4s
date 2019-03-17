@@ -8,12 +8,13 @@ import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequ
 import stryker4s.config.Config
 import stryker4s.model.{Killed, Mutant, MutantRunResult, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 
 import scala.collection.JavaConverters._
 
-class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector)(
+class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
     implicit config: Config
-) extends MutantRunner(sourceCollector) {
+) extends MutantRunner(sourceCollector, reporter) {
 
   private val goals = List("test").asJava
 
