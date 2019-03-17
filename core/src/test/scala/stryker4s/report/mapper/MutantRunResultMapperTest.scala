@@ -1,17 +1,19 @@
 package stryker4s.report.mapper
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 
 import better.files.File
 import org.scalatest.Inside
 import stryker4s.config.{Config, Thresholds => ConfigThresholds}
+import stryker4s.extension.FileExtensions._
 import stryker4s.extension.ImplicitMutationConversion._
-import stryker4s.extension.mutationtype.{EmptyString, False, Mutation, True}
+import stryker4s.extension.mutationtype._
 import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
 import stryker4s.report.model._
+import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.concurrent.duration._
-import scala.meta.{Lit, Term, Tree}
+import scala.meta.{Lit, Term}
 
 class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
   describe("mapper") {
@@ -19,51 +21,48 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       val sut = new MutantRunResultMapper {}
       implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
 
-      val path = Paths.get("core/src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala")
+      val path = FileUtil.getResource("scalaFiles/ExampleClass.scala").relativePath
       val mutantRunResult = Killed(
-        toMutant(0, True, False, True, path),
+        toMutant(0, EqualTo, NotEqualTo, path),
         path
       )
       val mutantRunResult2 = Survived(
-        toMutant(1, False, True, False, path),
+        toMutant(1, Lit.String("Hugo"), EmptyString, path),
         path
       )
-      val path3 = Paths.get("core/src/main/scala/stryker4s/report/ConsoleReporter.scala")
+      val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala").relativePath
       val mutantRunResult3 = Killed(
-        toMutant(0, Lit.String("Mutation score dangerously low!"), EmptyString, EmptyString, path3),
+        toMutant(0, GreaterThan, LesserThan, path3),
         path3
-      )
-      val path4 = Paths.get("core/src/main/scala/stryker4s/report/mapper/MutantRunResultMapper.scala")
-      val mutantRunResult4 = Survived(
-        toMutant(0, Lit.String("1"), EmptyString, EmptyString, path4),
-        path4
       )
 
       val mutationRunResults =
-        MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3, mutantRunResult4), 100.0, 10.seconds)
+        MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3), 100.0, 10.seconds)
 
       val result: MutationTestReport = sut.toReport(mutationRunResults)
       inside(result) {
         case MutationTestReport(schemaVersion, thresholds, files) =>
           schemaVersion shouldBe "1"
           thresholds should equal(Thresholds(high = 60, low = 40))
-          inside(files("core/src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala")) {
+          files should have size 2
+          files.head._1 should endWith("scalaFiles/ExampleClass.scala")
+          files.last._1 should endWith("scalaFiles/simpleFile.scala")
+          inside(files.head._2) {
             case MutationTestResult(source, mutants, language) =>
               language should equal("scala")
               mutants should contain only (
                 MutantResult("0",
-                             "BooleanLiteral",
-                             "false",
-                             Location(Position(6, 48), Position(6, 52)),
+                             "EqualityOperator",
+                             "!=",
+                             Location(Position(4, 27), Position(4, 29)),
                              MutantStatus.Killed),
                 MutantResult("1",
-                             "BooleanLiteral",
-                             "true",
-                             Location(Position(10, 48), Position(10, 53)),
+                             "StringLiteral",
+                             "\"\"",
+                             Location(Position(6, 31), Position(6, 37)),
                              MutantStatus.Survived)
               )
-              source should equal(
-                File("core/src/main/scala/stryker4s/extension/mutationtype/BooleanLiteral.scala").contentAsString)
+              source should equal(FileUtil.getResource("scalaFiles/ExampleClass.scala").contentAsString)
           }
       }
     }
@@ -71,11 +70,12 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
 
   /** Helper method to create a [[stryker4s.model.Mutant]], with the `original` param having the correct `Location` property
     */
-  private def toMutant(id: Int, original: Term, to: Term, category: Mutation[_ <: Tree], file: Path): Mutant = {
+  private def toMutant(id: Int, original: Term, category: SubstitutionMutation[_ <: Term], file: Path) = {
     import stryker4s.extension.TreeExtensions.FindExtension
+
     import scala.meta._
     val parsed = File(file).contentAsString.parse[Source]
     val foundOrig = parsed.get.find(original).value
-    Mutant(id, foundOrig, to, category)
+    Mutant(id, foundOrig, category.tree, category)
   }
 }
