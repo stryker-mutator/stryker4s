@@ -255,6 +255,15 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       result should equal(q"!_.startsWith(func)")
     }
+
+    it("should include ! in if statement") {
+      val tree = q"if(!foo) bar else baz"
+      val subTree = tree.find(q"foo").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"!foo")
+    }
   }
 
   describe("find") {

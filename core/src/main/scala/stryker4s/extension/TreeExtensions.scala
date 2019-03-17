@@ -23,10 +23,11 @@ object TreeExtensions {
       */
     @tailrec
     final def topStatement(): Term = thisTerm match {
-      case ParentIsPatternMatch(parent) => parent
-      case _: Lit                       => thisTerm
-      case PartialStatement(parent)     => parent.topStatement()
-      case _                            => thisTerm
+      case ParentIsPatternMatch(parent)  => parent
+      case ParentIsNotExpression(parent) => parent
+      case _: Lit                        => thisTerm
+      case PartialStatement(parent)      => parent.topStatement()
+      case _                             => thisTerm
     }
 
     /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
@@ -59,6 +60,14 @@ object TreeExtensions {
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
         mapParent[T, Option[T]](tree, Some(_), None)
+    }
+
+    /** If the parent is a `!...` expression
+      */
+    private object ParentIsNotExpression {
+      final def unapply(term: Term): Option[Term] = term.parent collect {
+        case parent @ Term.ApplyUnary(Term.Name("!"), _) => parent
+      }
     }
   }
 
