@@ -45,9 +45,9 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
           schemaVersion shouldBe "1"
           thresholds should equal(Thresholds(high = 60, low = 40))
           files should have size 2
-          files.head._1 should endWith("scalaFiles/ExampleClass.scala")
-          files.last._1 should endWith("scalaFiles/simpleFile.scala")
-          inside(files.head._2) {
+          val firstResult = files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
+          files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
+          inside(firstResult._2) {
             case MutationTestResult(source, mutants, language) =>
               language should equal("scala")
               mutants should contain only (
