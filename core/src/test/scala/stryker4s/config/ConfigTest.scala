@@ -13,7 +13,6 @@ class ConfigTest extends Stryker4sSuite {
       val expected =
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
            |excluded-mutations=[]
-           |log-level=INFO
            |mutate=[
            |    "**/main/scala/**/*.scala"
            |]
@@ -48,7 +47,6 @@ class ConfigTest extends Stryker4sSuite {
            |excluded-mutations=[
            |    BooleanLiteral
            |]
-           |log-level=INFO
            |mutate=[
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
