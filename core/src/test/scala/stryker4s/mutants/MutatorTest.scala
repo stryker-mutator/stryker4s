@@ -39,9 +39,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |    case Some("3") =>
                        |      s""
                        |    case _ =>
-                       |      s"${{
-                       |        bar
-                       |      }}foo"
+                       |      s"${bar}foo"
                        |  }
                        |}""".stripMargin.parse[Source].get
       result.loneElement.tree should equal(expected)
