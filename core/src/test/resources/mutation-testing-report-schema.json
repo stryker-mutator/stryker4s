@@ -8,28 +8,24 @@
     "thresholds",
     "files"
   ],
-  "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "id": "#/properties/schemaVersion",
       "type": "string",
+      "pattern": "^1(\\.\\d*)?$",
       "title": "Major version of this report. Used for compatibility.",
       "examples": [
         "1"
       ]
     },
     "thresholds": {
-      "$id": "/properties/thresholds",
       "type": "object",
       "title": "Thresholds for the status of the reported application.",
       "required": [
         "high",
         "low"
       ],
-      "additionalProperties": false,
       "properties": {
         "high": {
-          "id": "#/properties/thresholds/properties/high",
           "type": "integer",
           "title": "Higher bound threshold.",
           "minimum": 0,
@@ -39,7 +35,6 @@
           ]
         },
         "low": {
-          "id": "#/properties/thresholds/properties/low",
           "type": "integer",
           "title": "Lower bound threshold.",
           "minimum": 0,
@@ -51,18 +46,17 @@
       }
     },
     "files": {
-      "$id": "#/properties/files",
       "type": "object",
       "title": "All mutated files.",
       "definitions": {
         "position": {
+          "$id": "#/definitions/position",
           "type": "object",
           "title": "Position of a mutation. Both line and column start at one.",
           "required": [
             "line",
             "column"
           ],
-          "additionalProperties": false,
           "properties": {
             "line": {
               "type": "integer",
@@ -82,7 +76,6 @@
         }
       },
       "additionalProperties": {
-        "$id": "#/properties/files/additionalProperties/file",
         "type": "object",
         "title": "Mutated file, with the relative path of the file as the key.",
         "required": [
@@ -90,10 +83,8 @@
           "source",
           "mutants"
         ],
-        "additionalProperties": false,
         "properties": {
           "language": {
-            "$id": "#/properties/files/additionalProperties/file/properties/language",
             "type": "string",
             "title": "Programming language that is used. Used for code highlighting, see https://highlightjs.org/static/demo/.",
             "examples": [
@@ -104,7 +95,6 @@
             ]
           },
           "source": {
-            "$id": "#/properties/files/additionalProperties/file/properties/source",
             "type": "string",
             "title": "Full source code of the mutated file, this is used for highlighting.",
             "examples": [
@@ -112,11 +102,9 @@
             ]
           },
           "mutants": {
-            "$id": "#/properties/files/additionalProperties/file/properties/mutants",
             "type": "array",
             "uniqueItems": true,
             "items": {
-              "$id": "#/properties/files/additionalProperties/file/properties/mutants/items",
               "type": "object",
               "title": "Single mutation.",
               "required": [
@@ -126,10 +114,8 @@
                 "location",
                 "status"
               ],
-              "additionalProperties": false,
               "properties": {
                 "id": {
-                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/id",
                   "type": "string",
                   "title": "Unique id, can be used to correlate this mutant with other reports.",
                   "examples": [
@@ -137,7 +123,6 @@
                   ]
                 },
                 "mutatorName": {
-                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/mutatorName",
                   "type": "string",
                   "title": "Category of the mutation.",
                   "examples": [
@@ -147,7 +132,6 @@
                   ]
                 },
                 "replacement": {
-                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/replacement",
                   "type": "string",
                   "title": "Actual mutation that has been applied.",
                   "examples": [
@@ -158,30 +142,24 @@
                   ]
                 },
                 "location": {
-                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/location",
                   "type": "object",
                   "title": "Location of the applied mutation.",
                   "required": [
                     "start",
                     "end"
                   ],
-                  "additionalProperties": false,
                   "properties": {
                     "start": {
                       "$ref": "#/properties/files/definitions/position",
-                      "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/location/properties/start",
                       "title": "Start position of the mutation. Inclusive."
                     },
                     "end": {
                       "$ref": "#/properties/files/definitions/position",
-                      "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/location/properties/end",
-                      "type": "object",
                       "title": "End position of the mutation. Exclusive."
                     }
                   }
                 },
                 "status": {
-                  "$id": "#/properties/files/additionalProperties/file/properties/mutants/items/properties/status",
                   "type": "string",
                   "title": "Result of the mutation.",
                   "enum": [

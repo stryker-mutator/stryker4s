@@ -6,7 +6,7 @@ import stryker4s.report.mapper.MutantRunResultMapper
 
 class HtmlReporter(implicit config: Config) extends FinishedRunReporter with MutantRunResultMapper {
 
-  private val reportVersion = "0.0.7"
+  private val reportVersion = "1.0.1"
 
   def indexHtml(json: String): String = {
     val mutationTestElementsScript = Resource.getAsString(
