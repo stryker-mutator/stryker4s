@@ -50,11 +50,12 @@ When using the sbt plugin, this configuration is ignored and the sbt test runner
 
 #### reporters
 
-**Config file:** `reporters: ["console"]`  
-**Default value:** A reporter that will report to console.  
+**Config file:** `reporters: ["console", "html"]`  
+**Default value:** A reporter that will report to `console`.  
 **Mandatory:** No  
 **Description:**  
 With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console.
+The `html` reporter is a reporter that will generate a nice HTML report giving a full overview of the mutation run.
 
 #### excluded-mutations
 
@@ -86,12 +87,14 @@ Specify the thresholds for mutation scores.
 Setting `break=0` (default value) ensures that the build will never fail.
 
 ## Other configuration options
+
 #### log-level
 
-**Default value:** INFO  
+**Default value:** `INFO`  
 **Mandatory:** No  
 **Description:**  
-How to adjust the loglevel depends on how you run stryker4s:  
+How to adjust the loglevel depends on how you run stryker4s:
+
 - sbt plugin
   - Add `logLevel in stryker := Level.Debug` to your the in your build.sbt
   - Options: `Debug`, `Info`, `Warn`, `Error`

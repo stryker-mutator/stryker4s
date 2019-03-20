@@ -1,7 +1,6 @@
 package stryker4s.config
 
 import better.files._
-import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
 
 case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
