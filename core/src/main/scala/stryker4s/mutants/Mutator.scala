@@ -6,7 +6,7 @@ import stryker4s.model.{MutatedFile, MutationsInSource, SourceTransformations}
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
-import scala.meta.{Term, Tree}
+import scala.meta.Tree
 
 class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)
     extends Logging {
@@ -17,8 +17,8 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
         val mutationsInSource = findMutants(file)
         val transformed = transformStatements(mutationsInSource)
         val builtTree = buildMatches(transformed)
-        val interpolatedFix = wrapInterpolations(builtTree)
-        MutatedFile(file, interpolatedFix, mutationsInSource.mutants, mutationsInSource.excluded)
+
+        MutatedFile(file, builtTree, mutationsInSource.mutants, mutationsInSource.excluded)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)
 
@@ -65,13 +65,4 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
          |You can configure the `$configProperty` property in your configuration""".stripMargin
   }
 
-  /** Wrap a `Term.Name` args of a `Term.Interpolate` args in a `Term.Block` to work around a bug in Scalameta: https://github.com/scalameta/scalameta/issues/1792
-    */
-  private def wrapInterpolations(builtTree: Tree): Tree = builtTree transform {
-    case Term.Interpolate(prefix, parts, args) =>
-      Term.Interpolate(prefix, parts, args map {
-        case t: Term.Name => Term.Block(List(t))
-        case other        => other
-      })
-  }
 }
