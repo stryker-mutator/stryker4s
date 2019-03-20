@@ -148,13 +148,24 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       // Assert
       val expected =
         """class Foo {
-          |  def foo = (sys.props.get("ACTIVE_MUTATION") match {
-          |    case Some("0") => ""
-          |    case _ => "foo"
-          |  }) == (sys.props.get("ACTIVE_MUTATION") match {
-          |    case Some("2") => "Stryker was here!"
-          |    case _ => ""
-          |  })
+          |  def foo = sys.props.get("ACTIVE_MUTATION") match {
+          |    case Some("1") =>
+          |      (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("0") => ""
+          |        case _ => "foo"
+          |      }) != (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("2") => "Stryker was here!"
+          |        case _ => ""
+          |      })
+          |    case _ =>
+          |      (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("0") => ""
+          |        case _ => "foo"
+          |      }) == (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("2") => "Stryker was here!"
+          |        case _ => ""
+          |      })
+          |  }
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
     }
