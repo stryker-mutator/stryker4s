@@ -133,8 +133,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
 
-      val firstTransformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
-      val secondTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
+      val firstTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
+      val secondTransformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
       val thirdTransformed =
         toTransformed(source, StrykerWasHereString, Lit.String(""), Lit.String("Stryker was here!"))
 
@@ -149,9 +149,9 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val expected =
         """class Foo {
           |  def foo = sys.props.get("ACTIVE_MUTATION") match {
-          |    case Some("1") =>
+          |    case Some("0") =>
           |      (sys.props.get("ACTIVE_MUTATION") match {
-          |        case Some("0") => ""
+          |        case Some("1") => ""
           |        case _ => "foo"
           |      }) != (sys.props.get("ACTIVE_MUTATION") match {
           |        case Some("2") => "Stryker was here!"
@@ -159,7 +159,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
           |      })
           |    case _ =>
           |      (sys.props.get("ACTIVE_MUTATION") match {
-          |        case Some("0") => ""
+          |        case Some("1") => ""
           |        case _ => "foo"
           |      }) == (sys.props.get("ACTIVE_MUTATION") match {
           |        case Some("2") => "Stryker was here!"
