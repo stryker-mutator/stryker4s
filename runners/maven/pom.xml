@@ -204,7 +204,7 @@
                                 </goals>
                                 <configuration>
                                     <keyname>strykermutator</keyname>
-                                    <!-- Password is added from environment variable in project/Release.scala -->
+                                    <passphrase>${env.PGP_PASSPHRASE}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>

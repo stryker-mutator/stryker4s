@@ -29,7 +29,7 @@ object Release {
   private def mvnDeploy(baseDir: File, version: String): State => State =
     state =>
       mvnGoal(s"versions:set -DnewVersion=$version", baseDir) #&&
-        mvnGoal(s"deploy --settings settings.xml -Darguments=-Dgpg.passphrase=${sys.env("PGP_PASSPHRASE")}", baseDir) ! match {
+        mvnGoal(s"deploy --settings settings.xml", baseDir) ! match {
         case 0 => state
         case _ => state.fail
     }
