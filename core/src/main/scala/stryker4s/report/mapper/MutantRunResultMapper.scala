@@ -10,11 +10,12 @@ trait MutantRunResultMapper {
 
   private val schemaVersion = "1"
 
-  def toReport(mutantRunResults: MutantRunResults)(implicit config: Config): MutationTestReport = MutationTestReport(
-    schemaVersion,
-    toThresholds(config.thresholds),
-    toMutationTestResultMap(mutantRunResults.results.toSeq)
-  )
+  protected[report] def toReport(mutantRunResults: MutantRunResults)(implicit config: Config): MutationTestReport =
+    MutationTestReport(
+      schemaVersion,
+      toThresholds(config.thresholds),
+      toMutationTestResultMap(mutantRunResults.results.toSeq)
+    )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =
     Thresholds(high = thresholds.high, low = thresholds.low)
