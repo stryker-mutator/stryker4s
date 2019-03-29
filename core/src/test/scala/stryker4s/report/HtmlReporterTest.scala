@@ -47,13 +47,6 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       sut.reportRunFinished(runResults)
 
       val fileCaptor = ArgCaptor[File]
-      val expectedStart =
-        """<!DOCTYPE html>
-          |<html>
-          |<body>
-          |  <mutation-test-report-app title-postfix="Stryker4s report"></mutation-test-report-app>
-          |  <script>
-          |    document.querySelector('mutation-test-report-app').report = """.stripMargin
       verify(mockFileIO).createAndWrite(fileCaptor, any[String])
       fileCaptor.value.pathAsString should fullyMatch regex ".*target(/|\\\\)stryker4s-report-(\\d*)(/|\\\\)index.html$"
     }
