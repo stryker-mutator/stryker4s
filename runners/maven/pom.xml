@@ -203,12 +203,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                    <id>strykermutator</id>
-                                    <passphrase>${env.PGP_PASSPHRASE}</passphrase>
+                                    <keyname>strykermutator</keyname>
+                                    <passphraseServerId>${env.PGP_PASSPHRASE}</passphraseServerId>
                                 </configuration>
                             </execution>
                         </executions>
