@@ -64,7 +64,14 @@ project/boot/
 project/plugins/project/
 !core/src/test/resources/fileTests/target/IgnoredFile.scala
 
+# Metals
+.bloop/
+.metals/
+
 # stryker specific
 stryker4s.conf
 
 !bin/scalafmt
+
+!.vscode/extensions.json
+!.vscode/settings.json
