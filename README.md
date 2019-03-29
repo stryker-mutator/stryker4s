@@ -60,7 +60,7 @@ See [MUTATORS.md](docs/MUTATORS.md) for our supported mutators.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for all the latest changes made.
+See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) for all the latest changes made.
 
 ## Contributing
 
