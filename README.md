@@ -48,7 +48,7 @@ We also publish SNAPSHOT versions of each commit on master. To use a pre-release
 resolvers += Resolver.sonatypeRepo("snapshots")
 ```
 
-Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/)
+Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/).
 
 ## Configuration
 
