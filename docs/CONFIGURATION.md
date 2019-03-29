@@ -106,4 +106,5 @@ How to adjust the loglevel depends on how you run stryker4s:
   - Pass the loglevel as a parameter when running, like so: `--debug`
   - Options: `--off`, `--error`, `--warn`, `--info`, `--debug`, `--trace`, `--all` (not case sensitive)
 - Maven plugin
-  - // Under construction
+  - As a command-line property, like so: `mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=warn stryker4s:run`
+  - Options: `trace`, `debug`, `info`, `warn`, or `error`

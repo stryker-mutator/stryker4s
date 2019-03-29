@@ -1,3 +1,4 @@
+import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
@@ -60,7 +61,8 @@ object Settings {
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
-    buildInfo ++
+    releaseCommands ++
+      buildInfo ++
       Seq(
         scalaVersion := Dependencies.versions.scala212,
         scalacOptions ++= Settings.scalacOpts,
@@ -75,7 +77,8 @@ object Settings {
     homepage := Some(url("https://stryker-mutator.io/")),
     licenses := Seq("Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
     scmInfo := Some(
-      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"), "scm:git@github.com:stryker-mutator/stryker4s.git")),
+      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"), "scm:git@github.com:stryker-mutator/stryker4s.git")
+    ),
     developers := List(
       Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
