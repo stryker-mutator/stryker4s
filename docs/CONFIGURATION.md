@@ -21,6 +21,7 @@ The default for this will find files in the common Scala project format.
 You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
 
 #### files
+
 **Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** result of `git ls-files --others --exclude-standard --cached`  
 **Mandatory:** No  
@@ -51,11 +52,13 @@ When using the sbt plugin, this configuration is ignored and the sbt test runner
 #### reporters
 
 **Config file:** `reporters: ["console", "html"]`  
-**Default value:** A reporter that will report to `console`.  
+**Default value:** The `console` reporter  
 **Mandatory:** No  
 **Description:**  
-With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console.
-The `html` reporter is a reporter that will generate a nice HTML report giving a full overview of the mutation run.
+With `reporters` you can specify reporters for stryker4s to use. The following reporters are supported:
+
+- `console` will output progress and the final result to the console.
+- `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 
 #### excluded-mutations
 
@@ -67,6 +70,7 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 
 - `EqualityOperator`
 - `BooleanLiteral`
+- `ConditionalExpression`
 - `LogicalOperator`
 - `StringLiteral`
 - `MethodExpression`
