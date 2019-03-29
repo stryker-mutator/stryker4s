@@ -11,7 +11,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
     with MutantRunResultMapper
     with Logging {
 
-  private val reportVersion = "1.0.1"
+  private val reportVersion = "1.0.2"
   private val htmlReportResource =
     s"META-INF/resources/webjars/mutation-testing-elements/$reportVersion/dist/mutation-test-elements.js"
   private val title = "Stryker4s report"
