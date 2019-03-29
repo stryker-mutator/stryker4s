@@ -4,8 +4,7 @@ import java.nio.file.Paths
 
 import stryker4s.config.{Config, Thresholds}
 import stryker4s.extension.mutationtype.{GreaterThan, LesserThan, LesserThanEqualTo}
-import stryker4s.model
-import stryker4s.model.{Killed, Mutant, Survived}
+import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
@@ -60,7 +59,7 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
     it("should report a finished run with multiple mutants") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
-      val results = model.MutantRunResults(
+      val results = MutantRunResults(
         Seq(
           Killed(Mutant(0, q"4", q"5", GreaterThan), Paths.get("stryker4s")),
           Survived(Mutant(1, q"0", q"1", LesserThan), Paths.get("stryker4s")),
@@ -89,7 +88,7 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
     it("should log mutants sorted by id") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
-      val results = model.MutantRunResults(
+      val results = MutantRunResults(
         Seq(
           Survived(Mutant(0, q"4", q"5", GreaterThan), Paths.get("stryker4s")),
           Survived(Mutant(1, q"0", q"1", LesserThan), Paths.get("stryker4s")),
@@ -123,7 +122,7 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
     it("should report the mutation score when it is dangerously low") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
-      val results = model.MutantRunResults(
+      val results = MutantRunResults(
         Seq(),
         50,
         15.seconds
@@ -137,7 +136,7 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
     it("should report the mutation score when it is warning") {
       implicit val config: Config = Config(thresholds = Thresholds(break = 49, low = 50, high = 51))
       val sut = new ConsoleReporter()
-      val results = model.MutantRunResults(
+      val results = MutantRunResults(
         Seq(),
         50,
         15.seconds
@@ -150,7 +149,7 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
     it("should report the mutation score when it is info") {
       implicit val config: Config = Config(thresholds = Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
-      val results = model.MutantRunResults(
+      val results = MutantRunResults(
         Seq(),
         50,
         15.seconds
@@ -163,7 +162,7 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
     it("should log when below threshold") {
       implicit val config: Config = Config(thresholds = Thresholds(break = 51, low = 52, high = 53))
       val sut = new ConsoleReporter()
-      val results = model.MutantRunResults(
+      val results = MutantRunResults(
         Seq(),
         50,
         15.seconds

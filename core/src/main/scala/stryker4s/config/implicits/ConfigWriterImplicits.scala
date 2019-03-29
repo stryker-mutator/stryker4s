@@ -4,7 +4,6 @@ import java.nio.file.Path
 
 import better.files.File
 import com.typesafe.config.ConfigRenderOptions
-import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
 import stryker4s.config.{ExcludedMutations, ReporterType}
 
