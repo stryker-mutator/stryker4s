@@ -17,7 +17,7 @@ jobs:
     # Default stage test is already added
     - stage: test
       script:
-        - sbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' publishM2 # So maven can find the dependency
+        - sbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2 # So maven can find the dependency
         - cd runners/maven
         - mvn test
       jdk: openjdk11
