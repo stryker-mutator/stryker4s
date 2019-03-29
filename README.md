@@ -40,6 +40,20 @@ Mutation testing can be very taxing on your computer's resources. After all, you
 
 Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/CONFIGURATION.md#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
 
+## Maven plugin
+
+The Maven plugin can be added as follows in `pom.xml` under `plugins`:
+
+```xml
+<plugin>
+    <groupId>io.stryker-mutator</groupId>
+    <artifactId>stryker4s-maven-plugin</artifactId>
+    <version>0.2.1</version>
+</plugin>
+```
+
+You can then run Stryker4s with the command `mvn stryker4s`. Note that this is different than the command for the sbt plugin.
+
 ## Pre-release versions
 
 We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:
