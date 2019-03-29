@@ -52,7 +52,7 @@ The Maven plugin can be added as follows in `pom.xml` under `plugins`:
 </plugin>
 ```
 
-You can then run Stryker4s with the command `mvn stryker4s`. Note that this is different than the command for the sbt plugin.
+You can then run Stryker4s with the command `mvn stryker4s:run`. Note that this is different than the command for the sbt plugin.
 
 ## Pre-release versions
 
