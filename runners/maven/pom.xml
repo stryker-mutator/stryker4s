@@ -1,17 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>io.stryker-mutator</groupId>
     <artifactId>stryker4s-maven-plugin</artifactId>
     <version>SET-BY-SBT-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
-
     <name>Stryker4s Maven plugin</name>
     <description>Stryker4s, the mutation testing framework for Scala.</description>
     <url>https://stryker-mutator.io/</url>
     <inceptionYear>2019</inceptionYear>
-
     <licenses>
         <license>
             <name>Apache License 2.0</name>
@@ -19,7 +15,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
     <developers>
         <developer>
             <name>hugo-vrijswijk</name>
@@ -32,19 +27,16 @@
             <url>https://github.com/legopiraat</url>
         </developer>
     </developers>
-
     <issueManagement>
         <system>GitHub</system>
         <url>https://github.com/stryker-mutator/stryker4s/issues</url>
     </issueManagement>
-
     <scm>
         <connection>scm:git:https://github.com/stryker-mutator/stryker4s.git</connection>
         <developerConnection>scm:git:https://github.com/stryker-mutator/stryker4s.git</developerConnection>
         <url>https://github.com/stryker-mutator/stryker4s</url>
         <tag>HEAD</tag>
     </scm>
-
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -55,26 +47,24 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
     <properties>
         <encoding>UTF-8</encoding>
         <!-- Scala versions -->
         <scala.version>2.12.8</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <scala-maven.version>3.4.4</scala-maven.version>
-        <scalatest.version>3.0.5</scalatest.version>
-        <mockito-scala.version>1.1.2</mockito-scala.version>
+        <scalatest.version>3.0.7</scalatest.version>
+        <mockito-scala.version>1.2.1</mockito-scala.version>
         <!-- Plugin versions-->
         <maven-plugin.version>3.6.0</maven-plugin.version>
         <maven-invoker.version>3.0.1</maven-invoker.version>
         <!-- Release versions-->
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -86,7 +76,6 @@
             <artifactId>stryker4s-core_${scala.compat.version}</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <!-- Maven plugin -->
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -109,7 +98,6 @@
             <version>${maven-plugin.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <!-- Test -->
         <dependency>
             <groupId>org.scalatest</groupId>
@@ -123,9 +111,7 @@
             <version>${mockito-scala.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <build>
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
@@ -135,7 +121,6 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven-plugin.version}</version>
             </plugin>
-
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
@@ -149,9 +134,7 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!-- Test -->
-
             <!-- disable surefire -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -177,7 +160,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>release</id>
@@ -196,7 +178,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -210,7 +191,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -233,7 +213,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -245,7 +224,6 @@
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
-
                     <plugin>
                         <artifactId>maven-deploy-plugin</artifactId>
                         <version>${maven-deploy-plugin.version}</version>
