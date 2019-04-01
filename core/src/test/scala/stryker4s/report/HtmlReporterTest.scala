@@ -8,6 +8,7 @@ import stryker4s.model.MutantRunResults
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.concurrent.duration._
+import scala.io.Source
 
 class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar {
 
@@ -16,7 +17,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       implicit val config: Config = Config()
       val mockFileIO = mock[FileIO]
       val resourceLocation = "META-INF/resources/webjars/mutation-testing-elements/1.0.2/dist/mutation-test-elements.js"
-      when(mockFileIO.readResource(resourceLocation)) thenReturn "console.log('hello');"
+      when(mockFileIO.readResource(resourceLocation)) thenReturn Source.fromString("console.log('hello');")
       val sut = new HtmlReporter(mockFileIO)
 
       val result = sut.indexHtml("""{ 'foo': 'bar' }""")
@@ -33,7 +34,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
                         |  </script>
                         |</body>
                         |</html>""".stripMargin
-      result should equal(expected)
+      result.mkString should equal(expected)
     }
   }
 
@@ -45,7 +46,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       val sut = new HtmlReporter(fileIO)
 
       val result = sut.indexHtml("""{ 'foo': 'bar' }""")
-      result.linesIterator.length should be > 50
+      result.mkString.length should be > 50
     }
   }
 
@@ -59,7 +60,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       sut.reportRunFinished(runResults)
 
       val fileCaptor = ArgCaptor[File]
-      verify(mockFileIO).createAndWrite(fileCaptor, any[String])
+      verify(mockFileIO).createAndWrite(fileCaptor, any[Iterator[Byte]])
       fileCaptor.value.pathAsString should fullyMatch regex ".*target(/|\\\\)stryker4s-report-(\\d*)(/|\\\\)index.html$"
     }
   }

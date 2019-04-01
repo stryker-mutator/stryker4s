@@ -1,5 +1,4 @@
 package stryker4s.report
-import better.files.Resource
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.files.FileIO
@@ -16,21 +15,29 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
     s"META-INF/resources/webjars/mutation-testing-elements/$reportVersion/dist/mutation-test-elements.js"
   private val title = "Stryker4s report"
 
-  def indexHtml(json: String): String = {
+  def indexHtml(json: String): Iterator[Char] = {
     val mutationTestElementsScript = fileIO.readResource(htmlReportResource)
 
-    s"""<!DOCTYPE html>
+    val startHtml = s"""<!DOCTYPE html>
        |<html>
        |<body>
        |  <mutation-test-report-app title-postfix="$title"></mutation-test-report-app>
        |  <script>
-       |    document.querySelector('mutation-test-report-app').report = $json
+       |    document.querySelector('mutation-test-report-app').report = """.stripMargin.iterator
+    val middleHtml = s"""
        |  </script>
        |  <script>
-       |    $mutationTestElementsScript
+       |    """.stripMargin.iterator
+    val endHtml = s"""
        |  </script>
        |</body>
-       |</html>""".stripMargin
+       |</html>""".stripMargin.iterator
+
+    startHtml ++
+      json.iterator ++
+      middleHtml ++
+      mutationTestElementsScript.toIterable ++
+      endHtml
   }
 
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
