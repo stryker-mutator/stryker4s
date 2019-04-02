@@ -36,7 +36,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
     startHtml ++
       json.iterator ++
       middleHtml ++
-      mutationTestElementsScript.toIterable ++
+      mutationTestElementsScript ++
       endHtml
   }
 
