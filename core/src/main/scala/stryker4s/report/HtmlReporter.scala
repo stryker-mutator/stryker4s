@@ -23,18 +23,18 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
        |<body>
        |  <mutation-test-report-app title-postfix="$title"></mutation-test-report-app>
        |  <script>
-       |    document.querySelector('mutation-test-report-app').report = """.stripMargin.iterator
+       |    document.querySelector('mutation-test-report-app').report = """.stripMargin
     val middleHtml = s"""
        |  </script>
        |  <script>
-       |    """.stripMargin.iterator
+       |    """.stripMargin
     val endHtml = s"""
        |  </script>
        |</body>
-       |</html>""".stripMargin.iterator
+       |</html>""".stripMargin
 
-    startHtml ++
-      json.iterator ++
+    startHtml.iterator ++
+      json ++
       middleHtml ++
       mutationTestElementsScript ++
       endHtml

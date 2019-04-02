@@ -29,7 +29,8 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
     val reported = finishedRunReporters.map(reporter => Try(reporter.reportRunFinished(runResults)))
     val failed = reported.collect({ case f: Failure[Unit] => f })
     if (failed.nonEmpty) {
-      warn(s"${failed.length} reports failed")
+      warn(s"${failed.length} reporter(s) failed to report:")
+      failed.map(_.exception).foreach(warn(_))
     }
   }
 
