@@ -3,7 +3,7 @@ import better.files.File
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import stryker4s.config.Config
-import stryker4s.files.FileIO
+import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.model.MutantRunResults
 import stryker4s.testutil.Stryker4sSuite
 
@@ -34,6 +34,18 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
                         |</body>
                         |</html>""".stripMargin
       result should equal(expected)
+    }
+  }
+
+  describe("mutation-test-elements") {
+    it("should find the resource") {
+      implicit val config: Config = Config()
+      val fileIO = DiskFileIO
+
+      val sut = new HtmlReporter(fileIO)
+
+      val result = sut.indexHtml("""{ 'foo': 'bar' }""")
+      result.linesIterator.length should be > 50
     }
   }
 

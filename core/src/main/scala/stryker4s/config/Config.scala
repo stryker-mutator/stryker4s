@@ -13,6 +13,7 @@ case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
 
   def toHoconString: String = {
     import stryker4s.config.implicits.ConfigWriterImplicits._
+    import pureconfig.generic.auto._
 
     ConfigWriter[Config].to(this).render(options)
   }

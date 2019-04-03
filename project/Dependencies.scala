@@ -6,13 +6,13 @@ object Dependencies {
     val scala212 = "2.12.8"
 
     val scalameta = "4.1.5"
-    val pureconfig = "0.9.2"
-    val scalatest = "3.0.5"
-    val mockitoScala = "1.0.6"
-    val betterFiles = "3.7.0"
-    val log4j = "2.11.1"
+    val pureconfig = "0.10.2"
+    val scalatest = "3.0.7"
+    val mockitoScala = "1.2.4"
+    val betterFiles = "3.7.1"
+    val log4j = "2.11.2"
     val grizzledSlf4j = "1.3.3"
-    val everitJsonSchema = "1.11.0"
+    val everitJsonSchema = "1.11.1"
     val circe = "0.11.1"
     val mutationTestingElements = "1.0.2" // When updating, change the version both here and in `core/src/main/scala/stryker4s/report/HtmlReporter.scala`
   }
