@@ -2,10 +2,10 @@ package stryker4s
 
 import java.nio.file.Paths
 
-import org.mockito.MockitoSugar
 import org.mockito.captor.ArgCaptor
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.Inside
-import stryker4s.config.Config
+import stryker4s.config.{Config, ConsoleReporterType, HtmlReporterType}
 import stryker4s.model.{Killed, Mutant, MutantRunResults}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
@@ -19,16 +19,18 @@ import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 
 import scala.util.Success
 
-class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar with Inside {
+class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with Inside with LogMatchers {
 
   describe("run") {
+    val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+    val testFiles = Seq(file)
+    val testSourceCollector = new TestSourceCollector(testFiles)
+    val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
+    val reporterMock = mock[Reporter]
+
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
-      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val testFiles = Seq(file)
-      val testSourceCollector = new TestSourceCollector(testFiles)
-      val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
-      val reporterMock = mock[Reporter]
+
       val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"),
                                                      testProcessRunner,
                                                      new FileCollector(testProcessRunner),
@@ -66,9 +68,6 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
 
     it("should log a warning when JVM max memory is too low") {
       implicit val conf: Config = Config()
-      val testSourceCollector = new TestSourceCollector(Seq())
-      val testProcessRunner = TestProcessRunner()
-      val reporterMock = mock[Reporter]
       val testMutantRunner =
         new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, reporterMock)
 
@@ -92,9 +91,6 @@ class Stryker4sTest extends Stryker4sSuite with LogMatchers with MockitoSugar wi
 
     it("should not log a warning when JVM max memory is high enough") {
       implicit val conf: Config = Config()
-      val testSourceCollector = new TestSourceCollector(Seq())
-      val testProcessRunner = TestProcessRunner()
-      val reporterMock = mock[Reporter]
       val testMutantRunner =
         new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, reporterMock)
 
