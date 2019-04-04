@@ -39,9 +39,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |    case Some("3") =>
                        |      s""
                        |    case _ =>
-                       |      s"${{
-                       |        bar
-                       |      }}foo"
+                       |      s"${bar}foo"
                        |  }
                        |}""".stripMargin.parse[Source].get
       result.loneElement.tree should equal(expected)
@@ -149,20 +147,6 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
         |You can configure the `mutate` property in your configuration""".stripMargin should not be loggedAsWarning
       "Files to be mutated are found, but no mutations were found in those files." should not be loggedAsInfo
       "If this is not intended, please check your configuration and try again." should not be loggedAsInfo
-    }
-  }
-
-  describe("string interpolation") {
-
-    it("checks if the Scalameta workaround is still needed") {
-      // If this test fails, the bug mentioned above is fixed, and the workaround can be removed
-      val interpolated =
-        Term.Interpolate(q"s", List(Lit.String("interpolate this"), Lit.String("bar")), List(q"foo"))
-
-      // We expect that after the fix the interpolate string will look as followed.
-      // interpolated.syntax should equal("""s"interpolate this${foo}bar"""")
-
-      interpolated.syntax should equal("""s"interpolate this$foobar"""")
     }
   }
 }

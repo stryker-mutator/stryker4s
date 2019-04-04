@@ -2,7 +2,6 @@ package stryker4s.model
 
 import java.nio.file.Path
 
-import scala.concurrent.TimeoutException
 import scala.concurrent.duration.Duration
 
 case class MutantRunResults(results: Iterable[MutantRunResult], mutationScore: Double, duration: Duration)

@@ -5,9 +5,10 @@ import java.io.FileNotFoundException
 import better.files.File
 import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
+import pureconfig.generic.auto._
 import stryker4s.config.implicits.ConfigReaderImplicits
 
-object ConfigReader extends Logging with ConfigReaderImplicits {
+object ConfigReader extends ConfigReaderImplicits with Logging {
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
