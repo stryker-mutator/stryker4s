@@ -70,11 +70,14 @@ See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.con
 
 ## Supported mutators
 
-See [MUTATORS.md](docs/MUTATORS.md) for our supported mutators.
+Stryker4s supports a variety of mutators, which can be found in our [handbook](https://github.com/stryker-mutator/stryker-handbook/blob/master/mutator-types.md#supported-mutators).
+Do you have a suggestion for a (new) mutator? Feel free to create an [issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
+
+An always up-to-date reference is also available in the [MutantMatcher source](core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for all the latest changes made.
+See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) for all the latest changes made.
 
 ## Contributing
 
