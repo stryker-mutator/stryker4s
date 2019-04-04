@@ -1,3 +1,5 @@
 {
-    "editor.formatOnSave": true
+    "[scala]": {
+        "editor.formatOnSave": true
+    }
 }
