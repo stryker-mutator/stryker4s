@@ -45,9 +45,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatche
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
-      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner),
-
-      reporterMock)
+      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner), reporterMock)
 
       val sut = new Stryker4s(
         testSourceCollector,
