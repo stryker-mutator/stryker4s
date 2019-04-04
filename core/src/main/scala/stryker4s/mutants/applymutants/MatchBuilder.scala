@@ -59,5 +59,6 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
         transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
       .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq
+      .sortBy(_.mutantStatements.head.id) // Should be sorted so tree transformations are applied in order of discovery
   }
 }

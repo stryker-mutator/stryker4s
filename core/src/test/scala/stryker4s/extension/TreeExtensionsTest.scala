@@ -130,13 +130,13 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
       result should equal(q"Math.square(2 * 5)")
     }
 
-    it("should not include if statement in top") {
+    it("should not include if statement") {
       val tree = q"def foo(x: Int) = if(x > 5) x > 10"
       val subTree = tree.find(q"10").value
 
       val result = subTree.topStatement()
 
-      result should equal(q"x > 10")
+      result should equal(q"10")
     }
 
     it("should not include if statement if expression is in the if statement") {
@@ -236,6 +236,33 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
       val result = subTree.topStatement()
 
       result should equal(q"variable match { case GET -> Root / $hello => 3; case _ => 4 }")
+    }
+
+    it("should match on a Literal") {
+      val tree = q"list.map(_ == 4)"
+      val subTree = tree.find(q"4").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"4")
+    }
+
+    it("should include !") {
+      val tree = q"list.map(!_.startsWith(func))"
+      val subTree = tree.find(q"func").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"!_.startsWith(func)")
+    }
+
+    it("should include ! in if statement") {
+      val tree = q"if(!foo) bar else baz"
+      val subTree = tree.find(q"foo").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"!foo")
     }
   }
 
