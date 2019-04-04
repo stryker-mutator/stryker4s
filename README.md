@@ -27,7 +27,7 @@ Stryker4s is a mutation testing framework for Scala. It allows you to test your 
 Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt`:
 
 ```scala
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.2.1")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.3.1")
 ```
 
 After adding the plugin, Stryker4s can be used by running `sbt stryker` in the root of your project.
@@ -39,6 +39,20 @@ Mutation testing can be very taxing on your computer's resources. After all, you
 ### Multi-module projects
 
 Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/CONFIGURATION.md#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
+
+## Maven plugin
+
+The Maven plugin can be added as follows in `pom.xml` under `plugins`:
+
+```xml
+<plugin>
+    <groupId>io.stryker-mutator</groupId>
+    <artifactId>stryker4s-maven-plugin</artifactId>
+    <version>0.3.1</version>
+</plugin>
+```
+
+You can then run Stryker4s with the command `mvn stryker4s:run`. Note that this is different than the command for the sbt plugin.
 
 ## Pre-release versions
 
@@ -56,11 +70,14 @@ See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.con
 
 ## Supported mutators
 
-See [MUTATORS.md](docs/MUTATORS.md) for our supported mutators.
+Stryker4s supports a variety of mutators, which can be found in our [handbook](https://github.com/stryker-mutator/stryker-handbook/blob/master/mutator-types.md#supported-mutators).
+Do you have a suggestion for a (new) mutator? Feel free to create an [issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
+
+An always up-to-date reference is also available in the [MutantMatcher source](core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for all the latest changes made.
+See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) for all the latest changes made.
 
 ## Contributing
 

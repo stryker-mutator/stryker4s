@@ -1,7 +1,6 @@
 package stryker4s.config
 
 import better.files.File
-import org.apache.logging.log4j.Level
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
@@ -46,7 +45,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.testRunner shouldBe an[CommandRunner]
-      result.reporters.loneElement shouldBe ConsoleReporterType
+      result.reporters should contain only (ConsoleReporterType, HtmlReporterType)
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 

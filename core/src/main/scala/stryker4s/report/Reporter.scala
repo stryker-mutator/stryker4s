@@ -1,6 +1,7 @@
 package stryker4s.report
 
-import stryker4s.config.{Config, ConsoleReporterType}
+import stryker4s.config.{Config, ConsoleReporterType, HtmlReporterType}
+import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter {
@@ -8,6 +9,7 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
   def reporters: Seq[MutationRunReporter] = {
     config.reporters collect {
       case ConsoleReporterType => new ConsoleReporter()
+      case HtmlReporterType    => new HtmlReporter(DiskFileIO)
     }
   }
 
