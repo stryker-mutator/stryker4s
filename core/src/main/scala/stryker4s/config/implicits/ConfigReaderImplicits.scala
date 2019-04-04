@@ -11,15 +11,15 @@ trait ConfigReaderImplicits {
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
     *
     */
-  private[config] implicit val toFileReader: ConfigReader[File] =
+  implicit private[config] val toFileReader: ConfigReader[File] =
     ConfigReader[Path] map (p => File(p))
 
-  private[config] implicit val toReporterList: ConfigReader[ReporterType] =
+  implicit private[config] val toReporterList: ConfigReader[ReporterType] =
     ConfigReader[String] map {
       case ConsoleReporterType.name => ConsoleReporterType
       case HtmlReporterType.name    => HtmlReporterType
     }
 
-  private[config] implicit val exclusions: ConfigReader[ExcludedMutations] =
+  implicit private[config] val exclusions: ConfigReader[ExcludedMutations] =
     ConfigReader[List[String]] map (exclusions => ExcludedMutations(exclusions.toSet))
 }

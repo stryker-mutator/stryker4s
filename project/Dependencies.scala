@@ -8,7 +8,7 @@ object Dependencies {
     val scalameta = "4.1.5"
     val pureconfig = "0.10.2"
     val scalatest = "3.0.7"
-    val mockitoScala = "1.2.4"
+    val mockitoScala = "1.2.5"
     val betterFiles = "3.7.1"
     val log4j = "2.11.2"
     val grizzledSlf4j = "1.3.3"

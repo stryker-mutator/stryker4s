@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
 
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
 
-  private implicit val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
+  implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[Reporter]
 

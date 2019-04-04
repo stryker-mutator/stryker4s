@@ -22,6 +22,9 @@ jobs:
         - mvn test
       jdk: openjdk11
       name: Maven plugin
+    - name: sbt plugin scripted tests
+      script: sbt publishLocal scripted
+      jdk: openjdk11
     - name: Test formatting
       script: ./bin/scalafmt --test
     # run ci-release only if previous stages passed
