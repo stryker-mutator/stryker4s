@@ -19,7 +19,7 @@ trait LogMatchers {
   /**
     * The name of the current thread. AKA the current test (class) being executed
     */
-  private implicit val threadName: String = Thread.currentThread().getName
+  implicit private val threadName: String = Thread.currentThread().getName
 
   protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit threadName: String) extends BeMatcher[String] {
 
