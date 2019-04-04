@@ -6,6 +6,7 @@ import stryker4s.config.{Config, ConfigReader, ProcessRunnerConfig}
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.findmutants.SourceCollector
+import stryker4s.report.Reporter
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ErrorStatus
 
@@ -33,6 +34,6 @@ object Stryker4sCommandRunner extends App with Stryker4sRunner {
     sys.exit(exitCode)
   }
 
-  override def resolveRunner(collector: SourceCollector)(implicit config: Config): MutantRunner =
-    new ProcessMutantRunner(processRunnerConfig.testRunnerCommand, ProcessRunner(), collector)
+  override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
+    new ProcessMutantRunner(processRunnerConfig.testRunnerCommand, ProcessRunner(), collector, reporter)
 }
