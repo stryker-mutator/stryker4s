@@ -76,3 +76,5 @@ stryker4s.conf
 
 !.vscode/extensions.json
 !.vscode/settings.json
+
+pom.xml.versionsBackup

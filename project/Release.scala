@@ -13,14 +13,19 @@ object Release {
   private val publishM2 = "stryker4s-core/publishM2"
   private val crossPublish = "+publish"
   private val crossPublishSigned = "+publishSigned"
+  private def setVersion(version: String) = s"""set version in ThisBuild := "$version""""
 
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= {
+    val originalVersion = version.value
     Seq(
       // Called by sbt-ci-release
       Command.command(stryker4sPublish)(publishM2 :: stryker4sMvnDeploy :: crossPublish :: _),
       Command.command(stryker4sPublishSigned)(publishM2 :: stryker4sMvnDeploy :: crossPublishSigned :: _),
       // Called by stryker4sPublish(signed)
-      Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value, version.value))
+      // Set version again after deploy (causes local changes, which changes the version)
+      Command.command(stryker4sMvnDeploy)(
+        mvnDeploy(baseDirectory.value, version.value) andThen (setVersion(originalVersion) :: _)
+      )
     )
   }
 
