@@ -47,7 +47,7 @@ object Stryker4sPlugin extends AutoPlugin {
     LoggerContext.getContext(false).getRootLogger.info(s"Set stryker4s logging level to $level")
   }
 
-  private[this] implicit def toLog4jLogLevel(level: Level.Value): Log4jLevel =
+  implicit private[this] def toLog4jLogLevel(level: Level.Value): Log4jLevel =
     level match {
       case Level.Warn  => Log4jLevel.WARN
       case Level.Error => Log4jLevel.ERROR

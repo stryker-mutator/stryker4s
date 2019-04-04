@@ -3,12 +3,13 @@ package stryker4s.report
 import org.mockito.integrations.scalatest.MockitoFixture
 import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
+import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class ReporterTest extends Stryker4sSuite with MockitoFixture {
+class ReporterTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
 
   describe("reporter") {
 
@@ -31,12 +32,12 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
       it("should report to all progressReporters that a mutation run is started.") {
         val mutantMock = mock[Mutant]
         val consoleReporterMock = mock[ConsoleReporter]
-        val progressReporterMock = mock[ProgressionReporter]
+        val progressReporterMock = mock[ProgressReporter]
 
         implicit val config: Config = Config(reporters = Seq())
 
         val sut: Reporter = new Reporter() {
-          override def reporters: Seq[ProgressReporter] = Seq(consoleReporterMock, progressReporterMock)
+          override def reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
         }
 
         sut.reportMutationStart(mutantMock)
@@ -47,7 +48,7 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
 
       it("Should not report to finishedRunReporters that is mutation run is started.") {
         val consoleReporterMock = mock[ConsoleReporter]
-        val finishedRunReporterMock = mock[FinishedReporter]
+        val finishedRunReporterMock = mock[FinishedRunReporter]
         val mutantMock = mock[Mutant]
 
         implicit val config: Config = Config()
@@ -67,7 +68,7 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
       it("should report to all progressReporters that a mutation run is completed") {
         val mutantRunResultMock = mock[MutantRunResult]
         val consoleReporterMock = mock[ConsoleReporter]
-        val progressReporterMock = mock[ProgressionReporter]
+        val progressReporterMock = mock[ProgressReporter]
 
         implicit val config: Config = Config(reporters = Seq())
 
@@ -83,7 +84,7 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
 
       it("should not report to finishedMutationRunReporters that a mutation run is completed") {
         val consoleReporterMock = mock[ConsoleReporter]
-        val finishedRunReporterMock = mock[FinishedReporter]
+        val finishedRunReporterMock = mock[FinishedRunReporter]
         val mutantRunResultMock = mock[MutantRunResult]
 
         implicit val config: Config = Config()
@@ -102,24 +103,24 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
     describe("reportRunFinished") {
       it("should report to all finished mutation run reporters that a mutation run is completed") {
         val consoleReporterMock = mock[ConsoleReporter]
-        val finishedReporterMock = mock[FinishedReporter]
+        val FinishedRunReporterMock = mock[FinishedRunReporter]
         implicit val config: Config = Config()
 
         val mutantRunResults = MutantRunResults(List.empty, 100.0, 10 seconds)
 
         val sut: Reporter = new Reporter() {
-          override def reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, finishedReporterMock)
+          override def reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, FinishedRunReporterMock)
         }
 
         sut.reportRunFinished(mutantRunResults)
 
         verify(consoleReporterMock).reportRunFinished(mutantRunResults)
-        verify(finishedReporterMock).reportRunFinished(mutantRunResults)
+        verify(FinishedRunReporterMock).reportRunFinished(mutantRunResults)
       }
 
       it("should not report a finished mutation run to a progress reporter") {
         val consoleReporterMock = mock[ConsoleReporter]
-        val progressReporterMock = mock[ProgressionReporter]
+        val progressReporterMock = mock[ProgressReporter]
         implicit val config: Config = Config()
 
         val mutantRunResults = MutantRunResults(List.empty, 100.0, 10 seconds)
@@ -133,15 +134,61 @@ class ReporterTest extends Stryker4sSuite with MockitoFixture {
         verify(consoleReporterMock).reportRunFinished(mutantRunResults)
         verifyZeroInteractions(progressReporterMock)
       }
+
+      it("should still call other reporters if a reporter throws an exception") {
+        val consoleReporterMock = mock[ConsoleReporter]
+        val progressReporterMock = mock[FinishedRunReporter]
+        implicit val config: Config = Config()
+
+        val mutantRunResults = MutantRunResults(List.empty, 100.0, 10 seconds)
+        when(consoleReporterMock.reportRunFinished(mutantRunResults))
+          .thenThrow(new RuntimeException("Something happened"))
+
+        val sut: Reporter = new Reporter() {
+          override def reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
+        }
+
+        sut.reportRunFinished(mutantRunResults)
+
+        verify(progressReporterMock).reportRunFinished(mutantRunResults)
+      }
+
+      describe("logging") {
+        val failedToReportMessage = "1 reporter(s) failed to report:"
+        val exceptionMessage = "java.lang.RuntimeException: Something happened"
+
+        val progressReporterMock = mock[ProgressReporter]
+        implicit val config: Config = Config()
+
+        val mutantRunResults = MutantRunResults(List.empty, 100.0, 10 seconds)
+
+        it("should log if a report throws an exception") {
+          val consoleReporterMock = mock[ConsoleReporter]
+          val sut: Reporter = new Reporter() {
+            override def reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
+          }
+          when(consoleReporterMock.reportRunFinished(mutantRunResults))
+            .thenThrow(new RuntimeException("Something happened"))
+
+          sut.reportRunFinished(mutantRunResults)
+
+          failedToReportMessage shouldBe loggedAsWarning
+          exceptionMessage shouldBe loggedAsWarning
+        }
+
+        it("should not log warnings if no exceptions occur") {
+          val consoleReporterMock = mock[ConsoleReporter]
+          val sut: Reporter = new Reporter() {
+            override def reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
+          }
+
+          sut.reportRunFinished(mutantRunResults)
+
+          verify(consoleReporterMock).reportRunFinished(mutantRunResults)
+          failedToReportMessage should not be loggedAsWarning
+          exceptionMessage should not be loggedAsWarning
+        }
+      }
     }
-  }
-
-  class ProgressionReporter extends ProgressReporter {
-    override def reportMutationStart(mutant: Mutant): Unit = {}
-    override def reportMutationComplete(result: MutantRunResult, totalMutants: Int): Unit = {}
-  }
-
-  class FinishedReporter extends FinishedRunReporter {
-    override def reportRunFinished(runResults: MutantRunResults): Unit = {}
   }
 }
