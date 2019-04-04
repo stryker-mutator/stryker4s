@@ -1,4 +1,5 @@
-package stryker4s.sbt
+package stryker4s.sbt.runner
+
 import java.io.{PrintStream, File => JFile}
 import java.nio.file.Path
 

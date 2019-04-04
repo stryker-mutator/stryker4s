@@ -5,31 +5,32 @@ import java.io.FileNotFoundException
 import better.files.File
 import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
+import pureconfig.{Derivation, ConfigReader => PureConfigReader}
 import stryker4s.config.implicits.ConfigReaderImplicits
 
 object ConfigReader extends ConfigReaderImplicits with Logging {
 
-  private[this] val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
+  val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
-  def readConfig(confFile: File = defaultConfigFileLocation): Config =
-    readConfig[Config](confFile.path) match {
+  def readConfig(): Config = {
+    readConfig[Config]() match {
       case Left(failures) => tryRecoverFromFailures(failures)
       case Right(config) =>
         info("Using stryker4s.conf in the current working directory")
 
         config
     }
+  }
 
-  def readConfig[T](confFile: File = defaultConfigFileLocation): Either[ConfigReaderFailures, T] = {
+  def readConfig[T](confFile: File = defaultConfigFileLocation)(
+      implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] = {
     pureconfig.loadConfig[T](confFile.path, namespace = "stryker4s")
   }
 
-  private def tryRecoverFromFailures(failures: ConfigReaderFailures): Config = failures match {
+  private def tryRecoverFromFailures[T](failures: ConfigReaderFailures): Config = failures match {
     case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
-      val defaultConf = Config()
-
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
       // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
@@ -37,7 +38,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       //  https://github.com/stryker-mutator/stryker4s/issues/116
       // info("Config used: " + defaultConf.toHoconString)
 
-      defaultConf
+      Config()
     case _ =>
       error("Failures in reading config: ")
       error(failures.toList.map(_.description).mkString(System.lineSeparator))
