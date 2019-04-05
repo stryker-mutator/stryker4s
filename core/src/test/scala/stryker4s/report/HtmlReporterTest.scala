@@ -17,7 +17,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
     it("should contain title") {
       implicit val config: Config = Config()
       val mockFileIO = mock[FileIO]
-      val resourceLocation = "META-INF/resources/webjars/mutation-testing-elements/1.0.2/dist/mutation-test-elements.js"
+      val resourceLocation = "mutation-testing-elements/mutation-test-elements.js"
       when(mockFileIO.readResource(resourceLocation)) thenReturn Source.fromString("console.log('hello');")
       val sut = new HtmlReporter(mockFileIO)
 

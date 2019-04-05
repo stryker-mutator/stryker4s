@@ -31,6 +31,7 @@ object Settings {
       Dependencies.test.scalatest,
       Dependencies.test.everitJsonSchema,
       Dependencies.test.mockitoScala,
+      Dependencies.test.mutationTestingSchema,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.scalametaContrib,
