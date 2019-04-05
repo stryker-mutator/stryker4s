@@ -1,4 +1,4 @@
-package stryker4s.run
+package stryker4s.maven
 
 import better.files._
 import org.apache.maven.project.MavenProject
@@ -7,6 +7,7 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, IdiomaticMockito}
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
+import stryker4s.maven.runner.MavenMutantRunner
 import stryker4s.model
 import stryker4s.model.{Killed, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
