@@ -4,6 +4,7 @@ import pureconfig.error.ConfigReaderException
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.config.ConfigReader
 import stryker4s.run.threshold.ErrorStatus
+import pureconfig.generic.auto._
 
 // TODO: We need a unified way of naming this starter class.
 //  In the SBT module it's called Stryker4sPlugin which is not very descriptive to use here.

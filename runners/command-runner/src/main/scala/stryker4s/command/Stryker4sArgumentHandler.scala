@@ -1,4 +1,5 @@
 package stryker4s.command
+
 import grizzled.slf4j.Logging
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator

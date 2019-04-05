@@ -7,6 +7,7 @@ import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
 import pureconfig.{Derivation, ConfigReader => PureConfigReader}
 import stryker4s.config.implicits.ConfigReaderImplicits
+import pureconfig.generic.auto._
 
 object ConfigReader extends ConfigReaderImplicits with Logging {
 
@@ -14,8 +15,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
-  def readConfig(): Config = {
-    readConfig[Config]() match {
+  def readConfig(confFile: File = defaultConfigFileLocation): Config = {
+    readConfigOfType[Config](confFile) match {
       case Left(failures) => tryRecoverFromFailures(failures)
       case Right(config) =>
         info("Using stryker4s.conf in the current working directory")
@@ -24,8 +25,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     }
   }
 
-  def readConfig[T](confFile: File = defaultConfigFileLocation)(
-      implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] = {
+  def readConfigOfType[T](confFile: File = defaultConfigFileLocation)(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] = {
     pureconfig.loadConfig[T](confFile.path, namespace = "stryker4s")
   }
 
