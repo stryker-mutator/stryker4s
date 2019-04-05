@@ -9,8 +9,7 @@ import stryker4s.run.threshold.ErrorStatus
 /** The main goal for this plugin. Starts Stryker4s.
   */
 @Mojo(name = "run")
-class Stryker4sMain @Inject()(@Parameter(defaultValue = "${project}") project: MavenProject)
-    extends AbstractMojo {
+class Stryker4sMain @Inject()(@Parameter(defaultValue = "${project}") project: MavenProject) extends AbstractMojo {
   override def execute(): Unit = {
     new Stryker4sMavenRunner(project).run() match {
       case ErrorStatus => throw new MojoFailureException("Mutation score was below configured threshold")
