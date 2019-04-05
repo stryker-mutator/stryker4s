@@ -10,6 +10,7 @@ import stryker4s.config.Config
 import stryker4s.model.{Killed, Mutant, MutantRunResult, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
+import stryker4s.run.MutantRunner
 
 import scala.collection.JavaConverters._
 
