@@ -8,12 +8,12 @@ import pureconfig.generic.auto._
 
 // TODO: We need a unified way of naming this starter class.
 //  In the SBT module it's called Stryker4sPlugin which is not very descriptive to use here.
-object AStarterClass extends App {
+object Stryker4sMain extends App {
 
   Stryker4sArgumentHandler.handleArgs(args)
 
   private[this] val processRunnerConfig: ProcessRunnerConfig = {
-    ConfigReader.readConfig[ProcessRunnerConfig]() match {
+    ConfigReader.readConfigOfType[ProcessRunnerConfig]() match {
       case Left(failures) => throw ConfigReaderException(failures)
       case Right(config)  => config
     }

@@ -24,12 +24,12 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       }
     }
 
-    it("should load config by type and give config errors when sometimes wrong")    {
+    it("should load config by type and give config errors when sometimes wrong") {
       val confPath = FileUtil.getResource("stryker4sconfs/empty.conf")
 
       ConfigReader.readConfigOfType[Config](confPath) match {
-        case Left(error)      => error.toList.map(a => a.description) shouldBe List("Key not found: 'stryker4s'.")
-        case Right(_)  =>  fail("Config was read successfully which should not be the case.")
+        case Left(error) => error.toList.map(a => a.description) shouldBe List("Key not found: 'stryker4s'.")
+        case Right(_)    => fail("Config was read successfully which should not be the case.")
       }
     }
 

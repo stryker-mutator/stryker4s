@@ -1,4 +1,5 @@
-package stryker4s.run
+package stryker4s.maven.runner
+
 import java.nio.file.Path
 import java.util.Properties
 

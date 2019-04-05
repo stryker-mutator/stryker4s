@@ -86,14 +86,15 @@ Specify the thresholds for mutation scores.
 Setting `break=0` (default value) ensures that the build will never fail.
 
 ## Process runner config
-#### test-runner-command
+#### test-runner
 
-**Config file:** `test-runner-command: { command: "sbt", args: "test" }`    
+**Config file:** `test-runner: { command: "sbt", args: "test" }`    
 **Mandatory:** Yes  
 **Description:**  
-With `test-runner-command` you specify how stryker4s can invoke the test runner. 
+With `test-runner` you specify how stryker4s can invoke the test runner. 
 Examples would be `sbt test`, `mvn test` or any other command to run your tests, including any parameters your tests might need.
 
+*warning* The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
 
 ## Other configuration options
 
