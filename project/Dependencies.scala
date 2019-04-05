@@ -14,8 +14,8 @@ object Dependencies {
     val grizzledSlf4j = "1.3.3"
     val everitJsonSchema = "1.11.1"
     val circe = "0.11.1"
-    val mutationTestingElements = "1.0.2"
-    val mutationTestingSchema = "1.0.0"
+    val mutationTestingElements = "1.0.3"
+    val mutationTestingSchema = "1.0.3"
   }
 
   object test {
