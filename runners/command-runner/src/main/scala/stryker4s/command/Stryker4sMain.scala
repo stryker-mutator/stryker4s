@@ -13,10 +13,10 @@ object Stryker4sMain extends App {
   Stryker4sArgumentHandler.handleArgs(args)
 
   private[this] val processRunnerConfig: ProcessRunnerConfig = {
-    ConfigReader.readConfigOfType[ProcessRunnerConfig]() match {
-      case Left(failures) => throw ConfigReaderException(failures)
-      case Right(config)  => config
-    }
+    ConfigReader.readConfigOfType[ProcessRunnerConfig]() fold (
+      failures => throw ConfigReaderException(failures),
+      identity
+    )
   }
 
   val result = new Stryker4sCommandRunner(processRunnerConfig).run()

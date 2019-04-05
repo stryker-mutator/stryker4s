@@ -17,7 +17,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     */
   def readConfig(confFile: File = defaultConfigFileLocation): Config = readConfigOfType[Config](confFile) fold (
     tryRecoverFromFailures,
-    logAndReturn(info( "Using stryker4s.conf in the current working directory"))
+    logAndReturn(info("Using stryker4s.conf in the current working directory"))
   )
 
   def readConfigOfType[T](confFile: File = defaultConfigFileLocation)(
