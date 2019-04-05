@@ -15,12 +15,14 @@ object Dependencies {
     val everitJsonSchema = "1.11.1"
     val circe = "0.11.1"
     val mutationTestingElements = "1.0.2"
+    val mutationTestingSchema = "1.0.0"
   }
 
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala" % versions.mockitoScala % Test
     val everitJsonSchema = "com.github.everit-org.json-schema" % "org.everit.json.schema" % versions.everitJsonSchema % Test
+    val mutationTestingSchema = "io.stryker-mutator" % "mutation-testing-report-schema" % versions.mutationTestingSchema % Test
   }
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig

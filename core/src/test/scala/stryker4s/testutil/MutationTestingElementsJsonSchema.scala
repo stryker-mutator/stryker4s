@@ -10,7 +10,7 @@ object MutationTestingElementsJsonSchema {
   /** Load json schema from resources so we can validate our report case classes output to the json schema.
     */
   def mutationTestingElementsJsonSchema: Schema = {
-    val schema = Resource.getAsString("mutation-testing-report-schema.json")
+    val schema = Resource.getAsString("mutation-testing-report-schema/mutation-testing-report-schema.json")
     SchemaLoader
       .builder()
       .schemaJson(new JSONObject(schema))
