@@ -205,8 +205,6 @@
                                 <configuration>
                                     <keyname>strykermutator</keyname>
                                     <passphrase>${env.PGP_PASSPHRASE}</passphrase>
-                                    <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
                                 </configuration>
                             </execution>
                         </executions>
@@ -219,6 +217,8 @@
                         <configuration>
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                     <plugin>
