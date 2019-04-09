@@ -16,22 +16,21 @@ object Release {
 
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= Seq(
     // Called by sbt-ci-release
-    Command.command(stryker4sPublish)(publishM2 :: stryker4sMvnDeploy :: crossPublish :: _),
-    Command.command(stryker4sPublishSigned)(publishM2 :: stryker4sMvnDeploy :: crossPublishSigned :: _),
+    Command.command(stryker4sPublish)(crossPublish :: publishM2 :: stryker4sMvnDeploy :: _),
+    Command.command(stryker4sPublishSigned)(crossPublishSigned :: publishM2 :: stryker4sMvnDeploy :: _),
     // Called by stryker4sPublish(signed)
     Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value, version.value))
   )
 
   /** Sets version of mvn project, calls `mvn deploy` and fails state if the command fails
     */
-  private def mvnDeploy(baseDir: File, version: String): State => State =
-    state =>
-      mvnGoal(s"versions:set -DnewVersion=$version", baseDir) #&&
-        mvnGoal(s"deploy --settings settings.xml -DskipTests", baseDir) #&&
-        // Reset version setting after deployment
-        mvnGoal("versions:revert", baseDir) ! match {
-        case 0 => state
-        case _ => state.fail
+  private def mvnDeploy(baseDir: File, version: String)(state: State): State =
+    mvnGoal(s"versions:set -DnewVersion=$version", baseDir) #&&
+      mvnGoal(s"deploy --settings settings.xml -DskipTests", baseDir) #&&
+      // Reset version setting after deployment
+      mvnGoal("versions:revert", baseDir) ! match {
+      case 0 => state
+      case _ => state.fail
     }
 
   /** Returns a `ProcessBuilder` that runs the given maven command in the maven subdirectory
