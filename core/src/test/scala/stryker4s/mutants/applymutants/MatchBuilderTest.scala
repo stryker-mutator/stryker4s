@@ -9,7 +9,6 @@ import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 import scala.meta._
-import scala.meta.contrib._
 
 class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
   private val activeMutationString = Lit.String("ACTIVE_MUTATION")
@@ -50,7 +49,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       }
 
       // Act
-      val expectedException = the[UnableToBuildPatternMatchException] thrownBy sut.buildNewSource(transformedStatements)
+      an[UnableToBuildPatternMatchException] shouldBe thrownBy(sut.buildNewSource(transformedStatements))
 
       // Assert
       "Failed to construct pattern match: original statement [true]" shouldBe loggedAsError
