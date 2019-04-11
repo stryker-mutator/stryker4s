@@ -5,7 +5,7 @@ object Dependencies {
   object versions {
     val scala212 = "2.12.8"
 
-    val scalameta = "4.1.5"
+    val scalameta = "4.1.6"
     val pureconfig = "0.10.2"
     val scalatest = "3.0.7"
     val mockitoScala = "1.3.1"
