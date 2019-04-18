@@ -34,7 +34,6 @@ object Settings {
       Dependencies.test.mutationTestingSchema,
       Dependencies.pureconfig,
       Dependencies.scalameta,
-      Dependencies.scalametaContrib,
       Dependencies.betterFiles,
       Dependencies.log4jApi,
       Dependencies.log4jCore,

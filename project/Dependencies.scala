@@ -27,7 +27,6 @@ object Dependencies {
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
-  val scalametaContrib = "org.scalameta" %% "contrib" % versions.scalameta
   val betterFiles = "com.github.pathikrit" %% "better-files" % versions.betterFiles
   val log4jApi = "org.apache.logging.log4j" % "log4j-api" % versions.log4j
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j

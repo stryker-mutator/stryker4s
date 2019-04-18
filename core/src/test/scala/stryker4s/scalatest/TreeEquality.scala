@@ -1,9 +1,9 @@
 package stryker4s.scalatest
 
 import org.scalactic.Equality
+import stryker4s.extension.TreeExtensions.IsEqualExtension
 
 import scala.meta.Tree
-import scala.meta.contrib.XtensionTreeEquality
 
 /** Provides equality checking for ScalaTest on the structure of Trees.
   * Checks if two trees have the same structure and syntax
@@ -13,10 +13,10 @@ import scala.meta.contrib.XtensionTreeEquality
   */
 trait TreeEquality {
   // Needs to be T <: Tree to work with subtypes of Tree instead of just Tree
-  implicit def structureEquality[T <: Tree]: Equality[T] = new Equality[T] {
-    override def areEqual(first: T, secondAny: Any): Boolean = secondAny match {
-      case second: Tree => second.isEqual(first)
-      case _            => false
+  implicit def structureEquality[T <: Tree]: Equality[T] =
+    (first: T, secondAny: Any) =>
+      secondAny match {
+        case second: Tree => second.isEqual(first)
+        case _            => false
     }
-  }
 }

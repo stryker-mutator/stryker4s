@@ -3,8 +3,7 @@ package stryker4s.mutants.applymutants
 import stryker4s.extension.TreeExtensions._
 import stryker4s.model._
 
-import scala.meta.contrib._
-import scala.meta.{Source, Term, Tree}
+import scala.meta.{Source, Term}
 
 class StatementTransformer {
 
@@ -37,7 +36,7 @@ class StatementTransformer {
   def transformStatement(topStatement: Term, toMutate: Term, mutation: Term): Term =
     topStatement
       .transform {
-        case foundTree: Tree if foundTree.isEqual(toMutate) && foundTree.pos == toMutate.pos =>
+        case foundTree: Term if foundTree.isEqual(toMutate) && foundTree.pos == toMutate.pos =>
           mutation
       }
       .asInstanceOf[Term]
