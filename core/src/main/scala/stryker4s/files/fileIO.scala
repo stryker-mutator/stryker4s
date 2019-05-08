@@ -1,25 +1,20 @@
 package stryker4s.files
-import better.files.File
-
-import scala.io.Source
+import better.files._
 
 trait FileIO {
-  def readResource(resource: String): Source
-
-  def createAndWrite(file: File, content: Iterator[Char]): Unit
+  def createAndWriteFromResource(file: File, resource: String)
 
   def createAndWrite(file: File, content: String): Unit
 }
 
 object DiskFileIO extends FileIO {
-  override def readResource(resource: String): Source = {
-    val stream = getClass.getClassLoader.getResourceAsStream(resource)
-    Source.fromInputStream(stream)
-  }
-
-  override def createAndWrite(file: File, content: Iterator[Char]): Unit = {
+  override def createAndWriteFromResource(file: File, resourceName: String): Unit = {
     file.createFileIfNotExists(createParents = true)
-    file.writeBytes(content.map(_.toByte))
+
+    for {
+      in <- getClass.getClassLoader.getResourceAsStream(resourceName).autoClosed
+      out <- file.newOutputStream.autoClosed
+    } in pipeTo out
   }
 
   override def createAndWrite(file: File, content: String): Unit = {

@@ -5,11 +5,11 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import stryker4s.config.Config
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.model.MutantRunResults
+import stryker4s.report.model.{MutationTestReport, Thresholds}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.concurrent.duration._
-import scala.io.Source
 
 class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with LogMatchers {
 
@@ -18,8 +18,9 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       implicit val config: Config = Config()
       val mockFileIO = mock[FileIO]
       val sut = new HtmlReporter(mockFileIO)
+      val testFile = config.baseDir / "foo.bar"
 
-      val result = sut.indexHtml
+      sut.writeIndexHtmlTo(testFile)
 
       val expected =
         """<!DOCTYPE html>
@@ -35,7 +36,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
           |  <script src="report.js"></script>
           |</body>
           |</html>""".stripMargin
-      result.mkString should equal(expected)
+      verify(mockFileIO).createAndWrite(testFile, expected)
     }
   }
 
@@ -44,24 +45,28 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       implicit val config: Config = Config()
       val mockFileIO = mock[FileIO]
       val sut = new HtmlReporter(mockFileIO)
+      val testFile = config.baseDir / "foo.bar"
+      val runResults = MutationTestReport("1.0", Thresholds(100, 0), Map.empty)
 
-      val result = sut.reportJs("{ 'foo': 'bar' }")
+      sut.writeReportJsTo(testFile, runResults)
 
-      val expected = "document.querySelector('mutation-test-report-app').report = { 'foo': 'bar' }"
-      result.mkString should equal(expected)
-
+      val expectedJs =
+        """document.querySelector('mutation-test-report-app').report = {"schemaVersion":"1.0","thresholds":{"high":100,"low":0},"files":{}}"""
+      verify(mockFileIO).createAndWrite(testFile, expectedJs)
     }
   }
 
   describe("mutation-test-elements") {
-    it("should find the resource") {
+    it("should write the resource") {
       implicit val config: Config = Config()
       val fileIO = DiskFileIO
+      File.usingTemporaryFile() { tempFile =>
+        val sut = new HtmlReporter(fileIO)
 
-      val sut = new HtmlReporter(fileIO)
-
-      val result = sut.testElementsJs()
-      result.mkString.length should be > 50
+        sut.writeMutationTestElementsJsTo(tempFile)
+        val atLeastSize: Long = 200 * 1000 // 200KB
+        tempFile.size should be > atLeastSize
+      }
     }
   }
 
@@ -94,7 +99,8 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       sut.reportRunFinished(runResults)
 
       val elementsCaptor = ArgCaptor[File]
-      verify(mockFileIO).createAndWrite(elementsCaptor, any[Source])
+      verify(mockFileIO).createAndWriteFromResource(elementsCaptor,
+                                                    eqTo("mutation-testing-elements/mutation-test-elements.js"))
 
       elementsCaptor.value.pathAsString should fullyMatch regex stryker4sReportFolderRegex
       elementsCaptor.value.name equals "mutation-test-elements.js"

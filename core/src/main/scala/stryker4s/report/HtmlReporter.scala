@@ -1,12 +1,12 @@
 package stryker4s.report
 
+import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.model.MutantRunResults
 import stryker4s.report.mapper.MutantRunResultMapper
-
-import scala.io.Source
+import stryker4s.report.model.MutationTestReport
 
 class HtmlReporter(fileIO: FileIO)(implicit config: Config)
     extends FinishedRunReporter
@@ -18,7 +18,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
   private val htmlReportResource = s"mutation-testing-elements/$mutationTestElementsName"
   private val reportFilename = "report.js"
 
-  val indexHtml: String =
+  private val indexHtml: String =
     s"""<!DOCTYPE html>
        |<html>
        |<head>
@@ -33,24 +33,28 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
        |</body>
        |</html>""".stripMargin
 
-  def reportJs(json: String): String = s"document.querySelector('mutation-test-report-app').report = $json"
+  def writeMutationTestElementsJsTo(file: File): Unit =
+    fileIO.createAndWriteFromResource(file, htmlReportResource)
 
-  def testElementsJs(): Source = fileIO.readResource(htmlReportResource)
+  def writeIndexHtmlTo(file: File): Unit =
+    fileIO.createAndWrite(file, indexHtml)
+
+  def writeReportJsTo(file: File, report: MutationTestReport): Unit = {
+    val json = report.toJson
+    val reportContent = s"document.querySelector('mutation-test-report-app').report = $json"
+    fileIO.createAndWrite(file, reportContent)
+  }
 
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val mapped = toReport(runResults).toJson
-
     val targetLocation = config.baseDir / s"target/stryker4s-report-${System.currentTimeMillis()}"
+
     val mutationTestElementsLocation = targetLocation / mutationTestElementsName
     val indexLocation = targetLocation / "index.html"
     val reportLocation = targetLocation / reportFilename
 
-    val reportContent = reportJs(mapped)
-    val mutationTestElementsContent = testElementsJs()
-
-    fileIO.createAndWrite(indexLocation, indexHtml)
-    fileIO.createAndWrite(reportLocation, reportContent)
-    fileIO.createAndWrite(mutationTestElementsLocation, mutationTestElementsContent)
+    writeIndexHtmlTo(indexLocation)
+    writeReportJsTo(reportLocation, toReport(runResults))
+    writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
     info(s"Written HTML report to $indexLocation")
   }
