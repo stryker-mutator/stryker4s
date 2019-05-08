@@ -67,7 +67,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
 
   describe("reportRunFinished") {
     implicit val config: Config = Config()
-    val stryker4sReportFolderRegex = ".*target(/|\\\\)stryker4s-report-(\\d*)(/|\\\\)[a-z]*\\.[a-z]*$"
+    val stryker4sReportFolderRegex = ".*target(/|\\\\)stryker4s-report-(\\d*)(/|\\\\)[a-z-]*\\.[a-z]*$"
 
     it("should write the report files to the report directory") {
       val mockFileIO = mock[FileIO]
