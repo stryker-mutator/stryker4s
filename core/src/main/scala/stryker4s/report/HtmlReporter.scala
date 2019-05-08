@@ -52,6 +52,6 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
     fileIO.createAndWrite(reportLocation, reportContent)
     fileIO.createAndWrite(mutationTestElementsLocation, mutationTestElementsContent)
 
-    info(s"Written HTML report to $targetLocation")
+    info(s"Written HTML report to $indexLocation")
   }
 }

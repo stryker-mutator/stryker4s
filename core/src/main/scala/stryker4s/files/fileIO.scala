@@ -18,9 +18,12 @@ object DiskFileIO extends FileIO {
   }
 
   override def createAndWrite(file: File, content: Iterator[Char]): Unit = {
-    file.createIfNotExists(asDirectory = false, createParents = true)
+    file.createFileIfNotExists(createParents = true)
     file.writeBytes(content.map(_.toByte))
   }
 
-  override def createAndWrite(file: File, content: String): Unit = createAndWrite(file, content.iterator)
+  override def createAndWrite(file: File, content: String): Unit = {
+    file.createFileIfNotExists(createParents = true)
+    file.writeText(content)
+  }
 }
