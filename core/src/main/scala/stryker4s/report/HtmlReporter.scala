@@ -20,8 +20,10 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
 
   private val indexHtml: String =
     s"""<!DOCTYPE html>
-       |<html>
+       |<html lang="en">
        |<head>
+       |  <meta charset="UTF-8">
+       |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
        |  <script src="mutation-test-elements.js"></script>
        |</head>
        |<body>

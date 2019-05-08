@@ -24,8 +24,10 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
 
       val expected =
         """<!DOCTYPE html>
-          |<html>
+          |<html lang="en">
           |<head>
+          |  <meta charset="UTF-8">
+          |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
           |  <script src="mutation-test-elements.js"></script>
           |</head>
           |<body>
