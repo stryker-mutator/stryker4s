@@ -9,7 +9,7 @@ object Dependencies {
     val pureconfig = "0.10.2"
     val scalatest = "3.0.7"
     val mockitoScala = "1.3.1"
-    val betterFiles = "3.7.1"
+    val betterFiles = "3.8.0"
     val log4j = "2.11.2"
     val grizzledSlf4j = "1.3.3"
     val everitJsonSchema = "1.11.1"
