@@ -66,8 +66,9 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
         val sut = new HtmlReporter(fileIO)
 
         sut.writeMutationTestElementsJsTo(tempFile)
-        val atLeastSize: Long = 200 * 1000 // 200KB
+        val atLeastSize: Long = 200 * 1024 // 200KB
         tempFile.size should be > atLeastSize
+        tempFile.lineIterator.next() should startWith("!function(")
       }
     }
   }
@@ -108,7 +109,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
       elementsCaptor.value.name equals "mutation-test-elements.js"
     }
 
-    it("should debug log a message") {
+    it("should info log a message") {
       val mockFileIO = mock[FileIO]
       val sut = new HtmlReporter(mockFileIO)
       val runResults = MutantRunResults(Nil, 50.0, 30.seconds)
