@@ -1,7 +1,7 @@
 package stryker4s.mutants.findmutants
 
 import better.files.File
-import org.mockito.integrations.scalatest.MockitoFixture
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
@@ -10,7 +10,7 @@ import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.util.{Failure, Try}
 
-class FileCollectorTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
+class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with LogMatchers {
 
   private val filledDirPath: File = FileUtil.getResource("fileTests/filledDir")
   private val basePath: File = filledDirPath / "src/main/scala/package"
