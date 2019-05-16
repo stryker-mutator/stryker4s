@@ -20,7 +20,7 @@ object Dependencies {
 
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
-    val mockitoScala = "org.mockito" %% "mockito-scala" % versions.mockitoScala % Test
+    val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
     val everitJsonSchema = "com.github.everit-org.json-schema" % "org.everit.json.schema" % versions.everitJsonSchema % Test
     val mutationTestingSchema = "io.stryker-mutator" % "mutation-testing-report-schema" % versions.mutationTestingSchema % Test
   }

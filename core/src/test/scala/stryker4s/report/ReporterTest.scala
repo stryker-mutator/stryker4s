@@ -1,15 +1,14 @@
 package stryker4s.report
 
-import org.mockito.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class ReporterTest extends Stryker4sSuite with MockitoSugar with LogMatchers {
+class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
   describe("reporter") {
 

@@ -4,7 +4,6 @@ import java.nio.file.{Path, Paths}
 
 import better.files.File
 import org.mockito.captor.ArgCaptor
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.Inside
 import stryker4s.config.Config
 import stryker4s.model.{Killed, Mutant, MutantRunResult, MutantRunResults}
@@ -16,12 +15,12 @@ import stryker4s.run.MutantRunner
 import stryker4s.run.process.Command
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 
 import scala.util.Success
 
-class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with Inside with LogMatchers {
+class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
 
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
