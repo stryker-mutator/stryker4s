@@ -1,17 +1,19 @@
 package stryker4s
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
+import better.files.File
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.Inside
-import stryker4s.config.{Config, ConsoleReporterType, HtmlReporterType}
-import stryker4s.model.{Killed, Mutant, MutantRunResults}
+import stryker4s.config.Config
+import stryker4s.model.{Killed, Mutant, MutantRunResult, MutantRunResults}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
+import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.report.Reporter
-import stryker4s.run.process.{Command, ProcessMutantRunner}
+import stryker4s.run.MutantRunner
+import stryker4s.run.process.Command
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
@@ -20,6 +22,15 @@ import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 import scala.util.Success
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with Inside with LogMatchers {
+
+  class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
+      extends MutantRunner(sourceCollector, reporter) {
+    private[this] val stream = Iterator.from(0)
+
+    override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult =
+      path => Killed(Mutant(stream.next, null, null, null), path)
+    override def runInitialTest(workingDir: File): Boolean = true
+  }
 
   describe("run") {
     val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
@@ -31,10 +42,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatche
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
-      val testMutantRunner = new ProcessMutantRunner(Command("foo", "test"),
-                                                     testProcessRunner,
-                                                     new FileCollector(testProcessRunner),
-                                                     reporterMock)
+      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner), reporterMock)
 
       val sut = new Stryker4s(
         testSourceCollector,
@@ -68,8 +76,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatche
 
     it("should log a warning when JVM max memory is too low") {
       implicit val conf: Config = Config()
-      val testMutantRunner =
-        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, reporterMock)
+      val testMutantRunner = new TestMutantRunner(testSourceCollector, reporterMock)
 
       val sut: Stryker4s =
         new Stryker4s(
@@ -91,8 +98,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSugar with ArgumentMatche
 
     it("should not log a warning when JVM max memory is high enough") {
       implicit val conf: Config = Config()
-      val testMutantRunner =
-        new ProcessMutantRunner(Command("foo", "test"), testProcessRunner, testSourceCollector, reporterMock)
+      val testMutantRunner = new TestMutantRunner(testSourceCollector, reporterMock)
 
       val sut: Stryker4s =
         new Stryker4s(

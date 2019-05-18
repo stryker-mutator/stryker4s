@@ -1,4 +1,4 @@
-package stryker4s.run.process
+package stryker4s.command.runner
 
 import java.nio.file.Path
 
@@ -8,6 +8,7 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
+import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}

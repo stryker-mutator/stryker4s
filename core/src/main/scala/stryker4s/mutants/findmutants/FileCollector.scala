@@ -9,13 +9,11 @@ import stryker4s.run.process.{Command, ProcessRunner}
 import scala.util.{Failure, Success}
 
 trait SourceCollector {
-  protected val processRunner: ProcessRunner
-
   def collectFilesToMutate(): Iterable[File]
   def filesToCopy: Iterable[File]
 }
 
-class FileCollector(protected val processRunner: ProcessRunner)(implicit config: Config)
+class FileCollector(private[this] val processRunner: ProcessRunner)(implicit config: Config)
     extends SourceCollector
     with Logging {
 

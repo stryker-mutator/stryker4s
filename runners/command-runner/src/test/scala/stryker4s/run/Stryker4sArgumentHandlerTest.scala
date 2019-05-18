@@ -2,6 +2,7 @@ package stryker4s.run
 
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.LoggerContext
+import stryker4s.command.Stryker4sArgumentHandler
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 

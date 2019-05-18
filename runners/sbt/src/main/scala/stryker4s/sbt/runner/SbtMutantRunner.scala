@@ -1,4 +1,5 @@
-package stryker4s.sbt
+package stryker4s.sbt.runner
+
 import java.io.{PrintStream, File => JFile}
 import java.nio.file.Path
 
@@ -13,7 +14,7 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
-import stryker4s.sbt.Stryker4sPlugin.autoImport.stryker
+import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {

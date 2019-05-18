@@ -19,11 +19,6 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    console
            |]
-           |test-runner {
-           |    args=test
-           |    command=sbt
-           |    type=commandrunner
-           |}
            |thresholds {
            |    break=0
            |    high=80
@@ -35,10 +30,7 @@ class ConfigTest extends Stryker4sSuite {
 
     it("should print toString with changed values") {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
-      val sut = Config(filePaths,
-                       File("tmp"),
-                       testRunner = CommandRunner("mvn", "clean test"),
-                       excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
+      val sut = Config(filePaths, File("tmp"), excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
 
       val result = sut.toHoconString
 
@@ -54,11 +46,6 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    console
            |]
-           |test-runner {
-           |    args="clean test"
-           |    command=mvn
-           |    type=commandrunner
-           |}
            |thresholds {
            |    break=0
            |    high=80
