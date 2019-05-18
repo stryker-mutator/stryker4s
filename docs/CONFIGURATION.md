@@ -4,7 +4,7 @@ All configuration options can be set from the stryker4s.conf file in the root of
 
 ```conf
 stryker4s {
-# Your configuration here
+  # Your configuration here
 }
 ```
 
@@ -13,6 +13,7 @@ stryker4s {
 - [Other configuration options](#other-configuration-options)
 
 ## General config
+
 #### mutate
 
 **Config file:** `mutate: [ "**/main/scala/**/*.scala" ]`  
@@ -86,12 +87,13 @@ Specify the thresholds for mutation scores.
 Setting `break=0` (default value) ensures that the build will never fail.
 
 ## Process runner config
+
 #### test-runner
 
-**Config file:** `test-runner: { command: "sbt", args: "test" }`    
+**Config file:** `test-runner: { command: "sbt", args: "test" }`  
 **Mandatory:** Yes  
 **Description:**  
-With `test-runner` you specify how stryker4s can invoke the test runner. 
+With `test-runner` you specify how stryker4s can invoke the test runner.  
 Examples would be `sbt test`, `mvn test` or any other command to run your tests, including any parameters your tests might need.
 
 *warning* The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
