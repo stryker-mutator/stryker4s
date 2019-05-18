@@ -34,6 +34,7 @@ jobs:
       env:
         - CI_RELEASE=stryker4sPublishSigned
         - CI_SNAPSHOT_RELEASE=stryker4sPublish
+        - CI_SONATYPE_RELEASE=sonatypeReleaseAll
 
 script: sbt clean coverage test coverageReport
 
@@ -42,8 +43,8 @@ before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
   # Don't cache built dependencies
-  - rm -rf $HOME/.ivy2/cache/io.stryker-mutator
-  - rm -rf $HOME/.m2/repository/io/stryker-mutator
+  - rm -rf $HOME/.ivy2/cache/io.stryker-mutator/*stryker4s*
+  - rm -rf $HOME/.m2/repository/io/stryker-mutator/*stryker4s*
 
 cache:
   # These directories are cached to S3 at the end of the build
