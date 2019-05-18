@@ -17,8 +17,7 @@ object Settings {
     "-Xfatal-warnings", // Fail the compilation if there are any warnings.
     "-Xlint:doc-detached", // A Scaladoc comment appears to be detached from its element.
     "-Ywarn-infer-any", // Warn when a type argument is inferred to be `Any`.
-    "-Ywarn-dead-code", // Warn when dead code is identified.
-    "-Xmacro-settings:materialize-derivations"
+    "-Ywarn-dead-code" // Warn when dead code is identified.
   )
 
   lazy val commonSettings: Seq[Setting[_]] = Seq(
