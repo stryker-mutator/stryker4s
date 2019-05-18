@@ -30,7 +30,7 @@ case object NonEmptyString {
 /** Not a mutation, just an extractor for pattern matching on interpolated strings
   */
 case object StringInterpolation {
-  import scala.meta.contrib.implicits.Equality._
+  import stryker4s.extension.TreeExtensions.IsEqualExtension
 
   def unapply(arg: Term.Interpolate): Option[Term.Interpolate] =
     Some(arg).filter(_.prefix.isEqual(Term.Name("s")))

@@ -1,14 +1,16 @@
-package stryker4s.run.process
+package stryker4s.run
 
 import java.nio.file.Paths
 
-import org.mockito.integrations.scalatest.MockitoFixture
+import stryker4s.command.runner.ProcessMutantRunner
+import org.mockito.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
+import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import stryker4s.testutil.stubs.TestProcessRunner
@@ -17,7 +19,7 @@ import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoFixture with LogMatchers {
+class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSugar with LogMatchers {
 
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]

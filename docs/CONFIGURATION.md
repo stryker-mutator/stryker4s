@@ -4,9 +4,15 @@ All configuration options can be set from the stryker4s.conf file in the root of
 
 ```conf
 stryker4s {
-# Your configuration here
+  # Your configuration here
 }
 ```
+
+- [General config](#general-config)
+- [Process runner config](#process-runner-config)
+- [Other configuration options](#other-configuration-options)
+
+## General config
 
 #### mutate
 
@@ -38,16 +44,6 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 **Mandatory:** No  
 **Description:**  
 With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases. This value can also be relative to the current working directory, E.G.: `base-dir: submodule1` to set the base-dir to a submodule of your project.
-
-#### test-runner
-
-**Config file:** `test-runner: { type: "commandrunner", command: "sbt", args: "test" }`  
-**Default value:** A command-runner with the `sbt test` command  
-**Mandatory:** No  
-**Description:**  
-With `test-runner` you can specify how stryker4s runs tests. The default for this is a command-runner that will run the `sbt test` command. This can be changed to `mvn test`, `./gradlew test` or any other command to run your tests, including any parameters your tests might need.
-
-When using the sbt plugin, this configuration is ignored and the sbt test runner is always used.
 
 #### reporters
 
@@ -89,6 +85,18 @@ Specify the thresholds for mutation scores.
 - `mutation score < break`: Error! Stryker will exit with exit code 1, indicating a build failure.
 
 Setting `break=0` (default value) ensures that the build will never fail.
+
+## Process runner config
+
+#### test-runner
+
+**Config file:** `test-runner: { command: "sbt", args: "test" }`  
+**Mandatory:** Yes  
+**Description:**  
+With `test-runner` you specify how stryker4s can invoke the test runner.  
+Examples would be `sbt test`, `mvn test` or any other command to run your tests, including any parameters your tests might need.
+
+*warning* The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
 
 ## Other configuration options
 

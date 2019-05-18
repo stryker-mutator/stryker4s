@@ -5,16 +5,16 @@ object Dependencies {
   object versions {
     val scala212 = "2.12.8"
 
-    val scalameta = "4.1.6"
-    val pureconfig = "0.10.2"
+    val scalameta = "4.1.10"
+    val pureconfig = "0.11.0"
     val scalatest = "3.0.7"
-    val mockitoScala = "1.3.1"
-    val betterFiles = "3.7.1"
+    val mockitoScala = "1.4.2"
+    val betterFiles = "3.8.0"
     val log4j = "2.11.2"
     val grizzledSlf4j = "1.3.3"
     val everitJsonSchema = "1.11.1"
     val circe = "0.11.1"
-    val mutationTestingElements = "1.0.6"
+    val mutationTestingElements = "1.0.7"
     val mutationTestingSchema = "1.0.5"
   }
 
@@ -27,7 +27,6 @@ object Dependencies {
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
-  val scalametaContrib = "org.scalameta" %% "contrib" % versions.scalameta
   val betterFiles = "com.github.pathikrit" %% "better-files" % versions.betterFiles
   val log4jApi = "org.apache.logging.log4j" % "log4j-api" % versions.log4j
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
