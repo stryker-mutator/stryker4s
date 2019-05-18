@@ -47,7 +47,7 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 #### reporters
 
 **Config file:** `reporters: ["console", "html"]`  
-**Default value:** The `console` reporter  
+**Default value:** The `console` and `html` reporters  
 **Mandatory:** No  
 **Description:**  
 With `reporters` you can specify reporters for stryker4s to use. The following reporters are supported:

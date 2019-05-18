@@ -59,8 +59,6 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       val exc = the[ConfigReaderException[_]] thrownBy result
 
       exc.getMessage() should include("Cannot convert configuration")
-      exc.getMessage() should include(
-        """No valid coproduct choice found for '{"args":"foo","command":"bar","type":"someOtherTestRunner"}'.""")
     }
 
     it("should load a config with customized properties") {
