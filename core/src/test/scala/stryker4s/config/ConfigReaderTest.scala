@@ -19,7 +19,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
         case Right(config) =>
           config.baseDir shouldBe File("/tmp/project")
           config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-          config.reporters should contain only (ConsoleReporterType, HtmlReporterType)
+          config.reporters.loneElement shouldBe HtmlReporterType
           config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
       }
     }
@@ -40,7 +40,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**/*.scala")
-      result.reporters.loneElement shouldBe ConsoleReporterType
+      result.reporters should contain inOrderOnly (ConsoleReporterType, HtmlReporterType)
     }
 
     it("should fail on an empty config file") {
@@ -68,7 +68,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-      result.reporters should contain only (ConsoleReporterType, HtmlReporterType)
+      result.reporters.loneElement shouldBe HtmlReporterType
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 
