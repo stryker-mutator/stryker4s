@@ -1,15 +1,38 @@
 package stryker4s.config
 
 import better.files.File
-import org.apache.logging.log4j.Level
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
-import stryker4s.run.report.ConsoleReporter
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
+import pureconfig._
+import pureconfig.generic.auto._
+import stryker4s.config.implicits.ConfigReaderImplicits
 
-class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
+class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
 
   describe("loadConfig") {
+    it("should load stryker4s by type") {
+      val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
+
+      ConfigReader.readConfigOfType[Config](confPath) match {
+        case Left(errors) => fail(errors.toList.mkString(","))
+        case Right(config) =>
+          config.baseDir shouldBe File("/tmp/project")
+          config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+          config.reporters.loneElement shouldBe HtmlReporterType
+          config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+      }
+    }
+
+    it("should load config by type and give config errors when sometimes wrong") {
+      val confPath = FileUtil.getResource("stryker4sconfs/empty.conf")
+
+      ConfigReader.readConfigOfType[Config](confPath) match {
+        case Left(error) => error.toList.map(a => a.description) shouldBe List("Key not found: 'stryker4s'.")
+        case Right(_)    => fail("Config was read successfully which should not be the case.")
+      }
+    }
+
     it("should load default config with a nonexistent conf file") {
       val confPath = File("nonExistentFile.conf")
 
@@ -17,9 +40,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**/*.scala")
-      result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.INFO
-      result.reporters.head shouldBe an[ConsoleReporter]
+      result.reporters should contain inOrderOnly (ConsoleReporterType, HtmlReporterType)
     }
 
     it("should fail on an empty config file") {
@@ -47,17 +68,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-      result.testRunner shouldBe an[CommandRunner]
-      result.logLevel shouldBe Level.DEBUG
-      result.reporters.head shouldBe an[ConsoleReporter]
+      result.reporters.loneElement shouldBe HtmlReporterType
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
-    }
-
-    it("should return a failure on an invalid exclusion mutator") {
-      val confPath = FileUtil.getResource("stryker4sconfs/wrongTestRunner.conf")
-
-      lazy val result = ConfigReader.readConfig(confPath)
-      val exc = the[ConfigReaderException[_]] thrownBy result
     }
 
     it("should return a failure on a misshapen test runner") {

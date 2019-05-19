@@ -4,30 +4,28 @@ import java.io.FileNotFoundException
 
 import better.files.File
 import grizzled.slf4j.Logging
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.config.Configurator
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
+import pureconfig.{Derivation, ConfigReader => PureConfigReader}
 import stryker4s.config.implicits.ConfigReaderImplicits
+import pureconfig.generic.auto._
 
-object ConfigReader extends Logging with ConfigReaderImplicits {
+object ConfigReader extends ConfigReaderImplicits with Logging {
+
+  val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
 
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
-  def readConfig(confFile: File = File.currentWorkingDirectory / "stryker4s.conf"): Config =
-    pureconfig.loadConfig[Config](confFile.path, namespace = "stryker4s") match {
-      case Left(failures) => tryRecoverFromFailures(failures)
-      case Right(config) =>
-        setLoggingLevel(config.logLevel)
-        info("Using stryker4s.conf in the current working directory")
+  def readConfig(confFile: File = defaultConfigFileLocation): Config = readConfigOfType[Config](confFile) fold (
+    tryRecoverFromFailures,
+    logAndReturn(info("Using stryker4s.conf in the current working directory"))
+  )
 
-        config
-    }
+  def readConfigOfType[T](confFile: File = defaultConfigFileLocation)(
+      implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
+    pureconfig.loadConfig[T](confFile.path, namespace = "stryker4s")
 
-  private def tryRecoverFromFailures(failures: ConfigReaderFailures): Config = failures match {
+  private def tryRecoverFromFailures[T](failures: ConfigReaderFailures): Config = failures match {
     case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
-      val defaultConf = Config()
-      setLoggingLevel(defaultConf.logLevel)
-
       warn(s"Could not find config file $fileName")
       warn("Using default config instead...")
       // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
@@ -35,20 +33,15 @@ object ConfigReader extends Logging with ConfigReaderImplicits {
       //  https://github.com/stryker-mutator/stryker4s/issues/116
       // info("Config used: " + defaultConf.toHoconString)
 
-      defaultConf
+      Config()
     case _ =>
       error("Failures in reading config: ")
       error(failures.toList.map(_.description).mkString(System.lineSeparator))
       throw ConfigReaderException(failures)
   }
 
-  /** Sets the logging level to one of the following levels:
-    * OFF, ERROR, WARN, INFO, DEBUG, TRACE, ALL
-    *
-    * @param level the logging level to use
-    */
-  private def setLoggingLevel(level: Level): Unit = {
-    Configurator.setRootLevel(level)
-    info(s"Set logging level to $level.")
+  def logAndReturn[T](log: => Unit)(obj: T): T = {
+    log
+    obj
   }
 }

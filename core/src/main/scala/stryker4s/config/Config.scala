@@ -1,15 +1,12 @@
 package stryker4s.config
 
 import better.files._
-import org.apache.logging.log4j.Level
 import pureconfig.ConfigWriter
-import stryker4s.run.report.{ConsoleReporter, MutantRunReporter}
+import pureconfig.generic.auto._
 
 case class Config(mutate: Seq[String] = Seq("**/main/scala/**/*.scala"),
                   baseDir: File = File.currentWorkingDirectory,
-                  testRunner: TestRunner = CommandRunner("sbt", "test"),
-                  reporters: List[MutantRunReporter] = List(new ConsoleReporter),
-                  logLevel: Level = Level.INFO,
+                  reporters: Seq[ReporterType] = Seq(ConsoleReporterType, HtmlReporterType),
                   files: Option[Seq[String]] = None,
                   excludedMutations: ExcludedMutations = ExcludedMutations(),
                   thresholds: Thresholds = Thresholds()) {

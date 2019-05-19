@@ -1,3 +1,4 @@
+import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
@@ -25,22 +26,30 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
+    resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
+      Dependencies.test.everitJsonSchema,
       Dependencies.test.mockitoScala,
+      Dependencies.test.mutationTestingSchema,
       Dependencies.pureconfig,
       Dependencies.scalameta,
-      Dependencies.scalametaContrib,
       Dependencies.betterFiles,
       Dependencies.log4jApi,
       Dependencies.log4jCore,
       Dependencies.grizzledSlf4j,
-      Dependencies.log4jslf4jImpl % Test // Logging tests need a slf4j implementation
+      Dependencies.log4jslf4jImpl % Test, // Logging tests need a slf4j implementation
+      Dependencies.circeCore,
+      Dependencies.circeGeneric,
+      Dependencies.mutationTestingElements
     )
   )
 
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
-    libraryDependencies += Dependencies.log4jslf4jImpl
+    libraryDependencies ++= Seq(
+      Dependencies.log4jslf4jImpl,
+      Dependencies.test.scalatest,
+    )
   )
 
   lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(
@@ -52,7 +61,8 @@ object Settings {
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
-    buildInfo ++
+    releaseCommands ++
+      buildInfo ++
       Seq(
         scalaVersion := Dependencies.versions.scala212,
         scalacOptions ++= Settings.scalacOpts,
@@ -67,7 +77,8 @@ object Settings {
     homepage := Some(url("https://stryker-mutator.io/")),
     licenses := Seq("Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
     scmInfo := Some(
-      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"), "scm:git@github.com:stryker-mutator/stryker4s.git")),
+      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"), "scm:git@github.com:stryker-mutator/stryker4s.git")
+    ),
     developers := List(
       Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))

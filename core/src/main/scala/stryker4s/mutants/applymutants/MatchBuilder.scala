@@ -1,13 +1,12 @@
 package stryker4s.mutants.applymutants
 
 import grizzled.slf4j.Logging
-import stryker4s.extension.TreeExtensions.TransformOnceExtension
+import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 
 import scala.meta._
-import scala.meta.contrib.implicits.Equality.XtensionTreeEquality
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
@@ -59,5 +58,6 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
         transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
       .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq
+      .sortBy(_.mutantStatements.head.id) // Should be sorted so tree transformations are applied in order of discovery
   }
 }

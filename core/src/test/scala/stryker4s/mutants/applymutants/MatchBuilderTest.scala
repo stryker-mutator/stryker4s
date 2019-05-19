@@ -9,9 +9,8 @@ import stryker4s.testutil.Stryker4sSuite
 
 import scala.language.postfixOps
 import scala.meta._
-import scala.meta.contrib._
 
-class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
+class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
   private val activeMutationString = Lit.String("ACTIVE_MUTATION")
   private val activeMutationPropsExpr: Term.Apply = q"sys.props.get($activeMutationString)"
 
@@ -36,6 +35,32 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("buildNewSource") {
+    it("should log failures correctly") {
+      // Arrange
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = """class Foo { def foo = true }""".parse[Source].get
+
+      val firstTransformed = toTransformed(source, EmptyString, Lit.Boolean(true), Lit.Boolean(false))
+
+      val transformedStatements = SourceTransformations(source, List(firstTransformed))
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps) {
+        override def buildMatch(transformedMutant: TransformedMutants): Term.Match =
+          throw new Exception()
+      }
+
+      // Act
+      an[UnableToBuildPatternMatchException] shouldBe thrownBy(sut.buildNewSource(transformedStatements))
+
+      // Assert
+      "Failed to construct pattern match: original statement [true]" shouldBe loggedAsError
+      "Failed mutation(s) Mutant(0,true,false,EmptyString)." shouldBe loggedAsError
+      "at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
+      "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s." shouldBe loggedAsError
+
+      "Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new" shouldBe loggedAsDebug
+      "Please be so kind to copy the stacktrace into the issue" shouldBe loggedAsDebug
+    }
+
     it("should build a new tree with a case match in place of the 15 > 14 statement") {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
@@ -107,8 +132,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
       implicit val ids: Iterator[Int] = Iterator.from(0)
       val source = """class Foo { def foo = "foo" == "" }""".parse[Source].get
 
-      val firstTransformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
-      val secondTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
+      val firstTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
+      val secondTransformed = toTransformed(source, EmptyString, Lit.String("foo"), Lit.String(""))
       val thirdTransformed =
         toTransformed(source, StrykerWasHereString, Lit.String(""), Lit.String("Stryker was here!"))
 
@@ -124,13 +149,21 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality {
         """class Foo {
           |  def foo = sys.props.get("ACTIVE_MUTATION") match {
           |    case Some("0") =>
-          |      "" == ""
-          |    case Some("1") =>
-          |      "foo" != ""
-          |    case Some("2") =>
-          |      "foo" == "Stryker was here!"
+          |      (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("1") => ""
+          |        case _ => "foo"
+          |      }) != (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("2") => "Stryker was here!"
+          |        case _ => ""
+          |      })
           |    case _ =>
-          |      "foo" == ""
+          |      (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("1") => ""
+          |        case _ => "foo"
+          |      }) == (sys.props.get("ACTIVE_MUTATION") match {
+          |        case Some("2") => "Stryker was here!"
+          |        case _ => ""
+          |      })
           |  }
           |}""".stripMargin.parse[Source].get
       result should equal(expected)

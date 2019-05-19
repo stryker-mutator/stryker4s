@@ -13,18 +13,13 @@ class ConfigTest extends Stryker4sSuite {
       val expected =
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
            |excluded-mutations=[]
-           |log-level=INFO
            |mutate=[
            |    "**/main/scala/**/*.scala"
            |]
            |reporters=[
-           |    console
+           |    console,
+           |    html
            |]
-           |test-runner {
-           |    args=test
-           |    command=sbt
-           |    type=commandrunner
-           |}
            |thresholds {
            |    break=0
            |    high=80
@@ -38,7 +33,7 @@ class ConfigTest extends Stryker4sSuite {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut = Config(filePaths,
                        File("tmp"),
-                       testRunner = CommandRunner("mvn", "clean test"),
+                       reporters = Seq(HtmlReporterType),
                        excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
 
       val result = sut.toHoconString
@@ -48,19 +43,13 @@ class ConfigTest extends Stryker4sSuite {
            |excluded-mutations=[
            |    BooleanLiteral
            |]
-           |log-level=INFO
            |mutate=[
            |    "**/main/scala/**/Foo.scala",
            |    "**/main/scala/**/Bar.scala"
            |]
            |reporters=[
-           |    console
+           |    html
            |]
-           |test-runner {
-           |    args="clean test"
-           |    command=mvn
-           |    type=commandrunner
-           |}
            |thresholds {
            |    break=0
            |    high=80

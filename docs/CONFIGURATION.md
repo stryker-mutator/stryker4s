@@ -4,9 +4,15 @@ All configuration options can be set from the stryker4s.conf file in the root of
 
 ```conf
 stryker4s {
-# Your configuration here
+  # Your configuration here
 }
 ```
+
+- [General config](#general-config)
+- [Process runner config](#process-runner-config)
+- [Other configuration options](#other-configuration-options)
+
+## General config
 
 #### mutate
 
@@ -21,6 +27,7 @@ The default for this will find files in the common Scala project format.
 You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
 
 #### files
+
 **Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** result of `git ls-files --others --exclude-standard --cached`  
 **Mandatory:** No  
@@ -38,31 +45,16 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 **Description:**  
 With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases. This value can also be relative to the current working directory, E.G.: `base-dir: submodule1` to set the base-dir to a submodule of your project.
 
-#### test-runner
-
-**Config file:** `test-runner: { type: "commandrunner", command: "sbt", args: "test" }`  
-**Default value:** A command-runner with the `sbt test` command  
-**Mandatory:** No  
-**Description:**  
-With `test-runner` you can specify how stryker4s runs tests. The default for this is a command-runner that will run the `sbt test` command. This can be changed to `mvn test`, `./gradlew test` or any other command to run your tests, including any parameters your tests might need.
-
-When using the sbt plugin, this configuration is ignored and the sbt test runner is always used.
-
 #### reporters
 
-**Config file:** `reporters: ["console"]`  
-**Default value:** A reporter that will report to console.  
+**Config file:** `reporters: ["console", "html"]`  
+**Default value:** The `console` and `html` reporters  
 **Mandatory:** No  
 **Description:**  
-With `reporters` you can specify reporters for stryker4s to use. By default the `console` reporter is used which will report to your console.
+With `reporters` you can specify reporters for stryker4s to use. The following reporters are supported:
 
-#### log-level
-
-**Config file:** `log-level: INFO`  
-**Default value:** INFO  
-**Mandatory:** No  
-**Description:**  
-With `log-level` you can override the default logging level with one of the following [Logback logging levels](https://logback.qos.ch/apidocs/ch/qos/logback/classic/Level.html): `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`, `ALL`, `OFF`.
+- `console` will output progress and the final result to the console.
+- `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 
 #### excluded-mutations
 
@@ -74,6 +66,7 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 
 - `EqualityOperator`
 - `BooleanLiteral`
+- `ConditionalExpression`
 - `LogicalOperator`
 - `StringLiteral`
 - `MethodExpression`
@@ -92,3 +85,34 @@ Specify the thresholds for mutation scores.
 - `mutation score < break`: Error! Stryker will exit with exit code 1, indicating a build failure.
 
 Setting `break=0` (default value) ensures that the build will never fail.
+
+## Process runner config
+
+#### test-runner
+
+**Config file:** `test-runner: { command: "sbt", args: "test" }`  
+**Mandatory:** Yes  
+**Description:**  
+With `test-runner` you specify how stryker4s can invoke the test runner.  
+Examples would be `sbt test`, `mvn test` or any other command to run your tests, including any parameters your tests might need.
+
+*warning* The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
+
+## Other configuration options
+
+#### log-level
+
+**Default value:** `INFO`  
+**Mandatory:** No  
+**Description:**  
+How to adjust the loglevel depends on how you run stryker4s:
+
+- sbt plugin
+  - Add `logLevel in stryker := Level.Debug` to your the in your build.sbt
+  - Options: `Debug`, `Info`, `Warn`, `Error`
+- Commandrunner
+  - Pass the loglevel as a parameter when running, like so: `--debug`
+  - Options: `--off`, `--error`, `--warn`, `--info`, `--debug`, `--trace`, `--all` (not case sensitive)
+- Maven plugin
+  - As a command-line property, like so: `mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=warn stryker4s:run`
+  - Options: `trace`, `debug`, `info`, `warn`, or `error`
