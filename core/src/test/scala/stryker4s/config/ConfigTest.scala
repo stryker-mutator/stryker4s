@@ -17,7 +17,8 @@ class ConfigTest extends Stryker4sSuite {
            |    "**/main/scala/**/*.scala"
            |]
            |reporters=[
-           |    console
+           |    console,
+           |    html
            |]
            |thresholds {
            |    break=0
@@ -30,7 +31,10 @@ class ConfigTest extends Stryker4sSuite {
 
     it("should print toString with changed values") {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
-      val sut = Config(filePaths, File("tmp"), excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
+      val sut = Config(filePaths,
+                       File("tmp"),
+                       reporters = Seq(HtmlReporterType),
+                       excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
 
       val result = sut.toHoconString
 
@@ -44,7 +48,7 @@ class ConfigTest extends Stryker4sSuite {
            |    "**/main/scala/**/Bar.scala"
            |]
            |reporters=[
-           |    console
+           |    html
            |]
            |thresholds {
            |    break=0
