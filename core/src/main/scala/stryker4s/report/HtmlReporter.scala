@@ -48,7 +48,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
   }
 
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val targetLocation = config.baseDir / s"target/stryker4s-report-${System.currentTimeMillis()}"
+    val targetLocation = config.baseDir / s"target/stryker4s-report-${runResults.timestamp}"
 
     val mutationTestElementsLocation = targetLocation / mutationTestElementsName
     val indexLocation = targetLocation / "index.html"
