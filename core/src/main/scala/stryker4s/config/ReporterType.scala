@@ -11,3 +11,7 @@ case object ConsoleReporterType extends ReporterType {
 case object HtmlReporterType extends ReporterType {
   override val name: String = "html"
 }
+
+case object JsonReporterType extends ReporterType {
+  override val name: String = "json"
+}
