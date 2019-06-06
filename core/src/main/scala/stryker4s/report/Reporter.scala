@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import stryker4s.config.{Config, ConsoleReporterType, HtmlReporterType}
+import stryker4s.config.{Config, ConsoleReporterType, HtmlReporterType, JsonReporterType}
 import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 
@@ -13,6 +13,7 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
     config.reporters collect {
       case ConsoleReporterType => new ConsoleReporter()
       case HtmlReporterType    => new HtmlReporter(DiskFileIO)
+      case JsonReporterType    => new JsonReporter(DiskFileIO)
     }
   }
 
