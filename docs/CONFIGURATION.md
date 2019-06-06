@@ -8,9 +8,18 @@ stryker4s {
 }
 ```
 
-- [General config](#general-config)
-- [Process runner config](#process-runner-config)
-- [Other configuration options](#other-configuration-options)
+- [Configuration](#configuration)
+  - [General config](#general-config)
+      - [mutate](#mutate)
+      - [files](#files)
+      - [base-dir](#base-dir)
+      - [reporters](#reporters)
+      - [excluded-mutations](#excluded-mutations)
+      - [thresholds](#thresholds)
+  - [Process runner config](#process-runner-config)
+      - [test-runner](#test-runner)
+  - [Other configuration options](#other-configuration-options)
+      - [log-level](#log-level)
 
 ## General config
 
@@ -47,7 +56,7 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 
 #### reporters
 
-**Config file:** `reporters: ["console", "html"]`  
+**Config file:** `reporters: ["console", "html", "json"]`  
 **Default value:** The `console` and `html` reporters  
 **Mandatory:** No  
 **Description:**  
@@ -55,6 +64,7 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 
 - `console` will output progress and the final result to the console.
 - `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
+- `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
 
 #### excluded-mutations
 
