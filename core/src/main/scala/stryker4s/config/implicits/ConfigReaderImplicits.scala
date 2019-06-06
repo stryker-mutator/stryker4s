@@ -19,7 +19,7 @@ trait ConfigReaderImplicits {
     ConfigReader[String] map {
       case ConsoleReporterType.name => ConsoleReporterType
       case HtmlReporterType.name    => HtmlReporterType
-      case JsonReporterType.name    => HtmlReporterType
+      case JsonReporterType.name    => JsonReporterType
     }
 
   implicit private[config] val exclusions: ConfigReader[ExcludedMutations] =
