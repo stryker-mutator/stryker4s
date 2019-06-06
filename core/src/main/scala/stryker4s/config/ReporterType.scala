@@ -15,3 +15,7 @@ case object HtmlReporterType extends ReporterType {
 case object JsonReporterType extends ReporterType {
   override val name: String = "json"
 }
+
+case object DashboardReporterType extends ReporterType {
+  override val name: String = "dashboard"
+}

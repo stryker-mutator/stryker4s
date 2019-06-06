@@ -1,8 +1,9 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import stryker4s.config.{Config, ConsoleReporterType, HtmlReporterType, JsonReporterType}
+import stryker4s.config.{Config, ConsoleReporterType, DashboardReporterType, HtmlReporterType, JsonReporterType}
 import stryker4s.files.DiskFileIO
+import stryker4s.http.RealHttp
 import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 
 import scala.util.{Failure, Try}
@@ -11,9 +12,10 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
 
   def reporters: Seq[MutationRunReporter] = {
     config.reporters collect {
-      case ConsoleReporterType => new ConsoleReporter()
-      case HtmlReporterType    => new HtmlReporter(DiskFileIO)
-      case JsonReporterType    => new JsonReporter(DiskFileIO)
+      case ConsoleReporterType   => new ConsoleReporter()
+      case HtmlReporterType      => new HtmlReporter(DiskFileIO)
+      case JsonReporterType      => new JsonReporter(DiskFileIO)
+      case DashboardReporterType => new DashboardReporter(RealHttp)
     }
   }
 
