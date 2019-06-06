@@ -1,17 +1,17 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import stryker4s.config.Config
-import stryker4s.http.{WebIO, WebResponse}
+import stryker4s.config.{Config, DashboardReporterType, ReporterType}
+import stryker4s.http.{RealHttp, WebIO, WebResponse}
 import stryker4s.model.MutantRunResults
+import stryker4s.report.dashboard.Providers._
 import stryker4s.report.mapper.MutantRunResultMapper
 
-class DashboardReporter(webHelper: WebIO)(implicit config: Config)
+class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)(implicit config: Config)
     extends FinishedRunReporter
     with MutantRunResultMapper
     with Logging {
 
-  // https://github.com/stryker-mutator/stryker/blob/master/packages/core/src/reporters/dashboard-reporter/DashboardReporterClient.ts
   case class StrykerDashboardReport(
       apiKey: String,
       repositorySlug: String,
@@ -26,29 +26,57 @@ class DashboardReporter(webHelper: WebIO)(implicit config: Config)
     }
   }
 
-  private val DashboardRootURL: String = "https://dashboard.stryker-mutator.io"
-  private val DashboardURL: String = s"$DashboardRootURL/api/reports"
+  private val dashboardRootURL: String = "https://dashboard.stryker-mutator.io"
+  private val dashboardURL: String = s"$dashboardRootURL/api/reports"
 
   def buildScoreResult(input: MutantRunResults): StrykerDashboardReport = {
     StrykerDashboardReport(
-      "PLACEHOLDER_API_KEY", // TODO: Get apikey
-      "PLACEHOLDER_REPO_SLUG", // TODO: Get repo slug
-      "PLACEHOLDER_BRANCH_NAME", // TODO: Get branch name
+      ciEnvironment.apiKey,
+      ciEnvironment.repository,
+      ciEnvironment.branchName,
       input.mutationScore
     )
   }
 
   def writeReportToDashboard(url: String, report: StrykerDashboardReport): WebResponse = {
-    webHelper.postRequest(url, report.toJson)
+    webIO.postRequest(url, report.toJson)
   }
 
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val response = writeReportToDashboard(DashboardURL, buildScoreResult(runResults))
+    val response = writeReportToDashboard(dashboardURL, buildScoreResult(runResults))
 
-    if (!response.isSuccess) {
-      error(s"Failed to write to dashboard\nError: ${response.httpCode}\n Body was: \n${response.responseBody}")
+    if (response.httpCode == 201) {
+      info(s"Sent report to Dashboard: $dashboardRootURL")
+    } else {
+      error(s"Failed to send report to dashboard.")
+      error(s"Code: ${response.httpCode}. Body: '${response.responseBody}'")
     }
-
-    info(s"Written report to Dashboard: $DashboardRootURL")
   }
 }
+
+object DashboardReporter {
+
+  def unapply(reporterType: ReporterType)(implicit config: Config): Option[DashboardReporter] = reporterType match {
+    case DashboardReporterType => resolveProvider()
+    case _                     => None
+  }
+
+  def resolveProvider()(implicit config: Config): Option[DashboardReporter] =
+    resolveCiEnvironment()
+      .map(new DashboardReporter(RealHttp, _))
+
+  def resolveCiEnvironment(): Option[CiEnvironment] =
+    tryResolveEnv(TravisProvider) orElse
+      tryResolveEnv(CircleProvider)
+
+  private def tryResolveEnv(provider: CiProvider): Option[CiEnvironment] =
+    for {
+      apiKey <- provider.determineApiKey()
+      branchName <- provider.determineBranch()
+      repoName <- provider.determineRepository()
+      if !provider.isPullRequest
+    } yield CiEnvironment(apiKey, repoName, branchName)
+
+}
+
+case class CiEnvironment(apiKey: String, repository: String, branchName: String)

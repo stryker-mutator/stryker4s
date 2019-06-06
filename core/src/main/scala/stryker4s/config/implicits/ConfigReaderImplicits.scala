@@ -4,14 +4,7 @@ import java.nio.file.Path
 
 import better.files.File
 import pureconfig.ConfigReader
-import stryker4s.config.{
-  ConsoleReporterType,
-  DashboardReporterType,
-  ExcludedMutations,
-  HtmlReporterType,
-  JsonReporterType,
-  ReporterType
-}
+import stryker4s.config._
 
 trait ConfigReaderImplicits {
 
