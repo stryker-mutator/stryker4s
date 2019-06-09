@@ -65,6 +65,10 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 - `console` will output progress and the final result to the console.
 - `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 - `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
+- `dashboard` reporter is a special kind of reporter. It sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme! To make sure no unwanted results are sent to the dashboards, it will only send the report if it is run from a build server. The reporter currently detects [Travis](https://travis-ci.org/) and [CircleCI](https://circleci.com/). Please open an [issue](https://github.com/stryker-mutator/stryker4s/issues/new) if your build server is missing. On all these environments, it will ignore builds of pull requests. 
+  - Apart from build server specific environment variables, the reporter uses one environment variable: **`STRYKER_DASHBOARD_API_KEY`**. You will need to pass the `STRYKER_DASHBOARD_API_KEY` environment variable yourself. You can create one for your repository by logging in on [the Stryker dashboard](https://dashboard.stryker-mutator.io). We strongly recommend you use encrypted environment variables:
+    * [Travis documentation](https://docs.travis-ci.com/user/environment-variables/#Encrypting-environment-variables)
+    * [CircleCI documentation](https://circleci.com/security/#secrets_section)
 
 #### excluded-mutations
 
