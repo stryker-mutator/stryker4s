@@ -6,9 +6,8 @@ final case class MutationTestReport(schemaVersion: String,
                                     thresholds: Thresholds,
                                     files: Map[String, MutationTestResult]) {
 
-  implicit private val encoder: Encoder[MutantStatus] = Encoder.enumEncoder(MutantStatus)
-
   def toJson: String = {
+    implicit val encoder: Encoder[MutantStatus] = Encoder.enumEncoder(MutantStatus)
     import io.circe.generic.auto._
     import io.circe.syntax._
     this.asJson.noSpaces
