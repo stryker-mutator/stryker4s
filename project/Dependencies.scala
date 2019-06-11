@@ -11,7 +11,7 @@ object Dependencies {
     val mockitoScala = "1.5.8"
     val betterFiles = "3.8.0"
     val log4j = "2.11.2"
-    val grizzledSlf4j = "1.3.3"
+    val grizzledSlf4j = "1.3.4"
     val everitJsonSchema = "1.11.1"
     val circe = "0.11.1"
     val mutationTestingElements = "1.0.7"
