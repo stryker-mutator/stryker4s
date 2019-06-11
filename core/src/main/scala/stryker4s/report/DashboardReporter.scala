@@ -1,30 +1,16 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import stryker4s.config.{DashboardReporterType, ReporterType}
-import stryker4s.http.{RealHttp, WebIO, WebResponse}
+import stryker4s.http.{HttpClient, WebIO, WebResponse}
 import stryker4s.model.MutantRunResults
 import stryker4s.report.dashboard.Providers._
 import stryker4s.report.mapper.MutantRunResultMapper
+import stryker4s.report.model.StrykerDashboardReport
 
 class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
     extends FinishedRunReporter
     with MutantRunResultMapper
     with Logging {
-
-  case class StrykerDashboardReport(
-      apiKey: String,
-      repositorySlug: String,
-      branch: String,
-      mutationScore: Double
-  ) {
-
-    def toJson: String = {
-      import io.circe.generic.auto._
-      import io.circe.syntax._
-      this.asJson.noSpaces
-    }
-  }
 
   private val dashboardRootURL: String = "https://dashboard.stryker-mutator.io"
   private val dashboardURL: String = s"$dashboardRootURL/api/reports"
@@ -56,14 +42,9 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
 
 object DashboardReporter {
 
-  def unapply(reporterType: ReporterType): Option[DashboardReporter] = reporterType match {
-    case DashboardReporterType => resolveProvider()
-    case _                     => None
-  }
-
   def resolveProvider(): Option[DashboardReporter] =
     resolveCiEnvironment()
-      .map(new DashboardReporter(RealHttp, _))
+      .map(new DashboardReporter(HttpClient, _))
 
   def resolveCiEnvironment(): Option[CiEnvironment] =
     tryResolveEnv(TravisProvider) orElse

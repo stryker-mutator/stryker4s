@@ -12,7 +12,8 @@ object Providers extends Logging {
     protected def readEnvironmentVariableOrLog(name: String): Option[String] = {
       val environmentOption = sys.env.get(name).filter(_.nonEmpty)
       if (environmentOption.isEmpty) {
-        warn(s"Missing environment variable $name, not initializing ${this.getClass().getSimpleName()}")
+        warn(
+          s"Missing environment variable $name, not initializing ${this.getClass.getSimpleName} for dashboard reporter.")
       }
       environmentOption
     }

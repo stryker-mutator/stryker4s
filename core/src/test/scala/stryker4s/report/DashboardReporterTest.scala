@@ -1,8 +1,11 @@
 package stryker4s.report
 
+import io.circe.generic.auto._
+import io.circe.syntax._
 import stryker4s.config.Config
 import stryker4s.http.{WebIO, WebResponse}
 import stryker4s.model.MutantRunResults
+import stryker4s.report.model.StrykerDashboardReport
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
@@ -10,7 +13,7 @@ import scala.concurrent.duration._
 
 class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
-  val ciEnvironment = CiEnvironment("foo", "bar", "baz")
+  val ciEnvironment = CiEnvironment("someApiKey", "myRepo", "myBranch")
   describe("reportJson") {
     it("should contain the report") {
       implicit val config: Config = Config()
@@ -28,10 +31,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val convertToReport = sut.buildScoreResult(runResults)
       sut.writeReportToDashboard(testUrl, convertToReport)
 
-      val expectedJs =
-        s"""{"apiKey":"foo","repositorySlug":"bar","branch":"baz","mutationScore":$mutationScore}""".stripMargin
-
-      verify(mockWebIO).postRequest(testUrl, expectedJs)
+      val expectedJson = convertToReport.asJson.noSpaces
+      convertToReport should equal(StrykerDashboardReport("someApiKey", "myRepo", "myBranch", mutationScore))
+      verify(mockWebIO).postRequest(testUrl, expectedJson)
     }
   }
 

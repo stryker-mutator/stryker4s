@@ -6,7 +6,7 @@ trait WebIO {
 
 case class WebResponse(httpCode: Int, responseBody: String)
 
-object RealHttp extends WebIO {
+object HttpClient extends WebIO {
   import scalaj.http._
 
   override def postRequest(
