@@ -1,24 +1,19 @@
 package stryker4s.http
 
-trait WebIO {
-  def postRequest(url: String, content: String): WebResponse
-}
+import scalaj.http.HttpResponse
 
-case class WebResponse(httpCode: Int, responseBody: String)
+trait WebIO {
+  def postRequest(url: String, content: String): HttpResponse[String]
+}
 
 object HttpClient extends WebIO {
   import scalaj.http._
 
-  override def postRequest(
-      url: String,
-      content: String
-  ): WebResponse = {
-    val response = Http(url)
+  override def postRequest(url: String, content: String): HttpResponse[String] = {
+    Http(url)
       .postData(content)
       .header("Content-Type", "application/json")
       .options(HttpOptions.followRedirects(true))
       .asString
-
-    WebResponse(response.code, response.body)
   }
 }

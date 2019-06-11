@@ -1,7 +1,8 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import stryker4s.http.{HttpClient, WebIO, WebResponse}
+import scalaj.http.HttpResponse
+import stryker4s.http.{HttpClient, WebIO}
 import stryker4s.model.MutantRunResults
 import stryker4s.report.dashboard.Providers._
 import stryker4s.report.mapper.MutantRunResultMapper
@@ -24,18 +25,18 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
     )
   }
 
-  def writeReportToDashboard(url: String, report: StrykerDashboardReport): WebResponse = {
+  def writeReportToDashboard(url: String, report: StrykerDashboardReport): HttpResponse[String] = {
     webIO.postRequest(url, report.toJson)
   }
 
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
     val response = writeReportToDashboard(dashboardURL, buildScoreResult(runResults))
 
-    if (response.httpCode == 201) {
+    if (response.isSuccess) {
       info(s"Sent report to Dashboard: $dashboardRootURL")
     } else {
       error(s"Failed to send report to dashboard.")
-      error(s"Code: ${response.httpCode}. Body: '${response.responseBody}'")
+      error(s"Code: ${response.code}. Body: '${response.body}'")
     }
   }
 }

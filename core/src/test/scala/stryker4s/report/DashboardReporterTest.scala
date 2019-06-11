@@ -2,8 +2,9 @@ package stryker4s.report
 
 import io.circe.generic.auto._
 import io.circe.syntax._
+import scalaj.http.HttpResponse
 import stryker4s.config.Config
-import stryker4s.http.{WebIO, WebResponse}
+import stryker4s.http.WebIO
 import stryker4s.model.MutantRunResults
 import stryker4s.report.model.StrykerDashboardReport
 import stryker4s.scalatest.LogMatchers
@@ -42,10 +43,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
     it("should info log a message on success") {
       val sut = new DashboardReporter((_: String, _: String) => {
-        WebResponse(
-          201,
-          "Success query"
-        )
+        HttpResponse("Success query", 201, Map.empty)
       }, ciEnvironment)
       val runResults = MutantRunResults(Nil, 50.0, 30.seconds)
 
@@ -57,10 +55,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
     it("should error log on failed HTTP call") {
       val sut = new DashboardReporter((_: String, _: String) => {
-        WebResponse(
-          400,
-          "Bad request"
-        )
+        HttpResponse("Bad request", 400, Map.empty)
       }, ciEnvironment)
       val runResults = MutantRunResults(Nil, 50.0, 30.seconds)
 
