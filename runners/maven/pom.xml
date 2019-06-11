@@ -53,8 +53,8 @@
         <scala.version>2.12.8</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <scala-maven.version>3.4.4</scala-maven.version>
-        <scalatest.version>3.0.7</scalatest.version>
-        <mockito-scala.version>1.4.1</mockito-scala.version>
+        <scalatest.version>3.0.8</scalatest.version>
+        <mockito-scala.version>1.5.8</mockito-scala.version>
         <!-- Plugin versions-->
         <maven-plugin.version>3.6.0</maven-plugin.version>
         <maven-invoker.version>3.0.1</maven-invoker.version>
