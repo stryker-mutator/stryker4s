@@ -8,7 +8,6 @@ import stryker4s.run.process.Command
 import pureconfig.error.ConfigReaderFailures
 import pureconfig.error.ConvertFailure
 import pureconfig.error.KeyNotFound
-import pureconfig.ConfigCursor
 
 class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
   describe("ProcessConfig") {

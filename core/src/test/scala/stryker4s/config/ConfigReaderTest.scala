@@ -4,7 +4,6 @@ import better.files.File
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
-import pureconfig._
 import pureconfig.generic.auto._
 import stryker4s.config.implicits.ConfigReaderImplicits
 
