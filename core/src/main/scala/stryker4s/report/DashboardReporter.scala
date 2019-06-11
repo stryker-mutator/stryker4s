@@ -1,13 +1,13 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import stryker4s.config.{Config, DashboardReporterType, ReporterType}
+import stryker4s.config.{DashboardReporterType, ReporterType}
 import stryker4s.http.{RealHttp, WebIO, WebResponse}
 import stryker4s.model.MutantRunResults
 import stryker4s.report.dashboard.Providers._
 import stryker4s.report.mapper.MutantRunResultMapper
 
-class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)(implicit config: Config)
+class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
     extends FinishedRunReporter
     with MutantRunResultMapper
     with Logging {
@@ -56,12 +56,12 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)(implicit con
 
 object DashboardReporter {
 
-  def unapply(reporterType: ReporterType)(implicit config: Config): Option[DashboardReporter] = reporterType match {
+  def unapply(reporterType: ReporterType): Option[DashboardReporter] = reporterType match {
     case DashboardReporterType => resolveProvider()
     case _                     => None
   }
 
-  def resolveProvider()(implicit config: Config): Option[DashboardReporter] =
+  def resolveProvider(): Option[DashboardReporter] =
     resolveCiEnvironment()
       .map(new DashboardReporter(RealHttp, _))
 
@@ -70,12 +70,13 @@ object DashboardReporter {
       tryResolveEnv(CircleProvider)
 
   private def tryResolveEnv(provider: CiProvider): Option[CiEnvironment] =
-    for {
-      apiKey <- provider.determineApiKey()
-      branchName <- provider.determineBranch()
-      repoName <- provider.determineRepository()
-      if !provider.isPullRequest
-    } yield CiEnvironment(apiKey, repoName, branchName)
+    if (provider.isPullRequest) None
+    else
+      for {
+        apiKey <- provider.determineApiKey()
+        branchName <- provider.determineBranch()
+        repoName <- provider.determineRepository()
+      } yield CiEnvironment(apiKey, repoName, branchName)
 
 }
 
