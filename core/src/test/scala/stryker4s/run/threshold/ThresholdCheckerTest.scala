@@ -6,8 +6,6 @@ import stryker4s.extension.exception.InvalidThresholdValueException
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.language.postfixOps
-
 class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
 
   describe("thresholds") {

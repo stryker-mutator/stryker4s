@@ -41,7 +41,6 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     */
   def expectedMutations(matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
                         tree: Tree,
-                        original: MethodExpression,
                         expectedMutations: MethodExpression*): Unit = {
     val found: Seq[Mutant] = tree.collect(matchFun).flatten.flatten
     expectedMutations foreach { expectedMutation =>
@@ -191,165 +190,75 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
   describe("matchMethodExpression matcher") {
     it("should match filter to filterNot") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).filter(_ % 2 == 0)",
-        Filter,
-        FilterNot
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).filter(_ % 2 == 0)", FilterNot)
     }
 
     it("should match filterNot to filter") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)",
-        FilterNot,
-        Filter
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)", Filter)
     }
 
     it("should match exists to forall") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
-        Exists,
-        Forall
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).exists(_ % 2 == 0)", Forall)
     }
 
     it("should match forall to exists") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).forall(_ % 2 == 0)",
-        Forall,
-        Exists
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).forall(_ % 2 == 0)", Exists)
     }
 
     it("should match take to drop") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).take(2)",
-        Take,
-        Drop
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).take(2)", Drop)
     }
 
     it("should match drop to take") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).drop(2)",
-        Drop,
-        Take
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).drop(2)", Take)
     }
 
     it("should match takeRight to dropRight") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).takeRight(2)",
-        TakeRight,
-        DropRight
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).takeRight(2)", DropRight)
     }
 
     it("should match dropRight to takeRight") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).dropRight(2)",
-        DropRight,
-        TakeRight
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).dropRight(2)", TakeRight)
     }
 
     it("should match takeWhile to dropWhile") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).dropWhile(_ < 2)",
-        DropWhile,
-        TakeWhile
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).dropWhile(_ < 2)", TakeWhile)
     }
 
     it("should match dropWhile to takeWhile") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).takeWhile(_ < 2)",
-        TakeWhile,
-        DropWhile
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).takeWhile(_ < 2)", DropWhile)
     }
 
     it("should match isEmpty to nonEmpty") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).isEmpty",
-        IsEmpty,
-        NonEmpty
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).isEmpty", NonEmpty)
     }
 
     it("should match nonEmpty to isEmpty") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).nonEmpty",
-        NonEmpty,
-        IsEmpty
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).nonEmpty", IsEmpty)
     }
 
     it("should match indexOf to lastIndexOf") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).indexOf(2)",
-        IndexOf,
-        LastIndexOf
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).indexOf(2)", LastIndexOf)
     }
 
     it("should match lastIndexOf to indexOf") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).lastIndexOf(2)",
-        LastIndexOf,
-        IndexOf
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).lastIndexOf(2)", IndexOf)
     }
 
     it("should match max to min") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).max",
-        Max,
-        Min
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).max", Min)
     }
 
     it("should match min to max") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).min",
-        Min,
-        Max
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).min", Max)
     }
 
     it("should match maxBy to minBy") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).maxBy(_.toString)",
-        MaxBy,
-        MinBy
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).maxBy(_.toString)", MinBy)
     }
 
     it("should match minBy to maxBy") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).minBy(_.toString)",
-        MinBy,
-        MaxBy
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).minBy(_.toString)", MaxBy)
     }
 
   }

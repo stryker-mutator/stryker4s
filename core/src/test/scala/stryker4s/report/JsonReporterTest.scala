@@ -2,16 +2,15 @@ package stryker4s.report
 
 import better.files.File
 import org.mockito.captor.ArgCaptor
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.model.MutantRunResults
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
 import scala.concurrent.duration._
 
-class JsonReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with LogMatchers {
+class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
   describe("reportJson") {
     it("should contain the report") {
@@ -63,7 +62,9 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSugar with ArgumentMat
 
       sut.reportRunFinished(runResults)
 
-      "Written JSON report to " shouldBe loggedAsInfo
+      val captor = ArgCaptor[File]
+      verify(mockFileIO).createAndWrite(captor.capture, any[String])
+      s"Written JSON report to ${captor.value}" shouldBe loggedAsInfo
     }
   }
 }

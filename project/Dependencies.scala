@@ -8,7 +8,7 @@ object Dependencies {
     val scalameta = "4.1.10"
     val pureconfig = "0.11.0"
     val scalatest = "3.0.8"
-    val mockitoScala = "1.5.7"
+    val mockitoScala = "1.5.8"
     val betterFiles = "3.8.0"
     val log4j = "2.11.2"
     val grizzledSlf4j = "1.3.3"
@@ -16,6 +16,7 @@ object Dependencies {
     val circe = "0.11.1"
     val mutationTestingElements = "1.0.7"
     val mutationTestingSchema = "1.0.5"
+    val scalajHttp = "2.4.1"
   }
 
   object test {
@@ -34,6 +35,7 @@ object Dependencies {
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
+  val scalajHttp = "org.scalaj" %% "scalaj-http" % versions.scalajHttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
 
 }

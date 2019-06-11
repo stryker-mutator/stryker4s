@@ -12,7 +12,6 @@ import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, Stat
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
-import stryker4s.run.process.Command
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
