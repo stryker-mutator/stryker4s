@@ -1,5 +1,7 @@
 package stryker4s.config
 
+import stryker4s.report.DashboardReporter
+
 sealed trait ReporterType {
   val name: String
 }
@@ -14,4 +16,13 @@ case object HtmlReporterType extends ReporterType {
 
 case object JsonReporterType extends ReporterType {
   override val name: String = "json"
+}
+
+case object DashboardReporterType extends ReporterType {
+  override val name: String = "dashboard"
+
+  def unapply(reporterType: ReporterType): Option[DashboardReporter] = reporterType match {
+    case DashboardReporterType => DashboardReporter.resolveProvider()
+    case _                     => None
+  }
 }
