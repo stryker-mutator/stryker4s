@@ -38,7 +38,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       val result = ConfigReader.readConfig(confPath)
 
       result.baseDir shouldBe File.currentWorkingDirectory
-      result.mutate shouldBe Seq("**/main/scala/**/*.scala")
+      result.mutate shouldBe Seq("**/main/scala/**.scala")
       result.reporters should contain inOrderOnly (ConsoleReporterType, HtmlReporterType)
     }
 

@@ -14,7 +14,7 @@ class ConfigTest extends Stryker4sSuite {
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
            |excluded-mutations=[]
            |mutate=[
-           |    "**/main/scala/**/*.scala"
+           |    "**/main/scala/**.scala"
            |]
            |reporters=[
            |    console,
