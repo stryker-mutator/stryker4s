@@ -19,7 +19,7 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
   def buildScoreResult(input: MutantRunResults): StrykerDashboardReport = {
     StrykerDashboardReport(
       ciEnvironment.apiKey,
-      ciEnvironment.repository,
+      ciEnvironment.repositorySlug,
       ciEnvironment.branchName,
       input.mutationScore
     )
@@ -32,11 +32,11 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
     val response = writeReportToDashboard(dashboardURL, buildScoreResult(runResults))
 
-    if (response.isSuccess) {
-      info(s"Sent report to Dashboard: $dashboardRootURL")
+    if (response.code == 201) {
+      info(s"Sent report to dashboard: $dashboardRootURL")
     } else {
       error(s"Failed to send report to dashboard.")
-      error(s"Code: ${response.code}. Body: '${response.body}'")
+      error(s"Expected status code 201, but was ${response.code}. Body: '${response.body}'")
     }
   }
 }
@@ -51,15 +51,16 @@ object DashboardReporter {
     tryResolveEnv(TravisProvider) orElse
       tryResolveEnv(CircleProvider)
 
-  private def tryResolveEnv(provider: CiProvider): Option[CiEnvironment] =
+  def tryResolveEnv(provider: CiProvider): Option[CiEnvironment] =
     if (provider.isPullRequest) None
     else
       for {
         apiKey <- provider.determineApiKey()
         branchName <- provider.determineBranch()
         repoName <- provider.determineRepository()
-      } yield CiEnvironment(apiKey, repoName, branchName)
+        repositorySlug = "github.com/" + repoName
+      } yield CiEnvironment(apiKey, repositorySlug, branchName)
 
 }
 
-case class CiEnvironment(apiKey: String, repository: String, branchName: String)
+case class CiEnvironment(apiKey: String, repositorySlug: String, branchName: String)

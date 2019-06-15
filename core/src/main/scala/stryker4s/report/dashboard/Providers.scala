@@ -3,7 +3,7 @@ import grizzled.slf4j.Logging
 
 object Providers extends Logging {
 
-  sealed trait CiProvider {
+  trait CiProvider {
     def isPullRequest: Boolean
     def determineBranch(): Option[String]
     def determineRepository(): Option[String]
