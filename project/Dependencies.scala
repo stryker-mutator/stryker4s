@@ -16,7 +16,7 @@ object Dependencies {
     val circe = "0.11.1"
     val mutationTestingElements = "1.0.7"
     val mutationTestingSchema = "1.0.5"
-    val scalajHttp = "2.4.1"
+    val scalajHttp = "2.4.2"
   }
 
   object test {
