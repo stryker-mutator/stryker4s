@@ -110,7 +110,7 @@ Setting `break=0` (default value) ensures that the build will never fail.
 With `test-runner` you specify how stryker4s can invoke the test runner.  
 Examples would be `sbt test`, `mvn test` or any other command to run your tests, including any parameters your tests might need.
 
-*warning* The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
+**warning** The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
 
 ## Other configuration options
 
@@ -122,7 +122,7 @@ Examples would be `sbt test`, `mvn test` or any other command to run your tests,
 How to adjust the loglevel depends on how you run stryker4s:
 
 - sbt plugin
-  - Add `logLevel in stryker := Level.Debug` to your the in your build.sbt
+  - Add `logLevel in stryker := Level.Debug` to your build.sbt. Or use `set logLevel in stryker := Level.Debug` if you are in a sbt session.
   - Options: `Debug`, `Info`, `Warn`, `Error`
 - Commandrunner
   - Pass the loglevel as a parameter when running, like so: `--debug`
