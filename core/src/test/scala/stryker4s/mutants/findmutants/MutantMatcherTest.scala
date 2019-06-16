@@ -167,6 +167,24 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         EqualTo
       )
     }
+
+    it("should match === to =!=") {
+      expectMutations(
+        sut.matchEqualityOperator,
+        q"def foo = 18 === 20",
+        TypedEqualTo,
+        TypedNotEqualTo
+      )
+    }
+
+    it("should match =!= to ===") {
+      expectMutations(
+        sut.matchEqualityOperator,
+        q"def foo = 18 =!= 20",
+        TypedNotEqualTo,
+        TypedEqualTo
+      )
+    }
   }
   describe("matchLogicalOperator matcher") {
     it("should match && to ||") {

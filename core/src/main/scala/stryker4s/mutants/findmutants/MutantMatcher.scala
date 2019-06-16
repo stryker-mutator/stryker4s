@@ -31,6 +31,8 @@ class MutantMatcher()(implicit config: Config) {
     case LesserThan(orig)         => orig ~~> (LesserThanEqualTo, GreaterThan, EqualTo)
     case EqualTo(orig)            => orig ~~> NotEqualTo
     case NotEqualTo(orig)         => orig ~~> EqualTo
+    case TypedEqualTo(orig)       => orig ~~> TypedNotEqualTo
+    case TypedNotEqualTo(orig)    => orig ~~> TypedEqualTo
   }
 
   def matchLogicalOperator: PartialFunction[Tree, Seq[Option[Mutant]]] = {
