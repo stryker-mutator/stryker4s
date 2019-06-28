@@ -44,9 +44,11 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
 
       val sut = new Stryker4s(
         testSourceCollector,
-        new Mutator(new MutantFinder(new MutantMatcher),
-                    new StatementTransformer,
-                    new MatchBuilder(ActiveMutationContext.sysProps)),
+        new Mutator(
+          new MutantFinder(new MutantMatcher),
+          new StatementTransformer,
+          new MatchBuilder(ActiveMutationContext.sysProps)
+        ),
         testMutantRunner
       )
 
@@ -65,10 +67,12 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
 
       result shouldBe SuccessStatus
       reportedResults should matchPattern {
-        case List(Killed(Mutant(0, _, _, _), `expectedPath`),
-                  Killed(Mutant(1, _, _, _), `expectedPath`),
-                  Killed(Mutant(2, _, _, _), `expectedPath`),
-                  Killed(Mutant(3, _, _, _), `expectedPath`)) =>
+        case List(
+            Killed(Mutant(0, _, _, _), `expectedPath`),
+            Killed(Mutant(1, _, _, _), `expectedPath`),
+            Killed(Mutant(2, _, _, _), `expectedPath`),
+            Killed(Mutant(3, _, _, _), `expectedPath`)
+            ) =>
       }
     }
 
@@ -79,9 +83,11 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
       val sut: Stryker4s =
         new Stryker4s(
           testSourceCollector,
-          new Mutator(new MutantFinder(new MutantMatcher),
-                      new StatementTransformer,
-                      new MatchBuilder(ActiveMutationContext.sysProps)),
+          new Mutator(
+            new MutantFinder(new MutantMatcher),
+            new StatementTransformer,
+            new MatchBuilder(ActiveMutationContext.sysProps)
+          ),
           testMutantRunner
         ) {
 
@@ -101,9 +107,11 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
       val sut: Stryker4s =
         new Stryker4s(
           testSourceCollector,
-          new Mutator(new MutantFinder(new MutantMatcher),
-                      new StatementTransformer,
-                      new MatchBuilder(ActiveMutationContext.sysProps)),
+          new Mutator(
+            new MutantFinder(new MutantMatcher),
+            new StatementTransformer,
+            new MatchBuilder(ActiveMutationContext.sysProps)
+          ),
           testMutantRunner
         ) {
 

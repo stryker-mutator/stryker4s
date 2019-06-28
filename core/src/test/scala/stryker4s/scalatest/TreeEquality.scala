@@ -18,5 +18,5 @@ trait TreeEquality {
       secondAny match {
         case second: Tree => second.isEqual(first)
         case _            => false
-    }
+      }
 }

@@ -20,8 +20,9 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     logAndReturn(info("Using stryker4s.conf in the current working directory"))
   )
 
-  def readConfigOfType[T](confFile: File = defaultConfigFileLocation)(
-      implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
+  def readConfigOfType[T](
+      confFile: File = defaultConfigFileLocation
+  )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
     pureconfig.loadConfig[T](confFile.path, namespace = "stryker4s")
 
   private def tryRecoverFromFailures[T](failures: ConfigReaderFailures): Config = failures match {

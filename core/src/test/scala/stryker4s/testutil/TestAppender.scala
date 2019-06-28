@@ -18,8 +18,10 @@ object TestAppender {
     */
   def reset(implicit threadName: String): Unit = events(threadName).clear()
 
-  @PluginFactory def createAppender(@PluginAttribute("name") name: String,
-                                    @PluginElement("Filter") filter: Filter): TestAppender =
+  @PluginFactory def createAppender(
+      @PluginAttribute("name") name: String,
+      @PluginElement("Filter") filter: Filter
+  ): TestAppender =
     new TestAppender(name, filter)
 }
 

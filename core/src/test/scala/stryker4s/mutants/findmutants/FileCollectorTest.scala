@@ -89,8 +89,10 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
 
       it("should not find a file twice when the patterns match on the same file twice") {
         implicit val config: Config =
-          Config(mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
-                 baseDir = filledDirPath)
+          Config(
+            mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
+            baseDir = filledDirPath
+          )
 
         val sut = new FileCollector(TestProcessRunner())
 
@@ -115,8 +117,10 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
 
       it("Should exclude all files specified in the excluded files config") {
         implicit val config: Config =
-          Config(mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
-                 baseDir = filledDirPath)
+          Config(
+            mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
+            baseDir = filledDirPath
+          )
 
         val sut = new FileCollector(TestProcessRunner())
 
@@ -202,9 +206,11 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
     it("Should copy the files from the files config key") {
       implicit val config: Config =
         Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
-      val expectedFileList = Seq(basePath / "package" / "someFile.scala",
-                                 basePath / "package" / "secondFile.scala",
-                                 basePath / "package" / "target.scala")
+      val expectedFileList = Seq(
+        basePath / "package" / "someFile.scala",
+        basePath / "package" / "secondFile.scala",
+        basePath / "package" / "target.scala"
+      )
 
       val sut = new FileCollector(processRunnerMock)
 
@@ -214,13 +220,16 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
     }
 
     it(
-      "Should copy files out of the target folders when no files config key is found and target repo is not a git repo") {
+      "Should copy files out of the target folders when no files config key is found and target repo is not a git repo"
+    ) {
       implicit val config: Config = Config(baseDir = basePath / "package", files = None)
       val expectedFileList =
-        Seq(basePath / "package" / "someFile.scala",
-            basePath / "package" / "secondFile.scala",
-            basePath / "package" / "otherFile.notScala",
-            basePath / "package" / "target.scala")
+        Seq(
+          basePath / "package" / "someFile.scala",
+          basePath / "package" / "secondFile.scala",
+          basePath / "package" / "otherFile.notScala",
+          basePath / "package" / "target.scala"
+        )
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 

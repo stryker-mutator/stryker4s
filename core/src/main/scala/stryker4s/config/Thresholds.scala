@@ -14,6 +14,7 @@ case class Thresholds(high: Int = 80, low: Int = 60, break: Int = 0) {
     values.foreach(
       value =>
         if (value < 0 || value > 100)
-          throw InvalidThresholdValueException(s"Threshold values must be 0-100. Current: $value."))
+          throw InvalidThresholdValueException(s"Threshold values must be 0-100. Current: $value.")
+    )
   }
 }
