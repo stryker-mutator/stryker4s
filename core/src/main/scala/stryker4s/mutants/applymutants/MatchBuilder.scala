@@ -43,7 +43,7 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
     )
 
     val activeMutationEnv = Lit.String("ACTIVE_MUTATION")
-    q"(sys.$mutationContext.get($activeMutationEnv) match { ..case $cases })"
+    q"(_root_.scala.sys.$mutationContext.get($activeMutationEnv) match { ..case $cases })"
   }
 
   private def mutantToCase(mutant: Mutant): Case =
