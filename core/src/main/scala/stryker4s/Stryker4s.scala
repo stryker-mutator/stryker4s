@@ -27,7 +27,8 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     if (!jvmMemory2GBOrHigher) {
       warn("The JVM has less than 2GB memory available. We advise to allocate 4GB memory when running Stryker4s.")
       warn(
-        "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM.")
+        "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM."
+      )
     }
   }
 

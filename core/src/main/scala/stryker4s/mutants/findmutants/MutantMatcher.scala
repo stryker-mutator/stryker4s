@@ -81,8 +81,10 @@ class MutantMatcher()(implicit config: Config) {
     def ~~>(f: String => Term, mutated: MethodExpression*): Seq[Option[Mutant]] =
       createMutants[MethodExpression](mutated, _(f))
 
-    private def createMutants[T <: Mutation[_ <: Tree]](mutations: Seq[T],
-                                                        mutationToTerm: T => Term): Seq[Option[Mutant]] =
+    private def createMutants[T <: Mutation[_ <: Tree]](
+        mutations: Seq[T],
+        mutationToTerm: T => Term
+    ): Seq[Option[Mutant]] =
       ifNotInAnnotation {
         mutations map { mutated =>
           if (matchExcluded(mutated))

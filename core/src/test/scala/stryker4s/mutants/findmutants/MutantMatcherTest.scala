@@ -14,10 +14,12 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
   private val sut = new MutantMatcher()(config = Config())
 
-  def expectMutations(matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
-                      tree: Tree,
-                      original: Term,
-                      expectedTerms: Term*): Unit = {
+  def expectMutations(
+      matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
+      tree: Tree,
+      original: Term,
+      expectedTerms: Term*
+  ): Unit = {
     val found: Seq[Option[Mutant]] = tree.collect(matchFun).flatten
 
     expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
@@ -26,9 +28,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   def expectMutations(actualMutants: Seq[Option[Mutant]], original: Term, expectedMutations: Term*): Unit = {
     expectedMutations.foreach(expectedMutation => {
       val actualMutant = actualMutants.flatten
-        .find(mutant =>
-          mutant.mutated.isEqual(expectedMutation) &&
-            mutant.original.isEqual(original))
+        .find(
+          mutant =>
+            mutant.mutated.isEqual(expectedMutation) &&
+              mutant.original.isEqual(original)
+        )
         .getOrElse(fail("mutant not found"))
 
       actualMutant.original should equal(original)
@@ -39,9 +43,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   /**
     * Check if there is a mutant for every expected mutation
     */
-  def expectedMutations(matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
-                        tree: Tree,
-                        expectedMutations: MethodExpression*): Unit = {
+  def expectedMutations(
+      matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
+      tree: Tree,
+      expectedMutations: MethodExpression*
+  ): Unit = {
     val found: Seq[Mutant] = tree.collect(matchFun).flatten.flatten
     expectedMutations foreach { expectedMutation =>
       found
@@ -70,9 +76,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       found should have length 2
       expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
-      expectMutations(found,
-                      q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
-                      q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")
+      expectMutations(
+        found,
+        q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
+        q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)"
+      )
     }
 
     it("should match a boolean and a conditional") {
@@ -336,9 +344,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match once on interpolated strings with multiple parts") {
       val interpolated =
-        Term.Interpolate(q"s",
-                         List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
-                         List(q"fooVar", q"barVar + 1"))
+        Term.Interpolate(
+          q"s",
+          List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
+          List(q"fooVar", q"barVar + 1")
+        )
       val tree = q"def foo = $interpolated"
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
 

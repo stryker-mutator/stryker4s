@@ -20,8 +20,9 @@ trait MutantRunResultMapper {
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =
     Thresholds(high = thresholds.high, low = thresholds.low)
 
-  private def toMutationTestResultMap(results: Seq[MutantRunResult])(
-      implicit config: Config): Map[String, MutationTestResult] =
+  private def toMutationTestResultMap(
+      results: Seq[MutantRunResult]
+  )(implicit config: Config): Map[String, MutationTestResult] =
     results groupBy (_.fileSubPath) map {
       case (path, runResults) => path.toString.replace('\\', '/') -> toMutationTestResult(runResults)
     }

@@ -41,7 +41,8 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
         error(s"$mutationScore ${runResults.mutationScore}%")
       case ErrorStatus =>
         error(
-          s"Mutation score below threshold! Score: ${runResults.mutationScore}%. Threshold: ${config.thresholds.break}%")
+          s"Mutation score below threshold! Score: ${runResults.mutationScore}%. Threshold: ${config.thresholds.break}%"
+        )
     }
   }
 
