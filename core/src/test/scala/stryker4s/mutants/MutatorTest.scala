@@ -25,7 +25,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val result = sut.mutate(files)
 
       val expected = """object Foo {
-                       |  def bar = sys.props.get("ACTIVE_MUTATION") match {
+                       |  def bar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("0") =>
                        |      15 >= 14
                        |    case Some("1") =>
@@ -35,7 +35,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |    case _ =>
                        |      15 > 14
                        |  }
-                       |  def foobar = sys.props.get("ACTIVE_MUTATION") match {
+                       |  def foobar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("3") =>
                        |      s""
                        |    case _ =>
