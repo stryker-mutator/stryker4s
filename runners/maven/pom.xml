@@ -52,7 +52,7 @@
         <!-- Scala versions -->
         <scala.version>2.12.8</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
-        <scala-maven.version>3.4.4</scala-maven.version>
+        <scala-maven.version>4.1.1</scala-maven.version>
         <scalatest.version>3.0.8</scalatest.version>
         <mockito-scala.version>1.5.13</mockito-scala.version>
         <!-- Plugin versions-->
@@ -61,8 +61,8 @@
         <!-- Release versions-->
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.1.0</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
     </properties>
     <dependencies>
