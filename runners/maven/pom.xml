@@ -50,7 +50,7 @@
     <properties>
         <encoding>UTF-8</encoding>
         <!-- Scala versions -->
-        <scala.version>2.12.8</scala.version>
+        <scala.version>2.12.9</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
         <scala-maven.version>4.1.1</scala-maven.version>
         <scalatest.version>3.0.8</scalatest.version>

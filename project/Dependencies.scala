@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object versions {
-    val scala212 = "2.12.8"
+    val scala212 = "2.12.9"
 
     val scalameta = "4.2.0"
     val pureconfig = "0.11.1"
