@@ -65,6 +65,13 @@ object Settings {
     scriptedBufferLog := false
   )
 
+  lazy val bspSettings: Seq[Setting[_]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.bsp4s,
+      Dependencies.test.scalatest
+    )
+  )
+
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
     releaseCommands ++
       buildInfo ++

@@ -17,6 +17,7 @@ object Dependencies {
     val mutationTestingElements = "1.1.1"
     val mutationTestingSchema = "1.1.1"
     val scalajHttp = "2.4.2"
+    val bsp4s = "2.0.0-M4"
   }
 
   object test {
@@ -37,5 +38,6 @@ object Dependencies {
   val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
   val scalajHttp = "org.scalaj" %% "scalaj-http" % versions.scalajHttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
+  val bsp4s = "ch.epfl.scala" %% "bsp4s" % versions.bsp4s
 
 }
