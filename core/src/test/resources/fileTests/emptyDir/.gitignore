@@ -1,4 +1,0 @@
-# Ignore everything in this directory. This directory is empty for testing purposes
-*
-# Except this file
-!.gitignore
