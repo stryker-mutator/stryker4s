@@ -9,7 +9,7 @@ final case class MutationTestReport(
 ) {
 
   def toJson: String = {
-    implicit val encoder: Encoder[MutantStatus] = Encoder.enumEncoder(MutantStatus)
+    implicit val encoder: Encoder[MutantStatus] = Encoder.encodeEnumeration(MutantStatus)
     import io.circe.generic.auto._
     import io.circe.syntax._
     this.asJson.noSpaces
