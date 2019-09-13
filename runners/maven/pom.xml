@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.stryker-mutator</groupId>
     <artifactId>stryker4s-maven-plugin</artifactId>
-    <version>SET-BY-SBT-SNAPSHOT</version>
+    <version>0.6.1+14-4066c0e6-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
     <name>Stryker4s Maven plugin</name>
     <description>Stryker4s, the mutation testing framework for Scala.</description>
@@ -38,14 +38,11 @@
         <tag>HEAD</tag>
     </scm>
     <distributionManagement>
+        <!-- Only snapshot releases are managed by the maven-deploy-plugin. Full releases are packages by maven, and bundle uploaded by sbt -->
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
     </distributionManagement>
     <properties>
         <encoding>UTF-8</encoding>
@@ -219,6 +216,7 @@
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                            <stagingProfileId>io.stryker-mutator</stagingProfileId>
                         </configuration>
                     </plugin>
                     <plugin>
