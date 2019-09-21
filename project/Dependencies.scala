@@ -12,7 +12,7 @@ object Dependencies {
     val betterFiles = "3.8.0"
     val log4j = "2.12.1"
     val grizzledSlf4j = "1.3.4"
-    val everitJsonSchema = "1.11.1"
+    val everitJsonSchema = "1.12.0"
     val circe = "0.12.1"
     val mutationTestingElements = "1.1.1"
     val mutationTestingSchema = "1.1.1"
