@@ -5,7 +5,7 @@ import java.io.FileNotFoundException
 import better.files.File
 import grizzled.slf4j.Logging
 import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures}
-import pureconfig.{Derivation, ConfigReader => PureConfigReader}
+import pureconfig.{Derivation, ConfigReader => PureConfigReader, ConfigSource}
 import stryker4s.config.implicits.ConfigReaderImplicits
 import pureconfig.generic.auto._
 
@@ -23,7 +23,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   def readConfigOfType[T](
       confFile: File = defaultConfigFileLocation
   )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
-    pureconfig.loadConfig[T](confFile.path, namespace = "stryker4s")
+    ConfigSource.file(confFile.path).at("stryker4s").load[T]
 
   private def tryRecoverFromFailures[T](failures: ConfigReaderFailures): Config = failures match {
     case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
