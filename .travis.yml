@@ -34,7 +34,7 @@ jobs:
       env:
         - CI_RELEASE=stryker4sPublishSigned
         - CI_SNAPSHOT_RELEASE=stryker4sPublish
-        - CI_SONATYPE_RELEASE=sonatypeReleaseAll
+        - CI_SONATYPE_RELEASE=stryker4sReleaseAll
 
 # Matrixed with jdk's
 script: sbt clean coverage test coverageReport
