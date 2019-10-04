@@ -2,7 +2,6 @@ import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
-import scoverage.ScoverageKeys._
 
 object Settings {
 
@@ -68,8 +67,7 @@ object Settings {
       buildInfo ++
       Seq(
         scalaVersion := Dependencies.versions.scala212,
-        scalacOptions ++= Settings.scalacOpts,
-        coverageMinimum := 75
+        scalacOptions ++= Settings.scalacOpts
       )
   )
 
