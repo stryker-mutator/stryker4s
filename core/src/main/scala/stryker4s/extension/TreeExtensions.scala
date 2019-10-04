@@ -65,6 +65,7 @@ object TreeExtensions {
     /** If the parent is a `!...` expression
       */
     private object ParentIsNotExpression {
+
       final def unapply(term: Term): Option[Term] = term.parent collect {
         case parent @ Term.ApplyUnary(Term.Name("!"), _) => parent
       }

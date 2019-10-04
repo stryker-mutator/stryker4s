@@ -8,6 +8,7 @@ trait FileIO {
 }
 
 object DiskFileIO extends FileIO {
+
   override def createAndWriteFromResource(file: File, resourceName: String): Unit = {
     file.createFileIfNotExists(createParents = true)
 
