@@ -29,6 +29,7 @@ object Providers extends Logging {
   object CircleProvider extends CiProvider {
     override def isPullRequest: Boolean = !readEnvironmentVariableOrLog("CIRCLE_PULL_REQUEST").forall(_ == "false")
     override def determineBranch(): Option[String] = readEnvironmentVariableOrLog("CIRCLE_BRANCH")
+
     override def determineRepository(): Option[String] =
       for {
         username <- readEnvironmentVariableOrLog("CIRCLE_PROJECT_USERNAME")
