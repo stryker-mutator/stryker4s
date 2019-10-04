@@ -1,7 +1,7 @@
 language: scala
 
 scala:
-  - 2.12.9
+  - 2.12.10
 
 jdk:
   - openjdk8
@@ -37,7 +37,7 @@ jobs:
         - CI_SONATYPE_RELEASE=stryker4sReleaseAll
 
 # Matrixed with jdk's
-script: sbt clean coverage test coverageReport
+script: sbt test
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
