@@ -60,6 +60,17 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       exc.getMessage() should include("Cannot convert configuration")
     }
 
+    it("should load a config with unknown keys") {
+      val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
+
+      lazy val config = ConfigReader.readConfig(confPath)
+
+      config.baseDir shouldBe File("/tmp/project")
+      config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      config.reporters.loneElement shouldBe HtmlReporterType
+      config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+    }
+
     it("should load a config with customized properties") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
@@ -104,6 +115,14 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       "Using default config instead..." shouldBe loggedAsWarning
       // Ignored due to transitive dependency clash in sbt
       // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+    }
+
+    it("should log warnings when unknown keys are used") {
+      val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
+
+      val sut = ConfigReader.readConfig(confPath)
+
+      "The following configuration keys are not used: unknown-key." shouldBe loggedAsWarning
     }
   }
 }
