@@ -28,6 +28,11 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     )
   }
 
+  def readConfigOfType[T](
+                            confFile: File = defaultConfigFileLocation
+                         )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
+    ConfigSource.file(confFile.path).at("stryker4s").load[T]
+
   object Failure {
     def recoverUnknownKey(confFile: File): PartialFunction[ConfigReaderFailures, Config] = {
       case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures) =>
@@ -59,20 +64,15 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     }
   }
 
-  def readConfigOfType[T](
-      confFile: File = defaultConfigFileLocation
-  )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
-    ConfigSource.file(confFile.path).at("stryker4s").load[T]
+  private def nonStrictlyReadConfig(confFile: File): Config =
+    recoverAndLog(
+      readConfigOfType[Config](confFile)
+    )
 
   private def recoverAndLog(either: Either[ConfigReaderFailures, Config]): Config = {
     val conf = either.valueOr(Failure.recoverFileNotFound.orElse(Failure.throwException))
     logAndReturn(info("Using stryker4s.conf in the current working directory"))(conf)
   }
-
-  private def nonStrictlyReadConfig(confFile: File): Config =
-    recoverAndLog(
-      readConfigOfType[Config](confFile)
-    )
 
   def logAndReturn[T](log: => Unit)(obj: T): T = {
     log
