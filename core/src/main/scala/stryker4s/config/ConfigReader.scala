@@ -15,6 +15,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   import EitherSyntax.EitherOps
 
   val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
+
   private val configDocUrl: String =
     "https://github.com/stryker-mutator/stryker4s/blob/master/docs/CONFIGURATION.md"
 
@@ -29,18 +30,21 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   }
 
   def readConfigOfType[T](
-                            confFile: File = defaultConfigFileLocation
-                         )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
+      confFile: File = defaultConfigFileLocation
+  )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
     ConfigSource.file(confFile.path).at("stryker4s").load[T]
 
   object Failure {
+
     def recoverUnknownKey(confFile: File): PartialFunction[ConfigReaderFailures, Config] = {
       case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures) =>
         val unknownKeys = key :: failures.collect {
           case ConvertFailure(UnknownKey(k), _, _) => k
         }
-        warn(s"The following configuration keys are not used: ${unknownKeys.mkString(", ")}.\n" +
-           s"Please check the documentation at $configDocUrl for available options.")
+        warn(
+          s"The following configuration keys are not used: ${unknownKeys.mkString(", ")}.\n" +
+            s"Please check the documentation at $configDocUrl for available options."
+        )
         nonStrictlyReadConfig(confFile)
     }
 
@@ -83,6 +87,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 object EitherSyntax {
 
   implicit final class EitherOps[A, B](val eab: Either[A, B]) extends AnyVal {
+
     def recoverWith[BB >: B](pf: PartialFunction[A, BB]): Either[A, BB] = eab match {
       case Left(a) if pf.isDefinedAt(a) => Right(pf(a))
       case _                            => eab
