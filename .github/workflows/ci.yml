@@ -35,9 +35,10 @@ jobs:
     - uses: olafurpg/setup-scala@v5
       with:
         java-version: openjdk@1.11
-    - name: Run tests
+    - name: Publish stryker4s-core
+      run: csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
+    - name: Run Maven tests
       run: |
-        csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
         cd runners/maven
         mvn test -B
   formatting:
