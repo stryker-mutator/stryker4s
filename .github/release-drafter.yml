@@ -1,0 +1,17 @@
+name-template: 'Stryker4s v$NEXT_PATCH_VERSION'
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'enhancement'
+  - title: '🐛 Bugfixes'
+    labels:
+      - 'bug'
+  - title: '✌ Other changes'
+  - title: '🧰 Maintenance'
+    labels: 
+      - 'chore'
+      - 'dependencies'
+template: |
+  ## Changes
+
+  $CHANGES
