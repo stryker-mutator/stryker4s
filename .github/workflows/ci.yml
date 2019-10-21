@@ -18,7 +18,7 @@ jobs:
         java-version: ${{ matrix.java-version }}
     - name: Run tests
       run: sbt test
-  sbt scripted tests:
+  sbt-scripted:
     name: sbt plugin scripted tests
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
         java-version: 11
     - name: Run tests
       run: sbt publishLocal scripted
-  maven plugin:
+  maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
     steps:
