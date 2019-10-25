@@ -64,16 +64,13 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       */
     def recoverWithDerivation(pf: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[T]]]): Reader[T] = {
 
-      def bar(d: Derivation[PureConfigReader[T]]): Reader.Result[T] = {
+      def setDerivation(d: Derivation[PureConfigReader[T]]): Reader.Result[T] = {
         val api = new Reader[T](file) (d)
         api.recoverWith(onFailure)
         api.tryRead
       }
 
-      val foo: PartialFunction[ConfigReaderFailures, Reader.Result[T]] = {
-        pf.andThen(bar)
-      }
-      recoverWith(foo)
+      recoverWith(pf.andThen(setDerivation))
     }
 
     /**
@@ -135,7 +132,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         Config.default
     }
 
-    def throwException[T](failures: ConfigReaderFailures) = {
+    def throwException[T](failures: ConfigReaderFailures): Nothing = {
       error("Failures in reading config: ")
       error(failures.toList.map(_.description).mkString(System.lineSeparator))
 
