@@ -11,11 +11,14 @@ case class Config(
     files: Option[Seq[String]] = None,
     excludedMutations: ExcludedMutations = ExcludedMutations(),
     thresholds: Thresholds = Thresholds()
-) {
+)
 
-  def toHoconString: String = {
+object Config {
+  def default: Config = Config()
+
+  def toHoconString(config: Config): String = {
     import stryker4s.config.implicits.ConfigWriterImplicits._
 
-    ConfigWriter[Config].to(this).render(options)
+    ConfigWriter[Config].to(config).render(options)
   }
 }
