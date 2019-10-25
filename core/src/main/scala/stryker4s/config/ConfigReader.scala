@@ -8,11 +8,11 @@ import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFail
 import pureconfig.generic.ProductHint
 import pureconfig.{ConfigSource, Derivation, ConfigReader => PureConfigReader}
 import stryker4s.config.implicits.ConfigReaderImplicits
+import cats.syntax.either._
 import pureconfig.generic.auto._
 
 object ConfigReader extends ConfigReaderImplicits with Logging {
 
-  import EitherSyntax.EitherOps
 
   val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
 
@@ -25,7 +25,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
     recoverAndLog(
-      readConfigOfType[Config](confFile).recoverWith(Failure.recoverUnknownKey(confFile))
+      readConfigOfType[Config](confFile).recover(Failure.recoverUnknownKey(confFile))
     )
   }
 
@@ -81,21 +81,5 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   def logAndReturn[T](log: => Unit)(obj: T): T = {
     log
     obj
-  }
-}
-
-object EitherSyntax {
-
-  implicit final class EitherOps[A, B](val eab: Either[A, B]) extends AnyVal {
-
-    def recoverWith[BB >: B](pf: PartialFunction[A, BB]): Either[A, BB] = eab match {
-      case Left(a) if pf.isDefinedAt(a) => Right(pf(a))
-      case _                            => eab
-    }
-
-    def valueOr[BB >: B](f: A => BB): BB = eab match {
-      case Left(a)  => f(a)
-      case Right(b) => b
-    }
   }
 }
