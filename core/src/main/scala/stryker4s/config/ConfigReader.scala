@@ -65,7 +65,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     def recoverWithDerivation(pf: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[T]]]): Reader[T] = {
 
       def setDerivation(d: Derivation[PureConfigReader[T]]): Reader.Result[T] = {
-        val api = new Reader[T](file) (d)
+        val api = new Reader[T](file)(d)
         api.recoverWith(onFailure)
         api.tryRead
       }
@@ -106,6 +106,12 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
   private object Failure {
 
+    /**
+      * When the config-parsing fails because of an unknown key in the configuration, a
+      * derivation for the [[PureConfigReader]] is provided that does not fail
+      * when unknown keys are present.
+      * The names of the unknown keys are logged.
+      */
     def onUnknownKey: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[Config]]] = {
       case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures) =>
         val unknownKeys = key :: failures.collect {
@@ -120,6 +126,10 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         implicitly[Derivation[PureConfigReader[Config]]]
     }
 
+    /**
+      * When the config-parsing fails because no file is found at the specified location,
+      * a default config is provided.
+      */
     def onFileNotFound: PartialFunction[ConfigReaderFailures, Config] = {
       case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
         warn(s"Could not find config file $fileName")
@@ -132,6 +142,9 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         Config.default
     }
 
+    /**
+      * Throw a [[ConfigReaderException]] and log the encountered failures.
+      */
     def throwException[T](failures: ConfigReaderFailures): Nothing = {
       error("Failures in reading config: ")
       error(failures.toList.map(_.description).mkString(System.lineSeparator))
