@@ -115,7 +115,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         }
 
         warn(
-          s"The following configuration keys are not used: ${unknownKeys.mkString(", ")}.\n" +
+          s"The following configuration keys are not used, maybe the stem from an older " +
+             s"stryker4s version: ${unknownKeys.mkString(", ")}.\n" +
             s"Please check the documentation at $configDocUrl for available options."
         )
         implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = true)
