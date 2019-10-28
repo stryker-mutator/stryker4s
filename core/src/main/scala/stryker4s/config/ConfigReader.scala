@@ -23,7 +23,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   def readConfig(confFile: File = defaultConfigFileLocation): Config = {
     implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-    Reader[Config](confFile)
+    Reader
+      .withoutRecovery[Config](confFile)
       .recoverWithDerivation(Failure.onUnknownKey)
       .recoverWith(Failure.onFileNotFound.andThen(_.asRight[ConfigReaderFailures]))
       .config
@@ -32,7 +33,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   def readConfigOfType[T](
       confFile: File = defaultConfigFileLocation
   )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
-    Reader[T](confFile).tryRead
+    Reader.withoutRecovery[T](confFile).tryRead
 
   /**
     * A configuration on how to attempt to read a config. The reason for its existence is to
@@ -45,18 +46,16 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     * @param derivation the [[Derivation]] that is used to configure the [[PureConfigReader]].
     * @tparam T the type of the config that is to be read.
     */
-  private class Reader[T] private (file: File)(implicit derivation: Derivation[PureConfigReader[T]]) {
-
-    private var onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]] = PartialFunction.empty
+  private class Reader[T] private (file: File, onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]])(
+      implicit derivation: Derivation[PureConfigReader[T]]
+  ) {
 
     /**
       * Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]]
       * if they occur
       */
-    def recoverWith(pf: PartialFunction[ConfigReaderFailures, Reader.Result[T]]): Reader[T] = {
-      this.onFailure = onFailure orElse pf
-      this
-    }
+    def recoverWith(pf: PartialFunction[ConfigReaderFailures, Reader.Result[T]]): Reader[T] =
+      new Reader[T](file, this.onFailure orElse pf)
 
     /**
       * Handle certain [[ConfigReaderFailures]] by providing a different [[Derivation]] with
@@ -65,8 +64,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     def recoverWithDerivation(pf: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[T]]]): Reader[T] = {
 
       def setDerivation(d: Derivation[PureConfigReader[T]]): Reader.Result[T] = {
-        val api = new Reader[T](file)(d)
-        api.recoverWith(onFailure)
+        val api = new Reader[T](file, this.onFailure)(d)
         api.tryRead
       }
 
@@ -85,14 +83,12 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
+      info(s"Attempting to read config from ${file.path}")
       ConfigSource
         .file(file.path)
         .at("stryker4s")
         .load[T]
         .recoverWith(onFailure)
-        .map { c =>
-          info("Using stryker4s.conf in the current working directory"); c
-        }
     }
   }
 
@@ -100,8 +96,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
     type Result[T] = Either[ConfigReaderFailures, T]
 
-    def apply[T](file: File)(implicit d: Derivation[PureConfigReader[T]]): Reader[T] =
-      new Reader[T](file)
+    def withoutRecovery[T](file: File)(implicit d: Derivation[PureConfigReader[T]]): Reader[T] =
+      new Reader[T](file, PartialFunction.empty)
   }
 
   private object Failure {
