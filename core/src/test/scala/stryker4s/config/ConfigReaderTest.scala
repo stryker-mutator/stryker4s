@@ -122,7 +122,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       val sut = ConfigReader.readConfig(confPath)
 
-      "The following configuration keys are not used: unknown-key." shouldBe loggedAsWarning
+      "The following configuration keys are not used, maybe the stem from an older " +
+        "stryker4s version: unknown-key." shouldBe loggedAsWarning
     }
   }
 }
