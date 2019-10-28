@@ -1,12 +1,9 @@
 name-template: 'Stryker4s v$NEXT_PATCH_VERSION'
 categories:
   - title: '🚀 Features'
-    labels:
-      - 'enhancement'
+    label: 'enhancement'
   - title: '🐛 Bugfixes'
-    labels:
-      - 'bug'
-  - title: '✌ Other changes'
+    label: 'bug'
   - title: '🧰 Maintenance'
     labels: 
       - 'chore'
