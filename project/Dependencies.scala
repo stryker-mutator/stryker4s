@@ -5,7 +5,7 @@ object Dependencies {
   object versions {
     val scala212 = "2.12.10"
 
-    val scalameta = "4.2.3"
+    val scalameta = "4.2.4"
     val pureconfig = "0.12.1"
     val scalatest = "3.0.8"
     val mockitoScala = "1.6.2"
@@ -14,7 +14,7 @@ object Dependencies {
     val grizzledSlf4j = "1.3.4"
     val everitJsonSchema = "1.12.0"
     val cats = "2.0.0"
-    val circe = "0.12.2"
+    val circe = "0.12.3"
     val mutationTestingElements = "1.1.1"
     val mutationTestingSchema = "1.1.1"
     val scalajHttp = "2.4.2"
