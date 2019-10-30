@@ -115,7 +115,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         }
 
         warn(
-          s"The following configuration keys are not used, maybe the stem from an older " +
+          s"The following configuration key(s) are not used, they could stem from an older " +
             s"stryker4s version: ${unknownKeys.mkString(", ")}.\n" +
             s"Please check the documentation at $configDocUrl for available options."
         )
