@@ -60,6 +60,17 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       exc.getMessage() should include("Cannot convert configuration")
     }
 
+    it("should load a config with unknown keys") {
+      val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
+
+      lazy val config = ConfigReader.readConfig(confPath)
+
+      config.baseDir shouldBe File("/tmp/project")
+      config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      config.reporters.loneElement shouldBe HtmlReporterType
+      config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+    }
+
     it("should load a config with customized properties") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
@@ -87,12 +98,12 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
   }
 
   describe("logs") {
-    it("should log when config file in directory is used") {
+    it("should log where the config is read from") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
       ConfigReader.readConfig(confPath)
 
-      "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
+      s"Attempting to read config from ${confPath.path}" shouldBe loggedAsInfo
     }
 
     it("should log warnings when no config file is found") {
@@ -104,6 +115,15 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       "Using default config instead..." shouldBe loggedAsWarning
       // Ignored due to transitive dependency clash in sbt
       // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+    }
+
+    it("should log warnings when unknown keys are used") {
+      val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
+
+      val sut = ConfigReader.readConfig(confPath)
+
+      "The following configuration key(s) are not used, they could stem from an older " +
+        "stryker4s version: unknown-key." shouldBe loggedAsWarning
     }
   }
 }

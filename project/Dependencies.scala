@@ -13,6 +13,7 @@ object Dependencies {
     val log4j = "2.12.1"
     val grizzledSlf4j = "1.3.4"
     val everitJsonSchema = "1.12.0"
+    val cats = "2.0.0"
     val circe = "0.12.3"
     val mutationTestingElements = "1.1.1"
     val mutationTestingSchema = "1.1.1"
@@ -33,6 +34,7 @@ object Dependencies {
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
   val log4jslf4jImpl = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
+  val catsCore = "org.typelevel" %% "cats-core" % versions.cats
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
   val scalajHttp = "org.scalaj" %% "scalaj-http" % versions.scalajHttp

@@ -6,9 +6,9 @@ import stryker4s.testutil.Stryker4sSuite
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {
     it("should print toString with default values") {
-      val sut = Config()
+      val sut = Config.default
 
-      val result = sut.toHoconString
+      val result = Config.toHoconString(sut)
 
       val expected =
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
@@ -38,7 +38,7 @@ class ConfigTest extends Stryker4sSuite {
         excludedMutations = ExcludedMutations(Set("BooleanLiteral"))
       )
 
-      val result = sut.toHoconString
+      val result = Config.toHoconString(sut)
 
       val expected =
         s"""base-dir="${File("tmp").pathAsString.replace("\\", "\\\\")}"
