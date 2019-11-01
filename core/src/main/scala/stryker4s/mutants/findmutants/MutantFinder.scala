@@ -10,7 +10,6 @@ import scala.meta.Source
 import scala.meta.parsers.{Parsed, XtensionParseInputLike}
 
 class MutantFinder(matcher: MutantMatcher)(implicit config: Config) extends Logging {
-
   def mutantsInFile(filePath: File): MutationsInSource = {
     val parsedSource = parseFile(filePath)
     val (included, excluded) = findMutants(parsedSource)

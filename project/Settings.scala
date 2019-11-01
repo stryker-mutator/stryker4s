@@ -4,7 +4,6 @@ import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
 
 object Settings {
-
   lazy val scalacOpts: Seq[String] = Seq(
     "-deprecation", // Emit warning and location for usages of deprecated APIs.
     "-encoding",
@@ -19,7 +18,8 @@ object Settings {
     "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
     "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
     "-Ywarn-unused:params", // Warn if a value parameter is unused.
-    "-Ywarn-unused:patvars" // Warn if a variable bound in a pattern is unused.
+    "-Ywarn-unused:patvars", // Warn if a variable bound in a pattern is unused.
+    "-Ypartial-unification" // Improve type inference, necessary for cats until scala 2.13
   )
 
   lazy val commonSettings: Seq[Setting[_]] = Seq(

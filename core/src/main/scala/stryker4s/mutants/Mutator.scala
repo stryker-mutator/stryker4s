@@ -10,7 +10,6 @@ import scala.meta.Tree
 
 class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)
     extends Logging {
-
   def mutate(files: Iterable[File]): Iterable[MutatedFile] = {
     val mutatedFiles = files
       .map { file =>
@@ -64,5 +63,4 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
       s"""Stryker4s will perform a dry-run without actually mutating anything.
          |You can configure the `$configProperty` property in your configuration""".stripMargin
   }
-
 }

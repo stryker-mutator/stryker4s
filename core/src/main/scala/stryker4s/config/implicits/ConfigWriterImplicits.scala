@@ -8,7 +8,6 @@ import pureconfig.ConfigWriter
 import stryker4s.config.{ExcludedMutations, ReporterType}
 
 object ConfigWriterImplicits {
-
   implicit private[config] val fileWriter: ConfigWriter[File] =
     ConfigWriter[Path] contramap (_.path)
 

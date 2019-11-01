@@ -9,9 +9,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
-
   describe("reporter") {
-
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
       implicit val config: Config = Config()

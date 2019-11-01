@@ -4,7 +4,6 @@ import org.json.JSONObject
 import stryker4s.testutil.{MutationTestingElementsJsonSchema, Stryker4sSuite}
 
 class MutationTestResultTest extends Stryker4sSuite {
-
   describe("created json") {
     it("should be valid according to mutation-report-schema") {
       val schema = MutationTestingElementsJsonSchema.mutationTestingElementsJsonSchema

@@ -11,7 +11,6 @@ import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
 
 class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig) extends Stryker4sRunner {
-
   override val mutationActivation: ActiveMutationContext = ActiveMutationContext.envVar
 
   override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =

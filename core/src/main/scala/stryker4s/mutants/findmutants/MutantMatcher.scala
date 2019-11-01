@@ -8,7 +8,6 @@ import stryker4s.model.Mutant
 import scala.meta.{Mod, Term, Tree}
 
 class MutantMatcher()(implicit config: Config) {
-
   private[this] val ids = Iterator.from(0)
 
   def allMatchers: PartialFunction[Tree, Seq[Option[Mutant]]] =
@@ -74,7 +73,6 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   implicit class TermExtensions(original: Term) {
-
     def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] =
       createMutants[SubstitutionMutation[T]](mutated, _.tree)
 

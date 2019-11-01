@@ -14,7 +14,6 @@ import scala.language.implicitConversions
   * This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
   */
 object Stryker4sMain extends AutoPlugin {
-
   override def requires = JvmPlugin
 
   override def trigger = allRequirements
