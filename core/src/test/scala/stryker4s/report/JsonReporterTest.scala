@@ -11,7 +11,6 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import scala.concurrent.duration._
 
 class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
-
   describe("reportJson") {
     it("should contain the report") {
       implicit val config: Config = Config()

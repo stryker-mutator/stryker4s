@@ -10,7 +10,6 @@ import scala.meta._
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
-
   def buildNewSource(transformedStatements: SourceTransformations): Tree = {
     val source = transformedStatements.source
 

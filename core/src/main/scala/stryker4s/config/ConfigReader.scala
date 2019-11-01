@@ -12,7 +12,6 @@ import cats.syntax.either._
 import pureconfig.generic.auto._
 
 object ConfigReader extends ConfigReaderImplicits with Logging {
-
   val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
 
   private val configDocUrl: String =
@@ -49,7 +48,6 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   private class Reader[T] private (file: File, onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]])(
       implicit derivation: Derivation[PureConfigReader[T]]
   ) {
-
     /**
       * Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]]
       * if they occur
@@ -62,7 +60,6 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * which the [[PureConfigReader]] should be configured.
       */
     def recoverWithDerivation(pf: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[T]]]): Reader[T] = {
-
       def setDerivation(d: Derivation[PureConfigReader[T]]): Reader.Result[T] = {
         val api = new Reader[T](file, this.onFailure)(d)
         api.tryRead
@@ -93,7 +90,6 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   }
 
   private object Reader {
-
     type Result[T] = Either[ConfigReaderFailures, T]
 
     def withoutRecovery[T](file: File)(implicit d: Derivation[PureConfigReader[T]]): Reader[T] =
@@ -101,7 +97,6 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   }
 
   private object Failure {
-
     /**
       * When the config-parsing fails because of an unknown key in the configuration, a
       * derivation for the [[PureConfigReader]] is provided that does not fail

@@ -3,7 +3,6 @@ package stryker4s.extension.score
 import stryker4s.testutil.Stryker4sSuite
 
 class MutationScoreCalculatorTest extends Stryker4sSuite {
-
   case object Sut extends MutationScoreCalculator
 
   private val sut = Sut

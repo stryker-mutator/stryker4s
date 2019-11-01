@@ -2,7 +2,6 @@ package stryker4s.report.dashboard
 import grizzled.slf4j.Logging
 
 object Providers extends Logging {
-
   trait CiProvider {
     def isPullRequest: Boolean
     def determineBranch(): Option[String]

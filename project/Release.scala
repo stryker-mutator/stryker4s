@@ -3,7 +3,6 @@ import sbt._
 import scala.sys.process
 
 object Release {
-
   // Main release commands
   private val stryker4sPublish = "stryker4sPublish"
   private val stryker4sPublishSigned = "stryker4sPublishSigned"
@@ -31,7 +30,6 @@ object Release {
   /** Sets version of mvn project, calls `mvn deploy` and fails state if the command fails
     */
   private def mvnDeploy(baseDir: File, version: String)(state: State): State = {
-
     /** Returns a `ProcessBuilder` that runs the given maven command in the maven subdirectory
       */
     def runGoal(command: String): process.ProcessBuilder =

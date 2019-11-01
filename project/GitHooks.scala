@@ -10,7 +10,6 @@ import scala.util.Properties
 /** Starting point: https://github.com/randomcoder/sbt-git-hooks/blob/master/src/main/scala/uk/co/randomcoding/sbt/GitHooks.scala
   */
 object GitHooks {
-
   def apply(hooksSourceDir: File, hooksTargetDir: File, log: ManagedLogger): Unit =
     if (hooksSourceDir.isDirectory && hooksTargetDir.exists()) {
       IO.listFiles(hooksSourceDir)

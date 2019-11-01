@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 
 object Stryker4sArgumentHandler extends Logging {
-
   private lazy val logLevels: Map[String, Level] = Level
     .values()
     .map(level => (level.toString.toLowerCase, level))

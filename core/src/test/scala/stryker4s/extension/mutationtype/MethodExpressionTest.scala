@@ -6,9 +6,7 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
-
   describe("ArgMethodExpression") {
-
     it("should match with a filter call (one argument)") {
       q"list.filter( _ => true )" should matchPattern { case Filter(_, _) => }
     }
@@ -112,11 +110,9 @@ class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
     it("should match dropWhile to DropWhile") {
       q"list.dropWhile(_ < 2)" should matchPattern { case DropWhile(_, _) => }
     }
-
   }
 
   describe("NoArgMethodExpression") {
-
     it("should not match with an isEmpty call (one argument)") {
       q"list.isEmpty( arg )" should not matchPattern { case IsEmpty(_, _) => }
     }
@@ -156,7 +152,5 @@ class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
     it("should not match with an isEmpty variable") {
       q"isEmpty.foo" should not matchPattern { case IsEmpty(_, _) => }
     }
-
   }
-
 }

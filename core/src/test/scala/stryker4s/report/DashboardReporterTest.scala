@@ -13,7 +13,6 @@ import stryker4s.report.dashboard.Providers.CiProvider
 import scala.concurrent.duration._
 
 class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
-
   val ciEnvironment = CiEnvironment("someApiKey", "myRepo", "myBranch")
   describe("reportJson") {
     it("should contain the report") {

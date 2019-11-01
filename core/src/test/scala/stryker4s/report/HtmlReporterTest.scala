@@ -11,7 +11,6 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import scala.concurrent.duration._
 
 class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
-
   private val elementsLocation = "mutation-testing-elements/mutation-test-elements.js"
 
   private val expectedHtml =
