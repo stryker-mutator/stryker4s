@@ -11,7 +11,6 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
-
   implicit private val config: Config = Config()
   private val sut = new MutantMatcher()
 
@@ -287,7 +286,6 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     it("should match minBy to maxBy") {
       expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).minBy(_.toString)", MaxBy)
     }
-
   }
 
   describe("matchBooleanLiteral matcher") {
@@ -456,6 +454,5 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       expectMutations(trueFound, q"true", q"false")
       expectMutations(falseFound, q"false", q"true")
     }
-
   }
 }

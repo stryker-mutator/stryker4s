@@ -18,7 +18,6 @@ import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
-
   private lazy val filteredSystemProperties: Option[List[String]] = {
     // Matches strings that start with one of the options between brackets
     val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal).*"

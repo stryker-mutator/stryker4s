@@ -9,7 +9,6 @@ import stryker4s.testutil.stubs.TestSourceCollector
 import scala.meta._
 
 class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
-
   describe("run") {
     it("should return a single Tree with changed pattern match") {
       implicit val conf: Config = Config()

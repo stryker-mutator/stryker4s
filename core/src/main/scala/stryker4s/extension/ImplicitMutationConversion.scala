@@ -14,6 +14,5 @@ import scala.meta.Tree
   * }}}
   */
 object ImplicitMutationConversion {
-
   implicit def mutationToTree[T <: Tree](mutation: SubstitutionMutation[T]): T = mutation.tree
 }

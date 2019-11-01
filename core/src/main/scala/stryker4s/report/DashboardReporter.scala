@@ -12,7 +12,6 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
     extends FinishedRunReporter
     with MutantRunResultMapper
     with Logging {
-
   private val dashboardRootURL: String = "https://dashboard.stryker-mutator.io"
   private val dashboardURL: String = s"$dashboardRootURL/api/reports"
 
@@ -42,7 +41,6 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
 }
 
 object DashboardReporter {
-
   def resolveProvider(): Option[DashboardReporter] =
     resolveCiEnvironment()
       .map(new DashboardReporter(HttpClient, _))
@@ -60,7 +58,6 @@ object DashboardReporter {
         repoName <- provider.determineRepository()
         repositorySlug = "github.com/" + repoName
       } yield CiEnvironment(apiKey, repositorySlug, branchName)
-
 }
 
 case class CiEnvironment(apiKey: String, repositorySlug: String, branchName: String)

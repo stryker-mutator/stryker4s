@@ -5,7 +5,6 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class TreeEqualityInScopeTest extends Stryker4sSuite with TreeEquality {
-
   describe("Equality in scope") {
     it("two different tree objects with same structure should equal") {
       val firstTree = q"18 > 5"

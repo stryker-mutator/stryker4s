@@ -8,7 +8,6 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.testutil.Stryker4sSuite
 
 class FileExtensionsTest extends Stryker4sSuite {
-
   describe("relativePath") {
     implicit val config: Config = Config()
 

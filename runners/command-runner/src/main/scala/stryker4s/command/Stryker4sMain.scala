@@ -7,7 +7,6 @@ import stryker4s.run.threshold.ErrorStatus
 import pureconfig.generic.auto._
 
 object Stryker4sMain extends App {
-
   Stryker4sArgumentHandler.handleArgs(args)
 
   private[this] val processRunnerConfig: ProcessRunnerConfig = {
@@ -29,5 +28,4 @@ object Stryker4sMain extends App {
   private def exit(): Unit = {
     sys.exit(exitCode)
   }
-
 }

@@ -7,7 +7,6 @@ import pureconfig.ConfigReader
 import stryker4s.config._
 
 trait ConfigReaderImplicits {
-
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
     *
     */

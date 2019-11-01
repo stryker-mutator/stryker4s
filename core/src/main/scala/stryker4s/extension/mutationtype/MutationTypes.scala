@@ -12,7 +12,6 @@ sealed trait Mutation[T <: Tree] {
 }
 
 object Mutation {
-
   // List of mutations
   val mutations: List[String] = List[String](
     classOf[EqualityOperator].getSimpleName,
@@ -34,7 +33,6 @@ object Mutation {
   *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
   */
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
-
   val tree: T
 
   def unapply(arg: T): Option[T] =
@@ -72,7 +70,6 @@ trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
   * Base trait for method mutation
   */
 trait MethodExpression extends Mutation[Term] {
-
   /**
     * Method to be replaced or to replace
     */
@@ -83,5 +80,4 @@ trait MethodExpression extends Mutation[Term] {
   def apply(f: String => Term): Term = f(methodName)
 
   def unapply(term: Term): Option[(Term, String => Term)]
-
 }

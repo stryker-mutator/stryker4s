@@ -35,11 +35,9 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
       "Starting test-run 1..." shouldBe loggedAsInfo
       "Starting test-run 2..." shouldBe loggedAsInfo
     }
-
   }
 
   describe("reportFinishedMutation") {
-
     it("Should log multiple test runs") {
       implicit val config: Config = Config()
       val sut = new ConsoleReporter()
@@ -172,5 +170,4 @@ class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
       "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
     }
   }
-
 }

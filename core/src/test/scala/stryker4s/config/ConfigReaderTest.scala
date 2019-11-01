@@ -8,7 +8,6 @@ import pureconfig.generic.auto._
 import stryker4s.config.implicits.ConfigReaderImplicits
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
-
   describe("loadConfig") {
     it("should load stryker4s by type") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
