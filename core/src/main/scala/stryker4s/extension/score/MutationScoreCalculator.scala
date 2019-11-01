@@ -1,7 +1,6 @@
 package stryker4s.extension.score
 
 trait MutationScoreCalculator {
-
   def calculateMutationScore(totalMutants: Double, detectedMutants: Double): Double = {
     detectedMutants / totalMutants * 100 match {
       case mutationScore if mutationScore.isNaN =>

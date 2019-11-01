@@ -12,7 +12,6 @@ class JsonReporter(fileIO: FileIO)(implicit config: Config)
     extends FinishedRunReporter
     with MutantRunResultMapper
     with Logging {
-
   def buildScoreResult(report: MutantRunResults): MutationTestReport = {
     toReport(report)
   }

@@ -20,7 +20,6 @@ case object EmptyStringInterpolation extends StringLiteral[Term.Interpolate] {
 /** Not a mutation, just an extractor for pattern matching on empty string
   */
 case object NonEmptyString {
-
   def unapply(arg: Lit.String): Option[Lit.String] =
     Some(arg)
       .filter(_.value.nonEmpty)
@@ -34,11 +33,9 @@ case object StringInterpolation {
 
   def unapply(arg: Term.Interpolate): Option[Term.Interpolate] =
     Some(arg).filter(_.prefix.isEqual(Term.Name("s")))
-
 }
 
 private object ParentIsInterpolatedString {
-
   def apply(arg: Lit.String): Boolean = arg.parent match {
     // Do not mutate interpolated strings
     case Some(_: Term.Interpolate) => true

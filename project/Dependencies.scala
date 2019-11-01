@@ -1,7 +1,6 @@
 import sbt._
 
 object Dependencies {
-
   object versions {
     val scala212 = "2.12.10"
 
@@ -39,5 +38,4 @@ object Dependencies {
   val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
   val scalajHttp = "org.scalaj" %% "scalaj-http" % versions.scalajHttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
-
 }

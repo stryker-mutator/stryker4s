@@ -13,7 +13,6 @@ import stryker4s.run.threshold.ScoreStatus
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 
 trait Stryker4sRunner {
-
   def run(): ScoreStatus = {
     implicit val config: Config = ConfigReader.readConfig()
 

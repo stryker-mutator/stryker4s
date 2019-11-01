@@ -7,7 +7,6 @@ import stryker4s.report.model.MutantStatus.MutantStatus
 import stryker4s.report.model._
 
 trait MutantRunResultMapper {
-
   private val schemaVersion = "1"
 
   protected[report] def toReport(mutantRunResults: MutantRunResults)(implicit config: Config): MutationTestReport =
@@ -59,5 +58,4 @@ trait MutantRunResultMapper {
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
     (config.baseDir / path.toString).contentAsString
-
 }

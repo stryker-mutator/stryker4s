@@ -20,7 +20,6 @@ import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 import scala.util.Success
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
-
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
     private[this] val stream = Iterator.from(0)
@@ -90,7 +89,6 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
           ),
           testMutantRunner
         ) {
-
           override def jvmMemory2GBOrHigher: Boolean = false
         }
 
@@ -114,7 +112,6 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
           ),
           testMutantRunner
         ) {
-
           override def jvmMemory2GBOrHigher: Boolean = true
         }
 

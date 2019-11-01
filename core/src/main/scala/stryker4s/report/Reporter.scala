@@ -8,7 +8,6 @@ import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
 import scala.util.{Failure, Try}
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-
   lazy val reporters: Seq[MutationRunReporter] = config.reporters collect {
     case ConsoleReporterType             => new ConsoleReporter()
     case HtmlReporterType                => new HtmlReporter(DiskFileIO)
@@ -33,5 +32,4 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
       failed.map(_.exception).foreach(warn(_))
     }
   }
-
 }
