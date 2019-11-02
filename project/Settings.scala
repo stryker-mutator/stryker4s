@@ -30,9 +30,7 @@ object Settings {
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
-      Dependencies.test.everitJsonSchema,
       Dependencies.test.mockitoScala,
-      Dependencies.test.mutationTestingSchema,
       Dependencies.pureconfig,
       Dependencies.scalameta,
       Dependencies.betterFiles,
