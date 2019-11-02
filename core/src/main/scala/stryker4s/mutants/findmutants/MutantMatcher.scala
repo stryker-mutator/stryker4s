@@ -8,8 +8,7 @@ import stryker4s.model.Mutant
 import scala.meta.{Mod, Term, Tree}
 
 class MutantMatcher()(implicit config: Config) {
-
-  private[this] val stream = Iterator.from(0)
+  private[this] val ids = Iterator.from(0)
 
   def allMatchers: PartialFunction[Tree, Seq[Option[Mutant]]] =
     matchBooleanLiteral orElse
@@ -31,6 +30,8 @@ class MutantMatcher()(implicit config: Config) {
     case LesserThan(orig)         => orig ~~> (LesserThanEqualTo, GreaterThan, EqualTo)
     case EqualTo(orig)            => orig ~~> NotEqualTo
     case NotEqualTo(orig)         => orig ~~> EqualTo
+    case TypedEqualTo(orig)       => orig ~~> TypedNotEqualTo
+    case TypedNotEqualTo(orig)    => orig ~~> TypedEqualTo
   }
 
   def matchLogicalOperator: PartialFunction[Tree, Seq[Option[Mutant]]] = {
@@ -72,21 +73,22 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   implicit class TermExtensions(original: Term) {
-
     def ~~>[T <: Term](mutated: SubstitutionMutation[T]*): Seq[Option[Mutant]] =
       createMutants[SubstitutionMutation[T]](mutated, _.tree)
 
     def ~~>(f: String => Term, mutated: MethodExpression*): Seq[Option[Mutant]] =
       createMutants[MethodExpression](mutated, _(f))
 
-    private def createMutants[T <: Mutation[_ <: Tree]](mutations: Seq[T],
-                                                        mutationToTerm: T => Term): Seq[Option[Mutant]] =
+    private def createMutants[T <: Mutation[_ <: Tree]](
+        mutations: Seq[T],
+        mutationToTerm: T => Term
+    ): Seq[Option[Mutant]] =
       ifNotInAnnotation {
         mutations map { mutated =>
           if (matchExcluded(mutated))
             None
           else
-            Some(Mutant(stream.next, original, mutationToTerm(mutated), mutated))
+            Some(Mutant(ids.next, original, mutationToTerm(mutated), mutated))
         }
       }
 

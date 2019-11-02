@@ -17,7 +17,6 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     extends InitialTestRun
     with MutationScoreCalculator
     with Logging {
-
   val tmpDir: File = {
     val targetFolder = config.baseDir / "target"
     targetFolder.createDirectoryIfNotExists()
@@ -82,5 +81,4 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   }
 
   def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult
-
 }

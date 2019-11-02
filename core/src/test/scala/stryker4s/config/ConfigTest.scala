@@ -6,15 +6,15 @@ import stryker4s.testutil.Stryker4sSuite
 class ConfigTest extends Stryker4sSuite {
   describe("toHoconString") {
     it("should print toString with default values") {
-      val sut = Config()
+      val sut = Config.default
 
-      val result = sut.toHoconString
+      val result = Config.toHoconString(sut)
 
       val expected =
         s"""base-dir="${File.currentWorkingDirectory.pathAsString.replace("\\", "\\\\")}"
            |excluded-mutations=[]
            |mutate=[
-           |    "**/main/scala/**/*.scala"
+           |    "**/main/scala/**.scala"
            |]
            |reporters=[
            |    console,
@@ -31,12 +31,14 @@ class ConfigTest extends Stryker4sSuite {
 
     it("should print toString with changed values") {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
-      val sut = Config(filePaths,
-                       File("tmp"),
-                       reporters = Seq(HtmlReporterType),
-                       excludedMutations = ExcludedMutations(Set("BooleanLiteral")))
+      val sut = Config(
+        filePaths,
+        File("tmp"),
+        reporters = Seq(HtmlReporterType),
+        excludedMutations = ExcludedMutations(Set("BooleanLiteral"))
+      )
 
-      val result = sut.toHoconString
+      val result = Config.toHoconString(sut)
 
       val expected =
         s"""base-dir="${File("tmp").pathAsString.replace("\\", "\\\\")}"

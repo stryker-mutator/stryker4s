@@ -1,19 +1,17 @@
 package stryker4s.mutants.findmutants
 
 import better.files.File
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.util.{Failure, Try}
 
-class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMatchersSugar with LogMatchers {
-
+class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   private val filledDirPath: File = FileUtil.getResource("fileTests/filledDir")
-  private val basePath: File = filledDirPath / "src/main/scala/package"
+  private val basePath: File = filledDirPath / "src/main/scala"
 
   assume(filledDirPath.exists(), "Filled test dir does not exist")
   assume(basePath.exists(), "Basepath dir does not exist")
@@ -34,15 +32,14 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
     }
 
     describe("on filled dir") {
-
       it("should find all scala files and not the non-scala files with default config") {
         implicit val config: Config = Config(baseDir = filledDirPath)
         val sut = new FileCollector(TestProcessRunner())
 
         val results = sut.collectFilesToMutate()
 
-        results should have size 3
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "target.scala")
+        results should have size 4
+        results should contain only (basePath / "fileInRootSourceDir.scala", basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala", basePath / "package" / "target.scala")
       }
 
       it("should find matching files with custom config match pattern") {
@@ -53,7 +50,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
         val results = sut.collectFilesToMutate()
         val onlyResult = results.loneElement
 
-        onlyResult should equal(basePath / "secondFile.scala")
+        onlyResult should equal(basePath / "package" / "secondFile.scala")
       }
 
       it("should find no matches with a non-matching glob") {
@@ -74,24 +71,26 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
         val results = sut.collectFilesToMutate()
 
         results should have size 2
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala")
+        results should contain only (basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala")
       }
 
       it("should only add a glob once even when it matches twice") {
         implicit val config: Config =
-          Config(mutate = Seq("**/someFile.scala", "**/*.scala"), baseDir = filledDirPath)
+          Config(mutate = Seq("**/someFile.scala", "src/main/scala/**/*.scala"), baseDir = filledDirPath)
         val sut = new FileCollector(TestProcessRunner())
 
         val results = sut.collectFilesToMutate()
 
         results should have size 3
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "target.scala")
+        results should contain only (basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala", basePath / "package" / "target.scala")
       }
 
       it("should not find a file twice when the patterns match on the same file twice") {
         implicit val config: Config =
-          Config(mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
-                 baseDir = filledDirPath)
+          Config(
+            mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala", "!**/someFile.scala"),
+            baseDir = filledDirPath
+          )
 
         val sut = new FileCollector(TestProcessRunner())
 
@@ -111,13 +110,15 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
         val results = sut.collectFilesToMutate()
 
         results should have size 1
-        results should contain only (basePath / "secondFile.scala")
+        results should contain only (basePath / "package" / "secondFile.scala")
       }
 
       it("Should exclude all files specified in the excluded files config") {
         implicit val config: Config =
-          Config(mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
-                 baseDir = filledDirPath)
+          Config(
+            mutate = Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala"),
+            baseDir = filledDirPath
+          )
 
         val sut = new FileCollector(TestProcessRunner())
 
@@ -146,8 +147,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
 
         val results = sut.collectFilesToMutate()
 
-        results should have size 3
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "target.scala")
+        results should have size 4
+        results should contain only (basePath / "fileInRootSourceDir.scala", basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala", basePath / "package" / "target.scala")
       }
 
       it("Should not exclude a non existing file") {
@@ -161,13 +162,12 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
         val results = sut.collectFilesToMutate()
 
         results should have size 2
-        results should contain only (basePath / "someFile.scala", basePath / "secondFile.scala")
+        results should contain only (basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala")
       }
     }
   }
 
   describe("Collect files to copy over to tmp folder") {
-
     val processRunnerMock: ProcessRunner = mock[ProcessRunner]
 
     it("Should execute git process to collect files") {
@@ -203,7 +203,11 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
     it("Should copy the files from the files config key") {
       implicit val config: Config =
         Config(baseDir = filledDirPath, files = Some(Seq("**/main/scala/**/*.scala")))
-      val expectedFileList = Seq(basePath / "someFile.scala", basePath / "secondFile.scala", basePath / "target.scala")
+      val expectedFileList = Seq(
+        basePath / "package" / "someFile.scala",
+        basePath / "package" / "secondFile.scala",
+        basePath / "package" / "target.scala"
+      )
 
       val sut = new FileCollector(processRunnerMock)
 
@@ -213,13 +217,16 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSugar with ArgumentMa
     }
 
     it(
-      "Should copy files out of the target folders when no files config key is found and target repo is not a git repo") {
-      implicit val config: Config = Config(baseDir = basePath, files = None)
+      "Should copy files out of the target folders when no files config key is found and target repo is not a git repo"
+    ) {
+      implicit val config: Config = Config(baseDir = basePath / "package", files = None)
       val expectedFileList =
-        Seq(basePath / "someFile.scala",
-            basePath / "secondFile.scala",
-            basePath / "otherFile.notScala",
-            basePath / "target.scala")
+        Seq(
+          basePath / "package" / "someFile.scala",
+          basePath / "package" / "secondFile.scala",
+          basePath / "package" / "otherFile.notScala",
+          basePath / "package" / "target.scala"
+        )
       val gitProcessResult = Failure(new Exception("Exception"))
       when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
 

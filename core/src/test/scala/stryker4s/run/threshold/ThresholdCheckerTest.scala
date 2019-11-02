@@ -6,10 +6,7 @@ import stryker4s.extension.exception.InvalidThresholdValueException
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.language.postfixOps
-
 class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
-
   describe("thresholds") {
     def interceptThresholdException(high: Int = 80, low: Int = 60, break: Int = 0): Assertion = {
       an[InvalidThresholdValueException] should be thrownBy Thresholds(high, low, break)

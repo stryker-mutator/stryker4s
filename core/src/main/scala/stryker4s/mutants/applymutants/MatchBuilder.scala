@@ -10,7 +10,6 @@ import scala.meta._
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
-
   def buildNewSource(transformedStatements: SourceTransformations): Tree = {
     val source = transformedStatements.source
 
@@ -26,7 +25,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
           error(s"Failed to construct pattern match: original statement [$origStatement]")
           error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")
           error(
-            s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}")
+            s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}"
+          )
           error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
           debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
           debug("Please be so kind to copy the stacktrace into the issue", exception)
@@ -38,10 +38,11 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
 
   def buildMatch(transformedMutant: TransformedMutants): Term.Match = {
     val cases: List[Case] = transformedMutant.mutantStatements.map(mutantToCase) :+ defaultCase(
-      transformedMutant.originalStatement)
+      transformedMutant.originalStatement
+    )
 
     val activeMutationEnv = Lit.String("ACTIVE_MUTATION")
-    q"(sys.$mutationContext.get($activeMutationEnv) match { ..case $cases })"
+    q"(_root_.scala.sys.$mutationContext.get($activeMutationEnv) match { ..case $cases })"
   }
 
   private def mutantToCase(mutant: Mutant): Case =
@@ -54,8 +55,9 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
   private def groupTransformedStatements(transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
     transformedStatements.transformedStatements
       .groupBy(_.originalStatement)
-      .mapValues(transformedMutants =>
-        transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
+      .mapValues(
+        transformedMutants => transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements)
+      )
       .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq
       .sortBy(_.mutantStatements.head.id) // Should be sorted so tree transformations are applied in order of discovery

@@ -6,9 +6,7 @@ import stryker4s.model._
 import scala.meta.{Source, Term}
 
 class StatementTransformer {
-
   def transformSource(source: Source, foundMutants: Seq[Mutant]): SourceTransformations = {
-
     val transformedMutants: Seq[TransformedMutants] = foundMutants
       .groupBy(mutant => mutant.original)
       .map { case (original, mutants) => transformMutant(original, mutants) }

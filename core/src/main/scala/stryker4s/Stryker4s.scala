@@ -9,7 +9,6 @@ import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
 class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner)(implicit config: Config)
     extends Logging {
-
   //The minimal memory for sbt that is recommended for Stryker4s to run smoothly
   private[this] val minimalMemoryRecommendation = 1820 * 1024 * 1024
 
@@ -27,7 +26,8 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     if (!jvmMemory2GBOrHigher) {
       warn("The JVM has less than 2GB memory available. We advise to allocate 4GB memory when running Stryker4s.")
       warn(
-        "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM.")
+        "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM."
+      )
     }
   }
 
