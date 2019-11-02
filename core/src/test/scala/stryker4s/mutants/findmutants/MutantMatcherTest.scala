@@ -11,7 +11,7 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
-  implicit private val config: Config = Config()
+  implicit private val config: Config = Config.default
   private val sut = new MutantMatcher()
 
   def expectMutations(
@@ -374,7 +374,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
   describe("Create mutant id's") {
     it("should register multiple mutants from a found mutant with multiple mutations") {
-      val sut = new MutantMatcher()(Config())
+      val sut = new MutantMatcher()(Config.default)
       val mutants = (sut.TermExtensions(GreaterThan) ~~> (LesserThan, GreaterThanEqualTo, EqualTo)).flatten
 
       mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0, 1, 2)

@@ -2,17 +2,16 @@ package stryker4s.report.mapper
 import java.nio.file.Path
 
 import better.files.File
+import mutationtesting._
 import org.scalatest.Inside
 import stryker4s.config.{Config, Thresholds => ConfigThresholds}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.ImplicitMutationConversion._
 import stryker4s.extension.mutationtype._
-import stryker4s.model.{Killed, Mutant, MutantRunResults, Survived}
-import stryker4s.report.model._
+import stryker4s.model.{Killed, Mutant, Survived}
 import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.concurrent.duration._
 import scala.meta.{Lit, Term}
 
 class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
@@ -36,13 +35,11 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
         path3
       )
 
-      val mutationRunResults =
-        MutantRunResults(List(mutantRunResult, mutantRunResult2, mutantRunResult3), 100.0, 10.seconds)
+      val mutationRunResults = List(mutantRunResult, mutantRunResult2, mutantRunResult3)
 
-      val result: MutationTestReport = sut.toReport(mutationRunResults)
+      val result = sut.toReport(mutationRunResults)
       inside(result) {
-        case MutationTestReport(schemaVersion, thresholds, files) =>
-          schemaVersion shouldBe "1"
+        case MutationTestReport(_, _, thresholds, files) =>
           thresholds should equal(Thresholds(high = 60, low = 40))
           files should have size 2
           val firstResult = files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value

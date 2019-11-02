@@ -12,7 +12,7 @@ import scala.meta._
 import scala.meta.parsers.ParseException
 
 class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
-  implicit private val config: Config = Config()
+  implicit private val config: Config = Config.default
 
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
 

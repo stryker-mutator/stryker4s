@@ -32,7 +32,7 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
   }
   describe("thresholdchecker") {
     it("should return a DangerStatus with default thresholds and score 0.0") {
-      implicit val config: Config = Config()
+      implicit val config: Config = Config.default
 
       val score = 0.0
 

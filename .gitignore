@@ -24,16 +24,10 @@ out/
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
-## File-based project format:
-*.iws
-
 ## Plugin-specific files:
 
 # IntelliJ
 /out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml

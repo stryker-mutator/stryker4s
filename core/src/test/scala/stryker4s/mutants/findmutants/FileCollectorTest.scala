@@ -4,8 +4,8 @@ import better.files.File
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import stryker4s.testutil.stubs.TestProcessRunner
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
 import scala.util.{Failure, Try}
 

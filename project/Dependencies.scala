@@ -16,6 +16,7 @@ object Dependencies {
     val circe = "0.12.3"
     val mutationTestingElements = "1.1.1"
     val mutationTestingSchema = "1.1.1"
+    val mutationTestingMetrics = "1.2.0"
     val scalajHttp = "2.4.2"
   }
 
@@ -35,7 +36,7 @@ object Dependencies {
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
   val catsCore = "org.typelevel" %% "cats-core" % versions.cats
   val circeCore = "io.circe" %% "circe-core" % versions.circe
-  val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
   val scalajHttp = "org.scalaj" %% "scalaj-http" % versions.scalajHttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
+  val mutationTestingMetrics = "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
 }

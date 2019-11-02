@@ -2,7 +2,7 @@ package stryker4s.files
 import better.files._
 
 trait FileIO {
-  def createAndWriteFromResource(file: File, resource: String)
+  def createAndWriteFromResource(file: File, resource: String): Unit
 
   def createAndWrite(file: File, content: String): Unit
 }

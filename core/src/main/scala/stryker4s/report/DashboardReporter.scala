@@ -1,9 +1,9 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
+import mutationtesting.{MetricsResult, MutationTestReport}
 import scalaj.http.HttpResponse
 import stryker4s.http.{HttpClient, WebIO}
-import stryker4s.model.MutantRunResults
 import stryker4s.report.dashboard.Providers._
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.model.StrykerDashboardReport
@@ -15,7 +15,7 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
   private val dashboardRootURL: String = "https://dashboard.stryker-mutator.io"
   private val dashboardURL: String = s"$dashboardRootURL/api/reports"
 
-  def buildScoreResult(input: MutantRunResults): StrykerDashboardReport = {
+  def buildScoreResult(input: MetricsResult): StrykerDashboardReport = {
     StrykerDashboardReport(
       ciEnvironment.apiKey,
       ciEnvironment.repositorySlug,
@@ -28,8 +28,8 @@ class DashboardReporter(webIO: WebIO, ciEnvironment: CiEnvironment)
     webIO.postRequest(url, report.toJson)
   }
 
-  override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val response = writeReportToDashboard(dashboardURL, buildScoreResult(runResults))
+  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit = {
+    val response = writeReportToDashboard(dashboardURL, buildScoreResult(metrics))
 
     if (response.code == 201) {
       info(s"Sent report to dashboard: $dashboardRootURL")
