@@ -13,7 +13,7 @@ object Dependencies {
     val grizzledSlf4j = "1.3.4"
     val cats = "2.0.0"
     val circe = "0.12.3"
-    val mutationTestingElements = "1.1.1"
+    val mutationTestingElements = "1.2.0"
     val mutationTestingMetrics = "1.2.0"
     val scalajHttp = "2.4.2"
   }
