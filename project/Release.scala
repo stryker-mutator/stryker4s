@@ -1,5 +1,6 @@
 import sbt.Keys._
 import sbt._
+
 import scala.sys.process
 
 object Release {
@@ -24,7 +25,7 @@ object Release {
     ),
     // Called by stryker4sPublish(signed)
     Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value, version.value)),
-    Command.command(stryker4sReleaseAll)(sonatypeBundleUpload :: s"""${sonatypeReleaseAll} "io.stryker-mutator"""" :: _)
+    Command.command(stryker4sReleaseAll)(sonatypeBundleUpload :: s"""$sonatypeReleaseAll "io.stryker-mutator"""" :: _)
   )
 
   /** Sets version of mvn project, calls `mvn deploy` and fails state if the command fails

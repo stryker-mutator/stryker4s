@@ -1,19 +1,16 @@
 package stryker4s.report.mapper
 import java.nio.file.Path
 
+import mutationtesting.MutantStatus.MutantStatus
+import mutationtesting._
 import stryker4s.config.{Config, Thresholds => ConfigThresholds}
 import stryker4s.model._
-import stryker4s.report.model.MutantStatus.MutantStatus
-import stryker4s.report.model._
 
 trait MutantRunResultMapper {
-  private val schemaVersion = "1"
-
-  protected[report] def toReport(mutantRunResults: MutantRunResults)(implicit config: Config): MutationTestReport =
+  protected[report] def toReport(results: Iterable[MutantRunResult])(implicit config: Config): MutationTestReport =
     MutationTestReport(
-      schemaVersion,
-      toThresholds(config.thresholds),
-      toMutationTestResultMap(mutantRunResults.results.toSeq)
+      thresholds = toThresholds(config.thresholds),
+      files = toMutationTestResultMap(results.toSeq)
     )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =

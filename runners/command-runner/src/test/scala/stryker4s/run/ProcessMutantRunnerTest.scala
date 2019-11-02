@@ -1,7 +1,5 @@
 package stryker4s.run
 
-import java.nio.file.Paths
-
 import stryker4s.command.runner.ProcessMutantRunner
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
@@ -11,8 +9,8 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import stryker4s.testutil.stubs.TestProcessRunner
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
 import scala.concurrent.TimeoutException
 import scala.meta._
@@ -37,8 +35,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 00.00
-      val loneResult = result.results.loneElement
-      loneResult should equal(Survived(mutant, Paths.get("simpleFile.scala")))
+      result.totalMutants shouldBe 1
+      result.survived shouldBe 1
     }
 
     it("should return a Killed mutant on an exitcode 1 process") {
@@ -54,8 +52,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
-      val loneResult = result.results.loneElement
-      loneResult should equal(Killed(mutant, Paths.get("simpleFile.scala")))
+      result.totalMutants shouldBe 1
+      result.killed shouldBe 1
     }
 
     it("should return a TimedOut mutant on a TimedOut process") {
@@ -72,8 +70,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
-      val loneResult = result.results.loneElement
-      loneResult should equal(TimedOut(mutant, Paths.get("simpleFile.scala")))
+      result.totalMutants shouldBe 1
+      result.timeout shouldBe 1
     }
 
     it("should return a combination of results on multiple runs") {
@@ -92,10 +90,8 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
       testProcessRunner.timesCalled.next() should equal(2)
 
       result.mutationScore shouldBe 100.00
-      result.results should contain only (
-        Killed(mutant, Paths.get("simpleFile.scala")),
-        Killed(secondMutant, Paths.get("simpleFile.scala"))
-      )
+      result.totalMutants shouldBe 2
+      result.killed shouldBe 2
     }
 
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
@@ -114,12 +110,10 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       testProcessRunner.timesCalled.next() should equal(3)
 
-      result.mutationScore shouldBe 66.67
-      result.results should contain only (
-        Killed(mutant, Paths.get("simpleFile.scala")),
-        Killed(secondMutant, Paths.get("simpleFile.scala")),
-        Survived(thirdMutant, Paths.get("simpleFile.scala"))
-      )
+      result.mutationScore shouldBe ((2d / 3d) * 100)
+      result.totalMutants shouldBe 3
+      result.killed shouldBe 2
+      result.survived shouldBe 1
     }
 
     it("should throw an exception when the initial test run fails") {
@@ -128,7 +122,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
-      a[InitialTestRunFailedException] shouldBe thrownBy(sut(Seq.empty))
+      an[InitialTestRunFailedException] shouldBe thrownBy(sut(Seq.empty))
     }
     describe("Log tests") {
       it("should properly log the initial test run") {

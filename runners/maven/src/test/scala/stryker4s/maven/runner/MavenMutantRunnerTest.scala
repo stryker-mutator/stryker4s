@@ -1,4 +1,4 @@
-package stryker4s.maven
+package stryker4s.maven.runner
 
 import better.files._
 import org.apache.maven.project.MavenProject
@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
 import scala.meta._
 
 class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
-  implicit val config: Config = Config()
+  implicit val config: Config = Config.default
   describe("runInitialTest") {
     it("should succeed on exit-code 0 invoker") {
       val invokerMock = mock[Invoker]

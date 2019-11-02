@@ -3,12 +3,12 @@ package stryker4s.config
 import java.io.FileNotFoundException
 
 import better.files.File
+import cats.syntax.either._
 import grizzled.slf4j.Logging
-import pureconfig.error.{CannotReadFile, ConfigReaderException, ConfigReaderFailures, ConvertFailure, UnknownKey}
+import pureconfig.error._
 import pureconfig.generic.ProductHint
 import pureconfig.{ConfigSource, Derivation, ConfigReader => PureConfigReader}
 import stryker4s.config.implicits.ConfigReaderImplicits
-import cats.syntax.either._
 import pureconfig.generic.auto._
 
 object ConfigReader extends ConfigReaderImplicits with Logging {

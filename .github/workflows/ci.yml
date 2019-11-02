@@ -10,6 +10,7 @@ jobs:
   test:
     name: Test on JDK ${{matrix.java-version}}
     strategy:
+      fail-fast: false
       matrix:
         java-version: [ 'openjdk@1.8', 'openjdk@1.11' ]
     runs-on: ubuntu-latest

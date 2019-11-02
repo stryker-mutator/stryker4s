@@ -2,10 +2,10 @@ package stryker4s.config
 
 import better.files.File
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
+import stryker4s.config.implicits.ConfigReaderImplicits
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import pureconfig.generic.auto._
-import stryker4s.config.implicits.ConfigReaderImplicits
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
   describe("loadConfig") {
@@ -108,7 +108,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
     it("should log warnings when no config file is found") {
       val confPath = File("nonExistentFile.conf")
 
-      val sut = ConfigReader.readConfig(confPath)
+      ConfigReader.readConfig(confPath)
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
@@ -119,7 +119,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
     it("should log warnings when unknown keys are used") {
       val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
 
-      val sut = ConfigReader.readConfig(confPath)
+      ConfigReader.readConfig(confPath)
 
       "The following configuration key(s) are not used, they could stem from an older " +
         "stryker4s version: unknown-key." shouldBe loggedAsWarning

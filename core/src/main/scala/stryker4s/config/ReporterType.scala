@@ -3,7 +3,7 @@ package stryker4s.config
 import stryker4s.report.DashboardReporter
 
 sealed trait ReporterType {
-  val name: String
+  def name: String
 }
 
 case object ConsoleReporterType extends ReporterType {
