@@ -11,13 +11,15 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
+  implicit private val config: Config = Config()
+  private val sut = new MutantMatcher()
 
-  private val sut = new MutantMatcher()(config = Config())
-
-  def expectMutations(matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
-                      tree: Tree,
-                      original: Term,
-                      expectedTerms: Term*): Unit = {
+  def expectMutations(
+      matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
+      tree: Tree,
+      original: Term,
+      expectedTerms: Term*
+  ): Unit = {
     val found: Seq[Option[Mutant]] = tree.collect(matchFun).flatten
 
     expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
@@ -26,9 +28,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   def expectMutations(actualMutants: Seq[Option[Mutant]], original: Term, expectedMutations: Term*): Unit = {
     expectedMutations.foreach(expectedMutation => {
       val actualMutant = actualMutants.flatten
-        .find(mutant =>
-          mutant.mutated.isEqual(expectedMutation) &&
-            mutant.original.isEqual(original))
+        .find(
+          mutant =>
+            mutant.mutated.isEqual(expectedMutation) &&
+              mutant.original.isEqual(original)
+        )
         .getOrElse(fail("mutant not found"))
 
       actualMutant.original should equal(original)
@@ -39,10 +43,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   /**
     * Check if there is a mutant for every expected mutation
     */
-  def expectedMutations(matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
-                        tree: Tree,
-                        original: MethodExpression,
-                        expectedMutations: MethodExpression*): Unit = {
+  def expectedMutations(
+      matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
+      tree: Tree,
+      expectedMutations: MethodExpression*
+  ): Unit = {
     val found: Seq[Mutant] = tree.collect(matchFun).flatten.flatten
     expectedMutations foreach { expectedMutation =>
       found
@@ -71,9 +76,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
       found should have length 2
       expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
-      expectMutations(found,
-                      q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
-                      q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)")
+      expectMutations(
+        found,
+        q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
+        q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)"
+      )
     }
 
     it("should match a boolean and a conditional") {
@@ -168,6 +175,24 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         EqualTo
       )
     }
+
+    it("should match === to =!=") {
+      expectMutations(
+        sut.matchEqualityOperator,
+        q"def foo = 18 === 20",
+        TypedEqualTo,
+        TypedNotEqualTo
+      )
+    }
+
+    it("should match =!= to ===") {
+      expectMutations(
+        sut.matchEqualityOperator,
+        q"def foo = 18 =!= 20",
+        TypedNotEqualTo,
+        TypedEqualTo
+      )
+    }
   }
   describe("matchLogicalOperator matcher") {
     it("should match && to ||") {
@@ -191,167 +216,76 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
   describe("matchMethodExpression matcher") {
     it("should match filter to filterNot") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).filter(_ % 2 == 0)",
-        Filter,
-        FilterNot
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).filter(_ % 2 == 0)", FilterNot)
     }
 
     it("should match filterNot to filter") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)",
-        FilterNot,
-        Filter
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).filterNot(_ % 2 == 0)", Filter)
     }
 
     it("should match exists to forall") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).exists(_ % 2 == 0)",
-        Exists,
-        Forall
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).exists(_ % 2 == 0)", Forall)
     }
 
     it("should match forall to exists") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).forall(_ % 2 == 0)",
-        Forall,
-        Exists
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).forall(_ % 2 == 0)", Exists)
     }
 
     it("should match take to drop") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).take(2)",
-        Take,
-        Drop
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).take(2)", Drop)
     }
 
     it("should match drop to take") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).drop(2)",
-        Drop,
-        Take
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).drop(2)", Take)
     }
 
     it("should match takeRight to dropRight") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).takeRight(2)",
-        TakeRight,
-        DropRight
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).takeRight(2)", DropRight)
     }
 
     it("should match dropRight to takeRight") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).dropRight(2)",
-        DropRight,
-        TakeRight
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).dropRight(2)", TakeRight)
     }
 
     it("should match takeWhile to dropWhile") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).dropWhile(_ < 2)",
-        DropWhile,
-        TakeWhile
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).dropWhile(_ < 2)", TakeWhile)
     }
 
     it("should match dropWhile to takeWhile") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).takeWhile(_ < 2)",
-        TakeWhile,
-        DropWhile
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).takeWhile(_ < 2)", DropWhile)
     }
 
     it("should match isEmpty to nonEmpty") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).isEmpty",
-        IsEmpty,
-        NonEmpty
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).isEmpty", NonEmpty)
     }
 
     it("should match nonEmpty to isEmpty") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).nonEmpty",
-        NonEmpty,
-        IsEmpty
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).nonEmpty", IsEmpty)
     }
 
     it("should match indexOf to lastIndexOf") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).indexOf(2)",
-        IndexOf,
-        LastIndexOf
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).indexOf(2)", LastIndexOf)
     }
 
     it("should match lastIndexOf to indexOf") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).lastIndexOf(2)",
-        LastIndexOf,
-        IndexOf
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).lastIndexOf(2)", IndexOf)
     }
 
     it("should match max to min") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).max",
-        Max,
-        Min
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).max", Min)
     }
 
     it("should match min to max") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).min",
-        Min,
-        Max
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).min", Max)
     }
 
     it("should match maxBy to minBy") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).maxBy(_.toString)",
-        MaxBy,
-        MinBy
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).maxBy(_.toString)", MinBy)
     }
 
     it("should match minBy to maxBy") {
-      expectedMutations(
-        sut.matchMethodExpression,
-        q"def foo = List(1, 2, 3).minBy(_.toString)",
-        MinBy,
-        MaxBy
-      )
+      expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).minBy(_.toString)", MaxBy)
     }
-
   }
 
   describe("matchBooleanLiteral matcher") {
@@ -409,9 +343,11 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
     it("should match once on interpolated strings with multiple parts") {
       val interpolated =
-        Term.Interpolate(q"s",
-                         List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
-                         List(q"fooVar", q"barVar + 1"))
+        Term.Interpolate(
+          q"s",
+          List(Lit.String("interpolate "), Lit.String(" foo "), Lit.String(" bar")),
+          List(q"fooVar", q"barVar + 1")
+        )
       val tree = q"def foo = $interpolated"
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
 

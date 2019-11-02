@@ -4,7 +4,6 @@ import org.json.JSONObject
 import stryker4s.testutil.{MutationTestingElementsJsonSchema, Stryker4sSuite}
 
 class MutationTestResultTest extends Stryker4sSuite {
-
   describe("created json") {
     it("should be valid according to mutation-report-schema") {
       val schema = MutationTestingElementsJsonSchema.mutationTestingElementsJsonSchema
@@ -15,14 +14,16 @@ class MutationTestResultTest extends Stryker4sSuite {
           "src/stryker4s/Stryker4s.scala" -> MutationTestResult(
             source = "case class Stryker4s(foo: String)",
             mutants = Seq(
-              MutantResult("1",
-                           "BinaryOperator",
-                           "-",
-                           Location(
-                             Position(1, 2),
-                             Position(2, 3)
-                           ),
-                           status = MutantStatus.Killed)
+              MutantResult(
+                "1",
+                "BinaryOperator",
+                "-",
+                Location(
+                  Position(1, 2),
+                  Position(2, 3)
+                ),
+                status = MutantStatus.Killed
+              )
             )
           )
         )
@@ -45,14 +46,16 @@ class MutationTestResultTest extends Stryker4sSuite {
           "src/stryker4s/Stryker4s.scala" -> MutationTestResult(
             source = "case class Stryker4s(\nfoo: String\n)",
             mutants = Seq(
-              MutantResult("1",
-                           "BinaryOperator",
-                           "-",
-                           Location(
-                             Position(1, 2),
-                             Position(2, 3)
-                           ),
-                           status = MutantStatus.Killed)
+              MutantResult(
+                "1",
+                "BinaryOperator",
+                "-",
+                Location(
+                  Position(1, 2),
+                  Position(2, 3)
+                ),
+                status = MutantStatus.Killed
+              )
             )
           )
         )

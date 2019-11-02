@@ -12,7 +12,6 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
     extends FinishedRunReporter
     with MutantRunResultMapper
     with Logging {
-
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
   private val htmlReportResource = s"mutation-testing-elements/$mutationTestElementsName"
@@ -48,7 +47,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config)
   }
 
   override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val targetLocation = config.baseDir / s"target/stryker4s-report-${System.currentTimeMillis()}"
+    val targetLocation = config.baseDir / s"target/stryker4s-report-${runResults.timestamp}"
 
     val mutationTestElementsLocation = targetLocation / mutationTestElementsName
     val indexLocation = targetLocation / "index.html"

@@ -12,7 +12,6 @@ sealed trait Mutation[T <: Tree] {
 }
 
 object Mutation {
-
   // List of mutations
   val mutations: List[String] = List[String](
     classOf[EqualityOperator].getSimpleName,
@@ -87,7 +86,6 @@ trait RemoveStatement[T <: Term] extends SubstitutionMutation[T] {
   * Base trait for method mutation
   */
 trait MethodExpression extends Mutation[Term] {
-
   /**
     * Method to be replaced or to replace
     */
@@ -98,5 +96,4 @@ trait MethodExpression extends Mutation[Term] {
   def apply(f: String => Term): Term = f(methodName)
 
   def unapply(term: Term): Option[(Term, String => Term)]
-
 }

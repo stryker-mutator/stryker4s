@@ -25,3 +25,11 @@ case object EqualTo extends EqualityOperator {
 case object NotEqualTo extends EqualityOperator {
   override val tree: Term.Name = Term.Name("!=")
 }
+
+case object TypedEqualTo extends EqualityOperator {
+  override val tree: Term.Name = Term.Name("===")
+}
+
+case object TypedNotEqualTo extends EqualityOperator {
+  override val tree: Term.Name = Term.Name("=!=")
+}

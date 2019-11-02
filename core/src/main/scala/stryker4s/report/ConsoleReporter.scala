@@ -6,7 +6,6 @@ import stryker4s.model._
 import stryker4s.run.threshold._
 
 class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-
   private[this] val mutationScore = "Mutation score:"
 
   override def reportMutationStart(mutant: Mutant): Unit = {
@@ -41,7 +40,8 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
         error(s"$mutationScore ${runResults.mutationScore}%")
       case ErrorStatus =>
         error(
-          s"Mutation score below threshold! Score: ${runResults.mutationScore}%. Threshold: ${config.thresholds.break}%")
+          s"Mutation score below threshold! Score: ${runResults.mutationScore}%. Threshold: ${config.thresholds.break}%"
+        )
     }
   }
 

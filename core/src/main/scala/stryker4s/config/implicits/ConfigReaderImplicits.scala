@@ -4,10 +4,9 @@ import java.nio.file.Path
 
 import better.files.File
 import pureconfig.ConfigReader
-import stryker4s.config.{ConsoleReporterType, ExcludedMutations, HtmlReporterType, ReporterType}
+import stryker4s.config._
 
 trait ConfigReaderImplicits {
-
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
     *
     */
@@ -16,8 +15,10 @@ trait ConfigReaderImplicits {
 
   implicit private[config] val toReporterList: ConfigReader[ReporterType] =
     ConfigReader[String] map {
-      case ConsoleReporterType.name => ConsoleReporterType
-      case HtmlReporterType.name    => HtmlReporterType
+      case ConsoleReporterType.name   => ConsoleReporterType
+      case HtmlReporterType.name      => HtmlReporterType
+      case JsonReporterType.name      => JsonReporterType
+      case DashboardReporterType.name => DashboardReporterType
     }
 
   implicit private[config] val exclusions: ConfigReader[ExcludedMutations] =

@@ -19,7 +19,7 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
     */
   override def apply(command: Command, workingDir: File, envVar: (String, String)): Try[Int] = {
     if (envVar._2.equals("None")) {
-      Success(if (initialTestRunSuccess) { 0 } else { 1 })
+      Success(if (initialTestRunSuccess) 0 else 1)
     } else {
       timesCalled.next()
       testRunExitCode(envVar._2.toInt)

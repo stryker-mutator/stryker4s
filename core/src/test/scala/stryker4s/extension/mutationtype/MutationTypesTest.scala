@@ -7,7 +7,6 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class MutationTypesTest extends Stryker4sSuite with TreeEquality {
-
   describe("EqualityOperator") {
     it("> to GreaterThan") {
       q">" should matchPattern { case GreaterThan(_) => }

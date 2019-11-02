@@ -16,7 +16,6 @@ trait SourceCollector {
 class FileCollector(private[this] val processRunner: ProcessRunner)(implicit config: Config)
     extends SourceCollector
     with Logging {
-
   /**
     * Get path separator because windows and unix systems have different separators.
     */

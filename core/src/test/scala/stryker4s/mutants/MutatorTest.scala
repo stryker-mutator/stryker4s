@@ -9,7 +9,6 @@ import stryker4s.testutil.stubs.TestSourceCollector
 import scala.meta._
 
 class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
-
   describe("run") {
     it("should return a single Tree with changed pattern match") {
       implicit val conf: Config = Config()
@@ -25,7 +24,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       val result = sut.mutate(files)
 
       val expected = """object Foo {
-                       |  def bar = sys.props.get("ACTIVE_MUTATION") match {
+                       |  def bar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("0") =>
                        |      15 >= 14
                        |    case Some("1") =>
@@ -35,7 +34,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |    case _ =>
                        |      15 > 14
                        |  }
-                       |  def foobar = sys.props.get("ACTIVE_MUTATION") match {
+                       |  def foobar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("3") =>
                        |      s""
                        |    case _ =>
@@ -118,7 +117,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       "Found 0 of 0 file(s) to be mutated." shouldBe loggedAsInfo
       "0 Mutant(s) generated." shouldBe loggedAsInfo
       """No files marked to be mutated. Stryker4s will perform a dry-run without actually mutating anything.
-      |You can configure the `mutate` property in your configuration""".stripMargin shouldBe loggedAsWarning
+        |You can configure the `mutate` property in your configuration""".stripMargin shouldBe loggedAsWarning
 
       "Files to be mutated are found, but no mutations were found in those files." should not be loggedAsInfo
       "If this is not intended, please check your configuration and try again." should not be loggedAsInfo
@@ -141,7 +140,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
       "Found 1 of 1 file(s) to be mutated." shouldBe loggedAsInfo
       "4 Mutant(s) generated. Of which 4 Mutant(s) are excluded." shouldBe loggedAsInfo
       s"""All found mutations are excluded. Stryker4s will perform a dry-run without actually mutating anything.
-       |You can configure the `excluded-mutations` property in your configuration""".stripMargin shouldBe loggedAsWarning
+         |You can configure the `excluded-mutations` property in your configuration""".stripMargin shouldBe loggedAsWarning
 
       """No files marked to be mutated. Stryker4s will perform a dry-run without actually mutating anything.
         |You can configure the `mutate` property in your configuration""".stripMargin should not be loggedAsWarning

@@ -4,8 +4,9 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.LogEvent
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 import stryker4s.testutil.{Stryker4sSuite, TestAppender}
+import org.scalatest.BeforeAndAfterEach
 
-trait LogMatchers {
+trait LogMatchers extends BeforeAndAfterEach {
   // Will cause a compile error if LogMatchers is used without Stryker4sSuite
   this: Stryker4sSuite =>
 
@@ -22,7 +23,6 @@ trait LogMatchers {
   implicit private val threadName: String = Thread.currentThread().getName
 
   protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit threadName: String) extends BeMatcher[String] {
-
     def apply(expectedLogMessage: String): MatchResult = {
       getLoggingEventWithLogMessage(expectedLogMessage) match {
         case None =>

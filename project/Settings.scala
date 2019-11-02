@@ -2,11 +2,8 @@ import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
-import scoverage.ScoverageKeys._
-import xerial.sbt.Sonatype.autoImport.sonatypePublishTo
 
 object Settings {
-
   lazy val scalacOpts: Seq[String] = Seq(
     "-deprecation", // Emit warning and location for usages of deprecated APIs.
     "-encoding",
@@ -17,11 +14,15 @@ object Settings {
     "-Xfatal-warnings", // Fail the compilation if there are any warnings.
     "-Xlint:doc-detached", // A Scaladoc comment appears to be detached from its element.
     "-Ywarn-infer-any", // Warn when a type argument is inferred to be `Any`.
-    "-Ywarn-dead-code" // Warn when dead code is identified.
+    "-Ywarn-dead-code", // Warn when dead code is identified.
+    "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
+    "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
+    "-Ywarn-unused:params", // Warn if a value parameter is unused.
+    "-Ywarn-unused:patvars", // Warn if a variable bound in a pattern is unused.
+    "-Ypartial-unification" // Improve type inference, necessary for cats until scala 2.13
   )
 
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    publishTo := sonatypePublishTo.value,
     Test / parallelExecution := false // For logging tests
   )
 
@@ -41,6 +42,7 @@ object Settings {
       Dependencies.log4jslf4jImpl % Test, // Logging tests need a slf4j implementation
       Dependencies.circeCore,
       Dependencies.circeGeneric,
+      Dependencies.scalajHttp,
       Dependencies.mutationTestingElements
     )
   )
@@ -48,7 +50,7 @@ object Settings {
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.log4jslf4jImpl,
-      Dependencies.test.scalatest,
+      Dependencies.test.scalatest
     )
   )
 
@@ -65,8 +67,7 @@ object Settings {
       buildInfo ++
       Seq(
         scalaVersion := Dependencies.versions.scala212,
-        scalacOptions ++= Settings.scalacOpts,
-        coverageMinimum := 75
+        scalacOptions ++= Settings.scalacOpts
       )
   )
 
