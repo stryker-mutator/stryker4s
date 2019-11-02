@@ -11,11 +11,9 @@ object Dependencies {
     val betterFiles = "3.8.0"
     val log4j = "2.12.1"
     val grizzledSlf4j = "1.3.4"
-    val everitJsonSchema = "1.12.0"
     val cats = "2.0.0"
     val circe = "0.12.3"
     val mutationTestingElements = "1.1.1"
-    val mutationTestingSchema = "1.1.1"
     val mutationTestingMetrics = "1.2.0"
     val scalajHttp = "2.4.2"
   }
@@ -23,8 +21,6 @@ object Dependencies {
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
-    val everitJsonSchema = "com.github.everit-org.json-schema" % "org.everit.json.schema" % versions.everitJsonSchema % Test
-    val mutationTestingSchema = "io.stryker-mutator" % "mutation-testing-report-schema" % versions.mutationTestingSchema % Test
   }
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
