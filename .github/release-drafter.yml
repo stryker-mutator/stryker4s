@@ -5,9 +5,10 @@ categories:
   - title: '🐛 Bugfixes'
     label: 'bug'
   - title: '🧰 Maintenance'
-    labels: 
-      - 'chore'
-      - 'dependencies'
+    label: 'chore'
+exclude-labels:
+  - 'skip-changelog'
+  - 'dependencies'
 template: |
   ## Changes
 
