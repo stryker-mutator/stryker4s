@@ -1,22 +1,22 @@
 package stryker4s.report.model
 
+import mutationtesting.MutationTestReport
 import io.circe.Encoder
+import io.circe.syntax._
 
-case class StrykerDashboardReport(apiKey: String, repositorySlug: String, branch: String, mutationScore: Double) {
-  def toJson: String = StrykerDashboardReport.toJson(this)
-}
+sealed trait StrykerDashboardReport
+
+case class FullDashboardReport(result: MutationTestReport) extends StrykerDashboardReport
+case class ScoreOnlyReport(mutationScore: Double) extends StrykerDashboardReport
 
 object StrykerDashboardReport {
-  def toJson(report: StrykerDashboardReport): String = {
-    import stryker4s.report.model.StrykerDashboardReportEncoder._
-    import io.circe.syntax._
-    report.asJson.noSpaces
+  def toJson(report: StrykerDashboardReport): String = report match {
+    case report: FullDashboardReport =>
+      import mutationtesting.MutationReportEncoder._
+      implicit val encoder: Encoder[FullDashboardReport] = Encoder.forProduct1("result")(r => r.result)
+      report.asJson.noSpaces
+    case report: ScoreOnlyReport =>
+      implicit val encoder: Encoder[ScoreOnlyReport] = Encoder.forProduct1("mutationScore")(r => r.mutationScore)
+      report.asJson.noSpaces
   }
-}
-
-protected object StrykerDashboardReportEncoder {
-  implicit val dashboardReportEncoder: Encoder[StrykerDashboardReport] =
-    Encoder.forProduct4("apiKey", "repositorySlug", "branch", "mutationScore")(
-      d => (d.apiKey, d.repositorySlug, d.branch, d.mutationScore)
-    )
 }

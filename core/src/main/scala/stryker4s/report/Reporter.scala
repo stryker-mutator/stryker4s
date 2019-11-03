@@ -7,13 +7,14 @@ import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
 
 import scala.util.{Failure, Try}
+import stryker4s.http.HttpClient
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-  lazy val reporters: Seq[MutationRunReporter] = config.reporters collect {
-    case Console             => new ConsoleReporter()
-    case Html                => new HtmlReporter(DiskFileIO)
-    case Json                => new JsonReporter(DiskFileIO)
-    case Dashboard(reporter) => reporter
+  lazy val reporters: Seq[MutationRunReporter] = config.reporters map {
+    case Console   => new ConsoleReporter()
+    case Html      => new HtmlReporter(DiskFileIO)
+    case Json      => new JsonReporter(DiskFileIO)
+    case Dashboard => new DashboardReporter(HttpClient, DashboardReporter.resolveCiEnvironment())
   }
 
   private[this] val progressReporters = reporters collect { case r: ProgressReporter       => r }

@@ -5,12 +5,8 @@ import grizzled.slf4j.Logging
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
-import stryker4s.report.mapper.MutantRunResultMapper
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config)
-    extends FinishedRunReporter
-    with MutantRunResultMapper
-    with Logging {
+class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
   private val htmlReportResource = s"mutation-testing-elements/$mutationTestElementsName"
