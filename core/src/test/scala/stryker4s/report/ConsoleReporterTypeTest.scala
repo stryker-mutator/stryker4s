@@ -11,7 +11,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class ConsoleReporterTypeTest extends Stryker4sSuite with LogMatchers {
+class ConsoleTest extends Stryker4sSuite with LogMatchers {
   describe("reportStartRun") {
     it("Should log that test run 1 is started when mutant id is 0") {
       implicit val config: Config = Config.default

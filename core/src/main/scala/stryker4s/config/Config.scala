@@ -7,14 +7,15 @@ import pureconfig.generic.auto._
 case class Config(
     mutate: Seq[String] = Seq("**/main/scala/**.scala"),
     baseDir: File = File.currentWorkingDirectory,
-    reporters: Seq[ReporterType] = Seq(ConsoleReporterType, HtmlReporterType),
+    reporters: Seq[ReporterType] = Seq(Console, Html),
     files: Option[Seq[String]] = None,
     excludedMutations: ExcludedMutations = ExcludedMutations(),
-    thresholds: Thresholds = Thresholds()
+    thresholds: Thresholds = Thresholds(),
+    dashboard: DashboardOptions = DashboardOptions()
 )
 
 object Config {
-  def default: Config = Config()
+  lazy val default: Config = Config()
 
   def toHoconString(config: Config): String = {
     import stryker4s.config.implicits.ConfigWriterImplicits._

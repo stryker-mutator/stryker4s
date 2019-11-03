@@ -17,7 +17,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
         case Right(config) =>
           config.baseDir shouldBe File("/tmp/project")
           config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-          config.reporters.loneElement shouldBe HtmlReporterType
+          config.reporters.loneElement shouldBe Html
           config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
       }
     }
@@ -38,7 +38,15 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**.scala")
-      result.reporters should contain inOrderOnly (ConsoleReporterType, HtmlReporterType)
+      result.reporters should contain inOrderOnly (Console, Html)
+      result.thresholds shouldBe Thresholds()
+      result.dashboard shouldBe DashboardOptions(
+        baseUrl = "https://dashboard.stryker-mutator.io",
+        reportType = Full,
+        project = None,
+        version = None,
+        module = None
+      )
     }
 
     it("should fail on an empty config file") {
@@ -66,7 +74,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       config.baseDir shouldBe File("/tmp/project")
       config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-      config.reporters.loneElement shouldBe HtmlReporterType
+      config.reporters.loneElement shouldBe Html
       config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
     }
 
@@ -77,8 +85,15 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-      result.reporters.loneElement shouldBe HtmlReporterType
+      result.reporters.loneElement shouldBe Html
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+      result.dashboard shouldBe DashboardOptions(
+        baseUrl = "https://fakeurl.com",
+        reportType = MutationScoreOnly,
+        project = Some("someProject"),
+        version = Some("someVersion"),
+        module = Some("someModule")
+      )
     }
 
     it("should return a failure on a misshapen test runner") {
