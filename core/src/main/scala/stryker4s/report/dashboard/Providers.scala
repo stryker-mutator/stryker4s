@@ -1,37 +1,41 @@
 package stryker4s.report.dashboard
 import grizzled.slf4j.Logging
+import stryker4s.env.Environment
 
 object Providers extends Logging {
+  def determineCiProvider(env: Environment): Option[CiProvider] =
+    if (env.getEnvVariable("TRAVIS").isDefined) {
+      Some(new TravisProvider(env))
+    } else if (env.getEnvVariable("CIRCLECI").isDefined) {
+      Some(new CircleProvider(env))
+    } else {
+      None
+    }
+
   trait CiProvider {
-    def isPullRequest: Boolean
     def determineProject(): Option[String]
     def determineVersion(): Option[String]
-    def determineApiKey(): Option[String] = readEnvironmentVariableOrLog("STRYKER_DASHBOARD_API_KEY")
-
-    protected def readEnvironmentVariableOrLog(name: String): Option[String] = {
-      val environmentOption = sys.env.get(name).filter(_.nonEmpty)
-      if (environmentOption.isEmpty) {
-        warn(
-          s"Missing environment variable $name, not initializing ${this.getClass.getSimpleName} for dashboard reporter."
-        )
-      }
-      environmentOption
-    }
   }
 
-  object TravisProvider extends CiProvider {
-    override def isPullRequest: Boolean = !readEnvironmentVariableOrLog("TRAVIS_PULL_REQUEST").forall(_ == "false")
-    override def determineProject(): Option[String] = readEnvironmentVariableOrLog("TRAVIS_REPO_SLUG")
-    override def determineVersion(): Option[String] = readEnvironmentVariableOrLog("TRAVIS_BRANCH")
+  private def readEnvironmentVariable(name: String, env: Environment): Option[String] =
+    env.getEnvVariable(name).filter(_.nonEmpty)
+
+  class TravisProvider(env: Environment) extends CiProvider {
+    override def determineProject(): Option[String] =
+      readEnvironmentVariable("TRAVIS_REPO_SLUG", env)
+
+    override def determineVersion(): Option[String] =
+      readEnvironmentVariable("TRAVIS_BRANCH", env)
   }
 
-  object CircleProvider extends CiProvider {
-    override def isPullRequest: Boolean = !readEnvironmentVariableOrLog("CIRCLE_PULL_REQUEST").forall(_ == "false")
+  class CircleProvider(env: Environment) extends CiProvider {
     override def determineProject(): Option[String] =
       for {
-        username <- readEnvironmentVariableOrLog("CIRCLE_PROJECT_USERNAME")
-        repoName <- readEnvironmentVariableOrLog("CIRCLE_PROJECT_REPONAME")
+        username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME", env)
+        repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME", env)
       } yield s"$username/$repoName"
-    override def determineVersion(): Option[String] = readEnvironmentVariableOrLog("CIRCLE_BRANCH")
+
+    override def determineVersion(): Option[String] =
+      readEnvironmentVariable("CIRCLE_BRANCH", env)
   }
 }

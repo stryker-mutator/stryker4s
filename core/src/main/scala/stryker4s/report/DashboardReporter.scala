@@ -2,82 +2,66 @@ package stryker4s.report
 
 import grizzled.slf4j.Logging
 import mutationtesting.{MetricsResult, MutationTestReport}
-import scalaj.http.HttpResponse
-import stryker4s.http.WebIO
-import stryker4s.report.dashboard.Providers._
+import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model._
-import stryker4s.config.Config
 import stryker4s.config.Full
 import stryker4s.config.MutationScoreOnly
-import io.circe.parser.decode
-import io.circe.Decoder
-class DashboardReporter(webIO: WebIO, ciEnvironment: Option[CiEnvironment])(implicit config: Config)
-    extends FinishedRunReporter
+import sttp.client._
+import sttp.client.circe._
+import sttp.model.MediaType
+import sttp.model.StatusCode
+
+class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(
+    implicit httpBackend: SttpBackend[Identity, Nothing, NothingT]
+) extends FinishedRunReporter
     with Logging {
-  def buildUrl: Option[String] =
-    for {
-      project <- config.dashboard.project.orElse(ciEnvironment.map(_.project))
-      version <- config.dashboard.version.orElse(ciEnvironment.map(_.version))
-      baseUrl = config.dashboard.baseUrl
-      url = s"$baseUrl/api/reports/$project/$version"
-    } yield config.dashboard.module match {
-      case Some(module) => s"$url?module=$module"
-      case None         => url
+  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit =
+    dashboardConfigProvider.resolveConfig() match {
+      case Left(configKey) => warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
+      case Right(dashboardConfig) =>
+        val request = buildRequest(dashboardConfig, report, metrics)
+        val response = request.send()
+        logResponse(response)
     }
 
-  def buildBody(report: MutationTestReport, metrics: MetricsResult): StrykerDashboardReport = {
-    config.dashboard.reportType match {
-      case Full              => FullDashboardReport(report)
-      case MutationScoreOnly => ScoreOnlyReport(metrics.mutationScore)
+  def buildRequest(dashConfig: DashboardConfig, report: MutationTestReport, metrics: MetricsResult) = {
+    import io.circe.{Decoder, Encoder}
+    implicit val decoder: Decoder[DashboardPutResult] = Decoder.forProduct1("href")(DashboardPutResult.apply)
+    val uri =
+      uri"${dashConfig.baseUrl}/api/reports/${dashConfig.project}/${dashConfig.version}?module=${dashConfig.module}"
+    val request = basicRequest
+      .header("X-Api-Key", dashConfig.apiKey)
+      .response(asJson[DashboardPutResult])
+      .contentType(MediaType.ApplicationJson)
+      .put(uri)
+    dashConfig.reportType match {
+      case Full =>
+        import mutationtesting.MutationReportEncoder._
+        request
+          .body(report)
+      case MutationScoreOnly =>
+        implicit val encoder: Encoder[ScoreOnlyReport] = Encoder.forProduct1("mutationScore")(r => r.mutationScore)
+        request
+          .body(ScoreOnlyReport(metrics.mutationScore))
     }
   }
 
-  def writeReportToDashboard(url: String, body: StrykerDashboardReport, apiKey: String): HttpResponse[String] = {
-    webIO.putRequest(url, StrykerDashboardReport.toJson(body), Map("X-Api-Key" -> apiKey))
-  }
-
-  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit = {
-    buildUrl match {
-      case None => info("Could not resolve dashboard configuration, not sending report")
-      case Some(url) =>
-        val body = buildBody(report, metrics)
-        val response = writeReportToDashboard(url, body, ciEnvironment.get.apikey)
-
-        if (response.code == 200) {
-          if (config.dashboard.reportType == Full) {
-            implicit val decoder: Decoder[Href] = Decoder.forProduct1("href")(Href.apply)
-            val href = decode[Href](response.body) match {
-              case Left(error)        => throw error
-              case Right(Href(value)) => value
-            }
-            info(s"Sent report to dashboard: $href")
-          } else {
-            info(s"Sent report to dashboard: $url")
-          }
-        } else {
-          error(s"Failed to send report to dashboard.")
-          error(s"Expected status code 200, but was ${response.code}. Body: '${response.body}'")
+  def logResponse(response: Response[Either[ResponseError[io.circe.Error], DashboardPutResult]]): Unit =
+    response.body match {
+      case Left(HttpError(errorBody)) =>
+        response.code match {
+          case StatusCode.Unauthorized =>
+            error(
+              s"Error HTTP PUT $errorBody. Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?"
+            )
+          case statusCode =>
+            error(
+              s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '${errorBody}'"
+            )
         }
+      case Left(DeserializationError(original, error)) =>
+        warn(s"Dashboard report was sent successfully, but could not decode the response $original:", error)
+      case Right(href) =>
+        info(s"Sent report to dashboard. Available at $href")
     }
-  }
 }
-
-object DashboardReporter {
-  def resolveCiEnvironment(): Option[CiEnvironment] =
-    tryResolveEnv(TravisProvider) orElse
-      tryResolveEnv(CircleProvider)
-
-  def tryResolveEnv(provider: CiProvider): Option[CiEnvironment] =
-    if (provider.isPullRequest) None
-    else
-      for {
-        apiKey <- provider.determineApiKey()
-        project <- provider.determineProject()
-        withGitHub = s"github.com/$project"
-        version <- provider.determineVersion()
-      } yield CiEnvironment(apiKey, withGitHub, version)
-}
-
-case class CiEnvironment(apikey: String, project: String, version: String)
-
-case class Href(href: String)
