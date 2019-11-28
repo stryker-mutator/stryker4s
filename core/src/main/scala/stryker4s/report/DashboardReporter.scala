@@ -61,7 +61,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(
         }
       case Left(DeserializationError(original, error)) =>
         warn(s"Dashboard report was sent successfully, but could not decode the response $original:", error)
-      case Right(href) =>
+      case Right(DashboardPutResult(href)) =>
         info(s"Sent report to dashboard. Available at $href")
     }
 }
