@@ -31,7 +31,7 @@ jobs:
       with:
         java-version: openjdk@1.11
     - name: Run tests
-      run: csbt publishLocal scripted
+      run: csbt 'publishLocal; scripted sbt-stryker4s/test-1'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
