@@ -40,5 +40,3 @@ class DashboardConfigProvider(env: Environment)(implicit config: Config) {
 
   private def byCiProvider[T](f: CiProvider => Option[T])() = Providers.determineCiProvider(env).flatMap(f)
 }
-
-final case class DashboardConfigError(message: String)
