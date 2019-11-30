@@ -1,12 +1,12 @@
 package stryker4s.report.dashboard
 import grizzled.slf4j.Logging
-import stryker4s.env.Environment
+import stryker4s.env.Environment.Environment
 
 object Providers extends Logging {
   def determineCiProvider(env: Environment): Option[CiProvider] =
-    if (env.getEnvVariable("TRAVIS").isDefined) {
+    if (env.get("TRAVIS").isDefined) {
       Some(new TravisProvider(env))
-    } else if (env.getEnvVariable("CIRCLECI").isDefined) {
+    } else if (env.get("CIRCLECI").isDefined) {
       Some(new CircleProvider(env))
     } else {
       None
@@ -18,7 +18,7 @@ object Providers extends Logging {
   }
 
   private def readEnvironmentVariable(name: String, env: Environment): Option[String] =
-    env.getEnvVariable(name).filter(_.nonEmpty)
+    env.get(name).filter(_.nonEmpty)
 
   class TravisProvider(env: Environment) extends CiProvider {
     override def determineProject(): Option[String] =

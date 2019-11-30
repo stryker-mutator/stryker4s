@@ -2,7 +2,7 @@ package stryker4s.report.dashboard
 import stryker4s.report.model.DashboardConfig
 import stryker4s.config.Config
 import stryker4s.report.dashboard.Providers._
-import stryker4s.env.Environment
+import stryker4s.env.Environment.Environment
 
 class DashboardConfigProvider(env: Environment)(implicit config: Config) {
   def resolveConfig(): Either[String, DashboardConfig] =
@@ -22,10 +22,11 @@ class DashboardConfigProvider(env: Environment)(implicit config: Config) {
       module = module
     )
 
+  private val apiKeyName = "STRYKER_DASHBOARD_API_KEY"
   private def resolveapiKey() =
     env
-      .getEnvVariable("STRYKER_DASHBOARD_API_KEY")
-      .toRight("STRYKER_DASHBOARD_API_KEY")
+      .get(apiKeyName)
+      .toRight(apiKeyName)
 
   private def resolveproject() =
     config.dashboard.project

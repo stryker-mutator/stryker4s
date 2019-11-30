@@ -8,7 +8,6 @@ import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import scala.util.{Failure, Try}
 import sttp.client.HttpURLConnectionBackend
-import stryker4s.env.SystemEnvironment
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
   lazy val reporters: Seq[MutationRunReporter] = config.reporters map {
@@ -17,7 +16,7 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
     case Json    => new JsonReporter(DiskFileIO)
     case Dashboard =>
       implicit val backend = HttpURLConnectionBackend()
-      new DashboardReporter(new DashboardConfigProvider(SystemEnvironment))
+      new DashboardReporter(new DashboardConfigProvider(sys.env))
   }
 
   private[this] val progressReporters = reporters collect { case r: ProgressReporter       => r }

@@ -29,7 +29,7 @@ trait ProcessRunner extends Logging {
 }
 
 object ProcessRunner {
-  private val isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
+  private def isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
 
   def apply(): ProcessRunner = {
     if (isWindows) new WindowsProcessRunner
