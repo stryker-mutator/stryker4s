@@ -23,6 +23,7 @@ object Providers extends Logging {
   class TravisProvider(env: Environment) extends CiProvider {
     override def determineProject(): Option[String] =
       readEnvironmentVariable("TRAVIS_REPO_SLUG", env)
+        .map(project => s"github.com/$project")
 
     override def determineVersion(): Option[String] =
       readEnvironmentVariable("TRAVIS_BRANCH", env)
@@ -33,7 +34,7 @@ object Providers extends Logging {
       for {
         username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME", env)
         repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME", env)
-      } yield s"$username/$repoName"
+      } yield s"github.com/$username/$repoName"
 
     override def determineVersion(): Option[String] =
       readEnvironmentVariable("CIRCLE_BRANCH", env)

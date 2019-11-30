@@ -14,7 +14,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
       val env = Map(
         "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
         "TRAVIS" -> "true",
-        "TRAVIS_REPO_SLUG" -> "travisRepoSlug",
+        "TRAVIS_REPO_SLUG" -> "travisRepo/slug",
         "TRAVIS_BRANCH" -> "travisBranch"
       )
       val sut = new DashboardConfigProvider(env)
@@ -25,7 +25,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         "apiKeyHere",
         "https://dashboard.stryker-mutator.io",
         Full,
-        "travisRepoSlug",
+        "github.com/travisRepo/slug",
         "travisBranch",
         None
       )
@@ -48,7 +48,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         "apiKeyHere",
         config.dashboard.baseUrl,
         Full,
-        "circleUsername/circleRepoName",
+        "github.com/circleUsername/circleRepoName",
         "circleBranch",
         None
       )
