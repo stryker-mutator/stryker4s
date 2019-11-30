@@ -5,15 +5,18 @@ import mutationtesting.{MetricsResult, MutationTestReport}
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
-
+import stryker4s.report.dashboard.DashboardConfigProvider
 import scala.util.{Failure, Try}
+import sttp.client.HttpURLConnectionBackend
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-  lazy val reporters: Seq[MutationRunReporter] = config.reporters collect {
-    case ConsoleReporterType             => new ConsoleReporter()
-    case HtmlReporterType                => new HtmlReporter(DiskFileIO)
-    case JsonReporterType                => new JsonReporter(DiskFileIO)
-    case DashboardReporterType(reporter) => reporter
+  lazy val reporters: Seq[MutationRunReporter] = config.reporters map {
+    case Console => new ConsoleReporter()
+    case Html    => new HtmlReporter(DiskFileIO)
+    case Json    => new JsonReporter(DiskFileIO)
+    case Dashboard =>
+      implicit val backend = HttpURLConnectionBackend()
+      new DashboardReporter(new DashboardConfigProvider(sys.env))
   }
 
   private[this] val progressReporters = reporters collect { case r: ProgressReporter       => r }

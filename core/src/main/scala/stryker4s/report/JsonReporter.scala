@@ -5,12 +5,8 @@ import grizzled.slf4j.Logging
 import mutationtesting.{MetricsResult, MutationTestReport}
 import stryker4s.config.Config
 import stryker4s.files.FileIO
-import stryker4s.report.mapper.MutantRunResultMapper
 
-class JsonReporter(fileIO: FileIO)(implicit config: Config)
-    extends FinishedRunReporter
-    with MutantRunResultMapper
-    with Logging {
+class JsonReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
   def writeReportJsonTo(file: File, report: MutationTestReport): Unit = {
     import io.circe.syntax._
     import mutationtesting.MutationReportEncoder._
