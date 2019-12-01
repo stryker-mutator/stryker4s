@@ -33,7 +33,7 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       val writtenFilesCaptor = ArgCaptor[File]
 
@@ -51,7 +51,7 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       val captor = ArgCaptor[File]
       verify(mockFileIO).createAndWrite(captor.capture, any[String])

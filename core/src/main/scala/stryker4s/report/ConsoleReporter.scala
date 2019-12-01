@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import mutationtesting.{MetricsResult, MutantResult, MutantStatus, MutationTestReport}
+import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
@@ -21,7 +21,8 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
     info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
   }
 
-  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit = {
+  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+    val FinishedRunReport(report, metrics) = runReport
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val (detectedMutants, rest) = report.files.toSeq flatMap {
       case (loc, f) => f.mutants.map(m => (loc, m))

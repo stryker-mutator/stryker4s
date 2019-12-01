@@ -11,5 +11,7 @@ trait ProgressReporter extends MutationRunReporter {
 }
 
 trait FinishedRunReporter extends MutationRunReporter {
-  def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit
+  def reportRunFinished(runReport: FinishedRunReport): Unit
 }
+
+case class FinishedRunReport(report: MutationTestReport, metrics: MetricsResult)

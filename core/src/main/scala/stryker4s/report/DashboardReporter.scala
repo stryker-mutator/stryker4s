@@ -15,11 +15,11 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(
     implicit httpBackend: SttpBackend[Identity, Nothing, NothingT]
 ) extends FinishedRunReporter
     with Logging {
-  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit =
+  override def reportRunFinished(runReport: FinishedRunReport): Unit =
     dashboardConfigProvider.resolveConfig() match {
       case Left(configKey) => warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
       case Right(dashboardConfig) =>
-        val request = buildRequest(dashboardConfig, report, metrics)
+        val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
         val response = request.send()
         logResponse(response)
     }

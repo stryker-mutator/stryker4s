@@ -3,7 +3,6 @@ package stryker4s
 import java.nio.file.Path
 
 import better.files.File
-import mutationtesting.{MetricsResult, MutationTestReport}
 import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
@@ -21,6 +20,7 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
 import scala.meta._
 import scala.util.Success
+import stryker4s.report.FinishedRunReport
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
@@ -61,9 +61,9 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
       startCaptor.values should matchPattern {
         case List(Mutant(0, _, _, _), Mutant(1, _, _, _), Mutant(2, _, _, _), Mutant(3, _, _, _)) =>
       }
-      val reportMock = ArgCaptor[MutationTestReport]
-      verify(reporterMock).reportRunFinished(reportMock, any[MetricsResult])
-      val reportedResults = reportMock.value
+      val runReportMock = ArgCaptor[FinishedRunReport]
+      verify(reporterMock).reportRunFinished(runReportMock)
+      val FinishedRunReport(reportedResults, _) = runReportMock.value
 
       result shouldBe SuccessStatus
       reportedResults.files.flatMap(_._2.mutants) should have size 4

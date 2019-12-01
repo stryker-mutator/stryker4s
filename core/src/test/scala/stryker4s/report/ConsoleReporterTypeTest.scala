@@ -84,7 +84,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(results, metrics)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
 
       "Mutation run finished! Took " shouldBe loggedAsInfo
       "Total mutants: 1, detected: 1, undetected: 0" shouldBe loggedAsInfo
@@ -116,7 +116,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(results, metrics)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
 
       "Mutation run finished! Took " shouldBe loggedAsInfo
       "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
@@ -158,7 +158,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           )
         )
       )
-      sut.reportRunFinished(results, Metrics.calculateMetrics(results))
+      sut.reportRunFinished(FinishedRunReport(results, Metrics.calculateMetrics(results)))
 
       "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
       s"""Undetected mutants:
@@ -197,7 +197,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(results, metrics)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
       "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived] [StringLiteral]
@@ -224,7 +224,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         )
       )
 
-      sut.reportRunFinished(threeReport, Metrics.calculateMetrics(threeReport))
+      sut.reportRunFinished(FinishedRunReport(threeReport, Metrics.calculateMetrics(threeReport)))
 
       "Mutation score: 66.67%" shouldBe loggedAsInfo
     }
@@ -248,7 +248,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score: 50.0%" shouldBe loggedAsInfo
     }
@@ -257,7 +257,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score: 50.0%" shouldBe loggedAsWarning
     }
@@ -266,7 +266,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score dangerously low!" shouldBe loggedAsError
       "Mutation score: 50.0%" shouldBe loggedAsError
@@ -276,7 +276,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
     }

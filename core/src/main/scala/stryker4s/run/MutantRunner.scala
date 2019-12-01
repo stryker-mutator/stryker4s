@@ -11,6 +11,7 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.report.mapper.MutantRunResultMapper
+import stryker4s.report.FinishedRunReport
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends InitialTestRun
@@ -33,7 +34,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     val report = toReport(runResults)
     val metrics = Metrics.calculateMetrics(report)
 
-    reporter.reportRunFinished(report, metrics)
+    reporter.reportRunFinished(FinishedRunReport(report, metrics))
     metrics
   }
 
