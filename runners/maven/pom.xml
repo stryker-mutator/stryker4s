@@ -33,7 +33,7 @@
     </issueManagement>
     <scm>
         <connection>scm:git:https://github.com/stryker-mutator/stryker4s.git</connection>
-        <developerConnection>scm:git:https://github.com/stryker-mutator/stryker4s.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com:stryker-mutator/stryker4s.git</developerConnection>
         <url>https://github.com/stryker-mutator/stryker4s</url>
         <tag>HEAD</tag>
     </scm>

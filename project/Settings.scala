@@ -76,7 +76,11 @@ object Settings {
     homepage := Some(url("https://stryker-mutator.io/")),
     licenses := Seq("Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
     scmInfo := Some(
-      ScmInfo(url("https://github.com/stryker-mutator/stryker4s"), "scm:git@github.com:stryker-mutator/stryker4s.git")
+      ScmInfo(
+        url("https://github.com/stryker-mutator/stryker4s"),
+        "scm:git:https://github.com/stryker-mutator/stryker4s.git",
+        "scm:git:ssh://git@github.com:stryker-mutator/stryker4s.git"
+      )
     ),
     developers := List(
       Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
