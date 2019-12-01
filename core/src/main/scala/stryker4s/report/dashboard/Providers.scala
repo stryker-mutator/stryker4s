@@ -4,10 +4,12 @@ import stryker4s.env.Environment.Environment
 
 object Providers extends Logging {
   def determineCiProvider(env: Environment): Option[CiProvider] =
-    if (env.get("TRAVIS").isDefined) {
+    if (readEnvironmentVariable("TRAVIS", env).isDefined) {
       Some(new TravisProvider(env))
-    } else if (env.get("CIRCLECI").isDefined) {
+    } else if (readEnvironmentVariable("CIRCLECI", env).isDefined) {
       Some(new CircleProvider(env))
+    } else if (readEnvironmentVariable("GITHUB_ACTION", env).isDefined) {
+      Some(new GithubActionsProvider(env))
     } else {
       None
     }
@@ -20,10 +22,14 @@ object Providers extends Logging {
   private def readEnvironmentVariable(name: String, env: Environment): Option[String] =
     env.get(name).filter(_.nonEmpty)
 
+  /** TODO: Only github projects are supported for now
+    */
+  private val githubCom = "github.com"
+
   class TravisProvider(env: Environment) extends CiProvider {
     override def determineProject(): Option[String] =
       readEnvironmentVariable("TRAVIS_REPO_SLUG", env)
-        .map(project => s"github.com/$project")
+        .map(project => s"$githubCom/$project")
 
     override def determineVersion(): Option[String] =
       readEnvironmentVariable("TRAVIS_BRANCH", env)
@@ -34,9 +40,29 @@ object Providers extends Logging {
       for {
         username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME", env)
         repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME", env)
-      } yield s"github.com/$username/$repoName"
+      } yield s"$githubCom/$username/$repoName"
 
     override def determineVersion(): Option[String] =
       readEnvironmentVariable("CIRCLE_BRANCH", env)
   }
+
+  class GithubActionsProvider(env: Environment) extends CiProvider {
+    override def determineProject(): Option[String] =
+      readEnvironmentVariable("GITHUB_REPOSITORY", env)
+        .map(project => s"$githubCom/$project")
+
+    override def determineVersion(): Option[String] =
+      for {
+        ref <- readEnvironmentVariable("GITHUB_REF", env)
+        refs = ref.split('/')
+        version <- refs match {
+          case Array(_, "pull", prNumber, _*) => Some(s"PR-$prNumber")
+          case Array(_, _, tail @ _*)         => Some(tail.mkString("/"))
+          case _                              => None
+        }
+        if !version.isEmpty()
+      } yield version
+  }
+
+  // TODO: Support VSTS, GitLab CI
 }
