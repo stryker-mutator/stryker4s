@@ -43,15 +43,15 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
     fileIO.createAndWrite(file, reportContent)
   }
 
-  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit = {
-    val targetLocation = config.baseDir / s"target/stryker4s-report/"
+  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+    val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
 
     val mutationTestElementsLocation = targetLocation / mutationTestElementsName
     val indexLocation = targetLocation / "index.html"
     val reportLocation = targetLocation / reportFilename
 
     writeIndexHtmlTo(indexLocation)
-    writeReportJsTo(reportLocation, report)
+    writeReportJsTo(reportLocation, runReport.report)
     writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
     info(s"Written HTML report to $indexLocation")

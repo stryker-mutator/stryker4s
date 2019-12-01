@@ -1,7 +1,6 @@
 package stryker4s.report
 
 import grizzled.slf4j.Logging
-import mutationtesting.{MetricsResult, MutationTestReport}
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
@@ -28,8 +27,8 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
   override def reportMutationComplete(result: MutantRunResult, totalMutants: Int): Unit =
     progressReporters.foreach(_.reportMutationComplete(result, totalMutants))
 
-  override def reportRunFinished(report: MutationTestReport, metrics: MetricsResult): Unit = {
-    val reported = finishedRunReporters.map(reporter => Try(reporter.reportRunFinished(report, metrics)))
+  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+    val reported = finishedRunReporters.map(reporter => Try(reporter.reportRunFinished(runReport)))
     val failed = reported.collect({ case f: Failure[Unit] => f })
     if (failed.nonEmpty) {
       warn(s"${failed.size} reporter(s) failed to report:")

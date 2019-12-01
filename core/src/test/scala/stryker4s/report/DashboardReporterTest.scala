@@ -23,7 +23,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig
-      val (report, metrics) = baseResults
+      val FinishedRunReport(report, metrics) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
@@ -45,7 +45,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig.copy(reportType = MutationScoreOnly)
-      val (report, metrics) = baseResults
+      val FinishedRunReport(report, metrics) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
@@ -58,7 +58,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig.copy(module = Some("myModule"))
-      val (report, metrics) = baseResults
+      val FinishedRunReport(report, metrics) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
 
@@ -73,9 +73,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
-      val (report, metrics) = baseResults
+      val runReport = baseResults
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(runReport)
 
       "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
     }
@@ -85,9 +85,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Left("fooConfigKey"))
       val sut = new DashboardReporter(mockDashConfig)
-      val (report, metrics) = baseResults
+      val runReport = baseResults
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(runReport)
 
       "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
     }
@@ -97,9 +97,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
-      val (report, metrics) = baseResults
+      val runReport = baseResults
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(runReport)
 
       "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
     }
@@ -110,9 +110,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
-      val (report, metrics) = baseResults
+      val runReport = baseResults
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(runReport)
 
       "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
     }
@@ -125,9 +125,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
-      val (report, metrics) = baseResults
+      val runReport = baseResults
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(runReport)
 
       "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
     }
@@ -138,7 +138,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
   def baseResults = {
     val report = MutationTestReport(thresholds = mutationtesting.Thresholds(80, 60), files = Map.empty)
     val metrics = Metrics.calculateMetrics(report)
-    (report, metrics)
+    FinishedRunReport(report, metrics)
   }
 
   def baseDashConfig = DashboardConfig(

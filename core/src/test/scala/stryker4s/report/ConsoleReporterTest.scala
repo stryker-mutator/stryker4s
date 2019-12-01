@@ -11,7 +11,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class ConsoleTest extends Stryker4sSuite with LogMatchers {
+class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
   describe("reportStartRun") {
     it("Should log that test run 1 is started when mutant id is 0") {
       implicit val config: Config = Config.default
@@ -78,20 +78,21 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "stryker4s.scala" -> MutationTestResult(
             source = "<!=",
             mutants = Seq(
-              MutantResult("0", "BinaryOperator", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+              MutantResult("0", "BinaryOperator", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Killed)
             )
           )
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(results, metrics)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
 
       "Mutation run finished! Took " shouldBe loggedAsInfo
       "Total mutants: 1, detected: 1, undetected: 0" shouldBe loggedAsInfo
       s"""Detected mutants:
          |0. [Killed] [BinaryOperator]
          |stryker4s.scala:1:2
-         |\t==
+         |-\t!=
+         |+\t==
          |""".stripMargin shouldBe loggedAsDebug
     }
     it("should report a finished run with multiple mutants") {
@@ -103,31 +104,33 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "stryker4s.scala" -> MutationTestResult(
             source = "<!=",
             mutants = Seq(
-              MutantResult("0", "BinaryOperator", ">", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived),
-              MutantResult("1", "BinaryOperator", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+              MutantResult("0", "BinaryOperator", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived),
+              MutantResult("1", "BinaryOperator", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Killed)
             )
           ),
           "subPath/stryker4s.scala" -> MutationTestResult(
             source = "1",
             mutants = Seq(
-              MutantResult("2", "BinaryOperator", "0", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived)
+              MutantResult("2", "BinaryOperator", "0", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           )
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(results, metrics)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
 
       "Mutation run finished! Took " shouldBe loggedAsInfo
       "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived] [BinaryOperator]
          |stryker4s.scala:1:1
-         |\t>
+         |-\t<
+         |+\t>
          |
          |2. [Survived] [BinaryOperator]
          |subPath/stryker4s.scala:1:1
-         |\t0
+         |-\t1
+         |+\t0
          |""".stripMargin shouldBe loggedAsInfo
     }
 
@@ -140,7 +143,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "subPath/stryker4s.scala" -> MutationTestResult(
             source = "1",
             mutants = Seq(
-              MutantResult("2", "BinaryOperator", "0", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived)
+              MutantResult("2", "BinaryOperator", "0", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           ),
           "stryker4s.scala" -> MutationTestResult(
@@ -150,29 +153,65 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
                 "1",
                 "BinaryOperator",
                 "==",
-                Location(Position(0, 1), Position(0, 3)),
+                Location(Position(1, 2), Position(1, 4)),
                 MutantStatus.Survived
               ),
-              MutantResult("0", "BinaryOperator", ">", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived)
+              MutantResult("0", "BinaryOperator", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           )
         )
       )
-      sut.reportRunFinished(results, Metrics.calculateMetrics(results))
+      sut.reportRunFinished(FinishedRunReport(results, Metrics.calculateMetrics(results)))
 
       "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived] [BinaryOperator]
          |stryker4s.scala:1:1
-         |\t>
+         |-\t<
+         |+\t>
          |
          |1. [Survived] [BinaryOperator]
          |stryker4s.scala:1:2
-         |\t==
+         |-\t!=
+         |+\t==
          |
          |2. [Survived] [BinaryOperator]
          |subPath/stryker4s.scala:1:1
-         |\t0
+         |-\t1
+         |+\t0
+         |""".stripMargin shouldBe loggedAsInfo
+    }
+
+    it("should report two line mutants properly") {
+      implicit val config: Config = Config.default
+      val sut = new ConsoleReporter()
+      val results = MutationTestReport(
+        thresholds = mutationtesting.Thresholds(80, 60),
+        files = Map(
+          "stryker4s.scala" -> MutationTestResult(
+            source = "foo\nbar\nbaz",
+            mutants = Seq(
+              MutantResult(
+                "0",
+                "StringLiteral",
+                "qux\nfoo",
+                Location(Position(2, 1), Position(3, 4)),
+                MutantStatus.Survived
+              )
+            )
+          )
+        )
+      )
+      val metrics = Metrics.calculateMetrics(results)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
+      "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
+      s"""Undetected mutants:
+         |0. [Survived] [StringLiteral]
+         |stryker4s.scala:2:1
+         |-\tbar
+         |\tbaz
+         |+\tqux
+         |\tfoo
          |""".stripMargin shouldBe loggedAsInfo
     }
 
@@ -188,8 +227,8 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
               MutantResult(
                 "0",
                 "StringLiteral",
-                "bar\nfoo",
-                Location(Position(1, 0), Position(1, 3)),
+                "ux\nqux\nfoo",
+                Location(Position(1, 2), Position(3, 4)),
                 MutantStatus.Survived
               )
             )
@@ -197,12 +236,16 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(results, metrics)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
       "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived] [StringLiteral]
-         |stryker4s.scala:2:1
+         |stryker4s.scala:1:2
+         |-\too
          |\tbar
+         |\tbaz
+         |+\tux
+         |\tqux
          |\tfoo
          |""".stripMargin shouldBe loggedAsInfo
     }
@@ -216,15 +259,15 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "stryker4s.scala" -> MutationTestResult(
             source = "foo\nbar\nbaz",
             mutants = Seq(
-              MutantResult("0", "", "bar\nbaz\nqu", Location(Position(0, 1), Position(2, 2)), MutantStatus.Survived),
-              MutantResult("1", "", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed),
-              MutantResult("2", "", ">=", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+              MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),
+              MutantResult("1", "", "==", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed),
+              MutantResult("2", "", ">=", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed)
             )
           )
         )
       )
 
-      sut.reportRunFinished(threeReport, Metrics.calculateMetrics(threeReport))
+      sut.reportRunFinished(FinishedRunReport(threeReport, Metrics.calculateMetrics(threeReport)))
 
       "Mutation score: 66.67%" shouldBe loggedAsInfo
     }
@@ -236,8 +279,8 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         "stryker4s.scala" -> MutationTestResult(
           source = "foo\nbar\nbaz",
           mutants = Seq(
-            MutantResult("0", "", "bar\nbaz\nqu", Location(Position(0, 1), Position(2, 2)), MutantStatus.Survived),
-            MutantResult("1", "", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+            MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),
+            MutantResult("1", "", "==", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed)
           )
         )
       )
@@ -248,7 +291,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score: 50.0%" shouldBe loggedAsInfo
     }
@@ -257,7 +300,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score: 50.0%" shouldBe loggedAsWarning
     }
@@ -266,7 +309,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score dangerously low!" shouldBe loggedAsError
       "Mutation score: 50.0%" shouldBe loggedAsError
@@ -276,7 +319,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
     }

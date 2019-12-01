@@ -74,7 +74,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
   describe("reportRunFinished") {
     implicit val config: Config = Config.default
-    val stryker4sReportFolderRegex = ".*target(/|\\\\)stryker4s-report(/|\\\\)[a-z-]*\\.[a-z]*$"
+    val stryker4sReportFolderRegex = ".*target(/|\\\\)stryker4s-report-(\\d*)(/|\\\\)[a-z-]*\\.[a-z]*$"
 
     it("should write the report files to the report directory") {
       val mockFileIO = mock[FileIO]
@@ -82,7 +82,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       val writtenFilesCaptor = ArgCaptor[File]
 
@@ -101,7 +101,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       val elementsCaptor = ArgCaptor[File]
       verify(mockFileIO, times(2)).createAndWrite(any[File], any[String])
@@ -117,7 +117,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(report, metrics)
+      sut.reportRunFinished(FinishedRunReport(report, metrics))
 
       val captor = ArgCaptor[File]
       verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
