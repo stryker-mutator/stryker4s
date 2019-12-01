@@ -15,7 +15,7 @@ class JsonReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
   }
 
   override def reportRunFinished(runReport: FinishedRunReport): Unit = {
-    val targetLocation = config.baseDir / s"target/stryker4s-report"
+    val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
     val resultLocation = targetLocation / "report.json"
 
     writeReportJsonTo(resultLocation, runReport.report)

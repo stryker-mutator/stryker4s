@@ -14,4 +14,6 @@ trait FinishedRunReporter extends MutationRunReporter {
   def reportRunFinished(runReport: FinishedRunReport): Unit
 }
 
-case class FinishedRunReport(report: MutationTestReport, metrics: MetricsResult)
+case class FinishedRunReport(report: MutationTestReport, metrics: MetricsResult) {
+  @transient val timestamp: Long = System.currentTimeMillis()
+}
