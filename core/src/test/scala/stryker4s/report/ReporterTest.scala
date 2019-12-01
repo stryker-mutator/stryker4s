@@ -30,7 +30,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
 
-        implicit val config: Config = Config(reporters = Seq())
+        implicit val config: Config = Config(reporters = Set.empty)
 
         val sut: Reporter = new Reporter() {
           override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
@@ -66,7 +66,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
 
-        implicit val config: Config = Config(reporters = Seq())
+        implicit val config: Config = Config(reporters = Set.empty)
 
         val sut: Reporter = new Reporter() {
           override lazy val reporters: Seq[ProgressReporter] = Seq(consoleReporterMock, progressReporterMock)

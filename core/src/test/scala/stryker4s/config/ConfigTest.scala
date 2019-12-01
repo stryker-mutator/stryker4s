@@ -38,7 +38,7 @@ class ConfigTest extends Stryker4sSuite {
       val sut = Config(
         filePaths,
         File("tmp"),
-        reporters = Seq(Html),
+        reporters = Set(Html),
         excludedMutations = ExcludedMutations(Set("BooleanLiteral")),
         dashboard = DashboardOptions(
           baseUrl = "https://fakeurl.com",
