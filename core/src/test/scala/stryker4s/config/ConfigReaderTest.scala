@@ -38,7 +38,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**.scala")
-      result.reporters should contain inOrderOnly (Console, Html)
+      result.reporters should contain only (Console, Html)
       result.thresholds shouldBe Thresholds()
       result.dashboard shouldBe DashboardOptions(
         baseUrl = "https://dashboard.stryker-mutator.io",
@@ -94,6 +94,14 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
         version = Some("someVersion"),
         module = Some("someModule")
       )
+    }
+
+    it("should filter out duplicate keys") {
+      val confPath = FileUtil.getResource("stryker4sconfs/duplicateKeys.conf")
+
+      val result = ConfigReader.readConfig(confPath)
+
+      result.reporters.loneElement shouldBe Html
     }
 
     it("should return a failure on a misshapen test runner") {

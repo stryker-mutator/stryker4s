@@ -10,7 +10,7 @@ import scala.util.{Failure, Try}
 import sttp.client.HttpURLConnectionBackend
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-  lazy val reporters: Seq[MutationRunReporter] = config.reporters map {
+  lazy val reporters: Iterable[MutationRunReporter] = config.reporters map {
     case Console => new ConsoleReporter()
     case Html    => new HtmlReporter(DiskFileIO)
     case Json    => new JsonReporter(DiskFileIO)
@@ -32,7 +32,7 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
     val reported = finishedRunReporters.map(reporter => Try(reporter.reportRunFinished(report, metrics)))
     val failed = reported.collect({ case f: Failure[Unit] => f })
     if (failed.nonEmpty) {
-      warn(s"${failed.length} reporter(s) failed to report:")
+      warn(s"${failed.size} reporter(s) failed to report:")
       failed.map(_.exception).foreach(warn(_))
     }
   }
