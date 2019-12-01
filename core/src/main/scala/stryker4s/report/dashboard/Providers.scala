@@ -60,7 +60,7 @@ object Providers extends Logging {
           case Array(_, _, tail @ _*)         => Some(tail.mkString("/"))
           case _                              => None
         }
-        if !version.isEmpty()
+        if version.nonEmpty
       } yield version
   }
 
