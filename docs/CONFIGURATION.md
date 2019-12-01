@@ -1,6 +1,6 @@
 # Configuration  
 
-All configuration options can be set from the stryker4s.conf file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace.
+All configuration options can be set from the stryker4s.conf file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
 
 ```conf
 stryker4s {
@@ -16,6 +16,7 @@ stryker4s {
       - [reporters](#reporters)
       - [excluded-mutations](#excluded-mutations)
       - [thresholds](#thresholds)
+      - [dashboard.*](#dashboard.*)
   - [Process runner config](#process-runner-config)
       - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
@@ -65,10 +66,7 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 - `console` will output progress and the final result to the console.
 - `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 - `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
-- `dashboard` reporter is a special kind of reporter. It sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme! To make sure no unwanted results are sent to the dashboards, it will only send the report if it is run from a build server. The reporter currently detects [Travis](https://travis-ci.org/) and [CircleCI](https://circleci.com/). Please open an [issue](https://github.com/stryker-mutator/stryker4s/issues/new) if your build server is missing. On all these environments, it will ignore builds of pull requests. 
-  - Apart from build server specific environment variables, the reporter uses one environment variable: **`STRYKER_DASHBOARD_API_KEY`**. You will need to pass the `STRYKER_DASHBOARD_API_KEY` environment variable yourself. You can create one for your repository by logging in on [the Stryker dashboard](https://dashboard.stryker-mutator.io). We strongly recommend you use encrypted environment variables:
-    * [Travis documentation](https://docs.travis-ci.com/user/environment-variables/#Encrypting-environment-variables)
-    * [CircleCI documentation](https://circleci.com/security/#secrets_section)
+- `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.*](#dashboard.*) configuration options. See the [Stryker handbook](https://github.com/stryker-mutator/stryker-handbook/blob/master/dashboard.md) for more info.
 
 #### excluded-mutations
 
@@ -99,6 +97,18 @@ Specify the thresholds for mutation scores.
 - `mutation score < break`: Error! Stryker will exit with exit code 1, indicating a build failure.
 
 Setting `break=0` (default value) ensures that the build will never fail.
+
+#### dashboard.*
+
+**Config file:** `dashboard { module="core" }`  
+**Default values:** `dashboard { base-url="https://dashboard.stryker-mutator.io", project="github.com/$USER/$PROJECT_NAME", report-type=full, version=$BRANCH }` if filled by CI environment  
+**Mandatory:** No  
+**Description:**  
+Settings for the dashboard [reporter](#reporters). See the [stryker handbook for more info](https://github.com/stryker-mutator/stryker-handbook/blob/master/dashboard.md). Note that the values should be kebab-case, not camelCase. If nothing is configured, Stryker4s will try to retrieve the values from one of the supported CI environments:
+
+- Travis
+- CircleCI
+- GitHub actions
 
 ## Process runner config
 
