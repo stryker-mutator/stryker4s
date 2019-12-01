@@ -11,7 +11,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class ConsoleTest extends Stryker4sSuite with LogMatchers {
+class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
   describe("reportStartRun") {
     it("Should log that test run 1 is started when mutant id is 0") {
       implicit val config: Config = Config.default
@@ -78,7 +78,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "stryker4s.scala" -> MutationTestResult(
             source = "<!=",
             mutants = Seq(
-              MutantResult("0", "BinaryOperator", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+              MutantResult("0", "BinaryOperator", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Killed)
             )
           )
         )
@@ -91,7 +91,8 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       s"""Detected mutants:
          |0. [Killed] [BinaryOperator]
          |stryker4s.scala:1:2
-         |\t==
+         |-\t!=
+         |+\t==
          |""".stripMargin shouldBe loggedAsDebug
     }
     it("should report a finished run with multiple mutants") {
@@ -103,14 +104,14 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "stryker4s.scala" -> MutationTestResult(
             source = "<!=",
             mutants = Seq(
-              MutantResult("0", "BinaryOperator", ">", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived),
-              MutantResult("1", "BinaryOperator", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+              MutantResult("0", "BinaryOperator", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived),
+              MutantResult("1", "BinaryOperator", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Killed)
             )
           ),
           "subPath/stryker4s.scala" -> MutationTestResult(
             source = "1",
             mutants = Seq(
-              MutantResult("2", "BinaryOperator", "0", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived)
+              MutantResult("2", "BinaryOperator", "0", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           )
         )
@@ -123,11 +124,13 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       s"""Undetected mutants:
          |0. [Survived] [BinaryOperator]
          |stryker4s.scala:1:1
-         |\t>
+         |-\t<
+         |+\t>
          |
          |2. [Survived] [BinaryOperator]
          |subPath/stryker4s.scala:1:1
-         |\t0
+         |-\t1
+         |+\t0
          |""".stripMargin shouldBe loggedAsInfo
     }
 
@@ -140,7 +143,7 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "subPath/stryker4s.scala" -> MutationTestResult(
             source = "1",
             mutants = Seq(
-              MutantResult("2", "BinaryOperator", "0", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived)
+              MutantResult("2", "BinaryOperator", "0", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           ),
           "stryker4s.scala" -> MutationTestResult(
@@ -150,10 +153,10 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
                 "1",
                 "BinaryOperator",
                 "==",
-                Location(Position(0, 1), Position(0, 3)),
+                Location(Position(1, 2), Position(1, 4)),
                 MutantStatus.Survived
               ),
-              MutantResult("0", "BinaryOperator", ">", Location(Position(0, 0), Position(0, 1)), MutantStatus.Survived)
+              MutantResult("0", "BinaryOperator", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           )
         )
@@ -164,15 +167,51 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       s"""Undetected mutants:
          |0. [Survived] [BinaryOperator]
          |stryker4s.scala:1:1
-         |\t>
+         |-\t<
+         |+\t>
          |
          |1. [Survived] [BinaryOperator]
          |stryker4s.scala:1:2
-         |\t==
+         |-\t!=
+         |+\t==
          |
          |2. [Survived] [BinaryOperator]
          |subPath/stryker4s.scala:1:1
-         |\t0
+         |-\t1
+         |+\t0
+         |""".stripMargin shouldBe loggedAsInfo
+    }
+
+    it("should report two line mutants properly") {
+      implicit val config: Config = Config.default
+      val sut = new ConsoleReporter()
+      val results = MutationTestReport(
+        thresholds = mutationtesting.Thresholds(80, 60),
+        files = Map(
+          "stryker4s.scala" -> MutationTestResult(
+            source = "foo\nbar\nbaz",
+            mutants = Seq(
+              MutantResult(
+                "0",
+                "StringLiteral",
+                "qux\nfoo",
+                Location(Position(2, 1), Position(3, 4)),
+                MutantStatus.Survived
+              )
+            )
+          )
+        )
+      )
+      val metrics = Metrics.calculateMetrics(results)
+      sut.reportRunFinished(FinishedRunReport(results, metrics))
+      "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
+      s"""Undetected mutants:
+         |0. [Survived] [StringLiteral]
+         |stryker4s.scala:2:1
+         |-\tbar
+         |\tbaz
+         |+\tqux
+         |\tfoo
          |""".stripMargin shouldBe loggedAsInfo
     }
 
@@ -188,8 +227,8 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
               MutantResult(
                 "0",
                 "StringLiteral",
-                "bar\nfoo",
-                Location(Position(1, 0), Position(1, 3)),
+                "ux\nqux\nfoo",
+                Location(Position(1, 2), Position(3, 4)),
                 MutantStatus.Survived
               )
             )
@@ -201,8 +240,12 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
       "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived] [StringLiteral]
-         |stryker4s.scala:2:1
+         |stryker4s.scala:1:2
+         |-\too
          |\tbar
+         |\tbaz
+         |+\tux
+         |\tqux
          |\tfoo
          |""".stripMargin shouldBe loggedAsInfo
     }
@@ -216,9 +259,9 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
           "stryker4s.scala" -> MutationTestResult(
             source = "foo\nbar\nbaz",
             mutants = Seq(
-              MutantResult("0", "", "bar\nbaz\nqu", Location(Position(0, 1), Position(2, 2)), MutantStatus.Survived),
-              MutantResult("1", "", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed),
-              MutantResult("2", "", ">=", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+              MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),
+              MutantResult("1", "", "==", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed),
+              MutantResult("2", "", ">=", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed)
             )
           )
         )
@@ -236,8 +279,8 @@ class ConsoleTest extends Stryker4sSuite with LogMatchers {
         "stryker4s.scala" -> MutationTestResult(
           source = "foo\nbar\nbaz",
           mutants = Seq(
-            MutantResult("0", "", "bar\nbaz\nqu", Location(Position(0, 1), Position(2, 2)), MutantStatus.Survived),
-            MutantResult("1", "", "==", Location(Position(0, 1), Position(0, 3)), MutantStatus.Killed)
+            MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),
+            MutantResult("1", "", "==", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed)
           )
         )
       )
