@@ -16,6 +16,7 @@ object TreeExtensions {
     }
 
   implicit class TopStatementExtension(thisTerm: Term) {
+
     /** Returns the statement this tree is part of.
       * Recursively going up the tree until a full statement is found.
       */
@@ -32,6 +33,7 @@ object TreeExtensions {
       *
       */
     private object PartialStatement {
+
       /**
         * @return A Some of the parent if the given term is a partial statement,
         *         else a None if the given term is a full statement
@@ -49,6 +51,7 @@ object TreeExtensions {
       *
       */
     private object ParentIsPatternMatch {
+
       /** Go up the tree, until a Case is found, then go up until a `Term` is found
         *
         */
@@ -68,6 +71,7 @@ object TreeExtensions {
   }
 
   implicit class FindExtension(thisTree: Tree) {
+
     /** Searches for the given statement in the tree
       *
       * @param toFind Statement to find
@@ -79,6 +83,7 @@ object TreeExtensions {
   }
 
   implicit class TransformOnceExtension(thisTree: Tree) {
+
     /** The normal <code>Tree#transform</code> recursively transforms the tree each time a transformation is applied
       * This causes a StackOverflowError when the transformation that is searched for is also present in the newly transformed tree. <br>
       * This function does not recursively go into the transformed tree
@@ -96,6 +101,7 @@ object TreeExtensions {
   }
 
   implicit class TreeIsInExtension(thisTree: Tree) {
+
     /** Returns if a tree is contained in an tree of type `[T]`.
       * Recursively going up the tree until an annotation is found.
       */
@@ -104,6 +110,7 @@ object TreeExtensions {
   }
 
   implicit class IsEqualExtension(thisTree: Tree) {
+
     /** Structural equality for Trees
       */
     final def isEqual(other: Tree): Boolean = thisTree == other || thisTree.structure == other.structure

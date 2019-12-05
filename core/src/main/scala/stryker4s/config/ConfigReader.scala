@@ -48,6 +48,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   private class Reader[T] private (file: File, onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]])(
       implicit derivation: Derivation[PureConfigReader[T]]
   ) {
+
     /**
       * Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]]
       * if they occur
@@ -97,6 +98,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   }
 
   private object Failure {
+
     /**
       * When the config-parsing fails because of an unknown key in the configuration, a
       * derivation for the [[PureConfigReader]] is provided that does not fail

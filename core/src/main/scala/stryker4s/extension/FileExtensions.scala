@@ -7,6 +7,7 @@ import stryker4s.config.Config
 
 object FileExtensions {
   implicit class RelativePathExtension(file: File) {
+
     /** The path relative to the base-dir of the project.
       * <br>
       *   For example, with the file `projectRoot/src/main`, this function will return `src/main`

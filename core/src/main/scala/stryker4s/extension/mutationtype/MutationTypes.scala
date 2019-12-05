@@ -70,6 +70,7 @@ trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
   * Base trait for method mutation
   */
 trait MethodExpression extends Mutation[Term] {
+
   /**
     * Method to be replaced or to replace
     */

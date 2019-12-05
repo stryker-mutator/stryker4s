@@ -31,6 +31,7 @@ object Release {
   /** Sets version of mvn project, calls `mvn deploy` and fails state if the command fails
     */
   private def mvnDeploy(baseDir: File, version: String)(state: State): State = {
+
     /** Returns a `ProcessBuilder` that runs the given maven command in the maven subdirectory
       */
     def runGoal(command: String): process.ProcessBuilder =
