@@ -1,0 +1,44 @@
+name: mutation testing
+
+on:
+  push:
+    branches:
+      - "*"
+      # - master
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["openjdk@1.11"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Run Stryker4s
+        run: |
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
+          csbt 'project stryker4s-core; stryker'
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+
+  command-runner:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["openjdk@1.11"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Run Stryker4s
+        run: |
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="runners/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
+          csbt 'project stryker4s-command-runner; stryker'
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
