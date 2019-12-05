@@ -312,6 +312,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
   }
 
   describe("transformOnce") {
+
     /** If this test fails then that means the Scalameta transform works as we want it to
       * and our transformOnce can be replaced with it
       */

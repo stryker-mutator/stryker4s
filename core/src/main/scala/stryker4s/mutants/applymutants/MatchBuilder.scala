@@ -55,8 +55,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
   private def groupTransformedStatements(transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
     transformedStatements.transformedStatements
       .groupBy(_.originalStatement)
-      .mapValues(
-        transformedMutants => transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements)
+      .mapValues(transformedMutants =>
+        transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements)
       )
       .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq

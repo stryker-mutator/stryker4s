@@ -28,10 +28,9 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   def expectMutations(actualMutants: Seq[Option[Mutant]], original: Term, expectedMutations: Term*): Unit = {
     expectedMutations.foreach(expectedMutation => {
       val actualMutant = actualMutants.flatten
-        .find(
-          mutant =>
-            mutant.mutated.isEqual(expectedMutation) &&
-              mutant.original.isEqual(original)
+        .find(mutant =>
+          mutant.mutated.isEqual(expectedMutation) &&
+            mutant.original.isEqual(original)
         )
         .getOrElse(fail("mutant not found"))
 
