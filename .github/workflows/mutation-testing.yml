@@ -2,9 +2,10 @@ name: mutation testing
 
 on:
   push:
-    branches:
-      - "*"
-      # - master
+  # push:
+    # branches:
+    #   # TODO: Change ran branches to master before merging
+    #   - master
 
 jobs:
   core:
