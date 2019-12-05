@@ -3,9 +3,9 @@ name: mutation testing
 on:
   push:
   # push:
-    # branches:
-    #   # TODO: Change ran branches to master before merging
-    #   - master
+  # branches:
+  #   # TODO: Change ran branches to master before merging
+  #   - master
 
 jobs:
   core:
@@ -21,12 +21,11 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
+          export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
           csbt 'project stryker4s-core; set scalacOptions -= "-Ywarn-unused:patvars"; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-          # GitHub actions machines have 7GB of RAM https://help.github.com/en/actions/automating-your-workflow-with-github-actions/virtual-environments-for-github-hosted-runners#supported-runners-and-hardware-resources
-          JAVA_OPTS: "-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=6G -Xmx6G"
 
   command-runner:
     runs-on: ubuntu-latest
@@ -41,12 +40,11 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
+          export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           echo 'stryker4s{reporters=["console","dashboard"],base-dir="runners/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
           csbt 'project stryker4s-command-runner; set scalacOptions -= "-Ywarn-unused:patvars"; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-          # GitHub actions machines have 7GB of RAM https://help.github.com/en/actions/automating-your-workflow-with-github-actions/virtual-environments-for-github-hosted-runners#supported-runners-and-hardware-resources
-          JAVA_OPTS: "-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=6G -Xmx6G"
 
   maven-plugin:
     runs-on: ubuntu-latest
@@ -61,11 +59,11 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
+          export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
+          echo $JAVA_OPTS
           csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
           cd runners/maven
           echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
           mvn stryker4s:run
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-          # GitHub actions machines have 7GB of RAM https://help.github.com/en/actions/automating-your-workflow-with-github-actions/virtual-environments-for-github-hosted-runners#supported-runners-and-hardware-resources
-          JAVA_OPTS: "-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=6G -Xmx6G"
