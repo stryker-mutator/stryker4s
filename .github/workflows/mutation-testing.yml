@@ -21,8 +21,8 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
-          echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
-          csbt 'project stryker4s-core; stryker'
+          echo 'stryker4s{reporters=["console","dashboard","html"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
+          csbt 'project stryker4s-core; set scalacOptions -= "-Ywarn-unused:patvars"; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -40,7 +40,7 @@ jobs:
       - name: Run Stryker4s
         run: |
           echo 'stryker4s{reporters=["console","dashboard"],base-dir="runners/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
-          csbt 'project stryker4s-command-runner; stryker'
+          csbt 'project stryker4s-command-runner; set scalacOptions -= "-Ywarn-unused:patvars"; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -57,6 +57,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
+          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
           cd runners/maven
           echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
           mvn stryker4s:run
