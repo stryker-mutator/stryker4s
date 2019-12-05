@@ -67,6 +67,8 @@
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+        <!-- The version that is used for running stryker4s on stryker4s -->
+        <stryker4s-plugin.version>0.7.1</stryker4s-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -119,6 +121,11 @@
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>io.stryker-mutator</groupId>
+                <artifactId>stryker4s-maven-plugin</artifactId>
+                <version>${stryker4s-plugin.version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
