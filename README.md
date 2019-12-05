@@ -37,7 +37,7 @@ After adding the plugin, Stryker4s can be used by running `sbt stryker` in the r
 
 ### Memory usage
 
-Mutation testing can be very taxing on your computer's resources. After all, your tests are run for each mutant. Sbt also has the tendency to [build up memory in a running session](https://github.com/sbt/sbt/issues/3983). It's wise to give sbt some extra memory by setting the following environment variable: `export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G"`. The amount of memory needed depends on the size of the project you are running Stryker4s on.
+Mutation testing can be very taxing on your computer's resources. After all, your tests are run for each mutant. Sbt also has the tendency to [build up memory in a running session](https://github.com/sbt/sbt/issues/3983). It's wise to give sbt some extra memory by setting the following environment variable: `export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G $JAVA_OPTS"`. The amount of memory needed depends on the size of the project you are running Stryker4s on.
 
 ### Multi-module projects
 
