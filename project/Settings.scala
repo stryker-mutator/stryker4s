@@ -79,7 +79,7 @@ object Settings {
       ScmInfo(
         url("https://github.com/stryker-mutator/stryker4s"),
         "scm:git:https://github.com/stryker-mutator/stryker4s.git",
-        "scm:git:ssh://git@github.com:stryker-mutator/stryker4s.git"
+        "scm:git:git@github.com:stryker-mutator/stryker4s.git"
       )
     ),
     developers := List(
