@@ -1,6 +1,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/search?q=g:io.stryker-mutator)
 [![Build status](https://github.com/stryker-mutator/stryker4s/workflows/CI/badge.svg)](https://github.com/stryker-mutator/stryker4s/actions)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster%3Fmodule%3Dcore)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master?module=core)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master)
 [![Gitter](https://badges.gitter.im/stryker-mutator/stryker.svg)](https://gitter.im/stryker-mutator/stryker4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![BCH compliance](https://bettercodehub.com/edge/badge/stryker-mutator/stryker4s?branch=master)](https://bettercodehub.com/)
 
