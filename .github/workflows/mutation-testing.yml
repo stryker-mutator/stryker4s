@@ -2,8 +2,8 @@ name: mutation testing
 
 on:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
 
 jobs:
   core:
