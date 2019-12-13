@@ -46,7 +46,7 @@ jobs:
     - name: Run Maven tests
       run: |
         cd runners/maven
-        mvn test -B
+        mvn verify -B
   formatting:
     name: Test formatting
     runs-on: ubuntu-latest
