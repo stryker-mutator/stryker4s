@@ -1,0 +1,67 @@
+name: mutation testing
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["openjdk@1.11"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Run Stryker4s
+        run: |
+          export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
+          csbt 'project stryker4s-core; set scalacOptions -= "-Ywarn-unused:patvars"; stryker'
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+
+  command-runner:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["openjdk@1.11"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Run Stryker4s
+        run: |
+          export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="runners/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
+          csbt 'project stryker4s-command-runner; set scalacOptions -= "-Ywarn-unused:patvars"; stryker'
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+
+  maven-plugin:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["openjdk@1.11"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Run Stryker4s
+        run: |
+          export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
+          echo $JAVA_OPTS
+          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
+          cd runners/maven
+          echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
+          mvn -B stryker4s:run
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
