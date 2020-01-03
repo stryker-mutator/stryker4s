@@ -7,7 +7,6 @@ import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.{LogMatchers, TreeEquality}
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.language.postfixOps
 import scala.meta._
 
 class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
@@ -208,7 +207,7 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
   ): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
-      .map(m => topStatement transformOnce { case orig if orig.isEqual(origStatement) => m } get)
+      .map(m => topStatement.transformOnce { case orig if orig.isEqual(origStatement) => m }.get)
       .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
       .toList
 

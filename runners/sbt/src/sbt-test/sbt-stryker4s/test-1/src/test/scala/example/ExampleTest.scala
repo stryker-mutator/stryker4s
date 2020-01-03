@@ -1,9 +1,12 @@
 package example
 
-import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funspec.AnyFunSpec
 
-class ExampleTest extends FlatSpec with Matchers {
-  "Person" should "be able to drink with age 18" in {
-    Example.canDrink(18) should be(true)
+class ExampleTest extends AnyFunSpec with Matchers {
+  describe("Person") {
+    it("be able to drink with age 18") {
+      Example.canDrink(18) should be(true)
+    }
   }
 }

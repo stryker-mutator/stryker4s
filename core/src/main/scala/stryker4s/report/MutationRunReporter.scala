@@ -1,14 +1,19 @@
 package stryker4s.report
-import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
+import mutationtesting._
+import stryker4s.model.{Mutant, MutantRunResult}
 
 trait MutationRunReporter
 
 trait ProgressReporter extends MutationRunReporter {
-  def reportMutationStart(mutant: Mutant)
+  def reportMutationStart(mutant: Mutant): Unit
 
   def reportMutationComplete(result: MutantRunResult, totalMutants: Int): Unit
 }
 
 trait FinishedRunReporter extends MutationRunReporter {
-  def reportRunFinished(runResults: MutantRunResults): Unit
+  def reportRunFinished(runReport: FinishedRunReport): Unit
+}
+
+case class FinishedRunReport(report: MutationTestReport, metrics: MetricsResult) {
+  @transient val timestamp: Long = System.currentTimeMillis()
 }

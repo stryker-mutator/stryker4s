@@ -9,10 +9,9 @@ import stryker4s.testutil.stubs.TestSourceCollector
 import scala.meta._
 
 class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
-
   describe("run") {
     it("should return a single Tree with changed pattern match") {
-      implicit val conf: Config = Config()
+      implicit val conf: Config = Config.default
       val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFilesToMutate()
 
@@ -47,7 +46,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
   }
   describe("logs") {
     it("should log the amount of mutants found") {
-      implicit val conf: Config = Config()
+      implicit val conf: Config = Config.default
       val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFilesToMutate()
 
@@ -83,7 +82,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
     }
 
     it("should log a warning if no mutants are found") {
-      implicit val conf: Config = Config()
+      implicit val conf: Config = Config.default
       val files =
         new TestSourceCollector(Seq(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala")))
           .collectFilesToMutate()
@@ -103,7 +102,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
     }
 
     it("should log if no files are found") {
-      implicit val conf: Config = Config()
+      implicit val conf: Config = Config.default
       val files = new TestSourceCollector(Seq.empty)
         .collectFilesToMutate()
 

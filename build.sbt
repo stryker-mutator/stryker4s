@@ -33,4 +33,4 @@ def newProject(projectName: String, dir: String): Project =
     .settings(Settings.commonSettings)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
-writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
+Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)

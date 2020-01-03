@@ -8,11 +8,10 @@ import scala.meta.{Lit, Term, Tree}
   * Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
 sealed trait Mutation[T <: Tree] {
-  val mutationName: String
+  def mutationName: String
 }
 
 object Mutation {
-
   // List of mutations
   val mutations: List[String] = List[String](
     classOf[EqualityOperator].getSimpleName,
@@ -34,8 +33,7 @@ object Mutation {
   *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
   */
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
-
-  val tree: T
+  def tree: T
 
   def unapply(arg: T): Option[T] =
     Some(arg)
@@ -83,5 +81,4 @@ trait MethodExpression extends Mutation[Term] {
   def apply(f: String => Term): Term = f(methodName)
 
   def unapply(term: Term): Option[(Term, String => Term)]
-
 }

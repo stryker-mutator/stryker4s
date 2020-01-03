@@ -5,10 +5,10 @@ import java.nio.file.Path
 import better.files.File
 import com.typesafe.config.ConfigRenderOptions
 import pureconfig.ConfigWriter
-import stryker4s.config.{ExcludedMutations, ReporterType}
+import stryker4s.config.{DashboardReportType, ExcludedMutations, ReporterType}
+import pureconfig.generic.semiauto._
 
 object ConfigWriterImplicits {
-
   implicit private[config] val fileWriter: ConfigWriter[File] =
     ConfigWriter[Path] contramap (_.path)
 
@@ -16,7 +16,10 @@ object ConfigWriterImplicits {
     ConfigWriter[List[String]] contramap (_.exclusions.toList)
 
   implicit private[config] val reportersWriter: ConfigWriter[ReporterType] =
-    ConfigWriter[String] contramap (_.name)
+    deriveEnumerationWriter[ReporterType]
+
+  implicit private[config] val dashboardReportTypeWriter: ConfigWriter[DashboardReportType] =
+    deriveEnumerationWriter[DashboardReportType]
 
   private[config] val options: ConfigRenderOptions = ConfigRenderOptions
     .defaults()

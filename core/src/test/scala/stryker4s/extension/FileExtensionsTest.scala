@@ -8,9 +8,8 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.testutil.Stryker4sSuite
 
 class FileExtensionsTest extends Stryker4sSuite {
-
   describe("relativePath") {
-    implicit val config: Config = Config()
+    implicit val config: Config = Config.default
 
     it("should return the relative path on a file inside the base-dir") {
       val expectedRelativePath =

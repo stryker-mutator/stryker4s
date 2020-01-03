@@ -1,4 +1,4 @@
-package stryker4s.maven
+package stryker4s.maven.runner
 
 import better.files._
 import org.apache.maven.project.MavenProject
@@ -7,9 +7,7 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.maven.runner.MavenMutantRunner
-import stryker4s.model
-import stryker4s.model.{Killed, Survived}
+import stryker4s.model.{Killed, Mutant, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.testutil.Stryker4sSuite
@@ -18,7 +16,7 @@ import scala.collection.JavaConverters._
 import scala.meta._
 
 class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
-  implicit val config: Config = Config()
+  implicit val config: Config = Config.default
   describe("runInitialTest") {
     it("should succeed on exit-code 0 invoker") {
       val invokerMock = mock[Invoker]
@@ -75,7 +73,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
-      val result = sut.runMutant(model.Mutant(1, q">", q"<", LesserThan), cwd)(cwd.path)
+      val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)(cwd.path)
 
       verify(invokerMock).setWorkingDirectory(any)
       result shouldBe a[Killed]
@@ -89,7 +87,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
-      val result = sut.runMutant(model.Mutant(1, q">", q"<", LesserThan), cwd)(cwd.path)
+      val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)(cwd.path)
 
       verify(invokerMock).setWorkingDirectory(any)
       result shouldBe a[Survived]
@@ -104,7 +102,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val cwd = File.currentWorkingDirectory
-      sut.runMutant(model.Mutant(1, q">", q"<", LesserThan), cwd)
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)
 
       verify(invokerMock).setWorkingDirectory(any)
       verify(invokerMock).execute(captor)

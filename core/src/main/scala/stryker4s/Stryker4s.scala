@@ -9,7 +9,6 @@ import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
 class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner)(implicit config: Config)
     extends Logging {
-
   //The minimal memory for sbt that is recommended for Stryker4s to run smoothly
   private[this] val minimalMemoryRecommendation = 1820 * 1024 * 1024
 
@@ -17,8 +16,8 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     validateAllocatedMemory()
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
-    val runResults = runner(mutatedFiles)
-    ThresholdChecker.determineScoreStatus(runResults.mutationScore)
+    val metrics = runner(mutatedFiles)
+    ThresholdChecker.determineScoreStatus(metrics.mutationScore)
   }
 
   private def validateAllocatedMemory(): Unit = {

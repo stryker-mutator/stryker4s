@@ -1,38 +1,68 @@
 package stryker4s.report.dashboard
 import grizzled.slf4j.Logging
+import stryker4s.env.Environment.Environment
 
 object Providers extends Logging {
+  def determineCiProvider(env: Environment): Option[CiProvider] =
+    if (readEnvironmentVariable("TRAVIS", env).isDefined) {
+      Some(new TravisProvider(env))
+    } else if (readEnvironmentVariable("CIRCLECI", env).isDefined) {
+      Some(new CircleProvider(env))
+    } else if (readEnvironmentVariable("GITHUB_ACTION", env).isDefined) {
+      Some(new GithubActionsProvider(env))
+    } else {
+      None
+    }
 
   trait CiProvider {
-    def isPullRequest: Boolean
-    def determineBranch(): Option[String]
-    def determineRepository(): Option[String]
-    def determineApiKey(): Option[String] = readEnvironmentVariableOrLog("STRYKER_DASHBOARD_API_KEY")
-
-    protected def readEnvironmentVariableOrLog(name: String): Option[String] = {
-      val environmentOption = sys.env.get(name).filter(_.nonEmpty)
-      if (environmentOption.isEmpty) {
-        warn(
-          s"Missing environment variable $name, not initializing ${this.getClass.getSimpleName} for dashboard reporter."
-        )
-      }
-      environmentOption
-    }
+    def determineProject(): Option[String]
+    def determineVersion(): Option[String]
   }
 
-  object TravisProvider extends CiProvider {
-    override def isPullRequest: Boolean = !readEnvironmentVariableOrLog("TRAVIS_PULL_REQUEST").forall(_ == "false")
-    override def determineBranch(): Option[String] = readEnvironmentVariableOrLog("TRAVIS_BRANCH")
-    override def determineRepository(): Option[String] = readEnvironmentVariableOrLog("TRAVIS_REPO_SLUG")
+  private def readEnvironmentVariable(name: String, env: Environment): Option[String] =
+    env.get(name).filter(_.nonEmpty)
+
+  /** TODO: Only github projects are supported for now
+    */
+  private val githubCom = "github.com"
+
+  class TravisProvider(env: Environment) extends CiProvider {
+    override def determineProject(): Option[String] =
+      readEnvironmentVariable("TRAVIS_REPO_SLUG", env)
+        .map(project => s"$githubCom/$project")
+
+    override def determineVersion(): Option[String] =
+      readEnvironmentVariable("TRAVIS_BRANCH", env)
   }
 
-  object CircleProvider extends CiProvider {
-    override def isPullRequest: Boolean = !readEnvironmentVariableOrLog("CIRCLE_PULL_REQUEST").forall(_ == "false")
-    override def determineBranch(): Option[String] = readEnvironmentVariableOrLog("CIRCLE_BRANCH")
-    override def determineRepository(): Option[String] =
+  class CircleProvider(env: Environment) extends CiProvider {
+    override def determineProject(): Option[String] =
       for {
-        username <- readEnvironmentVariableOrLog("CIRCLE_PROJECT_USERNAME")
-        repoName <- readEnvironmentVariableOrLog("CIRCLE_PROJECT_REPONAME")
-      } yield s"$username/$repoName"
+        username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME", env)
+        repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME", env)
+      } yield s"$githubCom/$username/$repoName"
+
+    override def determineVersion(): Option[String] =
+      readEnvironmentVariable("CIRCLE_BRANCH", env)
   }
+
+  class GithubActionsProvider(env: Environment) extends CiProvider {
+    override def determineProject(): Option[String] =
+      readEnvironmentVariable("GITHUB_REPOSITORY", env)
+        .map(project => s"$githubCom/$project")
+
+    override def determineVersion(): Option[String] =
+      for {
+        ref <- readEnvironmentVariable("GITHUB_REF", env)
+        refs = ref.split('/')
+        version <- refs match {
+          case Array(_, "pull", prNumber, _*) => Some(s"PR-$prNumber")
+          case Array(_, _, tail @ _*)         => Some(tail.mkString("/"))
+          case _                              => None
+        }
+        if version.nonEmpty
+      } yield version
+  }
+
+  // TODO: Support VSTS, GitLab CI
 }

@@ -7,7 +7,6 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 object TreeExtensions {
-
   @tailrec
   private def mapParent[T <: Tree, U](tree: Tree, ifFound: T => U, notFound: => U)(implicit classTag: ClassTag[T]): U =
     tree.parent match {
@@ -115,11 +114,9 @@ object TreeExtensions {
     /** Structural equality for Trees
       */
     final def isEqual(other: Tree): Boolean = thisTree == other || thisTree.structure == other.structure
-
   }
 
   implicit class CollectFirstExtension(tree: Tree) {
-
     final def collectFirst[T](pf: PartialFunction[Tree, T]): Option[T] = {
       var result = Option.empty[T]
       object traverser extends SimpleTraverser {

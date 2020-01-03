@@ -4,29 +4,21 @@ import better.files.File
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.files.FileIO
-import stryker4s.model.MutantRunResults
-import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.model.MutationTestReport
+import mutationtesting.MutationTestReport
 
-class JsonReporter(fileIO: FileIO)(implicit config: Config)
-    extends FinishedRunReporter
-    with MutantRunResultMapper
-    with Logging {
-
-  def buildScoreResult(report: MutantRunResults): MutationTestReport = {
-    toReport(report)
+class JsonReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
+  def writeReportJsonTo(file: File, report: MutationTestReport): Unit = {
+    import io.circe.syntax._
+    import mutationtesting.MutationReportEncoder._
+    val json = report.asJson.noSpaces
+    fileIO.createAndWrite(file, json)
   }
 
-  def writeReportJsonTo(file: File, report: MutantRunResults): Unit = {
-    val content = buildScoreResult(report)
-    fileIO.createAndWrite(file, content.toJson)
-  }
-
-  override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val targetLocation = config.baseDir / s"target/stryker4s-report-${runResults.timestamp}"
+  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+    val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
     val resultLocation = targetLocation / "report.json"
 
-    writeReportJsonTo(resultLocation, runResults)
+    writeReportJsonTo(resultLocation, runReport.report)
 
     info(s"Written JSON report to $resultLocation")
   }

@@ -2,13 +2,12 @@ package stryker4s.config
 
 import better.files.File
 import pureconfig.error.{ConfigReaderException, ConvertFailure}
+import stryker4s.config.implicits.ConfigReaderImplicits
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import pureconfig.generic.auto._
-import stryker4s.config.implicits.ConfigReaderImplicits
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
-
   describe("loadConfig") {
     it("should load stryker4s by type") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
@@ -18,7 +17,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
         case Right(config) =>
           config.baseDir shouldBe File("/tmp/project")
           config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-          config.reporters.loneElement shouldBe HtmlReporterType
+          config.reporters.loneElement shouldBe Html
           config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
       }
     }
@@ -39,7 +38,15 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**.scala")
-      result.reporters should contain inOrderOnly (ConsoleReporterType, HtmlReporterType)
+      result.reporters should contain only (Console, Html)
+      result.thresholds shouldBe Thresholds()
+      result.dashboard shouldBe DashboardOptions(
+        baseUrl = "https://dashboard.stryker-mutator.io",
+        reportType = Full,
+        project = None,
+        version = None,
+        module = None
+      )
     }
 
     it("should fail on an empty config file") {
@@ -60,6 +67,17 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       exc.getMessage() should include("Cannot convert configuration")
     }
 
+    it("should load a config with unknown keys") {
+      val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
+
+      lazy val config = ConfigReader.readConfig(confPath)
+
+      config.baseDir shouldBe File("/tmp/project")
+      config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
+      config.reporters.loneElement shouldBe Html
+      config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+    }
+
     it("should load a config with customized properties") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
@@ -67,8 +85,23 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
-      result.reporters.loneElement shouldBe HtmlReporterType
+      result.reporters.loneElement shouldBe Html
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+      result.dashboard shouldBe DashboardOptions(
+        baseUrl = "https://fakeurl.com",
+        reportType = MutationScoreOnly,
+        project = Some("someProject"),
+        version = Some("someVersion"),
+        module = Some("someModule")
+      )
+    }
+
+    it("should filter out duplicate keys") {
+      val confPath = FileUtil.getResource("stryker4sconfs/duplicateKeys.conf")
+
+      val result = ConfigReader.readConfig(confPath)
+
+      result.reporters.loneElement shouldBe Html
     }
 
     it("should return a failure on a misshapen test runner") {
@@ -87,23 +120,32 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
   }
 
   describe("logs") {
-    it("should log when config file in directory is used") {
+    it("should log where the config is read from") {
       val confPath = FileUtil.getResource("stryker4sconfs/filled.conf")
 
       ConfigReader.readConfig(confPath)
 
-      "Using stryker4s.conf in the current working directory" shouldBe loggedAsInfo
+      s"Attempting to read config from ${confPath.path}" shouldBe loggedAsInfo
     }
 
     it("should log warnings when no config file is found") {
       val confPath = File("nonExistentFile.conf")
 
-      val sut = ConfigReader.readConfig(confPath)
+      ConfigReader.readConfig(confPath)
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
       // Ignored due to transitive dependency clash in sbt
       // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+    }
+
+    it("should log warnings when unknown keys are used") {
+      val confPath = FileUtil.getResource("stryker4sconfs/overfilled.conf")
+
+      ConfigReader.readConfig(confPath)
+
+      "The following configuration key(s) are not used, they could stem from an older " +
+        "stryker4s version: unknown-key." shouldBe loggedAsWarning
     }
   }
 }

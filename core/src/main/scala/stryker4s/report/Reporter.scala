@@ -3,17 +3,19 @@ package stryker4s.report
 import grizzled.slf4j.Logging
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
-import stryker4s.model.{Mutant, MutantRunResult, MutantRunResults}
-
+import stryker4s.model.{Mutant, MutantRunResult}
+import stryker4s.report.dashboard.DashboardConfigProvider
 import scala.util.{Failure, Try}
+import sttp.client.HttpURLConnectionBackend
 
 class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-
-  lazy val reporters: Seq[MutationRunReporter] = config.reporters collect {
-    case ConsoleReporterType             => new ConsoleReporter()
-    case HtmlReporterType                => new HtmlReporter(DiskFileIO)
-    case JsonReporterType                => new JsonReporter(DiskFileIO)
-    case DashboardReporterType(reporter) => reporter
+  lazy val reporters: Iterable[MutationRunReporter] = config.reporters map {
+    case Console => new ConsoleReporter()
+    case Html    => new HtmlReporter(DiskFileIO)
+    case Json    => new JsonReporter(DiskFileIO)
+    case Dashboard =>
+      implicit val backend = HttpURLConnectionBackend()
+      new DashboardReporter(new DashboardConfigProvider(sys.env))
   }
 
   private[this] val progressReporters = reporters collect { case r: ProgressReporter       => r }
@@ -25,13 +27,12 @@ class Reporter(implicit config: Config) extends FinishedRunReporter with Progres
   override def reportMutationComplete(result: MutantRunResult, totalMutants: Int): Unit =
     progressReporters.foreach(_.reportMutationComplete(result, totalMutants))
 
-  override def reportRunFinished(runResults: MutantRunResults): Unit = {
-    val reported = finishedRunReporters.map(reporter => Try(reporter.reportRunFinished(runResults)))
+  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+    val reported = finishedRunReporters.map(reporter => Try(reporter.reportRunFinished(runReport)))
     val failed = reported.collect({ case f: Failure[Unit] => f })
     if (failed.nonEmpty) {
-      warn(s"${failed.length} reporter(s) failed to report:")
+      warn(s"${failed.size} reporter(s) failed to report:")
       failed.map(_.exception).foreach(warn(_))
     }
   }
-
 }

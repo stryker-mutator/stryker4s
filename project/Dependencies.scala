@@ -1,30 +1,27 @@
 import sbt._
 
 object Dependencies {
-
   object versions {
-    val scala212 = "2.12.9"
+    val scala212 = "2.12.10"
 
-    val scalameta = "4.2.1"
-    val pureconfig = "0.11.1"
-    val scalatest = "3.0.8"
-    val mockitoScala = "1.5.14"
+    val scalameta = "4.3.0"
+    val pureconfig = "0.12.2"
+    val scalatest = "3.1.0"
+    val mockitoScala = "1.10.2"
     val betterFiles = "3.8.0"
-    val log4j = "2.12.1"
+    val log4j = "2.13.0"
     val grizzledSlf4j = "1.3.4"
-    val everitJsonSchema = "1.11.1"
-    val circe = "0.11.1"
-    val mutationTestingElements = "1.1.1"
-    val mutationTestingSchema = "1.1.1"
-    val scalajHttp = "2.4.2"
+    val cats = "2.0.0"
+    val circe = "0.12.3"
+    val mutationTestingElements = "1.2.3"
+    val mutationTestingMetrics = "1.2.3"
+    val sttp = "2.0.0-RC5"
     val bsp4s = "2.0.0-M4"
   }
 
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
-    val everitJsonSchema = "com.github.everit-org.json-schema" % "org.everit.json.schema" % versions.everitJsonSchema % Test
-    val mutationTestingSchema = "io.stryker-mutator" % "mutation-testing-report-schema" % versions.mutationTestingSchema % Test
   }
 
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
@@ -34,10 +31,11 @@ object Dependencies {
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
   val log4jslf4jImpl = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
+  val catsCore = "org.typelevel" %% "cats-core" % versions.cats
   val circeCore = "io.circe" %% "circe-core" % versions.circe
-  val circeGeneric = "io.circe" %% "circe-generic" % versions.circe
-  val scalajHttp = "org.scalaj" %% "scalaj-http" % versions.scalajHttp
+  val sttp = "com.softwaremill.sttp.client" %% "circe" % versions.sttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
+  val mutationTestingMetrics = "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
   val bsp4s = "ch.epfl.scala" %% "bsp4s" % versions.bsp4s
 
 }

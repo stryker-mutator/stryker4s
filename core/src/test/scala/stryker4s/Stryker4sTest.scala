@@ -1,12 +1,13 @@
 package stryker4s
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 
 import better.files.File
 import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
-import stryker4s.model.{Killed, Mutant, MutantRunResult, MutantRunResults}
+import stryker4s.extension.mutationtype.LesserThan
+import stryker4s.model.{Killed, Mutant, MutantRunResult}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
@@ -14,19 +15,20 @@ import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
+import scala.meta._
 import scala.util.Success
+import stryker4s.report.FinishedRunReport
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
-
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
     private[this] val stream = Iterator.from(0)
 
     override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult =
-      path => Killed(Mutant(stream.next, null, null, null), path)
+      path => Killed(Mutant(stream.next, q">", q"<", LesserThan), path)
     override def runInitialTest(workingDir: File): Boolean = true
   }
 
@@ -59,25 +61,19 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
       startCaptor.values should matchPattern {
         case List(Mutant(0, _, _, _), Mutant(1, _, _, _), Mutant(2, _, _, _), Mutant(3, _, _, _)) =>
       }
-      val runResultCaptor = ArgCaptor[MutantRunResults]
-      verify(reporterMock).reportRunFinished(runResultCaptor)
-      val reportedResults = runResultCaptor.value.results
-
-      val expectedPath = Paths.get("simpleFile.scala")
+      val runReportMock = ArgCaptor[FinishedRunReport]
+      verify(reporterMock).reportRunFinished(runReportMock)
+      val FinishedRunReport(reportedResults, _) = runReportMock.value
 
       result shouldBe SuccessStatus
-      reportedResults should matchPattern {
-        case List(
-            Killed(Mutant(0, _, _, _), `expectedPath`),
-            Killed(Mutant(1, _, _, _), `expectedPath`),
-            Killed(Mutant(2, _, _, _), `expectedPath`),
-            Killed(Mutant(3, _, _, _), `expectedPath`)
-            ) =>
-      }
+      reportedResults.files.flatMap(_._2.mutants) should have size 4
+      reportedResults.files.foreach({
+        case (path, _) => path shouldBe "simpleFile.scala"
+      })
     }
 
     it("should log a warning when JVM max memory is too low") {
-      implicit val conf: Config = Config()
+      implicit val conf: Config = Config.default
       val testMutantRunner = new TestMutantRunner(testSourceCollector, reporterMock)
 
       val sut: Stryker4s =
@@ -90,7 +86,6 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
           ),
           testMutantRunner
         ) {
-
           override def jvmMemory2GBOrHigher: Boolean = false
         }
 
@@ -101,7 +96,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     }
 
     it("should not log a warning when JVM max memory is high enough") {
-      implicit val conf: Config = Config()
+      implicit val conf: Config = Config.default
       val testMutantRunner = new TestMutantRunner(testSourceCollector, reporterMock)
 
       val sut: Stryker4s =
@@ -114,7 +109,6 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
           ),
           testMutantRunner
         ) {
-
           override def jvmMemory2GBOrHigher: Boolean = true
         }
 

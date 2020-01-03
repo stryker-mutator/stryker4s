@@ -17,7 +17,6 @@ import scala.collection.JavaConverters._
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
     implicit config: Config
 ) extends MutantRunner(sourceCollector, reporter) {
-
   private val goals = List("test").asJava
 
   private val properties = new Properties(project.getProperties)
@@ -54,5 +53,4 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
   private def createRequestWithMutation(mutant: Mutant): InvocationRequest =
     createRequest()
       .addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
-
 }

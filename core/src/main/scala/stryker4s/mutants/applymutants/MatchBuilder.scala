@@ -10,7 +10,6 @@ import scala.meta._
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
-
   def buildNewSource(transformedStatements: SourceTransformations): Tree = {
     val source = transformedStatements.source
 
@@ -56,8 +55,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
   private def groupTransformedStatements(transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
     transformedStatements.transformedStatements
       .groupBy(_.originalStatement)
-      .mapValues(
-        transformedMutants => transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements)
+      .mapValues(transformedMutants =>
+        transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements)
       )
       .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq

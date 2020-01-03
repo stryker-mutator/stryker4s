@@ -1,3 +1,5 @@
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster%3Fmodule%3Dmaven-plugin)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master?module=maven-plugin)
+
 # Stryker4s Maven plugin
 
 This is the project for the Stryker4s Maven plugin. As you cannot build a Maven plugin from a sbt project, it is a separate project.

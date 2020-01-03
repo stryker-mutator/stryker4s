@@ -1,5 +1,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/search?q=g:io.stryker-mutator)
-[![Build status](https://img.shields.io/travis/stryker-mutator/stryker4s/master.svg)](https://travis-ci.org/stryker-mutator/stryker4s)
+[![Build status](https://github.com/stryker-mutator/stryker4s/workflows/CI/badge.svg)](https://github.com/stryker-mutator/stryker4s/actions)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master)
 [![Gitter](https://badges.gitter.im/stryker-mutator/stryker.svg)](https://gitter.im/stryker-mutator/stryker4s?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![BCH compliance](https://bettercodehub.com/edge/badge/stryker-mutator/stryker4s?branch=master)](https://bettercodehub.com/)
 
@@ -26,17 +27,17 @@ Stryker4s is a mutation testing framework for Scala. It allows you to test your 
 
 ## Sbt plugin
 
-Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt`:
+Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/sbt-stryker4s):
 
 ```scala
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.6.1")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % stryker4sVersion)
 ```
 
 After adding the plugin, Stryker4s can be used by running `sbt stryker` in the root of your project.
 
 ### Memory usage
 
-Mutation testing can be very taxing on your computer's resources. After all, your tests are run for each mutant. Sbt also has the tendency to [build up memory in a running session](https://github.com/sbt/sbt/issues/3983). It's wise to give sbt some extra memory by setting the following environment variable: `export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G"`. The amount of memory needed depends on the size of the project you are running Stryker4s on.
+Mutation testing can be very taxing on your computer's resources. After all, your tests are run for each mutant. Sbt also has the tendency to [build up memory in a running session](https://github.com/sbt/sbt/issues/3983). It's wise to give sbt some extra memory by setting the following environment variable: `export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G $JAVA_OPTS"`. The amount of memory needed depends on the size of the project you are running Stryker4s on.
 
 ### Multi-module projects
 
@@ -44,13 +45,13 @@ Multi-module projects are not yet fully supported. However, there is a workaroun
 
 ## Maven plugin
 
-The Maven plugin can be added as follows in `pom.xml` under `plugins`:
+The Maven plugin can be added as follows in `pom.xml` under `<plugins>` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/stryker4s-maven-plugin):
 
 ```xml
 <plugin>
     <groupId>io.stryker-mutator</groupId>
     <artifactId>stryker4s-maven-plugin</artifactId>
-    <version>0.6.1</version>
+    <version>${stryker4s.version}</version>
 </plugin>
 ```
 

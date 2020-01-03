@@ -1,13 +1,12 @@
-import stryker4s.testutil.Stryker4sSuite
-import stryker4s.scalatest.FileUtil
-import stryker4s.config.ConfigReader
-import stryker4s.command.config.ProcessRunnerConfig
-import pureconfig.generic.auto._
+package stryker4s.config
+
 import org.scalatest.EitherValues
+import pureconfig.error.{ConfigReaderFailures, ConvertFailure, KeyNotFound}
+import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.run.process.Command
-import pureconfig.error.ConfigReaderFailures
-import pureconfig.error.ConvertFailure
-import pureconfig.error.KeyNotFound
+import stryker4s.scalatest.FileUtil
+import stryker4s.testutil.Stryker4sSuite
+import pureconfig.generic.auto._
 
 class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
   describe("ProcessConfig") {

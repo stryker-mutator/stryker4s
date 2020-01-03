@@ -1,4 +1,2 @@
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
-
-// Deployment plugins
-addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.2.6")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.4.31")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.7.1")

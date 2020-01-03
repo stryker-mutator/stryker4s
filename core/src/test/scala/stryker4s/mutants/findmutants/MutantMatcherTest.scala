@@ -11,8 +11,8 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta._
 
 class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
-
-  private val sut = new MutantMatcher()(config = Config())
+  implicit private val config: Config = Config.default
+  private val sut = new MutantMatcher()
 
   def expectMutations(
       matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
@@ -28,10 +28,9 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
   def expectMutations(actualMutants: Seq[Option[Mutant]], original: Term, expectedMutations: Term*): Unit = {
     expectedMutations.foreach(expectedMutation => {
       val actualMutant = actualMutants.flatten
-        .find(
-          mutant =>
-            mutant.mutated.isEqual(expectedMutation) &&
-              mutant.original.isEqual(original)
+        .find(mutant =>
+          mutant.mutated.isEqual(expectedMutation) &&
+            mutant.original.isEqual(original)
         )
         .getOrElse(fail("mutant not found"))
 
@@ -286,7 +285,6 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
     it("should match minBy to maxBy") {
       expectedMutations(sut.matchMethodExpression, q"def foo = List(1, 2, 3).minBy(_.toString)", MaxBy)
     }
-
   }
 
   describe("matchBooleanLiteral matcher") {
@@ -375,7 +373,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
 
   describe("Create mutant id's") {
     it("should register multiple mutants from a found mutant with multiple mutations") {
-      val sut = new MutantMatcher()(Config())
+      val sut = new MutantMatcher()(Config.default)
       val mutants = (sut.TermExtensions(GreaterThan) ~~> (LesserThan, GreaterThanEqualTo, EqualTo)).flatten
 
       mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0, 1, 2)
@@ -455,6 +453,5 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       expectMutations(trueFound, q"true", q"false")
       expectMutations(falseFound, q"false", q"true")
     }
-
   }
 }

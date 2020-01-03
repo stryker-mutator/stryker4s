@@ -10,7 +10,6 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
 trait ProcessRunner extends Logging {
-
   def apply(command: Command, workingDir: File): Try[Seq[String]] = {
     Try {
       Process(s"${command.command} ${command.args}", workingDir.toJava)
@@ -30,7 +29,7 @@ trait ProcessRunner extends Logging {
 }
 
 object ProcessRunner {
-  private val isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
+  private def isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
 
   def apply(): ProcessRunner = {
     if (isWindows) new WindowsProcessRunner
