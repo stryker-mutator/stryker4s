@@ -17,7 +17,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - uses: olafurpg/setup-scala@v5
+    - uses: olafurpg/setup-scala@v7
       with:
         java-version: ${{ matrix.java-version }}
     - name: Run tests
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: olafurpg/setup-scala@v5
+    - uses: olafurpg/setup-scala@v7
       with:
         java-version: openjdk@1.11
     - name: Run tests
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: olafurpg/setup-scala@v5
+    - uses: olafurpg/setup-scala@v7
       with:
         java-version: openjdk@1.11
     - name: Publish stryker4s-core
