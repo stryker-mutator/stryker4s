@@ -17,10 +17,11 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   private val configDocUrl: String =
     "https://github.com/stryker-mutator/stryker4s/blob/master/docs/CONFIGURATION.md"
 
+  implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
+
   /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
     */
   def readConfig(confFile: File = defaultConfigFileLocation): Config = {
-    implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
     Reader
       .withoutRecovery[Config](confFile)
@@ -99,6 +100,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
   private object Failure {
 
+    implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = true)
+
     /**
       * When the config-parsing fails because of an unknown key in the configuration, a
       * derivation for the [[PureConfigReader]] is provided that does not fail
@@ -116,7 +119,6 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
             s"stryker4s version: ${unknownKeys.mkString(", ")}.\n" +
             s"Please check the documentation at $configDocUrl for available options."
         )
-        implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = true)
         implicitly[Derivation[PureConfigReader[Config]]]
     }
 

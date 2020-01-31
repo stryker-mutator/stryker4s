@@ -4,24 +4,6 @@ import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
 
 object Settings {
-  lazy val scalacOpts: Seq[String] = Seq(
-    "-deprecation", // Emit warning and location for usages of deprecated APIs.
-    "-encoding",
-    "utf-8", // Specify character encoding used by source files.
-    "-explaintypes", // Explain type errors in more detail.
-    "-feature", // Emit warning and location for usages of features that should be imported explicitly.
-    "-unchecked", // Enable additional warnings where generated code depends on assumptions.
-    "-Xfatal-warnings", // Fail the compilation if there are any warnings.
-    "-Xlint:doc-detached", // A Scaladoc comment appears to be detached from its element.
-    "-Ywarn-infer-any", // Warn when a type argument is inferred to be `Any`.
-    "-Ywarn-dead-code", // Warn when dead code is identified.
-    "-Ywarn-unused:implicits", // Warn if an implicit parameter is unused.
-    "-Ywarn-unused:imports", // Warn if an import selector is not referenced.
-    "-Ywarn-unused:params", // Warn if a value parameter is unused.
-    "-Ywarn-unused:patvars", // Warn if a variable bound in a pattern is unused.
-    "-Ypartial-unification" // Improve type inference, necessary for cats until scala 2.13
-  )
-
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     Test / parallelExecution := false // For logging tests
   )
@@ -62,11 +44,7 @@ object Settings {
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
     releaseCommands ++
-      buildInfo ++
-      Seq(
-        scalaVersion := Dependencies.versions.scala212,
-        scalacOptions ++= Settings.scalacOpts
-      )
+      buildInfo
   )
 
   lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
