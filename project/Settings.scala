@@ -5,7 +5,7 @@ import sbt._
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions := Seq(Dependencies.versions.scala213, Dependencies.versions.scala212),
+    crossScalaVersions := Seq(Dependencies.versions.scala212, Dependencies.versions.scala213),
     scalaVersion := crossScalaVersions.value.head,
     Test / parallelExecution := false // For logging tests
   )

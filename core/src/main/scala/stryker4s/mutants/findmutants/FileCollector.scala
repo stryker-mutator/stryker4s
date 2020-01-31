@@ -72,7 +72,7 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
     warn("No 'files' specified and not a git repository.")
     warn("Falling back to copying everything except the 'target/' folder(s)")
 
-    config.baseDir.listRecursively.to(Iterable)
+    config.baseDir.listRecursively.toSeq
   }
 
   private[this] def glob(list: Seq[String]): Seq[File] = {
