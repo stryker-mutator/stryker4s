@@ -33,10 +33,20 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     }
   }
 
+  /** Remove scalacOptions that are very likely to cause errors with generated code
+    * https://github.com/stryker-mutator/stryker4s/issues/321
+    */
+  private val blacklistedScalacOptions = Seq(
+    "-Ywarn-unused:patvars",
+    "-Ywarn-unused:locals",
+    "-Xlint-unused"
+  )
+
   private lazy val emptyLogManager =
     LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
 
   private val settings: Seq[Def.Setting[_]] = Seq(
+    scalacOptions --= blacklistedScalacOptions,
     fork in Test := true,
     scalaSource in Compile := tmpDirFor(Compile).value,
     logManager := {
