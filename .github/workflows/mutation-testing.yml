@@ -13,7 +13,7 @@ jobs:
       matrix:
         java-version: ["openjdk@1.11"]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -32,7 +32,7 @@ jobs:
       matrix:
         java-version: ["openjdk@1.11"]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -51,7 +51,7 @@ jobs:
       matrix:
         java-version: ["openjdk@1.11"]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
