@@ -13,7 +13,7 @@ trait ProcessRunner extends Logging {
   def apply(command: Command, workingDir: File): Try[Seq[String]] = {
     Try {
       Process(s"${command.command} ${command.args}", workingDir.toJava)
-        .lineStream(ProcessLogger(debug(_)))
+        .lazyLines(ProcessLogger(debug(_)))
     }
   }
 

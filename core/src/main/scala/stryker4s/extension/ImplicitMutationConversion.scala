@@ -2,7 +2,6 @@ package stryker4s.extension
 
 import stryker4s.extension.mutationtype.SubstitutionMutation
 
-import scala.language.implicitConversions
 import scala.meta.Tree
 
 /**

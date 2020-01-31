@@ -5,6 +5,8 @@ import sbt._
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
+    crossScalaVersions := Seq(Dependencies.versions.scala213, Dependencies.versions.scala212),
+    scalaVersion := crossScalaVersions.value.head,
     Test / parallelExecution := false // For logging tests
   )
 
@@ -35,6 +37,9 @@ object Settings {
   )
 
   lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(
+    // sbt plugin has to be 2.12
+    crossScalaVersions := Seq(Dependencies.versions.scala212),
+    scalaVersion := Dependencies.versions.scala212,
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
