@@ -26,11 +26,11 @@ trait ArgMethodExpression extends MethodExpression {
 
     // foo.filter( a => a > 0 )
     case Apply(Select(q, Name(`methodName`)), arg :: Nil) =>
-      Option(term, name => Apply(Term.Select(q, Name(name)), arg :: Nil))
+      Option((term, name => Apply(Term.Select(q, Name(name)), arg :: Nil)))
 
     // foo filter( a => a > 0 )
     case ApplyInfix(q, Name(`methodName`), Nil, arg :: Nil) =>
-      Option(term, name => ApplyInfix(q, Name(name), Nil, arg :: Nil))
+      Option((term, name => ApplyInfix(q, Name(name), Nil, arg :: Nil)))
 
     case _ => None
   }

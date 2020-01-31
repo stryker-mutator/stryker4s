@@ -55,7 +55,7 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
       val score = 20
       implicit val config: Config = Config(thresholds = Thresholds(break = score))
 
-      val exitCode = ThresholdChecker.determineScoreStatus(score)
+      val exitCode = ThresholdChecker.determineScoreStatus(score.toDouble)
 
       exitCode shouldBe DangerStatus
     }

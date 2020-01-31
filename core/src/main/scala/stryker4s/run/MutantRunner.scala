@@ -54,7 +54,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
     filePath.createIfNotExists(file.isDirectory, createParents = true)
 
-    file.copyTo(filePath, overwrite = true)
+    val _ = file.copyTo(filePath, overwrite = true)
   }
 
   private def writeMutatedFile(mutatedFile: MutatedFile): File = {

@@ -19,6 +19,6 @@ object DiskFileIO extends FileIO {
 
   override def createAndWrite(file: File, content: String): Unit = {
     file.createFileIfNotExists(createParents = true)
-    file.writeText(content)
+    val _ = file.writeText(content)
   }
 }

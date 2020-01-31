@@ -29,6 +29,6 @@ class TestAppender(name: String, filter: Filter)
     extends AbstractAppender(name, filter, null, true, Property.EMPTY_ARRAY) {
   override def append(eventObject: LogEvent): Unit = {
     // Needs to call .toImmutable because the same object is given every time, with only a mutated message
-    TestAppender.events(eventObject.getThreadName) += eventObject.toImmutable
+    val _ = TestAppender.events(eventObject.getThreadName) += eventObject.toImmutable
   }
 }

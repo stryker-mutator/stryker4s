@@ -350,7 +350,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val tree = q"def foo = $interpolated"
       val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
 
-      interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar + 1} bar\"")
+      interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar" + " + 1} bar\"")
       expectMutations(
         sut.matchStringLiteral,
         tree,
