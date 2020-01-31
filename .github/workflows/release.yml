@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+            # Fetch all commits, used by sbt-dynver plugin to determine version
+            fetch-depth: 0
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11
