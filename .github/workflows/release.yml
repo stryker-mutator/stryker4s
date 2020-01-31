@@ -11,6 +11,8 @@ jobs:
         with:
             # Fetch all commits, used by sbt-dynver plugin to determine version
             fetch-depth: 0
+      # Fetch all tags
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11
