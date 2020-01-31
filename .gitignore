@@ -62,6 +62,7 @@ project/plugins/project/
 # Metals
 .bloop/
 .metals/
+project/metals.sbt
 
 # stryker specific
 stryker4s.conf
