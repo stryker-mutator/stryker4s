@@ -67,7 +67,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         api.tryRead
       }
 
-      recoverWith(pf.andThen(setDerivation))
+      recoverWith(pf.andThen(setDerivation(_)))
     }
 
     /**

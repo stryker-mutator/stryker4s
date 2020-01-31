@@ -13,9 +13,9 @@ class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
     it("should read a process config") {
       val confPath = FileUtil.getResource("config/filledProcess.conf")
 
-      val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath)
+      val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath).getOrElse(fail())
 
-      result.right.value.testRunner should equal(Command("gradle", "test"))
+      result.testRunner should equal(Command("gradle", "test"))
     }
 
     it("should read an empty config to errors") {

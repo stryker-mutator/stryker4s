@@ -21,13 +21,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.right.value shouldBe DashboardConfig(
-        "apiKeyHere",
-        "https://dashboard.stryker-mutator.io",
-        Full,
-        "github.com/travisRepo/slug",
-        "travisBranch",
-        None
+      result shouldBe Right(
+        DashboardConfig(
+          "apiKeyHere",
+          "https://dashboard.stryker-mutator.io",
+          Full,
+          "github.com/travisRepo/slug",
+          "travisBranch",
+          None
+        )
       )
     }
 
@@ -44,13 +46,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.right.value shouldBe DashboardConfig(
-        "apiKeyHere",
-        config.dashboard.baseUrl,
-        Full,
-        "github.com/circleUsername/circleRepoName",
-        "circleBranch",
-        None
+      result shouldBe Right(
+        DashboardConfig(
+          "apiKeyHere",
+          config.dashboard.baseUrl,
+          Full,
+          "github.com/circleUsername/circleRepoName",
+          "circleBranch",
+          None
+        )
       )
     }
 
@@ -66,13 +70,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.right.value shouldBe DashboardConfig(
-        "apiKeyHere",
-        config.dashboard.baseUrl,
-        Full,
-        "github.com/github/repo",
-        "feat/branch-1",
-        None
+      result shouldBe Right(
+        DashboardConfig(
+          "apiKeyHere",
+          config.dashboard.baseUrl,
+          Full,
+          "github.com/github/repo",
+          "feat/branch-1",
+          None
+        )
       )
     }
 
@@ -88,13 +94,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.right.value shouldBe DashboardConfig(
-        "apiKeyHere",
-        config.dashboard.baseUrl,
-        Full,
-        "github.com/github/repo",
-        "PR-10",
-        None
+      result shouldBe Right(
+        DashboardConfig(
+          "apiKeyHere",
+          config.dashboard.baseUrl,
+          Full,
+          "github.com/github/repo",
+          "PR-10",
+          None
+        )
       )
     }
 
@@ -115,13 +123,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.right.value shouldBe DashboardConfig(
-        "apiKeyHere",
-        "https://baseUrl.com",
-        MutationScoreOnly,
-        "projectHere",
-        "versionHere",
-        Some("moduleHere")
+      result shouldBe Right(
+        DashboardConfig(
+          "apiKeyHere",
+          "https://baseUrl.com",
+          MutationScoreOnly,
+          "projectHere",
+          "versionHere",
+          Some("moduleHere")
+        )
       )
     }
 
@@ -138,13 +148,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.right.value shouldBe DashboardConfig(
-        "apiKeyHere",
-        config.dashboard.baseUrl,
-        Full,
-        "projectHere",
-        "versionHere",
-        None
+      result shouldBe Right(
+        DashboardConfig(
+          "apiKeyHere",
+          config.dashboard.baseUrl,
+          Full,
+          "projectHere",
+          "versionHere",
+          None
+        )
       )
     }
 

@@ -55,9 +55,10 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
   private def groupTransformedStatements(transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
     transformedStatements.transformedStatements
       .groupBy(_.originalStatement)
-      .mapValues(transformedMutants =>
-        transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements)
-      )
+      .map({
+        case (key, transformedMutants) =>
+          (key, transformedMutants.flatMap(transformedMutant => transformedMutant.mutantStatements))
+      })
       .map({ case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) })
       .toSeq
       .sortBy(_.mutantStatements.head.id) // Should be sorted so tree transformations are applied in order of discovery
