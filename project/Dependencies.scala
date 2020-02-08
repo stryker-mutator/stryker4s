@@ -13,7 +13,7 @@ object Dependencies {
     val log4j = "2.13.0"
     val grizzledSlf4j = "1.3.4"
     val cats = "2.0.0"
-    val circe = "0.12.3"
+    val circe = "0.13.0"
     val mutationTestingElements = "1.2.3"
     val mutationTestingMetrics = "1.2.3"
     val sttp = "2.0.0-RC9"
