@@ -24,7 +24,9 @@ object Settings {
       Dependencies.circeCore,
       Dependencies.sttp,
       Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics
+      Dependencies.mutationTestingMetrics,
+      Dependencies.fs2Core,
+      Dependencies.fs2IO
     )
   )
 
