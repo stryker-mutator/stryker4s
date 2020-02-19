@@ -26,9 +26,7 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val (detectedMutants, rest) = report.files.toSeq flatMap {
       case (loc, f) => f.mutants.map(m => (loc, m, f.source))
-    } partition (
-        m => isDetected(m._2)
-    )
+    } partition (m => isDetected(m._2))
     val (undetectedMutants, _) = rest partition (m => isUndetected(m._2))
     info(s"Mutation run finished! Took ${duration.toSeconds} seconds")
     info(
