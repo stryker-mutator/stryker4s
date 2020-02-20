@@ -17,7 +17,7 @@ object Dependencies {
     val mutationTestingElements = "1.2.3"
     val mutationTestingMetrics = "1.2.3"
     val sttp = "2.0.0-RC13"
-    val fs2 = "2.2.1"
+    val fs2 = "2.2.2"
   }
 
   object test {
@@ -39,5 +39,5 @@ object Dependencies {
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
-  val fs2IO = "co.fs2" %% "fs2-core" % versions.fs2
+  val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
 }

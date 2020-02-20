@@ -11,6 +11,7 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
