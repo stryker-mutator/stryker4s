@@ -5,6 +5,8 @@ import grizzled.slf4j.Logging
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
+import cats.effect.{Concurrent, ContextShift}
+import cats.effect.Sync
 
 class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
   private val title = "Stryker4s report"
@@ -56,4 +58,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
 
     info(s"Written HTML report to $indexLocation")
   }
+
+  override def reportRunFinishedF[F[_]: Concurrent: ContextShift](runReport: FinishedRunReport): F[Unit] =
+    Sync[F].delay(reportRunFinished(runReport))
 }

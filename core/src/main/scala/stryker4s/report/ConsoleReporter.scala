@@ -7,6 +7,8 @@ import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 import mutationtesting.Position
+import cats.effect.{Concurrent, ContextShift}
+import cats.effect.Sync
 
 class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
   private val startTime = System.currentTimeMillis()
@@ -50,6 +52,9 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
         )
     }
   }
+
+  override def reportRunFinishedF[F[_]: Concurrent: ContextShift](runReport: FinishedRunReport): F[Unit] =
+    Sync[F].delay(reportRunFinished(runReport))
 
   private def resultToString(name: String, mutants: Seq[(String, MutantResult, String)]): String =
     s"$name mutants:\n" +

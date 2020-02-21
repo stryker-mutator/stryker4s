@@ -10,9 +10,11 @@ import sttp.client._
 import sttp.client.circe._
 import sttp.model.MediaType
 import sttp.model.StatusCode
+import cats.effect.{Concurrent, ContextShift}
+import cats.effect.Sync
 
-class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(
-    implicit httpBackend: SttpBackend[Identity, Nothing, NothingT]
+class DashboardReporter[F[_]: Concurrent](dashboardConfigProvider: DashboardConfigProvider)(
+    implicit httpBackend: SttpBackend[F, Nothing, WebsocketHandler]
 ) extends FinishedRunReporter
     with Logging {
   override def reportRunFinished(runReport: FinishedRunReport): Unit =
@@ -22,6 +24,15 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(
         val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
         val response = request.send()
         logResponse(response)
+    }
+
+  override def reportRunFinishedF(runReport: FinishedRunReport): F[Unit] =
+    dashboardConfigProvider.resolveConfig() match {
+      case Left(configKey) =>
+        Sync[F].delay(warn(s"Could not resolve dashboard configuration key '$configKey', not sending report"))
+      case Right(dashboardConfig) =>
+        val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
+        request.send()
     }
 
   def buildRequest(dashConfig: DashboardConfig, report: MutationTestReport, metrics: MetricsResult) = {

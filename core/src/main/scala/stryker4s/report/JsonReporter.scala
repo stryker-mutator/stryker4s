@@ -5,6 +5,8 @@ import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import mutationtesting.MutationTestReport
+import cats.effect.{Concurrent, ContextShift}
+import cats.effect.Sync
 
 class JsonReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
   def writeReportJsonTo(file: File, report: MutationTestReport): Unit = {
@@ -22,4 +24,7 @@ class JsonReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
 
     info(s"Written JSON report to $resultLocation")
   }
+
+  override def reportRunFinishedF[F[_]: Concurrent: ContextShift](runReport: FinishedRunReport): F[Unit] =
+    Sync[F].delay(reportRunFinished(runReport))
 }
