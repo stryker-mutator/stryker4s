@@ -1,3 +1,0 @@
-# Add 'dependencies' to any changes on 'Dependencies.scala'
-dependencies:
-  - project/Dependencies.scala
