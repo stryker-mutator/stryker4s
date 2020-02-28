@@ -64,10 +64,10 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
         val sut = new HtmlReporter(fileIO)
 
         sut.writeMutationTestElementsJsTo(tempFile)
-        val atLeastSize: Long = 200 * 1024 // 200KB
+        val atLeastSize: Long = 100 * 1024 // 100KB
         tempFile.size should be > atLeastSize
         tempFile.lineIterator
-          .next() shouldEqual "/*! For license information please see mutation-test-elements.js.LICENSE */"
+          .next() shouldEqual "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
       }
     }
   }

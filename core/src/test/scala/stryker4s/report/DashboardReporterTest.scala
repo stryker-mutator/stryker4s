@@ -15,6 +15,7 @@ import stryker4s.report.model.DashboardPutResult
 import sttp.model.MediaType
 import stryker4s.config.MutationScoreOnly
 import sttp.model.StatusCode
+import mutationtesting._
 
 class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
@@ -49,7 +50,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
-      val jsonBody = """{"mutationScore":0.0}"""
+      val jsonBody = """{"mutationScore":100.0}"""
       request.body shouldBe StringBody(jsonBody, "utf-8", Some(MediaType.ApplicationJson))
     }
 
@@ -136,7 +137,15 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
   def backendStub = SttpBackendStub.synchronous
 
   def baseResults = {
-    val report = MutationTestReport(thresholds = mutationtesting.Thresholds(80, 60), files = Map.empty)
+    val files =
+      Map(
+        "stryker4s.scala" ->
+          MutationTestResult(
+            "package stryker4s",
+            Seq(MutantResult("1", "-", "+", Location(Position(0, 0), Position(1, 0)), MutantStatus.Killed))
+          )
+      )
+    val report = MutationTestReport(thresholds = mutationtesting.Thresholds(80, 60), files = files)
     val metrics = Metrics.calculateMetrics(report)
     FinishedRunReport(report, metrics)
   }
