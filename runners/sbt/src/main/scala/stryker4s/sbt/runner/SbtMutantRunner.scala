@@ -15,6 +15,7 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
+import sbt.Tests.Output
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
@@ -68,10 +69,10 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   /** Runs tests with the giving state, calls the corresponding parameter on each result
     */
   private def runTests[T](state: State, onError: => T, onSuccess: => T, onFailed: => T): T =
-    Project.runTask(test in Test, state) match {
-      case None                => onError
-      case Some((_, Value(_))) => onSuccess
-      case Some((_, Inc(_)))   => onFailed
+    Project.runTask(executeTests in Test, state) match {
+      case Some((_, Value(Output(TestResult.Passed, _, _)))) => onSuccess
+      case Some((_, Value(Output(TestResult.Failed, _, _)))) => onFailed
+      case _                                                 => onError
     }
 
   private def mutationSetting(mutation: Int): Def.Setting[_] = isForked match {
