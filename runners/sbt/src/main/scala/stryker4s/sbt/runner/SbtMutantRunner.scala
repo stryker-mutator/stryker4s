@@ -19,6 +19,20 @@ import sbt.Tests.Output
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
+  private lazy val filteredSystemProperties: Option[List[String]] = {
+    // Matches strings that start with one of the options between brackets
+    val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal).*"
+
+    val filteredProps = for {
+      (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
+      param = s"-D$key=$value"
+    } yield param
+
+    filteredProps match {
+      case Nil                => None
+      case list: List[String] => Some(list)
+    }
+  }
 
   /** Remove scalacOptions that are very likely to cause errors with generated code
     * https://github.com/stryker-mutator/stryker4s/issues/321
@@ -34,18 +48,21 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
   private val settings: Seq[Def.Setting[_]] = Seq(
     scalacOptions --= blacklistedScalacOptions,
+    fork in Test := true,
     scalaSource in Compile := tmpDirFor(Compile).value,
     logManager := {
       if ((logLevel in stryker).value == Level.Debug) logManager.value
       else emptyLogManager
     }
-  )
+  ) ++
+    filteredSystemProperties.map(properties => {
+      debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
+      javaOptions in Test ++= properties
+    })
 
   private val extracted = Project.extract(state)
 
   private val newState = extracted.appendWithSession(settings, state)
-
-  private val isForked = extracted.get(fork in Test)
 
   override def runInitialTest(workingDir: File): Boolean = runTests(
     newState,
@@ -75,14 +92,8 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
       case _                                                 => onError
     }
 
-  private def mutationSetting(mutation: Int): Def.Setting[_] = isForked match {
-    case true => javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
-    case false =>
-      testOptions in Test += Tests.Setup(_ => {
-        sys.props += ("ACTIVE_MUTATION" -> String.valueOf(mutation))
-        ()
-      })
-  }
+  private def mutationSetting(mutation: Int): Def.Setting[_] =
+    javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
 
   private def tmpDirFor(conf: Configuration): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
