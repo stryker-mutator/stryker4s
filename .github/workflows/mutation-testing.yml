@@ -14,11 +14,6 @@ jobs:
         java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT ivy cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('**/project/Dependencies.scala') }}
       - name: Cache SBT
         uses: actions/cache@v1
         with:
@@ -48,11 +43,6 @@ jobs:
         java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT ivy cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('**/project/Dependencies.scala') }}
       - name: Cache SBT
         uses: actions/cache@v1
         with:
@@ -82,11 +72,6 @@ jobs:
         java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT ivy cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.ivy2/cache
-          key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('**/project/Dependencies.scala') }}
       - name: Cache SBT
         uses: actions/cache@v1
         with:
