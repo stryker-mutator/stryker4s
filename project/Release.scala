@@ -35,7 +35,7 @@ object Release {
     /** Returns a `ProcessBuilder` that runs the given maven command in the maven subdirectory
       */
     def runGoal(command: String): process.ProcessBuilder =
-      process.Process(s"mvn --batch-mode $command -P release", baseDir / "runners" / "maven")
+      process.Process(s"mvn --batch-mode --no-transfer-progress $command -P release", baseDir / "runners" / "maven")
 
     runGoal(s"versions:set -DnewVersion=$version") #&&
       runGoal(s"deploy --settings settings.xml -DskipTests") #&&

@@ -42,7 +42,7 @@ jobs:
       - name: Run Maven tests
         run: |
           cd runners/maven
-          mvn verify -B
+          mvn verify -B --no-transfer-progress
   formatting:
     name: Test formatting
     runs-on: ubuntu-latest
