@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.11"]
+        java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.11"]
+        java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.11"]
+        java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
@@ -61,6 +61,6 @@ jobs:
           csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
           cd runners/maven
           echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
-          mvn -B stryker4s:run
+          mvn -B --no-transfer-progress stryker4s:run
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
