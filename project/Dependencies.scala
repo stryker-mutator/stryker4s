@@ -8,15 +8,15 @@ object Dependencies {
     val scalameta = "4.3.7"
     val pureconfig = "0.12.3"
     val scalatest = "3.1.0"
-    val mockitoScala = "1.13.1"
+    val mockitoScala = "1.13.4"
     val betterFiles = "3.8.0"
     val log4j = "2.13.1"
     val grizzledSlf4j = "1.3.4"
     val cats = "2.0.0"
     val circe = "0.13.0"
-    val mutationTestingElements = "1.3.1"
-    val mutationTestingMetrics = "1.3.1"
-    val sttp = "2.0.6"
+    val mutationTestingElements = "1.3.0"
+    val mutationTestingMetrics = "1.3.0"
+    val sttp = "2.0.7"
   }
 
   object test {
