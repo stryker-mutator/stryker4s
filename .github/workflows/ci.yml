@@ -76,7 +76,7 @@ jobs:
         run: csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
       - name: Run Maven tests
         run: |
-          cd runners/maven
+          cd maven
           mvn verify -B --no-transfer-progress
   formatting:
     name: Test formatting
