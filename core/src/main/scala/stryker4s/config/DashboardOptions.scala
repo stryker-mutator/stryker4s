@@ -1,6 +1,6 @@
 package stryker4s.config
 
-case class DashboardOptions(
+final case class DashboardOptions(
     baseUrl: String = "https://dashboard.stryker-mutator.io",
     reportType: DashboardReportType = Full,
     project: Option[String] = None,

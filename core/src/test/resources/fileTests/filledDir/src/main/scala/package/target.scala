@@ -1,3 +1,3 @@
 trait Target
 
-case class Foo() extends Target
+final case class Foo() extends Target

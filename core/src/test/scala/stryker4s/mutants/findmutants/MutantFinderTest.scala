@@ -31,7 +31,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
                        |  def createHugo = Person(22, "Hugo")
                        |}
                        |
-                       |case class Person(age: Int, name: String)
+                       |final case class Person(age: Int, name: String)
                        |""".stripMargin.parse[Source].get
       result should equal(expected)
     }
@@ -102,7 +102,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       val sut = new MutantFinder(new MutantMatcher)
       val source =
         source"""@Annotation("Class Annotation")
-                 case class Bar(
+                 final case class Bar(
                     @Annotation("Parameter Annotation") s: String = "s") {
 
                     @Annotation("Function Annotation")

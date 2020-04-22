@@ -6,7 +6,7 @@ import scala.meta.Term.{Apply, ApplyInfix, Block, Function, Name, Select}
 /**
   * Base trait for method calls with one or multiple argument(s)
   */
-trait ArgMethodExpression extends MethodExpression {
+sealed trait ArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
     // foo.filter { (a,b) => a > b }
     case Apply(Select(_, Name(`methodName`)), Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
