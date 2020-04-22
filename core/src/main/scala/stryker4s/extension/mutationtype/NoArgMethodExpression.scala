@@ -6,7 +6,7 @@ import scala.meta.Term.{Name, Select}
 /**
   * Base method for methods call without arguments
   */
-trait NoArgMethodExpression extends MethodExpression {
+sealed trait NoArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] = term match {
     // foo.filter or foo filter
     case Select(q, Name(`methodName`)) => Option((term, name => Select(q, Name(name))))

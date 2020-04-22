@@ -1,3 +1,3 @@
 package stryker4s.report.model
 
-case class DashboardPutResult(href: String)
+final case class DashboardPutResult(href: String)

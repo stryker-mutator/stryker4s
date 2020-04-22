@@ -14,7 +14,7 @@ object Providers extends Logging {
       None
     }
 
-  trait CiProvider {
+  sealed trait CiProvider {
     def determineProject(): Option[String]
     def determineVersion(): Option[String]
   }

@@ -32,7 +32,7 @@ object Mutation {
   *           This is so that the tree value and unapply methods return the appropriate type.
   *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
   */
-trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
+sealed trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
   def tree: T
 
   def unapply(arg: T): Option[T] =
@@ -44,32 +44,32 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
       }
 }
 
-trait EqualityOperator extends SubstitutionMutation[Term.Name] {
+sealed trait EqualityOperator extends SubstitutionMutation[Term.Name] {
   override val mutationName: String = classOf[EqualityOperator].getSimpleName
 }
 
-trait BooleanLiteral extends SubstitutionMutation[Lit.Boolean] {
+sealed trait BooleanLiteral extends SubstitutionMutation[Lit.Boolean] {
   override val mutationName: String = classOf[BooleanLiteral].getSimpleName
 }
 
-trait ConditionalExpression extends SubstitutionMutation[Lit.Boolean] {
+sealed trait ConditionalExpression extends SubstitutionMutation[Lit.Boolean] {
   override val mutationName: String = classOf[ConditionalExpression].getSimpleName
 }
 
-trait LogicalOperator extends SubstitutionMutation[Term.Name] {
+sealed trait LogicalOperator extends SubstitutionMutation[Term.Name] {
   override val mutationName: String = classOf[LogicalOperator].getSimpleName
 }
 
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
-trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
+sealed trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
   override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
 }
 
 /**
   * Base trait for method mutation
   */
-trait MethodExpression extends Mutation[Term] {
+sealed trait MethodExpression extends Mutation[Term] {
 
   /**
     * Method to be replaced or to replace

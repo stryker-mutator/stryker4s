@@ -100,6 +100,6 @@ class MutationTypesTest extends Stryker4sSuite with TreeEquality {
       greaterThan shouldBe a[Term.Name]
     }
 
-    case class WrappedTree(term: Tree)
+    final case class WrappedTree(term: Tree)
   }
 }

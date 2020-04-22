@@ -14,16 +14,16 @@ sealed trait Detected extends MutantRunResult
 
 sealed trait Undetected extends MutantRunResult
 
-case class Killed(mutant: Mutant, fileSubPath: Path) extends Detected
+final case class Killed(mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class TimedOut(mutant: Mutant, fileSubPath: Path) extends Detected
+final case class TimedOut(mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
-
-/** TODO: Not supported yet
-  */
-case class NoCoverage(mutant: Mutant, fileSubPath: Path) extends Undetected
+final case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
 
 /** TODO: Not supported yet
   */
-case class Error(mutant: Mutant, fileSubPath: Path) extends MutantRunResult
+final case class NoCoverage(mutant: Mutant, fileSubPath: Path) extends Undetected
+
+/** TODO: Not supported yet
+  */
+final case class Error(mutant: Mutant, fileSubPath: Path) extends MutantRunResult
