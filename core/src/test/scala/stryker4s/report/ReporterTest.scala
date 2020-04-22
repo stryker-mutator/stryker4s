@@ -5,6 +5,8 @@ import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.extension.mutationtype.GreaterThan
+import scala.meta._
 
 class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   describe("reporter") {
@@ -27,7 +29,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
     describe("reportMutationStart") {
       it("should report to all progressReporters that a mutation run is started.") {
-        val mutantMock = mock[Mutant]
+        val mutantMock = Mutant(0, q">", q"<", GreaterThan)
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
 
@@ -46,7 +48,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
       it("Should not report to finishedRunReporters that is mutation run is started.") {
         val consoleReporterMock = mock[ConsoleReporter]
         val finishedRunReporterMock = mock[FinishedRunReporter]
-        val mutantMock = mock[Mutant]
+        val mutantMock = Mutant(0, q">", q"<", GreaterThan)
 
         implicit val config: Config = Config.default
 
