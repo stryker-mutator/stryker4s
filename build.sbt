@@ -10,14 +10,14 @@ lazy val root = (project withId "stryker4s" in file("."))
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(Settings.coreSettings)
 
-lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "runners/command-runner")
+lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
   .settings(
     Settings.commandRunnerSettings,
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sCommandRunner")
   )
   .dependsOn(stryker4sCore, stryker4sCore % "test->test")
 
-lazy val sbtStryker4s = newProject("sbt-stryker4s", "runners/sbt")
+lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
   .enablePlugins(SbtPlugin)
   .settings(Settings.sbtPluginSettings)
   .dependsOn(stryker4sCore)

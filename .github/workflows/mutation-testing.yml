@@ -59,7 +59,7 @@ jobs:
       - name: Run Stryker4s
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
-          echo 'stryker4s{reporters=["console","dashboard"],base-dir="runners/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
           csbt 'project stryker4s-command-runner; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
@@ -94,7 +94,7 @@ jobs:
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
-          cd runners/maven
+          cd maven
           echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
           mvn -B --no-transfer-progress stryker4s:run
         env:
