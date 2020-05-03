@@ -11,8 +11,8 @@ import sttp.client.circe._
 import sttp.model.MediaType
 import sttp.model.StatusCode
 
-class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(
-    implicit httpBackend: SttpBackend[Identity, Nothing, NothingT]
+class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
+    httpBackend: SttpBackend[Identity, Nothing, NothingT]
 ) extends FinishedRunReporter
     with Logging {
   override def reportRunFinished(runReport: FinishedRunReport): Unit =
