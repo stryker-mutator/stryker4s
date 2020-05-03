@@ -150,12 +150,13 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
     FinishedRunReport(report, metrics)
   }
 
-  def baseDashConfig = DashboardConfig(
-    apiKey = "apiKeyHere",
-    reportType = Full,
-    baseUrl = "https://baseurl.com",
-    project = "project/foo",
-    version = "version/bar",
-    module = None
-  )
+  def baseDashConfig =
+    DashboardConfig(
+      apiKey = "apiKeyHere",
+      reportType = Full,
+      baseUrl = "https://baseurl.com",
+      project = "project/foo",
+      version = "version/bar",
+      module = None
+    )
 }

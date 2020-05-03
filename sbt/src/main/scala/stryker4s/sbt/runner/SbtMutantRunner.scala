@@ -64,17 +64,21 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
   private val newState = extracted.appendWithSession(settings, state)
 
-  override def runInitialTest(workingDir: File): Boolean = runTests(
-    newState,
-    throw InitialTestRunFailedException(s"Unable to execute initial test run. Sbt is unable to find the task 'test'."),
-    onSuccess = true,
-    onFailed = false
-  )
+  override def runInitialTest(workingDir: File): Boolean =
+    runTests(
+      newState,
+      throw InitialTestRunFailedException(
+        s"Unable to execute initial test run. Sbt is unable to find the task 'test'."
+      ),
+      onSuccess = true,
+      onFailed = false
+    )
 
   override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult = {
     val mutationState = extracted.appendWithSession(settings :+ mutationSetting(mutant.id), newState)
     runTests(
-      mutationState, { p: Path =>
+      mutationState,
+      { p: Path =>
         error(s"An unexpected error occurred while running mutation ${mutant.id}")
         Error(mutant, p)
       },

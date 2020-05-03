@@ -21,13 +21,14 @@ object TreeExtensions {
       * Recursively going up the tree until a full statement is found.
       */
     @tailrec
-    final def topStatement(): Term = thisTerm match {
-      case ParentIsPatternMatch(parent)  => parent
-      case ParentIsNotExpression(parent) => parent
-      case _: Lit                        => thisTerm
-      case PartialStatement(parent)      => parent.topStatement()
-      case _                             => thisTerm
-    }
+    final def topStatement(): Term =
+      thisTerm match {
+        case ParentIsPatternMatch(parent)  => parent
+        case ParentIsNotExpression(parent) => parent
+        case _: Lit                        => thisTerm
+        case PartialStatement(parent)      => parent.topStatement()
+        case _                             => thisTerm
+      }
 
     /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
       *
@@ -38,13 +39,14 @@ object TreeExtensions {
         * @return A Some of the parent if the given term is a partial statement,
         *         else a None if the given term is a full statement
         */
-      final def unapply(term: Term): Option[Term] = term.parent collect {
-        case parent: Term.Name       => parent
-        case parent: Term.Apply      => parent
-        case parent: Term.Select     => parent
-        case parent: Term.ApplyType  => parent
-        case parent: Term.ApplyInfix => parent
-      }
+      final def unapply(term: Term): Option[Term] =
+        term.parent collect {
+          case parent: Term.Name       => parent
+          case parent: Term.Apply      => parent
+          case parent: Term.Select     => parent
+          case parent: Term.ApplyType  => parent
+          case parent: Term.ApplyInfix => parent
+        }
     }
 
     /** Extractor object to check if the [[scala.meta.Term]] is inside a pattern match
@@ -64,9 +66,10 @@ object TreeExtensions {
     /** If the parent is a `!...` expression
       */
     private object ParentIsNotExpression {
-      final def unapply(term: Term): Option[Term] = term.parent collect {
-        case parent @ Term.ApplyUnary(Term.Name("!"), _) => parent
-      }
+      final def unapply(term: Term): Option[Term] =
+        term.parent collect {
+          case parent @ Term.ApplyUnary(Term.Name("!"), _) => parent
+        }
     }
   }
 
@@ -77,9 +80,10 @@ object TreeExtensions {
       * @param toFind Statement to find
       * @return A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
-    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] = thisTree.collectFirst {
-      case found: T if found.isEqual(toFind) => found
-    }
+    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
+      thisTree.collectFirst {
+        case found: T if found.isEqual(toFind) => found
+      }
   }
 
   implicit class TransformOnceExtension(thisTree: Tree) {

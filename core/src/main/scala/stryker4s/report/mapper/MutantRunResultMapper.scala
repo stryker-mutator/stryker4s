@@ -40,18 +40,20 @@ trait MutantRunResultMapper {
     )
   }
 
-  private def toLocation(pos: scala.meta.inputs.Position): Location = Location(
-    start = Position(line = pos.startLine + 1, column = pos.startColumn + 1),
-    end = Position(line = pos.endLine + 1, column = pos.endColumn + 1)
-  )
+  private def toLocation(pos: scala.meta.inputs.Position): Location =
+    Location(
+      start = Position(line = pos.startLine + 1, column = pos.startColumn + 1),
+      end = Position(line = pos.endLine + 1, column = pos.endColumn + 1)
+    )
 
-  private def toMutantStatus(mutant: MutantRunResult): MutantStatus = mutant match {
-    case _: Survived   => MutantStatus.Survived
-    case _: Killed     => MutantStatus.Killed
-    case _: NoCoverage => MutantStatus.NoCoverage
-    case _: TimedOut   => MutantStatus.Timeout
-    case _: Error      => MutantStatus.CompileError
-  }
+  private def toMutantStatus(mutant: MutantRunResult): MutantStatus =
+    mutant match {
+      case _: Survived   => MutantStatus.Survived
+      case _: Killed     => MutantStatus.Killed
+      case _: NoCoverage => MutantStatus.NoCoverage
+      case _: TimedOut   => MutantStatus.Timeout
+      case _: Error      => MutantStatus.CompileError
+    }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
     (config.baseDir / path.toString).contentAsString
