@@ -34,7 +34,6 @@ object Settings {
   )
 
   lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(
-    // sbt plugin has to be 2.12
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

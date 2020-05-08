@@ -23,6 +23,7 @@ lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "comman
   .jvmPlatform(scalaVersions = Dependencies.versions.crossScalaVersions)
 
 // sbt project is a 'normal' project without projectMatrix because there is only 1 scala version
+// sbt plugins have to use Scala 2.12
 lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
   .enablePlugins(SbtPlugin)
   .settings(Settings.commonSettings, Settings.sbtPluginSettings)
