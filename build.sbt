@@ -4,11 +4,15 @@ lazy val root = (project withId "stryker4s" in file("."))
     skip in publish := true,
     onLoad in Global ~= (_ andThen ("writeHooks" :: _))
   )
-  .aggregate(stryker4sCore, sbtStryker4s, stryker4sCommandRunner)
-  .dependsOn(stryker4sCommandRunner) // So 'run' command also works from root of project
+  .aggregate(
+    stryker4sCore.jvm(Dependencies.versions.scala213),
+    stryker4sCommandRunner.jvm(Dependencies.versions.scala213),
+    sbtStryker4s
+  )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(Settings.coreSettings)
+  .jvmPlatform(scalaVersions = Dependencies.versions.crossScalaVersions)
 
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
   .settings(
@@ -16,15 +20,18 @@ lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "comman
     mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sCommandRunner")
   )
   .dependsOn(stryker4sCore, stryker4sCore % "test->test")
+  .jvmPlatform(scalaVersions = Dependencies.versions.crossScalaVersions)
 
-lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
+// sbt project is a 'normal' project without projectMatrix because there is only 1 scala version
+// sbt plugins have to use Scala 2.12
+lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
   .enablePlugins(SbtPlugin)
-  .settings(Settings.sbtPluginSettings)
-  .dependsOn(stryker4sCore)
+  .settings(Settings.commonSettings, Settings.sbtPluginSettings)
+  .dependsOn(stryker4sCore.jvm(Dependencies.versions.scala212))
 
-def newProject(projectName: String, dir: String): Project =
-  sbt
-    .Project(projectName, file(dir))
+def newProject(projectName: String, dir: String) =
+  sbt.internal
+    .ProjectMatrix(projectName, file(dir))
     .settings(Settings.commonSettings)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
