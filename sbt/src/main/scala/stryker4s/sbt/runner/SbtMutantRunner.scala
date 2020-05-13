@@ -38,9 +38,12 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     * https://github.com/stryker-mutator/stryker4s/issues/321
     */
   private val blacklistedScalacOptions = Seq(
+    // Scala 2.12
     "-Ywarn-unused:patvars",
     "-Ywarn-unused:locals",
-    "-Xlint-unused"
+    // Scala 2.13
+    "-Wunused:patvars",
+    "-Wunused:locals"
   )
 
   private lazy val emptyLogManager =
