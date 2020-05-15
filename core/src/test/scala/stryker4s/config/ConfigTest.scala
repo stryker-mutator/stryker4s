@@ -24,6 +24,7 @@ class ConfigTest extends Stryker4sSuite {
            |    console,
            |    html
            |]
+           |test-filter=[]
            |thresholds {
            |    break=0
            |    high=80
@@ -37,7 +38,7 @@ class ConfigTest extends Stryker4sSuite {
       val filePaths = List("**/main/scala/**/Foo.scala", "**/main/scala/**/Bar.scala")
       val sut = Config(
         filePaths,
-        File("tmp"),
+        baseDir = File("tmp"),
         reporters = Set(Html),
         excludedMutations = ExcludedMutations(Set("BooleanLiteral")),
         dashboard = DashboardOptions(
@@ -70,6 +71,7 @@ class ConfigTest extends Stryker4sSuite {
            |reporters=[
            |    html
            |]
+           |test-filter=[]
            |thresholds {
            |    break=0
            |    high=80
