@@ -11,6 +11,7 @@ stryker4s {
 - [Configuration](#configuration)
   - [General config](#general-config)
       - [mutate](#mutate)
+      - [test-filter](#test-filter)
       - [files](#files)
       - [base-dir](#base-dir)
       - [reporters](#reporters)
@@ -35,6 +36,17 @@ Generally speaking, these should be your own source files.
 The default for this will find files in the common Scala project format.
 
 You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
+
+#### test-filter
+
+**Config file:** `test-filter: [ "com.mypackage.MyTest" ]`  
+**Default value:** `[]`  
+**Mandatory:** No  
+**Description:**  
+With `test-filter` you configure the subset of tests to use for mutation testing.
+You can use wildcard pattern: `com.mypackage.*` 
+
+You can *ignore* tests by adding an exclamation mark (`!`) at the start of an expression.
 
 #### files
 

@@ -49,8 +49,6 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   private lazy val emptyLogManager =
     LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
 
-  private lazy val testFilter = new TestFilter
-
   private val settings: Seq[Def.Setting[_]] = Seq(
     scalacOptions --= blacklistedScalacOptions,
     fork in Test := true,
@@ -58,13 +56,18 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     logManager := {
       if ((logLevel in stryker).value == Level.Debug) logManager.value
       else emptyLogManager
-    },
-    Test / testOptions := Seq(Tests.Filter(testFilter.filter))
+    }
   ) ++
     filteredSystemProperties.map(properties => {
       debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
       javaOptions in Test ++= properties
-    })
+    }) ++ {
+    if (config.testFilter.nonEmpty) {
+      val testFilter = new TestFilter
+      Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
+    } else
+      Seq()
+  }
 
   private val extracted = Project.extract(state)
 
