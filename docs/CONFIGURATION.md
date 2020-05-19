@@ -43,10 +43,12 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 **Default value:** `[]`  
 **Mandatory:** No  
 **Description:**  
-With `test-filter` you configure the subset of tests to use for mutation testing.
-You can use wildcard pattern: `com.mypackage.*` 
+With `test-filter` you configure the subset of tests to use for mutation testing. By default all tests are included. 
+You can use wildcard pattern: `com.mypackage.*`. 
 
 You can *ignore* tests by adding an exclamation mark (`!`) at the start of an expression.
+
+Note: only supported in the sbt plugin.
 
 #### files
 
