@@ -7,7 +7,7 @@ import better.files.{File, _}
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
-import stryker4s.config.Config
+import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
@@ -61,7 +61,13 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     filteredSystemProperties.map(properties => {
       debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
       javaOptions in Test ++= properties
-    })
+    }) ++ {
+    if (config.testFilter.nonEmpty) {
+      val testFilter = new TestFilter
+      Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
+    } else
+      Seq()
+  }
 
   private val extracted = Project.extract(state)
 
