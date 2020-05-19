@@ -5,11 +5,11 @@ import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoSuite, SyncStryker4sSuite}
 
 import scala.util.{Failure, Try}
 
-class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class FileCollectorTest extends SyncStryker4sSuite with MockitoSuite with LogMatchers {
   private val filledDirPath: File = FileUtil.getResource("fileTests/filledDir")
   private val basePath: File = filledDirPath / "src/main/scala"
 

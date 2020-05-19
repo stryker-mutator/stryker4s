@@ -4,11 +4,12 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.LogEvent
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.{BeMatcher, MatchResult}
-import stryker4s.testutil.{Stryker4sSuite, TestAppender}
+import stryker4s.testutil.{TestAppender}
+import org.scalatest.Suite
 
 trait LogMatchers extends BeforeAndAfterEach {
-  // Will cause a compile error if LogMatchers is used without Stryker4sSuite
-  this: Stryker4sSuite =>
+  // Will cause a compile error if LogMatchers is used outside of a ScalaTest Suite
+  this: Suite =>
 
   def loggedAsDebug = new LogMatcherWithLevel(Level.DEBUG)
   def loggedAsInfo = new LogMatcherWithLevel(Level.INFO)

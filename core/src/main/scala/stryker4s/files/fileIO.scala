@@ -1,24 +1,30 @@
 package stryker4s.files
 import better.files._
+import scala.concurrent.Future
 
 sealed trait FileIO {
-  def createAndWriteFromResource(file: File, resource: String): Unit
+  def createAndWriteFromResource(file: File, resource: String): Future[Unit]
 
-  def createAndWrite(file: File, content: String): Unit
+  def createAndWrite(file: File, content: String): Future[Unit]
 }
 
 object DiskFileIO extends FileIO {
-  override def createAndWriteFromResource(file: File, resourceName: String): Unit = {
-    file.createFileIfNotExists(createParents = true)
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
-    for {
-      in <- getClass.getClassLoader.getResourceAsStream(resourceName).autoClosed
-      out <- file.newOutputStream.autoClosed
-    } in pipeTo out
-  }
+  override def createAndWriteFromResource(file: File, resourceName: String): Future[Unit] =
+    Future {
+      file.createFileIfNotExists(createParents = true)
 
-  override def createAndWrite(file: File, content: String): Unit = {
-    file.createFileIfNotExists(createParents = true)
-    val _ = file.writeText(content)
-  }
+      for {
+        in <- Resource.getAsStream(resourceName).autoClosed
+        out <- file.newOutputStream.autoClosed
+      } in pipeTo out
+    }
+
+  override def createAndWrite(file: File, content: String): Future[Unit] =
+    Future {
+      file.createFileIfNotExists(createParents = true)
+      file.writeText(content)
+      ()
+    }
 }

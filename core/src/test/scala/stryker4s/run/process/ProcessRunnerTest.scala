@@ -1,8 +1,8 @@
 package stryker4s.run.process
 
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
-class ProcessRunnerTest extends Stryker4sSuite {
+class ProcessRunnerTest extends SyncStryker4sSuite {
   describe("resolveRunner") {
     it("should resolve the proper runner for the current OS") {
       val os = sys.props("os.name")

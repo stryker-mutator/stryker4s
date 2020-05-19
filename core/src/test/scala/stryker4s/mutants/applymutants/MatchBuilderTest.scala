@@ -5,11 +5,11 @@ import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.{LogMatchers, TreeEquality}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
 import scala.meta._
 
-class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
+class MatchBuilderTest extends SyncStryker4sSuite with TreeEquality with LogMatchers {
   private val activeMutationString = Lit.String("ACTIVE_MUTATION")
   private val activeMutationPropsExpr: Term.Apply = q"_root_.scala.sys.props.get($activeMutationString)"
 

@@ -2,11 +2,11 @@ package stryker4s.extension.mutationtype
 
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.scalatest.TreeEquality
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
 import scala.meta._
 
-class MutationTypesTest extends Stryker4sSuite with TreeEquality {
+class MutationTypesTest extends SyncStryker4sSuite with TreeEquality {
   describe("EqualityOperator") {
     it("> to GreaterThan") {
       q">" should matchPattern { case GreaterThan(_) => }

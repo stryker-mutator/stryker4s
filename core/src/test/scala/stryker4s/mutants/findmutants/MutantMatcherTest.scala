@@ -6,11 +6,11 @@ import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
 import scala.meta._
 
-class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
+class MutantMatcherTest extends SyncStryker4sSuite with TreeEquality {
   implicit private val config: Config = Config.default
   private val sut = new MutantMatcher()
 

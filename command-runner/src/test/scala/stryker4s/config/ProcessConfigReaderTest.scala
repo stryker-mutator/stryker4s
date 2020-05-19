@@ -5,10 +5,10 @@ import pureconfig.error.{ConfigReaderFailures, ConvertFailure, KeyNotFound}
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.run.process.Command
 import stryker4s.scalatest.FileUtil
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 import pureconfig.generic.auto._
 
-class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
+class ProcessConfigReaderTest extends SyncStryker4sSuite with EitherValues {
   describe("ProcessConfig") {
     it("should read a process config") {
       val confPath = FileUtil.getResource("config/filledProcess.conf")

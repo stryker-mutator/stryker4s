@@ -1,5 +1,5 @@
 package stryker4s.report.dashboard
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 import stryker4s.config.Config
 import stryker4s.report.model.DashboardConfig
 import stryker4s.config.Full
@@ -7,7 +7,7 @@ import stryker4s.config.DashboardOptions
 import stryker4s.config.MutationScoreOnly
 import org.scalatest.EitherValues
 
-class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
+class DashboardConfigProviderTest extends SyncStryker4sSuite with EitherValues {
   describe("resolveConfig") {
     it("should resolve a Travis environment") {
       implicit val config = Config.default

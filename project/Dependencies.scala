@@ -34,7 +34,8 @@ object Dependencies {
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
   val catsCore = "org.typelevel" %% "cats-core" % versions.cats
   val circeCore = "io.circe" %% "circe-core" % versions.circe
-  val sttp = "com.softwaremill.sttp.client" %% "circe" % versions.sttp
+  val sttpCirce = "com.softwaremill.sttp.client" %% "circe" % versions.sttp
+  val sttpAsyncHttpClient = "com.softwaremill.sttp.client" %% "async-http-client-backend-future" % versions.sttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics

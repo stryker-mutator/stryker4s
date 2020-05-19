@@ -5,9 +5,9 @@ import java.nio.file.Paths
 import better.files._
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
-class FileExtensionsTest extends Stryker4sSuite {
+class FileExtensionsTest extends SyncStryker4sSuite {
   describe("relativePath") {
     implicit val config: Config = Config.default
 

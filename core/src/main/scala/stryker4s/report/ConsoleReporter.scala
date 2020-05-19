@@ -7,21 +7,24 @@ import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 import mutationtesting.Position
+import scala.concurrent.Future
 
 class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
   private val startTime = System.currentTimeMillis()
   private[this] val mutationScoreString = "Mutation score:"
 
-  override def reportMutationStart(mutant: Mutant): Unit = {
+  override def reportMutationStart(mutant: Mutant): Future[Unit] = {
     info(s"Starting test-run ${mutant.id + 1}...")
+    Future.successful(())
   }
 
-  override def reportMutationComplete(mutant: MutantRunResult, totalMutants: Int): Unit = {
+  override def reportMutationComplete(mutant: MutantRunResult, totalMutants: Int): Future[Unit] = {
     val id = mutant.mutant.id + 1
     info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+    Future.successful(())
   }
 
-  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+  override def reportRunFinished(runReport: FinishedRunReport): Future[Unit] = {
     val FinishedRunReport(report, metrics) = runReport
     val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
     val (detectedMutants, rest) = report.files.toSeq flatMap {
@@ -49,6 +52,7 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
           s"Mutation score below threshold! Score: $mutationScoreRounded%. Threshold: ${config.thresholds.break}%"
         )
     }
+    Future.successful(())
   }
 
   private def resultToString(name: String, mutants: Seq[(String, MutantResult, String)]): String =

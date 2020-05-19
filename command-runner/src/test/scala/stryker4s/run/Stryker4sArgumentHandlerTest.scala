@@ -4,9 +4,9 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.LoggerContext
 import stryker4s.command.Stryker4sArgumentHandler
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
-class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
+class Stryker4sArgumentHandlerTest extends SyncStryker4sSuite with LogMatchers {
   describe("parseArgs") {
     it("should set the default logLevel to INFO") {
       Stryker4sArgumentHandler.handleArgs(Array(""))

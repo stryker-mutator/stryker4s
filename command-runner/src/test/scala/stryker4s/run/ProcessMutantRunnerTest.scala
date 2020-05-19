@@ -10,13 +10,13 @@ import stryker4s.report.Reporter
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoSuite, SyncStryker4sSuite}
 
 import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
 
-class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class ProcessMutantRunnerTest extends SyncStryker4sSuite with MockitoSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[Reporter]

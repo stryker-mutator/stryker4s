@@ -10,11 +10,11 @@ import stryker4s.extension.ImplicitMutationConversion._
 import stryker4s.extension.mutationtype._
 import stryker4s.model.{Killed, Mutant, Survived}
 import stryker4s.scalatest.FileUtil
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.SyncStryker4sSuite
 
 import scala.meta.{Lit, Term}
 
-class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
+class MutantRunResultMapperTest extends SyncStryker4sSuite with Inside {
   describe("mapper") {
     it("should map 4 files to valid MutationTestReport") {
       val sut = new MutantRunResultMapper {}

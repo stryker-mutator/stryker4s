@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
 import sttp.client.testing.SttpBackendStub
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.DashboardConfig
@@ -17,7 +17,7 @@ import stryker4s.config.MutationScoreOnly
 import sttp.model.StatusCode
 import mutationtesting._
 
-class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
     it("should compose the request") {
       implicit val backend = backendStub
@@ -76,9 +76,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+      sut.reportRunFinished(runReport) map { _ =>
+        "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+      }
     }
 
     it("log when not being able to resolve dashboard config") {
@@ -134,7 +134,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
     }
   }
 
-  def backendStub = SttpBackendStub.synchronous
+  def backendStub = SttpBackendStub.asynchronousFuture
 
   def baseResults = {
     val files =
