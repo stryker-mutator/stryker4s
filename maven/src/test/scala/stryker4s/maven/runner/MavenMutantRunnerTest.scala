@@ -14,6 +14,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 import scala.collection.JavaConverters._
 import scala.meta._
+import java.{util => ju}
 
 class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
@@ -101,7 +102,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val captor = ArgCaptor[InvocationRequest]
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
-      val cwd = File.currentWorkingDirectory
+      val cwd = config.baseDir
       sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)
 
       verify(invokerMock).setWorkingDirectory(any)
@@ -111,6 +112,72 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       invokedRequest.getGoals should contain only "test"
       invokedRequest.isBatchMode should be(true)
       invokedRequest.getProperties.getProperty("surefire.skipAfterFailureCount") should equal("1")
+      invokedRequest.getProperties.getProperty("test") shouldBe null
+    }
+
+    it("should add the test-filter for all test runners") {
+      val expectedTestFilter = Seq("*MavenMutantRunnerTest", "*OtherTest")
+      implicit val config: Config = Config.default.copy(testFilter = expectedTestFilter)
+
+      val invokerMock = mock[Invoker]
+      val mockResult = mock[InvocationResult]
+      when(mockResult.getExitCode).thenReturn(0)
+      when(invokerMock.execute(any)).thenReturn(mockResult)
+      val captor = ArgCaptor[InvocationRequest]
+      val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
+
+      val cwd = config.baseDir
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)
+
+      verify(invokerMock).setWorkingDirectory(any)
+      verify(invokerMock).execute(captor)
+      val invokedRequest = captor.value
+      invokedRequest.getProperties.getProperty("test") should equal(expectedTestFilter.mkString(", "))
+      invokedRequest.getProperties.getProperty("wildcardSuites") should equal(expectedTestFilter.mkString(","))
+    }
+
+    it("should add the test-filter for surefire if a property is already defined") {
+      val expectedTestFilter = "*MavenMutantRunnerTest"
+      implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
+
+      val invokerMock = mock[Invoker]
+      val mockResult = mock[InvocationResult]
+      when(mockResult.getExitCode).thenReturn(0)
+      when(invokerMock.execute(any)).thenReturn(mockResult)
+      val captor = ArgCaptor[InvocationRequest]
+      val mavenProject = new MavenProject()
+      mavenProject.getProperties().setProperty("test", "*OtherTest")
+      val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
+
+      val cwd = config.baseDir
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)
+
+      verify(invokerMock).setWorkingDirectory(any)
+      verify(invokerMock).execute(captor)
+      val invokedRequest = captor.value
+      invokedRequest.getProperties.getProperty("test") should equal(s"*OtherTest, $expectedTestFilter")
+    }
+
+    it("should add the test-filter for scalatest if a property is already defined") {
+      val expectedTestFilter = "*MavenMutantRunnerTest"
+      implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
+
+      val invokerMock = mock[Invoker]
+      val mockResult = mock[InvocationResult]
+      when(mockResult.getExitCode).thenReturn(0)
+      when(invokerMock.execute(any)).thenReturn(mockResult)
+      val captor = ArgCaptor[InvocationRequest]
+      val mavenProject = new MavenProject()
+      mavenProject.getProperties().setProperty("wildcardSuites", "*OtherTest")
+      val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
+
+      val cwd = config.baseDir
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), cwd)
+
+      verify(invokerMock).setWorkingDirectory(any)
+      verify(invokerMock).execute(captor)
+      val invokedRequest = captor.value
+      invokedRequest.getProperties.getProperty("wildcardSuites") should equal(s"*OtherTest,$expectedTestFilter")
     }
   }
 }

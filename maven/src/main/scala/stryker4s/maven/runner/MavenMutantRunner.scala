@@ -13,6 +13,7 @@ import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 
 import scala.collection.JavaConverters._
+import stryker4s.config.TestFilter
 
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
     implicit config: Config
@@ -20,11 +21,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
   private val goals = List("test").asJava
 
   private val properties = new Properties(project.getProperties)
-  properties.setProperty(
-    "surefire.skipAfterFailureCount",
-    1.toString
-  ) // Stop after first failure. Only works with surefire plugin, not scalatest
-
+  setTestProperties()
   invoker.setWorkingDirectory(tmpDir.toJava)
 
   override def runInitialTest(workingDir: File): Boolean = {
@@ -56,4 +53,33 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
   private def createRequestWithMutation(mutant: Mutant): InvocationRequest =
     createRequest()
       .addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
+
+  private def setTestProperties(): Unit = {
+    // Stop after first failure. Only works with surefire plugin, not scalatest
+    properties.setProperty(
+      "surefire.skipAfterFailureCount",
+      1.toString
+    )
+
+    // https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html
+    val surefireFilter = "test"
+    // https://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin
+    val scalatestFilter = "wildcardSuites"
+
+    if (config.testFilter.nonEmpty) {
+      if (properties.getProperty(surefireFilter) != null) {
+        val newTestProperty = properties.getProperty(surefireFilter) +: config.testFilter
+        properties.setProperty(surefireFilter, newTestProperty.mkString(", "))
+
+      } else if (properties.getProperty(scalatestFilter) != null) {
+        val newTestProperty = properties.getProperty(scalatestFilter) +: config.testFilter
+        properties.setProperty(scalatestFilter, newTestProperty.mkString(","))
+
+      } else {
+        properties.setProperty(surefireFilter, config.testFilter.mkString(", "))
+        properties.setProperty(scalatestFilter, config.testFilter.mkString(","))
+      }
+    }
+
+  }
 }
