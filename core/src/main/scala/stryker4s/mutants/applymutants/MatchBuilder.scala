@@ -16,11 +16,23 @@ class MatchBuilder(mutationContext: ActiveMutationContext) extends Logging {
     groupTransformedStatements(transformedStatements).foldLeft(source: Tree) { (rest, mutants) =>
       val origStatement = mutants.originalStatement
 
+      var isTransformed = false
       rest transformOnce {
         case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
+          isTransformed = true
           buildMatch(mutants)
       } match {
-        case Success(value) => value
+        case Success(value) if isTransformed => value
+        case Success(value) =>
+          warn(s"Failed to add mutation(s) ${mutants.mutantStatements.map(_.id).mkString(", ")} to new mutated code")
+          warn(
+            s"The code that failed to mutate was: [$origStatement] at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}"
+          )
+          warn("This mutation will likely show up as Survived")
+          warn(
+            "Please open an issue on github with sample code of the mutation that failed: https://github.com/stryker-mutator/stryker4s/issues/new"
+          )
+          value
         case Failure(exception) =>
           error(s"Failed to construct pattern match: original statement [$origStatement]")
           error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")

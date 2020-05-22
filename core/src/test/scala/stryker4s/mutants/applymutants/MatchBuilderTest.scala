@@ -60,6 +60,44 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       "Please be so kind to copy the stacktrace into the issue" shouldBe loggedAsDebug
     }
 
+    it("should log mutations that couldn't be applied") {
+      // Arrange
+      val source = """class Foo { def bar: Boolean = 15 > 14 }""".parse[Source].get
+
+      val failedMutants = List(
+        Mutant(0, q"foo", q"bar", GreaterThan),
+        Mutant(1, q"baz", q"qux", GreaterThan)
+      )
+      val successfulMutants = List(
+        Mutant(2, q">", q"15 < 14", GreaterThan),
+        Mutant(3, q">", q"15 <= 14", GreaterThan)
+      )
+      val transformed = TransformedMutants(q"14 < 15", failedMutants)
+      val successfulTransformed = TransformedMutants(source.find(q"15 > 14").value, successfulMutants)
+      val transStatements = SourceTransformations(source, List(transformed, successfulTransformed))
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+
+      // Act
+      val result = sut.buildNewSource(transStatements)
+
+      // Assert
+      val expected = source"""class Foo {
+        def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+              case Some("2") =>
+                15 < 14
+              case Some("3") =>
+                15 <= 14
+              case _ =>
+                15 > 14
+            }
+      }"""
+      result should equal(expected)
+      s"Failed to add mutation(s) 0, 1 to new mutated code" shouldBe loggedAsWarning
+      s"The code that failed to mutate was: [14 < 15] at Input.None:0:0" shouldBe loggedAsWarning
+      "This mutation will likely show up as Survived" shouldBe loggedAsWarning
+      "Please open an issue on github with sample code of the mutation that failed: https://github.com/stryker-mutator/stryker4s/issues/new" shouldBe loggedAsWarning
+    }
+
     it("should build a new tree with a case match in place of the 15 > 14 statement") {
       // Arrange
       implicit val ids: Iterator[Int] = Iterator.from(0)
@@ -145,26 +183,18 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       // Assert
       val expected =
-        """class Foo {
-          |  def foo = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-          |    case Some("0") =>
-          |      (_root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-          |        case Some("1") => ""
-          |        case _ => "foo"
-          |      }) != (_root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-          |        case Some("2") => "Stryker was here!"
-          |        case _ => ""
-          |      })
-          |    case _ =>
-          |      (_root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-          |        case Some("1") => ""
-          |        case _ => "foo"
-          |      }) == (_root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-          |        case Some("2") => "Stryker was here!"
-          |        case _ => ""
-          |      })
-          |  }
-          |}""".stripMargin.parse[Source].get
+        source"""class Foo {
+            def foo = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+              case Some("0") =>
+                "foo" != ""
+              case Some("1") =>
+                "" == ""
+              case Some("2") =>
+                "foo" == "Stryker was here!"
+              case _ =>
+                "foo" == ""
+            }
+          }"""
       result should equal(expected)
     }
 
