@@ -41,9 +41,11 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     // Scala 2.12
     "-Ywarn-unused:patvars",
     "-Ywarn-unused:locals",
+    "-Ywarn-unused:params",
     // Scala 2.13
     "-Wunused:patvars",
-    "-Wunused:locals"
+    "-Wunused:locals",
+    "-Wunused:params"
   )
 
   private lazy val emptyLogManager =
