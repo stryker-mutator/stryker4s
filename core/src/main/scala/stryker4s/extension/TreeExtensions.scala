@@ -46,6 +46,7 @@ object TreeExtensions {
           case parent: Term.Select     => parent
           case parent: Term.ApplyType  => parent
           case parent: Term.ApplyInfix => parent
+          case parent: Term.Match      => parent
         }
     }
 
