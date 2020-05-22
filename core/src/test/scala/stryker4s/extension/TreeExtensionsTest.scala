@@ -263,6 +263,19 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       result should equal(q"!foo")
     }
+
+    it("should include pattern matches") {
+      val expectedTopStatement = q"""list.nonEmpty match {
+        case true => someValue
+        case _ => otherValue
+      }"""
+      val tree = q"""def foo = { otherValue; $expectedTopStatement }"""
+      val subTree = tree.find(q"nonEmpty").value
+
+      val result = subTree.topStatement()
+
+      result should equal(expectedTopStatement)
+    }
   }
 
   describe("find") {

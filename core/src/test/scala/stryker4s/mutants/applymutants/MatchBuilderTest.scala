@@ -167,6 +167,59 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
           |}""".stripMargin.parse[Source].get
       result should equal(expected)
     }
+
+    it("should build when the topstatement is also a mutation") {
+      // Arrange
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = source"""class Foo(list: Seq[String]) {
+                              def foo =
+                                list.nonEmpty match {
+                                  case true => "nonEmpty"
+                                  case _    => otherValue
+                                }
+                            }
+                            """
+
+      val firstTransformed = toTransformed(source, IsEmpty, q"nonEmpty", q"isEmpty")
+      val secondTransformed = toTransformed(source, False, q"true", q"false")
+      val thirdTransformed =
+        toTransformed(source, EmptyString, Lit.String("nonEmpty"), Lit.String(""))
+      val transformedStatements =
+        SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+
+      // Act
+      val result = sut.buildNewSource(transformedStatements)
+
+      // Assert
+      val expected = source"""class Foo(list: Seq[String]) {
+                                def foo =
+                                  _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+                                    case Some("0") =>
+                                      list.isEmpty match {
+                                        case true => "nonEmpty"
+                                        case _    => otherValue
+                                      }
+                                    case Some("1") =>
+                                      list.nonEmpty match {
+                                        case false => "nonEmpty"
+                                        case _     => otherValue
+                                      }
+                                    case Some("2") =>
+                                      list.nonEmpty match {
+                                        case true => ""
+                                        case _    => otherValue
+                                      }
+                                    case _ =>
+                                      list.nonEmpty match {
+                                        case true => "nonEmpty"
+                                        case _    => otherValue
+                                      }
+                                  }
+                              }
+                              """
+      result should equal(expected)
+    }
   }
 
   describe("mutationActivation") {
