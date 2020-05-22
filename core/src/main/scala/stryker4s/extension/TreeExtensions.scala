@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import scala.annotation.tailrec
 import scala.meta.transversers.SimpleTraverser
-import scala.meta.{Case, Lit, Term, Transformer, Tree}
+import scala.meta.{Case, Defn, Term, Transformer, Tree}
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -23,35 +23,13 @@ object TreeExtensions {
     @tailrec
     final def topStatement(): Term =
       thisTerm match {
-        case ParentIsPatternMatch(parent)  => parent
-        case ParentIsNotExpression(parent) => parent
-        case _: Lit                        => thisTerm
-        case PartialStatement(parent)      => parent.topStatement()
-        case _                             => thisTerm
+        case ParentIsPatternMatch(parent) => parent.topStatement()
+        case ParentIsFullStatement()      => thisTerm
+        case ParentIsTerm(parent)         => parent.topStatement()
+        case _                            => thisTerm
       }
 
-    /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
-      *
-      */
-    private object PartialStatement {
-
-      /**
-        * @return A Some of the parent if the given term is a partial statement,
-        *         else a None if the given term is a full statement
-        */
-      final def unapply(term: Term): Option[Term] =
-        term.parent collect {
-          case parent: Term.Name       => parent
-          case parent: Term.Apply      => parent
-          case parent: Term.Select     => parent
-          case parent: Term.ApplyType  => parent
-          case parent: Term.ApplyInfix => parent
-          case parent: Term.Match      => parent
-        }
-    }
-
     /** Extractor object to check if the [[scala.meta.Term]] is inside a pattern match
-      *
       */
     private object ParentIsPatternMatch {
 
@@ -64,12 +42,23 @@ object TreeExtensions {
         mapParent[T, Option[T]](tree, Some(_), None)
     }
 
-    /** If the parent is a `!...` expression
+    /** Extractor object to check if the direct parent of the [[scala.meta.Term]] is a 'full statement'
       */
-    private object ParentIsNotExpression {
+    private object ParentIsFullStatement {
+      final def unapply(term: Term): Boolean =
+        term.parent exists {
+          case _: Defn          => true
+          case _: Term.Block    => true
+          case _: Term.If       => true
+          case _: Term.ForYield => true
+          case _                => false
+        }
+    }
+
+    private object ParentIsTerm {
       final def unapply(term: Term): Option[Term] =
         term.parent collect {
-          case parent @ Term.ApplyUnary(Term.Name("!"), _) => parent
+          case parent: Term => parent
         }
     }
   }
