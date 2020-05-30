@@ -13,21 +13,15 @@ jobs:
           fetch-depth: 0
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - name: Cache SBT
-        uses: actions/cache@v1
+      - name: Cache SBT & Maven
+        uses: actions/cache@v2
         with:
-          path: ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
-      - name: Cache Coursier
-        uses: actions/cache@v1
-        with:
-          path: ~/.cache/coursier/v1
-          key: ${{ runner.os }}-coursier-${{ hashFiles('**/project/Dependencies.scala') }}
-      - name: Cache maven
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
+            ~/.m2/repository
+          key: ${{ runner.os }}-release-${{ hashFiles('**/project/Dependencies.scala') }}-${{ hashFiles('**/pom.xml') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11

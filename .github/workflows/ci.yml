@@ -14,15 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: ~/.sbt
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
           key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
-      - name: Cache Coursier
-        uses: actions/cache@v1
-        with:
-          path: ~/.cache/coursier/v1
-          key: ${{ runner.os }}-coursier-${{ hashFiles('**/project/Dependencies.scala') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -34,15 +32,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: ~/.sbt
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
           key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
-      - name: Cache Coursier
-        uses: actions/cache@v1
-        with:
-          path: ~/.cache/coursier/v1
-          key: ${{ runner.os }}-coursier-${{ hashFiles('**/project/Dependencies.scala') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11
@@ -54,21 +50,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT
-        uses: actions/cache@v1
+      - name: Cache SBT & Maven
+        uses: actions/cache@v2
         with:
-          path: ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
-      - name: Cache Coursier
-        uses: actions/cache@v1
-        with:
-          path: ~/.cache/coursier/v1
-          key: ${{ runner.os }}-coursier-${{ hashFiles('**/project/Dependencies.scala') }}
-      - name: Cache maven
-        uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
+            ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/project/Dependencies.scala') }}-${{ hashFiles('**/pom.xml') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11
@@ -78,13 +68,15 @@ jobs:
         run: |
           cd maven
           mvn verify -B --no-transfer-progress
+      - name: Cleanup
+        run: find $HOME/.m2/repository -name "*stryker4s*" -print -exec rm -rf {} +
   formatting:
     name: Test formatting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Cache Coursier
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.cache/coursier/v1
           key: ${{ runner.os }}-coursier-scalafmt-${{ hashFiles('**/bin/scalafmt') }}
