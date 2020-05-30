@@ -6,10 +6,10 @@ object Dependencies {
     val scala213 = "2.13.2"
     val crossScalaVersions = Seq(scala213, scala212)
 
-    val scalameta = "4.3.10"
+    val scalameta = "4.3.13"
     val pureconfig = "0.12.3"
     val scalatest = "3.1.2"
-    val mockitoScala = "1.14.2"
+    val mockitoScala = "1.14.3"
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
     val grizzledSlf4j = "1.3.4"
@@ -17,7 +17,7 @@ object Dependencies {
     val circe = "0.13.0"
     val mutationTestingElements = "1.3.1"
     val mutationTestingMetrics = "1.3.1"
-    val sttp = "2.1.2"
+    val sttp = "2.1.5"
   }
 
   object test {
