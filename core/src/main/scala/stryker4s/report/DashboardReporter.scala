@@ -11,12 +11,13 @@ import sttp.client.circe._
 import sttp.model.MediaType
 import sttp.model.StatusCode
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
-    httpBackend: SttpBackend[Future, Nothing, NothingT]
+    httpBackend: SttpBackend[Future, Nothing, NothingT],
+    ec: ExecutionContext
 ) extends FinishedRunReporter
     with Logging {
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override def reportRunFinished(runReport: FinishedRunReport): Future[Unit] =
     dashboardConfigProvider.resolveConfig() match {

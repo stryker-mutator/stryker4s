@@ -55,7 +55,7 @@ class Reporter(implicit config: Config, ec: ExecutionContext)
     Future.traverse(reporters)(reporter =>
       reportF(reporter)
         .map(Success(_))
-        .recover(Failure(_))
+        .recover({ case e: Throwable => Failure(e) })
     ) map { reported =>
       val failed = reported.collect({ case f: Failure[Unit] => f })
       if (failed.nonEmpty) {
