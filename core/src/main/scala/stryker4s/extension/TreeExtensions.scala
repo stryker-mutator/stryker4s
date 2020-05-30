@@ -33,10 +33,13 @@ object TreeExtensions {
       */
     private object ParentIsPatternMatch {
 
-      /** Go up the tree, until a Case is found, then go up until a `Term` is found
+      /** Go up the tree, until a Case is found (except for try-catches), then go up until a `Term` is found
         *
         */
-      final def unapply(term: Term): Option[Term] = findParent[Case](term) flatMap findParent[Term]
+      final def unapply(term: Term): Option[Term] =
+        findParent[Case](term)
+          .filterNot(_.parent.exists(_.isInstanceOf[Term.Try]))
+          .flatMap(findParent[Term])
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
         mapParent[T, Option[T]](tree, Some(_), None)

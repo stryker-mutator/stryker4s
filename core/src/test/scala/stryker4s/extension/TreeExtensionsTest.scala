@@ -301,6 +301,19 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       result should equal(q"baz.qux")
     }
+
+    it("should stop at the catch in a try-catch") {
+      val tree = q"""def foo = try {
+                      foo.bar
+                    } catch {
+                      case _ => baz.qux
+                    }"""
+      val subTree = tree.find(q"baz.qux").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"baz.qux")
+    }
   }
 
   describe("find") {
