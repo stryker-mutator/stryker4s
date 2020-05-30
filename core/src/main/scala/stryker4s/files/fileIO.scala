@@ -1,6 +1,7 @@
 package stryker4s.files
 import better.files._
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 sealed trait FileIO {
   def createAndWriteFromResource(file: File, resource: String): Future[Unit]
@@ -8,8 +9,7 @@ sealed trait FileIO {
   def createAndWrite(file: File, content: String): Future[Unit]
 }
 
-object DiskFileIO extends FileIO {
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+class DiskFileIO()(implicit ec: ExecutionContext) extends FileIO {
 
   override def createAndWriteFromResource(file: File, resourceName: String): Future[Unit] =
     Future {

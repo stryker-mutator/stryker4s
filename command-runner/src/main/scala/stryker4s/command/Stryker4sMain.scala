@@ -5,8 +5,11 @@ import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.config.ConfigReader
 import stryker4s.run.threshold.ErrorStatus
 import pureconfig.generic.auto._
+import scala.concurrent.ExecutionContext
 
 object Stryker4sMain extends App {
+  implicit val ec: ExecutionContext = ExecutionContext.global
+
   Stryker4sArgumentHandler.handleArgs(args)
 
   private[this] val processRunnerConfig: ProcessRunnerConfig = {

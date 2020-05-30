@@ -8,14 +8,17 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import scala.concurrent.Future
 import sttp.client.asynchttpclient.future.AsyncHttpClientFutureBackend
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext
 
-class Reporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+class Reporter(implicit config: Config, ec: ExecutionContext)
+    extends FinishedRunReporter
+    with ProgressReporter
+    with Logging {
 
   lazy val reporters: Iterable[MutationRunReporter] = config.reporters map {
     case Console => new ConsoleReporter()
-    case Html    => new HtmlReporter(DiskFileIO)
-    case Json    => new JsonReporter(DiskFileIO)
+    case Html    => new HtmlReporter(new DiskFileIO())
+    case Json    => new JsonReporter(new DiskFileIO())
     case Dashboard =>
       implicit val backend = AsyncHttpClientFutureBackend();
       new DashboardReporter(new DashboardConfigProvider(sys.env))

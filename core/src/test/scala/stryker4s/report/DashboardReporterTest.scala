@@ -88,9 +88,9 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+      sut.reportRunFinished(runReport) map { _ =>
+        "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+      }
     }
 
     it("should log when a response can't be parsed to a href") {
@@ -100,9 +100,9 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+      sut.reportRunFinished(runReport) map { _ =>
+        "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+      }
     }
 
     it("should log when a 401 is returned by the API") {
@@ -113,9 +113,9 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+      sut.reportRunFinished(runReport) map { _ =>
+        "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+      }
     }
 
     it("should log when a error code is returned by the API") {
@@ -128,9 +128,9 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+      sut.reportRunFinished(runReport) map { _ =>
+        "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+      }
     }
   }
 

@@ -21,6 +21,7 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import scala.meta._
 import scala.util.Success
 import stryker4s.report.FinishedRunReport
+import scala.concurrent.Future
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
@@ -38,6 +39,9 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     val testSourceCollector = new TestSourceCollector(testFiles)
     val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
     val reporterMock = mock[Reporter]
+    when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(Future.successful(()))
+    when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(Future.successful(()))
+    when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(Future.successful(()))
 
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))

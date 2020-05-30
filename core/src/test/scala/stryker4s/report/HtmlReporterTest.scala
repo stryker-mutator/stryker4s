@@ -62,7 +62,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
   describe("mutation-test-elements") {
     it("should write the resource") {
       implicit val config: Config = Config.default
-      val fileIO = DiskFileIO
+      val fileIO = new DiskFileIO()
 
       val tempFile = File.temp
       val sut = new HtmlReporter(fileIO)
