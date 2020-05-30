@@ -76,6 +76,7 @@ jobs:
             ~/.sbt
             ~/.cache/coursier/v1
             ~/.m2/repository
+            !~/.m2/repository/io/stryker-mutator/*stryker4s*/
           key: ${{ runner.os }}-maven-${{ hashFiles('**/project/Dependencies.scala') }}-${{ hashFiles('**/pom.xml') }}
       - uses: olafurpg/setup-scala@v7
         with:
@@ -89,5 +90,3 @@ jobs:
           mvn -B --no-transfer-progress stryker4s:run
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-      - name: Cleanup
-        run: find $HOME/.m2/repository -name "*stryker4s*" -print -exec rm -rf {} +
