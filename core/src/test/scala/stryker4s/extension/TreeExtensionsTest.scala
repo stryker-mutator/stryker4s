@@ -2,11 +2,11 @@ package stryker4s.extension
 
 import stryker4s.extension.TreeExtensions._
 import stryker4s.scalatest.TreeEquality
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class TreeExtensionsTest extends SyncStryker4sSuite with TreeEquality {
+class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
   describe("topStatement") {
     it("should return top statement in a simple statement") {
       val tree = q"x.times(2)"

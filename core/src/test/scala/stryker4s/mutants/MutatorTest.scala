@@ -3,12 +3,12 @@ import stryker4s.config.{Config, ExcludedMutations}
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 import stryker4s.testutil.stubs.TestSourceCollector
 
 import scala.meta._
 
-class MutatorTest extends SyncStryker4sSuite with TreeEquality with LogMatchers {
+class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
   describe("run") {
     it("should return a single Tree with changed pattern match") {
       implicit val conf: Config = Config.default

@@ -1,8 +1,8 @@
 package stryker4s.config
 
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
-class TestFilterTest extends SyncStryker4sSuite {
+class TestFilterTest extends Stryker4sSuite {
   describe("filter") {
 
     it("should work with default") {

@@ -16,13 +16,13 @@ import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
-import stryker4s.testutil.{MockitoSuite, SyncStryker4sSuite}
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
 import scala.meta._
 import scala.util.Success
 import stryker4s.report.FinishedRunReport
 
-class Stryker4sTest extends SyncStryker4sSuite with MockitoSuite with Inside with LogMatchers {
+class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
     private[this] val stream = Iterator.from(0)

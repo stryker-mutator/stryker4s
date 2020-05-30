@@ -4,9 +4,9 @@ import org.scalatest.Assertion
 import stryker4s.config.{Config, Thresholds}
 import stryker4s.extension.exception.InvalidThresholdValueException
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
-class ThresholdCheckerTest extends SyncStryker4sSuite with LogMatchers {
+class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
   describe("thresholds") {
     def interceptThresholdException(high: Int = 80, low: Int = 60, break: Int = 0): Assertion = {
       an[InvalidThresholdValueException] should be thrownBy Thresholds(high, low, break)

@@ -5,11 +5,11 @@ import stryker4s.extension.TreeExtensions._
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 import stryker4s.scalatest.TreeEquality
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class StatementTransformerTest extends SyncStryker4sSuite with TreeEquality {
+class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
   val sut = new StatementTransformer
 
   describe("transformStatement") {

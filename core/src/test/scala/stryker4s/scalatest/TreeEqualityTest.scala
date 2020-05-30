@@ -1,10 +1,10 @@
 package stryker4s.scalatest
 
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class TreeEqualityInScopeTest extends SyncStryker4sSuite with TreeEquality {
+class TreeEqualityInScopeTest extends Stryker4sSuite with TreeEquality {
   describe("Equality in scope") {
     it("two different tree objects with same structure should equal") {
       val firstTree = q"18 > 5"
@@ -58,7 +58,7 @@ class TreeEqualityInScopeTest extends SyncStryker4sSuite with TreeEquality {
   }
 }
 
-class TreeEqualityOutOfScopeTest extends SyncStryker4sSuite {
+class TreeEqualityOutOfScopeTest extends Stryker4sSuite {
   describe("Equality out of scope") {
     it("two different trees with same structure should not equal") {
       val firstTree = q"18 > 5"

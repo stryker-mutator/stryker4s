@@ -7,11 +7,11 @@ import stryker4s.config.Config
 import stryker4s.extension.mutationtype.{GreaterThan, LesserThan}
 import stryker4s.model.{Killed, Mutant, Survived}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.SyncStryker4sSuite
+import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class ConsoleReporterTest extends SyncStryker4sSuite with LogMatchers {
+class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
   describe("reportStartRun") {
     it("Should log that test run 1 is started when mutant id is 0") {
       implicit val config: Config = Config.default
