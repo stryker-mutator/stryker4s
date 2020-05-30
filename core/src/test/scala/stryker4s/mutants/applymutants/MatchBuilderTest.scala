@@ -250,6 +250,59 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
                               """
       result should equal(expected)
     }
+
+    it("should include all mutants in a try-catch-finally") {
+// Arrange
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = source"""class Foo() {
+                              def foo =
+                                try {
+                                  runAndContinue("task.run")
+                                } catch {
+                                  case _ => logger.error("Error during run", e)
+                                } finally {
+                                  logger.info("Done")
+                                }
+                            }"""
+
+      val firstTransformed = toTransformed(source, EmptyString, Lit.String("task.run"), Lit.String(""))
+      val secondTransformed = toTransformed(source, EmptyString, Lit.String("Error during run"), Lit.String(""))
+      val thirdTransformed = toTransformed(source, EmptyString, Lit.String("Done"), Lit.String(""))
+      val transformedStatements =
+        SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
+      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+
+      // Act
+      val result = sut.buildNewSource(transformedStatements)
+
+      // Assert
+      val expected = source"""class Foo() {
+                                def foo = try {
+                                  _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+                                    case Some("0") =>
+                                      runAndContinue("")
+                                    case _ =>
+                                      runAndContinue("task.run")
+                                  }
+                                } catch {
+                                  case _ =>
+                                    _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+                                      case Some("1") =>
+                                        logger.error("", e)
+                                      case _ =>
+                                        logger.error("Error during run", e)
+                                    }
+                                } finally {
+                                  _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+                                    case Some("2") =>
+                                      logger.info("")
+                                    case _ =>
+                                      logger.info("Done")
+                                  }
+                                }
+                              }"""
+      result should equal(expected)
+    }
   }
 
   describe("mutationActivation") {
