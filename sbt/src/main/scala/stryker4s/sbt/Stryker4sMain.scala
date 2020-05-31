@@ -9,6 +9,7 @@ import sbt.plugins._
 import stryker4s.run.threshold.ErrorStatus
 
 import scala.language.implicitConversions
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code

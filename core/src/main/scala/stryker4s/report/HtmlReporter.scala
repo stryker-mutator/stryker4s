@@ -5,8 +5,13 @@ import grizzled.slf4j.Logging
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
+class HtmlReporter(fileIO: FileIO)(implicit config: Config, ec: ExecutionContext)
+    extends FinishedRunReporter
+    with Logging {
+
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
   private val htmlReportResource = s"mutation-testing-elements/$mutationTestElementsName"
@@ -29,13 +34,13 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
        |</body>
        |</html>""".stripMargin
 
-  def writeMutationTestElementsJsTo(file: File): Unit =
+  def writeMutationTestElementsJsTo(file: File): Future[Unit] =
     fileIO.createAndWriteFromResource(file, htmlReportResource)
 
-  def writeIndexHtmlTo(file: File): Unit =
+  def writeIndexHtmlTo(file: File): Future[Unit] =
     fileIO.createAndWrite(file, indexHtml)
 
-  def writeReportJsTo(file: File, report: MutationTestReport): Unit = {
+  def writeReportJsTo(file: File, report: MutationTestReport): Future[Unit] = {
     import io.circe.syntax._
     import mutationtesting.MutationReportEncoder._
     val json = report.asJson.noSpaces
@@ -43,17 +48,21 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
     fileIO.createAndWrite(file, reportContent)
   }
 
-  override def reportRunFinished(runReport: FinishedRunReport): Unit = {
+  override def reportRunFinished(runReport: FinishedRunReport): Future[Unit] = {
     val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
 
     val mutationTestElementsLocation = targetLocation / mutationTestElementsName
     val indexLocation = targetLocation / "index.html"
     val reportLocation = targetLocation / reportFilename
 
-    writeIndexHtmlTo(indexLocation)
-    writeReportJsTo(reportLocation, runReport.report)
-    writeMutationTestElementsJsTo(mutationTestElementsLocation)
+    val writeIndexHtmlToFuture = writeIndexHtmlTo(indexLocation)
+    val writeReportJsToFuture = writeReportJsTo(reportLocation, runReport.report)
+    val writeMutationTestElementsJsToFuture = writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
-    info(s"Written HTML report to $indexLocation")
+    for {
+      _ <- writeIndexHtmlToFuture
+      _ <- writeReportJsToFuture
+      _ <- writeMutationTestElementsJsToFuture
+    } yield info(s"Written HTML report to $indexLocation")
   }
 }

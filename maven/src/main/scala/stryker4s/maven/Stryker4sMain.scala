@@ -5,6 +5,7 @@ import org.apache.maven.plugin.{AbstractMojo, MojoFailureException}
 import org.apache.maven.plugins.annotations.{Mojo, Parameter}
 import org.apache.maven.project.MavenProject
 import stryker4s.run.threshold.ErrorStatus
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** The main goal for this plugin. Starts Stryker4s.
   */

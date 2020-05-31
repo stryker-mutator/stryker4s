@@ -15,11 +15,16 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
+import stryker4s.report.FinishedRunReport
+import scala.concurrent.Future
 
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[Reporter]
+  when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(Future.successful(()))
+  when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(Future.successful(()))
+  when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(Future.successful(()))
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {

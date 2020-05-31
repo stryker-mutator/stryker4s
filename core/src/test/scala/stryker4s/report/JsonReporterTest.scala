@@ -6,9 +6,9 @@ import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
 
-class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("reportJson") {
     it("should contain the report") {
       implicit val config: Config = Config.default
@@ -17,9 +17,11 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val testFile = config.baseDir / "foo.bar"
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
 
-      sut.writeReportJsonTo(testFile, report)
+      for {
+        _ <- sut.writeReportJsonTo(testFile, report)
 
-      verify(mockFileIO).createAndWrite(eqTo(testFile), any[String])
+        _ <- verify(mockFileIO).createAndWrite(eqTo(testFile), any[String])
+      } yield succeed
     }
   }
 
@@ -33,16 +35,15 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics))
+      for {
+        _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-      val writtenFilesCaptor = ArgCaptor[File]
-
-      verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
-
-      val paths = writtenFilesCaptor.values.map(_.pathAsString)
-      all(paths) should fullyMatch regex stryker4sReportFolderRegex
-
-      writtenFilesCaptor.values.map(_.name) should contain only "report.json"
+        writtenFilesCaptor = ArgCaptor[File]
+        _ <- verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
+        paths = writtenFilesCaptor.values.map(_.pathAsString)
+        _ = all(paths) should fullyMatch regex stryker4sReportFolderRegex
+        assertion = writtenFilesCaptor.values.map(_.name) should contain only "report.json"
+      } yield assertion
     }
 
     it("should info log a message") {
@@ -51,11 +52,13 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics))
+      for {
+        _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-      val captor = ArgCaptor[File]
-      verify(mockFileIO).createAndWrite(captor.capture, any[String])
-      s"Written JSON report to ${captor.value}" shouldBe loggedAsInfo
+        captor = ArgCaptor[File]
+        _ <- verify(mockFileIO).createAndWrite(captor.capture, any[String])
+        assertion = s"Written JSON report to ${captor.value}" shouldBe loggedAsInfo
+      } yield assertion
     }
   }
 }
