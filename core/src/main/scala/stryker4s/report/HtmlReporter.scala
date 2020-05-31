@@ -6,9 +6,11 @@ import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
-  implicit private val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+class HtmlReporter(fileIO: FileIO)(implicit config: Config, ec: ExecutionContext)
+    extends FinishedRunReporter
+    with Logging {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -61,8 +63,6 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
       _ <- writeIndexHtmlToFuture
       _ <- writeReportJsToFuture
       _ <- writeMutationTestElementsJsToFuture
-      _ = info(s"Written HTML report to $indexLocation")
-    } yield ()
-
+    } yield info(s"Written HTML report to $indexLocation")
   }
 }
