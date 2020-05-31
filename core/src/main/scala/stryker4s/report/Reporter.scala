@@ -6,7 +6,7 @@ import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import scala.concurrent.Future
-import sttp.client.asynchttpclient.future.AsyncHttpClientFutureBackend
+import sttp.client.okhttp.OkHttpFutureBackend
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext
 
@@ -20,7 +20,7 @@ class Reporter(implicit config: Config, ec: ExecutionContext)
     case Html    => new HtmlReporter(new DiskFileIO())
     case Json    => new JsonReporter(new DiskFileIO())
     case Dashboard =>
-      implicit val backend = AsyncHttpClientFutureBackend();
+      implicit val backend = OkHttpFutureBackend();
       new DashboardReporter(new DashboardConfigProvider(sys.env))
   }
 
