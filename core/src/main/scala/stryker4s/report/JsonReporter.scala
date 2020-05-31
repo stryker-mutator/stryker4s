@@ -23,8 +23,8 @@ class JsonReporter(fileIO: FileIO)(implicit config: Config, ec: ExecutionContext
     val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
     val resultLocation = targetLocation / "report.json"
 
-    writeReportJsonTo(resultLocation, runReport.report)
-      .map(_ => info(s"Written JSON report to $resultLocation"))
-
+    writeReportJsonTo(resultLocation, runReport.report) map { _ =>
+      info(s"Written JSON report to $resultLocation")
+    }
   }
 }
