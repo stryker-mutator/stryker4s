@@ -10,9 +10,9 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
 trait ProcessRunner extends Logging {
-  def apply(command: Command, tmpDir: File): Try[Seq[String]] = {
+  def apply(command: Command, workingDir: File): Try[Seq[String]] = {
     Try {
-      Process(s"${command.command} ${command.args}", tmpDir.toJava)
+      Process(s"${command.command} ${command.args}", workingDir.toJava)
         .!!<(ProcessLogger(debug(_)))
         .linesIterator
         .toSeq
