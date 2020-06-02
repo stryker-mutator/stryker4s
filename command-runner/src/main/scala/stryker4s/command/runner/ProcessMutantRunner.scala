@@ -40,6 +40,6 @@ class ProcessMutantRunner(
     }
   }
 
-  override def initializeTestContext(workingDir: File): Context = CommandRunnerContext(workingDir)
+  override def initializeTestContext(tmpDir: File): Context = CommandRunnerContext(tmpDir)
 
 }

@@ -20,14 +20,14 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
 ) extends MutantRunner(sourceCollector, reporter) {
   type Context = MavenRunnerContext
 
-  def initializeTestContext(workingDir: File): Context = {
+  def initializeTestContext(tmpDir: File): Context = {
     val goals = List("test")
 
     val properties = new Properties(project.getProperties)
     setTestProperties(properties)
-    invoker.setWorkingDirectory(workingDir.toJava)
+    invoker.setWorkingDirectory(tmpDir.toJava)
 
-    MavenRunnerContext(properties, goals, workingDir)
+    MavenRunnerContext(properties, goals, tmpDir)
   }
 
   override def runInitialTest(context: Context): Boolean = {

@@ -94,5 +94,5 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
   def runInitialTest(context: Context): Boolean
 
-  def initializeTestContext(workingDir: File): Context
+  def initializeTestContext(tmpDir: File): Context
 }
