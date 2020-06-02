@@ -22,15 +22,18 @@ import scala.meta._
 import scala.util.Success
 import stryker4s.report.FinishedRunReport
 import scala.concurrent.Future
+import stryker4s.model.TestRunnerContext
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
+  case class TestTestRunnerContext(tmpDir: File) extends TestRunnerContext
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
     private[this] val stream = Iterator.from(0)
-
-    override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult =
+    type Context = TestTestRunnerContext
+    override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
       path => Killed(Mutant(stream.next, q">", q"<", LesserThan), path)
-    override def runInitialTest(workingDir: File): Boolean = true
+    override def runInitialTest(context: Context): Boolean = true
+    override def initializeTestContext(tmpDir: File): Context = TestTestRunnerContext(tmpDir)
   }
 
   describe("run") {
