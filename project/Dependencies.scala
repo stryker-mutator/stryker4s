@@ -6,6 +6,7 @@ object Dependencies {
     val scala213 = "2.13.2"
     val crossScalaVersions = Seq(scala213, scala212)
 
+    val testInterface = "1.0"
     val scalameta = "4.3.15"
     val pureconfig = "0.12.3"
     val scalatest = "3.2.0"
@@ -26,6 +27,7 @@ object Dependencies {
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
   }
 
+  val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val betterFiles = "com.github.pathikrit" %% "better-files" % versions.betterFiles

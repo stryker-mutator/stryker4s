@@ -9,13 +9,11 @@ import sbt._
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
-import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
-import sbt.Tests.Output
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
@@ -76,45 +74,41 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     val extracted = Project.extract(state)
 
     val newState = extracted.appendWithSession(settings, state)
+    val testGroups = Project
+      .runTask(testGrouping, newState)
+      .collect({
+        case (_, Value(groups)) => groups
+      })
+      .getOrElse(throw new Exception("Could not resolve test context"))
+    val processHandler = new ProcessHandler()
 
-    SbtRunnerContext(settings, extracted, newState, tmpDir)
+    SbtRunnerContext(testGroups, processHandler, tmpDir)
   }
 
-  override def runInitialTest(context: Context): Boolean =
-    runTests(
-      context.newState,
-      throw InitialTestRunFailedException(
-        s"Unable to execute initial test run. Sbt is unable to find the task 'test'."
-      ),
-      onSuccess = true,
-      onFailed = false
-    )
+  override def runInitialTest(context: Context): Boolean = ???
+  // runTests(
+  //   context.newState,
+  //   throw InitialTestRunFailedException(
+  //     s"Unable to execute initial test run. Sbt is unable to find the task 'test'."
+  //   ),
+  //   onSuccess = true,
+  //   onFailed = false
+  // )
 
   override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult = {
-    val mutationState =
-      context.extracted.appendWithSession(context.settings :+ mutationSetting(mutant.id), context.newState)
-    runTests(
-      mutationState,
-      { p: Path =>
-        error(s"An unexpected error occurred while running mutation ${mutant.id}")
-        Error(mutant, p)
-      },
-      Survived(mutant, _),
-      Killed(mutant, _)
-    )
+    ???
+    // val mutationState =
+    //   context.extracted.appendWithSession(context.settings :+ mutationSetting(mutant.id), context.newState)
+    // runTests(
+    //   mutationState,
+    //   { p: Path =>
+    //     error(s"An unexpected error occurred while running mutation ${mutant.id}")
+    //     Error(mutant, p)
+    //   },
+    //   Survived(mutant, _),
+    //   Killed(mutant, _)
+    // )
   }
-
-  /** Runs tests with the giving state, calls the corresponding parameter on each result
-    */
-  private def runTests[T](state: State, onError: => T, onSuccess: => T, onFailed: => T): T =
-    Project.runTask(executeTests in Test, state) match {
-      case Some((_, Value(Output(TestResult.Passed, _, _)))) => onSuccess
-      case Some((_, Value(Output(TestResult.Failed, _, _)))) => onFailed
-      case _                                                 => onError
-    }
-
-  private def mutationSetting(mutation: Int): Def.Setting[_] =
-    javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
