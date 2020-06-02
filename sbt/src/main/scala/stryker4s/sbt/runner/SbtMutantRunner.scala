@@ -85,7 +85,11 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     SbtRunnerContext(testGroups, processHandler, tmpDir)
   }
 
-  override def runInitialTest(context: Context): Boolean = ???
+  override def runInitialTest(context: Context): Boolean =
+    context.processHandler.runTests(None, context.tmpDir.path) match {
+      case _: Survived => true
+      case _           => false
+    }
   // runTests(
   //   context.newState,
   //   throw InitialTestRunFailedException(
@@ -95,20 +99,21 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   //   onFailed = false
   // )
 
-  override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult = {
-    ???
-    // val mutationState =
-    //   context.extracted.appendWithSession(context.settings :+ mutationSetting(mutant.id), context.newState)
-    // runTests(
-    //   mutationState,
-    //   { p: Path =>
-    //     error(s"An unexpected error occurred while running mutation ${mutant.id}")
-    //     Error(mutant, p)
-    //   },
-    //   Survived(mutant, _),
-    //   Killed(mutant, _)
-    // )
-  }
+  override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
+    path => {
+      context.processHandler.runTests(Some(mutant.id), path)
+      // val mutationState =
+      //   context.extracted.appendWithSession(context.settings :+ mutationSetting(mutant.id), context.newState)
+      // runTests(
+      //   mutationState,
+      //   { p: Path =>
+      //     error(s"An unexpected error occurred while running mutation ${mutant.id}")
+      //     Error(mutant, p)
+      //   },
+      //   Survived(mutant, _),
+      //   Killed(mutant, _)
+      // )
+    }
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
