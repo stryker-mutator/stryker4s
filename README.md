@@ -78,6 +78,17 @@ Do you have a suggestion for a (new) mutator? Feel free to create an [issue](htt
 
 An always up-to-date reference is also available in the [MutantMatcher source](core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
 
+## Additional mutations skipping
+
+Sometimes, you may be need to skip mutation in more preciese way, than file. Fore example if you have hardcoded constant, that have no practical reason to extract and you still want mutate surroundings.
+Therefore, you can annotate code block with `@SuppressWarning` annotation, passing mutation names you would like to skip.
+```scala
+@SuppressWarnings(Array("stryker4s.mutation.BooleanLiteral"))
+RequestLogger(logHeaders = false, logBody = false)(ResponseLogger(logHeaders = false, logBody = true)(httpClient))
+//theres no practical reason to mutate boolean values as its only for logging
+```
+All mutation names can be found in section above [Supported mutators](##Supported mutators) and it should be prefixed with "stryker4s.mutation."
+
 ## Changelog
 
 See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) for all the latest changes made.
