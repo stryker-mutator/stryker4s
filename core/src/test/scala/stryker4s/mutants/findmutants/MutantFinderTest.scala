@@ -149,7 +149,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
           """
 
       val (result, excluded) = sut.findMutants(source)
-      excluded shouldBe 0
+      excluded shouldBe 3
       result should have length 3
     }
   }

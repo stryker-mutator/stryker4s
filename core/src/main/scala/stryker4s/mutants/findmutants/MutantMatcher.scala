@@ -87,9 +87,8 @@ class MutantMatcher()(implicit config: Config) {
     ): Seq[Option[Mutant]] =
       ifNotInAnnotation {
         mutations
-          .filterNot(isSuppressedByAnnotation(_, original))
           .map { mutated =>
-            if (matchExcluded(mutated))
+            if (matchExcluded(mutated) || isSuppressedByAnnotation(mutated, original))
               None
             else
               Some(Mutant(ids.next, original, mutationToTerm(mutated), mutated))
