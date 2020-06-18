@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import scala.annotation.tailrec
 import scala.meta.transversers.SimpleTraverser
-import scala.meta.{Case, Defn, Term, Transformer, Tree}
+import scala.meta.{Case, Decl, Defn, Mod, Term, Transformer, Tree}
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -104,6 +104,50 @@ object TreeExtensions {
       */
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
       mapParent[T, Boolean](thisTree, _ => true, false)
+  }
+
+  implicit class PathToRoot(thisTree: Tree) {
+    class LeafToRootTraversable(t: Tree) extends Iterable[Tree] {
+      @tailrec
+      private def recTraverse[U](rt: Tree)(f: Tree => U): Unit = {
+        f(rt)
+        if (rt.parent.isDefined)
+          recTraverse[U](rt.parent.get)(f)
+      }
+      override def foreach[U](f: Tree => U): Unit = recTraverse(t)(f)
+
+      override def iterator: Iterator[Tree] =
+        new Iterator[Tree] {
+          var currentElement = Option(t)
+          override def hasNext: Boolean = currentElement.flatMap(_.parent).isDefined
+
+          override def next(): Tree = {
+            currentElement = currentElement.flatMap(_.parent)
+            currentElement.get
+          }
+        }
+    }
+    def pathToRoot: Iterable[Tree] = new LeafToRootTraversable(thisTree) {}
+  }
+
+  implicit class GetMods(tree: Tree) {
+    def getMods: List[Mod] =
+      tree match {
+        case mc: Defn.Class  => mc.mods
+        case mc: Defn.Trait  => mc.mods
+        case mc: Defn.Object => mc.mods
+        case mc: Defn.Def    => mc.mods
+        case mc: Defn.Val    => mc.mods
+        case mc: Defn.Var    => mc.mods
+        case mc: Defn.Type   => mc.mods
+        case mc: Term.Param  => mc.mods
+        case mc: Decl.Def    => mc.mods
+        case mc: Decl.Var    => mc.mods
+        case mc: Decl.Val    => mc.mods
+        case mc: Decl.Type   => mc.mods
+        case _               => Nil
+      }
+
   }
 
   implicit class IsEqualExtension(thisTree: Tree) {

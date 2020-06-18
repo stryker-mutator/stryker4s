@@ -123,6 +123,35 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       excluded shouldBe 0
       result should have length 6
     }
+
+    it("should filter out @SuppressWarnings annotated code") {
+      val sut = new MutantFinder(new MutantMatcher)
+
+      val source =
+        source"""
+                 final case class Bar(
+                    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
+                    s1: String = "filtered",
+                    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
+                    notFiltered1: Boolean = false) {
+
+                    def aFunction(@SuppressWarnings param: String = "notFiltered2") = {
+                      "notFiltered3"
+                    }
+
+                    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
+                    val x = { val l = "s3"; l }
+                  }
+                  @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
+                  object Foo {
+                    val value = "s5"
+                  }
+          """
+
+      val (result, excluded) = sut.findMutants(source)
+      excluded shouldBe 3
+      result should have length 3
+    }
   }
 
   describe("mutantsInFile") {
