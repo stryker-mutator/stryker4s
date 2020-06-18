@@ -5,7 +5,6 @@ import java.nio.file.NoSuchFileException
 import better.files.File
 import stryker4s.config.{Config, ExcludedMutations}
 import stryker4s.extension.FileExtensions._
-import stryker4s.extension.mutationtype.StringLiteral
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
 import stryker4s.testutil.Stryker4sSuite
 
@@ -128,23 +127,22 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
     it("should filter out @SuppressWarnings annotated code") {
       val sut = new MutantFinder(new MutantMatcher)
 
-      val stringMutatorName = Lit.String(classOf[StringLiteral[_]].getSimpleName)
       val source =
         source"""
                  final case class Bar(
-                    @SuppressWarnings(Array($stringMutatorName))
+                    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
                     s1: String = "filtered",
-                    @SuppressWarnings(Array($stringMutatorName))
+                    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
                     notFiltered1: Boolean = false) {
 
                     def aFunction(@SuppressWarnings param: String = "notFiltered2") = {
                       "notFiltered3"
                     }
 
-                    @SuppressWarnings(Array($stringMutatorName))
+                    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
                     val x = { val l = "s3"; l }
                   }
-                  @SuppressWarnings(Array($stringMutatorName))
+                  @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
                   object Foo {
                     val value = "s5"
                   }

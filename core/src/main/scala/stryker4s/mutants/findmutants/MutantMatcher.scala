@@ -112,7 +112,7 @@ class MutantMatcher()(implicit config: Config) {
     }
 
     private def isSupressWarningsAnnotation(mod: Mod, mutation: Mutation[_]) = {
-      val mutationName = mutation.mutationName
+      val mutationName = "stryker4s.mutation." + mutation.mutationName
       mod match {
         case Annot(Init(Type.Name("SuppressWarnings"), _, List(List(Apply(Name("Array"), params))))) =>
           params.exists {
