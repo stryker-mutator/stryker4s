@@ -1,15 +1,12 @@
 package stryker4s.sbt.testrunner
 
-import sbt.testing.TaskDef
+import stryker4s.api.testprocess.TestProcessConfig
 
 object Context {
-  def resolveContext(args: Array[String]): Context = ???
+  def resolveSocketConfig(args: Array[String]): TestProcessConfig = {
+    TestProcessConfig
+      .fromArgs(args.toSeq)
+      .getOrElse(throw new Exception(s"Could not resolve config arguments ${args.mkString(" ")}"))
+  }
+
 }
-
-final case class Context(
-    frameworkClass: String,
-    taskDefs: Array[TaskDef],
-    runnerOptions: RunnerOptions
-)
-
-final case class RunnerOptions(args: Array[String], remoteArgs: Array[String])

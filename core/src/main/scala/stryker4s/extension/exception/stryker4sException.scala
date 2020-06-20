@@ -9,6 +9,8 @@ final case class UnableToBuildPatternMatchException() extends Stryker4sException
 
 final case class InitialTestRunFailedException(message: String) extends Stryker4sException(message) with NoStackTrace
 
+final case class TestSetupException(message: String) extends Stryker4sException(message)
+
 final case class MutationRunFailedException(message: String) extends Stryker4sException(message)
 
 final case class InvalidThresholdValueException(message: String) extends Stryker4sException(message)

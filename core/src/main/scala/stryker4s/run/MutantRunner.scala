@@ -24,17 +24,22 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   def apply(mutatedFiles: Iterable[MutatedFile]): MetricsResult = {
     val context = prepareEnv(mutatedFiles)
 
-    initialTestRun(context)
+    try {
 
-    val runResults = runMutants(mutatedFiles, context)
+      initialTestRun(context)
 
-    val report = toReport(runResults)
-    val metrics = Metrics.calculateMetrics(report)
+      val runResults = runMutants(mutatedFiles, context)
 
-    // Timeout of 15 seconds is a little longer to make sure http requests etc finish
-    // TODO: Don't use unsafeRun
-    reporter.reportRunFinished(FinishedRunReport(report, metrics)).unsafeRunTimed(15.seconds)
-    metrics
+      val report = toReport(runResults)
+      val metrics = Metrics.calculateMetrics(report)
+
+      // Timeout of 15 seconds is a little longer to make sure http requests etc finish
+      // TODO: Don't use unsafeRun
+      reporter.reportRunFinished(FinishedRunReport(report, metrics)).unsafeRunTimed(15.seconds)
+      metrics
+    } finally {
+      dispose(context)
+    }
   }
 
   private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Context = {
@@ -97,4 +102,6 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   def runInitialTest(context: Context): Boolean
 
   def initializeTestContext(tmpDir: File): Context
+
+  def dispose(context: Context): Unit
 }

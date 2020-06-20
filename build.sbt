@@ -39,6 +39,7 @@ lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner"
 
 lazy val api = newProject("stryker4s-api", "api")
   .settings(apiSettings)
+  .dependsOn(stryker4sCore % "test->test")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 def newProject(projectName: String, dir: String) =

@@ -1,19 +1,18 @@
 package stryker4s.sbt.runner
 
-import java.io.{PrintStream, File => JFile}
+import java.io.{File => JFile}
 import java.nio.file.Path
 
 import better.files.{File, _}
 import sbt.Keys._
 import sbt._
-import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
-import stryker4s.sbt.Stryker4sMain.autoImport.stryker
+import stryker4s.extension.exception.TestSetupException
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
     extends MutantRunner(sourceCollector, reporter) {
@@ -33,87 +32,56 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     "-Wunused:params"
   )
   def initializeTestContext(tmpDir: File): Context = {
-    val emptyLogManager =
-      LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
-
-    val filteredSystemProperties: Option[List[String]] = {
-      // Matches strings that start with one of the options between brackets
-      val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal).*"
-
-      val filteredProps = for {
-        (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
-        param = s"-D$key=$value"
-      } yield param
-
-      filteredProps match {
-        case Nil                => None
-        case list: List[String] => Some(list)
-      }
-    }
-
     val settings: Seq[Def.Setting[_]] = Seq(
       scalacOptions --= blacklistedScalacOptions,
-      fork in Test := true,
-      scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
-      logManager := {
-        if ((logLevel in stryker).value == Level.Debug) logManager.value
-        else emptyLogManager
-      }
-    ) ++
-      filteredSystemProperties.map(properties => {
-        debug(s"System properties added to the forked JVM: ${properties.mkString(",")}")
-        javaOptions in Test ++= properties
-      }) ++ {
+      scalaSource in Compile := tmpDirFor(Compile, tmpDir).value
+    ) ++ {
       if (config.testFilter.nonEmpty) {
         val testFilter = new TestFilter
         Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
       } else
-        Seq()
+        Nil
     }
 
     val extracted = Project.extract(state)
 
     val newState = extracted.appendWithSession(settings, state)
-    val testGroups = Project
-      .runTask(testGrouping, newState)
-      .collect({
-        case (_, Value(groups)) => groups
-      })
-      .getOrElse(throw new Exception("Could not resolve test context"))
-    val processHandler = new ProcessHandler()
+    val testGroups = Project.runTask(testGrouping in Test, newState) match {
+      case Some((_, Value(groups))) => groups
+      case other =>
+        throw new TestSetupException(
+          s"Could not setup mutation testing environment. Expected test groups, but got $other"
+        )
+    }
+    val frameworks = (Project.runTask(loadedTestFrameworks in Test, newState) match {
+      case Some((_, Value(groups))) if groups.nonEmpty => groups
+      case other =>
+        throw new TestSetupException(
+          s"Could not setup mutation testing environment. Expected test frameworks, but got $other"
+        )
+    }).values.toSeq
 
-    SbtRunnerContext(testGroups, processHandler, tmpDir)
+    val classpath = Project.runTask(fullClasspath in Test, newState) match {
+      case Some((_, Value(classpath))) => classpath.map(_.data.getPath())
+      case other =>
+        throw new TestSetupException(
+          s"Could not setup mutation testing environment. Unable to resolve classpath. Expected a classpath, but got $other"
+        )
+    }
+    val processManager = ProcessManager.newProcess(classpath)
+
+    SbtRunnerContext(frameworks, testGroups, processManager, tmpDir)
   }
 
   override def runInitialTest(context: Context): Boolean =
-    context.processHandler.runTests(None, context.tmpDir.path) match {
-      case _: Survived => true
-      case _           => false
-    }
-  // runTests(
-  //   context.newState,
-  //   throw InitialTestRunFailedException(
-  //     s"Unable to execute initial test run. Sbt is unable to find the task 'test'."
-  //   ),
-  //   onSuccess = true,
-  //   onFailed = false
-  // )
+    context.processHandler.initialTestRun(context.frameworks, context.testGroups)
 
   override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
-    path => {
-      context.processHandler.runTests(Some(mutant.id), path)
-      // val mutationState =
-      //   context.extracted.appendWithSession(context.settings :+ mutationSetting(mutant.id), context.newState)
-      // runTests(
-      //   mutationState,
-      //   { p: Path =>
-      //     error(s"An unexpected error occurred while running mutation ${mutant.id}")
-      //     Error(mutant, p)
-      //   },
-      //   Survived(mutant, _),
-      //   Killed(mutant, _)
-      // )
-    }
+    path => context.processHandler.runMutant(mutant, path)
+
+  override def dispose(context: Context): Unit = {
+    context.processHandler.close()
+  }
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
