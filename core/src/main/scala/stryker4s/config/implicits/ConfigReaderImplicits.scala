@@ -10,7 +10,6 @@ import pureconfig.generic.semiauto._
 trait ConfigReaderImplicits {
 
   /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
-    *
     */
   implicit private[config] val toFileReader: ConfigReader[File] =
     ConfigReader[Path] map (p => File(p))

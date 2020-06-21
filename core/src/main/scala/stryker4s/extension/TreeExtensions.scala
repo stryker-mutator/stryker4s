@@ -34,7 +34,6 @@ object TreeExtensions {
     private object ParentIsPatternMatch {
 
       /** Go up the tree, until a Case is found (except for try-catches), then go up until a `Term` is found
-        *
         */
       final def unapply(term: Term): Option[Term] =
         findParent[Case](term)
