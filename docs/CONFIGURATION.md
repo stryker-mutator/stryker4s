@@ -22,6 +22,7 @@ stryker4s {
       - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
       - [log-level](#log-level)
+      - [Excluding specific mutations](#excluding-specific-mutations)
 
 ## General config
 
@@ -42,6 +43,7 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 **Config file:** `test-filter: [ "com.mypackage.MyTest" ]`  
 **Default value:** `[]`  
 **Mandatory:** No  
+**Since:** `v0.8.0`  
 **Description:**  
 With `test-filter` you configure the subset of tests to use for mutation testing. By default all tests are included.
 You can use wildcard pattern: `com.mypackage.*`.
@@ -159,3 +161,18 @@ How to adjust the loglevel depends on how you run stryker4s:
   - Options: `trace`, `debug`, `info`, `warn`, or `error`
 
 **warning** This option cannot be set from stryker4s.conf.
+
+#### Excluding specific mutations
+
+**Since:** `v0.9.0`
+
+Using the `@SuppressWarnings` annotation, you can tell Stryker4s to ignore mutations in a code block. Annotate a code block with a `@SuppressWarnings` annotation, passing an array of mutation names you would like to ignore.
+
+```scala
+/** No booleans will be mutated
+ */
+@SuppressWarnings(Array("stryker4s.mutation.BooleanLiteral"))
+RequestLogger(logHeaders = false, logBody = false)(ResponseLogger(logHeaders = false, logBody = true)(httpClient))
+```
+
+All mutation names are the same as for [Excluded mutations](#excluded-mutations) and should be prefixed with `"stryker4s.mutation."`.
