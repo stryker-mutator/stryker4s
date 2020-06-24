@@ -16,7 +16,6 @@ import stryker4s.config.MutationScoreOnly
 import sttp.model.StatusCode
 import mutationtesting._
 import cats.effect.IO
-import scala.concurrent.ExecutionContext
 
 class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
@@ -151,7 +150,6 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
   }
 
   def backendStub = {
-    implicit val cs = IO.contextShift(implicitly[ExecutionContext])
     sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend.stub[IO]
   }
 

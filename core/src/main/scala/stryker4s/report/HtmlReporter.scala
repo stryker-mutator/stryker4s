@@ -6,8 +6,9 @@ import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import cats.effect.IO
+import cats.Parallel
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
+class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) extends FinishedRunReporter with Logging {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -52,14 +53,11 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunR
     val indexLocation = targetLocation / "index.html"
     val reportLocation = targetLocation / reportFilename
 
-    val writeIndexHtmlToFuture = writeIndexHtmlTo(indexLocation)
-    val writeReportJsToFuture = writeReportJsTo(reportLocation, runReport.report)
-    val writeMutationTestElementsJsToFuture = writeMutationTestElementsJsTo(mutationTestElementsLocation)
+    val reportsWriting = writeIndexHtmlTo(indexLocation) &>
+      writeReportJsTo(reportLocation, runReport.report) &>
+      writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
-    for {
-      _ <- writeIndexHtmlToFuture
-      _ <- writeReportJsToFuture
-      _ <- writeMutationTestElementsJsToFuture
-    } yield info(s"Written HTML report to $indexLocation")
+    reportsWriting *>
+      IO(info(s"Written HTML report to $indexLocation"))
   }
 }

@@ -18,20 +18,20 @@ class DiskFileIO()(implicit cs: ContextShift[IO], s: Sync[IO]) extends FileIO {
     Blocker[IO].use { blocker =>
       val stream = IO { this.getClass().getResourceAsStream(resourceName) }
 
-      readInputStream(stream, 8192, blocker)
-        .through(writeAll(file.path, blocker))
-        .compile
-        .drain
+      createDirectories(blocker, file.parent.path) *>
+        readInputStream(stream, 8192, blocker)
+          .through(writeAll(file.path, blocker))
+          .compile
+          .drain
     }
 
   override def createAndWrite(file: File, content: String): IO[Unit] =
     Blocker[IO].use { blocker =>
-      createDirectories(blocker, file.parent.path).flatMap { _ =>
+      createDirectories(blocker, file.parent.path) *>
         Stream(content)
           .through(text.utf8Encode)
           .through(writeAll(file.path, blocker))
           .compile
           .drain
-      }
     }
 }

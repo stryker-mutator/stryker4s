@@ -58,22 +58,18 @@ class Reporter(implicit config: Config, cs: ContextShift[IO])
     * @param reportF
     */
   private def reportAll[T](reporters: Iterable[T], reportF: T => IO[Unit]): IO[Unit] = {
-    reporters
-      .map(reporter =>
+    reporters.toList
+      .parTraverse { reporter =>
         reportF(reporter)
           .redeem((e: Throwable) => Failure(e), Success(_))
-      )
-      .toList
-      .parSequence
-      .flatMap { reported =>
-        val failed = reported.collect({ case f: Failure[Unit] => f })
+      }
+      .map { _ collect { case f: Failure[Unit] => f } }
+      .flatMap { failed =>
         if (failed.nonEmpty) IO {
           warn(s"${failed.size} reporter(s) failed to report:")
           failed.map(_.exception).foreach(warn(_))
         }
-        else
-          IO.unit
+        else IO.unit
       }
   }
-
 }

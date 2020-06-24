@@ -7,12 +7,9 @@ import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
 import stryker4s.extension.mutationtype.GreaterThan
 import scala.meta._
-import cats.effect.IO
-import scala.concurrent.ExecutionContext
 
 class ReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("reporter") {
-    implicit val cs = IO.contextShift(implicitly[ExecutionContext])
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
       implicit val config: Config = Config.default

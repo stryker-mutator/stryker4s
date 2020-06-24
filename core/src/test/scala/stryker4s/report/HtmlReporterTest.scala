@@ -6,8 +6,6 @@ import stryker4s.config.Config
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
-import cats.effect.IO
-import scala.concurrent.ExecutionContext
 
 class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   private val elementsLocation = "mutation-testing-elements/mutation-test-elements.js"
@@ -64,7 +62,6 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
   describe("mutation-test-elements") {
     it("should write the resource") {
       implicit val config: Config = Config.default
-      implicit val cs = IO.contextShift(implicitly[ExecutionContext])
       val fileIO = new DiskFileIO()
 
       val tempFile = File.temp
