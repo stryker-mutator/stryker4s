@@ -23,7 +23,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         .map { _ =>
           "Starting test-run 1..." shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should log multiple test runs") {
@@ -40,7 +40,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
             "Starting test-run 2..." shouldBe loggedAsInfo
           }
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
   }
 
@@ -59,7 +59,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
             "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
           }
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("Should round decimal numbers") {
@@ -80,7 +80,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
             }
           }
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
   }
 
@@ -112,7 +112,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
              |+\t==
              |""".stripMargin shouldBe loggedAsDebug
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
     it("should report a finished run with multiple mutants") {
       implicit val config: Config = Config.default
@@ -153,7 +153,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
              |+\t0
              |""".stripMargin shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should log mutants sorted by id") {
@@ -204,7 +204,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
              |+\t0
              |""".stripMargin shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should report two line mutants properly") {
@@ -241,7 +241,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
              |\tfoo
              |""".stripMargin shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should report multiline mutants properly") {
@@ -280,7 +280,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
              |\tfoo
              |""".stripMargin shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should round decimal mutation scores") {
@@ -305,7 +305,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         .map { _ =>
           "Mutation score: 66.67%" shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     // 1 killed, 1 survived, mutation score 50
@@ -332,7 +332,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         .map { _ =>
           "Mutation score: 50.0%" shouldBe loggedAsInfo
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should report the mutation score when it is warning") {
@@ -344,7 +344,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         .map { _ =>
           "Mutation score: 50.0%" shouldBe loggedAsWarning
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should report the mutation score when it is dangerously low") {
@@ -357,7 +357,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
           "Mutation score dangerously low!" shouldBe loggedAsError
           "Mutation score: 50.0%" shouldBe loggedAsError
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
 
     it("should log when below threshold") {
@@ -369,7 +369,7 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         .map { _ =>
           "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
         }
-        .unsafeRunSync
+        .unsafeToFuture()
     }
   }
 }

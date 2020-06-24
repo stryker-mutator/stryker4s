@@ -5,7 +5,8 @@ import sbt._
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := false // For logging tests
+    Test / parallelExecution := false, // For logging tests
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
