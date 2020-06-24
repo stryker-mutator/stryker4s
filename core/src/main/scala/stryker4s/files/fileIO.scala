@@ -1,18 +1,18 @@
 package stryker4s.files
 import better.files._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
+import cats.effect.IO
 
 sealed trait FileIO {
-  def createAndWriteFromResource(file: File, resource: String): Future[Unit]
+  def createAndWriteFromResource(file: File, resource: String): IO[Unit]
 
-  def createAndWrite(file: File, content: String): Future[Unit]
+  def createAndWrite(file: File, content: String): IO[Unit]
 }
 
-class DiskFileIO()(implicit ec: ExecutionContext) extends FileIO {
+class DiskFileIO() extends FileIO {
 
-  override def createAndWriteFromResource(file: File, resourceName: String): Future[Unit] =
-    Future {
+  // TODO: Replace with fs2 writing
+  override def createAndWriteFromResource(file: File, resourceName: String): IO[Unit] =
+    IO {
       file.createFileIfNotExists(createParents = true)
 
       for {
@@ -21,8 +21,8 @@ class DiskFileIO()(implicit ec: ExecutionContext) extends FileIO {
       } in pipeTo out
     }
 
-  override def createAndWrite(file: File, content: String): Future[Unit] =
-    Future {
+  override def createAndWrite(file: File, content: String): IO[Unit] =
+    IO {
       file.createFileIfNotExists(createParents = true)
       file.writeText(content)
       ()

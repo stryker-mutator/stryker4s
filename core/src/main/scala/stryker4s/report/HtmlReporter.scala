@@ -5,12 +5,9 @@ import grizzled.slf4j.Logging
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
+import cats.effect.IO
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config, ec: ExecutionContext)
-    extends FinishedRunReporter
-    with Logging {
+class HtmlReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -34,13 +31,13 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config, ec: ExecutionContext
        |</body>
        |</html>""".stripMargin
 
-  def writeMutationTestElementsJsTo(file: File): Future[Unit] =
+  def writeMutationTestElementsJsTo(file: File): IO[Unit] =
     fileIO.createAndWriteFromResource(file, htmlReportResource)
 
-  def writeIndexHtmlTo(file: File): Future[Unit] =
+  def writeIndexHtmlTo(file: File): IO[Unit] =
     fileIO.createAndWrite(file, indexHtml)
 
-  def writeReportJsTo(file: File, report: MutationTestReport): Future[Unit] = {
+  def writeReportJsTo(file: File, report: MutationTestReport): IO[Unit] = {
     import io.circe.syntax._
     import mutationtesting.MutationReportEncoder._
     val json = report.asJson.noSpaces
@@ -48,7 +45,7 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config, ec: ExecutionContext
     fileIO.createAndWrite(file, reportContent)
   }
 
-  override def reportRunFinished(runReport: FinishedRunReport): Future[Unit] = {
+  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {
     val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
 
     val mutationTestElementsLocation = targetLocation / mutationTestElementsName
