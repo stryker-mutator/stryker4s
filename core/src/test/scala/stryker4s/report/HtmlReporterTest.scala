@@ -6,6 +6,8 @@ import stryker4s.config.Config
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
+import cats.effect.IO
+import scala.concurrent.ExecutionContext
 
 class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   private val elementsLocation = "mutation-testing-elements/mutation-test-elements.js"
@@ -34,10 +36,10 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       val sut = new HtmlReporter(mockFileIO)
       val testFile = config.baseDir / "foo.bar"
 
-      for {
+      (for {
         _ <- sut.writeIndexHtmlTo(testFile)
         _ <- verify(mockFileIO).createAndWrite(testFile, expectedHtml)
-      } yield succeed
+      } yield succeed).unsafeToFuture()
     }
   }
 
@@ -49,30 +51,31 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       val testFile = config.baseDir / "foo.bar"
       val runResults = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
 
-      for {
+      (for {
         _ <- sut.writeReportJsTo(testFile, runResults)
 
         expectedJs =
           """document.querySelector('mutation-test-report-app').report = {"$schema":"https://raw.githubusercontent.com/stryker-mutator/mutation-testing-elements/master/packages/mutation-testing-report-schema/src/mutation-testing-report-schema.json","schemaVersion":"1","thresholds":{"high":100,"low":0},"files":{}}"""
         _ <- verify(mockFileIO).createAndWrite(testFile, expectedJs)
-      } yield succeed
+      } yield succeed).unsafeToFuture()
     }
   }
 
   describe("mutation-test-elements") {
     it("should write the resource") {
       implicit val config: Config = Config.default
+      implicit val cs = IO.contextShift(implicitly[ExecutionContext])
       val fileIO = new DiskFileIO()
 
       val tempFile = File.temp
       val sut = new HtmlReporter(fileIO)
 
-      sut.writeMutationTestElementsJsTo(tempFile) map { _ =>
+      (sut.writeMutationTestElementsJsTo(tempFile) map { _ =>
         val atLeastSize: Long = 100 * 1024L // 100KB
         tempFile.size should be > atLeastSize
         tempFile.lineIterator
           .next() shouldEqual "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
-      }
+      }).unsafeToFuture()
     }
   }
 
@@ -86,7 +89,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      for {
+      (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
         writtenFilesCaptor = ArgCaptor[File]
@@ -98,7 +101,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
         _ = all(paths) should fullyMatch regex stryker4sReportFolderRegex
 
         assertion = writtenFilesCaptor.values.map(_.name) should contain only ("index.html", "report.js")
-      } yield assertion
+      } yield assertion).unsafeToFuture()
     }
 
     it("should write the mutation-test-elements.js file to the report directory") {
@@ -107,7 +110,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      for {
+      (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
         elementsCaptor = ArgCaptor[File]
@@ -116,7 +119,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
 
         _ = elementsCaptor.value.pathAsString should fullyMatch regex stryker4sReportFolderRegex
         assertion = elementsCaptor.value.name shouldEqual "mutation-test-elements.js"
-      } yield assertion
+      } yield assertion).unsafeToFuture()
     }
 
     it("should info log a message") {
@@ -125,7 +128,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      for {
+      (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
         captor = ArgCaptor[File]
@@ -133,7 +136,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
         _ <- verify(mockFileIO, times(2)).createAndWrite(any[File], any[String])
         _ <- verify(mockFileIO).createAndWriteFromResource(any[File], any[String])
         assertion = s"Written HTML report to ${captor.value}" shouldBe loggedAsInfo
-      } yield assertion
+      } yield assertion).unsafeToFuture()
     }
   }
 }

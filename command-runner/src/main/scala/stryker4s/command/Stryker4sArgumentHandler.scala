@@ -14,7 +14,7 @@ object Stryker4sArgumentHandler extends Logging {
     * Handle args will parse the giving arguments to the jvm.
     * For now we search for a log level and handle those appropriately.
     */
-  def handleArgs(args: Array[String]): Unit = {
+  def handleArgs(args: Seq[String]): Unit = {
     // Collect and handle log level argument
     args
       .filter(_.startsWith("--"))

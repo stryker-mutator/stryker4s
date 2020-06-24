@@ -3,11 +3,10 @@ package stryker4s.run.process
 import better.files.File
 import grizzled.slf4j.Logging
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, MINUTES}
-import scala.concurrent.{Await, Future}
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
+import cats.effect.IO
 
 trait ProcessRunner extends Logging {
   def apply(command: Command, workingDir: File): Try[Seq[String]] = {
@@ -23,10 +22,10 @@ trait ProcessRunner extends Logging {
     val mutantProcess = Process(s"${command.command} ${command.args}", workingDir.toJava, envVar)
       .run(ProcessLogger(debug(_)))
 
-    val exitCodeFuture = Future(mutantProcess.exitValue())
-    // TODO: Maybe don't use Await.result
+    val exitCodeFuture = IO(mutantProcess.exitValue())
+    // TODO: Maybe don't use unsafeRunTimed
     // TODO: Use timeout decided by initial test-run duration
-    Try(Await.result(exitCodeFuture, Duration(2, MINUTES)))
+    Try(exitCodeFuture.unsafeRunTimed(Duration(2, MINUTES)).get)
   }
 }
 
