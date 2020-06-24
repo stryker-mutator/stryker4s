@@ -18,9 +18,12 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
       val mutant = Mutant(0, q">", q"<", GreaterThan)
 
-      sut.reportMutationStart(mutant) map { _ =>
-        "Starting test-run 1..." shouldBe loggedAsInfo
-      }
+      sut
+        .reportMutationStart(mutant)
+        .map { _ =>
+          "Starting test-run 1..." shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("should log multiple test runs") {
@@ -29,12 +32,15 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
       val mutant1 = Mutant(0, q">", q"<", GreaterThan)
       val mutant2 = Mutant(1, q">", q"<", GreaterThan)
 
-      sut.reportMutationStart(mutant1) flatMap { _ =>
-        sut.reportMutationStart(mutant2) map { _ =>
-          "Starting test-run 1..." shouldBe loggedAsInfo
-          "Starting test-run 2..." shouldBe loggedAsInfo
+      sut
+        .reportMutationStart(mutant1)
+        .flatMap { _ =>
+          sut.reportMutationStart(mutant2) map { _ =>
+            "Starting test-run 1..." shouldBe loggedAsInfo
+            "Starting test-run 2..." shouldBe loggedAsInfo
+          }
         }
-      }
+        .unsafeToFuture()
     }
   }
 
@@ -45,12 +51,15 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
       val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan), Paths.get("stryker4s"))
       val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan), Paths.get("stryker4s"))
 
-      sut.reportMutationComplete(mutant1, 2) flatMap { _ =>
-        sut.reportMutationComplete(mutant2, 2) map { _ =>
-          "Finished mutation run 1/2 (50%)" shouldBe loggedAsInfo
-          "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
+      sut
+        .reportMutationComplete(mutant1, 2)
+        .flatMap { _ =>
+          sut.reportMutationComplete(mutant2, 2) map { _ =>
+            "Finished mutation run 1/2 (50%)" shouldBe loggedAsInfo
+            "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
+          }
         }
-      }
+        .unsafeToFuture()
     }
 
     it("Should round decimal numbers") {
@@ -60,15 +69,18 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
       val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan), Paths.get("stryker4s"))
       val mutant3 = Survived(Mutant(2, q"<", q">", LesserThan), Paths.get("stryker4s"))
 
-      sut.reportMutationComplete(mutant1, 3) flatMap { _ =>
-        sut.reportMutationComplete(mutant2, 3) flatMap { _ =>
-          sut.reportMutationComplete(mutant3, 3) map { _ =>
-            "Finished mutation run 1/3 (33%)" shouldBe loggedAsInfo
-            "Finished mutation run 2/3 (67%)" shouldBe loggedAsInfo
-            "Finished mutation run 3/3 (100%)" shouldBe loggedAsInfo
+      sut
+        .reportMutationComplete(mutant1, 3)
+        .flatMap { _ =>
+          sut.reportMutationComplete(mutant2, 3) flatMap { _ =>
+            sut.reportMutationComplete(mutant3, 3) map { _ =>
+              "Finished mutation run 1/3 (33%)" shouldBe loggedAsInfo
+              "Finished mutation run 2/3 (67%)" shouldBe loggedAsInfo
+              "Finished mutation run 3/3 (100%)" shouldBe loggedAsInfo
+            }
           }
         }
-      }
+        .unsafeToFuture()
     }
   }
 
@@ -88,16 +100,19 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(FinishedRunReport(results, metrics)) map { _ =>
-        "Mutation run finished! Took " shouldBe loggedAsInfo
-        "Total mutants: 1, detected: 1, undetected: 0" shouldBe loggedAsInfo
-        s"""Detected mutants:
-           |0. [Killed] [BinaryOperator]
-           |stryker4s.scala:1:2
-           |-\t!=
-           |+\t==
-           |""".stripMargin shouldBe loggedAsDebug
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(results, metrics))
+        .map { _ =>
+          "Mutation run finished! Took " shouldBe loggedAsInfo
+          "Total mutants: 1, detected: 1, undetected: 0" shouldBe loggedAsInfo
+          s"""Detected mutants:
+             |0. [Killed] [BinaryOperator]
+             |stryker4s.scala:1:2
+             |-\t!=
+             |+\t==
+             |""".stripMargin shouldBe loggedAsDebug
+        }
+        .unsafeToFuture()
     }
     it("should report a finished run with multiple mutants") {
       implicit val config: Config = Config.default
@@ -121,21 +136,24 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(FinishedRunReport(results, metrics)) map { _ =>
-        "Mutation run finished! Took " shouldBe loggedAsInfo
-        "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
-        s"""Undetected mutants:
-           |0. [Survived] [BinaryOperator]
-           |stryker4s.scala:1:1
-           |-\t<
-           |+\t>
-           |
-           |2. [Survived] [BinaryOperator]
-           |subPath/stryker4s.scala:1:1
-           |-\t1
-           |+\t0
-           |""".stripMargin shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(results, metrics))
+        .map { _ =>
+          "Mutation run finished! Took " shouldBe loggedAsInfo
+          "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
+          s"""Undetected mutants:
+             |0. [Survived] [BinaryOperator]
+             |stryker4s.scala:1:1
+             |-\t<
+             |+\t>
+             |
+             |2. [Survived] [BinaryOperator]
+             |subPath/stryker4s.scala:1:1
+             |-\t1
+             |+\t0
+             |""".stripMargin shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("should log mutants sorted by id") {
@@ -165,25 +183,28 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
           )
         )
       )
-      sut.reportRunFinished(FinishedRunReport(results, Metrics.calculateMetrics(results))) map { _ =>
-        "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
-        s"""Undetected mutants:
-           |0. [Survived] [BinaryOperator]
-           |stryker4s.scala:1:1
-           |-\t<
-           |+\t>
-           |
-           |1. [Survived] [BinaryOperator]
-           |stryker4s.scala:1:2
-           |-\t!=
-           |+\t==
-           |
-           |2. [Survived] [BinaryOperator]
-           |subPath/stryker4s.scala:1:1
-           |-\t1
-           |+\t0
-           |""".stripMargin shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(results, Metrics.calculateMetrics(results)))
+        .map { _ =>
+          "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
+          s"""Undetected mutants:
+             |0. [Survived] [BinaryOperator]
+             |stryker4s.scala:1:1
+             |-\t<
+             |+\t>
+             |
+             |1. [Survived] [BinaryOperator]
+             |stryker4s.scala:1:2
+             |-\t!=
+             |+\t==
+             |
+             |2. [Survived] [BinaryOperator]
+             |subPath/stryker4s.scala:1:1
+             |-\t1
+             |+\t0
+             |""".stripMargin shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("should report two line mutants properly") {
@@ -207,17 +228,20 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(FinishedRunReport(results, metrics)) map { _ =>
-        "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
-        s"""Undetected mutants:
-           |0. [Survived] [StringLiteral]
-           |stryker4s.scala:2:1
-           |-\tbar
-           |\tbaz
-           |+\tqux
-           |\tfoo
-           |""".stripMargin shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(results, metrics))
+        .map { _ =>
+          "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
+          s"""Undetected mutants:
+             |0. [Survived] [StringLiteral]
+             |stryker4s.scala:2:1
+             |-\tbar
+             |\tbaz
+             |+\tqux
+             |\tfoo
+             |""".stripMargin shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("should report multiline mutants properly") {
@@ -241,19 +265,22 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(FinishedRunReport(results, metrics)) map { _ =>
-        "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
-        s"""Undetected mutants:
-           |0. [Survived] [StringLiteral]
-           |stryker4s.scala:1:2
-           |-\too
-           |\tbar
-           |\tbaz
-           |+\tux
-           |\tqux
-           |\tfoo
-           |""".stripMargin shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(results, metrics))
+        .map { _ =>
+          "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
+          s"""Undetected mutants:
+             |0. [Survived] [StringLiteral]
+             |stryker4s.scala:1:2
+             |-\too
+             |\tbar
+             |\tbaz
+             |+\tux
+             |\tqux
+             |\tfoo
+             |""".stripMargin shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("should round decimal mutation scores") {
@@ -273,9 +300,12 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
         )
       )
 
-      sut.reportRunFinished(FinishedRunReport(threeReport, Metrics.calculateMetrics(threeReport))) map { _ =>
-        "Mutation score: 66.67%" shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(threeReport, Metrics.calculateMetrics(threeReport)))
+        .map { _ =>
+          "Mutation score: 66.67%" shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     // 1 killed, 1 survived, mutation score 50
@@ -297,37 +327,49 @@ class ConsoleReporterTest extends AsyncStryker4sSuite with LogMatchers {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics)) map { _ =>
-        "Mutation score: 50.0%" shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics))
+        .map { _ =>
+          "Mutation score: 50.0%" shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("should report the mutation score when it is warning") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics)) map { _ =>
-        "Mutation score: 50.0%" shouldBe loggedAsWarning
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics))
+        .map { _ =>
+          "Mutation score: 50.0%" shouldBe loggedAsWarning
+        }
+        .unsafeToFuture()
     }
 
     it("should report the mutation score when it is dangerously low") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics)) map { _ =>
-        "Mutation score dangerously low!" shouldBe loggedAsError
-        "Mutation score: 50.0%" shouldBe loggedAsError
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics))
+        .map { _ =>
+          "Mutation score dangerously low!" shouldBe loggedAsError
+          "Mutation score: 50.0%" shouldBe loggedAsError
+        }
+        .unsafeToFuture()
     }
 
     it("should log when below threshold") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
       val sut = new ConsoleReporter()
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics)) map { _ =>
-        "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
-      }
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics))
+        .map { _ =>
+          "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
+        }
+        .unsafeToFuture()
     }
   }
 }

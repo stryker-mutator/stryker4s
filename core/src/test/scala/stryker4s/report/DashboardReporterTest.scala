@@ -2,7 +2,6 @@ package stryker4s.report
 
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
-import sttp.client.testing.SttpBackendStub
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.DashboardConfig
 import stryker4s.config.Full
@@ -16,6 +15,7 @@ import sttp.model.MediaType
 import stryker4s.config.MutationScoreOnly
 import sttp.model.StatusCode
 import mutationtesting._
+import cats.effect.IO
 
 class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
@@ -76,9 +76,12 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport) map { _ =>
-        "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
-      }
+      sut
+        .reportRunFinished(runReport)
+        .map { _ =>
+          "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+        }
+        .unsafeToFuture()
     }
 
     it("log when not being able to resolve dashboard config") {
@@ -88,9 +91,12 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport) map { _ =>
-        "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
-      }
+      sut
+        .reportRunFinished(runReport)
+        .map { _ =>
+          "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+        }
+        .unsafeToFuture()
     }
 
     it("should log when a response can't be parsed to a href") {
@@ -100,9 +106,12 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport) map { _ =>
-        "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
-      }
+      sut
+        .reportRunFinished(runReport)
+        .map { _ =>
+          "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+        }
+        .unsafeToFuture()
     }
 
     it("should log when a 401 is returned by the API") {
@@ -113,9 +122,12 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport) map { _ =>
-        "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
-      }
+      sut
+        .reportRunFinished(runReport)
+        .map { _ =>
+          "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+        }
+        .unsafeToFuture()
     }
 
     it("should log when a error code is returned by the API") {
@@ -128,13 +140,18 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport) map { _ =>
-        "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
-      }
+      sut
+        .reportRunFinished(runReport)
+        .map { _ =>
+          "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+        }
+        .unsafeToFuture()
     }
   }
 
-  def backendStub = SttpBackendStub.asynchronousFuture
+  def backendStub = {
+    sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend.stub[IO]
+  }
 
   def baseResults = {
     val files =

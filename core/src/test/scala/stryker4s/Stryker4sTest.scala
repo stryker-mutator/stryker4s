@@ -21,8 +21,8 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import scala.meta._
 import scala.util.Success
 import stryker4s.report.FinishedRunReport
-import scala.concurrent.Future
 import stryker4s.model.TestRunnerContext
+import cats.effect.IO
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
   case class TestTestRunnerContext(tmpDir: File) extends TestRunnerContext
@@ -42,9 +42,9 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     val testSourceCollector = new TestSourceCollector(testFiles)
     val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
     val reporterMock = mock[Reporter]
-    when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(Future.successful(()))
-    when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(Future.successful(()))
-    when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(Future.successful(()))
+    when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
+    when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
+    when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
 
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))

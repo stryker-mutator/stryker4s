@@ -10,20 +10,19 @@ import sttp.client._
 import sttp.client.circe._
 import sttp.model.MediaType
 import sttp.model.StatusCode
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
+import cats.effect.IO
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
-    httpBackend: SttpBackend[Future, Nothing, NothingT],
-    ec: ExecutionContext
+    httpBackend: SttpBackend[IO, Nothing, NothingT]
 ) extends FinishedRunReporter
     with Logging {
 
-  override def reportRunFinished(runReport: FinishedRunReport): Future[Unit] =
+  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] =
     dashboardConfigProvider.resolveConfig() match {
       case Left(configKey) =>
-        warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
-        Future.successful(())
+        IO {
+          warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
+        }
       case Right(dashboardConfig) =>
         val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
         request

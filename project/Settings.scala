@@ -5,7 +5,8 @@ import sbt._
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := false // For logging tests
+    Test / parallelExecution := false, // For logging tests
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
@@ -21,9 +22,11 @@ object Settings {
       Dependencies.log4jslf4jImpl % Test, // Logging tests need a slf4j implementation
       Dependencies.circeCore,
       Dependencies.sttpCirce,
-      Dependencies.sttpOkHttpBackend,
+      Dependencies.sttpCatsBackend,
       Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics
+      Dependencies.mutationTestingMetrics,
+      Dependencies.fs2Core,
+      Dependencies.fs2IO
     )
   )
 
