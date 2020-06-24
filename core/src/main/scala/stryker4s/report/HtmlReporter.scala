@@ -1,12 +1,12 @@
 package stryker4s.report
 
-import better.files.File
 import grizzled.slf4j.Logging
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import cats.effect.IO
 import cats.Parallel
+import java.nio.file.Path
 
 class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) extends FinishedRunReporter with Logging {
 
@@ -32,13 +32,13 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) ext
        |</body>
        |</html>""".stripMargin
 
-  def writeMutationTestElementsJsTo(file: File): IO[Unit] =
+  def writeMutationTestElementsJsTo(file: Path): IO[Unit] =
     fileIO.createAndWriteFromResource(file, htmlReportResource)
 
-  def writeIndexHtmlTo(file: File): IO[Unit] =
+  def writeIndexHtmlTo(file: Path): IO[Unit] =
     fileIO.createAndWrite(file, indexHtml)
 
-  def writeReportJsTo(file: File, report: MutationTestReport): IO[Unit] = {
+  def writeReportJsTo(file: Path, report: MutationTestReport): IO[Unit] = {
     import io.circe.syntax._
     import mutationtesting.MutationReportEncoder._
     val json = report.asJson.noSpaces
@@ -53,9 +53,9 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) ext
     val indexLocation = targetLocation / "index.html"
     val reportLocation = targetLocation / reportFilename
 
-    val reportsWriting = writeIndexHtmlTo(indexLocation) &>
-      writeReportJsTo(reportLocation, runReport.report) &>
-      writeMutationTestElementsJsTo(mutationTestElementsLocation)
+    val reportsWriting = writeIndexHtmlTo(indexLocation.path) &>
+      writeReportJsTo(reportLocation.path, runReport.report) &>
+      writeMutationTestElementsJsTo(mutationTestElementsLocation.path)
 
     reportsWriting *>
       IO(info(s"Written HTML report to $indexLocation"))

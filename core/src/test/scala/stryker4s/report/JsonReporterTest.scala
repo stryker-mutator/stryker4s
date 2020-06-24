@@ -1,12 +1,12 @@
 package stryker4s.report
 
-import better.files.File
 import mutationtesting.{Metrics, MutationTestReport, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
+import java.nio.file.Path
 
 class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("reportJson") {
@@ -14,7 +14,7 @@ class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       implicit val config: Config = Config.default
       val mockFileIO = mock[FileIO]
       val sut = new JsonReporter(mockFileIO)
-      val testFile = config.baseDir / "foo.bar"
+      val testFile = (config.baseDir / "foo.bar").path
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
 
       (for {
@@ -38,11 +38,11 @@ class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-        writtenFilesCaptor = ArgCaptor[File]
+        writtenFilesCaptor = ArgCaptor[Path]
         _ <- verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
-        paths = writtenFilesCaptor.values.map(_.pathAsString)
+        paths = writtenFilesCaptor.values.map(_.toString())
         _ = all(paths) should fullyMatch regex stryker4sReportFolderRegex
-        assertion = writtenFilesCaptor.values.map(_.name) should contain only "report.json"
+        assertion = writtenFilesCaptor.values.map(_.getFileName()) should contain only "report.json"
       } yield assertion).unsafeToFuture()
     }
 
@@ -55,7 +55,7 @@ class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-        captor = ArgCaptor[File]
+        captor = ArgCaptor[Path]
         _ <- verify(mockFileIO).createAndWrite(captor.capture, any[String])
         assertion = s"Written JSON report to ${captor.value}" shouldBe loggedAsInfo
       } yield assertion).unsafeToFuture()

@@ -6,6 +6,7 @@ import stryker4s.config.Config
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
+import java.nio.file.Path
 
 class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   private val elementsLocation = "mutation-testing-elements/mutation-test-elements.js"
@@ -32,7 +33,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       implicit val config: Config = Config.default
       val mockFileIO = mock[FileIO]
       val sut = new HtmlReporter(mockFileIO)
-      val testFile = config.baseDir / "foo.bar"
+      val testFile = (config.baseDir / "foo.bar").path
 
       (for {
         _ <- sut.writeIndexHtmlTo(testFile)
@@ -46,7 +47,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       implicit val config: Config = Config.default
       val mockFileIO = mock[FileIO]
       val sut = new HtmlReporter(mockFileIO)
-      val testFile = config.baseDir / "foo.bar"
+      val testFile = (config.baseDir / "foo.bar").path
       val runResults = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
 
       (for {
@@ -67,7 +68,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       val tempFile = File.temp
       val sut = new HtmlReporter(fileIO)
 
-      (sut.writeMutationTestElementsJsTo(tempFile) map { _ =>
+      (sut.writeMutationTestElementsJsTo(tempFile.path) map { _ =>
         val atLeastSize: Long = 100 * 1024L // 100KB
         tempFile.size should be > atLeastSize
         tempFile.lineIterator
@@ -89,15 +90,16 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-        writtenFilesCaptor = ArgCaptor[File]
+        writtenFilesCaptor = ArgCaptor[Path]
 
         _ <- verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor, any[String])
-        _ <- verify(mockFileIO).createAndWriteFromResource(any[File], eqTo(elementsLocation))
+        _ <- verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
 
-        paths = writtenFilesCaptor.values.map(_.pathAsString)
+        paths = writtenFilesCaptor.values.map(_.toString())
         _ = all(paths) should fullyMatch regex stryker4sReportFolderRegex
 
-        assertion = writtenFilesCaptor.values.map(_.name) should contain only ("index.html", "report.js")
+        assertion =
+          writtenFilesCaptor.values.map(_.getFileName().toString()) should contain only ("index.html", "report.js")
       } yield assertion).unsafeToFuture()
     }
 
@@ -110,12 +112,12 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-        elementsCaptor = ArgCaptor[File]
-        _ <- verify(mockFileIO, times(2)).createAndWrite(any[File], any[String])
+        elementsCaptor = ArgCaptor[Path]
+        _ <- verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
         _ <- verify(mockFileIO).createAndWriteFromResource(elementsCaptor, eqTo(elementsLocation))
 
-        _ = elementsCaptor.value.pathAsString should fullyMatch regex stryker4sReportFolderRegex
-        assertion = elementsCaptor.value.name shouldEqual "mutation-test-elements.js"
+        _ = elementsCaptor.value.toString should fullyMatch regex stryker4sReportFolderRegex
+        assertion = elementsCaptor.value.getFileName shouldEqual "mutation-test-elements.js"
       } yield assertion).unsafeToFuture()
     }
 
@@ -128,10 +130,10 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
       (for {
         _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
 
-        captor = ArgCaptor[File]
+        captor = ArgCaptor[Path]
         _ <- verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
-        _ <- verify(mockFileIO, times(2)).createAndWrite(any[File], any[String])
-        _ <- verify(mockFileIO).createAndWriteFromResource(any[File], any[String])
+        _ <- verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
+        _ <- verify(mockFileIO).createAndWriteFromResource(any[Path], any[String])
         assertion = s"Written HTML report to ${captor.value}" shouldBe loggedAsInfo
       } yield assertion).unsafeToFuture()
     }
