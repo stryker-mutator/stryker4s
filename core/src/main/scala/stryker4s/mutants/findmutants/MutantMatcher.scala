@@ -1,11 +1,13 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.config.Config
-import stryker4s.extension.TreeExtensions.TreeIsInExtension
+import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtension}
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 
-import scala.meta.{Mod, Term, Tree}
+import scala.meta.Mod.Annot
+import scala.meta.Term.Apply
+import scala.meta.{Init, Lit, Mod, Name, Term, Tree, Type}
 
 class MutantMatcher()(implicit config: Config) {
   private[this] val ids = Iterator.from(0)
@@ -84,12 +86,13 @@ class MutantMatcher()(implicit config: Config) {
         mutationToTerm: T => Term
     ): Seq[Option[Mutant]] =
       ifNotInAnnotation {
-        mutations map { mutated =>
-          if (matchExcluded(mutated))
-            None
-          else
-            Some(Mutant(ids.next, original, mutationToTerm(mutated), mutated))
-        }
+        mutations
+          .map { mutated =>
+            if (matchExcluded(mutated) || isSuppressedByAnnotation(mutated, original))
+              None
+            else
+              Some(Mutant(ids.next, original, mutationToTerm(mutated), mutated))
+          }
       }
 
     private def ifNotInAnnotation(maybeMutants: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
@@ -102,5 +105,22 @@ class MutantMatcher()(implicit config: Config) {
     private def matchExcluded(mutation: Mutation[_]): Boolean = {
       config.excludedMutations.exclusions.contains(mutation.mutationName)
     }
+
+    private def isSuppressedByAnnotation(mutation: Mutation[_], original: Term): Boolean = {
+      original.pathToRoot.flatMap(_.getMods).exists(isSupressWarningsAnnotation(_, mutation))
+    }
+
+    private def isSupressWarningsAnnotation(mod: Mod, mutation: Mutation[_]) = {
+      val mutationName = "stryker4s.mutation." + mutation.mutationName
+      mod match {
+        case Annot(Init(Type.Name("SuppressWarnings"), _, List(List(Apply(Name("Array"), params))))) =>
+          params.exists {
+            case Lit.String(`mutationName`) => true
+            case _                          => false
+          }
+        case _ => false
+      }
+    }
+
   }
 }

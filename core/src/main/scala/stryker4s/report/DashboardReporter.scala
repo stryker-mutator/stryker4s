@@ -12,18 +12,25 @@ import sttp.model.MediaType
 import sttp.model.StatusCode
 import cats.effect.{Concurrent, ContextShift}
 import cats.effect.Sync
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-class DashboardReporter[F[_]: Concurrent](dashboardConfigProvider: DashboardConfigProvider)(
-    implicit httpBackend: SttpBackend[F, Nothing, WebsocketHandler]
+class DashboardReporter[F[_]: Concurrent](dashboardConfigProvider: DashboardConfigProvider)(implicit
+    httpBackend: SttpBackend[F, Nothing, NothingT],
+    ec: ExecutionContext
 ) extends FinishedRunReporter
     with Logging {
-  override def reportRunFinished(runReport: FinishedRunReport): Unit =
+
+  override def reportRunFinished(runReport: FinishedRunReport): Future[Unit] =
     dashboardConfigProvider.resolveConfig() match {
-      case Left(configKey) => warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
+      case Left(configKey) =>
+        warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
+        Future.successful(())
       case Right(dashboardConfig) =>
         val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
-        val response = request.send()
-        logResponse(response)
+        request
+          .send()
+          .map(response => logResponse(response))
     }
 
   override def reportRunFinishedF(runReport: FinishedRunReport): F[Unit] =

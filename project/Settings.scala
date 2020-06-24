@@ -5,8 +5,6 @@ import sbt._
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions := Seq(Dependencies.versions.scala212, Dependencies.versions.scala213),
-    scalaVersion := crossScalaVersions.value.head,
     Test / parallelExecution := false // For logging tests
   )
 
@@ -23,7 +21,7 @@ object Settings {
       Dependencies.grizzledSlf4j,
       Dependencies.log4jslf4jImpl % Test, // Logging tests need a slf4j implementation
       Dependencies.circeCore,
-      Dependencies.sttp,
+      Dependencies.sttpCirce,
       Dependencies.sttpCats,
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,
@@ -40,9 +38,6 @@ object Settings {
   )
 
   lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(
-    // sbt plugin has to be 2.12
-    crossScalaVersions := Seq(Dependencies.versions.scala212),
-    scalaVersion := Dependencies.versions.scala212,
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)

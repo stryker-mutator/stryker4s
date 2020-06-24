@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
 import sttp.client.testing.SttpBackendStub
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.DashboardConfig
@@ -17,7 +17,7 @@ import stryker4s.config.MutationScoreOnly
 import sttp.model.StatusCode
 import mutationtesting._
 
-class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
     it("should compose the request") {
       implicit val backend = backendStub
@@ -76,9 +76,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+      sut.reportRunFinished(runReport) map { _ =>
+        "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+      }
     }
 
     it("log when not being able to resolve dashboard config") {
@@ -88,9 +88,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+      sut.reportRunFinished(runReport) map { _ =>
+        "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+      }
     }
 
     it("should log when a response can't be parsed to a href") {
@@ -100,9 +100,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+      sut.reportRunFinished(runReport) map { _ =>
+        "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+      }
     }
 
     it("should log when a 401 is returned by the API") {
@@ -113,9 +113,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+      sut.reportRunFinished(runReport) map { _ =>
+        "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+      }
     }
 
     it("should log when a error code is returned by the API") {
@@ -128,13 +128,13 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val sut = new DashboardReporter(mockDashConfig)
       val runReport = baseResults
 
-      sut.reportRunFinished(runReport)
-
-      "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+      sut.reportRunFinished(runReport) map { _ =>
+        "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+      }
     }
   }
 
-  def backendStub = SttpBackendStub.synchronous
+  def backendStub = SttpBackendStub.asynchronousFuture
 
   def baseResults = {
     val files =
@@ -150,12 +150,13 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
     FinishedRunReport(report, metrics)
   }
 
-  def baseDashConfig = DashboardConfig(
-    apiKey = "apiKeyHere",
-    reportType = Full,
-    baseUrl = "https://baseurl.com",
-    project = "project/foo",
-    version = "version/bar",
-    module = None
-  )
+  def baseDashConfig =
+    DashboardConfig(
+      apiKey = "apiKeyHere",
+      reportType = Full,
+      baseUrl = "https://baseurl.com",
+      project = "project/foo",
+      version = "version/bar",
+      module = None
+    )
 }

@@ -6,4 +6,4 @@ class ExampleClass {
   def createHugo = Person(22, "Hugo")
 }
 
-case class Person(age: Int, name: String)
+final case class Person(age: Int, name: String)

@@ -11,9 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.11"]
+        java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -21,7 +29,7 @@ jobs:
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
-          csbt 'project stryker4s-core; stryker'
+          csbt 'project stryker4s-coreJVM2_13; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -30,17 +38,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.11"]
+        java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
-          echo 'stryker4s{reporters=["console","dashboard"],base-dir="runners/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
-          csbt 'project stryker4s-command-runner; stryker'
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
+          csbt 'project stryker4s-command-runnerJVM2_13; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -49,18 +65,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.11"]
+        java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
+      - name: Cache SBT & Maven
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+            ~/.cache/coursier/v1
+            ~/.m2/repository
+            !~/.m2/repository/io/stryker-mutator/*stryker4s*/
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/project/Dependencies.scala') }}-${{ hashFiles('**/pom.xml') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
       - name: Run Stryker4s
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
-          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core/publishM2
-          cd runners/maven
+          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-coreJVM2_12/publishM2
+          cd maven
           echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
-          mvn -B stryker4s:run
+          mvn -B --no-transfer-progress stryker4s:run
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

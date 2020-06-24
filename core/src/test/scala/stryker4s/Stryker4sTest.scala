@@ -21,15 +21,19 @@ import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import scala.meta._
 import scala.util.Success
 import stryker4s.report.FinishedRunReport
+import scala.concurrent.Future
+import stryker4s.model.TestRunnerContext
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
+  case class TestTestRunnerContext(tmpDir: File) extends TestRunnerContext
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
     private[this] val stream = Iterator.from(0)
-
-    override def runMutant(mutant: Mutant, workingDir: File): Path => MutantRunResult =
+    type Context = TestTestRunnerContext
+    override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
       path => Killed(Mutant(stream.next, q">", q"<", LesserThan), path)
-    override def runInitialTest(workingDir: File): Boolean = true
+    override def runInitialTest(context: Context): Boolean = true
+    override def initializeTestContext(tmpDir: File): Context = TestTestRunnerContext(tmpDir)
   }
 
   describe("run") {
@@ -38,6 +42,9 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     val testSourceCollector = new TestSourceCollector(testFiles)
     val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
     val reporterMock = mock[Reporter]
+    when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(Future.successful(()))
+    when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(Future.successful(()))
+    when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(Future.successful(()))
 
     it("should call mutate files and report the results") {
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))

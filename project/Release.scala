@@ -10,7 +10,7 @@ object Release {
   private val stryker4sReleaseAll = "stryker4sReleaseAll"
   // Helper command names
   private val stryker4sMvnDeploy = "stryker4sMvnDeploy"
-  private val publishM2 = "stryker4s-core/publishM2"
+  private val publishM2 = "stryker4s-coreJVM2_12/publishM2"
   private val crossPublish = "+publish"
   private val crossPublishSigned = "+publishSigned"
   private val sonatypePrepare = "sonatypePrepare"
@@ -35,7 +35,7 @@ object Release {
     /** Returns a `ProcessBuilder` that runs the given maven command in the maven subdirectory
       */
     def runGoal(command: String): process.ProcessBuilder =
-      process.Process(s"mvn --batch-mode $command -P release", baseDir / "runners" / "maven")
+      process.Process(s"mvn --batch-mode --no-transfer-progress $command -P release", baseDir / "maven")
 
     runGoal(s"versions:set -DnewVersion=$version") #&&
       runGoal(s"deploy --settings settings.xml -DskipTests") #&&

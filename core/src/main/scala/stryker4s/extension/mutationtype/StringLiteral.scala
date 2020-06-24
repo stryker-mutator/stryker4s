@@ -36,9 +36,10 @@ case object StringInterpolation {
 }
 
 private object ParentIsInterpolatedString {
-  def apply(arg: Lit.String): Boolean = arg.parent match {
-    // Do not mutate interpolated strings
-    case Some(_: Term.Interpolate) => true
-    case _                         => false
-  }
+  def apply(arg: Lit.String): Boolean =
+    arg.parent match {
+      // Do not mutate interpolated strings
+      case Some(_: Term.Interpolate) => true
+      case _                         => false
+    }
 }

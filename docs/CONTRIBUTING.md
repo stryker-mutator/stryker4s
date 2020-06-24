@@ -2,6 +2,19 @@
 
 This is the contribution guide for Stryker4s. Great to have you here! Here are a few ways you can help to make this project better.
 
+## Getting started
+
+To get started with developing Stryker4s, you'll need a couple of tools:
+
+- [Java JDK](https://openjdk.java.net/), a recent version like 11 is recommended
+- [sbt](https://www.scala-sbt.org/), to build and test the project
+
+Once these tools are installed you can open the project with [IntelliJ](https://www.jetbrains.com/idea/), or [VS Code](https://code.visualstudio.com/) combined with [Metals](https://scalameta.org/metals/).
+
+If you use VS Code with Metals, you can also install the [Bloop CLI](https://scalacenter.github.io/bloop/) for easier compiling and testing via the command-line.
+
+If you are have issues with setup, or want to keep a clean environment you can also use the [VS Code Remote Containers](https://code.visualstudio.com/docs/remote/containers) feature to develop in a clean reproducible Docker container. All you need for it is VS Code, the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and [Docker](https://www.docker.com/). Then run 'Remote-Containers: Open Repository in Container...' and enter `stryker-mutator/stryker4s` as the repository. The devcontainer also has the [Bloop](https://scalacenter.github.io/bloop/) and [Coursier](https://get-coursier.io/) CLI tools installed.
+
 ## Adding a new feature
 
 New features are welcome! Both as ideas or in the form of a pull request.

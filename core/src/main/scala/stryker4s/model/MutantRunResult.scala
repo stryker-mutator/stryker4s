@@ -2,10 +2,9 @@ package stryker4s.model
 
 import java.nio.file.Path
 
-/** The base result type of a mutant run.
-  * Extends Product with Serializable to clean up the type signature, as all subtypes are case classes
+/** The base result of a mutant run.
   */
-sealed trait MutantRunResult extends Product with Serializable {
+sealed trait MutantRunResult {
   def mutant: Mutant
   def fileSubPath: Path
 }
@@ -14,16 +13,16 @@ sealed trait Detected extends MutantRunResult
 
 sealed trait Undetected extends MutantRunResult
 
-case class Killed(mutant: Mutant, fileSubPath: Path) extends Detected
+final case class Killed(mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class TimedOut(mutant: Mutant, fileSubPath: Path) extends Detected
+final case class TimedOut(mutant: Mutant, fileSubPath: Path) extends Detected
 
-case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
-
-/** TODO: Not supported yet
-  */
-case class NoCoverage(mutant: Mutant, fileSubPath: Path) extends Undetected
+final case class Survived(mutant: Mutant, fileSubPath: Path) extends Undetected
 
 /** TODO: Not supported yet
   */
-case class Error(mutant: Mutant, fileSubPath: Path) extends MutantRunResult
+final case class NoCoverage(mutant: Mutant, fileSubPath: Path) extends Undetected
+
+/** TODO: Not supported yet
+  */
+final case class Error(mutant: Mutant, fileSubPath: Path) extends MutantRunResult

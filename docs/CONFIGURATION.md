@@ -1,4 +1,4 @@
-# Configuration  
+# Configuration
 
 All configuration options can be set from the stryker4s.conf file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
 
@@ -11,16 +11,18 @@ stryker4s {
 - [Configuration](#configuration)
   - [General config](#general-config)
       - [mutate](#mutate)
+      - [test-filter](#test-filter)
       - [files](#files)
       - [base-dir](#base-dir)
       - [reporters](#reporters)
       - [excluded-mutations](#excluded-mutations)
       - [thresholds](#thresholds)
-      - [dashboard.*](#dashboard.*)
+      - [dashboard.\*](#dashboard)
   - [Process runner config](#process-runner-config)
       - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
       - [log-level](#log-level)
+      - [Excluding specific mutations](#excluding-specific-mutations)
 
 ## General config
 
@@ -34,7 +36,24 @@ With `mutate` you configure the subset of files to use for mutation testing.
 Generally speaking, these should be your own source files.  
 The default for this will find files in the common Scala project format.
 
-You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
+You can _ignore_ files by adding an exclamation mark (`!`) at the start of an expression.
+
+#### test-filter
+
+**Config file:** `test-filter: [ "com.mypackage.MyTest" ]`  
+**Default value:** `[]`  
+**Mandatory:** No  
+**Since:** `v0.8.0`  
+**Description:**  
+With `test-filter` you configure the subset of tests to use for mutation testing. By default all tests are included.
+You can use wildcard pattern: `com.mypackage.*`.
+
+- With sbt [`Tests.Filter`](https://www.scala-sbt.org/1.x/docs/Testing.html#Filter+classes) is used.
+  - You can _ignore_ tests by adding an exclamation mark (`!`) at the start of an expression.
+- With Maven and the ScalaTest plugin, [`wildcardSuites`](https://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin) property is used
+- With Maven and the SureFire plugin, [`tests`](https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html) property is used
+
+Note: Not supported in the command-runner plugin.
 
 #### files
 
@@ -45,7 +64,7 @@ You can *ignore* files by adding an exclamation mark (`!`) at the start of an ex
 With `files` you can choose which files should be included in your mutation run sandbox.
 This is normally not needed as it defaults to all files not ignored by git. If you do need to override `files` (for example, when your project isn't in a git repository), you can override the `files` config.
 
-You can *ignore* files by adding an exclamation mark (`!`) at the start of an expression.
+You can _ignore_ files by adding an exclamation mark (`!`) at the start of an expression.
 
 #### base-dir
 
@@ -66,7 +85,7 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 - `console` will output progress and the final result to the console.
 - `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 - `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
-- `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.*](#dashboard.*) configuration options. See the [Stryker handbook](https://github.com/stryker-mutator/stryker-handbook/blob/master/dashboard.md) for more info.
+- `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.\*](#dashboard.*) configuration options. See the [Stryker handbook](https://github.com/stryker-mutator/stryker-handbook/blob/master/dashboard.md) for more info.
 
 #### excluded-mutations
 
@@ -98,7 +117,7 @@ Specify the thresholds for mutation scores.
 
 Setting `break=0` (default value) ensures that the build will never fail.
 
-#### dashboard.*
+#### dashboard.\*
 
 **Config file:** `dashboard { module="core" }`  
 **Default values:** `dashboard { base-url="https://dashboard.stryker-mutator.io", project="github.com/$USER/$PROJECT_NAME", report-type=full, version=$BRANCH }` if filled by CI environment  
@@ -140,3 +159,20 @@ How to adjust the loglevel depends on how you run stryker4s:
 - Maven plugin
   - As a command-line property, like so: `mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=warn stryker4s:run`
   - Options: `trace`, `debug`, `info`, `warn`, or `error`
+
+**warning** This option cannot be set from stryker4s.conf.
+
+#### Excluding specific mutations
+
+**Since:** `v0.9.0`
+
+Using the `@SuppressWarnings` annotation, you can tell Stryker4s to ignore mutations in a code block. Annotate a code block with a `@SuppressWarnings` annotation, passing an array of mutation names you would like to ignore.
+
+```scala
+/** No booleans will be mutated
+ */
+@SuppressWarnings(Array("stryker4s.mutation.BooleanLiteral"))
+RequestLogger(logHeaders = false, logBody = false)(ResponseLogger(logHeaders = false, logBody = true)(httpClient))
+```
+
+All mutation names are the same as for [Excluded mutations](#excluded-mutations) and should be prefixed with `"stryker4s.mutation."`.

@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import scala.annotation.tailrec
 import scala.meta.transversers.SimpleTraverser
-import scala.meta.{Case, Lit, Term, Transformer, Tree}
+import scala.meta.{Case, Decl, Defn, Mod, Term, Transformer, Tree}
 import scala.reflect.ClassTag
 import scala.util.Try
 
@@ -21,52 +21,47 @@ object TreeExtensions {
       * Recursively going up the tree until a full statement is found.
       */
     @tailrec
-    final def topStatement(): Term = thisTerm match {
-      case ParentIsPatternMatch(parent)  => parent
-      case ParentIsNotExpression(parent) => parent
-      case _: Lit                        => thisTerm
-      case PartialStatement(parent)      => parent.topStatement()
-      case _                             => thisTerm
-    }
-
-    /** Extractor object to check if a [[scala.meta.Term]] is part of a statement or a full one.
-      *
-      */
-    private object PartialStatement {
-
-      /**
-        * @return A Some of the parent if the given term is a partial statement,
-        *         else a None if the given term is a full statement
-        */
-      final def unapply(term: Term): Option[Term] = term.parent collect {
-        case parent: Term.Name       => parent
-        case parent: Term.Apply      => parent
-        case parent: Term.Select     => parent
-        case parent: Term.ApplyType  => parent
-        case parent: Term.ApplyInfix => parent
+    final def topStatement(): Term =
+      thisTerm match {
+        case ParentIsPatternMatch(parent) => parent.topStatement()
+        case ParentIsFullStatement()      => thisTerm
+        case ParentIsTerm(parent)         => parent.topStatement()
+        case _                            => thisTerm
       }
-    }
 
     /** Extractor object to check if the [[scala.meta.Term]] is inside a pattern match
-      *
       */
     private object ParentIsPatternMatch {
 
-      /** Go up the tree, until a Case is found, then go up until a `Term` is found
-        *
+      /** Go up the tree, until a Case is found (except for try-catches), then go up until a `Term` is found
         */
-      final def unapply(term: Term): Option[Term] = findParent[Case](term) flatMap findParent[Term]
+      final def unapply(term: Term): Option[Term] =
+        findParent[Case](term)
+          .filterNot(_.parent.exists(_.isInstanceOf[Term.Try]))
+          .flatMap(findParent[Term])
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
         mapParent[T, Option[T]](tree, Some(_), None)
     }
 
-    /** If the parent is a `!...` expression
+    /** Extractor object to check if the direct parent of the [[scala.meta.Term]] is a 'full statement'
       */
-    private object ParentIsNotExpression {
-      final def unapply(term: Term): Option[Term] = term.parent collect {
-        case parent @ Term.ApplyUnary(Term.Name("!"), _) => parent
-      }
+    private object ParentIsFullStatement {
+      final def unapply(term: Term): Boolean =
+        term.parent exists {
+          case _: Defn          => true
+          case _: Term.Block    => true
+          case _: Term.If       => true
+          case _: Term.ForYield => true
+          case _                => false
+        }
+    }
+
+    private object ParentIsTerm {
+      final def unapply(term: Term): Option[Term] =
+        term.parent collect {
+          case parent: Term => parent
+        }
     }
   }
 
@@ -77,9 +72,10 @@ object TreeExtensions {
       * @param toFind Statement to find
       * @return A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
-    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] = thisTree.collectFirst {
-      case found: T if found.isEqual(toFind) => found
-    }
+    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
+      thisTree.collectFirst {
+        case found: T if found.isEqual(toFind) => found
+      }
   }
 
   implicit class TransformOnceExtension(thisTree: Tree) {
@@ -107,6 +103,50 @@ object TreeExtensions {
       */
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
       mapParent[T, Boolean](thisTree, _ => true, false)
+  }
+
+  implicit class PathToRoot(thisTree: Tree) {
+    class LeafToRootTraversable(t: Tree) extends Iterable[Tree] {
+      @tailrec
+      private def recTraverse[U](rt: Tree)(f: Tree => U): Unit = {
+        f(rt)
+        if (rt.parent.isDefined)
+          recTraverse[U](rt.parent.get)(f)
+      }
+      override def foreach[U](f: Tree => U): Unit = recTraverse(t)(f)
+
+      override def iterator: Iterator[Tree] =
+        new Iterator[Tree] {
+          var currentElement = Option(t)
+          override def hasNext: Boolean = currentElement.flatMap(_.parent).isDefined
+
+          override def next(): Tree = {
+            currentElement = currentElement.flatMap(_.parent)
+            currentElement.get
+          }
+        }
+    }
+    def pathToRoot: Iterable[Tree] = new LeafToRootTraversable(thisTree) {}
+  }
+
+  implicit class GetMods(tree: Tree) {
+    def getMods: List[Mod] =
+      tree match {
+        case mc: Defn.Class  => mc.mods
+        case mc: Defn.Trait  => mc.mods
+        case mc: Defn.Object => mc.mods
+        case mc: Defn.Def    => mc.mods
+        case mc: Defn.Val    => mc.mods
+        case mc: Defn.Var    => mc.mods
+        case mc: Defn.Type   => mc.mods
+        case mc: Term.Param  => mc.mods
+        case mc: Decl.Def    => mc.mods
+        case mc: Decl.Var    => mc.mods
+        case mc: Decl.Val    => mc.mods
+        case mc: Decl.Type   => mc.mods
+        case _               => Nil
+      }
+
   }
 
   implicit class IsEqualExtension(thisTree: Tree) {

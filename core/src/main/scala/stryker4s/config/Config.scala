@@ -4,8 +4,9 @@ import better.files._
 import pureconfig.ConfigWriter
 import pureconfig.generic.auto._
 
-case class Config(
+final case class Config(
     mutate: Seq[String] = Seq("**/main/scala/**.scala"),
+    testFilter: Seq[String] = Seq(),
     baseDir: File = File.currentWorkingDirectory,
     reporters: Set[ReporterType] = Set(Console, Html),
     files: Option[Seq[String]] = None,

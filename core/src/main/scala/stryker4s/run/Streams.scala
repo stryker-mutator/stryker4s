@@ -19,12 +19,13 @@ import cats.implicits._
 
 trait Streams extends IOApp {
 
-  def converter[F[_]: Sync: ContextShift] = Stream.eval(resolveConfig).flatMap { implicit config =>
-    filesToMutate
-      .through(readFiles)
-      .through(parseTrees)
-      .through(findMutations)
-  }
+  def converter[F[_]: Sync: ContextShift] =
+    Stream.eval(resolveConfig).flatMap { implicit config =>
+      filesToMutate
+        .through(readFiles)
+        .through(parseTrees)
+        .through(findMutations)
+    }
 
   def run(args: List[String]): IO[ExitCode] = converter[IO].compile.drain.as(ExitCode.Success)
 
@@ -50,8 +51,9 @@ object StreamsImpl extends Streams {
     val mutateGlobsFilter = globsFilter(config.mutate, config.baseDir.path)
     for {
       blocker <- Stream.resource(Blocker[F])
-      file <- io.file
-        .directoryStream(blocker, config.baseDir.path, mutateGlobsFilter)
+      file <-
+        io.file
+          .directoryStream(blocker, config.baseDir.path, mutateGlobsFilter)
     } yield file
   }
 

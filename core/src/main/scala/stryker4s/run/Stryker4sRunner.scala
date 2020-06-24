@@ -9,9 +9,10 @@ import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher
 import stryker4s.report.Reporter
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
+import scala.concurrent.ExecutionContext
 
 trait Stryker4sRunner {
-  def run(): ScoreStatus = {
+  def run()(implicit ec: ExecutionContext): ScoreStatus = {
     implicit val config: Config = ConfigReader.readConfig()
 
     val collector = new FileCollector(ProcessRunner())

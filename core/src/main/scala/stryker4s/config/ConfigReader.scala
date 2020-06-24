@@ -74,7 +74,6 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * Force the reading of the config.
       * @note this will throw exceptions when a [[ConfigReaderFailures]] occurs for
       *       which no recover-strategy was defined,
-      *
       */
     def config: T = tryRead.valueOr(Failure.throwException)
 

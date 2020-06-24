@@ -135,7 +135,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"10")
+      result should equal(q"x > 10")
     }
 
     it("should not include if statement if expression is in the if statement") {
@@ -238,21 +238,12 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
     }
 
     it("should match on a Literal") {
-      val tree = q"list.map(_ == 4)"
+      val tree = q"def foo = list.map(_ == 4)"
       val subTree = tree.find(q"4").value
 
       val result = subTree.topStatement()
 
-      result should equal(q"4")
-    }
-
-    it("should include !") {
-      val tree = q"list.map(!_.startsWith(func))"
-      val subTree = tree.find(q"func").value
-
-      val result = subTree.topStatement()
-
-      result should equal(q"!_.startsWith(func)")
+      result should equal(q"list.map(_ == 4)")
     }
 
     it("should include ! in if statement") {
@@ -262,6 +253,66 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
       val result = subTree.topStatement()
 
       result should equal(q"!foo")
+    }
+
+    it("should include pattern matches") {
+      val expectedTopStatement = q"""list.nonEmpty match {
+        case true => someValue
+        case _ => otherValue
+      }"""
+      val tree = q"""def foo = { otherValue; $expectedTopStatement }"""
+      val subTree = tree.find(q"nonEmpty").value
+
+      val result = subTree.topStatement()
+
+      result should equal(expectedTopStatement)
+    }
+
+    it("should not include a class as a topStatement") {
+      val tree = source"""class Foo { 
+        myFunction()
+      }"""
+      val subTree = tree.find(q"myFunction()").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"myFunction()")
+    }
+
+    it("should run on a for-comprehension") {
+      val tree = q"""def foo = for {
+        username <- readEnvironmentVariable("baz", env)
+        repoName <- foo.bar
+      } yield username + repoName"""
+      val subTree = tree.find(q"bar").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"foo.bar")
+    }
+
+    it("should run on a for-comprehension yield") {
+      val tree = q"""def foo = for {
+                      baz <- foo.bar
+                    } yield baz.qux"""
+      val subTree = tree.find(q"baz.qux").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"baz.qux")
+    }
+
+    it("should stop at the catch in a try-catch") {
+      val tree = q"""def foo = try {
+                      foo.bar
+                    } catch {
+                      case _ => baz.qux
+                    }"""
+      val subTree = tree.find(q"baz.qux").value
+
+      val result = subTree.topStatement()
+
+      result should equal(q"baz.qux")
     }
   }
 
