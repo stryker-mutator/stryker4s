@@ -47,20 +47,22 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
           inside(firstResult._2) {
             case MutationTestResult(source, mutants, language) =>
               language should equal("scala")
-              mutants should contain only (
-                MutantResult(
-                  "0",
-                  "EqualityOperator",
-                  "!=",
-                  Location(Position(4, 27), Position(4, 29)),
-                  MutantStatus.Killed
-                ),
-                MutantResult(
-                  "1",
-                  "StringLiteral",
-                  "\"\"",
-                  Location(Position(6, 31), Position(6, 37)),
-                  MutantStatus.Survived
+              mutants should contain(
+                only(
+                  MutantResult(
+                    "0",
+                    "EqualityOperator",
+                    "!=",
+                    Location(Position(4, 27), Position(4, 29)),
+                    MutantStatus.Killed
+                  ),
+                  MutantResult(
+                    "1",
+                    "StringLiteral",
+                    "\"\"",
+                    Location(Position(6, 31), Position(6, 37)),
+                    MutantStatus.Survived
+                  )
                 )
               )
               source should equal(FileUtil.getResource("scalaFiles/ExampleClass.scala").contentAsString)

@@ -35,9 +35,11 @@ class DashboardReporterTest extends AsyncStryker4sSuite with MockitoSuite with L
       }
       request.body shouldBe StringBody(jsonBody, "utf-8", Some(MediaType.ApplicationJson))
       request.method shouldBe Method.PUT
-      request.headers should contain allOf (
-        new Header("X-Api-Key", "apiKeyHere"),
-        new Header("Content-Type", "application/json")
+      request.headers should contain(
+        allOf(
+          new Header("X-Api-Key", "apiKeyHere"),
+          new Header("Content-Type", "application/json")
+        )
       )
     }
 
