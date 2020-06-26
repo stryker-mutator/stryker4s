@@ -16,7 +16,7 @@ sealed trait FileIO {
 class DiskFileIO()(implicit cs: ContextShift[IO], s: Sync[IO]) extends FileIO {
   override def createAndWriteFromResource(file: Path, resourceName: String): IO[Unit] =
     Blocker[IO].use { blocker =>
-      val stream = IO { this.getClass().getResourceAsStream(resourceName) }
+      val stream = IO { getClass().getResourceAsStream(resourceName) }
 
       createDirectories(blocker, file.getParent()) *>
         readInputStream(stream, 8192, blocker)
