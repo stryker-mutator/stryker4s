@@ -38,5 +38,5 @@ class DashboardConfigProvider(env: Environment)(implicit config: Config) {
       .orElse(byCiProvider(_.determineVersion()))
       .toRight("dashboard.version")
 
-  private def byCiProvider[T](f: CiProvider => Option[T])() = Providers.determineCiProvider(env).flatMap(f)
+  private def byCiProvider[T](f: CiProvider => Option[T]) = Providers.determineCiProvider(env).flatMap(f)
 }
