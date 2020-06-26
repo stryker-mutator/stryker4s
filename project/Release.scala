@@ -11,8 +11,8 @@ object Release {
   // Helper command names
   private val stryker4sMvnDeploy = "stryker4sMvnDeploy"
   private val publishM2 = "stryker4s-coreJVM2_12/publishM2"
-  private val crossPublish = "+publish"
-  private val crossPublishSigned = "+publishSigned"
+  private val crossPublish = "++publish"
+  private val crossPublishSigned = "++publishSigned"
   private val sonatypePrepare = "sonatypePrepare"
   private val sonatypeReleaseAll = "sonatypeReleaseAll"
   private val sonatypeBundleUpload = "sonatypeBundleUpload"
