@@ -39,8 +39,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
         val results = sut.collectFilesToMutate()
 
         results should have size 4
-        results should contain(
-          only(
+        results should (
+          contain.only(
             basePath / "fileInRootSourceDir.scala",
             basePath / "package" / "someFile.scala",
             basePath / "package" / "secondFile.scala",
@@ -78,7 +78,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
         val results = sut.collectFilesToMutate()
 
         results should have size 2
-        results should contain(only(basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala"))
+        results should contain.only(basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala")
       }
 
       it("should only add a glob once even when it matches twice") {
@@ -89,13 +89,11 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
         val results = sut.collectFilesToMutate()
 
         results should have size 3
-        results should contain(
-          only(
-            basePath / "package" / "someFile.scala",
-            basePath / "package" / "secondFile.scala",
-            basePath / "package" / "target.scala"
-          )
-        )
+        results should (contain.only(
+          basePath / "package" / "someFile.scala",
+          basePath / "package" / "secondFile.scala",
+          basePath / "package" / "target.scala"
+        ))
       }
 
       it("should not find a file twice when the patterns match on the same file twice") {
@@ -123,7 +121,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
         val results = sut.collectFilesToMutate()
 
         results should have size 1
-        results should contain(only(basePath / "package" / "secondFile.scala"))
+        results should contain.only(basePath / "package" / "secondFile.scala")
       }
 
       it("Should exclude all files specified in the excluded files config") {
@@ -161,8 +159,8 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
         val results = sut.collectFilesToMutate()
 
         results should have size 4
-        results should contain(
-          only(
+        results should (
+          contain.only(
             basePath / "fileInRootSourceDir.scala",
             basePath / "package" / "someFile.scala",
             basePath / "package" / "secondFile.scala",
@@ -182,7 +180,7 @@ class FileCollectorTest extends Stryker4sSuite with MockitoSuite with LogMatcher
         val results = sut.collectFilesToMutate()
 
         results should have size 2
-        results should contain(only(basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala"))
+        results should contain.only(basePath / "package" / "someFile.scala", basePath / "package" / "secondFile.scala")
       }
     }
   }

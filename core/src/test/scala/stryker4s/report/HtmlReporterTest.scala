@@ -99,7 +99,7 @@ class HtmlReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
         _ = all(paths) should fullyMatch regex stryker4sReportFolderRegex
 
         assertion =
-          writtenFilesCaptor.values.map(_.getFileName().toString()) should contain(only("index.html", "report.js"))
+          writtenFilesCaptor.values.map(_.getFileName().toString()) should contain.only("index.html", "report.js")
       } yield assertion).unsafeToFuture()
     }
 

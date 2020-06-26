@@ -47,8 +47,8 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
           inside(firstResult._2) {
             case MutationTestResult(source, mutants, language) =>
               language should equal("scala")
-              mutants should contain(
-                only(
+              mutants should (
+                contain.only(
                   MutantResult(
                     "0",
                     "EqualityOperator",
