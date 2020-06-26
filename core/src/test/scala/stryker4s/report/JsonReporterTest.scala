@@ -5,23 +5,24 @@ import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{AsyncStryker4sSuite, MockitoSuite}
+import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 import java.nio.file.Path
+import cats.effect.IO
 
-class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMatchers {
+class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   describe("reportJson") {
     it("should contain the report") {
       implicit val config: Config = Config.default
       val mockFileIO = mock[FileIO]
+      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
       val sut = new JsonReporter(mockFileIO)
       val testFile = (config.baseDir / "foo.bar").path
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
 
-      (for {
-        _ <- sut.writeReportJsonTo(testFile, report)
-
-        _ <- verify(mockFileIO).createAndWrite(eqTo(testFile), any[String])
-      } yield succeed).unsafeToFuture()
+      sut
+        .writeReportJsonTo(testFile, report)
+        .unsafeRunSync()
+      verify(mockFileIO).createAndWrite(eqTo(testFile), any[String])
     }
   }
 
@@ -31,34 +32,36 @@ class JsonReporterTest extends AsyncStryker4sSuite with MockitoSuite with LogMat
 
     it("should write the report file to the report directory") {
       val mockFileIO = mock[FileIO]
+      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
       val sut = new JsonReporter(mockFileIO)
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      (for {
-        _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics))
+        .unsafeRunSync()
 
-        writtenFilesCaptor = ArgCaptor[Path]
-        _ <- verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
-        paths = writtenFilesCaptor.values.map(_.toString())
-        _ = all(paths) should fullyMatch regex stryker4sReportFolderRegex
-        assertion = writtenFilesCaptor.values.map(_.getFileName()) should contain only "report.json"
-      } yield assertion).unsafeToFuture()
+      val writtenFilesCaptor = ArgCaptor[Path]
+      verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
+      val paths = writtenFilesCaptor.values.map(_.toString())
+      all(paths) should fullyMatch regex stryker4sReportFolderRegex
+      writtenFilesCaptor.values.map(_.getFileName().toString()) should contain only "report.json"
     }
 
     it("should info log a message") {
       val mockFileIO = mock[FileIO]
+      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
       val sut = new JsonReporter(mockFileIO)
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      (for {
-        _ <- sut.reportRunFinished(FinishedRunReport(report, metrics))
+      val captor = ArgCaptor[Path]
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics))
+        .unsafeRunSync()
 
-        captor = ArgCaptor[Path]
-        _ <- verify(mockFileIO).createAndWrite(captor.capture, any[String])
-        assertion = s"Written JSON report to ${captor.value}" shouldBe loggedAsInfo
-      } yield assertion).unsafeToFuture()
+      verify(mockFileIO).createAndWrite(captor.capture, any[String])
+      s"Written JSON report to ${captor.value}" shouldBe loggedAsInfo
     }
   }
 }
