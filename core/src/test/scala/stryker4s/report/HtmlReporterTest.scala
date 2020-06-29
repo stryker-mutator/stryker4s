@@ -73,7 +73,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val tempFile = File.temp / "mutation-test-elements.js"
       val sut = new HtmlReporter(fileIO)
 
-      sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync
+      sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync()
 
       val atLeastSize: Long = 100 * 1024L // 100KB
       tempFile.size should be > atLeastSize
