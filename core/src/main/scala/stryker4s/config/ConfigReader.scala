@@ -108,8 +108,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * The names of the unknown keys are logged.
       */
     def onUnknownKey: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[Config]]] = {
-      case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures) =>
-        val unknownKeys = key :: failures.collect {
+      case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures @ _*) =>
+        val unknownKeys = key +: failures.collect {
           case ConvertFailure(UnknownKey(k), _, _) => k
         }
 
@@ -126,7 +126,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * a default config is provided.
       */
     def onFileNotFound: PartialFunction[ConfigReaderFailures, Config] = {
-      case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _) =>
+      case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _*) =>
         warn(s"Could not find config file $fileName")
         warn("Using default config instead...")
         // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
