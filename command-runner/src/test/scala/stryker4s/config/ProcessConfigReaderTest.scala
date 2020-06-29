@@ -24,7 +24,7 @@ class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
       val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath)
 
       result.left.value should matchPattern {
-        case ConfigReaderFailures(ConvertFailure(KeyNotFound("test-runner", _), _, _), _) =>
+        case ConfigReaderFailures(ConvertFailure(KeyNotFound("test-runner", _), _, _), _*) =>
       }
     }
   }
