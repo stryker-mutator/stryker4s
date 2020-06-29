@@ -29,7 +29,8 @@ class MatchBuilderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       result.expr should equal(activeMutationPropsExpr)
       val someZero = someOf(0)
       val someOne = someOf(1)
-      result.cases should contain inOrderOnly (p"case $someZero => x > 15", p"case $someOne => x <= 15", p"case _ => x >= 15")
+      result.cases should (contain
+        .inOrderOnly(p"case $someZero => x > 15", p"case $someOne => x <= 15", p"case _ => x >= 15"))
     }
   }
 

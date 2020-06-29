@@ -73,7 +73,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val tempFile = File.temp / "mutation-test-elements.js"
       val sut = new HtmlReporter(fileIO)
 
-      sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync
+      sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync()
 
       val atLeastSize: Long = 100 * 1024L // 100KB
       tempFile.size should be > atLeastSize
@@ -101,7 +101,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
       val paths = writtenFilesCaptor.values.map(_.toString())
       all(paths) should fullyMatch regex stryker4sReportFolderRegex
-      writtenFilesCaptor.values.map(_.getFileName().toString()) should contain only ("index.html", "report.js")
+      writtenFilesCaptor.values.map(_.getFileName().toString()) should contain.only("index.html", "report.js")
     }
 
     it("should write the mutation-test-elements.js file to the report directory") {
