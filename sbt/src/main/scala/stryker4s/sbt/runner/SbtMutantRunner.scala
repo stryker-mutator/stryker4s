@@ -29,9 +29,14 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     // -Ywarn for Scala 2.12, -W for Scala 2.13
   ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
   def initializeTestContext(tmpDir: File): Context = {
+    val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
+    debug(s"Resolved stryker4s version $stryker4sVersion")
+
     val settings: Seq[Def.Setting[_]] = Seq(
       scalacOptions --= blocklistedScalacOptions,
-      scalaSource in Compile := tmpDirFor(Compile, tmpDir).value
+      scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
+      libraryDependencies +=
+        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
     ) ++ {
       if (config.testFilter.nonEmpty) {
         val testFilter = new TestFilter

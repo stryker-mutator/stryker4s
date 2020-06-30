@@ -20,7 +20,7 @@ import java.net.InetAddress
 class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
 
   def runMutant(mutant: Mutant, path: Path): MutantRunResult = {
-    val message = StartTestRun(Some(mutant.id))
+    val message = StartTestRun(mutant.id)
     testProcess.sendMessage(message) match {
       case _: TestsSuccessful   => Survived(mutant, path)
       case _: TestsUnsuccessful => Killed(mutant, path)
@@ -33,7 +33,7 @@ class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
 
     testProcess.sendMessage(SetupTestContext(apiTestGroups))
 
-    testProcess.sendMessage(StartTestRun(None)) match {
+    testProcess.sendMessage(StartInitialTestRun()) match {
       case _: TestsSuccessful => true
       case _                  => false
     }
@@ -107,28 +107,22 @@ object ProcessManager extends Logging {
 
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
     val args = mainClass +: socketConfig.toArgs
-    val commandRunnerAndApi = Seq(
-      // TODO: Resolve dependency locations in some other way
-      "/home/hugovr/.ivy2/local/io.stryker-mutator/stryker4s-api_2.12/0.8.1-SNAPSHOT/jars/stryker4s-api_2.12.jar",
-      "/home/hugovr/.ivy2/local/io.stryker-mutator/sbt-stryker4s-testrunner_2.12/0.8.1-SNAPSHOT/jars/sbt-stryker4s-testrunner_2.12.jar",
-      "/home/hugovr/.cache/coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-interface/1.0/test-interface-1.0.jar"
-    )
-    val completeClasspath = (classpath ++ commandRunnerAndApi).distinct.mkString(classPathSeparator)
+    val classpathString = classpath.mkString(classPathSeparator)
     val javaOpts = Seq("-XX:+CMSClassUnloadingEnabled", "-Xms512M", "-Xss8192k", "-XX:MaxPermSize=6G", "-Xmx6G")
-    val command = Seq("java", "-cp", completeClasspath) ++ javaOpts ++ args
+    val command = Seq("java", "-cp", classpathString) ++ javaOpts ++ args
     debug(s"Starting process ${command.mkString(" ")}")
 
     val startedProcess = scala.sys.process.Process(command)
 
-    val p = startedProcess.run(ProcessLogger(m => info(s"testrunner: $m")))
-    info("Started process")
+    val p = startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))
+    debug("Started process")
     Thread.sleep(10000) // TODO: Ugly! Wait until process is ready to accept connection in some other way
     val messageHandler = connectToProcess(p, socketConfig)
 
     new ProcessManager(messageHandler)
   }
   private def connectToProcess(process: Process, config: TestProcessConfig): TestProcess = {
-    info("Connecting to socket")
+    debug("Connecting to socket")
     val socket = Socket(InetAddress.getLocalHost(), config.port).opt.get
 
     new SocketProcess(process, socket)
@@ -145,7 +139,7 @@ final class SocketProcess(private val process: Process, socket: Socket) extends 
   val objectInputStream = new ObjectInputStream(socket.inputStream())
 
   override def sendMessage(request: Request): Response = {
-    info(s"Sending message $request")
+    debug(s"Sending message $request")
     objectOutputStream.writeObject(request)
     // Block until a response is read.
     objectInputStream.readObject() match {

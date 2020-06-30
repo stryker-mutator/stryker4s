@@ -34,10 +34,10 @@ final class CleanMessageHandler() extends MessageHandler {
 final class TestRunnerMessageHandler(testRunner: SbtTestRunner) extends MessageHandler {
   def handleMessage(req: Request): Response =
     req match {
-      case StartTestRun(Some(mutation)) =>
+      case StartTestRun(mutation) =>
         val status = testRunner.runMutation(mutation)
         statusToTestResult(status)
-      case StartTestRun(None) =>
+      case StartInitialTestRun() =>
         val status = testRunner.initialTestRun()
         statusToTestResult(status)
       case other: SetupTestContext =>

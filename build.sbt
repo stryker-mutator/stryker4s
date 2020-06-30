@@ -10,6 +10,8 @@ lazy val root = (project withId "stryker4s" in file("."))
   .aggregate(
     stryker4sCore.jvm(versions.scala213),
     stryker4sCommandRunner.jvm(versions.scala213),
+    api.jvm(versions.scala213),
+    sbtTestRunner.jvm(versions.scala213),
     sbtStryker4s
   )
 

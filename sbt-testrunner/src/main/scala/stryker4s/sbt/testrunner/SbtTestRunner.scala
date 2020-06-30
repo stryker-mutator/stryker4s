@@ -33,7 +33,7 @@ class SbtTestRunner(context: TestProcessContext) extends TestRunner {
             case Status.Failure => accResult
             case Status.Error   => accResult
             case _ =>
-              if (mutation.isDefined) activateMutation(mutation.get)
+              mutation.foreach(activateMutation(_))
               val result = runTests(tasksToRun, new AtomicReference(Status.Success))
 
               combineStatus(accResult, result)
@@ -50,32 +50,8 @@ class SbtTestRunner(context: TestProcessContext) extends TestRunner {
     fs(None)
   }
 
-  // private def startTestRun(mutation: Option[Int]): Status = {
-  //   fs(mutation)
-  // context.testGroups.foldLeft(Status.Success)({
-  // TODO: Uncomment and fail early
-  // case (accResult: Status.Error, testGroup)   => accResult
-  // case (accResult: Status.Failure, testGroup) => accResult
-  // case (accResult, testGroup) =>
-  //   val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions
-  //   val cl = getClass().getClassLoader()
-  //   val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
-  //   val runner = framework.runner(args, remoteArgs, cl)
-
-  //   val taskDefs = runner.tasks(testGroup.taskDefs.map(toSbtTaskDef))
-
-  //   if (mutation.isDefined) activateMutation(mutation.get)
-
-  //   val result = runTests(taskDefs)
-
-  //   val _ = runner.done()
-
-  //   combineStatus(accResult, result)
-  // })
-  // }
-
-  private def activateMutation(mutation: Int): Unit = {
-    val _ = sys.props += (("ACTIVE_MUTATION", String.valueOf(mutation)))
+  private def activateMutation(mutation: Int) = {
+    sys.props += (("ACTIVE_MUTATION", String.valueOf(mutation)))
   }
 
   @tailrec
