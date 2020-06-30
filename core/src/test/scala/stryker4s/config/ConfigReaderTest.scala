@@ -38,7 +38,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       result.baseDir shouldBe File.currentWorkingDirectory
       result.mutate shouldBe Seq("**/main/scala/**.scala")
-      result.reporters should contain only (Console, Html)
+      result.reporters should (contain.only(Html, Console))
       result.thresholds shouldBe Thresholds()
       result.dashboard shouldBe DashboardOptions(
         baseUrl = "https://dashboard.stryker-mutator.io",

@@ -5,7 +5,6 @@ import stryker4s.config._
 import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.report.dashboard.DashboardConfigProvider
-import scala.util.{Failure, Success}
 import cats.implicits._
 import cats.effect.IO
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
@@ -60,14 +59,13 @@ class Reporter(implicit config: Config, cs: ContextShift[IO])
   private def reportAll[T](reporters: Iterable[T], reportF: T => IO[Unit]): IO[Unit] = {
     reporters.toList
       .parTraverse { reporter =>
-        reportF(reporter)
-          .redeem((e: Throwable) => Failure(e), Success(_))
+        reportF(reporter).attempt
       }
-      .map { _ collect { case f: Failure[Unit] => f } }
+      .map { _ collect { case Left(f) => f } }
       .flatMap { failed =>
         if (failed.nonEmpty) IO {
           warn(s"${failed.size} reporter(s) failed to report:")
-          failed.map(_.exception).foreach(warn(_))
+          failed.foreach(warn(_))
         }
         else IO.unit
       }

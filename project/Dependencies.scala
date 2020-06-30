@@ -3,12 +3,12 @@ import sbt._
 object Dependencies {
   object versions {
     val scala212 = "2.12.11"
-    val scala213 = "2.13.2"
+    val scala213 = "2.13.3"
     val crossScalaVersions = Seq(scala213, scala212)
 
     val testInterface = "1.0"
-    val scalameta = "4.3.15"
-    val pureconfig = "0.12.3"
+    val scalameta = "4.3.17"
+    val pureconfig = "0.13.0"
     val scalatest = "3.2.0"
     val mockitoScala = "1.14.8"
     val betterFiles = "3.9.1"
