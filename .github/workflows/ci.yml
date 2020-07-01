@@ -25,7 +25,7 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
       - name: Run tests
-        run: csbt +compile test
+        run: csbt 'compile; ++2.13.3 test'
   sbt-scripted:
     name: sbt plugin scripted tests
     runs-on: ubuntu-latest
@@ -43,8 +43,8 @@ jobs:
         with:
           java-version: openjdk@1.11
       - name: Run tests
-        # Only publish stryker4s-core and -api, sbt-stryker4s is published by scripted tests
-        run: csbt 'stryker4s-coreJVM2_12/publishLocal; stryker4s-apiJVM2_12/publishLocal; sbt-stryker4s-testrunnerJVM2_12/publishLocal; scripted sbt-stryker4s/test-1'
+        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
+        run: csbt 'stryker4s-coreJVM2_12/publishLocal; stryker4s-apiJVM2_12/publishLocal; sbt-stryker4s-testrunnerJVM2_12/publishLocal; scripted sbt-stryker4sJVM2_12/test-1'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest

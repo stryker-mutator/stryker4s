@@ -8,11 +8,11 @@ lazy val root = (project withId "stryker4s" in file("."))
     onLoad in Global ~= (_ andThen ("writeHooks" :: _))
   )
   .aggregate(
-    stryker4sCore.jvm(versions.scala213),
-    stryker4sCommandRunner.jvm(versions.scala213),
-    api.jvm(versions.scala213),
-    sbtTestRunner.jvm(versions.scala213),
-    sbtStryker4s
+    (stryker4sCore.projectRefs ++
+      stryker4sCommandRunner.projectRefs ++
+      sbtStryker4s.projectRefs ++
+      api.projectRefs ++
+      sbtTestRunner.projectRefs): _*
   )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
@@ -27,12 +27,12 @@ lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "comman
   .dependsOn(stryker4sCore, stryker4sCore % "test->test")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-// sbt project is a 'normal' project without projectMatrix because there is only 1 scala version
 // sbt plugins have to use Scala 2.12
-lazy val sbtStryker4s = (project withId "sbt-stryker4s" in file("sbt"))
+lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
   .enablePlugins(SbtPlugin)
   .settings(commonSettings, sbtPluginSettings)
-  .dependsOn(stryker4sCore.jvm(versions.scala212), api.jvm(versions.scala212))
+  .dependsOn(stryker4sCore)
+  .jvmPlatform(scalaVersions = Seq(versions.scala212))
 
 lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner")
   .settings(sbtTestrunnerSettings)
