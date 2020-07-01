@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+  - package-ecosystem: maven
+    directory: "/maven"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+    ignore:
+      - dependency-name: io.stryker-mutator:stryker4s-core_2.12
+        versions:
+          - "> SET-BY-SBT-SNAPSHOT"
