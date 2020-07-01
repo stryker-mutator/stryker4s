@@ -107,6 +107,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     Project.runTask(executeTests in Test, state) match {
       case Some((_, Value(Output(TestResult.Passed, _, _)))) => onSuccess
       case Some((_, Value(Output(TestResult.Failed, _, _)))) => onFailed
+      case Some((_, Value(Output(TestResult.Error, _, _))))  => onFailed
       case _                                                 => onError
     }
 
