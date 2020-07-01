@@ -1,0 +1,24 @@
+version: 2
+updates:
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+  open-pull-requests-limit: 10
+- package-ecosystem: maven
+  directory: "/maven"
+  schedule:
+    interval: daily
+    time: "03:00"
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: io.stryker-mutator:stryker4s-core_2.12
+    versions:
+    - "> SET-BY-SBT-SNAPSHOT"
+  - dependency-name: org.scala-lang:scala-library
+    versions:
+    - ">= 2.13.a"
+    - "< 2.14"
