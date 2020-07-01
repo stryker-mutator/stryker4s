@@ -1,13 +1,10 @@
 package stryker4s.sbt.testrunner
 
-import sbt.testing.EventHandler
-import sbt.testing.Task
+import sbt.testing.{Event, EventHandler, Framework, Status, Task, TaskDef}
 import scala.annotation.tailrec
-import sbt.testing.Status
-import sbt.testing.Framework
 import stryker4s.api.testprocess._
-import sbt.testing.TaskDef
 import java.util.concurrent.atomic.AtomicReference
+import java.util.function.UnaryOperator
 
 sealed trait TestRunner {
   def runMutation(mutation: Int): Status
@@ -56,10 +53,8 @@ class SbtTestRunner(context: TestProcessContext) extends TestRunner {
 
   @tailrec
   private def runTests(testTasks: Array[Task], status: AtomicReference[Status]): sbt.testing.Status = {
-    val eventHandler: EventHandler = event => {
-      status.updateAndGet(combineStatus(_, event.status()))
-      ()
-    }
+    val eventHandler = new StatusEventHandler(status)
+
     val newTasks = testTasks.flatMap(task =>
       status.get() match {
         // Fail early
@@ -115,4 +110,15 @@ class SbtTestRunner(context: TestProcessContext) extends TestRunner {
 
         }
     }
+
+  class StatusEventHandler(status: AtomicReference[Status]) extends EventHandler {
+    override def handle(event: Event) = {
+      status.updateAndGet(new UnaryOperator[Status]() {
+        override def apply(old: Status) = {
+          combineStatus(old, event.status())
+        }
+      })
+      ()
+    }
+  }
 }

@@ -5,8 +5,7 @@ import sbt._
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := false, // For logging tests
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+    Test / parallelExecution := false // For logging tests
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
@@ -53,7 +52,10 @@ object Settings {
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true // No logging tests, so parallel can be true
+    Test / parallelExecution := true, // No logging tests, so parallel can be true
+    libraryDependencies ++= Seq(
+      Dependencies.test.scalatest
+    )
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(

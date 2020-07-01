@@ -2,9 +2,18 @@ import sbt._
 
 object Dependencies {
   object versions {
+    val scala211 = "2.11.12"
     val scala212 = "2.12.11"
     val scala213 = "2.13.3"
+    val dotty = "0.24.0-RC1"
+
+    /** Cross-versions for main projects
+      */
     val crossScalaVersions = Seq(scala213, scala212)
+
+    /** Fuller cross-versions (used for injected packages)
+      */
+    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, dotty)
 
     val testInterface = "1.0"
     val scalameta = "4.3.17"
