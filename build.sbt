@@ -17,6 +17,7 @@ lazy val root = (project withId "stryker4s" in file("."))
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(coreSettings)
+  .dependsOn(api)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
