@@ -16,6 +16,9 @@ import stryker4s.extension.exception.MutationRunFailedException
 import sbt.{TestFramework => SbtTestFramework}
 import sbt.testing.{Framework => SbtFramework}
 import java.net.InetAddress
+import cats.effect.{IO, Timer}
+import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
 
@@ -102,31 +105,53 @@ class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
 object ProcessManager extends Logging {
   private val classPathSeparator = java.io.File.pathSeparator
 
-  def newProcess(classpath: Seq[String]): ProcessManager = {
+  def newProcess(classpath: Seq[String])(implicit timer: Timer[IO]): ProcessManager = {
     val socketConfig = TestProcessConfig(13337)
 
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
-    val args = mainClass +: socketConfig.toArgs
+    val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
+    val args = Seq(sysProps, mainClass)
     val classpathString = classpath.mkString(classPathSeparator)
     val javaOpts = Seq("-XX:+CMSClassUnloadingEnabled", "-Xms512M", "-Xss8192k", "-XX:MaxPermSize=6G", "-Xmx6G")
     val command = Seq("java", "-cp", classpathString) ++ javaOpts ++ args
     debug(s"Starting process ${command.mkString(" ")}")
 
-    val startedProcess = scala.sys.process.Process(command)
+    // Wait for 2 seconds before starting
+    val messageHandler = (IO.sleep(2.seconds) *>
+      retryWithBackoff(6, 3.seconds, info("Could not connect to testprocess. Retrying...")) {
+        IO {
+          info("Attempting connection to testprocess")
+          val startedProcess = scala.sys.process.Process(command)
 
-    val p = startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))
-    debug("Started process")
-    Thread.sleep(10000) // TODO: Ugly! Wait until process is ready to accept connection in some other way
-    val messageHandler = connectToProcess(p, socketConfig)
+          val p = startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))
+          debug("Started process")
+
+          connectToProcess(p, socketConfig)
+        }
+      }).unsafeRunSync()
 
     new ProcessManager(messageHandler)
   }
+
   private def connectToProcess(process: Process, config: TestProcessConfig): TestProcess = {
     debug("Connecting to socket")
-    val socket = Socket(InetAddress.getLocalHost(), config.port).opt.get
+    val socket = Socket(InetAddress.getLocalHost(), config.port).either.right.get
 
     new SocketProcess(process, socket)
   }
+
+  def retryWithBackoff[T](times: Int, backoffPeriod: FiniteDuration, onError: => Unit)(
+      f: IO[T]
+  )(implicit timer: Timer[IO]): IO[T] = {
+    val retriableWithOnError = (NonFatal.apply(_)).compose((t: Throwable) => { onError; t })
+
+    (fs2.Stream.sleep(2.seconds) >>
+      fs2.Stream
+        // Exponential backoff
+        .retry(f, backoffPeriod, d => d * 2, times, retriableWithOnError)).compile.toVector
+      .map(_.head)
+  }
+
 }
 
 sealed trait TestProcess extends Closeable {

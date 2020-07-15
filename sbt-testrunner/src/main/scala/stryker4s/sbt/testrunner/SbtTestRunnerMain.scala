@@ -10,7 +10,7 @@ import java.io.ObjectInputStream
 object SbtTestRunnerMain {
   def main(args: Array[String]): Unit = {
     println("Started testrunner")
-    val config = Context.resolveSocketConfig(args)
+    val config = Context.resolveSocketConfig()
     setupSocketServer(config).start()
     ()
   }

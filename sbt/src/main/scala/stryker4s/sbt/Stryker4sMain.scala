@@ -11,7 +11,7 @@ import stryker4s.run.threshold.ErrorStatus
 import scala.language.implicitConversions
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.ExecutionContext
-import cats.effect.{ContextShift, IO => CatsIO}
+import cats.effect.{ContextShift, IO => CatsIO, Timer}
 
 /**
   * This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
@@ -45,6 +45,7 @@ object Stryker4sMain extends AutoPlugin {
 
   lazy val strykerImpl = Def.task {
     implicit val cs: ContextShift[CatsIO] = CatsIO.contextShift(implicitly[ExecutionContext])
+    implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
     setStrykerLogLevel((logLevel in stryker).value)
 
     val result = new Stryker4sSbtRunner(state.value).run()

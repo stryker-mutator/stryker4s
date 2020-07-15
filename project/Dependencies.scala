@@ -5,7 +5,7 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scala212 = "2.12.11"
     val scala213 = "2.13.3"
-    val dotty = "0.24.0-RC1"
+    val dotty = "0.25.0-RC2"
 
     /** Cross-versions for main projects
       */

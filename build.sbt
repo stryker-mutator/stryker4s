@@ -37,7 +37,7 @@ lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
 
 lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner")
   .settings(sbtTestrunnerSettings)
-  .dependsOn(api, api % "test->test")
+  .dependsOn(api)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val api = newProject("stryker4s-api", "api")

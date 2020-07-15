@@ -13,9 +13,12 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.extension.exception.TestSetupException
+import cats.effect.{IO, Timer}
 
-class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
-    extends MutantRunner(sourceCollector, reporter) {
+class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
+    config: Config,
+    timer: Timer[IO]
+) extends MutantRunner(sourceCollector, reporter) {
   type Context = SbtRunnerContext
 
   /** Remove scalacOptions that are very likely to cause errors with generated code

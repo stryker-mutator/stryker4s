@@ -52,10 +52,7 @@ object Settings {
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true, // No logging tests, so parallel can be true
-    libraryDependencies ++= Seq(
-      Dependencies.test.scalatest
-    )
+    Test / parallelExecution := true // No logging tests, so parallel can be true
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
