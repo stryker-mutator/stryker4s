@@ -5,7 +5,7 @@ import java.nio.file.Paths
 import mutationtesting.{Position, _}
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.{GreaterThan, LesserThan}
-import stryker4s.model.{Killed, Mutant, Survived}
+import stryker4s.model._
 import stryker4s.scalatest.LogMatchers
 
 import scala.meta._
@@ -283,6 +283,29 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
         .unsafeRunSync()
 
       "Mutation score: 66.67%" shouldBe loggedAsInfo
+    }
+
+    it("should log NaN correctly") {
+      implicit val config: Config = Config.default
+      val sut = new ConsoleReporter()
+
+      val report = MutationTestReport(
+        thresholds = Thresholds(80, 60),
+        files = Map(
+          "stryker4s.scala" -> MutationTestResult(
+            source = "foo\nbar\nbaz",
+            mutants = Seq(
+              MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.CompileError)
+            )
+          )
+        )
+      )
+
+      sut
+        .reportRunFinished(FinishedRunReport(report, Metrics.calculateMetrics(report)))
+        .unsafeRunSync()
+
+      "Mutation score: NaN" shouldBe loggedAsInfo
     }
 
     // 1 killed, 1 survived, mutation score 50

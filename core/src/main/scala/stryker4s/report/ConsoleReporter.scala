@@ -103,6 +103,9 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
 
   implicit class DoubleRoundTwoDecimals(score: Double) {
     def roundDecimals(decimals: Int): Double =
-      BigDecimal(score).setScale(decimals, BigDecimal.RoundingMode.HALF_UP).toDouble
+      if (!score.isNaN())
+        BigDecimal(score).setScale(decimals, BigDecimal.RoundingMode.HALF_UP).toDouble
+      else
+        score
   }
 }
