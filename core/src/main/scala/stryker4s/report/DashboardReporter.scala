@@ -55,17 +55,14 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
 
   def logResponse(response: Response[Either[ResponseError[io.circe.Error], DashboardPutResult]]): Unit =
     response.body match {
-      case Left(HttpError(errorBody)) =>
-        response.code match {
-          case StatusCode.Unauthorized =>
-            error(
-              s"Error HTTP PUT '$errorBody'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?"
-            )
-          case statusCode =>
-            error(
-              s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '${errorBody}'"
-            )
-        }
+      case Left(HttpError(errorBody, StatusCode.Unauthorized)) =>
+        error(
+          s"Error HTTP PUT '$errorBody'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?"
+        )
+      case Left(HttpError(errorBody, statusCode)) =>
+        error(
+          s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '${errorBody}'"
+        )
       case Left(DeserializationError(original, error)) =>
         warn(s"Dashboard report was sent successfully, but could not decode the response: '$original'. Error:", error)
       case Right(DashboardPutResult(href)) =>
