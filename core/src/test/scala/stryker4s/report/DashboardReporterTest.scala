@@ -113,7 +113,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
     it("should log when a 401 is returned by the API") {
       implicit val backend = backendStub.whenAnyRequest
-        .thenRespond(Response(Left(HttpError("auth required")), StatusCode.Unauthorized))
+        .thenRespond(Response(Left(HttpError("auth required", StatusCode.Unauthorized)), StatusCode.Unauthorized))
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
@@ -129,7 +129,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
     it("should log when a error code is returned by the API") {
       implicit val backend =
         backendStub.whenAnyRequest.thenRespond(
-          Response(Left(HttpError("internal error")), StatusCode.InternalServerError)
+          Response(Left(HttpError("internal error", StatusCode.InternalServerError)), StatusCode.InternalServerError)
         )
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
