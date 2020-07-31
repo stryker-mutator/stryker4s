@@ -27,7 +27,7 @@ object Dependencies {
     val circe = "0.13.0"
     val mutationTestingElements = "1.3.1"
     val mutationTestingMetrics = "1.3.1"
-    val sttp = "2.2.2"
+    val sttp = "2.2.3"
     val fs2 = "2.4.2"
   }
 
