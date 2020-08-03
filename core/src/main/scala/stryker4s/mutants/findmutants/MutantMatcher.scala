@@ -103,7 +103,7 @@ class MutantMatcher()(implicit config: Config) {
     }
 
     private def matchExcluded(mutation: Mutation[_]): Boolean = {
-      config.excludedMutations.exclusions.contains(mutation.mutationName)
+      config.excludedMutations.contains(mutation.mutationName)
     }
 
     private def isSuppressedByAnnotation(mutation: Mutation[_], original: Term): Boolean = {

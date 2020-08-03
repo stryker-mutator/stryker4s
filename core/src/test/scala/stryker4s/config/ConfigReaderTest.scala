@@ -19,7 +19,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
           config.baseDir shouldBe File("/tmp/project")
           config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
           config.reporters.loneElement shouldBe Html
-          config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+          config.excludedMutations shouldBe Set("BooleanLiteral")
       }
     }
 
@@ -76,7 +76,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       config.baseDir shouldBe File("/tmp/project")
       config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       config.reporters.loneElement shouldBe Html
-      config.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+      config.excludedMutations shouldBe Set("BooleanLiteral")
     }
 
     it("should load a config with customized properties") {
@@ -87,7 +87,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       result.baseDir shouldBe File("/tmp/project")
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.reporters.loneElement shouldBe Html
-      result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
+      result.excludedMutations shouldBe Set("BooleanLiteral")
       result.dashboard shouldBe DashboardOptions(
         baseUrl = uri"https://fakeurl.com",
         reportType = MutationScoreOnly,
@@ -105,7 +105,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       result.reporters.loneElement shouldBe Html
     }
 
-    it("should return a failure on a misshapen test runner") {
+    it("should return a failure on a misshapen excluded-mutations") {
       val confPath = FileUtil.getResource("stryker4sconfs/invalidExcludedMutation.conf")
 
       lazy val result = ConfigReader.readConfig(confPath)
@@ -114,8 +114,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       val head = exc.failures.head
       head shouldBe a[ConvertFailure]
       val errorMessage =
-        s"""Invalid exclusion option(s): 'Invalid, StillInvalid'
-           |Valid exclusions are EqualityOperator, BooleanLiteral, ConditionalExpression, LogicalOperator, StringLiteral, MethodExpression.""".stripMargin
+        s"Cannot convert 'Invalid, StillInvalid, BooleanLiteral' to excluded-mutations: invalid option(s) 'Invalid, StillInvalid'. Valid exclusions are 'EqualityOperator, BooleanLiteral, ConditionalExpression, LogicalOperator, StringLiteral, MethodExpression'."
       errorMessage shouldBe loggedAsError
     }
   }
