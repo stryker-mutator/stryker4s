@@ -22,4 +22,7 @@ trait ConfigReaderImplicits {
 
   implicit private[config] val exclusions: ConfigReader[ExcludedMutations] =
     ConfigReader[List[String]] map (exclusions => ExcludedMutations(exclusions.toSet))
+
+  implicit private[config] val uriReader = pureconfig.module.sttp.reader
+
 }

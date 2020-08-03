@@ -6,6 +6,7 @@ import stryker4s.config.implicits.ConfigReaderImplicits
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import pureconfig.generic.auto._
+import sttp.client.UriContext
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
   describe("loadConfig") {
@@ -41,7 +42,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       result.reporters should (contain.only(Html, Console))
       result.thresholds shouldBe Thresholds()
       result.dashboard shouldBe DashboardOptions(
-        baseUrl = "https://dashboard.stryker-mutator.io",
+        baseUrl = uri"https://dashboard.stryker-mutator.io",
         reportType = Full,
         project = None,
         version = None,
@@ -88,7 +89,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       result.reporters.loneElement shouldBe Html
       result.excludedMutations shouldBe ExcludedMutations(Set("BooleanLiteral"))
       result.dashboard shouldBe DashboardOptions(
-        baseUrl = "https://fakeurl.com",
+        baseUrl = uri"https://fakeurl.com",
         reportType = MutationScoreOnly,
         project = Some("someProject"),
         version = Some("someVersion"),
@@ -135,8 +136,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
 
       s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
-      // Ignored due to transitive dependency clash in sbt
-      // s"Config used: ${sut.toHoconString}" shouldBe loggedAsInfo
+      s"Config used: ${Config.default}" shouldBe loggedAsDebug
     }
 
     it("should log warnings when unknown keys are used") {

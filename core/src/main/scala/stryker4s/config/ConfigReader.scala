@@ -129,10 +129,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _*) =>
         warn(s"Could not find config file $fileName")
         warn("Using default config instead...")
-        // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
-        //  If that's fixed we can add this again
-        //  https://github.com/stryker-mutator/stryker4s/issues/116
-        // info("Config used: " + defaultConf.toHoconString)
+        debug("Config used: " + Config.default)
 
         Config.default
     }
