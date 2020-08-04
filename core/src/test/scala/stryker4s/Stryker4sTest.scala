@@ -11,7 +11,7 @@ import stryker4s.model.{Killed, Mutant, MutantRunResult}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
-import stryker4s.report.Reporter
+import stryker4s.report.{AggregateReporter, Reporter}
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
@@ -41,7 +41,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     val testFiles = Seq(file)
     val testSourceCollector = new TestSourceCollector(testFiles)
     val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
-    val reporterMock = mock[Reporter]
+    val reporterMock = mock[AggregateReporter]
     when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
     when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
     when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
