@@ -1,7 +1,7 @@
 package stryker4s.config
 
-import sttp.model.Uri
 import sttp.client.UriContext
+import sttp.model.Uri
 
 final case class DashboardOptions(
     baseUrl: Uri = uri"https://dashboard.stryker-mutator.io",

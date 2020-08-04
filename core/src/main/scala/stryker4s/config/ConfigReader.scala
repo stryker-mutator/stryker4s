@@ -1,13 +1,14 @@
 package stryker4s.config
 
 import java.io.FileNotFoundException
+
 import cats.syntax.either._
 import grizzled.slf4j.Logging
 import pureconfig.error._
 import pureconfig.generic.ProductHint
-import pureconfig.{ConfigSource, Derivation, ConfigReader => PureConfigReader}
-import stryker4s.config.implicits.ConfigReaderImplicits
 import pureconfig.generic.auto._
+import pureconfig.{ConfigReader => PureConfigReader, ConfigSource, Derivation}
+import stryker4s.config.implicits.ConfigReaderImplicits
 
 object ConfigReader extends ConfigReaderImplicits with Logging {
   private val configDocUrl: String =

@@ -1,12 +1,12 @@
 package stryker4s.mutants.findmutants
 
+import scala.util.{Failure, Success}
+
 import better.files._
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions.RelativePathExtension
 import stryker4s.run.process.{Command, ProcessRunner}
-
-import scala.util.{Failure, Success}
 
 trait SourceCollector {
   def collectFilesToMutate(): Iterable[File]

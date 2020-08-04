@@ -1,13 +1,11 @@
 package stryker4s.mutants.findmutants
 
+import scala.meta._
+
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtension}
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
-
-import scala.meta.Mod.Annot
-import scala.meta.Term.Apply
-import scala.meta.{Init, Lit, Mod, Name, Term, Tree, Type}
 
 class MutantMatcher()(implicit config: Config) {
   private[this] val ids = Iterator.from(0)
@@ -113,7 +111,7 @@ class MutantMatcher()(implicit config: Config) {
     private def isSupressWarningsAnnotation(mod: Mod, mutation: Mutation[_]) = {
       val mutationName = "stryker4s.mutation." + mutation.mutationName
       mod match {
-        case Annot(Init(Type.Name("SuppressWarnings"), _, List(List(Apply(Name("Array"), params))))) =>
+        case Mod.Annot(Init(Type.Name("SuppressWarnings"), _, List(List(Term.Apply(Name("Array"), params))))) =>
           params.exists {
             case Lit.String(`mutationName`) => true
             case _                          => false

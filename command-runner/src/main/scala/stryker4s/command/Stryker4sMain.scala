@@ -1,12 +1,11 @@
 package stryker4s.command
 
+import cats.effect.{ExitCode, IO, IOApp}
 import pureconfig.error.ConfigReaderException
+import pureconfig.generic.auto._
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.config.ConfigReader
 import stryker4s.run.threshold.ErrorStatus
-import pureconfig.generic.auto._
-import cats.effect.IOApp
-import cats.effect.{ExitCode, IO}
 
 object Stryker4sMain extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =

@@ -1,5 +1,6 @@
 package stryker4s.run
 
+import cats.effect.{ContextShift, IO}
 import stryker4s.Stryker4s
 import stryker4s.config.{Config, ConfigReader}
 import stryker4s.mutants.Mutator
@@ -9,8 +10,6 @@ import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher
 import stryker4s.report.Reporter
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
-import cats.effect.ContextShift
-import cats.effect.IO
 
 trait Stryker4sRunner {
   def run()(implicit cs: ContextShift[IO]): ScoreStatus = {

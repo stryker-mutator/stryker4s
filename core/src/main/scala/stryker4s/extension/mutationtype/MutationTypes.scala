@@ -1,8 +1,8 @@
 package stryker4s.extension.mutationtype
 
-import stryker4s.extension.TreeExtensions.IsEqualExtension
-
 import scala.meta.{Lit, Term, Tree}
+
+import stryker4s.extension.TreeExtensions.IsEqualExtension
 
 /**
   * Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).

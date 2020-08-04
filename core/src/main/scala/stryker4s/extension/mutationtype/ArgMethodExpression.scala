@@ -1,7 +1,7 @@
 package stryker4s.extension.mutationtype
 
 import scala.meta.Term
-import scala.meta.Term.{Apply, ApplyInfix, Block, Function, Name, Select}
+import scala.meta.Term._
 
 /**
   * Base trait for method calls with one or multiple argument(s)
