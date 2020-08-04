@@ -2,7 +2,8 @@ package stryker4s.run
 
 import cats.effect.{ContextShift, IO}
 import stryker4s.Stryker4s
-import stryker4s.config.{Config, ConfigReader}
+import stryker4s.config._
+import stryker4s.files.DiskFileIO
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
@@ -11,8 +12,6 @@ import stryker4s.report._
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
-import stryker4s.config._
-import stryker4s.files.DiskFileIO
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
 trait Stryker4sRunner {
