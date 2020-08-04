@@ -1,7 +1,6 @@
 package stryker4s.report
 
 import mutationtesting._
-import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
@@ -14,15 +13,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
       when(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-      implicit val config: Config = Config.default
 
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
       val runReport = FinishedRunReport(report, metrics)
-
-      val sut: Reporter = new Reporter() {
-        override lazy val reporters: Seq[ConsoleReporter] = Seq(consoleReporterMock)
-      }
+      val sut = new AggregateReporter(Seq(consoleReporterMock))
 
       sut
         .reportRunFinished(runReport)
@@ -38,13 +33,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val progressReporterMock = mock[ProgressReporter]
         when(consoleReporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
         when(progressReporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
-
-        implicit val config: Config = Config(reporters = Set.empty)
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
-        }
-
+        val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
         sut
           .reportMutationStart(mutantMock)
           .unsafeRunSync()
@@ -58,13 +47,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         when(consoleReporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
         val finishedRunReporterMock = mock[FinishedRunReporter]
         val mutantMock = Mutant(0, q">", q"<", GreaterThan)
-
-        implicit val config: Config = Config.default
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, finishedRunReporterMock)
-        }
-
+        val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
         sut
           .reportMutationStart(mutantMock)
           .unsafeRunSync()
@@ -79,14 +62,9 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val mutantRunResultMock = mock[MutantRunResult]
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
+        val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
         when(consoleReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
         when(progressReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
-
-        implicit val config: Config = Config(reporters = Set.empty)
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[ProgressReporter] = Seq(consoleReporterMock, progressReporterMock)
-        }
 
         sut
           .reportMutationComplete(mutantRunResultMock, 1)
@@ -100,12 +78,8 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val consoleReporterMock = mock[ConsoleReporter]
         val finishedRunReporterMock = mock[FinishedRunReporter]
         val mutantRunResultMock = mock[MutantRunResult]
+        val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
         when(consoleReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
-        implicit val config: Config = Config.default
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, finishedRunReporterMock)
-        }
 
         sut
           .reportMutationComplete(mutantRunResultMock, 1)
@@ -122,15 +96,10 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val finishedRunReporterMock = mock[FinishedRunReporter]
         when(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
         when(finishedRunReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-        implicit val config: Config = Config.default
-
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunReport(report, metrics)
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, finishedRunReporterMock)
-        }
+        val sut: AggregateReporter = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
 
         sut
           .reportRunFinished(runReport)
@@ -144,15 +113,10 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
         when(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-        implicit val config: Config = Config.default
-
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunReport(report, metrics)
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
-        }
+        val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
 
         sut
           .reportRunFinished(runReport)
@@ -166,17 +130,12 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[FinishedRunReporter]
         when(progressReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-        implicit val config: Config = Config.default
-
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunReport(report, metrics)
+        val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
         when(consoleReporterMock.reportRunFinished(runReport))
           .thenReturn(IO.raiseError(new RuntimeException("Something happened")))
-
-        val sut: Reporter = new Reporter() {
-          override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
-        }
 
         sut
           .reportRunFinished(runReport)
@@ -190,17 +149,13 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val exceptionMessage = "java.lang.RuntimeException: Something happened"
 
         val progressReporterMock = mock[ProgressReporter]
-        implicit val config: Config = Config.default
-
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunReport(report, metrics)
 
         it("should log if a report throws an exception") {
           val consoleReporterMock = mock[ConsoleReporter]
-          val sut: Reporter = new Reporter() {
-            override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
-          }
+          val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
           when(consoleReporterMock.reportRunFinished(runReport))
             .thenReturn(IO.raiseError(new RuntimeException("Something happened")))
 
@@ -215,9 +170,7 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         it("should not log warnings if no exceptions occur") {
           val consoleReporterMock = mock[ConsoleReporter]
           when(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-          val sut: Reporter = new Reporter() {
-            override lazy val reporters: Seq[MutationRunReporter] = Seq(consoleReporterMock, progressReporterMock)
-          }
+          val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
 
           sut
             .reportRunFinished(runReport)
