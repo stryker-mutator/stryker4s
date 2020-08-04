@@ -1,6 +1,6 @@
 package stryker4s.report.dashboard
 import grizzled.slf4j.Logging
-import stryker4s.env.Environment.Environment
+import stryker4s.env.Environment
 
 object Providers extends Logging {
   def determineCiProvider(env: Environment): Option[CiProvider] =

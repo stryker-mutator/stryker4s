@@ -6,7 +6,7 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.Reporter
+import stryker4s.report.AggregateReporter
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
@@ -21,7 +21,7 @@ import cats.effect.IO
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
-  private val reporterMock = mock[Reporter]
+  private val reporterMock = mock[AggregateReporter]
   when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
   when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
   when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)

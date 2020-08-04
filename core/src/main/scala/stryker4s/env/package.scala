@@ -1,5 +1,5 @@
-package stryker4s.env
+package stryker4s
 
-object Environment {
+package object env {
   type Environment = Map[String, String]
 }
