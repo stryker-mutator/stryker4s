@@ -1,12 +1,12 @@
 package stryker4s.run.process
 
-import better.files.File
-import grizzled.slf4j.Logging
-
 import scala.concurrent.duration.{Duration, MINUTES}
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
+
+import better.files.File
 import cats.effect.IO
+import grizzled.slf4j.Logging
 
 trait ProcessRunner extends Logging {
   def apply(command: Command, workingDir: File): Try[Seq[String]] = {

@@ -1,5 +1,10 @@
 package stryker4s.sbt
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.implicitConversions
+
+import cats.effect.{ContextShift, IO => CatsIO, Timer}
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configurator
 import org.apache.logging.log4j.{Level => Log4jLevel}
@@ -7,11 +12,6 @@ import sbt.Keys._
 import sbt._
 import sbt.plugins._
 import stryker4s.run.threshold.ErrorStatus
-
-import scala.language.implicitConversions
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.ExecutionContext
-import cats.effect.{ContextShift, IO => CatsIO, Timer}
 
 /**
   * This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code

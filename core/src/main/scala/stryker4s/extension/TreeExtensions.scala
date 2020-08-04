@@ -1,8 +1,8 @@
 package stryker4s.extension
 
 import scala.annotation.tailrec
+import scala.meta._
 import scala.meta.transversers.SimpleTraverser
-import scala.meta.{Case, Decl, Defn, Mod, Term, Transformer, Tree}
 import scala.reflect.ClassTag
 import scala.util.Try
 

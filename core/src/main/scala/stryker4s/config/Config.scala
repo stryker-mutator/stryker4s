@@ -1,26 +1,23 @@
 package stryker4s.config
 
 import better.files._
-import pureconfig.ConfigWriter
-import pureconfig.generic.auto._
 
 final case class Config(
     mutate: Seq[String] = Seq("**/main/scala/**.scala"),
-    testFilter: Seq[String] = Seq(),
+    testFilter: Seq[String] = Seq.empty,
     baseDir: File = File.currentWorkingDirectory,
     reporters: Set[ReporterType] = Set(Console, Html),
     files: Option[Seq[String]] = None,
-    excludedMutations: ExcludedMutations = ExcludedMutations(),
+    excludedMutations: Config.ExcludedMutations = Set.empty,
     thresholds: Thresholds = Thresholds(),
     dashboard: DashboardOptions = DashboardOptions()
 )
 
 object Config {
+
+  /** Type alias for `Set[String]` so extra validation can be done
+    */
+  type ExcludedMutations = Set[String]
+
   lazy val default: Config = Config()
-
-  def toHoconString(config: Config): String = {
-    import stryker4s.config.implicits.ConfigWriterImplicits._
-
-    ConfigWriter[Config].to(config).render(options)
-  }
 }

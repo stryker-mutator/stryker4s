@@ -1,11 +1,9 @@
 package stryker4s.sbt.testrunner
 
-import stryker4s.api.testprocess.TestProcessConfig
-import java.net.ServerSocket
-import java.net.Socket
-import stryker4s.api.testprocess.Request
-import java.io.ObjectOutputStream
-import java.io.ObjectInputStream
+import java.io.{ObjectInputStream, ObjectOutputStream}
+import java.net.{ServerSocket, Socket}
+
+import stryker4s.api.testprocess.{Request, TestProcessConfig}
 
 object SbtTestRunnerMain {
   def main(args: Array[String]): Unit = {

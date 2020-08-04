@@ -1,24 +1,21 @@
 package stryker4s.sbt.runner
 
-import scala.tools.nsc.io.Socket
-import stryker4s.model.MutantRunResult
-import java.nio.file.Path
-import grizzled.slf4j.Logging
-import scala.sys.process.Process
-import stryker4s.api.testprocess._
-import stryker4s.model._
-import scala.sys.process.ProcessLogger
-import java.io.Closeable
-import java.io.ObjectOutputStream
-import java.io.ObjectInputStream
-import sbt.{Tests, TestDefinition => SbtTestDefinition}
-import stryker4s.extension.exception.MutationRunFailedException
-import sbt.{TestFramework => SbtTestFramework}
-import sbt.testing.{Framework => SbtFramework}
+import java.io.{Closeable, ObjectInputStream, ObjectOutputStream}
 import java.net.InetAddress
-import cats.effect.{IO, Timer}
+import java.nio.file.Path
+
 import scala.concurrent.duration._
+import scala.sys.process.{Process, ProcessLogger}
+import scala.tools.nsc.io.Socket
 import scala.util.control.NonFatal
+
+import cats.effect.{IO, Timer}
+import grizzled.slf4j.Logging
+import sbt.testing.{Framework => SbtFramework}
+import sbt.{TestDefinition => SbtTestDefinition, TestFramework => SbtTestFramework, Tests}
+import stryker4s.api.testprocess._
+import stryker4s.extension.exception.MutationRunFailedException
+import stryker4s.model.{MutantRunResult, _}
 
 class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
 

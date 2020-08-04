@@ -1,5 +1,5 @@
 package stryker4s.mutants
-import stryker4s.config.{Config, ExcludedMutations}
+import stryker4s.config.Config
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
@@ -63,7 +63,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
     }
 
     it("should log the amount of excluded mutants") {
-      implicit val conf: Config = Config(excludedMutations = ExcludedMutations(Set("EqualityOperator")))
+      implicit val conf: Config = Config(excludedMutations = Set("EqualityOperator"))
       val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFilesToMutate()
 
@@ -125,7 +125,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
 
     it("should log if all mutations are excluded") {
       implicit val conf: Config =
-        Config(excludedMutations = ExcludedMutations(Set("EqualityOperator", "StringLiteral")))
+        Config(excludedMutations = Set("EqualityOperator", "StringLiteral"))
       val files = new TestSourceCollector(Seq(FileUtil.getResource("scalaFiles/simpleFile.scala")))
         .collectFilesToMutate()
 

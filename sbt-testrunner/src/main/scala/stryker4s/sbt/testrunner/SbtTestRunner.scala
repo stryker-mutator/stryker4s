@@ -1,10 +1,12 @@
 package stryker4s.sbt.testrunner
 
-import sbt.testing.{Event, EventHandler, Framework, Status, Task, TaskDef}
-import scala.annotation.tailrec
-import stryker4s.api.testprocess._
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
+
+import scala.annotation.tailrec
+
+import sbt.testing.{Event, EventHandler, Framework, Status, Task, TaskDef}
+import stryker4s.api.testprocess._
 
 sealed trait TestRunner {
   def runMutation(mutation: Int): Status

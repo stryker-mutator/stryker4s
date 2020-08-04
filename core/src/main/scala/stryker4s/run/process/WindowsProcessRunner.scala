@@ -1,8 +1,8 @@
 package stryker4s.run.process
 
-import better.files.File
-
 import scala.util.Try
+
+import better.files.File
 
 class WindowsProcessRunner extends ProcessRunner {
   override def apply(command: Command, workingDir: File): Try[Seq[String]] = {

@@ -4,16 +4,16 @@ import java.io.{File => JFile}
 import java.nio.file.Path
 
 import better.files.{File, _}
+import cats.effect.{IO, Timer}
 import sbt.Keys._
 import sbt._
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
+import stryker4s.extension.exception.TestSetupException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
-import stryker4s.extension.exception.TestSetupException
-import cats.effect.{IO, Timer}
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,

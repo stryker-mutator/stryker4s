@@ -1,9 +1,9 @@
 package stryker4s.model
 
 import better.files.File
-import stryker4s.sbt.runner.ProcessManager
 import sbt.Tests
 import sbt.testing.Framework
+import stryker4s.sbt.runner.ProcessManager
 
 final case class SbtRunnerContext(
     frameworks: Seq[Framework],

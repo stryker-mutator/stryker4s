@@ -166,7 +166,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
     DashboardConfig(
       apiKey = "apiKeyHere",
       reportType = Full,
-      baseUrl = "https://baseurl.com",
+      baseUrl = uri"https://baseurl.com",
       project = "project/foo",
       version = "version/bar",
       module = None

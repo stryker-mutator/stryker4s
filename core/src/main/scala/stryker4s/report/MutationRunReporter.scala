@@ -1,7 +1,8 @@
 package stryker4s.report
+
+import cats.effect.IO
 import mutationtesting._
 import stryker4s.model.{Mutant, MutantRunResult}
-import cats.effect.IO
 
 sealed trait MutationRunReporter
 

@@ -1,8 +1,9 @@
 package stryker4s.report.dashboard
-import stryker4s.report.model.DashboardConfig
+
 import stryker4s.config.Config
-import stryker4s.report.dashboard.Providers._
 import stryker4s.env.Environment.Environment
+import stryker4s.report.dashboard.Providers._
+import stryker4s.report.model.DashboardConfig
 
 class DashboardConfigProvider(env: Environment)(implicit config: Config) {
   def resolveConfig(): Either[String, DashboardConfig] =

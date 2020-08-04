@@ -1,7 +1,7 @@
 package stryker4s.sbt.testrunner
 
-import stryker4s.api.testprocess._
 import sbt.testing.Status
+import stryker4s.api.testprocess._
 
 trait MessageHandler {
   def handleMessage(req: Request): Response

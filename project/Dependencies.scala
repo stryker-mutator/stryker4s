@@ -38,6 +38,7 @@ object Dependencies {
 
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
+  val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val betterFiles = "com.github.pathikrit" %% "better-files" % versions.betterFiles
   val log4jApi = "org.apache.logging.log4j" % "log4j-api" % versions.log4j
