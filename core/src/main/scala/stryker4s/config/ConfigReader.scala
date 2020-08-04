@@ -15,7 +15,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-  def readConfig(confSource: ConfigSource): Config = {
+  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4s.conf")): Config = {
     Reader
       .withoutRecovery[Config](confSource)
       .recoverWithDerivation(Failure.onUnknownKey)
@@ -24,7 +24,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   }
 
   def readConfigOfType[T](
-      confSource: ConfigSource
+      confSource: ConfigSource = ConfigSource.file("stryker4s.conf")
   )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
