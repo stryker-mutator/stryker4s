@@ -2,18 +2,18 @@ package stryker4s.run
 
 import java.nio.file.Path
 
+import scala.concurrent.duration._
+
 import better.files.File
 import grizzled.slf4j.Logging
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
+import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.Reporter
 import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.FinishedRunReport
-import scala.concurrent.duration._
-import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.report.{FinishedRunReport, Reporter}
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config

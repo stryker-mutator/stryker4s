@@ -1,16 +1,14 @@
 package stryker4s.report
 
+import cats.effect.IO
 import grizzled.slf4j.Logging
 import mutationtesting.{MetricsResult, MutationTestReport}
+import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model._
-import stryker4s.config.Full
-import stryker4s.config.MutationScoreOnly
 import sttp.client._
 import sttp.client.circe._
-import sttp.model.MediaType
-import sttp.model.StatusCode
-import cats.effect.IO
+import sttp.model.{MediaType, StatusCode}
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     httpBackend: SttpBackend[IO, Nothing, NothingT]

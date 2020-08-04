@@ -1,12 +1,13 @@
 package stryker4s.report
 
+import java.nio.file.Path
+
+import cats.Parallel
+import cats.effect.IO
 import grizzled.slf4j.Logging
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
-import cats.effect.IO
-import cats.Parallel
-import java.nio.file.Path
 
 class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) extends FinishedRunReporter with Logging {
 

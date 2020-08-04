@@ -4,9 +4,9 @@ import java.nio.file.Path
 
 import better.files.File
 import pureconfig.ConfigReader
-import stryker4s.config._
-import pureconfig.generic.semiauto._
 import pureconfig.error.CannotConvert
+import pureconfig.generic.semiauto._
+import stryker4s.config._
 import stryker4s.extension.mutationtype.Mutation
 
 /** Conversions of custom case classes or enums so PureConfig can read it.

@@ -1,12 +1,10 @@
 package stryker4s.files
-import cats.effect.IO
-import fs2._
-import fs2.io.readInputStream
-import fs2.io.file._
-import cats.effect.Blocker
-import cats.effect.ContextShift
-import cats.effect.Sync
 import java.nio.file.Path
+
+import cats.effect.{Blocker, ContextShift, IO, Sync}
+import fs2._
+import fs2.io.file._
+import fs2.io.readInputStream
 sealed trait FileIO {
   def createAndWriteFromResource(file: Path, resource: String): IO[Unit]
 

@@ -1,14 +1,13 @@
 package stryker4s.report
 
+import cats.effect.{ContextShift, IO}
+import cats.implicits._
 import grizzled.slf4j.Logging
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.report.dashboard.DashboardConfigProvider
-import cats.implicits._
-import cats.effect.IO
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
-import cats.effect.ContextShift
 
 class Reporter(implicit config: Config, cs: ContextShift[IO])
     extends FinishedRunReporter

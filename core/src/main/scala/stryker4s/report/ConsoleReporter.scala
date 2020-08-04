@@ -1,13 +1,13 @@
 package stryker4s.report
 
+import scala.concurrent.duration.{Duration, MILLISECONDS}
+
+import cats.effect.IO
 import grizzled.slf4j.Logging
-import mutationtesting.{MutantResult, MutantStatus}
+import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
-import scala.concurrent.duration.{Duration, MILLISECONDS}
-import mutationtesting.Position
-import cats.effect.IO
 
 class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
   private val startTime = System.currentTimeMillis()

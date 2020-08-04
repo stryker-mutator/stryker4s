@@ -1,11 +1,12 @@
 package stryker4s.report
 
+import java.nio.file.Path
+
+import cats.effect.IO
 import grizzled.slf4j.Logging
+import mutationtesting.MutationTestReport
 import stryker4s.config.Config
 import stryker4s.files.FileIO
-import mutationtesting.MutationTestReport
-import cats.effect.IO
-import java.nio.file.Path
 
 class JsonReporter(fileIO: FileIO)(implicit config: Config) extends FinishedRunReporter with Logging {
 
