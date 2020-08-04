@@ -7,6 +7,7 @@ import stryker4s.run.threshold.ErrorStatus
 import pureconfig.generic.auto._
 import cats.effect.IOApp
 import cats.effect.{ExitCode, IO}
+import pureconfig.ConfigSource
 
 object Stryker4sMain extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
@@ -14,7 +15,7 @@ object Stryker4sMain extends IOApp {
       Stryker4sArgumentHandler.handleArgs(args)
 
       val processRunnerConfig: ProcessRunnerConfig =
-        ConfigReader.readConfigOfType[ProcessRunnerConfig]() match {
+        ConfigReader.readConfigOfType[ProcessRunnerConfig](ConfigSource.file("stryker4s.conf")) match {
           case Left(failures) => throw ConfigReaderException(failures)
           case Right(config)  => config
         }

@@ -1,35 +1,10 @@
 package stryker4s.run.threshold
 
-import org.scalatest.Assertion
 import stryker4s.config.{Config, Thresholds}
-import stryker4s.extension.exception.InvalidThresholdValueException
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
 class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
-  describe("thresholds") {
-    def interceptThresholdException(high: Int = 80, low: Int = 60, break: Int = 0): Assertion = {
-      an[InvalidThresholdValueException] should be thrownBy Thresholds(high, low, break)
-    }
-
-    it("should throw an exception when any value does not conform to 0-100") {
-      interceptThresholdException(high = 101)
-      interceptThresholdException(high = -1)
-      interceptThresholdException(low = 101)
-      interceptThresholdException(low = -1)
-      interceptThresholdException(break = 101)
-      interceptThresholdException(break = -1)
-    }
-
-    it("should throw an exception when 'high' is smaller than 'low'") {
-      interceptThresholdException(high = 70, low = 80)
-    }
-
-    it("should throw an exception when 'low' is smaller than or equal to 'break'") {
-      interceptThresholdException(low = 20, break = 30)
-      interceptThresholdException(low = 30, break = 30)
-    }
-  }
   describe("thresholdchecker") {
     it("should return a DangerStatus with default thresholds and score 0.0") {
       implicit val config: Config = Config.default

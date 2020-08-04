@@ -9,12 +9,13 @@ import pureconfig.generic.semiauto._
 import pureconfig.error.CannotConvert
 import stryker4s.extension.mutationtype.Mutation
 
+/** Conversions of custom case classes or enums so PureConfig can read it.
+  * @example `toFileReader` makes PureConfig able to read [[better.files.File]] from a [[java.nio.file.Path]]
+  */
 trait ConfigReaderImplicits {
 
-  /** Converts a [[java.nio.file.Path]] to a [[better.files.File]] so PureConfig can read it
-    */
   implicit private[config] val toFileReader: ConfigReader[File] =
-    ConfigReader[Path] map (p => File(p))
+    ConfigReader[Path] map (File(_))
 
   implicit private[config] val toReporterList: ConfigReader[ReporterType] =
     deriveEnumerationReader[ReporterType]
@@ -38,5 +39,35 @@ trait ConfigReaderImplicits {
     }
 
   implicit private[config] val uriReader = pureconfig.module.sttp.reader
+
+  implicit private[config] val thresholdsReader: ConfigReader[Thresholds] = deriveReader[Thresholds] emap {
+    case Thresholds(high, _, _) if isNotPercentage(high)   => notPercentageError(high, "high")
+    case Thresholds(_, low, _) if isNotPercentage(low)     => notPercentageError(low, "low")
+    case Thresholds(_, _, break) if isNotPercentage(break) => notPercentageError(break, "break")
+    case Thresholds(high, low, _) if high < low =>
+      Left(
+        CannotConvert(
+          high.toString(),
+          "thresholds.high",
+          s"'high' ($high) must be greater than or equal to 'low' ($low)"
+        )
+      )
+    case Thresholds(_, low, break) if low <= break =>
+      Left(
+        CannotConvert(
+          low.toString(),
+          "thresholds.low",
+          s"'low' ($low) must be greater than 'break' ($break)"
+        )
+      )
+    case valid => Right(valid)
+  }
+
+  private def isNotPercentage(n: Int) = n < 0 || n > 100
+
+  /** Helper function to create a CannotConvert when a value is not a percentage
+    */
+  private def notPercentageError(value: Int, name: String): Left[CannotConvert, Thresholds] =
+    Left(CannotConvert(value.toString(), s"thresholds.$name", "must be a percentage 0-100"))
 
 }

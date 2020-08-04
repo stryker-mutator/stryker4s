@@ -4,14 +4,14 @@ import org.scalatest.EitherValues
 import pureconfig.error.{ConfigReaderFailures, ConvertFailure, KeyNotFound}
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.run.process.Command
-import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
 import pureconfig.generic.auto._
+import stryker4s.testutil.ExampleConfigs
 
 class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
   describe("ProcessConfig") {
     it("should read a process config") {
-      val confPath = FileUtil.getResource("config/filledProcess.conf")
+      val confPath = ExampleConfigs.filledProcess
 
       val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath).getOrElse(fail())
 
@@ -19,7 +19,7 @@ class ProcessConfigReaderTest extends Stryker4sSuite with EitherValues {
     }
 
     it("should read an empty config to errors") {
-      val confPath = FileUtil.getResource("config/empty.conf")
+      val confPath = ExampleConfigs.emptyStryker4s
 
       val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath)
 

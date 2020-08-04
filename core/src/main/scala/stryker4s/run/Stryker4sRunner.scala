@@ -11,10 +11,11 @@ import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import cats.effect.ContextShift
 import cats.effect.IO
+import pureconfig.ConfigSource
 
 trait Stryker4sRunner {
   def run()(implicit cs: ContextShift[IO]): ScoreStatus = {
-    implicit val config: Config = ConfigReader.readConfig()
+    implicit val config: Config = ConfigReader.readConfig(ConfigSource.file("stryker4s.conf"))
 
     val collector = new FileCollector(ProcessRunner())
     val stryker4s = new Stryker4s(
