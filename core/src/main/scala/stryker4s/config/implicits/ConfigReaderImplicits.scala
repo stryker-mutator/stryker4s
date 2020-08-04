@@ -14,13 +14,13 @@ import stryker4s.extension.mutationtype.Mutation
   */
 trait ConfigReaderImplicits {
 
-  implicit private[config] val toFileReader: ConfigReader[File] =
+  implicit private[config] val fileReader: ConfigReader[File] =
     ConfigReader[Path] map (p => File(p))
 
-  implicit private[config] val toReporterList: ConfigReader[ReporterType] =
+  implicit private[config] val reporterReader: ConfigReader[ReporterType] =
     deriveEnumerationReader[ReporterType]
 
-  implicit private[config] val toDashboardOptions: ConfigReader[DashboardReportType] =
+  implicit private[config] val dashboardReportTypeReader: ConfigReader[DashboardReportType] =
     deriveEnumerationReader[DashboardReportType]
 
   implicit private[config] val exclusionsReader: ConfigReader[Config.ExcludedMutations] =
