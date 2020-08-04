@@ -6,6 +6,7 @@ import stryker4s.config.Full
 import stryker4s.config.DashboardOptions
 import stryker4s.config.MutationScoreOnly
 import org.scalatest.EitherValues
+import sttp.client.UriContext
 
 class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
   describe("resolveConfig") {
@@ -24,7 +25,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
       result shouldBe Right(
         DashboardConfig(
           "apiKeyHere",
-          "https://dashboard.stryker-mutator.io",
+          uri"https://dashboard.stryker-mutator.io",
           Full,
           "github.com/travisRepo/slug",
           "travisBranch",
@@ -109,7 +110,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
     it("should resolve a configured environment") {
       implicit val config = Config.default.copy(
         dashboard = DashboardOptions(
-          baseUrl = "https://baseUrl.com",
+          baseUrl = uri"https://baseUrl.com",
           reportType = MutationScoreOnly,
           project = Some("projectHere"),
           version = Some("versionHere"),
@@ -126,7 +127,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
       result shouldBe Right(
         DashboardConfig(
           "apiKeyHere",
-          "https://baseUrl.com",
+          uri"https://baseUrl.com",
           MutationScoreOnly,
           "projectHere",
           "versionHere",

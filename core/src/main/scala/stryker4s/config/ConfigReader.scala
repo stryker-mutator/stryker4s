@@ -1,8 +1,6 @@
 package stryker4s.config
 
 import java.io.FileNotFoundException
-
-import better.files.File
 import cats.syntax.either._
 import grizzled.slf4j.Logging
 import pureconfig.error._
@@ -12,28 +10,23 @@ import stryker4s.config.implicits.ConfigReaderImplicits
 import pureconfig.generic.auto._
 
 object ConfigReader extends ConfigReaderImplicits with Logging {
-  val defaultConfigFileLocation: File = File.currentWorkingDirectory / "stryker4s.conf"
-
   private val configDocUrl: String =
     "https://github.com/stryker-mutator/stryker4s/blob/master/docs/CONFIGURATION.md"
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-  /** Read config from stryker4s.conf. Or use the default Config if no config file is found.
-    */
-  def readConfig(confFile: File = defaultConfigFileLocation): Config = {
-
+  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4s.conf")): Config = {
     Reader
-      .withoutRecovery[Config](confFile)
+      .withoutRecovery[Config](confSource)
       .recoverWithDerivation(Failure.onUnknownKey)
       .recoverWith(Failure.onFileNotFound.andThen(_.asRight[ConfigReaderFailures]))
       .config
   }
 
   def readConfigOfType[T](
-      confFile: File = defaultConfigFileLocation
+      confSource: ConfigSource = ConfigSource.file("stryker4s.conf")
   )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
-    Reader.withoutRecovery[T](confFile).tryRead
+    Reader.withoutRecovery[T](confSource).tryRead
 
   /**
     * A configuration on how to attempt to read a config. The reason for its existence is to
@@ -46,8 +39,11 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
     * @param derivation the [[Derivation]] that is used to configure the [[PureConfigReader]].
     * @tparam T the type of the config that is to be read.
     */
-  private class Reader[T] private (file: File, onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]])(
-      implicit derivation: Derivation[PureConfigReader[T]]
+  private class Reader[T] private (
+      configSource: ConfigSource,
+      onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]]
+  )(implicit
+      derivation: Derivation[PureConfigReader[T]]
   ) {
 
     /**
@@ -55,7 +51,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * if they occur
       */
     def recoverWith(pf: PartialFunction[ConfigReaderFailures, Reader.Result[T]]): Reader[T] =
-      new Reader[T](file, this.onFailure orElse pf)
+      new Reader[T](configSource, this.onFailure orElse pf)
 
     /**
       * Handle certain [[ConfigReaderFailures]] by providing a different [[Derivation]] with
@@ -63,7 +59,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       */
     def recoverWithDerivation(pf: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[T]]]): Reader[T] = {
       def setDerivation(d: Derivation[PureConfigReader[T]]): Reader.Result[T] = {
-        val api = new Reader[T](file, this.onFailure)(d)
+        val api = new Reader[T](configSource, this.onFailure)(d)
         api.tryRead
       }
 
@@ -81,9 +77,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       * Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
-      info(s"Attempting to read config from ${file.path}")
-      ConfigSource
-        .file(file.path)
+      info(s"Attempting to read config from stryker4s.conf")
+      configSource
         .at("stryker4s")
         .load[T]
         .recoverWith(onFailure)
@@ -93,8 +88,8 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   private object Reader {
     type Result[T] = Either[ConfigReaderFailures, T]
 
-    def withoutRecovery[T](file: File)(implicit d: Derivation[PureConfigReader[T]]): Reader[T] =
-      new Reader[T](file, PartialFunction.empty)
+    def withoutRecovery[T](configSource: ConfigSource)(implicit d: Derivation[PureConfigReader[T]]): Reader[T] =
+      new Reader[T](configSource, PartialFunction.empty)
   }
 
   private object Failure {
@@ -115,7 +110,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
         warn(
           s"The following configuration key(s) are not used, they could stem from an older " +
-            s"stryker4s version: ${unknownKeys.mkString(", ")}.\n" +
+            s"stryker4s version: '${unknownKeys.mkString(", ")}'.\n" +
             s"Please check the documentation at $configDocUrl for available options."
         )
         implicitly[Derivation[PureConfigReader[Config]]]
@@ -129,10 +124,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _*) =>
         warn(s"Could not find config file $fileName")
         warn("Using default config instead...")
-        // FIXME: sbt has its own (older) dependency on Typesafe config, which causes an error with Pureconfig when running the sbt plugin
-        //  If that's fixed we can add this again
-        //  https://github.com/stryker-mutator/stryker4s/issues/116
-        // info("Config used: " + defaultConf.toHoconString)
+        debug("Config used: " + Config.default)
 
         Config.default
     }

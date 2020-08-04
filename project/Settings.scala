@@ -14,6 +14,7 @@ object Settings {
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
       Dependencies.pureconfig,
+      Dependencies.pureconfigSttp,
       Dependencies.scalameta,
       Dependencies.betterFiles,
       Dependencies.log4jApi,
