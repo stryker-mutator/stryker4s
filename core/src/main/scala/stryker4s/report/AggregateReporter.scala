@@ -3,33 +3,16 @@ package stryker4s.report
 import cats.effect.{ContextShift, IO}
 import cats.implicits._
 import grizzled.slf4j.Logging
-import stryker4s.config._
-import stryker4s.files.DiskFileIO
 import stryker4s.model.{Mutant, MutantRunResult}
-import stryker4s.report.dashboard.DashboardConfigProvider
-import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
-class Reporter(implicit config: Config, cs: ContextShift[IO])
+class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit cs: ContextShift[IO])
     extends FinishedRunReporter
     with ProgressReporter
     with Logging {
+  this: Reporter =>
 
-  lazy val reporters: Iterable[MutationRunReporter] = config.reporters map {
-    case Console => new ConsoleReporter()
-    case Html    => new HtmlReporter(new DiskFileIO())
-    case Json    => new JsonReporter(new DiskFileIO())
-    case Dashboard =>
-      AsyncHttpClientCatsBackend[IO]()
-        .map { implicit backend =>
-          new DashboardReporter(new DashboardConfigProvider(sys.env))
-        }
-        // TODO: Figure out some other way to do this?
-        .unsafeRunSync()
-
-  }
-
-  private[this] lazy val progressReporters = reporters collect { case r: ProgressReporter => r }
-  private[this] lazy val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
+  private lazy val progressReporters = reporters collect { case r: ProgressReporter => r }
+  private lazy val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
 
   override def reportMutationStart(mutant: Mutant): IO[Unit] =
     reportAll[ProgressReporter](
