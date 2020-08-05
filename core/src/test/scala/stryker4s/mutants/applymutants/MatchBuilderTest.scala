@@ -30,8 +30,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       assert(result.expr.isEqual(activeMutationPropsExpr))
       val someZero = someOf(0)
       val someOne = someOf(1)
-      result.cases should (contain
-        .inOrderOnly(p"case $someZero => x > 15", p"case $someOne => x <= 15", p"case _ => x >= 15"))
+      result.cases.map(_.syntax) should (contain
+        .inOrderOnly(
+          p"case $someZero => x > 15".syntax,
+          p"case $someOne => x <= 15".syntax,
+          p"case _ => x >= 15".syntax
+        ))
     }
   }
 
