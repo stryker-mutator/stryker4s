@@ -4,12 +4,11 @@ import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.extension.TreeExtensions._
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
-import stryker4s.scalatest.TreeEquality
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
+class StatementTransformerTest extends Stryker4sSuite {
   val sut = new StatementTransformer
 
   describe("transformStatement") {
@@ -20,7 +19,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.transformStatement(topStatement, originalTree, GreaterThan)
 
-      result should equal(q"15 > 5")
+      assert(result.isEqual(q"15 > 5"))
     }
 
     it("should return list of transformed statements on multiple found mutants") {
@@ -30,7 +29,7 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.transformStatement(topStatement, originalTree, EqualTo)
 
-      result should equal(q"15 == 5")
+      assert(result.isEqual(q"15 == 5"))
     }
 
     it("should mutate a more complex tree statement with two similar statements") {
@@ -52,10 +51,10 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.transformStatement(topStatement, subTree, q"/")
 
-      result should equal(q"""otherList
+      assert(result.isEqual(q"""otherList
           .filter(_ >= 5)
           .map(_ / 5)
-          .drop(5)""")
+          .drop(5)"""))
     }
   }
 
@@ -74,8 +73,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       val topStatement = transformedMutant.originalStatement
       val transformedTrees = transformedMutant.mutantStatements
       val mutatedResult = transformedTrees.map(_.mutated)
-      topStatement should equal(q"15 >= 5")
-      mutatedResult should contain.only(q"15 == 5", q"15 > 5", q"15 <= 5")
+      assert(topStatement.isEqual(q"15 >= 5"))
+      mutatedResult.map(_.syntax) should contain.only("15 == 5", "15 > 5", "15 <= 5")
     }
   }
 
@@ -93,8 +92,8 @@ class StatementTransformerTest extends Stryker4sSuite with TreeEquality {
       // Assert
       result.source should be theSameInstanceAs source
       val le = result.transformedStatements.loneElement
-      le.originalStatement should equal(q"15 >= 4")
-      le.mutantStatements.map(_.mutated) should contain.only(q"15 == 4", q"15 > 4", q"15 <= 4")
+      assert(le.originalStatement.isEqual(q"15 >= 4"))
+      le.mutantStatements.map(_.mutated.syntax) should contain.only("15 == 4", "15 > 4", "15 <= 4")
     }
   }
 

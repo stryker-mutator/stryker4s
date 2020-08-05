@@ -1,12 +1,11 @@
 package stryker4s.extension
 
 import stryker4s.extension.TreeExtensions._
-import stryker4s.scalatest.TreeEquality
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
+class TreeExtensionsTest extends Stryker4sSuite {
   describe("topStatement") {
     it("should return top statement in a simple statement") {
       val tree = q"x.times(2)"
@@ -14,7 +13,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      subTree should equal(q"times")
+      assert(subTree.isEqual(q"times"))
       result should be theSameInstanceAs tree
     }
 
@@ -24,8 +23,8 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      subTree should equal(q"equals")
-      result should equal(q"age.equals(18)")
+      assert(subTree.isEqual(q"equals"))
+      assert(result.isEqual(q"age.equals(18)"))
     }
 
     it("should return top statement on infix statement") {
@@ -34,8 +33,8 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      subTree should equal(q"equals")
-      result should equal(q"age equals 18")
+      assert(subTree.isEqual(q"equals"))
+      assert(result.isEqual(q"age equals 18"))
     }
 
     it("should return top statement on multiple calls") {
@@ -44,7 +43,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"list.map(_ * 2).filter(_ >= 2).isEmpty")
+      assert(result.isEqual(q"list.map(_ * 2).filter(_ >= 2).isEmpty"))
     }
 
     it("should return top statement on list creation with method calls") {
@@ -53,7 +52,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"List(1, 2, 3).filter(_ >= 2).isEmpty")
+      assert(result.isEqual(q"List(1, 2, 3).filter(_ >= 2).isEmpty"))
     }
 
     it("should return top statement on multiple calls when mutation is last call") {
@@ -62,7 +61,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"list.map(_ * 2).filter(_ >= 2).isEmpty")
+      assert(result.isEqual(q"list.map(_ * 2).filter(_ >= 2).isEmpty"))
     }
 
     it("should return top statement in a bigger def") {
@@ -88,7 +87,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
           .map(_ * 3)
           .drop(5)
          """
-      result should equal(expected)
+      assert(result.isEqual(expected))
     }
 
     it("should return same statement of def in def with single statement") {
@@ -97,7 +96,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"4")
+      assert(result.isEqual(q"4"))
     }
 
     it("should return same statement when topStatement is called twice") {
@@ -108,7 +107,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
         .topStatement()
         .topStatement()
 
-      result should equal(q"x >= 4")
+      assert(result.isEqual(q"x >= 4"))
     }
 
     it("should return whole statement with && and || operator") {
@@ -117,7 +116,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"x >= 4 && x < 10 || x <= 0")
+      assert(result.isEqual(q"x >= 4 && x < 10 || x <= 0"))
     }
 
     it("should return whole statement on infix inside postfix statement") {
@@ -126,7 +125,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"Math.square(2 * 5)")
+      assert(result.isEqual(q"Math.square(2 * 5)"))
     }
 
     it("should not include if statement") {
@@ -135,7 +134,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"x > 10")
+      assert(result.isEqual(q"x > 10"))
     }
 
     it("should not include if statement if expression is in the if statement") {
@@ -144,7 +143,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"x >= 5")
+      assert(result.isEqual(q"x >= 5"))
     }
 
     it("should include new operator") {
@@ -153,7 +152,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"new Bar(4).filter(_ >= 3)")
+      assert(result.isEqual(q"new Bar(4).filter(_ >= 3)"))
     }
 
     it("should include entire statement with && statement") {
@@ -162,7 +161,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"a == b && b == c")
+      assert(result.isEqual(q"a == b && b == c"))
     }
 
     it("should include entire statement when && is not symmetrical on left") {
@@ -171,7 +170,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"a && b == c")
+      assert(result.isEqual(q"a && b == c"))
     }
 
     it("should include entire statement when && is not symmetrical on right") {
@@ -180,7 +179,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"a == b && c")
+      assert(result.isEqual(q"a == b && c"))
     }
 
     it("should include generic type") {
@@ -189,7 +188,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"a.parse[Source]")
+      assert(result.isEqual(q"a.parse[Source]"))
     }
 
     it("should include the whole pattern match") {
@@ -199,7 +198,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"variable match { case true => 1; case _ => 2 }")
+      assert(result.isEqual(q"variable match { case true => 1; case _ => 2 }"))
     }
 
     it("should include the whole PartialFunction when matching on a def with a partialFunction") {
@@ -213,7 +212,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"{ case false => 1; case _ => 2 }")
+      assert(result.isEqual(q"{ case false => 1; case _ => 2 }"))
     }
 
     it("should match on more than the single variable in a Pat.Alternative") {
@@ -223,7 +222,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"variable match { case 1 | 2 => 3; case _ => 4 }")
+      assert(result.isEqual(q"variable match { case 1 | 2 => 3; case _ => 4 }"))
     }
 
     it("should match on more than the single variable in a Pat.Extract") {
@@ -234,7 +233,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"variable match { case GET -> Root / $hello => 3; case _ => 4 }")
+      assert(result.isEqual(q"variable match { case GET -> Root / $hello => 3; case _ => 4 }"))
     }
 
     it("should match on a Literal") {
@@ -243,7 +242,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"list.map(_ == 4)")
+      assert(result.isEqual(q"list.map(_ == 4)"))
     }
 
     it("should include ! in if statement") {
@@ -252,7 +251,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"!foo")
+      assert(result.isEqual(q"!foo"))
     }
 
     it("should include pattern matches") {
@@ -265,7 +264,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(expectedTopStatement)
+      assert(result.isEqual(expectedTopStatement))
     }
 
     it("should not include a class as a topStatement") {
@@ -276,7 +275,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"myFunction()")
+      assert(result.isEqual(q"myFunction()"))
     }
 
     it("should run on a for-comprehension") {
@@ -288,7 +287,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"foo.bar")
+      assert(result.isEqual(q"foo.bar"))
     }
 
     it("should run on a for-comprehension yield") {
@@ -299,7 +298,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"baz.qux")
+      assert(result.isEqual(q"baz.qux"))
     }
 
     it("should stop at the catch in a try-catch") {
@@ -312,7 +311,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = subTree.topStatement()
 
-      result should equal(q"baz.qux")
+      assert(result.isEqual(q"baz.qux"))
     }
   }
 
@@ -323,7 +322,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = tree.find(q">=")
 
-      result.value should equal(q">=")
+      assert(result.value.isEqual(q">="))
     }
 
     it("should find statement in large tree") {
@@ -342,7 +341,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = tree.find(q"_ * 5")
 
-      result.value should equal(q"_ * 5")
+      assert(result.value.isEqual(q"_ * 5"))
     }
 
     it("should return none if statement is not in tree") {
@@ -380,7 +379,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.transformOnce({ case q"5" => q"5 + 1" }).get
 
-      result should equal(q"def foo = 5 + 1")
+      assert(result.isEqual(q"def foo = 5 + 1"))
     }
 
     it("should transform both appearances in the tree only once") {
@@ -388,7 +387,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
 
       val result = sut.transformOnce({ case q"5" => q"(5 * 2)" }).get
 
-      result should equal(q"def foo = (5 * 2) + (5 * 2)")
+      assert(result.isEqual(q"def foo = (5 * 2) + (5 * 2)"))
     }
 
     it("should return the same tree if no transformation is applied") {
@@ -405,7 +404,7 @@ class TreeExtensionsTest extends Stryker4sSuite with TreeEquality {
       val result = sut.transformOnce({ case q"5" => q"6" }).get
 
       val expected = q"val x: Int = 6"
-      result should equal(expected)
+      assert(result.isEqual(expected))
       result.syntax should equal(expected.syntax)
     }
   }

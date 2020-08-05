@@ -1,14 +1,15 @@
 package stryker4s.mutants
 import stryker4s.config.Config
+import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
+import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import stryker4s.testutil.stubs.TestSourceCollector
 
 import scala.meta._
 
-class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
+class MutatorTest extends Stryker4sSuite with LogMatchers {
   describe("run") {
     it("should return a single Tree with changed pattern match") {
       implicit val conf: Config = Config.default
@@ -41,7 +42,7 @@ class MutatorTest extends Stryker4sSuite with TreeEquality with LogMatchers {
                        |      s"${bar}foo"
                        |  }
                        |}""".stripMargin.parse[Source].get
-      result.loneElement.tree should equal(expected)
+      assert(result.loneElement.tree.isEqual(expected))
     }
   }
   describe("logs") {
