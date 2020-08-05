@@ -82,7 +82,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     context.processHandler.initialTestRun(context.frameworks, context.testGroups)
 
   override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
-    path => context.processHandler.runMutant(mutant, path)
+    context.processHandler.runMutant(mutant, _)
 
   override def dispose(context: Context): Unit = {
     context.processHandler.close()

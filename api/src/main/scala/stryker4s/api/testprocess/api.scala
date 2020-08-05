@@ -24,7 +24,8 @@ sealed trait TestResultResponse extends Response
 final case class TestsSuccessful() extends TestResultResponse
 @SerialVersionUID(2877149475182945995L)
 final case class TestsUnsuccessful() extends TestResultResponse
-
+@SerialVersionUID(1058983162546605150L)
+final case class ErrorDuringTestRun(msg: String) extends TestResultResponse
 @SerialVersionUID(5801266848315151179L)
 final case class TestProcessConfig(port: Int)
 

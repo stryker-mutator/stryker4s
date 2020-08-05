@@ -22,9 +22,10 @@ class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
   def runMutant(mutant: Mutant, path: Path): MutantRunResult = {
     val message = StartTestRun(mutant.id)
     testProcess.sendMessage(message) match {
-      case _: TestsSuccessful   => Survived(mutant, path)
-      case _: TestsUnsuccessful => Killed(mutant, path)
-      case _                    => Error(mutant, path)
+      case _: TestsSuccessful    => Survived(mutant, path)
+      case _: TestsUnsuccessful  => Killed(mutant, path)
+      case _: ErrorDuringTestRun => Killed(mutant, path)
+      case _                     => Error(mutant, path)
     }
   }
 

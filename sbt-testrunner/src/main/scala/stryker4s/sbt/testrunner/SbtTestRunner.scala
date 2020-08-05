@@ -32,7 +32,7 @@ class SbtTestRunner(context: TestProcessContext) extends TestRunner {
             case Status.Failure => accResult
             case Status.Error   => accResult
             case _ =>
-              mutation.foreach(activateMutation(_))
+              mutation.foreach(activateMutation)
               val result = runTests(tasksToRun, new AtomicReference(Status.Success))
 
               combineStatus(accResult, result)
@@ -45,6 +45,7 @@ class SbtTestRunner(context: TestProcessContext) extends TestRunner {
   def runMutation(mutation: Int) = {
     fs(Some(mutation))
   }
+
   def initialTestRun(): Status = {
     fs(None)
   }
