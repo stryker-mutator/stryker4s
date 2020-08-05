@@ -5,12 +5,11 @@ import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
-import stryker4s.scalatest.TreeEquality
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
+class MutantMatcherTest extends Stryker4sSuite {
   implicit private val config: Config = Config.default
   private val sut = new MutantMatcher()
 
@@ -34,8 +33,8 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
         )
         .getOrElse(fail("mutant not found"))
 
-      actualMutant.original should equal(original)
-      actualMutant.mutated should equal(expectedMutation)
+      assert(actualMutant.original.isEqual(original))
+      assert(actualMutant.mutated.isEqual(expectedMutation))
     })
   }
 
@@ -376,7 +375,7 @@ class MutantMatcherTest extends Stryker4sSuite with TreeEquality {
       val sut = new MutantMatcher()(Config.default)
       val mutants = (sut.TermExtensions(GreaterThan).~~>(LesserThan, GreaterThanEqualTo, EqualTo)).flatten
 
-      mutants.map(mutant => mutant.id) should contain theSameElementsAs List(0, 1, 2)
+      mutants.map(_.id) should contain theSameElementsAs List(0, 1, 2)
     }
   }
 

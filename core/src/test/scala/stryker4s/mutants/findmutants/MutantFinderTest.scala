@@ -5,13 +5,14 @@ import java.nio.file.NoSuchFileException
 import better.files.File
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
-import stryker4s.scalatest.{FileUtil, LogMatchers, TreeEquality}
+import stryker4s.extension.TreeExtensions.IsEqualExtension
+import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 import scala.meta.parsers.ParseException
 
-class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers {
+class MutantFinderTest extends Stryker4sSuite with LogMatchers {
   implicit private val config: Config = Config.default
 
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
@@ -33,7 +34,7 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
                        |
                        |final case class Person(age: Int, name: String)
                        |""".stripMargin.parse[Source].get
-      result should equal(expected)
+      assert(result.isEqual(expected))
     }
 
     it("should throw an exception on a non-parseable file") {
@@ -77,12 +78,12 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
       result should have length 2
 
       val firstMutant = result.head
-      firstMutant.original should equal(q"==")
-      firstMutant.mutated should equal(q"!=")
+      assert(firstMutant.original.isEqual(q"=="))
+      assert(firstMutant.mutated.isEqual(q"!="))
 
       val secondMutant = result(1)
-      secondMutant.original should equal(Lit.String("foobar"))
-      secondMutant.mutated should equal(Lit.String(""))
+      assert(secondMutant.original.isEqual(Lit.String("foobar")))
+      assert(secondMutant.mutated.isEqual(Lit.String("")))
     }
 
     it("should filter out excluded mutants") {
@@ -163,12 +164,12 @@ class MutantFinderTest extends Stryker4sSuite with TreeEquality with LogMatchers
 
       result.source.children should not be empty
       val firstMutant = result.mutants.head
-      firstMutant.original should equal(q"==")
-      firstMutant.mutated should equal(q"!=")
+      assert(firstMutant.original.isEqual(q"=="))
+      assert(firstMutant.mutated.isEqual(q"!="))
 
       val secondMutant = result.mutants(1)
-      secondMutant.original should equal(Lit.String("Hugo"))
-      secondMutant.mutated should equal(Lit.String(""))
+      assert(secondMutant.original.isEqual(Lit.String("Hugo")))
+      assert(secondMutant.mutated.isEqual(Lit.String("")))
     }
   }
 

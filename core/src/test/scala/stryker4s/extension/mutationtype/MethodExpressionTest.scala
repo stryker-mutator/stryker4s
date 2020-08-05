@@ -1,11 +1,10 @@
 package stryker4s.extension.mutationtype
 
-import stryker4s.scalatest.TreeEquality
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta._
 
-class MethodExpressionTest extends Stryker4sSuite with TreeEquality {
+class MethodExpressionTest extends Stryker4sSuite {
   describe("ArgMethodExpression") {
     it("should match with a filter call (one argument)") {
       q"list.filter( _ => true )" should matchPattern { case Filter(_, _) => }
