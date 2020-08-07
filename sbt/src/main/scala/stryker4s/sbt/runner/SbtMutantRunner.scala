@@ -14,10 +14,12 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
+import cats.effect.{ContextShift, Resource}
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
-    timer: Timer[IO]
+    timer: Timer[IO],
+    cs: ContextShift[IO]
 ) extends MutantRunner(sourceCollector, reporter) {
   type Context = SbtRunnerContext
 
@@ -31,7 +33,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     "unused:explicits"
     // -Ywarn for Scala 2.12, -W for Scala 2.13
   ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
-  def initializeTestContext(tmpDir: File): Context = {
+  def initializeTestContext(tmpDir: File): Resource[IO, Context] = {
     val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
     debug(s"Resolved stryker4s version $stryker4sVersion")
 
@@ -75,7 +77,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     }
     val processManager = ProcessManager.newProcess(classpath)
 
-    SbtRunnerContext(frameworks, testGroups, processManager, tmpDir)
+    Resource.pure[IO, Context](SbtRunnerContext(frameworks, testGroups, processManager, tmpDir))
   }
 
   override def runInitialTest(context: Context): Boolean =

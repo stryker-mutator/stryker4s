@@ -16,7 +16,7 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
     validateAllocatedMemory()
     val filesToMutate = fileCollector.collectFilesToMutate()
     val mutatedFiles = mutator.mutate(filesToMutate)
-    val metrics = runner(mutatedFiles)
+    val metrics = runner(mutatedFiles).unsafeRunSync() // TODO: Don't use unsafeRunSync()
     ThresholdChecker.determineScoreStatus(metrics.mutationScore)
   }
 

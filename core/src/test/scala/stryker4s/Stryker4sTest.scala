@@ -23,6 +23,7 @@ import scala.util.Success
 import stryker4s.report.FinishedRunReport
 import stryker4s.model.TestRunnerContext
 import cats.effect.IO
+import cats.effect.Resource
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
   case class TestTestRunnerContext(tmpDir: File) extends TestRunnerContext
@@ -33,7 +34,8 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
       path => Killed(Mutant(stream.next(), q">", q"<", LesserThan), path)
     override def runInitialTest(context: Context): Boolean = true
-    override def initializeTestContext(tmpDir: File): Context = TestTestRunnerContext(tmpDir)
+    override def initializeTestContext(tmpDir: File): Resource[IO, Context] =
+      Resource.pure[IO, Context](TestTestRunnerContext(tmpDir))
     override def dispose(context: TestTestRunnerContext): Unit = {}
   }
 

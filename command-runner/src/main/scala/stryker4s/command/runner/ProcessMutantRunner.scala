@@ -12,13 +12,16 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.run.process.{Command, ProcessRunner}
+import cats.effect.ContextShift
+import cats.effect.IO
+import cats.effect.Resource
 
 class ProcessMutantRunner(
     command: Command,
     processRunner: ProcessRunner,
     sourceCollector: SourceCollector,
     reporter: Reporter
-)(implicit config: Config)
+)(implicit config: Config, cs: ContextShift[IO])
     extends MutantRunner(sourceCollector, reporter) {
   type Context = CommandRunnerContext
 
@@ -40,7 +43,8 @@ class ProcessMutantRunner(
     }
   }
 
-  override def initializeTestContext(tmpDir: File): Context = CommandRunnerContext(tmpDir)
+  override def initializeTestContext(tmpDir: File): Resource[IO, Context] =
+    Resource.pure[IO, Context](CommandRunnerContext(tmpDir))
 
   override def dispose(context: Context): Unit = {}
 }
