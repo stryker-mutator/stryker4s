@@ -1,6 +1,7 @@
 package stryker4s.maven.runner
 
 import better.files._
+import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker._
 import org.mockito.captor.ArgCaptor
@@ -103,6 +104,25 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokedRequest = captor.value
       invokedRequest.getShellEnvironments should be(empty)
     }
+
+    it("should propagate active profiles") {
+      val invokerMock = mock[Invoker]
+      val mockResult = mock[InvocationResult]
+      when(mockResult.getExitCode).thenReturn(0)
+      when(invokerMock.execute(any)).thenReturn(mockResult)
+      val captor = ArgCaptor[InvocationRequest]
+      val mavenProject = new MavenProject()
+      val profile = new Profile()
+      profile.setId("best-profile-ever")
+      mavenProject.getActiveProfiles.add(profile)
+      val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
+
+      sut.runInitialTest(context)
+
+      verify(invokerMock).execute(captor)
+      val invokedRequest = captor.value
+      invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+    }
   }
 
   describe("runMutants") {
@@ -152,6 +172,25 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       invokedRequest.isBatchMode should be(true)
       invokedRequest.getProperties.getProperty("surefire.skipAfterFailureCount") should equal("1")
       invokedRequest.getProperties.getProperty("test") shouldBe null
+    }
+
+    it("should propagate active profiles") {
+      val invokerMock = mock[Invoker]
+      val mockResult = mock[InvocationResult]
+      when(mockResult.getExitCode).thenReturn(0)
+      when(invokerMock.execute(any)).thenReturn(mockResult)
+      val captor = ArgCaptor[InvocationRequest]
+      val mavenProject = new MavenProject()
+      val profile = new Profile()
+      profile.setId("best-profile-ever")
+      mavenProject.getActiveProfiles.add(profile)
+      val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
+
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), context)
+
+      verify(invokerMock).execute(captor)
+      val invokedRequest = captor.value
+      invokedRequest.getProfiles.asScala should contain("best-profile-ever")
     }
   }
 }
