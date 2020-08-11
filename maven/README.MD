@@ -7,8 +7,8 @@ This is the project for the Stryker4s Maven plugin. As you cannot build a Maven 
 ## Overriding compiler flags
 
 Stryker4s can generate mutated code that produces warnings. 
-This will not work well with `-Xfatal-warnings` and/or `-Werror`. 
-To mitigate this, you can specify a profile where scala maven plugin uses different set of compiler flags.
+This will not work well with `-Xfatal-warnings` and/or `-Werror` Scala compiler options. 
+To mitigate this, you can specify a profile where the scala maven plugin uses different set of compiler flags.
 
 ```xml
     <profile>
@@ -31,7 +31,8 @@ To mitigate this, you can specify a profile where scala maven plugin uses differ
     </profile>
 ```
 
-Then you can activate this profile in `stryker4s-maven-plugin`'s `configuration` section
+Then you can activate this profile in `stryker4s-maven-plugin`'s `configuration` section. Or activate a profile from the command-line `mvn stryker4s:run -P stryker4s`.
+
 ```xml
     <plugin>
         <groupId>io.stryker-mutator</groupId>
