@@ -57,6 +57,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
       .setOutputHandler(debug(_))
       .setBatchMode(true)
       .setProperties(context.properties)
+      .setProfiles(project.getActiveProfiles.asScala.map(_.getId).asJava)
 
   private def createRequestWithMutation(mutant: Mutant, context: Context): InvocationRequest =
     createRequest(context)
