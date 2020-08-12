@@ -36,7 +36,6 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
     override def runInitialTest(context: Context): Boolean = true
     override def initializeTestContext(tmpDir: File): Resource[IO, Context] =
       Resource.pure[IO, Context](TestTestRunnerContext(tmpDir))
-    override def dispose(context: TestTestRunnerContext): Unit = {}
   }
 
   describe("run") {

@@ -86,10 +86,6 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
     context.processHandler.runMutant(mutant, _)
 
-  override def dispose(context: Context): Unit = {
-    context.processHandler.close()
-  }
-
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
 }

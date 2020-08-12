@@ -1,6 +1,6 @@
 package stryker4s.sbt.runner
 
-import java.io.{Closeable, ObjectInputStream, ObjectOutputStream}
+import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.InetAddress
 import java.nio.file.Path
 
@@ -17,7 +17,7 @@ import stryker4s.api.testprocess._
 import stryker4s.extension.exception.MutationRunFailedException
 import stryker4s.model.{MutantRunResult, _}
 
-class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
+class ProcessManager(testProcess: TestProcess) extends Logging {
 
   def runMutant(mutant: Mutant, path: Path): MutantRunResult = {
     val message = StartTestRun(mutant.id)
@@ -94,10 +94,6 @@ class ProcessManager(testProcess: TestProcess) extends Closeable with Logging {
       case a: sbt.testing.TestSelector         => TestSelector(a.testName())
       case a: sbt.testing.TestWildcardSelector => TestWildcardSelector(a.testWildcard())
     }
-
-  def close(): Unit = {
-    testProcess.close()
-  }
 }
 
 object ProcessManager extends Logging {
@@ -152,7 +148,7 @@ object ProcessManager extends Logging {
 
 }
 
-sealed trait TestProcess extends Closeable {
+sealed trait TestProcess {
   def sendMessage(request: Request): Response
 }
 
@@ -172,12 +168,5 @@ final class SocketProcess(private val process: Process, socket: Socket) extends 
           s"Expected an object of type 'Response' from sub-process, but received $other"
         )
     }
-  }
-
-  override def close(): Unit = {
-    objectOutputStream.close()
-    objectInputStream.close()
-    socket.close()
-    process.destroy()
   }
 }

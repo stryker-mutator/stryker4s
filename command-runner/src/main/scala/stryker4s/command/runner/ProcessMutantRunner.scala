@@ -46,5 +46,4 @@ class ProcessMutantRunner(
   override def initializeTestContext(tmpDir: File): Resource[IO, Context] =
     Resource.pure[IO, Context](CommandRunnerContext(tmpDir))
 
-  override def dispose(context: Context): Unit = {}
 }

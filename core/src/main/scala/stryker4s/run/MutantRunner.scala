@@ -80,7 +80,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
         val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)
         Stream(mutatedFile.tree.syntax)
           .covary[IO]
-          .through(text.base64Decode)
+          .through(text.utf8Encode)
           .through(fs2.io.file.writeAll(targetPath, blocker))
       }
 
@@ -114,5 +114,4 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
   def initializeTestContext(tmpDir: File): Resource[IO, Context]
 
-  def dispose(context: Context): Unit
 }

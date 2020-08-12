@@ -49,8 +49,6 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
     }
   }
 
-  override def dispose(context: Context): Unit = {}
-
   private def createRequest(context: Context): InvocationRequest =
     new DefaultInvocationRequest()
       .setGoals(context.goals.asJava)
