@@ -44,7 +44,7 @@ jobs:
           java-version: openjdk@1.11
       - name: Run tests
         # Only publish stryker4s-core, sbt-stryker4s is published by scripted tests
-        run: csbt 'stryker4s-coreJVM2_12/publishLocal; scripted sbt-stryker4sJVM2_12/test-1'
+        run: csbt 'stryker4s-coreJVM2_12/publishLocal; scripted sbt-stryker4s/test-1'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
