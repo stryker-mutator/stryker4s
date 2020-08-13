@@ -13,7 +13,7 @@ object CatsOps {
 
     /** * Time how long an `F[_]` takes to execute
       *
-      * @return a tuple of [[T]] and the FiniteDuration of the execution
+      * @return a tuple of `T` and the FiniteDuration of the execution
       */
     def timed: F[(T, FiniteDuration)] =
       for {
