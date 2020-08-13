@@ -2,8 +2,6 @@ package stryker4s.run
 
 import java.nio.file.Path
 
-import scala.concurrent.duration._
-
 import better.files.File
 import grizzled.slf4j.Logging
 import mutationtesting.{Metrics, MetricsResult}
@@ -19,6 +17,7 @@ import cats.effect.IO
 import cats.effect.Blocker
 import fs2.{io, text, Pipe, Stream}
 import cats.effect.ContextShift
+import cats.implicits._
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
@@ -28,53 +27,51 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   type Context <: TestRunnerContext
 
   def apply(mutatedFiles: Iterable[MutatedFile]): IO[MetricsResult] =
-    prepareEnv(mutatedFiles.toSeq).use { context =>
-      initialTestRun(context)
-
-      for {
-        runResults <- IO(runMutants(mutatedFiles, context))
-        report = toReport(runResults)
-        metrics = Metrics.calculateMetrics(report)
-        _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics))
-      } yield metrics
+    Blocker[IO].use { blocker =>
+      io.file.createDirectories[IO](blocker, (config.baseDir / "target").path) *>
+        io.file.tempDirectoryResource[IO](blocker, (config.baseDir / "target").path, "stryker4s-").use { tmpDir =>
+          prepareEnv(blocker, tmpDir, mutatedFiles.toSeq).use { context =>
+            for {
+              _ <- IO(initialTestRun(context))
+              runResults <- runMutants(mutatedFiles, context)
+              report = toReport(runResults)
+              metrics = Metrics.calculateMetrics(report)
+              _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics))
+            } yield metrics
+          }
+        }
     }
 
-  private def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] = {
-    val tmpDir: Path = {
-      val targetFolder = config.baseDir / "target"
-      targetFolder.createDirectoryIfNotExists()
-
-      File.newTemporaryDirectory("stryker4s-", Some(targetFolder)).path
-    }
-    Resource
-      .liftF(setupFiles(mutatedFiles, tmpDir))
-      .flatMap { _ => initializeTestContext(tmpDir) }
+  private def prepareEnv(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] = {
+    Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles)) *>
+      initializeTestContext(tmpDir)
   }
 
-  private def setupFiles(mutatedFiles: Seq[MutatedFile], tmpDir: Path): IO[Unit] = {
+  private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] = {
     val mutatedPaths = mutatedFiles.map(_.fileOrigin)
-    val unmutatedSourceFiles =
+    val unmutatedFilesStream =
       Stream
         .evalSeq(IO(sourceCollector.filesToCopy.toSeq))
         .filter(mutatedPaths.contains)
         .map(_.path)
+        .through(writeOriginalFile(blocker, tmpDir))
 
-    val mutatedFilesStream = Stream.emits(mutatedFiles)
+    val mutatedFilesStream = Stream
+      .emits(mutatedFiles)
+      .through(writeMutatedFile(blocker, tmpDir))
 
-    Blocker[IO].use { blocker =>
-      (unmutatedSourceFiles.through(writeOriginalFiles(blocker, tmpDir)) merge
-        mutatedFilesStream.through(writeMutatedFiles(blocker, tmpDir))).compile.drain
-    }
+    (unmutatedFilesStream merge
+      mutatedFilesStream).compile.drain
   }
 
-  def writeOriginalFiles(blocker: Blocker, tmpDir: Path): Pipe[IO, Path, Unit] =
+  def writeOriginalFile(blocker: Blocker, tmpDir: Path): Pipe[IO, Path, Unit] =
     files =>
       files.evalMap { file =>
         val newSubPath = file.inSubDir(tmpDir)
         io.file.copy[IO](blocker, file, newSubPath).void
       }
 
-  def writeMutatedFiles(blocker: Blocker, tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
+  def writeMutatedFile(blocker: Blocker, tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
     files =>
       files.flatMap { mutatedFile =>
         val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)
@@ -84,33 +81,36 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
           .through(fs2.io.file.writeAll(targetPath, blocker))
       }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile], context: Context): Iterable[MutantRunResult] =
-    for {
-      mutatedFile <- mutatedFiles
-      subPath = mutatedFile.fileOrigin.relativePath
-      mutant <- mutatedFile.mutants
-    } yield {
-      val totalMutants = mutatedFiles.flatMap(_.mutants).size
-      // TODO: Don't use unsafeRun
-      reporter.reportMutationStart(mutant).unsafeRunTimed(5.seconds)
-      val result = runMutant(mutant, context)(subPath)
-      reporter.reportMutationComplete(result, totalMutants).unsafeRunTimed(5.seconds)
-      result
+  private def runMutants(mutatedFiles: Iterable[MutatedFile], context: Context): IO[List[MutantRunResult]] =
+    mutatedFiles.toList.flatTraverse { mutatedFile =>
+      val subPath = mutatedFile.fileOrigin.relativePath
+      mutatedFile.mutants.toList.traverse { mutant =>
+        val totalMutants = mutatedFiles.flatMap(_.mutants).size
+
+        reporter.reportMutationStart(mutant) *>
+          runMutant(mutant, context, subPath).flatTap(
+            reporter.reportMutationComplete(_, totalMutants)
+          )
+      }
     }
 
-  def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult
+  def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult]
 
-  def initialTestRun(context: Context): Unit = {
-    info("Starting initial test run...")
-    if (!runInitialTest(context)) {
-      throw InitialTestRunFailedException(
-        "Initial test run failed. Please make sure your tests pass before running Stryker4s."
-      )
-    }
-    info("Initial test run succeeded! Testing mutants...")
+  def initialTestRun(context: Context): IO[Unit] = {
+    IO(info("Starting initial test run...")) *>
+      runInitialTest(context).flatMap { result =>
+        if (!result) {
+          IO.raiseError(
+            InitialTestRunFailedException(
+              "Initial test run failed. Please make sure your tests pass before running Stryker4s."
+            )
+          )
+        }
+        IO(info("Initial test run succeeded! Testing mutants..."))
+      }
   }
 
-  def runInitialTest(context: Context): Boolean
+  def runInitialTest(context: Context): IO[Boolean]
 
   def initializeTestContext(tmpDir: File): Resource[IO, Context]
 

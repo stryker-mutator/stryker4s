@@ -25,18 +25,18 @@ class ProcessMutantRunner(
     extends MutantRunner(sourceCollector, reporter) {
   type Context = CommandRunnerContext
 
-  override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult = {
+  override def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult] = {
     val id = mutant.id
-    processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", id.toString)) match {
-      case Success(0)                         => Survived(mutant, _)
-      case Success(exitCode) if exitCode != 0 => Killed(mutant, _)
-      case Failure(_: TimeoutException)       => TimedOut(mutant, _)
-      case _                                  => Error(mutant, _)
+    IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", id.toString))) map {
+      case Success(0)                         => Survived(mutant, subPath)
+      case Success(exitCode) if exitCode != 0 => Killed(mutant, subPath)
+      case Failure(_: TimeoutException)       => TimedOut(mutant, subPath)
+      case _                                  => Error(mutant, subPath)
     }
   }
 
-  override def runInitialTest(context: Context): Boolean = {
-    processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", "None")) match {
+  override def runInitialTest(context: Context): IO[Boolean] = {
+    IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", "None"))) map {
       case Success(0)                         => true
       case Success(exitCode) if exitCode != 0 => false
       case Failure(_: TimeoutException)       => false

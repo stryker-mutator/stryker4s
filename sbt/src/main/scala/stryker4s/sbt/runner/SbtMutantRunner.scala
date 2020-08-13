@@ -80,11 +80,11 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     Resource.pure[IO, Context](SbtRunnerContext(frameworks, testGroups, processManager, tmpDir))
   }
 
-  override def runInitialTest(context: Context): Boolean =
-    context.processHandler.initialTestRun(context.frameworks, context.testGroups)
+  override def runInitialTest(context: Context): IO[Boolean] =
+    IO(context.processHandler.initialTestRun(context.frameworks, context.testGroups))
 
-  override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult =
-    context.processHandler.runMutant(mutant, _)
+  override def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult] =
+    IO(context.processHandler.runMutant(mutant, path))
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
