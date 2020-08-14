@@ -13,7 +13,7 @@ sealed trait TestRunner {
   def initialTestRun(): Status
 }
 
-class SbtTestRunner(context: TestProcessContext) extends TestRunner {
+class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner {
 
   def testFunctions(): Option[Int] => Status = {
     val cl = getClass().getClassLoader()

@@ -6,33 +6,11 @@ import scala.util.control.NonFatal
 
 trait MessageHandler {
   def handleMessage(req: Request): Response
-
-  def setupState(req: Request): MessageHandler
 }
 
-final class CleanMessageHandler() extends MessageHandler {
+final class TestRunnerMessageHandler() extends MessageHandler {
+  private var testRunner: SbtTestInterfaceRunner = null
 
-  def handleMessage(req: Request): Response = {
-    SetupTestContextSuccesful()
-  }
-
-  def setupState(req: Request): MessageHandler = {
-    req match {
-      case SetupTestContext(testContext) =>
-        val testRunner = new SbtTestRunner(testContext)
-        println("Set up testContext")
-        new TestRunnerMessageHandler(testRunner)
-      case other =>
-        throw new IllegalStateException(
-          s"CleanMessageHandler cannot handle message. Expected a SetupTestContext, but received $other"
-        )
-
-    }
-  }
-
-}
-
-final class TestRunnerMessageHandler(testRunner: SbtTestRunner) extends MessageHandler {
   def handleMessage(req: Request): Response =
     req match {
       case StartTestRun(mutation) =>
@@ -46,10 +24,10 @@ final class TestRunnerMessageHandler(testRunner: SbtTestRunner) extends MessageH
       case StartInitialTestRun() =>
         val status = testRunner.initialTestRun()
         statusToTestResult(status)
-      case other: SetupTestContext =>
-        throw new IllegalStateException(
-          s"TestRunnerMessageHandler cannot handle SetupTestContext, received $other"
-        )
+      case SetupTestContext(testContext) =>
+        testRunner = new SbtTestInterfaceRunner(testContext)
+        println("Set up testContext")
+        SetupTestContextSuccesful()
     }
 
   def statusToTestResult(status: Status): TestResultResponse =
@@ -57,7 +35,5 @@ final class TestRunnerMessageHandler(testRunner: SbtTestRunner) extends MessageH
       case Status.Success => TestsSuccessful()
       case _              => TestsUnsuccessful()
     }
-
-  def setupState(req: Request): MessageHandler = this
 
 }

@@ -45,6 +45,7 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
       listFilesBasedOnGit(processRunner) getOrElse
       listAllFiles())
       .filterNot(isInTargetDirectory)
+      .filterNot(_.isDirectory)
       .filter(_.exists)
   }
 

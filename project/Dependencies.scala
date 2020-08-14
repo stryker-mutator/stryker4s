@@ -23,7 +23,7 @@ object Dependencies {
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
     val grizzledSlf4j = "1.3.4"
-    val cats = "2.0.0"
+    val catsEffect = "2.2.0-RC3"
     val circe = "0.13.0"
     val mutationTestingElements = "1.3.1"
     val mutationTestingMetrics = "1.3.1"
@@ -45,7 +45,7 @@ object Dependencies {
   val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
   val log4jslf4jImpl = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
-  val catsCore = "org.typelevel" %% "cats-core" % versions.cats
+  val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val sttpCirce = "com.softwaremill.sttp.client" %% "circe" % versions.sttp
   val sttpCatsBackend = "com.softwaremill.sttp.client" %% "async-http-client-backend-cats" % versions.sttp

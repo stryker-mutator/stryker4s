@@ -75,16 +75,18 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
           s"Could not setup mutation testing environment. Unable to resolve classpath. Expected a classpath, but got $other"
         )
     }
-    val processManager = ProcessManager.newProcess(classpath)
+    // val processManager = ProcessManager.newProcess(classpath)
 
-    Resource.pure[IO, Context](SbtRunnerContext(frameworks, testGroups, processManager, tmpDir))
+    SbtTestRunner
+      .create(classpath, frameworks, testGroups)
+      .map(testRunner => SbtRunnerContext(frameworks, testGroups, testRunner, tmpDir))
   }
 
   override def runInitialTest(context: Context): IO[Boolean] =
-    IO(context.processHandler.initialTestRun(context.frameworks, context.testGroups))
+    context.testRunner.initialTestRun()
 
   override def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult] =
-    IO(context.processHandler.runMutant(mutant, subPath))
+    context.testRunner.runMutant(mutant, subPath)
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)

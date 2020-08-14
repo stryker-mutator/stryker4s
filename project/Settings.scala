@@ -25,6 +25,7 @@ object Settings {
       Dependencies.sttpCatsBackend,
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,
+      Dependencies.catsEffect,
       Dependencies.fs2Core,
       Dependencies.fs2IO
     )

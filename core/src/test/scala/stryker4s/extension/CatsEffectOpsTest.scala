@@ -3,10 +3,10 @@ package stryker4s.extension
 import stryker4s.testutil.Stryker4sSuite
 import cats.effect.Clock
 import cats.effect.IO
-import stryker4s.extension.CatsOps._
+import stryker4s.extension.CatsEffectOps._
 import scala.concurrent.duration._
 
-class CatsOpsTest extends Stryker4sSuite {
+class CatsEffectOpsTest extends Stryker4sSuite {
 
   describe("timed") {
     it("should give the time an execution takes") {
@@ -35,20 +35,24 @@ class CatsOpsTest extends Stryker4sSuite {
       firstDuration shouldBe 50.millis
       secondDuration shouldBe 150.millis
     }
+
+    /** A 'clock' that counts the number of times it is invoked
+      *
+      * @return
+      */
+    def counterClock: Clock[IO] =
+      new Clock[IO] {
+        var time: Long = 0
+        def realTime(unit: concurrent.duration.TimeUnit): IO[Long] = {
+          time += 50
+          IO.pure((FiniteDuration(time, unit)).length)
+        }
+
+        def monotonic(unit: concurrent.duration.TimeUnit): IO[Long] = ???
+      }
   }
 
-  /** A 'clock' that counts the number of times it is invoked
-    *
-    * @return
-    */
-  def counterClock: Clock[IO] =
-    new Clock[IO] {
-      var time: Long = 0
-      def realTime(unit: concurrent.duration.TimeUnit): IO[Long] = {
-        time += 50
-        IO.pure((FiniteDuration(time, unit)).length)
-      }
-
-      def monotonic(unit: concurrent.duration.TimeUnit): IO[Long] = ???
-    }
+  describe("selfRecreatingResource") {
+    // TODO
+  }
 }
