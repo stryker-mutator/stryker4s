@@ -14,8 +14,8 @@ import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
-trait Stryker4sRunner {
-  def run()(implicit cs: ContextShift[IO]): ScoreStatus = {
+abstract class Stryker4sRunner(implicit cs: ContextShift[IO]) {
+  def run(): ScoreStatus = {
     implicit val config: Config = ConfigReader.readConfig()
 
     val collector = new FileCollector(ProcessRunner())
@@ -27,7 +27,7 @@ trait Stryker4sRunner {
     stryker4s.run()
   }
 
-  def resolveReporters()(implicit config: Config, cs: ContextShift[IO]) =
+  def resolveReporters()(implicit config: Config) =
     config.reporters.toList.map {
       case Console => new ConsoleReporter()
       case Html    => new HtmlReporter(new DiskFileIO())

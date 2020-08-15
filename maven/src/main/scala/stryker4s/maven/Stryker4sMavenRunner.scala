@@ -8,8 +8,10 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.maven.runner.MavenMutantRunner
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
+import cats.effect.ContextShift
+import cats.effect.IO
 
-class Stryker4sMavenRunner(project: MavenProject) extends Stryker4sRunner {
+class Stryker4sMavenRunner(project: MavenProject)(implicit cs: ContextShift[IO]) extends Stryker4sRunner {
   override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
     new MavenMutantRunner(project, resolveInvoker(), collector, reporter)
 

@@ -29,7 +29,7 @@ object TestRunner {
           .timeoutTo(
             timeout,
             IO {
-              debug(s"Mutant ${mutant.id} timed out over $timeout")
+              debug(s"Mutant ${mutant.id} timed out over ${timeout.toCoarsest}")
               TimedOut(mutant, path)
             }
           )
