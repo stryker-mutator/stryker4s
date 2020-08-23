@@ -14,14 +14,7 @@ jobs:
         java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.cache/coursier/v1
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
+      - uses: coursier/cache-action@v4
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -41,14 +34,7 @@ jobs:
         java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.cache/coursier/v1
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
+      - uses: coursier/cache-action@v4
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -68,16 +54,7 @@ jobs:
         java-version: ['openjdk@1.11']
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT & Maven
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.cache/coursier/v1
-            ~/.m2/repository
-            !~/.m2/repository/io/stryker-mutator/*stryker4s*/
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/project/Dependencies.scala') }}-${{ hashFiles('**/pom.xml') }}
+      - uses: coursier/cache-action@v4
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
