@@ -18,8 +18,8 @@ object Dependencies {
     val testInterface = "1.0"
     val scalameta = "4.3.20"
     val pureconfig = "0.13.0"
-    val scalatest = "3.2.1"
-    val mockitoScala = "1.14.8"
+    val scalatest = "3.2.2"
+    val mockitoScala = "1.15.0"
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
     val grizzledSlf4j = "1.3.4"
@@ -27,8 +27,8 @@ object Dependencies {
     val circe = "0.13.0"
     val mutationTestingElements = "1.3.1"
     val mutationTestingMetrics = "1.3.1"
-    val sttp = "2.2.4"
-    val fs2 = "2.4.2"
+    val sttp = "2.2.5"
+    val fs2 = "2.4.4"
   }
 
   object test {

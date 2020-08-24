@@ -8,19 +8,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ["openjdk@1.8", "openjdk@1.11"]
+        java-version: ['openjdk@1.8', 'openjdk@1.11']
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.cache/coursier/v1
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
+      - uses: coursier/cache-action@v4
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java-version }}
@@ -31,40 +24,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.cache/coursier/v1
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/project/Dependencies.scala') }}
+      - uses: coursier/cache-action@v4
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: csbt 'stryker4s-coreJVM2_12/publishLocal; stryker4s-apiJVM2_12/publishLocal; sbt-stryker4s-testrunnerJVM2_12/publishLocal; scripted sbt-stryker4s/test-1'
+        run: csbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache SBT & Maven
+      - uses: coursier/cache-action@v4
+      - name: Cache Maven
         uses: actions/cache@v2
         with:
           path: |
-            ~/.ivy2/cache
-            ~/.sbt
-            ~/.cache/coursier/v1
             ~/.m2/repository
             !~/.m2/repository/io/stryker-mutator/*stryker4s*/
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/project/Dependencies.scala') }}-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: openjdk@1.11
       - name: Publish stryker4s-core
-        run: csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"; stryker4s-coreJVM2_12/publishM2; stryker4s-apiJVM2_12/publishM2'
+        run: csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"; stryker4s-core2_12/publishM2; stryker4s-api2_12/publishM2'
       - name: Run Maven tests
         run: |
           cd maven
@@ -74,11 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cache Coursier
-        uses: actions/cache@v2
+      - uses: coursier/cache-action@v4
         with:
-          path: ~/.cache/coursier/v1
-          key: ${{ runner.os }}-coursier-scalafmt-${{ hashFiles('**/bin/scalafmt') }}
+          extraFiles: 'bin/scalafmt,.scalafmt.conf'
       - uses: actions/setup-java@v1
         with:
           java-version: 11
