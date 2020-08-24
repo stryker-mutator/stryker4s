@@ -80,51 +80,5 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
         case (path, _) => path shouldBe "simpleFile.scala"
       })
     }
-
-    it("should log a warning when JVM max memory is too low") {
-      implicit val conf: Config = Config.default
-      val testMutantRunner = new TestMutantRunner(testSourceCollector, reporterMock)
-
-      val sut: Stryker4s =
-        new Stryker4s(
-          testSourceCollector,
-          new Mutator(
-            new MutantFinder(new MutantMatcher),
-            new StatementTransformer,
-            new MatchBuilder(ActiveMutationContext.sysProps)
-          ),
-          testMutantRunner
-        ) {
-          override def jvmMemory2GBOrHigher: Boolean = false
-        }
-
-      sut.run()
-
-      "The JVM has less than 2GB memory available. We advise to allocate 4GB memory when running Stryker4s." shouldBe loggedAsWarning
-      "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM." shouldBe loggedAsWarning
-    }
-
-    it("should not log a warning when JVM max memory is high enough") {
-      implicit val conf: Config = Config.default
-      val testMutantRunner = new TestMutantRunner(testSourceCollector, reporterMock)
-
-      val sut: Stryker4s =
-        new Stryker4s(
-          testSourceCollector,
-          new Mutator(
-            new MutantFinder(new MutantMatcher),
-            new StatementTransformer,
-            new MatchBuilder(ActiveMutationContext.sysProps)
-          ),
-          testMutantRunner
-        ) {
-          override def jvmMemory2GBOrHigher: Boolean = true
-        }
-
-      sut.run()
-
-      "The JVM has less than 2GB memory available. We advise to allocate 4GB memory when running Stryker4s." should not be loggedAsWarning
-      "Visit https://github.com/stryker-mutator/stryker4s#memory-usage for more info on how to allocate more memory to the JVM." should not be loggedAsWarning
-    }
   }
 }
