@@ -32,9 +32,9 @@ Don't hesitate or get discouraged to get in touch! We are always happy to help y
 
 We support mutation testing Stryker4s with Stryker4s! The easiest way is to follow our guide in the [readme](../README.md#sbt-plugin). If you want to test any local changes, follow these steps:
 
-1. Run `sbt sbt-stryker4sJVM2_12/publishLocal` to publish the snapshot version to your local ivy repository.
-2. Note the version outputted by the log. Sbt will output something like `[info] published sbt-stryker4s to $HOME/.ivy2/local/io.stryker-mutator/sbt-stryker4s/scala_2.12/sbt_1.0/0.6.1+31-85939087-SNAPSHOT/jars/sbt-stryker4sJVM2_12.jar`. In this case `0.6.1+31-85939087-SNAPSHOT` is the version you need (based on the commit hash and some other information, gathered by [`sbt-dynver`](https://github.com/dwijnand/sbt-dynver)).
-   1. Alternatively, set the `version` in sbt to something easier before calling `sbt-stryker4sJVM2_12/publishLocal`
+1. Run `sbt sbt-stryker4s2_12/publishLocal` to publish the snapshot version to your local ivy repository.
+2. Note the version outputted by the log. Sbt will output something like `[info] published sbt-stryker4s to $HOME/.ivy2/local/io.stryker-mutator/sbt-stryker4s/scala_2.12/sbt_1.0/0.6.1+31-85939087-SNAPSHOT/jars/sbt-stryker4s2_12.jar`. In this case `0.6.1+31-85939087-SNAPSHOT` is the version you need (based on the commit hash and some other information, gathered by [`sbt-dynver`](https://github.com/dwijnand/sbt-dynver)).
+   1. Alternatively, set the `version` in sbt to something easier before calling `sbt-stryker4s2_12/publishLocal`
 3. Add the sbt plugin to `project/plugins.sbt` with the new version number
 4. Run stryker4s as described in the readme.
 
