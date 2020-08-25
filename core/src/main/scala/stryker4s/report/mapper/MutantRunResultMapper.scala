@@ -36,7 +36,8 @@ trait MutantRunResultMapper {
       mutant.mutationType.mutationName,
       mutant.mutated.syntax,
       toLocation(mutant.original.pos),
-      toMutantStatus(runResult)
+      toMutantStatus(runResult),
+      runResult.description
     )
   }
 
@@ -52,7 +53,7 @@ trait MutantRunResultMapper {
       case _: Killed     => MutantStatus.Killed
       case _: NoCoverage => MutantStatus.NoCoverage
       case _: TimedOut   => MutantStatus.Timeout
-      case _: Error      => MutantStatus.CompileError
+      case _: Error      => MutantStatus.RuntimeError
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
