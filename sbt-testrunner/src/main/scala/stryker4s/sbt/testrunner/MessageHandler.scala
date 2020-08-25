@@ -1,8 +1,9 @@
 package stryker4s.sbt.testrunner
 
+import scala.util.control.NonFatal
+
 import sbt.testing.Status
 import stryker4s.api.testprocess._
-import scala.util.control.NonFatal
 
 trait MessageHandler {
   def handleMessage(req: Request): Response

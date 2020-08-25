@@ -1,14 +1,12 @@
 package stryker4s.extension
 
-import cats.implicits._
-import cats.effect.Sync
-import cats.effect.Clock
 import java.util.concurrent.TimeUnit
+
 import scala.concurrent.duration.FiniteDuration
-import cats.effect.Resource
-import cats.effect.concurrent.MVar
-import cats.effect.Concurrent
-import cats.effect.concurrent.MVar2
+
+import cats.effect.concurrent.{MVar, MVar2}
+import cats.effect.{Clock, Concurrent, Resource, Sync}
+import cats.implicits._
 
 object CatsEffectOps {
 

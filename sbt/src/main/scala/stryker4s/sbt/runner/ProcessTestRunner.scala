@@ -8,16 +8,14 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.tools.nsc.io.Socket
 import scala.util.control.NonFatal
 
-import cats.effect.{IO, Timer}
+import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.implicits._
 import grizzled.slf4j.Logging
-import sbt.testing.{Framework => SbtFramework}
 import sbt.Tests
+import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
 import stryker4s.model.{MutantRunResult, _}
-import cats.effect.Resource
-import cats.implicits._
 import stryker4s.run.TestRunner
-import cats.effect.ContextShift
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner with Logging {
 

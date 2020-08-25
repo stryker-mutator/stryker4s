@@ -1,13 +1,11 @@
 package stryker4s.sbt.runner
 
-import cats.effect.Resource
-import cats.effect.IO
-import stryker4s.run.TestRunner
-import cats.effect.Timer
-import cats.effect.ContextShift
 import scala.concurrent.duration._
-import sbt.testing.Framework
+
+import cats.effect.{ContextShift, IO, Resource, Timer}
 import sbt.Tests
+import sbt.testing.Framework
+import stryker4s.run.TestRunner
 
 object SbtTestRunner {
   def create(classpath: Seq[String], frameworks: Seq[Framework], testGroups: Seq[Tests.Group])(implicit

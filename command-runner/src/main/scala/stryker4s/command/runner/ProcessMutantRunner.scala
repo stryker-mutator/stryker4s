@@ -6,15 +6,13 @@ import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
 
 import better.files.File
+import cats.effect.{ContextShift, IO, Resource}
 import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.run.process.{Command, ProcessRunner}
-import cats.effect.ContextShift
-import cats.effect.IO
-import cats.effect.Resource
 
 class ProcessMutantRunner(
     command: Command,

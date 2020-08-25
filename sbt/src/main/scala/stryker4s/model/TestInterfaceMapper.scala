@@ -1,7 +1,7 @@
 package stryker4s.model
 
-import sbt.{TestDefinition => SbtTestDefinition, TestFramework => SbtTestFramework, Tests}
 import sbt.testing.{Framework => SbtFramework}
+import sbt.{TestDefinition => SbtTestDefinition, TestFramework => SbtTestFramework, Tests}
 import stryker4s.api.testprocess._
 
 trait TestInterfaceMapper {

@@ -1,15 +1,12 @@
 package stryker4s.sbt.runner
 
-import stryker4s.api.testprocess.Request
-import cats.effect.IO
-import cats.effect.Blocker
-import java.io.ObjectOutputStream
-import java.io.ObjectInputStream
-import cats.effect.ContextShift
-import grizzled.slf4j.Logging
-import stryker4s.api.testprocess.Response
+import java.io.{ObjectInputStream, ObjectOutputStream}
+
 import scala.tools.nsc.io.Socket
-import cats.effect.Resource
+
+import cats.effect.{Blocker, ContextShift, IO, Resource}
+import grizzled.slf4j.Logging
+import stryker4s.api.testprocess.{Request, Response}
 import stryker4s.extension.exception.MutationRunFailedException
 
 sealed trait TestRunnerConnection {

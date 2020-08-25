@@ -1,5 +1,6 @@
 package stryker4s.command
 
+import cats.effect.{ContextShift, IO}
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessMutantRunner
 import stryker4s.config.Config
@@ -9,8 +10,6 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
-import cats.effect.ContextShift
-import cats.effect.IO
 
 class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit cs: ContextShift[IO])
     extends Stryker4sRunner {

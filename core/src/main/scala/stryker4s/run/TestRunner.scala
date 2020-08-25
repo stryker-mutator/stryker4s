@@ -1,15 +1,13 @@
 package stryker4s.run
 
-import stryker4s.model.MutantRunResult
-import scala.concurrent.duration._
-import cats.effect.Timer
-import cats.effect.ContextShift
-import cats.effect.Resource
-import cats.effect.IO
-import stryker4s.model.{Error, Mutant, TimedOut}
 import java.nio.file.Path
+
+import scala.concurrent.duration._
+
+import cats.effect.{ContextShift, IO, Resource, Timer}
 import grizzled.slf4j.Logging
 import stryker4s.extension.CatsEffectOps
+import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
 trait TestRunner {
   def initialTestRun(): IO[Boolean]

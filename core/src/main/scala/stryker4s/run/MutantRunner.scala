@@ -3,6 +3,9 @@ package stryker4s.run
 import java.nio.file.Path
 
 import better.files.File
+import cats.effect.{Blocker, ContextShift, IO, Resource}
+import cats.implicits._
+import fs2.{io, text, Pipe, Stream}
 import grizzled.slf4j.Logging
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
@@ -12,12 +15,6 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunReport, Reporter}
-import cats.effect.Resource
-import cats.effect.IO
-import cats.effect.Blocker
-import fs2.{io, text, Pipe, Stream}
-import cats.effect.ContextShift
-import cats.implicits._
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
