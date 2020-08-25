@@ -60,7 +60,7 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
         .unsafeRunSync()
 
       val expectedJs =
-        """document.querySelector('mutation-test-report-app').report = {"$schema":"https://raw.githubusercontent.com/stryker-mutator/mutation-testing-elements/master/packages/mutation-testing-report-schema/src/mutation-testing-report-schema.json","schemaVersion":"1","thresholds":{"high":100,"low":0},"files":{}}"""
+        """document.querySelector('mutation-test-report-app').report = {"$schema":"https://git.io/mutation-testing-report-schema","schemaVersion":"1","thresholds":{"high":100,"low":0},"files":{}}"""
       verify(mockFileIO).createAndWrite(testFile, expectedJs)
     }
   }
