@@ -45,7 +45,8 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     } yield context
 
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
-    IO(info("Setting up mutated environment...")) *> {
+    IO(info("Setting up mutated environment...")) *>
+      IO(debug("Using temp directory: " + tmpDir)) *> {
       val mutatedPaths = mutatedFiles.map(_.fileOrigin)
       val unmutatedFilesStream =
         Stream

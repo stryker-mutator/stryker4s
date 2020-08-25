@@ -77,7 +77,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
     SbtTestRunner
       .create(classpath, frameworks, testGroups)
-      .map(testRunner => SbtRunnerContext(frameworks, testGroups, testRunner, tmpDir))
+      .map(testRunner => SbtRunnerContext(testRunner, tmpDir))
   }
 
   override def runInitialTest(context: Context): IO[Boolean] =
