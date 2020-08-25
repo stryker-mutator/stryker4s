@@ -75,7 +75,6 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
           s"Could not setup mutation testing environment. Unable to resolve classpath. Expected a classpath, but got $other"
         )
     }
-    // val processManager = ProcessManager.newProcess(classpath)
 
     SbtTestRunner
       .create(classpath, frameworks, testGroups)

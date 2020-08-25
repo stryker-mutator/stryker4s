@@ -17,7 +17,7 @@ final case class StartInitialTestRun() extends Request
 
 sealed trait Response extends Message
 @SerialVersionUID(549618399043999164L)
-final case class SetupTestContextSuccesful() extends Response
+final case class SetupTestContextSuccessful() extends Response
 
 sealed trait TestResultResponse extends Response
 @SerialVersionUID(7287069995681357334L)

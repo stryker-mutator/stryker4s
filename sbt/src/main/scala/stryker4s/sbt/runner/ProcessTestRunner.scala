@@ -1,6 +1,5 @@
 package stryker4s.sbt.runner
 
-import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.InetAddress
 import java.nio.file.Path
 
@@ -14,22 +13,21 @@ import grizzled.slf4j.Logging
 import sbt.testing.{Framework => SbtFramework}
 import sbt.Tests
 import stryker4s.api.testprocess._
-import stryker4s.extension.exception.MutationRunFailedException
 import stryker4s.model.{MutantRunResult, _}
 import cats.effect.Resource
 import cats.implicits._
 import stryker4s.run.TestRunner
 import cats.effect.ContextShift
 
-class ProcessTestRunner(testProcess: TestProcess) extends TestRunner with Logging {
+class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner with Logging {
 
   def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] = {
     val message = StartTestRun(mutant.id)
     testProcess.sendMessage(message) map {
-      case _: TestsSuccessful    => Survived(mutant, path)
-      case _: TestsUnsuccessful  => Killed(mutant, path)
-      case _: ErrorDuringTestRun => Error(mutant, path)
-      case _                     => Error(mutant, path)
+      case _: TestsSuccessful      => Survived(mutant, path)
+      case _: TestsUnsuccessful    => Killed(mutant, path)
+      case ErrorDuringTestRun(msg) => Killed(mutant, path, Some(msg))
+      case _                       => Error(mutant, path)
     }
   }
 
@@ -43,7 +41,7 @@ class ProcessTestRunner(testProcess: TestProcess) extends TestRunner with Loggin
 
 }
 
-object ProcessTestRunner extends Logging {
+object ProcessTestRunner extends TestInterfaceMapper with Logging {
   private val classPathSeparator = java.io.File.pathSeparator
 
   def newProcess(
@@ -78,7 +76,7 @@ object ProcessTestRunner extends Logging {
 
   private def connectToProcess(
       config: TestProcessConfig
-  )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, TestProcess] = {
+  )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
     // Sleep 1 second to let the process startup before attempting connection
     Resource.liftF(
       IO.sleep(1.second) *>
@@ -90,15 +88,15 @@ object ProcessTestRunner extends Logging {
             IO(Socket(InetAddress.getLocalHost(), config.port).opt.get)
           )
         )(s => IO(s.close()))
-        .flatMap(SocketProcess.create(_))
+        .flatMap(TestRunnerConnection.create(_))
   }
 
   def setupTestRunner(
-      testProcess: TestProcess,
+      testProcess: TestRunnerConnection,
       frameworks: Seq[SbtFramework],
       testGroups: Seq[Tests.Group]
   ): IO[Unit] = {
-    val apiTestGroups = TestProcessContext(TestInterfaceMapper.toApiTestGroups(frameworks, testGroups))
+    val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
 
     testProcess.sendMessage(SetupTestContext(apiTestGroups)).void
   }
@@ -114,33 +112,4 @@ object ProcessTestRunner extends Logging {
       .compile
       .lastOrError
   }
-}
-
-sealed trait TestProcess {
-  def sendMessage(request: Request): IO[Response]
-}
-
-final class SocketProcess(out: ObjectOutputStream, in: ObjectInputStream) extends TestProcess with Logging {
-
-  override def sendMessage(request: Request): IO[Response] = {
-    IO(debug(s"Sending message $request")) *>
-      IO.delay(out.writeObject(request)) *>
-      // Block until a response is read.
-      IO.delay(in.readObject() match {
-        case response: Response => response
-        case other =>
-          throw new MutationRunFailedException(
-            s"Expected an object of type 'Response' from sub-process, but received $other"
-          )
-      })
-  }
-}
-
-object SocketProcess {
-  def create(socket: Socket): Resource[IO, TestProcess] =
-    for {
-      out <- Resource.fromAutoCloseable(IO(new ObjectOutputStream(socket.outputStream())))
-      in <- Resource.fromAutoCloseable(IO(new ObjectInputStream(socket.inputStream())))
-    } yield new SocketProcess(out, in)
-
 }

@@ -18,7 +18,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
           val status = testRunner.runMutation(mutation)
           statusToTestResult(status)
         } catch {
-          case NonFatal(e) => ErrorDuringTestRun(e.getMessage())
+          case NonFatal(e) => ErrorDuringTestRun(e.toString())
         }
 
       case StartInitialTestRun() =>
@@ -27,7 +27,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
       case SetupTestContext(testContext) =>
         testRunner = new SbtTestInterfaceRunner(testContext)
         println("Set up testContext")
-        SetupTestContextSuccesful()
+        SetupTestContextSuccessful()
     }
 
   def statusToTestResult(status: Status): TestResultResponse =

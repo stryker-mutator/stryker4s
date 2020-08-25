@@ -47,7 +47,7 @@ object TestRunner {
           def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] =
             retryRunMutation(mutant, path)
 
-          def retryRunMutation(mutant: Mutant, path: Path, retriesLeft: Long = 1): IO[MutantRunResult] = {
+          def retryRunMutation(mutant: Mutant, path: Path, retriesLeft: Long = 2): IO[MutantRunResult] = {
             mvar.read.flatMap(_._1.runMutant(mutant, path)).attempt.flatMap {
               // On error, get a new testRunner and set it
               case Left(_) =>

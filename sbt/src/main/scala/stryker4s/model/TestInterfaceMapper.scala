@@ -4,7 +4,7 @@ import sbt.{TestDefinition => SbtTestDefinition, TestFramework => SbtTestFramewo
 import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
 
-object TestInterfaceMapper {
+trait TestInterfaceMapper {
   def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Array[TestGroup] = {
     val mapped = testMap(frameworks, sbtTestGroups.flatMap(_.tests))
     mapped
