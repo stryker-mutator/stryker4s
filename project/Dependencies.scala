@@ -15,8 +15,8 @@ object Dependencies {
     val grizzledSlf4j = "1.3.4"
     val cats = "2.0.0"
     val circe = "0.13.0"
-    val mutationTestingElements = "1.3.1"
-    val mutationTestingMetrics = "1.3.1"
+    val mutationTestingElements = "1.4.0"
+    val mutationTestingMetrics = "1.4.0"
     val sttp = "2.2.5"
     val fs2 = "2.4.4"
   }
