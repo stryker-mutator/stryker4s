@@ -9,20 +9,16 @@ import stryker4s.run.threshold.ErrorStatus
 
 object Stryker4sMain extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
-    IO {
-      Stryker4sArgumentHandler.handleArgs(args)
-
-      val processRunnerConfig: ProcessRunnerConfig =
-        ConfigReader.readConfigOfType[ProcessRunnerConfig]() match {
-          case Left(failures) => throw ConfigReaderException(failures)
-          case Right(config)  => config
-        }
-
-      val result = new Stryker4sCommandRunner(processRunnerConfig).run()
-
-      result match {
-        case ErrorStatus => ExitCode.Error
-        case _           => ExitCode.Success
-      }
+    for {
+      _ <- IO(Stryker4sArgumentHandler.handleArgs(args))
+      processRunnerConfig <- IO(ConfigReader.readConfigOfType[ProcessRunnerConfig]() match {
+        case Left(failures) => throw ConfigReaderException(failures)
+        case Right(config)  => config
+      })
+      result <- new Stryker4sCommandRunner(processRunnerConfig).run()
+    } yield result match {
+      case ErrorStatus => ExitCode.Error
+      case _           => ExitCode.Success
     }
+
 }

@@ -48,12 +48,13 @@ object Stryker4sMain extends AutoPlugin {
     implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
     setStrykerLogLevel((logLevel in stryker).value)
 
-    val result = new Stryker4sSbtRunner(state.value).run()
-
-    result match {
-      case ErrorStatus => throw new MessageOnlyException("Mutation score is below configured threshold")
-      case _           => ()
-    }
+    new Stryker4sSbtRunner(state.value)
+      .run()
+      .map {
+        case ErrorStatus => throw new MessageOnlyException("Mutation score is below configured threshold")
+        case _           => ()
+      }
+      .unsafeRunSync()
   }
 
   private lazy val strykerIsNotSupported: Def.Initialize[Task[Unit]] = Def.task {

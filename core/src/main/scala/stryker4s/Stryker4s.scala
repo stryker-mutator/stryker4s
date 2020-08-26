@@ -5,14 +5,16 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
+import cats.effect.IO
 
 class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner)(implicit config: Config) {
 
-  def run(): ScoreStatus = {
-    val filesToMutate = fileCollector.collectFilesToMutate()
-    val mutatedFiles = mutator.mutate(filesToMutate)
-    val metrics = runner(mutatedFiles).unsafeRunSync() // TODO: Don't use unsafeRunSync()
-    ThresholdChecker.determineScoreStatus(metrics.mutationScore)
-  }
+  def run(): IO[ScoreStatus] =
+    for {
+      filesToMutate <- IO(fileCollector.collectFilesToMutate())
+      mutatedFiles = mutator.mutate(filesToMutate)
+      metrics <- runner(mutatedFiles)
+      scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
+    } yield scoreStatus
 
 }
