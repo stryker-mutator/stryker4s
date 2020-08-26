@@ -63,7 +63,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
         testMutantRunner
       )
 
-      val result = sut.run()
+      val result = sut.run().unsafeRunSync()
 
       val startCaptor = ArgCaptor[Mutant]
       verify(reporterMock, times(4)).reportMutationStart(startCaptor)
