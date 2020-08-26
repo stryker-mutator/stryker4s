@@ -8,11 +8,12 @@ import sbt.testing.Framework
 import stryker4s.run.TestRunner
 
 object SbtTestRunner {
-  def create(classpath: Seq[String], frameworks: Seq[Framework], testGroups: Seq[Tests.Group])(implicit
+  def create(classpath: Seq[String], javaOpts: Seq[String], frameworks: Seq[Framework], testGroups: Seq[Tests.Group])(
+      implicit
       timer: Timer[IO],
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] = {
-    val inner: Resource[IO, TestRunner] = ProcessTestRunner.newProcess(classpath, frameworks, testGroups)
+    val inner: Resource[IO, TestRunner] = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups)
 
     val withTimeout: Resource[IO, TestRunner] = inner
       // TODO: Properly set timeout based on initial testrun

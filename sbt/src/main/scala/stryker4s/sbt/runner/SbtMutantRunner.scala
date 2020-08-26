@@ -22,25 +22,48 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 ) extends MutantRunner(sourceCollector, reporter) {
   type Context = SbtRunnerContext
 
-  /** Remove scalacOptions that are very likely to cause errors with generated code
-    * https://github.com/stryker-mutator/stryker4s/issues/321
-    */
-  private val blocklistedScalacOptions = Seq(
-    "unused:patvars",
-    "unused:locals",
-    "unused:params",
-    "unused:explicits"
-    // -Ywarn for Scala 2.12, -W for Scala 2.13
-  ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
   def initializeTestContext(tmpDir: File): Resource[IO, Context] = {
+    val (classpath, javaOpts, frameworks, testGroups) = extractSbtContext(tmpDir)
+
+    SbtTestRunner
+      .create(classpath, javaOpts, frameworks, testGroups)
+      .map(testRunner => SbtRunnerContext(testRunner, tmpDir))
+  }
+
+  private def extractSbtContext(tmpDir: File) = {
+
+    // Remove scalacOptions that are very likely to cause errors with generated code
+    // https://github.com/stryker-mutator/stryker4s/issues/321
+    val blocklistedScalacOptions = Seq(
+      "unused:patvars",
+      "unused:locals",
+      "unused:params",
+      "unused:explicits"
+      // -Ywarn for Scala 2.12, -W for Scala 2.13
+    ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
+
     val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
     debug(s"Resolved stryker4s version $stryker4sVersion")
 
+    val filteredSystemProperties: Seq[String] = {
+      // Matches strings that start with one of the options between brackets
+      val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal|jdk).*"
+      for {
+        (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
+        param = s"-D$key=$value"
+      } yield param
+    }
+
     val settings: Seq[Def.Setting[_]] = Seq(
       scalacOptions --= blocklistedScalacOptions,
+      fork in Test := true,
       scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
       libraryDependencies +=
-        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
+        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion,
+      javaOptions in Test ++= {
+        debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
+        filteredSystemProperties
+      }
     ) ++ {
       if (config.testFilter.nonEmpty) {
         val testFilter = new TestFilter
@@ -52,32 +75,24 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     val extracted = Project.extract(state)
 
     val newState = extracted.appendWithSession(settings, state)
-    val testGroups = Project.runTask(testGrouping in Test, newState) match {
-      case Some((_, Value(groups))) => groups
-      case other =>
-        throw new TestSetupException(
-          s"Could not setup mutation testing environment. Expected test groups, but got $other"
-        )
-    }
-    val frameworks = (Project.runTask(loadedTestFrameworks in Test, newState) match {
-      case Some((_, Value(groups))) if groups.nonEmpty => groups
-      case other =>
-        throw new TestSetupException(
-          s"Could not setup mutation testing environment. Expected test frameworks, but got $other"
-        )
-    }).values.toSeq
+    def extractTaskValue[T](task: TaskKey[T], name: String) =
+      Project.runTask(task, newState) match {
+        case Some((_, Value(result))) => result
+        case other =>
+          throw new TestSetupException(
+            s"Could not setup mutation testing environment. Expected $name, but got $other"
+          )
+      }
 
-    val classpath = Project.runTask(fullClasspath in Test, newState) match {
-      case Some((_, Value(classpath))) => classpath.map(_.data.getPath())
-      case other =>
-        throw new TestSetupException(
-          s"Could not setup mutation testing environment. Unable to resolve classpath. Expected a classpath, but got $other"
-        )
-    }
+    val classpath = extractTaskValue(fullClasspath in Test, "classpath").map(_.data.getPath())
 
-    SbtTestRunner
-      .create(classpath, frameworks, testGroups)
-      .map(testRunner => SbtRunnerContext(testRunner, tmpDir))
+    val javaOpts = extractTaskValue(javaOptions in Test, "javaOptions")
+
+    val frameworks = extractTaskValue(loadedTestFrameworks in Test, "test frameworks").values.toSeq
+
+    val testGroups = extractTaskValue(testGrouping in Test, "testGrouping")
+
+    (classpath, javaOpts, frameworks, testGroups)
   }
 
   override def runInitialTest(context: Context): IO[Boolean] =

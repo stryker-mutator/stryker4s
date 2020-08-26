@@ -44,24 +44,28 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
 
   def newProcess(
       classpath: Seq[String],
+      javaOpts: Seq[String],
       frameworks: Seq[SbtFramework],
       testGroups: Seq[Tests.Group]
   )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
     val socketConfig = TestProcessConfig(13337) // TODO: Don't hardcode socket port
 
     for {
-      _ <- createProcess(classpath, socketConfig)
+      _ <- createProcess(classpath, javaOpts, socketConfig)
       socket <- connectToProcess(socketConfig)
         .evalTap(setupTestRunner(_, frameworks, testGroups))
     } yield new ProcessTestRunner(socket)
   }
 
-  def createProcess(classpath: Seq[String], socketConfig: TestProcessConfig): Resource[IO, Process] = {
+  def createProcess(
+      classpath: Seq[String],
+      javaOpts: Seq[String],
+      socketConfig: TestProcessConfig
+  ): Resource[IO, Process] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
     val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
     val args = Seq(sysProps, mainClass)
     val classpathString = classpath.mkString(classPathSeparator)
-    val javaOpts = Seq("-XX:+CMSClassUnloadingEnabled", "-Xms512M", "-Xss8192k", "-Xmx6G")
     val command = Seq("java", "-cp", classpathString) ++ javaOpts ++ args
     debug(s"Starting process ${command.mkString(" ")}")
     for {
