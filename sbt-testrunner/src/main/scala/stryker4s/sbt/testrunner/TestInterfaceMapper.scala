@@ -3,6 +3,8 @@ package stryker4s.sbt.testrunner
 import sbt.testing.{Status, TaskDef}
 import stryker4s.api.testprocess._
 
+/** Maps stryker4s-api test-interface models to sbt-testinterface models
+  */
 trait TestInterfaceMapper {
   def combineStatus(current: Status, newStatus: Status) =
     (current, newStatus) match {
