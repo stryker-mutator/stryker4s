@@ -2,10 +2,13 @@ import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := false // For logging tests
+    Test / parallelExecution := false, // For logging tests
+    libraryDependencies ++= (if (!isDotty.value) Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
+                             else Nil)
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
