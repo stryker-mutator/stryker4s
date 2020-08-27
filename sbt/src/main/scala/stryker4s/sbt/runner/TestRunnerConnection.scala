@@ -1,8 +1,7 @@
 package stryker4s.sbt.runner
 
 import java.io.{ObjectInputStream, ObjectOutputStream}
-
-import scala.tools.nsc.io.Socket
+import java.net.Socket
 
 import cats.effect.{Blocker, ContextShift, IO, Resource}
 import grizzled.slf4j.Logging
@@ -19,12 +18,11 @@ final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream
     with Logging {
 
   override def sendMessage(request: Request): IO[Response] = {
-    blocker.delay[IO, Unit](debug(s"Sending message $request")) *>
+    IO(debug(s"Sending message $request")) *>
       blocker.delay[IO, Unit](out.writeObject(request)) *>
-      // Block until a response is read.
       blocker.delay[IO, Any](in.readObject()) flatMap {
       case response: Response =>
-        blocker.delay[IO, Response] {
+        IO {
           debug(s"Received message $response")
           response
         }
@@ -42,8 +40,8 @@ object TestRunnerConnection {
   def create(socket: Socket)(implicit cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] =
     for {
       blocker <- Blocker[IO]
-      out <- Resource.fromAutoCloseable(IO(new ObjectOutputStream(socket.outputStream())))
-      in <- Resource.fromAutoCloseable(IO(new ObjectInputStream(socket.inputStream())))
+      out <- Resource.fromAutoCloseable(IO(new ObjectOutputStream(socket.getOutputStream())))
+      in <- Resource.fromAutoCloseable(IO(new ObjectInputStream(socket.getInputStream())))
     } yield new SocketTestRunnerConnection(blocker, out, in)
 
 }

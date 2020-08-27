@@ -2,10 +2,10 @@ package stryker4s.sbt.runner
 
 import java.net.InetAddress
 import java.nio.file.Path
+import java.net.Socket
 
 import scala.concurrent.duration._
 import scala.sys.process.{Process, ProcessLogger}
-import scala.tools.nsc.io.Socket
 import scala.util.control.NonFatal
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
@@ -50,11 +50,11 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
   )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
     val socketConfig = TestProcessConfig(13337) // TODO: Don't hardcode socket port
 
-    for {
-      _ <- createProcess(classpath, javaOpts, socketConfig)
-      socket <- connectToProcess(socketConfig)
-        .evalTap(setupTestRunner(_, frameworks, testGroups))
-    } yield new ProcessTestRunner(socket)
+    createProcess(classpath, javaOpts, socketConfig)
+      .parZip(connectToProcess(socketConfig))
+      .map(_._2)
+      .evalTap(setupTestRunner(_, frameworks, testGroups))
+      .map(new ProcessTestRunner(_))
   }
 
   def createProcess(
@@ -67,29 +67,32 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
     val args = Seq(sysProps, mainClass)
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-cp", classpathString) ++ javaOpts ++ args
-    debug(s"Starting process ${command.mkString(" ")}")
+
     for {
+      _ <- Resource.liftF(IO(debug(s"Starting process ${command.mkString(" ")}")))
       startedProcess <- Resource.liftF(IO(scala.sys.process.Process(command)))
       process <-
-        Resource.make(IO(startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))))(p => IO(p.destroy()))
-      _ <- Resource.liftF(IO(debug("Started process")))
+        Resource
+          .make(IO(startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))))(p => IO(p.destroy()))
+          .evalTap(_ => IO(debug("Started process")))
     } yield process
   }
 
   private def connectToProcess(
       config: TestProcessConfig
   )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
-    // Sleep 1 second to let the process startup before attempting connection
+    // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.liftF(
-      IO.sleep(1.second) *>
+      IO.sleep(0.5.seconds) *>
         IO(debug("Creating socket"))
     ) *>
       Resource
         .make(
           retryWithBackoff(5, 0.5.seconds, info("Could not connect to testprocess. Retrying..."))(
-            IO(Socket(InetAddress.getLocalHost(), config.port).opt.get)
+            IO(new Socket(InetAddress.getLocalHost(), config.port))
           )
         )(s => IO(s.close()))
+        .evalTap(_ => IO(debug("Created socket")))
         .flatMap(TestRunnerConnection.create(_))
   }
 
