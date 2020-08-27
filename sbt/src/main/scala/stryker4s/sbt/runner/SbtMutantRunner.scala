@@ -53,6 +53,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
         param = s"-D$key=$value"
       } yield param
     }
+    debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
 
     val settings: Seq[Def.Setting[_]] = Seq(
       scalacOptions --= blocklistedScalacOptions,
@@ -60,10 +61,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
       scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
       libraryDependencies +=
         "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion,
-      javaOptions in Test ++= {
-        debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
-        filteredSystemProperties
-      }
+      javaOptions in Test ++= filteredSystemProperties
     ) ++ {
       if (config.testFilter.nonEmpty) {
         val testFilter = new TestFilter
