@@ -16,6 +16,7 @@ import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.TestRunner
+import stryker4s.config.Config
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner with Logging {
 
@@ -47,7 +48,7 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
       javaOpts: Seq[String],
       frameworks: Seq[SbtFramework],
       testGroups: Seq[Tests.Group]
-  )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
+  )(implicit config: Config, timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
     val socketConfig = TestProcessConfig(13337) // TODO: Don't hardcode socket port
 
     createProcess(classpath, javaOpts, socketConfig)
@@ -61,7 +62,7 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
       classpath: Seq[String],
       javaOpts: Seq[String],
       socketConfig: TestProcessConfig
-  ): Resource[IO, Process] = {
+  )(implicit config: Config): Resource[IO, Process] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
     val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
     val args = Seq(sysProps, mainClass)
@@ -70,7 +71,7 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
 
     for {
       _ <- Resource.liftF(IO(debug(s"Starting process ${command.mkString(" ")}")))
-      startedProcess <- Resource.liftF(IO(scala.sys.process.Process(command)))
+      startedProcess <- Resource.liftF(IO(scala.sys.process.Process(command, config.baseDir.toJava)))
       process <-
         Resource
           .make(IO(startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))))(p => IO(p.destroy()))
