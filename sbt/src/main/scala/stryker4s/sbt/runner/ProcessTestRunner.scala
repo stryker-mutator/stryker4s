@@ -67,7 +67,7 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
     val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
     val args = Seq(sysProps, mainClass)
     val classpathString = classpath.mkString(classPathSeparator)
-    val command = Seq("java", "-cp", classpathString) ++ javaOpts ++ args
+    val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
 
     for {
       _ <- Resource.liftF(IO(debug(s"Starting process ${command.mkString(" ")}")))
