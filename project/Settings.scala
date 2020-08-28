@@ -53,11 +53,13 @@ object Settings {
     Test / parallelExecution := true, // No logging tests, so parallel can be true
     libraryDependencies ++= Seq(
       Dependencies.testInterface
-    )
+    ),
+    sources in (Compile, doc) := skipDottyDocs.value
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true // No logging tests, so parallel can be true
+    Test / parallelExecution := true, // No logging tests, so parallel can be true
+    sources in (Compile, doc) := skipDottyDocs.value
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
@@ -83,4 +85,10 @@ object Settings {
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
     )
   )
+
+  // Skip dotty doc generation as it does not work for some reason (probably because of the api folder)
+  private lazy val skipDottyDocs = Def.task {
+    val original = (sources in (Compile, doc)).value
+    if (isDotty.value) Nil else original
+  }
 }

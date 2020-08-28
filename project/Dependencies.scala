@@ -13,9 +13,7 @@ object Dependencies {
 
     /** Fuller cross-versions (used for injected packages)
       */
-    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211)
-    // TODO: Re-enable dotty
-    // val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, dotty)
+    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, dotty)
 
     val testInterface = "1.0"
     val scalameta = "4.3.21"
