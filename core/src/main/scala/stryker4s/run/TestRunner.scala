@@ -16,23 +16,29 @@ trait TestRunner {
 
 object TestRunner {
 
-  def timeoutRunner(timeout: FiniteDuration, inner: TestRunner)(implicit
+  def timeoutRunner(timeout: FiniteDuration, inner: Resource[IO, TestRunner])(implicit
       timer: Timer[IO],
       cs: ContextShift[IO]
-  ): TestRunner =
-    new TestRunner with Logging {
-      def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] =
-        inner
-          .runMutant(mutant, path)
-          .timeoutTo(
-            timeout,
-            IO {
-              debug(s"Mutant ${mutant.id} timed out over ${timeout.toCoarsest}")
-              TimedOut(mutant, path)
-            }
-          )
+  ): Resource[IO, TestRunner] =
+    CatsEffectOps.selfRecreatingResource(inner) { (mvar, releaseAndSwap) =>
+      IO {
+        new TestRunner with Logging {
+          def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] =
+            mvar.read
+              .flatMap(_._1.runMutant(mutant, path))
+              .timeoutTo(
+                timeout,
+                IO(debug(s"Mutant ${mutant.id} timed out over ${timeout.toCoarsest}")) *>
+                  releaseAndSwap *>
+                  IO.pure(
+                    TimedOut(mutant, path)
+                  )
+              )
 
-      def initialTestRun(): IO[Boolean] = inner.initialTestRun()
+          def initialTestRun(): IO[Boolean] =
+            mvar.read.flatMap(_._1.initialTestRun())
+        }
+      }
     }
 
   def retryRunner(acquire: Resource[IO, TestRunner])(implicit

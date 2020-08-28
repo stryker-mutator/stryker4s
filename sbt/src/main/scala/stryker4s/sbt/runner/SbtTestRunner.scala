@@ -17,9 +17,9 @@ object SbtTestRunner {
   ): Resource[IO, TestRunner] = {
     val inner: Resource[IO, TestRunner] = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups)
 
-    val withTimeout: Resource[IO, TestRunner] = inner
-      // TODO: Properly set timeout based on initial testrun
-      .map(TestRunner.timeoutRunner(2.minutes, _))
+    // TODO: Properly set timeout based on initial testrun
+    val withTimeout: Resource[IO, TestRunner] =
+      TestRunner.timeoutRunner(2.minutes, inner)
 
     val withRetryAndTimeout = TestRunner.retryRunner(withTimeout)
 
