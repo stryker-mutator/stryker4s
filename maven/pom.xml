@@ -68,7 +68,7 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <!-- The version that is used for running stryker4s on stryker4s -->
-        <stryker4s-plugin.version>0.9.1</stryker4s-plugin.version>
+        <stryker4s-plugin.version>0.9.2</stryker4s-plugin.version>
     </properties>
     <dependencies>
         <dependency>
