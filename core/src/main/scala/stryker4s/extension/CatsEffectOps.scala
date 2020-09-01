@@ -25,6 +25,9 @@ object CatsEffectOps {
         endTime <- Clock[F].realTime(timeUnit)
       } yield (result, FiniteDuration(endTime - startTime, timeUnit))
   }
+}
+
+object ResourceExtensions {
 
   /** Build a resource that can destroy and recreate 'itself' with a passed function. The resource value is available inside a thread-safe mutable `MVar`
     *

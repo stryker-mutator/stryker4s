@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import grizzled.slf4j.Logging
-import stryker4s.extension.CatsEffectOps
+import stryker4s.extension.ResourceExtensions
 import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
 trait TestRunner {
@@ -20,7 +20,7 @@ object TestRunner {
       timer: Timer[IO],
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] =
-    CatsEffectOps.selfRecreatingResource(inner) { (mvar, releaseAndSwap) =>
+    ResourceExtensions.selfRecreatingResource(inner) { (mvar, releaseAndSwap) =>
       IO {
         new TestRunner with Logging {
           def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] =
@@ -44,7 +44,7 @@ object TestRunner {
   def retryRunner(acquire: Resource[IO, TestRunner])(implicit
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] =
-    CatsEffectOps.selfRecreatingResource(acquire) { (mvar, releaseAndSwap) =>
+    ResourceExtensions.selfRecreatingResource(acquire) { (mvar, releaseAndSwap) =>
       IO {
         new TestRunner with Logging {
 
