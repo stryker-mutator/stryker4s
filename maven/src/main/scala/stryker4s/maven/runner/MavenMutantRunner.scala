@@ -1,9 +1,10 @@
 package stryker4s.maven.runner
 
-import java.nio.file.Path
-import java.util.Properties
+import scala.collection.JavaConverters._
 
 import better.files._
+import cats.effect.{ContextShift, IO, Resource}
+import java.util.Properties
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
 import stryker4s.config.Config
@@ -11,10 +12,6 @@ import stryker4s.model.{Killed, MavenRunnerContext, Mutant, MutantRunResult, Sur
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
-
-import scala.collection.JavaConverters._
-import stryker4s.config.TestFilter
-import cats.effect.{ContextShift, IO, Resource}
 
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
     implicit
@@ -78,14 +75,15 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
       if (properties.getProperty(surefireFilter) != null) {
         val newTestProperty = properties.getProperty(surefireFilter) +: config.testFilter
         properties.setProperty(surefireFilter, newTestProperty.mkString(", "))
-
+        ()
       } else if (properties.getProperty(scalatestFilter) != null) {
         val newTestProperty = properties.getProperty(scalatestFilter) +: config.testFilter
         properties.setProperty(scalatestFilter, newTestProperty.mkString(","))
-
+        ()
       } else {
         properties.setProperty(surefireFilter, config.testFilter.mkString(", "))
         properties.setProperty(scalatestFilter, config.testFilter.mkString(","))
+        ()
       }
     }
 

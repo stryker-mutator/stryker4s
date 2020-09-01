@@ -1,6 +1,12 @@
 package stryker4s.maven.runner
 
+import scala.collection.JavaConverters._
+import scala.meta._
+
 import better.files._
+import cats.effect.IO
+import java.io.{File => JFile}
+import java.{util => ju}
 import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker._
@@ -13,11 +19,6 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.collection.JavaConverters._
-import scala.meta._
-import java.{util => ju}
-import cats.effect.IO
-
 class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
   def context = MavenRunnerContext(new ju.Properties(), Seq("test"), File("/home/user/tmpDir"))
@@ -25,7 +26,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
   describe("initializeTestContext") {
     it("should set the working directory") {
       val invokerMock = mock[Invoker]
-      when(invokerMock.setWorkingDirectory(any)).thenReturn(null)
+      when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       sut
@@ -43,7 +44,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val expectedTestFilter = Seq("*MavenMutantRunnerTest", "*OtherTest")
       implicit val config: Config = Config.default.copy(testFilter = expectedTestFilter)
       val invokerMock = mock[Invoker]
-      when(invokerMock.setWorkingDirectory(any)).thenReturn(null)
+      when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       sut
@@ -60,7 +61,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val expectedTestFilter = "*MavenMutantRunnerTest"
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
       val invokerMock = mock[Invoker]
-      when(invokerMock.setWorkingDirectory(any)).thenReturn(null)
+      when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
       val mavenProject = new MavenProject()
       mavenProject.getProperties().setProperty("test", "*OtherTest")
       val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
@@ -75,7 +76,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val expectedTestFilter = "*MavenMutantRunnerTest"
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
       val invokerMock = mock[Invoker]
-      when(invokerMock.setWorkingDirectory(any)).thenReturn(null)
+      when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
       val mavenProject = new MavenProject()
       mavenProject.getProperties().setProperty("wildcardSuites", "*OtherTest")
       val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
@@ -94,7 +95,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(1)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val result = sut.runInitialTest(context).unsafeRunSync()
@@ -106,7 +107,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
@@ -122,7 +123,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
       val mavenProject = new MavenProject()
       val profile = new Profile()
@@ -143,7 +144,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(1)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), context).unsafeRunSync()
@@ -155,7 +156,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
       val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), context).unsafeRunSync()
@@ -167,7 +168,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(1)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
       val project = new MavenProject()
       project.getProperties().setProperty("surefire.skipAfterFailureCount", "1")
@@ -189,7 +190,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val invokerMock = mock[Invoker]
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any)).thenReturn(mockResult)
+      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
       val mavenProject = new MavenProject()
       val profile = new Profile()
