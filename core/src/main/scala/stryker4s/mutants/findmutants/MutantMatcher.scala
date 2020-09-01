@@ -6,6 +6,7 @@ import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtension}
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
+import stryker4s.extension.TreeExtensions.MapParentExtension
 
 class MutantMatcher()(implicit config: Config) {
   private[this] val ids = Iterator.from(0)
@@ -91,6 +92,7 @@ class MutantMatcher()(implicit config: Config) {
             else
               Some(Mutant(ids.next(), original, mutationToTerm(mutated), mutated))
           }
+          .filterNot(_.exists(isObjectVal))
       }
 
     private def ifNotInAnnotation(maybeMutants: => Seq[Option[Mutant]]): Seq[Option[Mutant]] = {
@@ -120,5 +122,13 @@ class MutantMatcher()(implicit config: Config) {
       }
     }
 
+    private def isObjectVal(mutant: Mutant): Boolean =
+      mutant.original
+        // If the mutant is in a `val`
+        .mapParent[Defn.Val, Option[Defn.Val]](Some(_), None)
+        // And that `val` is directly in an object
+        .exists(_.parent.flatMap(_.parent).exists(_.is[Defn.Object])) &&
+        // And the mutation is not in a function (so not static)
+        !mutant.original.isIn[Term.Function]
   }
 }

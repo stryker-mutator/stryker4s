@@ -116,7 +116,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
                   }
                   @Annotation("Object Annotation")
                   object Foo {
-                    val value = "value"
+                    val value = () => "value"
                   }
           """
 
@@ -145,7 +145,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
                   }
                   @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
                   object Foo {
-                    val value = "s5"
+                    val value = () => "s5"
                   }
           """
 

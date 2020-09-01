@@ -7,13 +7,16 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 object TreeExtensions {
-  @tailrec
-  private def mapParent[T <: Tree, U](tree: Tree, ifFound: T => U, notFound: => U)(implicit classTag: ClassTag[T]): U =
-    tree.parent match {
-      case Some(value: T)   => ifFound(value)
-      case Some(otherValue) => mapParent(otherValue, ifFound, notFound)
-      case _                => notFound
-    }
+
+  implicit class MapParentExtension(tree: Tree) {
+    @tailrec
+    final def mapParent[T <: Tree, U](ifFound: T => U, notFound: => U)(implicit classTag: ClassTag[T]): U =
+      tree.parent match {
+        case Some(value: T)   => ifFound(value)
+        case Some(otherValue) => otherValue.mapParent(ifFound, notFound)
+        case _                => notFound
+      }
+  }
 
   implicit class TopStatementExtension(thisTerm: Term) {
 
@@ -41,7 +44,7 @@ object TreeExtensions {
           .flatMap(findParent[Term])
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
-        mapParent[T, Option[T]](tree, Some(_), None)
+        tree.mapParent[T, Option[T]](Some(_), None)
     }
 
     /** Extractor object to check if the direct parent of the [[scala.meta.Term]] is a 'full statement'
@@ -102,7 +105,7 @@ object TreeExtensions {
       * Recursively going up the tree until an annotation is found.
       */
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
-      mapParent[T, Boolean](thisTree, _ => true, false)
+      thisTree.mapParent[T, Boolean](_ => true, false)
   }
 
   implicit class PathToRoot(thisTree: Tree) {

@@ -453,4 +453,69 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(falseFound, q"false", q"true")
     }
   }
+
+  describe("object vals matching ") {
+    it("should not match vals in object") {
+      val tree = q"object Foo { val a = true }"
+
+      val found = tree.collect(sut.allMatchers).flatten
+
+      found shouldBe empty
+    }
+
+    it("should not match multiple mutants in a val in object") {
+      val tree = q"""object Foo { val a = 18 > 20 && complexCalculation("string") }"""
+
+      val found = tree.collect(sut.allMatchers).flatten
+
+      found shouldBe empty
+    }
+
+    it("should match a plain val") {
+      val tree = q"val a = true"
+
+      val found = tree.collect(sut.allMatchers).flatten
+
+      expectMutations(found, q"true", q"false")
+    }
+
+    it("should match function vals in object") {
+      val tree = q"object Foo { val a = () => true }"
+
+      val found = tree.collect(sut.allMatchers).flatten
+
+      found should have length 1
+      expectMutations(found, q"true", q"false")
+    }
+
+    it("should still exclude mutations") {
+      val c = config.copy(excludedMutations = Set("BooleanLiteral"))
+      val newMatcher = new MutantMatcher()(c)
+
+      val tree = q"object Foo { val a = () => true }"
+
+      val found = tree.collect(newMatcher.allMatchers).flatten
+
+      found.loneElement shouldBe None
+    }
+
+    it("should match vals in a class") {
+      val tree = q"class Foo { val a = true }"
+
+      val found = tree.collect(sut.allMatchers).flatten
+
+      found should have length 1
+      expectMutations(found, q"true", q"false")
+    }
+
+    it("should match functions") {
+      val tree = q"() => true"
+
+      val found = tree.collect(sut.allMatchers).flatten
+
+      found should have length 1
+      expectMutations(found, q"true", q"false")
+    }
+
+  }
 }
