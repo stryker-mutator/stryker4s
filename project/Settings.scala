@@ -54,12 +54,12 @@ object Settings {
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     ),
-    sources in (Compile, doc) := skipDottyDocs.value
+    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
     Test / parallelExecution := true, // No logging tests, so parallel can be true
-    sources in (Compile, doc) := skipDottyDocs.value
+    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
@@ -86,9 +86,10 @@ object Settings {
     )
   )
 
-  // Skip dotty doc generation as it does not work for some reason (probably because of the api folder)
-  private lazy val skipDottyDocs = Def.task {
-    val original = (sources in (Compile, doc)).value
-    if (isDotty.value) Nil else original
+  // Dotty doc generation creates warnings. Ignore them for now
+  val filterDottyDocScalacOptions = Def.task {
+    val options = (scalacOptions in (Compile, doc)).value
+    if (isDotty.value) options.filterNot(_ == "-Xfatal-warnings")
+    else options
   }
 }
