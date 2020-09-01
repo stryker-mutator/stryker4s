@@ -3,10 +3,10 @@ package stryker4s.extension
 import stryker4s.testutil.Stryker4sSuite
 import cats.effect.Clock
 import cats.effect.IO
-import stryker4s.extension.CatsEffectOps._
+import stryker4s.extension.CatsEffectExtensions._
 import scala.concurrent.duration._
 
-class CatsEffectOpsTest extends Stryker4sSuite {
+class CatsEffectExtensionsTest extends Stryker4sSuite {
 
   describe("timed") {
     it("should give the time an execution takes") {
@@ -50,9 +50,5 @@ class CatsEffectOpsTest extends Stryker4sSuite {
 
         def monotonic(unit: concurrent.duration.TimeUnit): IO[Long] = ???
       }
-  }
-
-  describe("selfRecreatingResource") {
-    // TODO
   }
 }
