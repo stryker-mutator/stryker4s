@@ -12,14 +12,14 @@ object FileExtensions {
       * <br>
       *   For example, with the file `projectRoot/src/main`, this function will return `src/main`
       */
-    def relativePath(implicit config: Config): Path = config.baseDir.relativize(file)
+    def relativePath(implicit config: Config): Path = file.path.relativePath
 
     /** The directory for this file, using `subDir` param as the base-directory instead of the Config base-dir
       * <br>
       *   For example, with `this` file `projectRoot/src/main` folder, and the parameter file `projectRoot/target/tmp`,
       *   this function will return projectRoot/target/tmp/src/main
       */
-    def inSubDir(subDir: File)(implicit config: Config): File = subDir / file.relativePath.toString
+    def inSubDir(subDir: File)(implicit config: Config): File = file.path.inSubDir(subDir.path)
   }
 
   implicit class PathExtensions(path: Path) {
