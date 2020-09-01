@@ -26,7 +26,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
     SbtTestRunner
       .create(classpath, javaOpts, frameworks, testGroups)
-      .map(testRunner => SbtRunnerContext(testRunner, tmpDir))
+      .map(SbtRunnerContext(_))
   }
 
   private def extractSbtContext(tmpDir: File) = {

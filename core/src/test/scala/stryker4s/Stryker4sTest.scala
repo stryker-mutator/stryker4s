@@ -24,7 +24,7 @@ import cats.effect.IO
 import cats.effect.Resource
 
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
-  case class TestTestRunnerContext(tmpDir: File) extends TestRunnerContext
+  case class TestTestRunnerContext() extends TestRunnerContext
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
     private[this] val stream = Iterator.from(0)
@@ -33,7 +33,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
       IO.pure(Killed(Mutant(stream.next(), q">", q"<", LesserThan)))
     override def runInitialTest(context: Context): IO[Boolean] = IO.pure(true)
     override def initializeTestContext(tmpDir: File): Resource[IO, Context] =
-      Resource.pure[IO, Context](TestTestRunnerContext(tmpDir))
+      Resource.pure[IO, Context](TestTestRunnerContext())
   }
 
   describe("run") {

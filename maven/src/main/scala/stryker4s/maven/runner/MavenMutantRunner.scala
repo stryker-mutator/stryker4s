@@ -27,7 +27,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
     setTestProperties(properties)
     invoker.setWorkingDirectory(tmpDir.toJava)
 
-    Resource.pure[IO, Context](MavenRunnerContext(properties, goals, tmpDir))
+    Resource.pure[IO, Context](MavenRunnerContext(properties, goals))
   }
 
   override def runInitialTest(context: Context): IO[Boolean] = {
