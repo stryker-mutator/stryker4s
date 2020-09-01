@@ -76,9 +76,11 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
       Project.runTask(task, newState) match {
         case Some((_, Value(result))) => result
         case other =>
+          debug(s"Expected $name but got $other")
           throw new TestSetupException(
-            s"Could not setup mutation testing environment. Expected $name, but got $other"
+            s"Could not setup mutation testing environment. Unable to resolve project $name. This could be due to compile errors or misconfiguration of Stryker4s. See debug logs for more information."
           )
+
       }
 
     val classpath = extractTaskValue(fullClasspath in Test, "classpath").map(_.data.getPath())
