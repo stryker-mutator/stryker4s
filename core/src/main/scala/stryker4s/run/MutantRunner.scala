@@ -23,8 +23,8 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     with Logging {
   type Context <: TestRunnerContext
 
-  def apply(mutatedFiles: Iterable[MutatedFile]): IO[MetricsResult] =
-    prepareEnv(mutatedFiles.toSeq).use { context =>
+  def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
+    prepareEnv(mutatedFiles).use { context =>
       for {
         _ <- initialTestRun(context)
         runResults <- runMutants(mutatedFiles, context)
@@ -88,20 +88,28 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
             .through(io.file.writeAll(targetPath, blocker))
       }
 
-  private def runMutants(mutatedFiles: Iterable[MutatedFile], context: Context): IO[List[MutantRunResult]] =
-    mutatedFiles.toList.flatTraverse { mutatedFile =>
-      val subPath = mutatedFile.fileOrigin.relativePath
-      mutatedFile.mutants.toList.traverse { mutant =>
-        val totalMutants = mutatedFiles.flatMap(_.mutants).size
+  private def runMutants(mutatedFiles: List[MutatedFile], context: Context): IO[Map[Path, List[MutantRunResult]]] = {
+    val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
-        reporter.reportMutationStart(mutant) *>
-          runMutant(mutant, context, subPath).flatTap(
-            reporter.reportMutationComplete(_, totalMutants)
-          )
+    mutatedFiles
+      .map(m => m.fileOrigin.relativePath -> m.mutants.toList)
+      .traverse {
+        case (subPath, mutants) =>
+          mutants
+            .traverse(reportAndRunMutant(_, context, totalMutants))
+            .tupleLeft(subPath)
       }
-    }
+      .map(_.toMap)
+  }
 
-  def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult]
+  private def reportAndRunMutant(mutant: Mutant, context: Context, totalMutants: Int): IO[MutantRunResult] =
+    for {
+      _ <- reporter.reportMutationStart(mutant)
+      result <- runMutant(mutant, context)
+      _ <- reporter.reportMutationComplete(result, totalMutants)
+    } yield result
+
+  def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult]
 
   def initialTestRun(context: Context): IO[Unit] = {
     IO(info("Starting initial test run...")) *>

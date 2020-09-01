@@ -12,7 +12,7 @@ class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: Mutant
   def run(): IO[ScoreStatus] =
     for {
       filesToMutate <- IO(fileCollector.collectFilesToMutate())
-      mutatedFiles = mutator.mutate(filesToMutate)
+      mutatedFiles = mutator.mutate(filesToMutate).toList
       metrics <- runner(mutatedFiles)
       scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
     } yield scoreStatus

@@ -1,7 +1,5 @@
 package stryker4s.run
 
-import java.nio.file.Path
-
 import scala.concurrent.duration._
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
@@ -11,7 +9,7 @@ import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
 trait TestRunner {
   def initialTestRun(): IO[Boolean]
-  def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult]
+  def runMutant(mutant: Mutant): IO[MutantRunResult]
 }
 
 object TestRunner {
@@ -23,19 +21,19 @@ object TestRunner {
     ResourceExtensions.selfRecreatingResource(inner) { (mvar, releaseAndSwap) =>
       IO {
         new TestRunner with Logging {
-          def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] =
+          override def runMutant(mutant: Mutant): IO[MutantRunResult] =
             mvar.read
-              .flatMap(_._1.runMutant(mutant, path))
+              .flatMap(_._1.runMutant(mutant))
               .timeoutTo(
                 timeout,
                 IO(debug(s"Mutant ${mutant.id} timed out over ${timeout.toCoarsest}")) *>
                   releaseAndSwap *>
                   IO.pure(
-                    TimedOut(mutant, path)
+                    TimedOut(mutant)
                   )
               )
 
-          def initialTestRun(): IO[Boolean] =
+          override def initialTestRun(): IO[Boolean] =
             mvar.read.flatMap(_._1.initialTestRun())
         }
       }
@@ -48,11 +46,11 @@ object TestRunner {
       IO {
         new TestRunner with Logging {
 
-          def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] =
-            retryRunMutation(mutant, path)
+          override def runMutant(mutant: Mutant): IO[MutantRunResult] =
+            retryRunMutation(mutant)
 
-          def retryRunMutation(mutant: Mutant, path: Path, retriesLeft: Long = 2): IO[MutantRunResult] = {
-            mvar.read.flatMap(_._1.runMutant(mutant, path)).attempt.flatMap {
+          def retryRunMutation(mutant: Mutant, retriesLeft: Long = 2): IO[MutantRunResult] = {
+            mvar.read.flatMap(_._1.runMutant(mutant)).attempt.flatMap {
               // On error, get a new testRunner and set it
               case Left(_) =>
                 IO(
@@ -62,13 +60,13 @@ object TestRunner {
                 ) *>
                   // Release old resource and make a new one, then retry the mutation
                   releaseAndSwap *>
-                  (if (retriesLeft > 0) retryRunMutation(mutant, path, retriesLeft - 1)
-                   else IO.pure(Error(mutant, path)))
+                  (if (retriesLeft > 0) retryRunMutation(mutant, retriesLeft - 1)
+                   else IO.pure(Error(mutant)))
 
               case Right(value) => IO.pure(value)
             }
           }
-          def initialTestRun(): IO[Boolean] =
+          override def initialTestRun(): IO[Boolean] =
             mvar.read.flatMap(_._1.initialTestRun())
 
         }

@@ -1,7 +1,6 @@
 package stryker4s.sbt.runner
 
 import java.io.{File => JFile}
-import java.nio.file.Path
 
 import better.files.{File, _}
 import cats.effect.{ContextShift, IO, Resource, Timer}
@@ -96,8 +95,8 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   override def runInitialTest(context: Context): IO[Boolean] =
     context.testRunner.initialTestRun()
 
-  override def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult] =
-    context.testRunner.runMutant(mutant, subPath)
+  override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] =
+    context.testRunner.runMutant(mutant)
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)

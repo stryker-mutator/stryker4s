@@ -1,7 +1,5 @@
 package stryker4s.command.runner
 
-import java.nio.file.Path
-
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
 
@@ -23,13 +21,13 @@ class ProcessMutantRunner(
     extends MutantRunner(sourceCollector, reporter) {
   type Context = CommandRunnerContext
 
-  override def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult] = {
+  override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] = {
     val id = mutant.id
     IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", id.toString))) map {
-      case Success(0)                         => Survived(mutant, subPath)
-      case Success(exitCode) if exitCode != 0 => Killed(mutant, subPath)
-      case Failure(_: TimeoutException)       => TimedOut(mutant, subPath)
-      case _                                  => Error(mutant, subPath)
+      case Success(0)                         => Survived(mutant)
+      case Success(exitCode) if exitCode != 0 => Killed(mutant)
+      case Failure(_: TimeoutException)       => TimedOut(mutant)
+      case _                                  => Error(mutant)
     }
   }
 

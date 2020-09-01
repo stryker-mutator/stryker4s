@@ -1,7 +1,5 @@
 package stryker4s.report
 
-import java.nio.file.Paths
-
 import mutationtesting.{Position, _}
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.{GreaterThan, LesserThan}
@@ -45,8 +43,8 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
     it("Should log multiple test runs") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan), Paths.get("stryker4s"))
-      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan), Paths.get("stryker4s"))
+      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan))
+      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan))
 
       (sut.reportMutationComplete(mutant1, 2) *>
         sut.reportMutationComplete(mutant2, 2))
@@ -58,9 +56,9 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
     it("Should round decimal numbers") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan), Paths.get("stryker4s"))
-      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan), Paths.get("stryker4s"))
-      val mutant3 = Survived(Mutant(2, q"<", q">", LesserThan), Paths.get("stryker4s"))
+      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan))
+      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan))
+      val mutant3 = Survived(Mutant(2, q"<", q">", LesserThan))
 
       (sut.reportMutationComplete(mutant1, 3) *>
         sut.reportMutationComplete(mutant2, 3) *>

@@ -36,7 +36,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(Seq(mutatedFile)).unsafeRunSync()
+      val result = sut(List(mutatedFile)).unsafeRunSync()
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 00.00
@@ -53,7 +53,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(Seq(mutatedFile)).unsafeRunSync()
+      val result = sut(List(mutatedFile)).unsafeRunSync()
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
@@ -71,7 +71,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(Seq(mutatedFile)).unsafeRunSync()
+      val result = sut(List(mutatedFile)).unsafeRunSync()
 
       testProcessRunner.timesCalled.next() should equal(1)
       result.mutationScore shouldBe 100.00
@@ -90,7 +90,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(Seq(mutatedFile)).unsafeRunSync()
+      val result = sut(List(mutatedFile)).unsafeRunSync()
 
       testProcessRunner.timesCalled.next() should equal(2)
 
@@ -111,7 +111,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(Seq(mutatedFile)).unsafeRunSync()
+      val result = sut(List(mutatedFile)).unsafeRunSync()
 
       testProcessRunner.timesCalled.next() should equal(3)
 
@@ -127,7 +127,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
-      an[InitialTestRunFailedException] shouldBe thrownBy(sut(Seq.empty).unsafeRunSync())
+      an[InitialTestRunFailedException] shouldBe thrownBy(sut(List.empty).unsafeRunSync())
     }
     describe("Log tests") {
       it("should properly log the initial test run") {
@@ -136,7 +136,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
         when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
-        sut(Seq.empty).unsafeRunSync()
+        sut(List.empty).unsafeRunSync()
 
         "Starting initial test run..." shouldBe loggedAsInfo
         "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo

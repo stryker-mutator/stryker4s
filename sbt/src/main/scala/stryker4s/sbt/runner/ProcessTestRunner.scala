@@ -1,7 +1,6 @@
 package stryker4s.sbt.runner
 
 import java.net.InetAddress
-import java.nio.file.Path
 import java.net.Socket
 
 import scala.concurrent.duration._
@@ -20,17 +19,17 @@ import stryker4s.config.Config
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner with Logging {
 
-  def runMutant(mutant: Mutant, path: Path): IO[MutantRunResult] = {
+  override def runMutant(mutant: Mutant): IO[MutantRunResult] = {
     val message = StartTestRun(mutant.id)
     testProcess.sendMessage(message) map {
-      case _: TestsSuccessful      => Survived(mutant, path)
-      case _: TestsUnsuccessful    => Killed(mutant, path)
-      case ErrorDuringTestRun(msg) => Killed(mutant, path, Some(msg))
-      case _                       => Error(mutant, path)
+      case _: TestsSuccessful      => Survived(mutant)
+      case _: TestsUnsuccessful    => Killed(mutant)
+      case ErrorDuringTestRun(msg) => Killed(mutant, Some(msg))
+      case _                       => Error(mutant)
     }
   }
 
-  def initialTestRun(): IO[Boolean] = {
+  override def initialTestRun(): IO[Boolean] = {
     testProcess.sendMessage(StartInitialTestRun()) map {
       case _: TestsSuccessful => true
       case _                  => false
@@ -84,8 +83,8 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
   )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.liftF(
-      IO.sleep(0.5.seconds) *>
-        IO(debug("Creating socket"))
+      IO(debug("Creating socket"))
+        .delayBy(0.5.seconds)
     ) *>
       Resource
         .make(
