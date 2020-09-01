@@ -2,9 +2,10 @@ package stryker4s.run
 
 import java.nio.file.Path
 
-import scala.concurrent.duration._
-
 import better.files.File
+import cats.effect.{Blocker, ContextShift, IO, Resource}
+import cats.implicits._
+import fs2.{io, text, Pipe, Stream}
 import grizzled.slf4j.Logging
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
@@ -16,85 +17,116 @@ import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunReport, Reporter}
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
-    config: Config
+    config: Config,
+    cs: ContextShift[IO]
 ) extends MutantRunResultMapper
     with Logging {
   type Context <: TestRunnerContext
 
-  def apply(mutatedFiles: Iterable[MutatedFile]): MetricsResult = {
-    val context = prepareEnv(mutatedFiles)
-
-    initialTestRun(context)
-
-    val runResults = runMutants(mutatedFiles, context)
-
-    val report = toReport(runResults)
-    val metrics = Metrics.calculateMetrics(report)
-
-    // Timeout of 15 seconds is a little longer to make sure http requests etc finish
-    // TODO: Don't use unsafeRun
-    reporter.reportRunFinished(FinishedRunReport(report, metrics)).unsafeRunTimed(15.seconds)
-    metrics
-  }
-
-  private def prepareEnv(mutatedFiles: Iterable[MutatedFile]): Context = {
-    val files = sourceCollector.filesToCopy
-    val tmpDir: File = {
-      val targetFolder = config.baseDir / "target"
-      targetFolder.createDirectoryIfNotExists()
-
-      File.newTemporaryDirectory("stryker4s-", Some(targetFolder))
+  def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
+    prepareEnv(mutatedFiles).use { context =>
+      for {
+        _ <- initialTestRun(context)
+        runResults <- runMutants(mutatedFiles, context)
+        report = toReport(runResults)
+        metrics = Metrics.calculateMetrics(report)
+        _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics))
+      } yield metrics
     }
 
-    debug("Using temp directory: " + tmpDir)
-
-    files.foreach(copyFile(_, tmpDir))
-
-    // Overwrite files to mutated files
-    mutatedFiles.foreach(writeMutatedFile(_, tmpDir))
-    initializeTestContext(tmpDir)
-  }
-
-  private def copyFile(file: File, tmpDir: File): Unit = {
-    val filePath = tmpDir / file.relativePath.toString
-
-    filePath.createIfNotExists(file.isDirectory, createParents = true)
-
-    val _ = file.copyTo(filePath, overwrite = true)
-  }
-
-  private def writeMutatedFile(mutatedFile: MutatedFile, tmpDir: File): File = {
-    val filePath = mutatedFile.fileOrigin.inSubDir(tmpDir)
-    filePath.overwrite(mutatedFile.tree.syntax)
-  }
-
-  private def runMutants(mutatedFiles: Iterable[MutatedFile], context: Context): Iterable[MutantRunResult] =
+  def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] =
     for {
-      mutatedFile <- mutatedFiles
-      subPath = mutatedFile.fileOrigin.relativePath
-      mutant <- mutatedFile.mutants
-    } yield {
-      val totalMutants = mutatedFiles.flatMap(_.mutants).size
-      // TODO: Don't use unsafeRun
-      reporter.reportMutationStart(mutant).unsafeRunTimed(5.seconds)
-      val result = runMutant(mutant, context)(subPath)
-      reporter.reportMutationComplete(result, totalMutants).unsafeRunTimed(5.seconds)
-      result
+      blocker <- Blocker[IO]
+      targetDir = (config.baseDir / "target").path
+      _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
+      tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
+      _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
+      context <- initializeTestContext(tmpDir)
+    } yield context
+
+  private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
+    IO(info("Setting up mutated environment...")) *>
+      IO(debug("Using temp directory: " + tmpDir)) *> {
+      val mutatedPaths = mutatedFiles.map(_.fileOrigin)
+      val unmutatedFilesStream =
+        Stream
+          .evalSeq(IO(sourceCollector.filesToCopy.toSeq))
+          .filterNot(mutatedPaths.contains)
+          .map(_.path)
+          .through(writeOriginalFile(blocker, tmpDir))
+
+      val mutatedFilesStream = Stream
+        .emits(mutatedFiles)
+        .through(writeMutatedFile(blocker, tmpDir))
+
+      (unmutatedFilesStream merge
+        mutatedFilesStream).compile.drain
     }
 
-  def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult
+  def writeOriginalFile(blocker: Blocker, tmpDir: Path): Pipe[IO, Path, Unit] =
+    in =>
+      in.evalMapChunk { file =>
+        val newSubPath = file.inSubDir(tmpDir)
 
-  def initialTestRun(context: Context): Unit = {
-    info("Starting initial test run...")
-    if (!runInitialTest(context)) {
-      throw InitialTestRunFailedException(
-        "Initial test run failed. Please make sure your tests pass before running Stryker4s."
-      )
-    }
-    info("Initial test run succeeded! Testing mutants...")
+        IO(debug(s"Copying $file to $newSubPath")) *>
+          io.file.createDirectories[IO](blocker, newSubPath.getParent()) *>
+          io.file.copy[IO](blocker, file, newSubPath).void
+      }
+
+  def writeMutatedFile(blocker: Blocker, tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
+    in =>
+      in.evalMapChunk { mutatedFile =>
+        val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)
+        IO(debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
+          io.file.createDirectories[IO](blocker, targetPath.getParent()) *>
+          IO.pure((mutatedFile, targetPath))
+      }.flatMap {
+        case (mutatedFile, targetPath) =>
+          Stream(mutatedFile.tree.syntax)
+            .covary[IO]
+            .through(text.utf8Encode)
+            .through(io.file.writeAll(targetPath, blocker))
+      }
+
+  private def runMutants(mutatedFiles: List[MutatedFile], context: Context): IO[Map[Path, List[MutantRunResult]]] = {
+    val totalMutants = mutatedFiles.flatMap(_.mutants).size
+
+    mutatedFiles
+      .map(m => m.fileOrigin.relativePath -> m.mutants.toList)
+      .traverse {
+        case (subPath, mutants) =>
+          mutants
+            .traverse(reportAndRunMutant(_, context, totalMutants))
+            .tupleLeft(subPath)
+      }
+      .map(_.toMap)
   }
 
-  def runInitialTest(context: Context): Boolean
+  private def reportAndRunMutant(mutant: Mutant, context: Context, totalMutants: Int): IO[MutantRunResult] =
+    for {
+      _ <- reporter.reportMutationStart(mutant)
+      result <- runMutant(mutant, context)
+      _ <- reporter.reportMutationComplete(result, totalMutants)
+    } yield result
 
-  def initializeTestContext(tmpDir: File): Context
+  def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult]
+
+  def initialTestRun(context: Context): IO[Unit] = {
+    IO(info("Starting initial test run...")) *>
+      runInitialTest(context).flatMap { result =>
+        if (!result)
+          IO.raiseError(
+            InitialTestRunFailedException(
+              "Initial test run failed. Please make sure your tests pass before running Stryker4s."
+            )
+          )
+        else
+          IO(info("Initial test run succeeded! Testing mutants..."))
+      }
+  }
+
+  def runInitialTest(context: Context): IO[Boolean]
+
+  def initializeTestContext(tmpDir: File): Resource[IO, Context]
+
 }

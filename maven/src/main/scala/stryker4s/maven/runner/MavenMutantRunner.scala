@@ -1,9 +1,10 @@
 package stryker4s.maven.runner
 
-import java.nio.file.Path
-import java.util.Properties
+import scala.collection.JavaConverters._
 
 import better.files._
+import cats.effect.{ContextShift, IO, Resource}
+import java.util.Properties
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
 import stryker4s.config.Config
@@ -12,40 +13,37 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 
-import scala.collection.JavaConverters._
-import stryker4s.config.TestFilter
-
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
-    implicit config: Config
+    implicit
+    config: Config,
+    cs: ContextShift[IO]
 ) extends MutantRunner(sourceCollector, reporter) {
   type Context = MavenRunnerContext
 
-  def initializeTestContext(tmpDir: File): Context = {
+  def initializeTestContext(tmpDir: File): Resource[IO, Context] = {
     val goals = List("test")
 
     val properties = new Properties(project.getProperties)
     setTestProperties(properties)
     invoker.setWorkingDirectory(tmpDir.toJava)
 
-    MavenRunnerContext(properties, goals, tmpDir)
+    Resource.pure[IO, Context](MavenRunnerContext(properties, goals))
   }
 
-  override def runInitialTest(context: Context): Boolean = {
+  override def runInitialTest(context: Context): IO[Boolean] = {
     val request = createRequest(context)
 
-    val result = invoker.execute(request)
-
-    result.getExitCode == 0
+    IO(invoker.execute(request)).map(_.getExitCode() == 0)
   }
 
-  override def runMutant(mutant: Mutant, context: Context): Path => MutantRunResult = {
+  override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] = {
     val request = createRequestWithMutation(mutant, context)
 
-    val result = invoker.execute(request)
-
-    result.getExitCode match {
-      case 0 => Survived(mutant, _)
-      case _ => Killed(mutant, _)
+    IO(invoker.execute(request)).map { result =>
+      result.getExitCode match {
+        case 0 => Survived(mutant)
+        case _ => Killed(mutant)
+      }
     }
   }
 
@@ -77,14 +75,15 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
       if (properties.getProperty(surefireFilter) != null) {
         val newTestProperty = properties.getProperty(surefireFilter) +: config.testFilter
         properties.setProperty(surefireFilter, newTestProperty.mkString(", "))
-
+        ()
       } else if (properties.getProperty(scalatestFilter) != null) {
         val newTestProperty = properties.getProperty(scalatestFilter) +: config.testFilter
         properties.setProperty(scalatestFilter, newTestProperty.mkString(","))
-
+        ()
       } else {
         properties.setProperty(surefireFilter, config.testFilter.mkString(", "))
         properties.setProperty(scalatestFilter, config.testFilter.mkString(","))
+        ()
       }
     }
 

@@ -22,20 +22,17 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
 
       val path = FileUtil.getResource("scalaFiles/ExampleClass.scala").relativePath
       val mutantRunResult = Killed(
-        toMutant(0, EqualTo, NotEqualTo, path),
-        path
+        toMutant(0, EqualTo, NotEqualTo, path)
       )
       val mutantRunResult2 = Survived(
-        toMutant(1, Lit.String("Hugo"), EmptyString, path),
-        path
+        toMutant(1, Lit.String("Hugo"), EmptyString, path)
       )
       val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala").relativePath
       val mutantRunResult3 = Killed(
-        toMutant(0, GreaterThan, LesserThan, path3),
-        path3
+        toMutant(0, GreaterThan, LesserThan, path3)
       )
 
-      val mutationRunResults = List(mutantRunResult, mutantRunResult2, mutantRunResult3)
+      val mutationRunResults = Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
 
       val result = sut.toReport(mutationRunResults)
       inside(result) {

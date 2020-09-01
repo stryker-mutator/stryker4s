@@ -2,11 +2,13 @@ import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     Test / parallelExecution := false, // For logging tests
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+    libraryDependencies ++= (if (!isDotty.value) Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
+                             else Nil)
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
@@ -26,6 +28,7 @@ object Settings {
       Dependencies.sttpCatsBackend,
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,
+      Dependencies.catsEffect,
       Dependencies.fs2Core,
       Dependencies.fs2IO
     )
@@ -44,6 +47,19 @@ object Settings {
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     scriptedBufferLog := false
+  )
+
+  lazy val sbtTestrunnerSettings: Seq[Setting[_]] = Seq(
+    Test / parallelExecution := true, // No logging tests, so parallel can be true
+    libraryDependencies ++= Seq(
+      Dependencies.testInterface
+    ),
+    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
+  )
+
+  lazy val apiSettings: Seq[Setting[_]] = Seq(
+    Test / parallelExecution := true, // No logging tests, so parallel can be true
+    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
@@ -69,4 +85,11 @@ object Settings {
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
     )
   )
+
+  // Dotty doc generation creates warnings. Ignore them for now
+  val filterDottyDocScalacOptions = Def.task {
+    val options = (scalacOptions in (Compile, doc)).value
+    if (isDotty.value) options.filterNot(_ == "-Xfatal-warnings")
+    else options
+  }
 }

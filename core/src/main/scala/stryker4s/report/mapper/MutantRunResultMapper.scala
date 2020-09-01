@@ -7,25 +7,29 @@ import stryker4s.config.{Config, Thresholds => ConfigThresholds}
 import stryker4s.model._
 
 trait MutantRunResultMapper {
-  protected[report] def toReport(results: Iterable[MutantRunResult])(implicit config: Config): MutationTestReport =
+  protected[report] def toReport(
+      results: Map[Path, List[MutantRunResult]]
+  )(implicit config: Config): MutationTestReport =
     MutationTestReport(
       thresholds = toThresholds(config.thresholds),
-      files = toMutationTestResultMap(results.toSeq)
+      files = toMutationTestResultMap(results)
     )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =
     Thresholds(high = thresholds.high, low = thresholds.low)
 
   private def toMutationTestResultMap(
-      results: Seq[MutantRunResult]
+      results: Map[Path, List[MutantRunResult]]
   )(implicit config: Config): Map[String, MutationTestResult] =
-    results groupBy (_.fileSubPath) map {
-      case (path, runResults) => path.toString.replace('\\', '/') -> toMutationTestResult(runResults)
+    results.map {
+      case (path, runResults) => path.toString.replace('\\', '/') -> toMutationTestResult(path, runResults)
     }
 
-  private def toMutationTestResult(runResults: Seq[MutantRunResult])(implicit config: Config): MutationTestResult =
+  private def toMutationTestResult(path: Path, runResults: Seq[MutantRunResult])(implicit
+      config: Config
+  ): MutationTestResult =
     MutationTestResult(
-      fileContentAsString(runResults.head.fileSubPath),
+      fileContentAsString(path),
       runResults.map(toMutantResult)
     )
 
@@ -36,7 +40,8 @@ trait MutantRunResultMapper {
       mutant.mutationType.mutationName,
       mutant.mutated.syntax,
       toLocation(mutant.original.pos),
-      toMutantStatus(runResult)
+      toMutantStatus(runResult),
+      runResult.description
     )
   }
 
@@ -52,7 +57,7 @@ trait MutantRunResultMapper {
       case _: Killed     => MutantStatus.Killed
       case _: NoCoverage => MutantStatus.NoCoverage
       case _: TimedOut   => MutantStatus.Timeout
-      case _: Error      => MutantStatus.CompileError
+      case _: Error      => MutantStatus.RuntimeError
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =

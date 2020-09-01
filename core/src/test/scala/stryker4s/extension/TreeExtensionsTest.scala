@@ -363,17 +363,6 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
   describe("transformOnce") {
 
-    /** If this test fails then that means the Scalameta transform works as we want it to
-      * and our transformOnce can be replaced with it
-      */
-    it("normal transform causes a StackOverflowError") {
-      val sut = q"def foo = 5"
-
-      lazy val result = sut.transform({ case q"5" => q"5 + 1" })
-
-      a[StackOverflowError] should be thrownBy result
-    }
-
     it("should transform does not recursively transform new subtree") {
       val sut = q"def foo = 5"
 

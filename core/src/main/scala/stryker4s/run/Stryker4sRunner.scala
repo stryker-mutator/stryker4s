@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{ContextShift, IO}
+import cats.implicits._
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -14,31 +15,36 @@ import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
-trait Stryker4sRunner {
-  def run()(implicit cs: ContextShift[IO]): ScoreStatus = {
+abstract class Stryker4sRunner(implicit cs: ContextShift[IO]) {
+  def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 
     val collector = new FileCollector(ProcessRunner())
-    val stryker4s = new Stryker4s(
-      collector,
-      new Mutator(new MutantFinder(new MutantMatcher), new StatementTransformer, new MatchBuilder(mutationActivation)),
-      resolveRunner(collector, new AggregateReporter(resolveReporters()))
-    )
-    stryker4s.run()
+
+    resolveReporters().flatMap { reporters =>
+      val stryker4s = new Stryker4s(
+        collector,
+        new Mutator(
+          new MutantFinder(new MutantMatcher),
+          new StatementTransformer,
+          new MatchBuilder(mutationActivation)
+        ),
+        resolveRunner(collector, new AggregateReporter(reporters))
+      )
+      stryker4s.run()
+    }
   }
 
-  def resolveReporters()(implicit config: Config, cs: ContextShift[IO]) =
-    config.reporters.toList.map {
-      case Console => new ConsoleReporter()
-      case Html    => new HtmlReporter(new DiskFileIO())
-      case Json    => new JsonReporter(new DiskFileIO())
+  def resolveReporters()(implicit config: Config) =
+    config.reporters.toList.traverse {
+      case Console => IO(new ConsoleReporter())
+      case Html    => IO(new HtmlReporter(new DiskFileIO()))
+      case Json    => IO(new JsonReporter(new DiskFileIO()))
       case Dashboard =>
         AsyncHttpClientCatsBackend[IO]()
           .map { implicit backend =>
             new DashboardReporter(new DashboardConfigProvider(sys.env))
           }
-          // TODO: Figure out some other way to do this?
-          .unsafeRunSync()
     }
 
   def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner

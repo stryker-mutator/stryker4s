@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 
-import cats.effect.{ContextShift, IO => CatsIO}
+import cats.effect.{ContextShift, IO => CatsIO, Timer}
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configurator
 import org.apache.logging.log4j.{Level => Log4jLevel}
@@ -45,14 +45,16 @@ object Stryker4sMain extends AutoPlugin {
 
   lazy val strykerImpl = Def.task {
     implicit val cs: ContextShift[CatsIO] = CatsIO.contextShift(implicitly[ExecutionContext])
+    implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
     setStrykerLogLevel((logLevel in stryker).value)
 
-    val result = new Stryker4sSbtRunner(state.value).run()
-
-    result match {
-      case ErrorStatus => throw new MessageOnlyException("Mutation score is below configured threshold")
-      case _           => ()
-    }
+    new Stryker4sSbtRunner(state.value)
+      .run()
+      .map {
+        case ErrorStatus => throw new MessageOnlyException("Mutation score is below configured threshold")
+        case _           => ()
+      }
+      .unsafeRunSync()
   }
 
   private lazy val strykerIsNotSupported: Def.Initialize[Task[Unit]] = Def.task {

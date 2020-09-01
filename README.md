@@ -35,10 +35,6 @@ addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % stryker4sVersion)
 
 After adding the plugin, Stryker4s can be used by running `sbt stryker` in the root of your project.
 
-### Memory usage
-
-Mutation testing can be very taxing on your computer's resources. After all, your tests are run for each mutant. Sbt also has the tendency to [build up memory in a running session](https://github.com/sbt/sbt/issues/3983). It's wise to give sbt some extra memory by setting the following environment variable: `export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=4G -Xmx4G $JAVA_OPTS"`. The amount of memory needed depends on the size of the project you are running Stryker4s on.
-
 ### Multi-module projects
 
 Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/CONFIGURATION.md#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
