@@ -146,8 +146,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any)).thenReturn(mockResult)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
-      val cwd = File.currentWorkingDirectory
-      val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), context, cwd.path).unsafeRunSync()
+      val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), context).unsafeRunSync()
 
       result shouldBe a[Killed]
     }
@@ -159,8 +158,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any)).thenReturn(mockResult)
       val sut = new MavenMutantRunner(new MavenProject(), invokerMock, mock[SourceCollector], mock[Reporter])
 
-      val cwd = File.currentWorkingDirectory
-      val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), context, cwd.path).unsafeRunSync()
+      val result = sut.runMutant(Mutant(1, q">", q"<", LesserThan), context).unsafeRunSync()
 
       result shouldBe a[Survived]
     }
@@ -176,8 +174,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       val newContext = context.copy(properties = project.getProperties())
       val sut = new MavenMutantRunner(project, invokerMock, mock[SourceCollector], mock[Reporter])
 
-      val cwd = File.currentWorkingDirectory
-      sut.runMutant(Mutant(1, q">", q"<", LesserThan), newContext, cwd.path).unsafeRunSync()
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), newContext).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
@@ -200,8 +197,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenMutantRunner(mavenProject, invokerMock, mock[SourceCollector], mock[Reporter])
 
-      val cwd = File.currentWorkingDirectory
-      sut.runMutant(Mutant(1, q">", q"<", LesserThan), context, cwd.path).unsafeRunSync()
+      sut.runMutant(Mutant(1, q">", q"<", LesserThan), context).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value

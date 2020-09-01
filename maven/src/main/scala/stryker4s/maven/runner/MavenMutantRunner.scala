@@ -39,13 +39,13 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
     IO(invoker.execute(request)).map(_.getExitCode() == 0)
   }
 
-  override def runMutant(mutant: Mutant, context: Context, subPath: Path): IO[MutantRunResult] = {
+  override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] = {
     val request = createRequestWithMutation(mutant, context)
 
     IO(invoker.execute(request)).map { result =>
       result.getExitCode match {
-        case 0 => Survived(mutant, subPath)
-        case _ => Killed(mutant, subPath)
+        case 0 => Survived(mutant)
+        case _ => Killed(mutant)
       }
     }
   }
