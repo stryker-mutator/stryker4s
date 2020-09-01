@@ -1,7 +1,6 @@
 package stryker4s.sbt.runner
 
-import java.net.InetAddress
-import java.net.Socket
+import java.net.{InetAddress, Socket}
 
 import scala.concurrent.duration._
 import scala.sys.process.{Process, ProcessLogger}
@@ -13,9 +12,9 @@ import grizzled.slf4j.Logging
 import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
+import stryker4s.config.Config
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.TestRunner
-import stryker4s.config.Config
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner with Logging {
 

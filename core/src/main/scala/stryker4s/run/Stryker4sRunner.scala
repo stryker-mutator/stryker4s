@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{ContextShift, IO}
+import cats.implicits._
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -13,7 +14,6 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
-import cats.implicits._
 
 abstract class Stryker4sRunner(implicit cs: ContextShift[IO]) {
   def run(): IO[ScoreStatus] = {

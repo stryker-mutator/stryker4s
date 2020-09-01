@@ -1,9 +1,7 @@
 package stryker4s.extension
 
-import cats.effect.Concurrent
-import cats.effect.Resource
-import cats.effect.concurrent.MVar2
-import cats.effect.concurrent.MVar
+import cats.effect.concurrent.{MVar, MVar2}
+import cats.effect.{Concurrent, Resource}
 import cats.implicits._
 
 object ResourceExtensions {

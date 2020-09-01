@@ -1,11 +1,11 @@
 package stryker4s
 
+import cats.effect.IO
 import stryker4s.config.Config
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
-import cats.effect.IO
 
 class Stryker4s(fileCollector: SourceCollector, mutator: Mutator, runner: MutantRunner)(implicit config: Config) {
 

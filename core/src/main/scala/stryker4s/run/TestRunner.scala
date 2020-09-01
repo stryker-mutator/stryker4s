@@ -4,8 +4,8 @@ import scala.concurrent.duration._
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import grizzled.slf4j.Logging
-import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 import stryker4s.extension.ResourceExtensions._
+import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
 trait TestRunner {
   def initialTestRun(): IO[Boolean]
