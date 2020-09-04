@@ -35,9 +35,7 @@ RUN curl -fLo /usr/bin/cs https://git.io/coursier-cli-linux \
     && chmod +x /usr/bin/cs
 
 # Install build-tools
-RUN cs install bloop
-RUN curl -Lo /usr/bin/sbt https://raw.githubusercontent.com/coursier/sbt-extras/master/sbt \
-    && chmod +x /usr/bin/sbt
+RUN cs install bloop sbt csbt
 
 # Clean up
 RUN apt-get autoremove -y \
