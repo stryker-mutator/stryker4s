@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ['openjdk@1.8', 'openjdk@1.11']
+        java-version: ['openjdk@1.8', 'openjdk@1.11', 'openjdk@1.14']
     runs-on: ubuntu-latest
 
     steps:
