@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import cats.effect.concurrent.{MVar, MVar2}
 import cats.effect.{Concurrent, Resource}
-import cats.implicits._
+import cats.syntax.all._
 
 object ResourceExtensions {
   implicit class SelfRecreatingResource[F[_], A](startResource: Resource[F, A]) {

@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
 import cats.effect.{Clock, Sync}
-import cats.implicits._
+import cats.syntax.all._
 
 object CatsEffectExtensions {
 

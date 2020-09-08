@@ -1,7 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{ContextShift, IO}
-import cats.implicits._
+import cats.syntax.all._
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
