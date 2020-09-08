@@ -1,0 +1,20 @@
+pull_request_rules:
+  - name: Automatic label for scala-steward PRs
+    conditions:
+      - author=scala-steward
+    actions:
+      label:
+        add:
+          - dependencies
+  - name: Automatic merge for scala-steward PRs
+    conditions:
+      - author=scala-steward
+      - body~=labels:.*semver-(minor|patch)
+      # Unfortunately we have to define every CI action. When the build starts there are 0 checks, so each (of the zero) is succesful
+      - status-success~=^Test on JDK .*
+      - status-success=sbt plugin scripted tests
+      - status-success=Test Maven plugin
+      - status-success=Test formatting
+    actions:
+      merge:
+        method: squash
