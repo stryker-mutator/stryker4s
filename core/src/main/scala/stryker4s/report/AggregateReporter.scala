@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import cats.effect.{ContextShift, IO}
-import cats.implicits._
+import cats.syntax.all._
 import grizzled.slf4j.Logging
 import stryker4s.model.{Mutant, MutantRunResult}
 

@@ -7,7 +7,7 @@ import scala.sys.process.{Process, ProcessLogger}
 import scala.util.control.NonFatal
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
-import cats.implicits._
+import cats.syntax.all._
 import grizzled.slf4j.Logging
 import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}

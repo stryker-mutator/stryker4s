@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import better.files.File
 import cats.effect.{Blocker, ContextShift, IO, Resource}
-import cats.implicits._
+import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
 import grizzled.slf4j.Logging
 import mutationtesting.{Metrics, MetricsResult}
@@ -51,7 +51,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       val unmutatedFilesStream =
         Stream
           .evalSeq(IO(sourceCollector.filesToCopy.toSeq))
-          .filterNot(mutatedPaths.contains)
+          .filter(!mutatedPaths.contains(_))
           .map(_.path)
           .through(writeOriginalFile(blocker, tmpDir))
 
