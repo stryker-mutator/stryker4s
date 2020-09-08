@@ -2,8 +2,11 @@ package stryker4s.run
 
 import scala.concurrent.duration._
 
+import cats.effect.concurrent.MVar2
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import grizzled.slf4j.Logging
+import stryker4s.config.Config
+import stryker4s.extension.CatsEffectExtensions._
 import stryker4s.extension.ResourceExtensions._
 import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
@@ -14,7 +17,8 @@ trait TestRunner {
 
 object TestRunner {
 
-  def timeoutRunner(timeout: FiniteDuration, inner: Resource[IO, TestRunner])(implicit
+  def timeoutRunner(timeout: MVar2[IO, FiniteDuration], inner: Resource[IO, TestRunner])(implicit
+      config: Config,
       timer: Timer[IO],
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] =
@@ -22,19 +26,31 @@ object TestRunner {
       IO {
         new TestRunner with Logging {
           override def runMutant(mutant: Mutant): IO[MutantRunResult] =
-            mvar.read
-              .flatMap(_._1.runMutant(mutant))
-              .timeoutTo(
-                timeout,
-                IO(debug(s"Mutant ${mutant.id} timed out over ${timeout.toCoarsest}")) *>
-                  releaseAndSwap *>
-                  IO.pure(
-                    TimedOut(mutant)
-                  )
-              )
+            for {
+              (runner, _) <- mvar.read
+              time <- timeout.read
+              result <- ((if (mutant.id == 1) IO.sleep(6.seconds) else IO.unit) *>
+                  runner
+                    .runMutant(mutant))
+                .timeoutTo(
+                  time,
+                  IO(debug(s"Mutant ${mutant.id} timed out over ${time.toCoarsest}")) *>
+                    releaseAndSwap
+                      .as(TimedOut(mutant))
+                )
+            } yield result
 
           override def initialTestRun(): IO[Boolean] =
-            mvar.read.flatMap(_._1.initialTestRun())
+            for {
+              (runner, _) <- mvar.read
+              (result, duration) <- runner.initialTestRun().timed
+              newTimeout = calculateTimeout(duration)
+              _ <- timeout.put(newTimeout)
+              _ <- IO(debug(s"Timeout set to ${newTimeout.toCoarsest}"))
+            } yield result
+
+          def calculateTimeout(netTimeMS: FiniteDuration)(implicit config: Config): FiniteDuration =
+            netTimeMS * config.timeoutFactor + config.timeoutMS
         }
       }
     }

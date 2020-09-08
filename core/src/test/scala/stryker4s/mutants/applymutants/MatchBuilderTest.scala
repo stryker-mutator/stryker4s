@@ -1,13 +1,13 @@
 package stryker4s.mutants.applymutants
 
+import scala.meta._
+
 import stryker4s.extension.TreeExtensions._
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype._
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
-
-import scala.meta._
 
 class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 

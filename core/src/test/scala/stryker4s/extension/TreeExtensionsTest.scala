@@ -1,9 +1,9 @@
 package stryker4s.extension
 
+import scala.meta._
+
 import stryker4s.extension.TreeExtensions._
 import stryker4s.testutil.Stryker4sSuite
-
-import scala.meta._
 
 class TreeExtensionsTest extends Stryker4sSuite {
   describe("topStatement") {

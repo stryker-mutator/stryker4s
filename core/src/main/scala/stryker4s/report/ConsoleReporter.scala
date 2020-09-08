@@ -1,16 +1,14 @@
 package stryker4s.report
 
-import scala.concurrent.duration.{Duration, MILLISECONDS}
-
 import cats.effect.IO
 import grizzled.slf4j.Logging
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
+import stryker4s.extension.DurationExtensions._
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
 
 class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
-  private val startTime = System.currentTimeMillis()
   private[this] val mutationScoreString = "Mutation score:"
 
   override def reportMutationStart(mutant: Mutant): IO[Unit] =
@@ -26,18 +24,19 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
 
   override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] =
     IO {
-      val FinishedRunReport(report, metrics) = runReport
-      val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
+      val FinishedRunReport(report, metrics, duration, _) = runReport
+
+      info(s"Mutation run finished! Took ${duration.toHumanReadable}")
+      info(
+        s"Total mutants: ${metrics.totalMutants}, detected: ${metrics.totalDetected}, undetected: ${metrics.totalUndetected}"
+      )
+
       val (detectedMutants, rest) = report.files.toSeq
         .flatMap { case (loc, f) =>
           f.mutants.map(m => (loc, m, f.source))
         }
         .partition(m => isDetected(m._2))
       val (undetectedMutants, _) = rest partition (m => isUndetected(m._2))
-      info(s"Mutation run finished! Took ${duration.toSeconds} seconds")
-      info(
-        s"Total mutants: ${metrics.totalMutants}, detected: ${metrics.totalDetected}, undetected: ${metrics.totalUndetected}"
-      )
 
       debug(resultToString("Detected", detectedMutants))
       info(resultToString("Undetected", undetectedMutants))
@@ -102,6 +101,8 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
 
   private def isUndetected(mutant: MutantResult): Boolean =
     mutant.status == MutantStatus.Survived || mutant.status == MutantStatus.NoCoverage
+
+  // private def durationText(duration: FiniteDuration) = ???
 
   implicit class DoubleRoundTwoDecimals(score: Double) {
     def roundDecimals(decimals: Int): Double =

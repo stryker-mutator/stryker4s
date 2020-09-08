@@ -1,7 +1,8 @@
 package stryker4s.testutil
 
-import pureconfig.ConfigSource
 import java.nio.file.Paths
+
+import pureconfig.ConfigSource
 
 /** Example stryker4s configurations for testing purposes
   */

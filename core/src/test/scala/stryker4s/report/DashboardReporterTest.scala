@@ -1,21 +1,17 @@
 package stryker4s.report
 
+import scala.concurrent.duration._
+
+import better.files.File
+import cats.effect.IO
+import mutationtesting.{Metrics, MutationTestReport, _}
+import stryker4s.config.{Full, MutationScoreOnly}
+import stryker4s.report.dashboard.DashboardConfigProvider
+import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
-import stryker4s.report.dashboard.DashboardConfigProvider
-import stryker4s.report.model.DashboardConfig
-import stryker4s.config.Full
-import mutationtesting.MutationTestReport
-import mutationtesting.Metrics
 import sttp.client._
-import sttp.model.Header
-import sttp.model.Method
-import stryker4s.report.model.DashboardPutResult
-import sttp.model.MediaType
-import stryker4s.config.MutationScoreOnly
-import sttp.model.StatusCode
-import mutationtesting._
-import cats.effect.IO
+import sttp.model.{Header, MediaType, Method, StatusCode}
 
 class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
@@ -24,7 +20,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig
-      val FinishedRunReport(report, metrics) = baseResults
+      val FinishedRunReport(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
@@ -46,7 +42,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig.copy(reportType = MutationScoreOnly)
-      val FinishedRunReport(report, metrics) = baseResults
+      val FinishedRunReport(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
@@ -59,7 +55,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig.copy(module = Some("myModule"))
-      val FinishedRunReport(report, metrics) = baseResults
+      val FinishedRunReport(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
 
@@ -159,7 +155,7 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
       )
     val report = MutationTestReport(thresholds = mutationtesting.Thresholds(80, 60), files = files)
     val metrics = Metrics.calculateMetrics(report)
-    FinishedRunReport(report, metrics)
+    FinishedRunReport(report, metrics, 15.seconds, File("target/stryker4s-report/"))
   }
 
   def baseDashConfig =

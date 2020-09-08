@@ -6,10 +6,9 @@ import cats.Parallel
 import cats.effect.IO
 import grizzled.slf4j.Logging
 import mutationtesting._
-import stryker4s.config.Config
 import stryker4s.files.FileIO
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) extends FinishedRunReporter with Logging {
+class HtmlReporter(fileIO: FileIO)(implicit p: Parallel[IO]) extends FinishedRunReporter with Logging {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -48,11 +47,9 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config, p: Parallel[IO]) ext
   }
 
   override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {
-    val targetLocation = config.baseDir / s"target/stryker4s-report-${runReport.timestamp}/"
-
-    val mutationTestElementsLocation = targetLocation / mutationTestElementsName
-    val indexLocation = targetLocation / "index.html"
-    val reportLocation = targetLocation / reportFilename
+    val mutationTestElementsLocation = runReport.reportsLocation / mutationTestElementsName
+    val indexLocation = runReport.reportsLocation / "index.html"
+    val reportLocation = runReport.reportsLocation / reportFilename
 
     val reportsWriting = writeIndexHtmlTo(indexLocation.path) &>
       writeReportJsTo(reportLocation.path, runReport.report) &>

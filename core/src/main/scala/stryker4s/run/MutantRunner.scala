@@ -3,12 +3,13 @@ package stryker4s.run
 import java.nio.file.Path
 
 import better.files.File
-import cats.effect.{Blocker, ContextShift, IO, Resource}
+import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
 import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
 import grizzled.slf4j.Logging
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
+import stryker4s.extension.CatsEffectExtensions._
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model._
@@ -18,6 +19,7 @@ import stryker4s.report.{FinishedRunReport, Reporter}
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
+    timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends MutantRunResultMapper
     with Logging {
@@ -27,10 +29,11 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     prepareEnv(mutatedFiles).use { context =>
       for {
         _ <- initialTestRun(context)
-        runResults <- runMutants(mutatedFiles, context)
+        (runResults, duration) <- runMutants(mutatedFiles, context).timed
         report = toReport(runResults)
         metrics = Metrics.calculateMetrics(report)
-        _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics))
+        reportsLocation = config.baseDir / "target/stryker4s-report" / System.currentTimeMillis().toString()
+        _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics, duration, reportsLocation))
       } yield metrics
     }
 
@@ -78,8 +81,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       in.evalMapChunk { mutatedFile =>
         val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)
         IO(debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
-          io.file.createDirectories[IO](blocker, targetPath.getParent()) *>
-          IO.pure((mutatedFile, targetPath))
+          io.file
+            .createDirectories[IO](blocker, targetPath.getParent())
+            .as((mutatedFile, targetPath))
       }.flatMap { case (mutatedFile, targetPath) =>
         Stream(mutatedFile.tree.syntax)
           .covary[IO]

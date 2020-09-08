@@ -1,9 +1,9 @@
 package stryker4s.testutil.stubs
 
+import scala.util.{Success, Try}
+
 import better.files.File
 import stryker4s.run.process.{Command, ProcessRunner}
-
-import scala.util.{Success, Try}
 
 object TestProcessRunner {
   def apply(testRunExitCode: Try[Int]*): TestProcessRunner = new TestProcessRunner(true, testRunExitCode: _*)

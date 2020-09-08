@@ -1,5 +1,9 @@
 package stryker4s.config
 
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.FiniteDuration
+
 import better.files._
 
 final case class Config(
@@ -10,7 +14,9 @@ final case class Config(
     files: Option[Seq[String]] = None,
     excludedMutations: Config.ExcludedMutations = Set.empty,
     thresholds: Thresholds = Thresholds(),
-    dashboard: DashboardOptions = DashboardOptions()
+    dashboard: DashboardOptions = DashboardOptions(),
+    timeoutMS: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
+    timeoutFactor: Long = 1.5.toLong
 )
 
 object Config {

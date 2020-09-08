@@ -2,15 +2,15 @@ package stryker4s.mutants.findmutants
 
 import java.nio.file.NoSuchFileException
 
+import scala.meta._
+import scala.meta.parsers.ParseException
+
 import better.files.File
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
-
-import scala.meta._
-import scala.meta.parsers.ParseException
 
 class MutantFinderTest extends Stryker4sSuite with LogMatchers {
   implicit private val config: Config = Config.default

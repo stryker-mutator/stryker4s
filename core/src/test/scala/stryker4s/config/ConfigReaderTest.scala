@@ -1,13 +1,13 @@
 package stryker4s.config
 
 import better.files.File
+import pureconfig.ConfigSource
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure}
+import pureconfig.generic.auto._
 import stryker4s.config.implicits.ConfigReaderImplicits
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
 import sttp.client.UriContext
-import pureconfig.ConfigSource
-import pureconfig.generic.auto._
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
   describe("loadConfig") {

@@ -1,5 +1,8 @@
 package stryker4s.report
 
+import scala.concurrent.duration.FiniteDuration
+
+import better.files.File
 import cats.effect.IO
 import mutationtesting._
 import stryker4s.model.{Mutant, MutantRunResult}
@@ -16,6 +19,9 @@ trait FinishedRunReporter extends MutationRunReporter {
   def reportRunFinished(runReport: FinishedRunReport): IO[Unit]
 }
 
-final case class FinishedRunReport(report: MutationTestReport, metrics: MetricsResult) {
-  @transient val timestamp: Long = System.currentTimeMillis()
-}
+final case class FinishedRunReport(
+    report: MutationTestReport,
+    metrics: MetricsResult,
+    duration: FiniteDuration,
+    reportsLocation: File
+)

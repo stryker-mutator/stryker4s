@@ -1,10 +1,10 @@
 package stryker4s.extension
 
-import stryker4s.testutil.Stryker4sSuite
-import cats.effect.Clock
-import cats.effect.IO
-import stryker4s.extension.CatsEffectExtensions._
 import scala.concurrent.duration._
+
+import cats.effect.{Clock, IO}
+import stryker4s.extension.CatsEffectExtensions._
+import stryker4s.testutil.Stryker4sSuite
 
 class CatsEffectExtensionsTest extends Stryker4sSuite {
 

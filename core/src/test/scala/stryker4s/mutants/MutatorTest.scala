@@ -1,4 +1,6 @@
 package stryker4s.mutants
+import scala.meta._
+
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
@@ -6,8 +8,6 @@ import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 import stryker4s.testutil.stubs.TestSourceCollector
-
-import scala.meta._
 
 class MutatorTest extends Stryker4sSuite with LogMatchers {
   describe("run") {

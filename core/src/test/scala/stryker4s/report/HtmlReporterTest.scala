@@ -1,13 +1,15 @@
 package stryker4s.report
+import java.nio.file.Path
+
+import scala.concurrent.duration._
+
 import better.files.File
+import cats.effect.IO
 import mutationtesting.{Metrics, MutationTestReport, Thresholds}
 import org.mockito.captor.ArgCaptor
-import stryker4s.config.Config
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
-import java.nio.file.Path
-import cats.effect.IO
 
 class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
@@ -32,11 +34,10 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
   describe("indexHtml") {
     it("should contain title") {
-      implicit val config: Config = Config.default
       val mockFileIO = mock[FileIO]
       when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
       val sut = new HtmlReporter(mockFileIO)
-      val testFile = (config.baseDir / "foo.bar").path
+      val testFile = File("foo.bar").path
 
       sut
         .writeIndexHtmlTo(testFile)
@@ -48,11 +49,10 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
   describe("reportJs") {
     it("should contain the report") {
-      implicit val config: Config = Config.default
       val mockFileIO = mock[FileIO]
       when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
       val sut = new HtmlReporter(mockFileIO)
-      val testFile = (config.baseDir / "foo.bar").path
+      val testFile = File("foo.bar").path
       val runResults = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
 
       sut
@@ -67,25 +67,23 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
   describe("mutation-test-elements") {
     it("should write the resource") {
-      implicit val config: Config = Config.default
       val fileIO = new DiskFileIO()
 
-      val tempFile = File.temp / "mutation-test-elements.js"
-      val sut = new HtmlReporter(fileIO)
+      File.usingTemporaryDirectory() { tmpDir =>
+        val tempFile = tmpDir / "mutation-test-elements.js"
+        val sut = new HtmlReporter(fileIO)
 
-      sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync()
+        sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync()
 
-      val atLeastSize: Long = 100 * 1024L // 100KB
-      tempFile.size should be > atLeastSize
-      tempFile.lineIterator
-        .next() shouldEqual "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+        val atLeastSize: Long = 100 * 1024L // 100KB
+        tempFile.size should be > atLeastSize
+        tempFile.lineIterator
+          .next() shouldEqual "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+      }
     }
   }
 
   describe("reportRunFinished") {
-    implicit val config: Config = Config.default
-    val stryker4sReportFolderRegex = ".*target(/|\\\\)stryker4s-report-(\\d*)(/|\\\\)[a-z-]*\\.[a-z]*$"
-
     it("should write the report files to the report directory") {
       val mockFileIO = mock[FileIO]
       when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
@@ -94,13 +92,15 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
-      sut.reportRunFinished(FinishedRunReport(report, metrics)).unsafeRunSync()
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics, 0.seconds, File("target/stryker4s-report/")))
+        .unsafeRunSync()
 
       val writtenFilesCaptor = ArgCaptor[Path]
       verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor, any[String])
       verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
       val paths = writtenFilesCaptor.values.map(_.toString())
-      all(paths) should fullyMatch regex stryker4sReportFolderRegex
+      all(paths) should include("/target/stryker4s-report/")
       writtenFilesCaptor.values.map(_.getFileName().toString()) should contain.only("index.html", "report.js")
     }
 
@@ -113,15 +113,14 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val metrics = Metrics.calculateMetrics(report)
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics))
+        .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/")))
         .unsafeRunSync()
 
       val elementsCaptor = ArgCaptor[Path]
       verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
       verify(mockFileIO).createAndWriteFromResource(elementsCaptor, eqTo(elementsLocation))
 
-      elementsCaptor.value.toString should fullyMatch regex stryker4sReportFolderRegex
-      elementsCaptor.value.getFileName.toString() shouldEqual "mutation-test-elements.js"
+      elementsCaptor.value.toString should endWith("/target/stryker4s-report/mutation-test-elements.js")
     }
 
     it("should info log a message") {
@@ -131,14 +130,16 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
-
-      sut.reportRunFinished(FinishedRunReport(report, metrics)).unsafeRunSync()
+      val reportFile = File("target/stryker4s-report/")
+      sut
+        .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, reportFile))
+        .unsafeRunSync()
 
       val captor = ArgCaptor[Path]
       verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
       verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
       verify(mockFileIO).createAndWriteFromResource(any[Path], any[String])
-      s"Written HTML report to ${captor.value}" shouldBe loggedAsInfo
+      s"Written HTML report to ${reportFile.toString()}/index.html" shouldBe loggedAsInfo
     }
   }
 }
