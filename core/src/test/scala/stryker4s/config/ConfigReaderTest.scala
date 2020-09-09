@@ -174,18 +174,17 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
         "low=50,break=50" -> CannotConvert("50", "thresholds.low", "'low' (50) must be greater than 'break' (50)")
       )
 
-      testValues.foreach {
-        case (config, expected) =>
-          it(s"should load $config to expected result") {
-            val result = ConfigSource.string(config).load[Thresholds]
+      testValues.foreach { case (config, expected) =>
+        it(s"should load $config to expected result") {
+          val result = ConfigSource.string(config).load[Thresholds]
 
-            result match {
-              case Right(value) => value shouldBe expected
-              case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
-                reason shouldBe expected
-              case other => fail(s"unexpected value $other")
-            }
+          result match {
+            case Right(value) => value shouldBe expected
+            case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
+              reason shouldBe expected
+            case other => fail(s"unexpected value $other")
           }
+        }
       }
     }
   }

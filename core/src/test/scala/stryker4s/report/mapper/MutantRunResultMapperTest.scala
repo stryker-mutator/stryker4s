@@ -35,35 +35,33 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       val mutationRunResults = Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
 
       val result = sut.toReport(mutationRunResults)
-      inside(result) {
-        case MutationTestReport(_, _, thresholds, files) =>
-          thresholds should equal(Thresholds(high = 60, low = 40))
-          files should have size 2
-          val firstResult = files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
-          files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
-          inside(firstResult._2) {
-            case MutationTestResult(source, mutants, language) =>
-              language should equal("scala")
-              mutants should (
-                contain.only(
-                  MutantResult(
-                    "0",
-                    "EqualityOperator",
-                    "!=",
-                    Location(Position(4, 27), Position(4, 29)),
-                    MutantStatus.Killed
-                  ),
-                  MutantResult(
-                    "1",
-                    "StringLiteral",
-                    "\"\"",
-                    Location(Position(6, 31), Position(6, 37)),
-                    MutantStatus.Survived
-                  )
-                )
+      inside(result) { case MutationTestReport(_, _, thresholds, files) =>
+        thresholds should equal(Thresholds(high = 60, low = 40))
+        files should have size 2
+        val firstResult = files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
+        files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
+        inside(firstResult._2) { case MutationTestResult(source, mutants, language) =>
+          language should equal("scala")
+          mutants should (
+            contain.only(
+              MutantResult(
+                "0",
+                "EqualityOperator",
+                "!=",
+                Location(Position(4, 27), Position(4, 29)),
+                MutantStatus.Killed
+              ),
+              MutantResult(
+                "1",
+                "StringLiteral",
+                "\"\"",
+                Location(Position(6, 31), Position(6, 37)),
+                MutantStatus.Survived
               )
-              source should equal(FileUtil.getResource("scalaFiles/ExampleClass.scala").contentAsString)
-          }
+            )
+          )
+          source should equal(FileUtil.getResource("scalaFiles/ExampleClass.scala").contentAsString)
+        }
       }
     }
   }

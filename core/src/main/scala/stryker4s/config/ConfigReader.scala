@@ -105,9 +105,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       */
     def onUnknownKey: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[Config]]] = {
       case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures @ _*) =>
-        val unknownKeys = key +: failures.collect {
-          case ConvertFailure(UnknownKey(k), _, _) => k
-        }
+        val unknownKeys = key +: failures.collect { case ConvertFailure(UnknownKey(k), _, _) => k }
 
         warn(
           s"The following configuration key(s) are not used, they could stem from an older " +

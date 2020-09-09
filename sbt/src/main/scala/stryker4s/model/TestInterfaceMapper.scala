@@ -7,14 +7,11 @@ import stryker4s.api.testprocess._
 trait TestInterfaceMapper {
   def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Array[TestGroup] = {
     val mapped = testMap(frameworks, sbtTestGroups.flatMap(_.tests))
-    mapped
-      .map({
-        case (framework, tests) =>
-          val taskDefs: Array[TaskDefinition] = tests.map(toTaskDefinition).toArray
-          val runnerOptions = RunnerOptions(Array.empty, Array.empty)
-          TestGroup(framework.getClass.getCanonicalName(), taskDefs, runnerOptions)
-      })
-      .toArray
+    mapped.map { case (framework, tests) =>
+      val taskDefs: Array[TaskDefinition] = tests.map(toTaskDefinition).toArray
+      val runnerOptions = RunnerOptions(Array.empty, Array.empty)
+      TestGroup(framework.getClass.getCanonicalName(), taskDefs, runnerOptions)
+    }.toArray
   }
 
   /** From https://github.com/sbt/sbt/blob/develop/testing/src/main/scala/sbt/TestFramework.scala

@@ -59,8 +59,8 @@ object TreeExtensions {
 
     private object ParentIsTerm {
       final def unapply(term: Term): Option[Term] =
-        term.parent collect {
-          case parent: Term => parent
+        term.parent collect { case parent: Term =>
+          parent
         }
     }
   }

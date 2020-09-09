@@ -21,10 +21,9 @@ object ResourceExtensions {
       val allocatedF: F[(A, F[Unit])] = startResource.allocated.flatMap { allocated =>
         MVar.of[F, (A, F[Unit])](allocated).flatMap { mvar =>
           // Release old and start a new Resource
-          val releaseAndSwap: F[Unit] = mvar.modify_ {
-            case (_, release) =>
-              release *>
-                startResource.allocated
+          val releaseAndSwap: F[Unit] = mvar.modify_ { case (_, release) =>
+            release *>
+              startResource.allocated
           }
           f(mvar, releaseAndSwap).map(left => (left, mvar.read.flatMap(_._2)))
         }
