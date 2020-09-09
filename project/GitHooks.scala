@@ -15,12 +15,11 @@ object GitHooks {
       IO.listFiles(hooksSourceDir)
         .map(hook => (hook, hooksTargetDir / hook.name))
         .filterNot(_._2.exists()) // Don't write if hook already exists
-        .foreach {
-          case (originalHook, targetHook) =>
-            log.info(s"Copying ${originalHook.name} hook to $targetHook")
-            Files.copy(originalHook.asPath, targetHook.asPath)
-            if (!Properties.isWin)
-              targetHook.setPermissions(PosixFilePermissions.fromString("rwxr-xr-x").asScala.toSet)
+        .foreach { case (originalHook, targetHook) =>
+          log.info(s"Copying ${originalHook.name} hook to $targetHook")
+          Files.copy(originalHook.asPath, targetHook.asPath)
+          if (!Properties.isWin)
+            targetHook.setPermissions(PosixFilePermissions.fromString("rwxr-xr-x").asScala.toSet)
         }
     }
 }

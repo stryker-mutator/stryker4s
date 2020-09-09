@@ -47,21 +47,21 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
     IO(info("Setting up mutated environment...")) *>
       IO(debug("Using temp directory: " + tmpDir)) *> {
-      val mutatedPaths = mutatedFiles.map(_.fileOrigin)
-      val unmutatedFilesStream =
-        Stream
-          .evalSeq(IO(sourceCollector.filesToCopy.toSeq))
-          .filter(!mutatedPaths.contains(_))
-          .map(_.path)
-          .through(writeOriginalFile(blocker, tmpDir))
+        val mutatedPaths = mutatedFiles.map(_.fileOrigin)
+        val unmutatedFilesStream =
+          Stream
+            .evalSeq(IO(sourceCollector.filesToCopy.toSeq))
+            .filter(!mutatedPaths.contains(_))
+            .map(_.path)
+            .through(writeOriginalFile(blocker, tmpDir))
 
-      val mutatedFilesStream = Stream
-        .emits(mutatedFiles)
-        .through(writeMutatedFile(blocker, tmpDir))
+        val mutatedFilesStream = Stream
+          .emits(mutatedFiles)
+          .through(writeMutatedFile(blocker, tmpDir))
 
-      (unmutatedFilesStream merge
-        mutatedFilesStream).compile.drain
-    }
+        (unmutatedFilesStream merge
+          mutatedFilesStream).compile.drain
+      }
 
   def writeOriginalFile(blocker: Blocker, tmpDir: Path): Pipe[IO, Path, Unit] =
     in =>
@@ -80,12 +80,11 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
         IO(debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
           io.file.createDirectories[IO](blocker, targetPath.getParent()) *>
           IO.pure((mutatedFile, targetPath))
-      }.flatMap {
-        case (mutatedFile, targetPath) =>
-          Stream(mutatedFile.tree.syntax)
-            .covary[IO]
-            .through(text.utf8Encode)
-            .through(io.file.writeAll(targetPath, blocker))
+      }.flatMap { case (mutatedFile, targetPath) =>
+        Stream(mutatedFile.tree.syntax)
+          .covary[IO]
+          .through(text.utf8Encode)
+          .through(io.file.writeAll(targetPath, blocker))
       }
 
   private def runMutants(mutatedFiles: List[MutatedFile], context: Context): IO[Map[Path, List[MutantRunResult]]] = {
@@ -93,11 +92,10 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
     mutatedFiles
       .map(m => m.fileOrigin.relativePath -> m.mutants.toList)
-      .traverse {
-        case (subPath, mutants) =>
-          mutants
-            .traverse(reportAndRunMutant(_, context, totalMutants))
-            .tupleLeft(subPath)
+      .traverse { case (subPath, mutants) =>
+        mutants
+          .traverse(reportAndRunMutant(_, context, totalMutants))
+          .tupleLeft(subPath)
       }
       .map(_.toMap)
   }

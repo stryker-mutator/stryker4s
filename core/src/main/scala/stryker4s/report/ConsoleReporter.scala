@@ -28,9 +28,11 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
     IO {
       val FinishedRunReport(report, metrics) = runReport
       val duration = Duration(System.currentTimeMillis() - startTime, MILLISECONDS)
-      val (detectedMutants, rest) = report.files.toSeq flatMap {
-        case (loc, f) => f.mutants.map(m => (loc, m, f.source))
-      } partition (m => isDetected(m._2))
+      val (detectedMutants, rest) = report.files.toSeq
+        .flatMap { case (loc, f) =>
+          f.mutants.map(m => (loc, m, f.source))
+        }
+        .partition(m => isDetected(m._2))
       val (undetectedMutants, _) = rest partition (m => isUndetected(m._2))
       info(s"Mutation run finished! Took ${duration.toSeconds} seconds")
       info(
@@ -59,7 +61,7 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
     s"$name mutants:\n" +
       mutants
         .sortBy(m => m._2.id)
-        .map({ case (filePath, mutant, testResult) => mutantDiff(filePath, mutant, testResult) })
+        .map { case (filePath, mutant, testResult) => mutantDiff(filePath, mutant, testResult) }
         .mkString("\n")
 
   private def mutantDiff(filePath: String, mutant: MutantResult, source: String): String = {

@@ -21,18 +21,18 @@ final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream
     IO(debug(s"Sending message $request")) *>
       blocker.delay[IO, Unit](out.writeObject(request)) *>
       blocker.delay[IO, Any](in.readObject()) flatMap {
-      case response: Response =>
-        IO {
-          debug(s"Received message $response")
-          response
-        }
-      case other =>
-        IO.raiseError(
-          new MutationRunFailedException(
-            s"Expected an object of type 'Response' from socket connection, but received $other"
+        case response: Response =>
+          IO {
+            debug(s"Received message $response")
+            response
+          }
+        case other =>
+          IO.raiseError(
+            new MutationRunFailedException(
+              s"Expected an object of type 'Response' from socket connection, but received $other"
+            )
           )
-        )
-    }
+      }
   }
 }
 

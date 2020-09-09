@@ -21,8 +21,8 @@ trait MutantRunResultMapper {
   private def toMutationTestResultMap(
       results: Map[Path, List[MutantRunResult]]
   )(implicit config: Config): Map[String, MutationTestResult] =
-    results.map {
-      case (path, runResults) => path.toString.replace('\\', '/') -> toMutationTestResult(path, runResults)
+    results.map { case (path, runResults) =>
+      path.toString.replace('\\', '/') -> toMutationTestResult(path, runResults)
     }
 
   private def toMutationTestResult(path: Path, runResults: Seq[MutantRunResult])(implicit

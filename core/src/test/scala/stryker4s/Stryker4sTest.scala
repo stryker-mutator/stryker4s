@@ -74,9 +74,9 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
 
       result shouldBe SuccessStatus
       reportedResults.files.flatMap(_._2.mutants) should have size 4
-      reportedResults.files.foreach({
-        case (path, _) => path shouldBe "simpleFile.scala"
-      })
+      reportedResults.files.foreach { case (path, _) =>
+        path shouldBe "simpleFile.scala"
+      }
     }
   }
 }
