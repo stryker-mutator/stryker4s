@@ -16,7 +16,7 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, dotty)
 
     val testInterface = "1.0"
-    val scalameta = "4.3.21"
+    val scalameta = "4.3.22"
     val pureconfig = "0.13.0"
     val scalatest = "3.2.2"
     val mockitoScala = "1.15.0"
