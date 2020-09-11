@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - update/stryker4s-0.10.0
 
 jobs:
   core:
