@@ -29,6 +29,8 @@ object ExampleConfigs {
                                      |    version: "someVersion"
                                      |    module: "someModule"
                                      |  }
+                                     |  timeout-factor=2.5
+                                     |  timeout=5500
                                      |}""".stripMargin)
 
   def empty = ConfigSource.empty
@@ -69,4 +71,9 @@ object ExampleConfigs {
                                             |    args="test"
                                             |  }
                                             |}""".stripMargin)
+
+  def timeoutDuration = ConfigSource.string("""|stryker4s {
+                                               | timeout = 6s
+                                               |}
+                                               |""".stripMargin)
 }

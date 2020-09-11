@@ -15,8 +15,8 @@ final case class Config(
     excludedMutations: Config.ExcludedMutations = Set.empty,
     thresholds: Thresholds = Thresholds(),
     dashboard: DashboardOptions = DashboardOptions(),
-    timeoutMS: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
-    timeoutFactor: Long = 1.5.toLong
+    timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
+    timeoutFactor: Double = 1.5
 )
 
 object Config {

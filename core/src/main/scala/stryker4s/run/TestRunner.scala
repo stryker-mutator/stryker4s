@@ -1,5 +1,7 @@
 package stryker4s.run
 
+import java.util.concurrent.TimeUnit
+
 import scala.concurrent.duration._
 
 import cats.effect.concurrent.MVar2
@@ -46,11 +48,11 @@ object TestRunner {
               (result, duration) <- runner.initialTestRun().timed
               newTimeout = calculateTimeout(duration)
               _ <- timeout.put(newTimeout)
-              _ <- IO(debug(s"Timeout set to ${newTimeout.toCoarsest}"))
+              _ <- IO(info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
             } yield result
 
           def calculateTimeout(netTimeMS: FiniteDuration)(implicit config: Config): FiniteDuration =
-            netTimeMS * config.timeoutFactor + config.timeoutMS
+            FiniteDuration((netTimeMS.toMillis * config.timeoutFactor).toLong, TimeUnit.MILLISECONDS) + config.timeout
         }
       }
     }
