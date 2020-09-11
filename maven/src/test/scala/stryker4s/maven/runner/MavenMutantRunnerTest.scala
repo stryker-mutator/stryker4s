@@ -1,6 +1,7 @@
 package stryker4s.maven.runner
 
 import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext
 import scala.meta._
 
 import better.files._
@@ -21,6 +22,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
+  implicit val timer = IO.timer(ExecutionContext.global)
   def context = MavenRunnerContext(new ju.Properties(), Seq("test"))
   val tmpDir = File("/home/user/tmpDir")
 
