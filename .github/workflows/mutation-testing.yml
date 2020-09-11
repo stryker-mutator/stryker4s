@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - update/stryker4s-0.10.0
 
 jobs:
   core:
@@ -63,7 +64,6 @@ jobs:
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core2_12/publishM2
           cd maven
-          echo 'stryker4s{reporters=["console","dashboard"],dashboard.module="maven-plugin"}' > stryker4s.conf
           mvn -B --no-transfer-progress stryker4s:run
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
