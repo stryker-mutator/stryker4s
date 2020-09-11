@@ -69,7 +69,7 @@ project/metals.sbt
 project/project/
 
 # stryker specific
-stryker4s.conf
+/stryker4s.conf
 
 !bin/scalafmt
 
