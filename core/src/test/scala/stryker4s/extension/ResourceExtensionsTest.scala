@@ -1,9 +1,8 @@
 package stryker4s.extension
 
-import stryker4s.testutil.Stryker4sSuite
-import cats.effect.Resource
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import stryker4s.extension.ResourceExtensions._
+import stryker4s.testutil.Stryker4sSuite
 
 class ResourceExtensionsTest extends Stryker4sSuite {
   describe("selfRecreatingResource") {

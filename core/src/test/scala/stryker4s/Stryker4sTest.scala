@@ -1,29 +1,29 @@
 package stryker4s
 
+import scala.concurrent.ExecutionContext
+import scala.meta._
+import scala.util.Success
+
 import better.files.File
+import cats.effect.{IO, Resource, Timer}
 import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{Killed, Mutant, MutantRunResult}
+import stryker4s.model.{Killed, Mutant, MutantRunResult, TestRunnerContext}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
-import stryker4s.report.{AggregateReporter, Reporter}
+import stryker4s.report.{AggregateReporter, FinishedRunReport, Reporter}
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
-import scala.meta._
-import scala.util.Success
-import stryker4s.report.FinishedRunReport
-import stryker4s.model.TestRunnerContext
-import cats.effect.IO
-import cats.effect.Resource
-
 class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
+  implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+
   case class TestTestRunnerContext() extends TestRunnerContext
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
       extends MutantRunner(sourceCollector, reporter) {
@@ -70,7 +70,7 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
       }
       val runReportMock = ArgCaptor[FinishedRunReport]
       verify(reporterMock).reportRunFinished(runReportMock)
-      val FinishedRunReport(reportedResults, _) = runReportMock.value
+      val FinishedRunReport(reportedResults, _, _, _) = runReportMock.value
 
       result shouldBe SuccessStatus
       reportedResults.files.flatMap(_._2.mutants) should have size 4

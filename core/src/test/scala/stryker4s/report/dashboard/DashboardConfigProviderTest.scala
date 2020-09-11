@@ -1,11 +1,8 @@
 package stryker4s.report.dashboard
-import stryker4s.testutil.Stryker4sSuite
-import stryker4s.config.Config
-import stryker4s.report.model.DashboardConfig
-import stryker4s.config.Full
-import stryker4s.config.DashboardOptions
-import stryker4s.config.MutationScoreOnly
 import org.scalatest.EitherValues
+import stryker4s.config.{Config, DashboardOptions, Full, MutationScoreOnly}
+import stryker4s.report.model.DashboardConfig
+import stryker4s.testutil.Stryker4sSuite
 import sttp.client.UriContext
 
 class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {

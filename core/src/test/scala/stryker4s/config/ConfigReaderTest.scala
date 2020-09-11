@@ -1,13 +1,15 @@
 package stryker4s.config
 
+import scala.concurrent.duration._
+
 import better.files.File
+import pureconfig.ConfigSource
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure}
+import pureconfig.generic.auto._
 import stryker4s.config.implicits.ConfigReaderImplicits
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
 import sttp.client.UriContext
-import pureconfig.ConfigSource
-import pureconfig.generic.auto._
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
   describe("loadConfig") {
@@ -22,6 +24,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
           config.reporters.loneElement shouldBe Html
           config.excludedMutations shouldBe Set("BooleanLiteral")
           config.thresholds shouldBe Thresholds(high = 85, low = 65, break = 10)
+          config.timeoutFactor shouldBe 2.5
+          config.timeout shouldBe 5.5.seconds
       }
     }
 
@@ -119,6 +123,14 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       val errorMessage =
         s"Cannot convert 'Invalid, StillInvalid, BooleanLiteral' to excluded-mutations: invalid option(s) 'Invalid, StillInvalid'. Valid exclusions are 'EqualityOperator, BooleanLiteral, ConditionalExpression, LogicalOperator, StringLiteral, MethodExpression'."
       errorMessage shouldBe loggedAsError
+    }
+
+    it("should parse duration expressions") {
+      val configSource = ExampleConfigs.timeoutDuration
+
+      val result = ConfigReader.readConfig(configSource)
+
+      result.timeout shouldBe 6.seconds
     }
   }
 

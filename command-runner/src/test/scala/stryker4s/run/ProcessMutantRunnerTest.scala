@@ -1,25 +1,26 @@
 package stryker4s.run
 
+import scala.concurrent.{ExecutionContext, TimeoutException}
+import scala.meta._
+import scala.util.{Failure, Success}
+
+import cats.effect.IO
 import stryker4s.command.runner.ProcessMutantRunner
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.AggregateReporter
+import stryker4s.report.{AggregateReporter, FinishedRunReport}
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
 import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
 
-import scala.concurrent.TimeoutException
-import scala.meta._
-import scala.util.{Failure, Success}
-import stryker4s.report.FinishedRunReport
-import cats.effect.IO
-
 class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
+  implicit private val timer = IO.timer(ExecutionContext.global)
+
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[AggregateReporter]
   when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)

@@ -1,12 +1,13 @@
 package stryker4s.report
 
+import scala.concurrent.duration._
+import scala.meta._
+
 import mutationtesting.{Position, _}
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.{GreaterThan, LesserThan}
 import stryker4s.model._
 import stryker4s.scalatest.LogMatchers
-
-import scala.meta._
 import stryker4s.testutil.Stryker4sSuite
 
 class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
@@ -87,9 +88,9 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .reportRunFinished(FinishedRunReport(results, metrics))
+        .reportRunFinished(FinishedRunReport(results, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
-      "Mutation run finished! Took " shouldBe loggedAsInfo
+      "Mutation run finished! Took 15 seconds" shouldBe loggedAsInfo
       "Total mutants: 1, detected: 1, undetected: 0" shouldBe loggedAsInfo
       s"""Detected mutants:
          |0. [Killed] [BinaryOperator]
@@ -120,9 +121,9 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
         )
       )
       val metrics = Metrics.calculateMetrics(results)
-      sut.reportRunFinished(FinishedRunReport(results, metrics)).unsafeRunSync()
+      sut.reportRunFinished(FinishedRunReport(results, metrics, 1.minute, config.baseDir)).unsafeRunSync()
 
-      "Mutation run finished! Took " shouldBe loggedAsInfo
+      "Mutation run finished! Took 1 minute" shouldBe loggedAsInfo
       "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
       s"""Undetected mutants:
          |0. [Survived] [BinaryOperator]
@@ -165,7 +166,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
         )
       )
       sut
-        .reportRunFinished(FinishedRunReport(results, Metrics.calculateMetrics(results)))
+        .reportRunFinished(FinishedRunReport(results, Metrics.calculateMetrics(results), 15.seconds, config.baseDir))
         .unsafeRunSync()
       "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
       s"""Undetected mutants:
@@ -208,7 +209,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .reportRunFinished(FinishedRunReport(results, metrics))
+        .reportRunFinished(FinishedRunReport(results, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
       "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
       s"""Undetected mutants:
@@ -243,7 +244,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .reportRunFinished(FinishedRunReport(results, metrics))
+        .reportRunFinished(FinishedRunReport(results, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
 
       "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
@@ -277,7 +278,9 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       )
 
       sut
-        .reportRunFinished(FinishedRunReport(threeReport, Metrics.calculateMetrics(threeReport)))
+        .reportRunFinished(
+          FinishedRunReport(threeReport, Metrics.calculateMetrics(threeReport), 15.seconds, config.baseDir)
+        )
         .unsafeRunSync()
 
       "Mutation score: 66.67%" shouldBe loggedAsInfo
@@ -300,7 +303,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       )
 
       sut
-        .reportRunFinished(FinishedRunReport(report, Metrics.calculateMetrics(report)))
+        .reportRunFinished(FinishedRunReport(report, Metrics.calculateMetrics(report), 15.seconds, config.baseDir))
         .unsafeRunSync()
 
       "Mutation score: NaN" shouldBe loggedAsInfo
@@ -326,7 +329,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics))
+        .reportRunFinished(FinishedRunReport(report, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
 
       "Mutation score: 50.0%" shouldBe loggedAsInfo
@@ -337,7 +340,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics))
+        .reportRunFinished(FinishedRunReport(report, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
 
       "Mutation score: 50.0%" shouldBe loggedAsWarning
@@ -348,7 +351,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics))
+        .reportRunFinished(FinishedRunReport(report, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
 
       "Mutation score dangerously low!" shouldBe loggedAsError
@@ -360,7 +363,7 @@ class ConsoleReporterTest extends Stryker4sSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics))
+        .reportRunFinished(FinishedRunReport(report, metrics, 15.seconds, config.baseDir))
         .unsafeRunSync()
 
       "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError

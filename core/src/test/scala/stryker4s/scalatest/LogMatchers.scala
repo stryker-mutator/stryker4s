@@ -2,10 +2,9 @@ package stryker4s.scalatest
 
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.LogEvent
-import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.{BeMatcher, MatchResult}
-import stryker4s.testutil.{TestAppender}
-import org.scalatest.Suite
+import org.scalatest.{BeforeAndAfterEach, Suite}
+import stryker4s.testutil.TestAppender
 
 trait LogMatchers extends BeforeAndAfterEach {
   // Will cause a compile error if LogMatchers is used outside of a ScalaTest Suite

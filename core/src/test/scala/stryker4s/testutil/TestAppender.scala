@@ -1,12 +1,12 @@
 package stryker4s.testutil
 
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
 import org.apache.logging.log4j.core._
 import org.apache.logging.log4j.core.appender.AbstractAppender
 import org.apache.logging.log4j.core.config.Property
 import org.apache.logging.log4j.core.config.plugins._
-
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 object TestAppender {
   val events: mutable.Map[String, ListBuffer[LogEvent]] =

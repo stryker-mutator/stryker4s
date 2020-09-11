@@ -3,7 +3,7 @@ package stryker4s.maven.runner
 import scala.collection.JavaConverters._
 
 import better.files._
-import cats.effect.{ContextShift, IO, Resource}
+import cats.effect.{ContextShift, IO, Resource, Timer}
 import java.util.Properties
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
@@ -16,6 +16,7 @@ import stryker4s.run.MutantRunner
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
     implicit
     config: Config,
+    timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends MutantRunner(sourceCollector, reporter) {
   type Context = MavenRunnerContext

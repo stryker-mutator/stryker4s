@@ -1,7 +1,8 @@
 package stryker4s.testutil
 
-import pureconfig.ConfigSource
 import java.nio.file.Paths
+
+import pureconfig.ConfigSource
 
 /** Example stryker4s configurations for testing purposes
   */
@@ -28,6 +29,8 @@ object ExampleConfigs {
                                      |    version: "someVersion"
                                      |    module: "someModule"
                                      |  }
+                                     |  timeout-factor=2.5
+                                     |  timeout=5500
                                      |}""".stripMargin)
 
   def empty = ConfigSource.empty
@@ -68,4 +71,9 @@ object ExampleConfigs {
                                             |    args="test"
                                             |  }
                                             |}""".stripMargin)
+
+  def timeoutDuration = ConfigSource.string("""|stryker4s {
+                                               | timeout = 6s
+                                               |}
+                                               |""".stripMargin)
 }

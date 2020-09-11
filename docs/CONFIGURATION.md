@@ -18,6 +18,8 @@ stryker4s {
       - [excluded-mutations](#excluded-mutations)
       - [thresholds](#thresholds)
       - [dashboard.\*](#dashboard)
+      - [timeout-factor](#timeout-factor)
+      - [timeout](#timeout)
   - [Process runner config](#process-runner-config)
       - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
@@ -30,7 +32,6 @@ stryker4s {
 
 **Config file:** `mutate: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** `[ "**/main/scala/**/*.scala" ]`  
-**Mandatory:** No  
 **Description:**  
 With `mutate` you configure the subset of files to use for mutation testing.
 Generally speaking, these should be your own source files.  
@@ -42,7 +43,6 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 
 **Config file:** `test-filter: [ "com.mypackage.MyTest" ]`  
 **Default value:** `[]`  
-**Mandatory:** No  
 **Since:** `v0.8.0`  
 **Description:**  
 With `test-filter` you configure the subset of tests to use for mutation testing. By default all tests are included.
@@ -59,7 +59,6 @@ Note: Not supported in the command-runner plugin.
 
 **Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
 **Default value:** result of `git ls-files --others --exclude-standard --cached`  
-**Mandatory:** No  
 **Description:**  
 With `files` you can choose which files should be included in your mutation run sandbox.
 This is normally not needed as it defaults to all files not ignored by git. If you do need to override `files` (for example, when your project isn't in a git repository), you can override the `files` config.
@@ -70,7 +69,6 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  
 **Default value:** The directory from which the process is started  
-**Mandatory:** No  
 **Description:**  
 With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases. This value can also be relative to the current working directory, E.G.: `base-dir: submodule1` to set the base-dir to a submodule of your project.
 
@@ -78,7 +76,6 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 
 **Config file:** `reporters: ["console", "html", "json", "dashboard"]`  
 **Default value:** The `console` and `html` reporters  
-**Mandatory:** No  
 **Description:**  
 With `reporters` you can specify reporters for stryker4s to use. The following reporters are supported:
 
@@ -91,7 +88,6 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 
 **Config file:** `excluded-mutations: ["BooleanLiteral"]`  
 **Default value:** `[]`  
-**Mandatory:** No  
 **Description:**  
 With `excluded-mutations`, you can turn off certain mutations in the project. Allowed values are the following:
 
@@ -105,8 +101,7 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 #### thresholds
 
 **Config file:** `thresholds{ high=80, low=60, break=0 }`  
-**Default values:** high=80, low=60, break=0  
-**Mandatory:** No  
+**Default values:** `high=80`, `low=60`, `break=0`  
 **Description:**  
 Specify the thresholds for mutation scores.
 
@@ -121,13 +116,41 @@ Setting `break=0` (default value) ensures that the build will never fail.
 
 **Config file:** `dashboard { module="core" }`  
 **Default values:** `dashboard { base-url="https://dashboard.stryker-mutator.io", project="github.com/$USER/$PROJECT_NAME", report-type=full, version=$BRANCH }` if filled by CI environment  
-**Mandatory:** No  
 **Description:**  
 Settings for the dashboard [reporter](#reporters). See the [stryker handbook for more info](https://github.com/stryker-mutator/stryker-handbook/blob/master/dashboard.md). Note that the values should be kebab-case, not camelCase. If nothing is configured, Stryker4s will try to retrieve the values from one of the supported CI environments:
 
 - Travis
 - CircleCI
 - GitHub actions
+
+#### timeout-factor
+
+**Config file:** `timeout-factor: 1.5`  
+**Default value:** `1.5`  
+**Since:** `v0.10.0` (only in the experimental sbt testrunner)  
+**Description:**
+
+See [timeout](#timeout)
+
+#### timeout
+
+**Config file:** `timeout: 5000`  
+**Default value:** `5 seconds`  
+**Since:** `v0.10.0` (only in the experimental sbt testrunner)  
+**Description:**
+
+When Stryker4s is mutating code, it cannot determine indefinitely whether a code mutation results in an infinite loop (see [Halting problem](https://en.wikipedia.org/wiki/Halting_problem)).
+In order to battle infinite loops, a test run gets killed after a certain period of time. This period is configurable with two settings: `timeout` and `timeoutFactor`.
+To calculate the actual timeout in milliseconds the, following formula is used:
+
+```
+timeoutForTestRun = netTime * timeoutFactor + timeout
+```
+
+`netTime` is calculated during the initial test run. The result is logged on `info` level. For example: `Timeout set to 5600ms (net 400 milliseconds)`
+
+With `timeout-factor` you can configure the allowed deviation relative to the time of a normal test run. Tweak this if you notice that mutants are prone to creating slower code, but not infinite loops.
+`timeout` lets you configure an absolute deviation. Use it if you run Stryker on a busy machine and you need to wait longer to make sure that the code indeed entered an infinite loop. It can be configured using a number of milliseconds (`5000`) or a duration string (`5s`, `5000ms`)
 
 ## Process runner config
 
@@ -146,7 +169,6 @@ Examples would be `sbt test`, `mvn test` or any other command to run your tests,
 #### log-level
 
 **Default value:** `INFO`  
-**Mandatory:** No  
 **Description:**  
 How to adjust the loglevel depends on how you run stryker4s:
 

@@ -1,8 +1,8 @@
 package stryker4s.extension.mutationtype
 
-import stryker4s.testutil.Stryker4sSuite
-
 import scala.meta._
+
+import stryker4s.testutil.Stryker4sSuite
 
 class MethodExpressionTest extends Stryker4sSuite {
   describe("ArgMethodExpression") {
