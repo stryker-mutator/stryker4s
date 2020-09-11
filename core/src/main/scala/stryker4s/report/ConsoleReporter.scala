@@ -102,8 +102,6 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
   private def isUndetected(mutant: MutantResult): Boolean =
     mutant.status == MutantStatus.Survived || mutant.status == MutantStatus.NoCoverage
 
-  // private def durationText(duration: FiniteDuration) = ???
-
   implicit class DoubleRoundTwoDecimals(score: Double) {
     def roundDecimals(decimals: Int): Double =
       if (!score.isNaN())
