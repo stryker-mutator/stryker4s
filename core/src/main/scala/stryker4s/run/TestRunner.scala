@@ -31,9 +31,8 @@ object TestRunner {
             for {
               (runner, _) <- mvar.read
               time <- timeout.read
-              result <- ((if (mutant.id == 1) IO.sleep(6.seconds) else IO.unit) *>
-                  runner
-                    .runMutant(mutant))
+              result <- runner
+                .runMutant(mutant)
                 .timeoutTo(
                   time,
                   IO(debug(s"Mutant ${mutant.id} timed out over ${time.toCoarsest}")) *>
