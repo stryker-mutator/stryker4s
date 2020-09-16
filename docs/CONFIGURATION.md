@@ -20,6 +20,8 @@ stryker4s {
       - [dashboard.\*](#dashboard)
       - [timeout-factor](#timeout-factor)
       - [timeout](#timeout)
+  - [Sbt plugin config](#sbt-plugin-config)
+      - [legacy-test-runner](#legacy-test-runner)
   - [Process runner config](#process-runner-config)
       - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
@@ -151,6 +153,23 @@ timeoutForTestRun = netTime * timeoutFactor + timeout
 
 With `timeout-factor` you can configure the allowed deviation relative to the time of a normal test run. Tweak this if you notice that mutants are prone to creating slower code, but not infinite loops.
 `timeout` lets you configure an absolute deviation. Use it if you run Stryker on a busy machine and you need to wait longer to make sure that the code indeed entered an infinite loop. It can be configured using a number of milliseconds (`5000`) or a duration string (`5s`, `5000ms`)
+
+## Sbt plugin config
+
+#### legacy-test-runner
+
+**Config file:** `legacy-test-runner: true`  
+**Default value:** `false`  
+**Since:** `v0.10.0` (only in the experimental sbt testrunner)  
+**Description:**
+
+Use the sbt testrunner that was the default before `v0.10.0`. This testrunner is a lot slower, so it is recommended to only enable this if you are running into issues with the new testrunner.
+
+Cases where you might want to use this:
+
+- Your code has lots of 'static' mutants (e.g. `val` in an `object`) which the new testrunner can not test.
+- You are running into a bug with the new testrunner (please [create an issue](https://github.com/stryker-mutator/stryker4s/issues/new)).
+- Your testframework does not work with the testrunner ([let us know](https://github.com/stryker-mutator/stryker4s/issues/new)!).
 
 ## Process runner config
 

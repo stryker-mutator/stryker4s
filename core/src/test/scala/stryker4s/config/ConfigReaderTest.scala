@@ -26,6 +26,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
           config.thresholds shouldBe Thresholds(high = 85, low = 65, break = 10)
           config.timeoutFactor shouldBe 2.5
           config.timeout shouldBe 5.5.seconds
+          config.legacyTestRunner shouldBe true
       }
     }
 

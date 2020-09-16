@@ -12,7 +12,10 @@ import stryker4s.extension.exception.TestSetupException
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
-import stryker4s.run.MutantRunner
+import stryker4s.run.{MutantRunner, TestRunner}
+import stryker4s.sbt.Stryker4sMain.autoImport.stryker
+import sbt.internal.LogManager
+import java.io.PrintStream
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
@@ -22,56 +25,31 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   type Context = SbtRunnerContext
 
   def initializeTestContext(tmpDir: File): Resource[IO, Context] = {
-    val (classpath, javaOpts, frameworks, testGroups) = extractSbtContext(tmpDir)
+    val (settings, extracted) = extractSbtProject(tmpDir)
+    val testRunner = config.legacyTestRunner match {
+      case true =>
+        setupSbtTestRunner(settings, extracted)
+      case false =>
+        setupInProcessSbtTestRunner(settings, extracted)
+    }
+    testRunner.map(SbtRunnerContext(_))
 
-    SbtTestRunner
-      .create(classpath, javaOpts, frameworks, testGroups)
-      .map(SbtRunnerContext(_))
   }
 
-  private def extractSbtContext(tmpDir: File) = {
-
-    // Remove scalacOptions that are very likely to cause errors with generated code
-    // https://github.com/stryker-mutator/stryker4s/issues/321
-    val blocklistedScalacOptions = Seq(
-      "unused:patvars",
-      "unused:locals",
-      "unused:params",
-      "unused:explicits"
-      // -Ywarn for Scala 2.12, -W for Scala 2.13
-    ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
+  def setupSbtTestRunner(
+      settings: Seq[Def.Setting[_]],
+      extracted: Extracted
+  ): Resource[IO, TestRunner] = {
+    info("Using the experimental sbt testrunner")
 
     val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
     debug(s"Resolved stryker4s version $stryker4sVersion")
 
-    val filteredSystemProperties: Seq[String] = {
-      // Matches strings that start with one of the options between brackets
-      val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal|jdk).*"
-      for {
-        (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
-        param = s"-D$key=$value"
-      } yield param
-    }
-    debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
-
-    val settings: Seq[Def.Setting[_]] = Seq(
-      scalacOptions --= blocklistedScalacOptions,
-      fork in Test := true,
-      scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
+    val fullSettings = settings ++ Seq(
       libraryDependencies +=
-        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion,
-      javaOptions in Test ++= filteredSystemProperties
-    ) ++ {
-      if (config.testFilter.nonEmpty) {
-        val testFilter = new TestFilter
-        Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
-      } else
-        Nil
-    }
-
-    val extracted = Project.extract(state)
-
-    val newState = extracted.appendWithSession(settings, state)
+        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
+    )
+    val newState = extracted.appendWithSession(fullSettings, state)
     def extractTaskValue[T](task: TaskKey[T], name: String) =
       Project.runTask(task, newState) match {
         case Some((_, Value(result))) => result
@@ -91,7 +69,65 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
     val testGroups = extractTaskValue(testGrouping in Test, "testGrouping")
 
-    (classpath, javaOpts, frameworks, testGroups)
+    SbtTestRunner
+      .create(classpath, javaOpts, frameworks, testGroups)
+  }
+
+  def setupInProcessSbtTestRunner(
+      settings: Seq[Def.Setting[_]],
+      extracted: Extracted
+  ): Resource[IO, stryker4s.run.TestRunner] = {
+    info("Using the legacy sbt testrunner")
+
+    val emptyLogManager =
+      LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
+
+    val fullSettings = settings ++ Seq(
+      logManager := {
+        if ((logLevel in stryker).value == Level.Debug) logManager.value
+        else emptyLogManager
+      }
+    )
+    val newState = extracted.appendWithSession(fullSettings, state)
+
+    Resource.pure[IO, TestRunner](new InProcessSbtTestRunner(newState, fullSettings, extracted))
+  }
+
+  def extractSbtProject(tmpDir: File) = {
+    // Remove scalacOptions that are very likely to cause errors with generated code
+    // https://github.com/stryker-mutator/stryker4s/issues/321
+    val blocklistedScalacOptions = Seq(
+      "unused:patvars",
+      "unused:locals",
+      "unused:params",
+      "unused:explicits"
+      // -Ywarn for Scala 2.12, -W for Scala 2.13
+    ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
+
+    val filteredSystemProperties: Seq[String] = {
+      // Matches strings that start with one of the options between brackets
+      val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal|jdk).*"
+      for {
+        (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
+        param = s"-D$key=$value"
+      } yield param
+    }
+    debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
+
+    val settings: Seq[Def.Setting[_]] = Seq(
+      scalacOptions --= blocklistedScalacOptions,
+      fork in Test := true,
+      scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
+      javaOptions in Test ++= filteredSystemProperties
+    ) ++ {
+      if (config.testFilter.nonEmpty) {
+        val testFilter = new TestFilter
+        Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
+      } else
+        Nil
+    }
+
+    (settings, Project.extract(state))
   }
 
   override def runInitialTest(context: Context): IO[Boolean] =

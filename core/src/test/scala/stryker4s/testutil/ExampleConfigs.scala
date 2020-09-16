@@ -30,6 +30,7 @@ object ExampleConfigs {
                                      |    module: "someModule"
                                      |  }
                                      |  timeout-factor=2.5
+                                     |  legacy-test-runner=true
                                      |  timeout=5500
                                      |}""".stripMargin)
 
