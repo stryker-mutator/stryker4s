@@ -129,7 +129,7 @@ Settings for the dashboard [reporter](#reporters). See the [stryker handbook for
 
 **Config file:** `timeout-factor: 1.5`  
 **Default value:** `1.5`  
-**Since:** `v0.10.0` (only in the experimental sbt testrunner)  
+**Since:** `v0.10.0`  
 **Description:**
 
 See [timeout](#timeout)
@@ -138,7 +138,7 @@ See [timeout](#timeout)
 
 **Config file:** `timeout: 5000`  
 **Default value:** `5 seconds`  
-**Since:** `v0.10.0` (only in the experimental sbt testrunner)  
+**Since:** `v0.10.0`  
 **Description:**
 
 When Stryker4s is mutating code, it cannot determine indefinitely whether a code mutation results in an infinite loop (see [Halting problem](https://en.wikipedia.org/wiki/Halting_problem)).
@@ -160,7 +160,7 @@ With `timeout-factor` you can configure the allowed deviation relative to the ti
 
 **Config file:** `legacy-test-runner: true`  
 **Default value:** `false`  
-**Since:** `v0.10.0` (only in the experimental sbt testrunner)  
+**Since:** `v0.10.0`  
 **Description:**
 
 Use the sbt testrunner that was the default before `v0.10.0`. This testrunner is a lot slower, so it is recommended to only enable this if you are running into issues with the new testrunner.
@@ -168,8 +168,10 @@ Use the sbt testrunner that was the default before `v0.10.0`. This testrunner is
 Cases where you might want to use this:
 
 - Your code has lots of 'static' mutants (e.g. `val` in an `object`) which the new testrunner can not test.
-- You are running into a bug with the new testrunner (please [create an issue](https://github.com/stryker-mutator/stryker4s/issues/new)).
-- Your testframework does not work with the testrunner ([let us know](https://github.com/stryker-mutator/stryker4s/issues/new)!).
+- You are running into a bug with the new testrunner.
+- Your testframework does not work with the testrunner.
+
+For the last two cases, please [let us know by creating an issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
 
 ## Process runner config
 

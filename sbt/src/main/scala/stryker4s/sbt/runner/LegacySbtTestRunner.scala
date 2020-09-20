@@ -10,7 +10,7 @@ import sbt.Tests.Output
 import grizzled.slf4j.Logging
 import stryker4s.model.{Error, Killed, Survived}
 
-class InProcessSbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)
+class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)
     extends TestRunner
     with Logging {
   def initialTestRun(): IO[Boolean] = runTests(

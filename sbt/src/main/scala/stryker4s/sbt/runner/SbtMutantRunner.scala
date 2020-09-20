@@ -26,54 +26,16 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
   def initializeTestContext(tmpDir: File): Resource[IO, Context] = {
     val (settings, extracted) = extractSbtProject(tmpDir)
-    val testRunner = config.legacyTestRunner match {
-      case true =>
+    val testRunner =
+      if (config.legacyTestRunner)
+        setupLegacySbtTestRunner(settings, extracted)
+      else
         setupSbtTestRunner(settings, extracted)
-      case false =>
-        setupInProcessSbtTestRunner(settings, extracted)
-    }
+
     testRunner.map(SbtRunnerContext(_))
-
   }
 
-  def setupSbtTestRunner(
-      settings: Seq[Def.Setting[_]],
-      extracted: Extracted
-  ): Resource[IO, TestRunner] = {
-    info("Using the experimental sbt testrunner")
-
-    val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
-    debug(s"Resolved stryker4s version $stryker4sVersion")
-
-    val fullSettings = settings ++ Seq(
-      libraryDependencies +=
-        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
-    )
-    val newState = extracted.appendWithSession(fullSettings, state)
-    def extractTaskValue[T](task: TaskKey[T], name: String) =
-      Project.runTask(task, newState) match {
-        case Some((_, Value(result))) => result
-        case other =>
-          debug(s"Expected $name but got $other")
-          throw new TestSetupException(
-            s"Could not setup mutation testing environment. Unable to resolve project $name. This could be due to compile errors or misconfiguration of Stryker4s. See debug logs for more information."
-          )
-
-      }
-
-    val classpath = extractTaskValue(fullClasspath in Test, "classpath").map(_.data.getPath())
-
-    val javaOpts = extractTaskValue(javaOptions in Test, "javaOptions")
-
-    val frameworks = extractTaskValue(loadedTestFrameworks in Test, "test frameworks").values.toSeq
-
-    val testGroups = extractTaskValue(testGrouping in Test, "testGrouping")
-
-    SbtTestRunner
-      .create(classpath, javaOpts, frameworks, testGroups)
-  }
-
-  def setupInProcessSbtTestRunner(
+  def setupLegacySbtTestRunner(
       settings: Seq[Def.Setting[_]],
       extracted: Extracted
   ): Resource[IO, stryker4s.run.TestRunner] = {
@@ -90,7 +52,41 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     )
     val newState = extracted.appendWithSession(fullSettings, state)
 
-    Resource.pure[IO, TestRunner](new InProcessSbtTestRunner(newState, fullSettings, extracted))
+    Resource.pure[IO, TestRunner](new LegacySbtTestRunner(newState, fullSettings, extracted))
+  }
+
+  def setupSbtTestRunner(
+      settings: Seq[Def.Setting[_]],
+      extracted: Extracted
+  ): Resource[IO, TestRunner] = {
+    val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
+    debug(s"Resolved stryker4s version $stryker4sVersion")
+
+    val fullSettings = settings ++ Seq(
+      libraryDependencies +=
+        "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
+    )
+    val newState = extracted.appendWithSession(fullSettings, state)
+    def extractTaskValue[T](task: TaskKey[T], name: String) =
+      Project.runTask(task, newState) match {
+        case Some((_, Value(result))) => result
+        case other =>
+          debug(s"Expected $name but got $other")
+          throw new TestSetupException(
+            s"Could not setup mutation testing environment. Unable to resolve project $name. This could be due to compile errors or misconfiguration of Stryker4s. See debug logs for more information."
+          )
+      }
+
+    val classpath = extractTaskValue(fullClasspath in Test, "classpath").map(_.data.getPath())
+
+    val javaOpts = extractTaskValue(javaOptions in Test, "javaOptions")
+
+    val frameworks = extractTaskValue(loadedTestFrameworks in Test, "test frameworks").values.toSeq
+
+    val testGroups = extractTaskValue(testGrouping in Test, "testGrouping")
+
+    SbtTestRunner
+      .create(classpath, javaOpts, frameworks, testGroups)
   }
 
   def extractSbtProject(tmpDir: File) = {
