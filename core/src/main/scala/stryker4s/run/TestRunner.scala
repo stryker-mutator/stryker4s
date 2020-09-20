@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration._
 
-import cats.effect.concurrent.MVar2
+import cats.effect.concurrent.Deferred
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
@@ -19,18 +19,18 @@ trait TestRunner {
 
 object TestRunner {
 
-  def timeoutRunner(timeout: MVar2[IO, FiniteDuration], inner: Resource[IO, TestRunner])(implicit
+  def timeoutRunner(timeout: Deferred[IO, FiniteDuration], inner: Resource[IO, TestRunner])(implicit
       config: Config,
       timer: Timer[IO],
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] =
-    inner.selfRecreatingResource { (mvar, releaseAndSwap) =>
+    inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner with Logging {
           override def runMutant(mutant: Mutant): IO[MutantRunResult] =
             for {
-              (runner, _) <- mvar.read
-              time <- timeout.read
+              runner <- testRunnerRef.get
+              time <- timeout.get
               result <- runner
                 .runMutant(mutant)
                 .timeoutTo(
@@ -43,10 +43,10 @@ object TestRunner {
 
           override def initialTestRun(): IO[Boolean] =
             for {
-              (runner, _) <- mvar.read
+              runner <- testRunnerRef.get
               (result, duration) <- runner.initialTestRun().timed
               newTimeout = calculateTimeout(duration)
-              _ <- timeout.put(newTimeout)
+              _ <- timeout.complete(newTimeout)
               _ <- IO(info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
             } yield result
 
@@ -56,10 +56,8 @@ object TestRunner {
       }
     }
 
-  def retryRunner(inner: Resource[IO, TestRunner])(implicit
-      cs: ContextShift[IO]
-  ): Resource[IO, TestRunner] =
-    inner.selfRecreatingResource { (mvar, releaseAndSwap) =>
+  def retryRunner(inner: Resource[IO, TestRunner]): Resource[IO, TestRunner] =
+    inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner with Logging {
 
@@ -67,7 +65,7 @@ object TestRunner {
             retryRunMutation(mutant)
 
           def retryRunMutation(mutant: Mutant, retriesLeft: Long = 2): IO[MutantRunResult] = {
-            mvar.read.flatMap(_._1.runMutant(mutant)).attempt.flatMap {
+            testRunnerRef.get.flatMap(_.runMutant(mutant)).attempt.flatMap {
               // On error, get a new testRunner and set it
               case Left(_) =>
                 IO(
@@ -84,8 +82,7 @@ object TestRunner {
             }
           }
           override def initialTestRun(): IO[Boolean] =
-            mvar.read.flatMap(_._1.initialTestRun())
-
+            testRunnerRef.get.flatMap(_.initialTestRun())
         }
       }
     }
