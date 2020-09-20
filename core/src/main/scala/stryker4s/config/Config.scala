@@ -16,7 +16,8 @@ final case class Config(
     thresholds: Thresholds = Thresholds(),
     dashboard: DashboardOptions = DashboardOptions(),
     timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
-    timeoutFactor: Double = 1.5
+    timeoutFactor: Double = 1.5,
+    legacyTestRunner: Boolean = false
 )
 
 object Config {

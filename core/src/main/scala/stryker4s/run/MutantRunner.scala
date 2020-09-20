@@ -1,9 +1,12 @@
 package stryker4s.run
 
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.FiniteDuration
 
 import better.files.File
-import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
+import cats.effect._
 import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
 import grizzled.slf4j.Logging
@@ -26,26 +29,29 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   type Context <: TestRunnerContext
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
-    prepareEnv(mutatedFiles).use { context =>
-      for {
-        _ <- initialTestRun(context)
-        (runResults, duration) <- runMutants(mutatedFiles, context).timed
-        report = toReport(runResults)
-        metrics = Metrics.calculateMetrics(report)
-        reportsLocation = config.baseDir / "target/stryker4s-report" / System.currentTimeMillis().toString()
-        _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics, duration, reportsLocation))
-      } yield metrics
-    }
+    prepareEnv(mutatedFiles)
+      .use(context =>
+        initialTestRun(context) *>
+          runMutants(mutatedFiles, context).timed
+      )
+      .flatMap(t => createAndReportResults(t._1, t._2))
 
-  def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] =
-    for {
-      blocker <- Blocker[IO]
-      targetDir = (config.baseDir / "target").path
-      _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
-      tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
-      _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
-      context <- initializeTestContext(tmpDir)
-    } yield context
+  def createAndReportResults(runResults: Map[Path, List[MutantRunResult]], duration: FiniteDuration) = for {
+    time <- Clock[IO].realTime(TimeUnit.MILLISECONDS)
+    report = toReport(runResults)
+    metrics = Metrics.calculateMetrics(report)
+    reportsLocation = config.baseDir / "target/stryker4s-report" / time.toString()
+    _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics, duration, reportsLocation))
+  } yield metrics
+
+  def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] = for {
+    blocker <- Blocker[IO]
+    targetDir = (config.baseDir / "target").path
+    _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
+    tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
+    _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
+    context <- initializeTestContext(tmpDir)
+  } yield context
 
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
     IO(info("Setting up mutated environment...")) *>
