@@ -129,12 +129,12 @@ class TreeExtensionsTest extends Stryker4sSuite {
     }
 
     it("should not include if statement") {
-      val tree = q"def foo(x: Int) = if(x > 5) x > 10"
-      val subTree = tree.find(q"10").value
+      val tree = q"def foo(x: Int) = if(x > 5) x < 10"
+      val subTree = tree.find(q"<").value
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"x > 10"))
+      assert(result.isEqual(q"x < 10"))
     }
 
     it("should not include if statement if expression is in the if statement") {
@@ -312,6 +312,24 @@ class TreeExtensionsTest extends Stryker4sSuite {
       val result = subTree.topStatement()
 
       assert(result.isEqual(q"baz.qux"))
+    }
+
+    it("should stop at named argument assignments") {
+      val tree = q"def foo = bar(baz = true)"
+      val subTree = tree.find(q"true").value
+
+      val result = subTree.topStatement()
+
+      assert(result.isEqual(q"true"))
+    }
+
+    it("should stop at named argument assignments for inheritance assignment") {
+      val tree = q"case object GZIP extends Header(juzDeflaterNoWrap = true)"
+      val subTree = tree.find(q"true").value
+
+      val result = subTree.topStatement()
+
+      assert(result.isEqual(q"true"))
     }
   }
 
