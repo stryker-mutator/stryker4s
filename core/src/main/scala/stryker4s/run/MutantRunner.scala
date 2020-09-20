@@ -1,9 +1,12 @@
 package stryker4s.run
 
 import java.nio.file.Path
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.FiniteDuration
 
 import better.files.File
-import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
+import cats.effect._
 import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
 import grizzled.slf4j.Logging
@@ -16,9 +19,6 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunReport, Reporter}
-import cats.effect.Clock
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,

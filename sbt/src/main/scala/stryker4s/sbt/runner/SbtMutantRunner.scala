@@ -1,11 +1,12 @@
 package stryker4s.sbt.runner
 
-import java.io.{File => JFile}
+import java.io.{File => JFile, PrintStream}
 
 import better.files.{File, _}
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import sbt.Keys._
 import sbt._
+import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.TestSetupException
@@ -14,8 +15,6 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
-import sbt.internal.LogManager
-import java.io.PrintStream
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
@@ -38,7 +37,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
   def setupLegacySbtTestRunner(
       settings: Seq[Def.Setting[_]],
       extracted: Extracted
-  ): Resource[IO, stryker4s.run.TestRunner] = {
+  ): Resource[IO, TestRunner] = {
     info("Using the legacy sbt testrunner")
 
     val emptyLogManager =
