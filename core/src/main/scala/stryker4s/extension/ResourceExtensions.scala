@@ -8,7 +8,7 @@ object ResourceExtensions {
 
   implicit class SelfRecreatingResource[F[_], A <: AnyRef](startResource: Resource[F, A]) {
 
-    /** Build a resource that can destroy and recreate 'itself' by evaluating a passed `F[Unit]`. The resource value is available inside a thread-safe mutable `Ref`
+    /** Build a resource that can destroy and recreate the 'inner' resource by evaluating a passed `F[Unit]`. The inner resource value is available inside a thread-safe mutable `Ref`
       *
       * @param f Map function with two parameters:
       *   - The value of the resource in a `Ref`
@@ -16,11 +16,10 @@ object ResourceExtensions {
       * @return The new resource created with @param f
       */
     def selfRecreatingResource(f: (Ref[F, A], F[Unit]) => F[A])(implicit F: Sync[F]): Resource[F, A] = {
-
-      val allocatedF: F[(A, F[Unit])] = for {
+      val allocatedF = for {
         innerState <- startResource.allocated.flatMap(Ref.of(_))
 
-        releaseAndSwapF = innerState.get.flatMap(_._2).attempt.void *> // Release old
+        releaseAndSwapF = innerState.get.flatMap(_._2) *> // Release old
           startResource.allocated.flatMap(innerState.set(_)) // Set new
 
         // lens of the `A` in the Ref to pass to the builder function
