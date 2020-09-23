@@ -10,23 +10,24 @@ stryker4s {
 
 - [Configuration](#configuration)
   - [General config](#general-config)
-      - [mutate](#mutate)
-      - [test-filter](#test-filter)
-      - [files](#files)
-      - [base-dir](#base-dir)
-      - [reporters](#reporters)
-      - [excluded-mutations](#excluded-mutations)
-      - [thresholds](#thresholds)
-      - [dashboard.\*](#dashboard)
-      - [timeout-factor](#timeout-factor)
-      - [timeout](#timeout)
+    - [mutate](#mutate)
+    - [test-filter](#test-filter)
+    - [files](#files)
+    - [base-dir](#base-dir)
+    - [reporters](#reporters)
+    - [excluded-mutations](#excluded-mutations)
+    - [thresholds](#thresholds)
+    - [dashboard.\*](#dashboard)
+    - [timeout-factor](#timeout-factor)
+    - [timeout](#timeout)
   - [Sbt plugin config](#sbt-plugin-config)
-      - [legacy-test-runner](#legacy-test-runner)
+    - [max-test-runner-reuse](#max-test-runner-reuse)
+    - [legacy-test-runner](#legacy-test-runner)
   - [Process runner config](#process-runner-config)
-      - [test-runner](#test-runner)
+    - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
-      - [log-level](#log-level)
-      - [Excluding specific mutations](#excluding-specific-mutations)
+    - [log-level](#log-level)
+    - [Excluding specific mutations](#excluding-specific-mutations)
 
 ## General config
 
@@ -156,6 +157,15 @@ With `timeout-factor` you can configure the allowed deviation relative to the ti
 
 ## Sbt plugin config
 
+#### max-test-runner-reuse
+
+**Config file:** `max-test-runner-reuse: 5`  
+**Default value:** disabled  
+**Since:** `v0.10.0`  
+**Description:**
+
+Restart the testrunner after every `n` runs. Not recommended unless you are experiencing memory leaks that you are unable to resolve.
+
 #### legacy-test-runner
 
 **Config file:** `legacy-test-runner: true`  
@@ -163,7 +173,7 @@ With `timeout-factor` you can configure the allowed deviation relative to the ti
 **Since:** `v0.10.0`  
 **Description:**
 
-Use the sbt testrunner that was the default before `v0.10.0`. This testrunner is a lot slower, so it is recommended to only enable this if you are running into issues with the new testrunner.
+Use the sbt testrunner that was the default before `v0.10.0`. This testrunner is a lot slower, so it is recommended to only enable this if you are running into issues with the new testrunner. You might want to take a look at [`max-test-runner-reuse`](#max-test-runner-reuse) first.
 
 Cases where you might want to use this:
 

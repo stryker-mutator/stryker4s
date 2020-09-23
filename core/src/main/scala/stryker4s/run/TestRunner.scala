@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration._
 
-import cats.effect.concurrent.Deferred
+import cats.effect.concurrent.{Deferred, Ref}
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import grizzled.slf4j.Logging
 import stryker4s.config.Config
@@ -81,6 +81,29 @@ object TestRunner {
               case Right(value) => IO.pure(value)
             }
           }
+          override def initialTestRun(): IO[Boolean] =
+            testRunnerRef.get.flatMap(_.initialTestRun())
+        }
+      }
+    }
+
+  def maxReuseTestRunner(maxReuses: Int, inner: Resource[IO, TestRunner]): Resource[IO, TestRunner] =
+    inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
+      Ref[IO].of(0).map { usesRef =>
+        new TestRunner with Logging {
+          def runMutant(mutant: Mutant): IO[MutantRunResult] = for {
+            uses <- usesRef.getAndUpdate(_ + 1)
+            _ <-
+              // If the limit has been reached, create a new testrunner
+              if (uses >= maxReuses)
+                IO(info(s"Testrunner has run for $uses times. Restarting it...")) *>
+                  releaseAndSwap *>
+                  usesRef.set(1)
+              else IO.unit
+            runner <- testRunnerRef.get
+            result <- runner.runMutant(mutant)
+          } yield result
+
           override def initialTestRun(): IO[Boolean] =
             testRunnerRef.get.flatMap(_.initialTestRun())
         }

@@ -26,6 +26,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
           config.thresholds shouldBe Thresholds(high = 85, low = 65, break = 10)
           config.timeoutFactor shouldBe 2.5
           config.timeout shouldBe 5.5.seconds
+          config.maxTestRunnerReuse.value shouldBe 15
           config.legacyTestRunner shouldBe true
       }
     }
@@ -48,6 +49,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       result.mutate shouldBe Seq("**/main/scala/**.scala")
       result.reporters should (contain.only(Html, Console))
       result.thresholds shouldBe Thresholds()
+      result.maxTestRunnerReuse shouldBe None
       result.dashboard shouldBe DashboardOptions(
         baseUrl = uri"https://dashboard.stryker-mutator.io",
         reportType = Full,
