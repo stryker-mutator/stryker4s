@@ -10,24 +10,24 @@ stryker4s {
 
 - [Configuration](#configuration)
   - [General config](#general-config)
-    - [mutate](#mutate)
-    - [test-filter](#test-filter)
-    - [files](#files)
-    - [base-dir](#base-dir)
-    - [reporters](#reporters)
-    - [excluded-mutations](#excluded-mutations)
-    - [thresholds](#thresholds)
-    - [dashboard.\*](#dashboard)
-    - [timeout-factor](#timeout-factor)
-    - [timeout](#timeout)
+      - [mutate](#mutate)
+      - [test-filter](#test-filter)
+      - [files](#files)
+      - [base-dir](#base-dir)
+      - [reporters](#reporters)
+      - [excluded-mutations](#excluded-mutations)
+      - [thresholds](#thresholds)
+      - [dashboard.\*](#dashboard)
   - [Sbt plugin config](#sbt-plugin-config)
-    - [max-test-runner-reuse](#max-test-runner-reuse)
-    - [legacy-test-runner](#legacy-test-runner)
+      - [timeout-factor](#timeout-factor)
+      - [timeout](#timeout)
+      - [max-test-runner-reuse](#max-test-runner-reuse)
+      - [legacy-test-runner](#legacy-test-runner)
   - [Process runner config](#process-runner-config)
-    - [test-runner](#test-runner)
+      - [test-runner](#test-runner)
   - [Other configuration options](#other-configuration-options)
-    - [log-level](#log-level)
-    - [Excluding specific mutations](#excluding-specific-mutations)
+      - [log-level](#log-level)
+      - [Excluding specific mutations](#excluding-specific-mutations)
 
 ## General config
 
@@ -126,6 +126,8 @@ Settings for the dashboard [reporter](#reporters). See the [stryker handbook for
 - CircleCI
 - GitHub actions
 
+## Sbt plugin config
+
 #### timeout-factor
 
 **Config file:** `timeout-factor: 1.5`  
@@ -154,8 +156,6 @@ timeoutForTestRun = netTime * timeoutFactor + timeout
 
 With `timeout-factor` you can configure the allowed deviation relative to the time of a normal test run. Tweak this if you notice that mutants are prone to creating slower code, but not infinite loops.
 `timeout` lets you configure an absolute deviation. Use it if you run Stryker on a busy machine and you need to wait longer to make sure that the code indeed entered an infinite loop. It can be configured using a number of milliseconds (`5000`) or a duration string (`5s`, `5000ms`)
-
-## Sbt plugin config
 
 #### max-test-runner-reuse
 
