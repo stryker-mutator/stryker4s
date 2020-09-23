@@ -9,7 +9,7 @@ object DurationExtensions {
     final def toHumanReadable: String = {
       val units = Seq(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES, TimeUnit.SECONDS)
 
-      units
+      val timeStrings = units
         .foldLeft((Seq.empty[String], duration.toMillis))({ case ((humanReadable, rest), unit) =>
           val name = unit.toString().toLowerCase()
           val result = unit.convert(rest, TimeUnit.MILLISECONDS)
@@ -22,7 +22,12 @@ object DurationExtensions {
           (str, diff)
         })
         ._1
-        .mkString(", ")
+
+      timeStrings.size match {
+        case 0 => ""
+        case 1 => timeStrings.head
+        case _ => timeStrings.init.mkString(", ") + " and " + timeStrings.last
+      }
     }
   }
 }
