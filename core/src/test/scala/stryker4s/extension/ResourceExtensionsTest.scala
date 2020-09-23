@@ -1,40 +1,44 @@
 package stryker4s.extension
 
 import cats.effect.{IO, Resource}
-import stryker4s.extension.ResourceExtensions._
+import stryker4s.extension.ResourceExtensions.SelfRecreatingResource
 import stryker4s.testutil.Stryker4sSuite
+import java.util.concurrent.atomic.AtomicInteger
+import cats.effect.concurrent.Ref
 
 class ResourceExtensionsTest extends Stryker4sSuite {
   describe("selfRecreatingResource") {
     it("should create itself only once") {
-      var created = 0
-      var closed = 0
-      val resource = Resource.make(IO(created += 1))(_ => IO(closed += 1))
+      val created = new AtomicInteger(0)
+      val closed = new AtomicInteger(0)
+      val resource =
+        Resource.make(IO { created.incrementAndGet(); created })(_ => IO(closed.incrementAndGet()).void)
 
-      val sut = resource.selfRecreatingResource { case _ => IO.unit }
-      sut.use(_ => IO(closed shouldBe 0)).unsafeRunSync()
+      val sut = resource.selfRecreatingResource { case (_: Ref[IO, AtomicInteger], _: IO[Unit]) => IO.pure(created) }
+      sut.use(_ => IO(closed.get() shouldBe 0)).unsafeRunSync()
 
-      created shouldBe 1
-      closed shouldBe 1
+      created.get() shouldBe 1
+      closed.get() shouldBe 1
     }
 
     it("should close when evaluating the close IO") {
-      var timesCreated = 0
-      var timesClosed = 0
-      val resource = Resource.make(IO(timesCreated += 1))(_ => IO(timesClosed += 1))
+      val created = new AtomicInteger(0)
+      val closed = new AtomicInteger(0)
+      val resource =
+        Resource.make(IO { created.incrementAndGet(); created })(_ => IO(closed.incrementAndGet()).void)
 
-      val sut = resource.selfRecreatingResource { case (_, release) => release *> IO.unit }
+      val sut = resource.selfRecreatingResource { case (_, release) => release *> IO.pure(created) }
       sut
         .use(_ =>
           IO {
-            timesCreated shouldBe 2
-            timesClosed shouldBe 1
+            created.get() shouldBe 2
+            closed.get() shouldBe 1
           }
         )
         .unsafeRunSync()
 
-      timesCreated shouldBe 2
-      timesClosed shouldBe 2
+      created.get() shouldBe 2
+      closed.get() shouldBe 2
     }
   }
 }
