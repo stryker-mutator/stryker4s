@@ -328,14 +328,14 @@ class MutantMatcherTest extends Stryker4sSuite {
       val interpolated =
         Term.Interpolate(q"s", List(Lit.String("interpolate "), Lit.String("")), List(q"foo"))
       val tree = q"def foo = $interpolated"
-      val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
+      val emptyString = Lit.String("")
 
       interpolated.syntax should equal("s\"interpolate $foo\"")
       expectMutations(
         sut.matchStringLiteral,
         tree,
         interpolated,
-        emptyStringInterpolate
+        emptyString
       )
     }
 
@@ -347,14 +347,14 @@ class MutantMatcherTest extends Stryker4sSuite {
           List(q"fooVar", q"barVar + 1")
         )
       val tree = q"def foo = $interpolated"
-      val emptyStringInterpolate = Term.Interpolate(q"s", List(Lit.String("")), Nil)
+      val emptyString = Lit.String("")
 
       interpolated.syntax should equal("s\"interpolate $fooVar foo ${barVar" + " + 1} bar\"")
       expectMutations(
         sut.matchStringLiteral,
         tree,
         interpolated,
-        emptyStringInterpolate
+        emptyString
       )
     }
 

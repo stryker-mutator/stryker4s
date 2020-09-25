@@ -37,7 +37,7 @@ class MutatorTest extends Stryker4sSuite with LogMatchers {
                        |  }
                        |  def foobar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
                        |    case Some("3") =>
-                       |      s""
+                       |      ""
                        |    case _ =>
                        |      s"${bar}foo"
                        |  }
