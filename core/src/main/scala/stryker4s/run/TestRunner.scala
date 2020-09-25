@@ -46,8 +46,11 @@ object TestRunner {
               runner <- testRunnerRef.get
               (result, duration) <- runner.initialTestRun().timed
               newTimeout = calculateTimeout(duration)
-              _ <- timeout.complete(newTimeout)
-              _ <- IO(info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
+              _ <-
+                if (result)
+                  timeout.complete(newTimeout) *>
+                    IO(info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
+                else IO.unit
             } yield result
 
           def calculateTimeout(netTimeMS: FiniteDuration)(implicit config: Config): FiniteDuration =
