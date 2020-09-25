@@ -69,7 +69,7 @@ class MutantMatcher()(implicit config: Config) {
   def matchStringLiteral: PartialFunction[Tree, Seq[Option[Mutant]]] = {
     case EmptyString(orig)         => orig ~~> StrykerWasHereString
     case NonEmptyString(orig)      => orig ~~> EmptyString
-    case StringInterpolation(orig) => orig ~~> EmptyStringInterpolation
+    case StringInterpolation(orig) => orig ~~> EmptyString
   }
 
   implicit class TermExtensions(original: Term) {

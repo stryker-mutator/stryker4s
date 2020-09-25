@@ -29,7 +29,7 @@ object TreeExtensions {
         case _                            => thisTerm
       }
 
-    /** Extractor object to check if the [[scala.meta.Term]] is inside a pattern match
+    /** Extractor object to check if the [[scala.meta.Term]] part of a pattern match (but not in the body of the pattern match)
       */
     private object ParentIsPatternMatch {
 
@@ -37,7 +37,7 @@ object TreeExtensions {
         */
       final def unapply(term: Term): Option[Term] =
         findParent[Case](term)
-          .filterNot(_.parent.exists(_.isInstanceOf[Term.Try]))
+          .filter(c => c.cond.exists(_.find(term).isDefined) || c.pat.find(term).isDefined)
           .flatMap(findParent[Term])
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =

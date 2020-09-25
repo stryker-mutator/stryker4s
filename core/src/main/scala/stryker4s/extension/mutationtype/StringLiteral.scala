@@ -13,10 +13,6 @@ case object StrykerWasHereString extends StringLiteral[Lit.String] {
   override val tree: Lit.String = Lit.String("Stryker was here!")
 }
 
-case object EmptyStringInterpolation extends StringLiteral[Term.Interpolate] {
-  override val tree: Term.Interpolate = Term.Interpolate(Term.Name("s"), List(Lit.String("")), Nil)
-}
-
 /** Not a mutation, just an extractor for pattern matching on empty string
   */
 case object NonEmptyString {
