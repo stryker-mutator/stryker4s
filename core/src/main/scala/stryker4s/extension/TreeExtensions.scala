@@ -51,7 +51,6 @@ object TreeExtensions {
         term.parent exists {
           case _: Defn          => true
           case _: Term.Block    => true
-          case _: Term.If       => true
           case _: Term.ForYield => true
           case _: Term.Assign   => true
           case _                => false

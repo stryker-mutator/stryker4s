@@ -128,22 +128,22 @@ class TreeExtensionsTest extends Stryker4sSuite {
       assert(result.isEqual(q"Math.square(2 * 5)"))
     }
 
-    it("should not include if statement") {
-      val tree = q"def foo(x: Int) = if(x > 5) x < 10"
+    it("should include the if statement") {
+      val tree = q"def foo(x: Int) = { if(x > 5) x < 10 }"
       val subTree = tree.find(q"<").value
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"x < 10"))
+      assert(result.isEqual(q"if(x > 5) x < 10"))
     }
 
-    it("should not include if statement if expression is in the if statement") {
+    it("should include the if statement if the expression is in the condition-statement") {
       val tree = q"def foo(x: Int) = if(x >= 5) x > 10"
       val subTree = tree.find(q">=").value
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"x >= 5"))
+      assert(result.isEqual(q"if(x >= 5) x > 10"))
     }
 
     it("should include new operator") {
@@ -265,7 +265,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"!foo"))
+      assert(result.isEqual(q"if(!foo) bar else baz"))
     }
 
     it("should include pattern matches") {
