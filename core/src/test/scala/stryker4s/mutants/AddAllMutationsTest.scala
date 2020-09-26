@@ -14,6 +14,13 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
   describe("failed to add mutations") {
     implicit val config = Config.default
 
+    it("#585 (if-statement in Term.Apply)") {
+      checkAllMutationsAreAdded(q"""SomeExecutor.createSomething(
+        if (c.i.isDefined) "foo" else "bar",
+        false,
+      )""")
+    }
+
     it("#586 (second function call with `case`)") {
       checkAllMutationsAreAdded(q"""serviceProvider
               .request { _ => 4 > 5 }
@@ -28,13 +35,17 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
       val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.flatten
       val transformed = new StatementTransformer().transformSource(source, foundMutants)
       val mutatedTree = new MatchBuilder(ActiveMutationContext.envVar).buildNewSource(transformed)
-      foundMutants.foreach(mutant =>
-        mutatedTree
-          .find(mutant.mutated)
-          .map(_ => succeed)
-          .getOrElse(
-            fail(s"Could not find mutation ${mutant.original} (${mutant.mutated}) in mutated tree ${mutatedTree}")
-          )
+      transformed.transformedStatements.foreach(transformedMutants =>
+        transformedMutants.mutantStatements.foreach(mutantStatement =>
+          mutatedTree
+            .find(mutantStatement.mutated)
+            .getOrElse(
+              fail {
+                val mutant = foundMutants.find(_.id == mutantStatement.id).get
+                s"Could not find mutation '${mutant.mutated}'' (original '${mutant.original}') in mutated tree ${mutatedTree}"
+              }
+            )
+        )
       )
       "Failed to add mutation(s)" should not be loggedAsWarning
     }
