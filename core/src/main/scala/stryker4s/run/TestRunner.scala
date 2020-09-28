@@ -107,8 +107,11 @@ object TestRunner {
             result <- runner.runMutant(mutant)
           } yield result
 
-          override def initialTestRun(): IO[Boolean] =
-            testRunnerRef.get.flatMap(_.initialTestRun())
+          override def initialTestRun(): IO[Boolean] = for {
+            _ <- usesRef.update(_ + 1)
+            runner <- testRunnerRef.get
+            result <- runner.initialTestRun()
+          } yield result
         }
       }
     }
