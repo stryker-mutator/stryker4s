@@ -38,9 +38,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     testFunctions(None)
   }
 
-  private def activateMutation(mutation: Int) = {
-    sys.props += (("ACTIVE_MUTATION", String.valueOf(mutation)))
-  }
+  private def activateMutation(mutation: Int) = _root_.stryker4s.activeMutation.activate(mutation)
 
   @tailrec
   private def runTests(testTasks: Array[Task], status: AtomicReference[Status]): sbt.testing.Status = {
@@ -51,7 +49,9 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
         // Fail early
         case Status.Failure => Array.empty[Task]
         case Status.Error   => Array.empty[Task]
-        case _ =>
+        case _              =>
+          // TODO
+          // setActiveTest(task.taskDef().fingerprint())
           task.execute(eventHandler, Array.empty)
       }
     )
