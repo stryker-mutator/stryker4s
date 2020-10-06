@@ -14,7 +14,7 @@ jobs:
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: coursier/cache-action@v5
-      - uses: olafurpg/setup-scala@v7
+      - uses: olafurpg/setup-scala@v8
         with:
           java-version: openjdk@1.11
       - uses: olafurpg/setup-gpg@v2
