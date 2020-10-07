@@ -13,8 +13,7 @@ object TestProcessRunner {
 class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int]*) extends ProcessRunner {
   val timesCalled: Iterator[Int] = Iterator.from(0)
 
-  /**
-    * Keep track on the amount of times the function is called.
+  /** Keep track on the amount of times the function is called.
     * Also return an exit code which the test runner would do as well.
     */
   override def apply(command: Command, workingDir: File, envVar: (String, String)): Try[Int] = {

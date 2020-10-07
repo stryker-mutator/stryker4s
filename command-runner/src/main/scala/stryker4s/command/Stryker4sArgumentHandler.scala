@@ -10,8 +10,7 @@ object Stryker4sArgumentHandler extends Logging {
     .map(level => (level.toString.toLowerCase, level))
     .toMap
 
-  /**
-    * Handle args will parse the giving arguments to the jvm.
+  /** Handle args will parse the giving arguments to the jvm.
     * For now we search for a log level and handle those appropriately.
     */
   def handleArgs(args: Seq[String]): Unit = {

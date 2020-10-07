@@ -3,8 +3,7 @@ package stryker4s.extension.mutationtype
 import scala.meta.Term
 import scala.meta.Term._
 
-/**
-  * Base trait for method calls with one or multiple argument(s)
+/** Base trait for method calls with one or multiple argument(s)
   */
 sealed trait ArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] =

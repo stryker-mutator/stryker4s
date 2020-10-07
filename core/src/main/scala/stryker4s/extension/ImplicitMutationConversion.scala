@@ -4,8 +4,7 @@ import scala.meta.Tree
 
 import stryker4s.extension.mutationtype.SubstitutionMutation
 
-/**
-  * Converts [[stryker4s.extension.mutationtype.SubstitutionMutation]] to a `scala.meta.Tree`
+/** Converts [[stryker4s.extension.mutationtype.SubstitutionMutation]] to a `scala.meta.Tree`
   *
   * {{{
   *  import stryker4s.extension.ImplicitMutationConversion._
