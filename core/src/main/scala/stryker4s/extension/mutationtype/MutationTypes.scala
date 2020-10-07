@@ -4,8 +4,7 @@ import scala.meta.{Lit, Term, Tree}
 
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 
-/**
-  * Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
+/** Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
 sealed trait Mutation[T <: Tree] {
   def mutationName: String
@@ -23,8 +22,7 @@ object Mutation {
   )
 }
 
-/**
-  * Base trait for substitution mutation
+/** Base trait for substitution mutation
   *
   * Can implicitly be converted to the appropriate `scala.meta.Tree` by importing [[stryker4s.extension.ImplicitMutationConversion]]
   *
@@ -66,13 +64,11 @@ trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
   override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
 }
 
-/**
-  * Base trait for method mutation
+/** Base trait for method mutation
   */
 trait MethodExpression extends Mutation[Term] {
 
-  /**
-    * Method to be replaced or to replace
+  /** Method to be replaced or to replace
     */
   protected val methodName: String
 

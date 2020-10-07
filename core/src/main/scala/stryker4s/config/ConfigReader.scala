@@ -29,8 +29,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
   )(implicit derivation: Derivation[PureConfigReader[T]]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
-  /**
-    * A configuration on how to attempt to read a config. The reason for its existence is to
+  /** A configuration on how to attempt to read a config. The reason for its existence is to
     * provide a convenient way to attempt to read a config with various [[Derivation]]s,
     * depending on the [[ConfigReaderFailures]] that was returned from the last attempt.
     * In addition to that, some logging is also enforced during the reading process.
@@ -47,15 +46,13 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       derivation: Derivation[PureConfigReader[T]]
   ) {
 
-    /**
-      * Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]]
+    /** Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]]
       * if they occur
       */
     def recoverWith(pf: PartialFunction[ConfigReaderFailures, Reader.Result[T]]): Reader[T] =
       new Reader[T](configSource, this.onFailure orElse pf)
 
-    /**
-      * Handle certain [[ConfigReaderFailures]] by providing a different [[Derivation]] with
+    /** Handle certain [[ConfigReaderFailures]] by providing a different [[Derivation]] with
       * which the [[PureConfigReader]] should be configured.
       */
     def recoverWithDerivation(pf: PartialFunction[ConfigReaderFailures, Derivation[PureConfigReader[T]]]): Reader[T] = {
@@ -67,15 +64,13 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
       recoverWith(pf.andThen(setDerivation(_)))
     }
 
-    /**
-      * Force the reading of the config.
+    /** Force the reading of the config.
       * @note this will throw exceptions when a [[ConfigReaderFailures]] occurs for
       *       which no recover-strategy was defined,
       */
     def config: T = tryRead.valueOr(Failure.throwException)
 
-    /**
-      * Attempt to read a config
+    /** Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
       info(s"Attempting to read config from stryker4s.conf")
@@ -97,8 +92,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
 
     implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = true)
 
-    /**
-      * When the config-parsing fails because of an unknown key in the configuration, a
+    /** When the config-parsing fails because of an unknown key in the configuration, a
       * derivation for the [[PureConfigReader]] is provided that does not fail
       * when unknown keys are present.
       * The names of the unknown keys are logged.
@@ -115,8 +109,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         implicitly[Derivation[PureConfigReader[Config]]]
     }
 
-    /**
-      * When the config-parsing fails because no file is found at the specified location,
+    /** When the config-parsing fails because no file is found at the specified location,
       * a default config is provided.
       */
     def onFileNotFound: PartialFunction[ConfigReaderFailures, Config] = {
@@ -128,8 +121,7 @@ object ConfigReader extends ConfigReaderImplicits with Logging {
         Config.default
     }
 
-    /**
-      * Throw a [[ConfigReaderException]] and log the encountered failures.
+    /** Throw a [[ConfigReaderException]] and log the encountered failures.
       */
     def throwException[T](failures: ConfigReaderFailures): Nothing = {
       error("Failures in reading config: ")

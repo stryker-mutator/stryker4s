@@ -17,8 +17,7 @@ trait LogMatchers extends BeforeAndAfterEach {
 
   override def afterEach(): Unit = TestAppender.reset
 
-  /**
-    * The name of the current thread. AKA the current test (class) being executed
+  /** The name of the current thread. AKA the current test (class) being executed
     */
   implicit private val threadName: String = Thread.currentThread().getName
 
