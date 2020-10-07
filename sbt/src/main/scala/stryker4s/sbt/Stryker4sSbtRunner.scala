@@ -10,8 +10,7 @@ import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
 import stryker4s.sbt.runner.SbtMutantRunner
 
-/**
-  * This Runner run Stryker mutations in a single SBT session
+/** This Runner run Stryker mutations in a single SBT session
   *
   * @param state SBT project state (contains all the settings about the project)
   */

@@ -13,13 +13,13 @@ jobs:
           fetch-depth: 0
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v4.1
-      - uses: olafurpg/setup-scala@v7
+      - uses: coursier/cache-action@v5
+      - uses: actions/setup-java@v1
         with:
-          java-version: openjdk@1.11
+          java-version: 11
       - uses: olafurpg/setup-gpg@v2
       - name: Publish
-        run: csbt ci-release
+        run: sbt ci-release
         env:
           CI_RELEASE: stryker4sPublishSigned
           CI_SNAPSHOT_RELEASE: stryker4sPublish

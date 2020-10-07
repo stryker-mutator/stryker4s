@@ -12,8 +12,7 @@ object TestAppender {
   val events: mutable.Map[String, ListBuffer[LogEvent]] =
     new mutable.HashMap[String, ListBuffer[LogEvent]]().withDefaultValue(ListBuffer.empty)
 
-  /**
-    * Remove all previous logged events for a specific class.
+  /** Remove all previous logged events for a specific class.
     */
   def reset(implicit threadName: String): Unit = events(threadName).clear()
 

@@ -43,7 +43,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
 
       val expectedException = the[ParseException] thrownBy sut.parseFile(file)
 
-      expectedException.shortMessage should be("expected class or object definition")
+      expectedException.shortMessage should be("expected class or object definition identifier")
     }
 
     it("should fail on a nonexistent file") {

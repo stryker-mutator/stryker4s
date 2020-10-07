@@ -3,8 +3,7 @@ package stryker4s.extension.mutationtype
 import scala.meta.Term
 import scala.meta.Term.{Name, Select}
 
-/**
-  * Base method for methods call without arguments
+/** Base method for methods call without arguments
   */
 sealed trait NoArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] =
