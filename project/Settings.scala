@@ -47,7 +47,9 @@ object Settings {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    // If you build and publish a plugin using sbt 1.4.0, your users will also be forced to upgrade to sbt 1.4.0 immediately. To prevent this you can cross build your plugin against sbt 1.2.8 (while using sbt 1.4.0) as follows:
+    pluginCrossBuild / sbtVersion := "1.2.8"
   )
 
   lazy val sbtTestrunnerSettings: Seq[Setting[_]] = Seq(

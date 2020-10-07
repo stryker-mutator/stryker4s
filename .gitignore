@@ -58,6 +58,7 @@ src_managed/
 project/boot/
 project/plugins/project/
 !core/src/test/resources/fileTests/target/IgnoredFile.scala
+.bsp/
 
 # dotty
 _site/
