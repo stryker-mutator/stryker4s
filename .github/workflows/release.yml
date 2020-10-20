@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    branches: [master]
+    branches: [master, fix/release]
     tags: ['*']
 jobs:
   publish:
@@ -16,7 +16,7 @@ jobs:
       - uses: coursier/cache-action@v5
       - uses: olafurpg/setup-scala@v10
         with:
-          java-version: openjdk@1.11
+          java-version: adopt@1.11
       - uses: olafurpg/setup-gpg@v3
       - name: Publish
         run: csbt ci-release
