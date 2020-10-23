@@ -1,4 +1,7 @@
-# Contribute to Stryker4s
+---
+sidebar_label: Contributing
+title: Contribute to Stryker4s
+---
 
 This is the contribution guide for Stryker4s. Great to have you here! Here are a few ways you can help to make this project better.
 

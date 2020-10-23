@@ -1,4 +1,6 @@
-# Configuration
+---
+title: Configuration
+---
 
 All configuration options can be set from the stryker4s.conf file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
 
@@ -8,26 +10,25 @@ stryker4s {
 }
 ```
 
-- [Configuration](#configuration)
-  - [General config](#general-config)
-      - [mutate](#mutate)
-      - [test-filter](#test-filter)
-      - [files](#files)
-      - [base-dir](#base-dir)
-      - [reporters](#reporters)
-      - [excluded-mutations](#excluded-mutations)
-      - [thresholds](#thresholds)
-      - [dashboard.\*](#dashboard)
-  - [Sbt plugin config](#sbt-plugin-config)
-      - [timeout-factor](#timeout-factor)
-      - [timeout](#timeout)
-      - [max-test-runner-reuse](#max-test-runner-reuse)
-      - [legacy-test-runner](#legacy-test-runner)
-  - [Process runner config](#process-runner-config)
-      - [test-runner](#test-runner)
-  - [Other configuration options](#other-configuration-options)
-      - [log-level](#log-level)
-      - [Excluding specific mutations](#excluding-specific-mutations)
+- [General config](#general-config)
+    - [mutate](#mutate)
+    - [test-filter](#test-filter)
+    - [files](#files)
+    - [base-dir](#base-dir)
+    - [reporters](#reporters)
+    - [excluded-mutations](#excluded-mutations)
+    - [thresholds](#thresholds)
+    - [dashboard.\*](#dashboard)
+- [Sbt plugin config](#sbt-plugin-config)
+    - [timeout-factor](#timeout-factor)
+    - [timeout](#timeout)
+    - [max-test-runner-reuse](#max-test-runner-reuse)
+    - [legacy-test-runner](#legacy-test-runner)
+- [Process runner config](#process-runner-config)
+    - [test-runner](#test-runner)
+- [Other configuration options](#other-configuration-options)
+    - [log-level](#log-level)
+    - [Excluding specific mutations](#excluding-specific-mutations)
 
 ## General config
 

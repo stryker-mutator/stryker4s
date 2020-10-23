@@ -1,4 +1,7 @@
-# Versioning strategy
+---
+sidebar_label: Versioning
+title: Versioning strategy
+---
 
 This document describes how versioning is managed for the Stryker4s project.
 
