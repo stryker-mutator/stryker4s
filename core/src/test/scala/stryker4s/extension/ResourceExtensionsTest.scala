@@ -1,9 +1,9 @@
 package stryker4s.extension
 
+import cats.effect.concurrent.Ref
 import cats.effect.{IO, Resource}
 import stryker4s.extension.ResourceExtensions.SelfRecreatingResource
 import stryker4s.testutil.Stryker4sIOSuite
-import cats.effect.concurrent.Ref
 
 class ResourceExtensionsTest extends Stryker4sIOSuite {
   describe("selfRecreatingResource") {

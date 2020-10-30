@@ -5,15 +5,14 @@ import java.nio.file.{Path, Paths}
 import scala.concurrent.duration._
 
 import better.files.File
-import cats.effect.IO
+import cats.effect.{Blocker, IO}
+import fs2._
+import fs2.io.file
 import mutationtesting.{Metrics, MutationTestReport, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
-import cats.effect.Blocker
-import fs2.io.file
-import fs2._
 
 class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
