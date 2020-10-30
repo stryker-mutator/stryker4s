@@ -1,17 +1,20 @@
 package stryker4s.report
-import java.nio.file.Path
+
+import java.nio.file.{Path, Paths}
 
 import scala.concurrent.duration._
 
 import better.files.File
-import cats.effect.IO
+import cats.effect.{Blocker, IO}
+import fs2._
+import fs2.io.file
 import mutationtesting.{Metrics, MutationTestReport, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
   private val elementsLocation = "/mutation-testing-elements/mutation-test-elements.js"
 
@@ -41,9 +44,10 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
       sut
         .writeIndexHtmlTo(testFile)
-        .unsafeRunSync()
-
-      verify(mockFileIO).createAndWrite(testFile, expectedHtml)
+        .map { _ =>
+          verify(mockFileIO).createAndWrite(testFile, expectedHtml)
+        }
+        .assertNoException
     }
   }
 
@@ -57,28 +61,50 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
       sut
         .writeReportJsTo(testFile, runResults)
-        .unsafeRunSync()
-
-      val expectedJs =
-        """document.querySelector('mutation-test-report-app').report = {"$schema":"https://git.io/mutation-testing-report-schema","schemaVersion":"1","thresholds":{"high":100,"low":0},"files":{}}"""
-      verify(mockFileIO).createAndWrite(testFile, expectedJs)
+        .map { _ =>
+          val expectedJs =
+            """document.querySelector('mutation-test-report-app').report = {"$schema":"https://git.io/mutation-testing-report-schema","schemaVersion":"1","thresholds":{"high":100,"low":0},"files":{}}"""
+          verify(mockFileIO).createAndWrite(testFile, expectedJs)
+        }
+        .assertNoException
     }
   }
 
   describe("mutation-test-elements") {
     it("should write the resource") {
+      // Arrange
       val fileIO = new DiskFileIO()
 
-      File.usingTemporaryDirectory() { tmpDir =>
-        val tempFile = tmpDir / "mutation-test-elements.js"
-        val sut = new HtmlReporter(fileIO)
+      val targetPath = Paths.get("target/mte")
 
-        sut.writeMutationTestElementsJsTo(tempFile.path).attempt.unsafeRunSync()
+      Blocker[IO].use { blocker =>
+        file.createDirectories[IO](blocker, targetPath) *>
+          file.tempDirectoryResource[IO](blocker, targetPath).use { tmpDir =>
+            val tempFile = tmpDir.resolve("mutation-test-elements.js")
+            val sut = new HtmlReporter(fileIO)
 
-        val atLeastSize: Long = 100 * 1024L // 100KB
-        tempFile.size should be > atLeastSize
-        tempFile.lineIterator
-          .next() shouldEqual "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+            // Act
+            sut
+              .writeMutationTestElementsJsTo(tempFile)
+              // Assert
+              .flatMap { _ =>
+                val atLeastSize: Long = 100 * 1024L // 100KB
+                file.size[IO](blocker, tempFile).asserting(_ should be > atLeastSize)
+              }
+              .flatMap { _ =>
+                val expectedHeader = "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+                file
+                  // Read the first line
+                  .readRange[IO](tempFile, blocker, 256, 0, expectedHeader.getBytes().length.toLong)
+                  .through(text.utf8Decode)
+                  .head
+                  .compile
+                  .lastOrError
+                  .asserting(
+                    _ shouldBe expectedHeader
+                  )
+              }
+          }
       }
     }
   }
@@ -94,14 +120,14 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
       sut
         .reportRunFinished(FinishedRunReport(report, metrics, 0.seconds, File("target/stryker4s-report/")))
-        .unsafeRunSync()
-
-      val writtenFilesCaptor = ArgCaptor[Path]
-      verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor, any[String])
-      verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
-      val paths = writtenFilesCaptor.values.map(_.toString())
-      all(paths) should include("/target/stryker4s-report/")
-      writtenFilesCaptor.values.map(_.getFileName().toString()) should contain.only("index.html", "report.js")
+        .asserting { _ =>
+          val writtenFilesCaptor = ArgCaptor[Path]
+          verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor, any[String])
+          verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
+          val paths = writtenFilesCaptor.values.map(_.toString())
+          all(paths) should include("/target/stryker4s-report/")
+          writtenFilesCaptor.values.map(_.getFileName().toString()) should contain.only("index.html", "report.js")
+        }
     }
 
     it("should write the mutation-test-elements.js file to the report directory") {
@@ -114,13 +140,13 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
       sut
         .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/")))
-        .unsafeRunSync()
+        .asserting { _ =>
+          val elementsCaptor = ArgCaptor[Path]
+          verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
+          verify(mockFileIO).createAndWriteFromResource(elementsCaptor, eqTo(elementsLocation))
 
-      val elementsCaptor = ArgCaptor[Path]
-      verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
-      verify(mockFileIO).createAndWriteFromResource(elementsCaptor, eqTo(elementsLocation))
-
-      elementsCaptor.value.toString should endWith("/target/stryker4s-report/mutation-test-elements.js")
+          elementsCaptor.value.toString should endWith("/target/stryker4s-report/mutation-test-elements.js")
+        }
     }
 
     it("should info log a message") {
@@ -133,13 +159,13 @@ class HtmlReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val reportFile = File("target/stryker4s-report/")
       sut
         .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, reportFile))
-        .unsafeRunSync()
-
-      val captor = ArgCaptor[Path]
-      verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
-      verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
-      verify(mockFileIO).createAndWriteFromResource(any[Path], any[String])
-      s"Written HTML report to ${reportFile.toString()}/index.html" shouldBe loggedAsInfo
+        .asserting { _ =>
+          val captor = ArgCaptor[Path]
+          verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
+          verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
+          verify(mockFileIO).createAndWriteFromResource(any[Path], any[String])
+          s"Written HTML report to ${reportFile.toString()}/index.html" shouldBe loggedAsInfo
+        }
     }
   }
 }

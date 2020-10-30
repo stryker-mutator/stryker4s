@@ -9,11 +9,11 @@ import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 import sttp.client._
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
-class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("buildRequest") {
     it("should compose the request") {
       implicit val backend = backendStub
@@ -74,9 +74,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
       sut
         .reportRunFinished(runReport)
-        .unsafeRunSync()
-
-      "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+        .asserting { _ =>
+          "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+        }
     }
 
     it("log when not being able to resolve dashboard config") {
@@ -88,9 +88,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
       sut
         .reportRunFinished(runReport)
-        .unsafeRunSync()
-
-      "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+        .asserting { _ =>
+          "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
+        }
     }
 
     it("should log when a response can't be parsed to a href") {
@@ -102,9 +102,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
       sut
         .reportRunFinished(runReport)
-        .unsafeRunSync()
-
-      "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+        .asserting { _ =>
+          "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+        }
     }
 
     it("should log when a 401 is returned by the API") {
@@ -117,9 +117,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
       sut
         .reportRunFinished(runReport)
-        .unsafeRunSync()
-
-      "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+        .asserting { _ =>
+          "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+        }
     }
 
     it("should log when a error code is returned by the API") {
@@ -134,9 +134,9 @@ class DashboardReporterTest extends Stryker4sSuite with MockitoSuite with LogMat
 
       sut
         .reportRunFinished(runReport)
-        .unsafeRunSync()
-
-      "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+        .asserting { _ =>
+          "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+        }
     }
   }
 

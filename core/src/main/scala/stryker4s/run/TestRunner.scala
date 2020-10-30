@@ -59,7 +59,7 @@ object TestRunner {
       }
     }
 
-  def retryRunner(inner: Resource[IO, TestRunner]): Resource[IO, TestRunner] =
+  def retryRunner(inner: Resource[IO, TestRunner])(implicit cs: ContextShift[IO]): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner with Logging {
@@ -90,7 +90,9 @@ object TestRunner {
       }
     }
 
-  def maxReuseTestRunner(maxReuses: Int, inner: Resource[IO, TestRunner]): Resource[IO, TestRunner] =
+  def maxReuseTestRunner(maxReuses: Int, inner: Resource[IO, TestRunner])(implicit
+      cs: ContextShift[IO]
+  ): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner with Logging {
