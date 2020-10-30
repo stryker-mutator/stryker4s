@@ -1,11 +1,10 @@
 package stryker4s
 
-import scala.concurrent.ExecutionContext
 import scala.meta._
 import scala.util.Success
 
 import better.files.File
-import cats.effect.{IO, Resource, Timer}
+import cats.effect.{IO, Resource}
 import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
@@ -22,7 +21,6 @@ import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside with LogMatchers {
-  implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 
   case class TestTestRunnerContext() extends TestRunnerContext
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
