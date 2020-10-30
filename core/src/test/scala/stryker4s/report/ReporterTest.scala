@@ -9,9 +9,9 @@ import mutationtesting._
 import stryker4s.extension.mutationtype.GreaterThan
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
@@ -24,9 +24,10 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
       sut
         .reportRunFinished(runReport)
-        .unsafeRunSync()
-
-      verify(consoleReporterMock).reportRunFinished(runReport)
+        .map { _ =>
+          verify(consoleReporterMock).reportRunFinished(runReport)
+        }
+        .assertNoException
     }
 
     describe("reportMutationStart") {
@@ -39,10 +40,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
         sut
           .reportMutationStart(mutantMock)
-          .unsafeRunSync()
-
-        verify(consoleReporterMock).reportMutationStart(mutantMock)
-        verify(progressReporterMock).reportMutationStart(mutantMock)
+          .map { _ =>
+            verify(consoleReporterMock).reportMutationStart(mutantMock)
+            verify(progressReporterMock).reportMutationStart(mutantMock)
+          }
+          .assertNoException
       }
 
       it("Should not report to finishedRunReporters that is mutation run is started.") {
@@ -53,10 +55,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
         val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
         sut
           .reportMutationStart(mutantMock)
-          .unsafeRunSync()
-
-        verify(consoleReporterMock).reportMutationStart(mutantMock)
-        verifyZeroInteractions(finishedRunReporterMock)
+          .map { _ =>
+            verify(consoleReporterMock).reportMutationStart(mutantMock)
+            verifyZeroInteractions(finishedRunReporterMock)
+          }
+          .assertNoException
       }
     }
 
@@ -71,10 +74,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
         sut
           .reportMutationComplete(mutantRunResultMock, 1)
-          .unsafeRunSync()
-
-        verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
-        verify(progressReporterMock).reportMutationComplete(mutantRunResultMock, 1)
+          .map { _ =>
+            verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
+            verify(progressReporterMock).reportMutationComplete(mutantRunResultMock, 1)
+          }
+          .assertNoException
       }
 
       it("should not report to finishedMutationRunReporters that a mutation run is completed") {
@@ -86,10 +90,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
         sut
           .reportMutationComplete(mutantRunResultMock, 1)
-          .unsafeRunSync()
-
-        verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
-        verifyZeroInteractions(finishedRunReporterMock)
+          .map { _ =>
+            verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
+            verifyZeroInteractions(finishedRunReporterMock)
+          }
+          .assertNoException
       }
     }
 
@@ -106,10 +111,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
         sut
           .reportRunFinished(runReport)
-          .unsafeRunSync()
-
-        verify(consoleReporterMock).reportRunFinished(runReport)
-        verify(finishedRunReporterMock).reportRunFinished(runReport)
+          .map { _ =>
+            verify(consoleReporterMock).reportRunFinished(runReport)
+            verify(finishedRunReporterMock).reportRunFinished(runReport)
+          }
+          .assertNoException
       }
 
       it("should not report a finished mutation run to a progress reporter") {
@@ -123,10 +129,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
         sut
           .reportRunFinished(runReport)
-          .unsafeRunSync()
-
-        verify(consoleReporterMock).reportRunFinished(runReport)
-        verifyZeroInteractions(progressReporterMock)
+          .map { _ =>
+            verify(consoleReporterMock).reportRunFinished(runReport)
+            verifyZeroInteractions(progressReporterMock)
+          }
+          .assertNoException
       }
 
       it("should still call other reporters if a reporter throws an exception") {
@@ -142,9 +149,10 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
         sut
           .reportRunFinished(runReport)
-          .unsafeRunSync()
-
-        verify(progressReporterMock).reportRunFinished(runReport)
+          .map { _ =>
+            verify(progressReporterMock).reportRunFinished(runReport)
+          }
+          .assertNoException
       }
 
       describe("logging") {
@@ -164,10 +172,10 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
           sut
             .reportRunFinished(runReport)
-            .unsafeRunSync()
-
-          failedToReportMessage shouldBe loggedAsWarning
-          exceptionMessage shouldBe loggedAsWarning
+            .map { _ =>
+              failedToReportMessage shouldBe loggedAsWarning
+              exceptionMessage shouldBe loggedAsWarning
+            }
         }
 
         it("should not log warnings if no exceptions occur") {
@@ -177,11 +185,11 @@ class ReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
 
           sut
             .reportRunFinished(runReport)
-            .unsafeRunSync()
-
-          verify(consoleReporterMock).reportRunFinished(runReport)
-          failedToReportMessage should not be loggedAsWarning
-          exceptionMessage should not be loggedAsWarning
+            .map { _ =>
+              verify(consoleReporterMock).reportRunFinished(runReport)
+              failedToReportMessage should not be loggedAsWarning
+              exceptionMessage should not be loggedAsWarning
+            }
         }
       }
     }

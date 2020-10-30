@@ -1,12 +1,13 @@
 package stryker4s.extension
 
 import cats.effect.concurrent.Ref
-import cats.effect.{Resource, Sync}
-import cats.syntax.all._
+import cats.effect.{Concurrent, Resource}
+import cats.syntax.flatMap._
+import fs2.Hotswap
 
 object ResourceExtensions {
 
-  implicit class SelfRecreatingResource[F[_], A <: AnyRef](startResource: Resource[F, A]) {
+  implicit class SelfRecreatingResource[F[_], A](startResource: Resource[F, A]) {
 
     /** Build a resource that can destroy and recreate the 'inner' resource by evaluating a passed `F[Unit]`. The inner resource value is available inside a thread-safe mutable `Ref`
       *
@@ -15,21 +16,13 @@ object ResourceExtensions {
       *   - A `F[Unit]` that releases the 'old' Resource and recreates a new one to store in the `Ref`
       * @return The new resource created with @param f
       */
-    def selfRecreatingResource(f: (Ref[F, A], F[Unit]) => F[A])(implicit F: Sync[F]): Resource[F, A] = {
-      val allocatedF = for {
-        innerState <- startResource.allocated.flatMap(Ref.of(_))
-
-        releaseAndSwapF = innerState.get.flatMap(_._2) *> // Release old
-          startResource.allocated.flatMap(innerState.set(_)) // Set new
-
-        // lens of the `A` in the Ref to pass to the builder function
-        refOfA = Ref.lens(innerState)(_._1, r => (a: A) => (a, r._2))
-
-        newA <- f(refOfA, releaseAndSwapF)
-        innerRelease = innerState.get.flatMap(_._2)
-      } yield (newA, innerRelease)
-
-      Resource(allocatedF)
-    }
+    def selfRecreatingResource(f: (Ref[F, A], F[Unit]) => F[A])(implicit F: Concurrent[F]): Resource[F, A] =
+      Hotswap(startResource).evalMap { case (hotswap, r) =>
+        Ref[F].of(r).flatMap { ref =>
+          // .clear to run the finalizer of the existing resource first before starting a new one
+          val releaseAndSwapF = F.guarantee(hotswap.clear)(hotswap.swap(startResource).flatMap(ref.set(_)))
+          f(ref, releaseAndSwapF)
+        }
+      }
   }
 }

@@ -19,9 +19,9 @@ import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with LogMatchers {
+class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside with LogMatchers {
   implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 
   case class TestTestRunnerContext() extends TestRunnerContext
@@ -37,16 +37,17 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
   }
 
   describe("run") {
-    val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-    val testFiles = Seq(file)
-    val testSourceCollector = new TestSourceCollector(testFiles)
-    val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
-    val reporterMock = mock[AggregateReporter]
-    when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-    when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
-    when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
 
     it("should call mutate files and report the results") {
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val testFiles = Seq(file)
+      val testSourceCollector = new TestSourceCollector(testFiles)
+      val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
+      val reporterMock = mock[AggregateReporter]
+      when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
+      when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
+      when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
+
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
       val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner), reporterMock)
@@ -61,21 +62,21 @@ class Stryker4sTest extends Stryker4sSuite with MockitoSuite with Inside with Lo
         testMutantRunner
       )
 
-      val result = sut.run().unsafeRunSync()
+      sut.run().asserting { result =>
+        val startCaptor = ArgCaptor[Mutant]
+        verify(reporterMock, times(4)).reportMutationStart(startCaptor)
+        startCaptor.values should matchPattern {
+          case List(Mutant(0, _, _, _), Mutant(1, _, _, _), Mutant(2, _, _, _), Mutant(3, _, _, _)) =>
+        }
+        val runReportMock = ArgCaptor[FinishedRunReport]
+        verify(reporterMock).reportRunFinished(runReportMock)
+        val FinishedRunReport(reportedResults, _, _, _) = runReportMock.value
 
-      val startCaptor = ArgCaptor[Mutant]
-      verify(reporterMock, times(4)).reportMutationStart(startCaptor)
-      startCaptor.values should matchPattern {
-        case List(Mutant(0, _, _, _), Mutant(1, _, _, _), Mutant(2, _, _, _), Mutant(3, _, _, _)) =>
-      }
-      val runReportMock = ArgCaptor[FinishedRunReport]
-      verify(reporterMock).reportRunFinished(runReportMock)
-      val FinishedRunReport(reportedResults, _, _, _) = runReportMock.value
-
-      result shouldBe SuccessStatus
-      reportedResults.files.flatMap(_._2.mutants) should have size 4
-      reportedResults.files.foreach { case (path, _) =>
-        path shouldBe "simpleFile.scala"
+        reportedResults.files.flatMap(_._2.mutants) should have size 4
+        reportedResults.files.map { case (path, _) =>
+          path shouldBe "simpleFile.scala"
+        }
+        result shouldBe SuccessStatus
       }
     }
   }

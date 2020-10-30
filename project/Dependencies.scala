@@ -19,6 +19,7 @@ object Dependencies {
     val scalameta = "4.3.24"
     val pureconfig = "0.14.0"
     val scalatest = "3.2.2"
+    val catsEffectScalaTest = "0.4.1"
     val mockitoScala = "1.16.0"
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
@@ -35,6 +36,8 @@ object Dependencies {
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
+    // For easier testing with IO
+    val catsEffectScalaTest = "com.codecommit" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
   }
 
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface

@@ -1,11 +1,15 @@
 package stryker4s.testutil
 
-import scala.concurrent.ExecutionContext
-
-import cats.effect.{ContextShift, IO}
-import org.scalatest.funspec.AnyFunSpec
+import cats.effect.testing.scalatest.{AssertingSyntax, AsyncIOSpec}
+import org.scalatest.funspec.{AnyFunSpec, AsyncFunSpec}
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{LoneElement, OptionValues}
-abstract class Stryker4sSuite extends AnyFunSpec with Matchers with OptionValues with LoneElement {
-  implicit lazy val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-}
+import org.scalatest.{LoneElement, OptionValues, Suite}
+
+private[testutil] trait Stryker4sBaseSuite extends Matchers with OptionValues with LoneElement { this: Suite => }
+
+abstract class Stryker4sSuite extends AnyFunSpec with Stryker4sBaseSuite
+
+/** Base suite making it easier to test IO-based code
+  * Every test is forced to return a `IO[scalatest.Assertion]`
+  */
+abstract class Stryker4sIOSuite extends AsyncFunSpec with Stryker4sBaseSuite with AsyncIOSpec with AssertingSyntax

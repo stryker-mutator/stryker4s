@@ -15,6 +15,7 @@ object Settings {
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
+      Dependencies.test.catsEffectScalaTest,
       Dependencies.pureconfig,
       Dependencies.pureconfigSttp,
       Dependencies.scalameta,

@@ -1,6 +1,6 @@
 package stryker4s.run
 
-import scala.concurrent.{ExecutionContext, TimeoutException}
+import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
 
@@ -15,11 +15,10 @@ import stryker4s.report.{AggregateReporter, FinishedRunReport}
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
-  implicit private val timer = IO.timer(ExecutionContext.global)
 
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[AggregateReporter]
@@ -37,12 +36,12 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(List(mutatedFile)).unsafeRunSync()
-
-      testProcessRunner.timesCalled.next() should equal(1)
-      result.mutationScore shouldBe 00.00
-      result.totalMutants shouldBe 1
-      result.survived shouldBe 1
+      sut(List(mutatedFile)).asserting { result =>
+        testProcessRunner.timesCalled.next() should equal(1)
+        result.mutationScore shouldBe 00.00
+        result.totalMutants shouldBe 1
+        result.survived shouldBe 1
+      }
     }
 
     it("should return a Killed mutant on an exitcode 1 process") {
@@ -54,12 +53,12 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(List(mutatedFile)).unsafeRunSync()
-
-      testProcessRunner.timesCalled.next() should equal(1)
-      result.mutationScore shouldBe 100.00
-      result.totalMutants shouldBe 1
-      result.killed shouldBe 1
+      sut(List(mutatedFile)).asserting { result =>
+        testProcessRunner.timesCalled.next() should equal(1)
+        result.mutationScore shouldBe 100.00
+        result.totalMutants shouldBe 1
+        result.killed shouldBe 1
+      }
     }
 
     it("should return a TimedOut mutant on a TimedOut process") {
@@ -72,12 +71,12 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(List(mutatedFile)).unsafeRunSync()
-
-      testProcessRunner.timesCalled.next() should equal(1)
-      result.mutationScore shouldBe 100.00
-      result.totalMutants shouldBe 1
-      result.timeout shouldBe 1
+      sut(List(mutatedFile)).asserting { result =>
+        testProcessRunner.timesCalled.next() should equal(1)
+        result.mutationScore shouldBe 100.00
+        result.totalMutants shouldBe 1
+        result.timeout shouldBe 1
+      }
     }
 
     it("should return a combination of results on multiple runs") {
@@ -91,13 +90,13 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(List(mutatedFile)).unsafeRunSync()
+      sut(List(mutatedFile)).asserting { result =>
+        testProcessRunner.timesCalled.next() should equal(2)
 
-      testProcessRunner.timesCalled.next() should equal(2)
-
-      result.mutationScore shouldBe 100.00
-      result.totalMutants shouldBe 2
-      result.killed shouldBe 2
+        result.mutationScore shouldBe 100.00
+        result.totalMutants shouldBe 2
+        result.killed shouldBe 2
+      }
     }
 
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
@@ -112,14 +111,14 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List(file))
 
-      val result = sut(List(mutatedFile)).unsafeRunSync()
+      sut(List(mutatedFile)).asserting { result =>
+        testProcessRunner.timesCalled.next() should equal(3)
 
-      testProcessRunner.timesCalled.next() should equal(3)
-
-      result.mutationScore shouldBe ((2d / 3d) * 100)
-      result.totalMutants shouldBe 3
-      result.killed shouldBe 2
-      result.survived shouldBe 1
+        result.mutationScore shouldBe ((2d / 3d) * 100)
+        result.totalMutants shouldBe 3
+        result.killed shouldBe 2
+        result.survived shouldBe 1
+      }
     }
 
     it("should throw an exception when the initial test run fails") {
@@ -128,7 +127,7 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
       when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
-      an[InitialTestRunFailedException] shouldBe thrownBy(sut(List.empty).unsafeRunSync())
+      sut(List.empty).assertThrows[InitialTestRunFailedException]
     }
     describe("Log tests") {
       it("should properly log the initial test run") {
@@ -137,10 +136,10 @@ class ProcessMutantRunnerTest extends Stryker4sSuite with MockitoSuite with LogM
 
         when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
-        sut(List.empty).unsafeRunSync()
-
-        "Starting initial test run..." shouldBe loggedAsInfo
-        "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
+        sut(List.empty).asserting { _ =>
+          "Starting initial test run..." shouldBe loggedAsInfo
+          "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
+        }
       }
     }
   }

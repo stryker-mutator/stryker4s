@@ -2,43 +2,36 @@ package stryker4s.extension
 
 import cats.effect.{IO, Resource}
 import stryker4s.extension.ResourceExtensions.SelfRecreatingResource
-import stryker4s.testutil.Stryker4sSuite
-import java.util.concurrent.atomic.AtomicInteger
+import stryker4s.testutil.Stryker4sIOSuite
 import cats.effect.concurrent.Ref
 
-class ResourceExtensionsTest extends Stryker4sSuite {
+class ResourceExtensionsTest extends Stryker4sIOSuite {
   describe("selfRecreatingResource") {
-    it("should create itself only once") {
-      val created = new AtomicInteger(0)
-      val closed = new AtomicInteger(0)
-      val resource =
-        Resource.make(IO { created.incrementAndGet(); created })(_ => IO(closed.incrementAndGet()).void)
+    it("should create a resource only once when not using the release F") {
+      val op = for {
+        log <- Ref[IO].of(List.empty[String])
+        _ <- logged(log)
+          .selfRecreatingResource { case (_, _) => IO.unit }
+          .use(_ => log.get.asserting(_ should contain.only("open")))
+        value <- log.get
+      } yield value
 
-      val sut = resource.selfRecreatingResource { case (_: Ref[IO, AtomicInteger], _: IO[Unit]) => IO.pure(created) }
-      sut.use(_ => IO(closed.get() shouldBe 0)).unsafeRunSync()
-
-      created.get() shouldBe 1
-      closed.get() shouldBe 1
+      op.asserting(_ shouldBe List("open", "close"))
     }
 
-    it("should close when evaluating the close IO") {
-      val created = new AtomicInteger(0)
-      val closed = new AtomicInteger(0)
-      val resource =
-        Resource.make(IO { created.incrementAndGet(); created })(_ => IO(closed.incrementAndGet()).void)
+    it("should close first before creating a new Resource") {
+      val op = for {
+        log <- Ref[IO].of(List.empty[String])
+        _ <- logged(log)
+          .selfRecreatingResource { case (_, release) => release }
+          .use(_ => log.get.map(_ shouldBe List("open", "close", "open")))
+        value <- log.get
+      } yield value
 
-      val sut = resource.selfRecreatingResource { case (_, release) => release *> IO.pure(created) }
-      sut
-        .use(_ =>
-          IO {
-            created.get() shouldBe 2
-            closed.get() shouldBe 1
-          }
-        )
-        .unsafeRunSync()
-
-      created.get() shouldBe 2
-      closed.get() shouldBe 2
+      op.asserting(_ shouldBe List("open", "close", "open", "close"))
     }
+
+    def logged(log: Ref[IO, List[String]]): Resource[IO, Unit] =
+      Resource.make(log.update(_ :+ "open"))(_ => log.update(_ :+ "close"))
   }
 }
