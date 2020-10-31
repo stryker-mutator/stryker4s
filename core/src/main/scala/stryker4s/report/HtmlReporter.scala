@@ -28,6 +28,14 @@ class HtmlReporter(fileIO: FileIO)(implicit p: Parallel[IO]) extends FinishedRun
        |    Your browser doesn't support <a href="https://caniuse.com/#search=custom%20elements">custom elements</a>.
        |    Please use a latest version of an evergreen browser (Firefox, Chrome, Safari, Opera, etc).
        |  </mutation-test-report-app>
+       |  <script>
+       |    const app = document.getElementsByTagName('mutation-test-report-app').item(0)
+       |    function updateTheme() {
+       |      document.body.style.backgroundColor = app.theme === 'dark' ? '#222' : '#fff';
+       |    }
+       |    app.addEventListener('theme-changed', updateTheme);
+       |    updateTheme();
+       |  </script>
        |  <script src="$reportFilename"></script>
        |</body>
        |</html>""".stripMargin
