@@ -37,7 +37,7 @@ After adding the plugin, Stryker4s can be used by running `sbt stryker` in the r
 
 ### Multi-module projects
 
-Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/CONFIGURATION.md#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
+Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
 
 ## Maven plugin
 
@@ -65,7 +65,7 @@ Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapsho
 
 ## Configuration
 
-See [CONFIGURATION.md](docs/CONFIGURATION.md) for setting up your `stryker4s.conf` file (optional).
+See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configuration) for setting up your `stryker4s.conf` file (optional).
 
 ## Supported mutators
 
@@ -80,4 +80,4 @@ See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) f
 
 ## Contributing
 
-Want to contribute? That's great! Please have a look at our [contributing guide](docs/CONTRIBUTING.md).
+Want to contribute? That's great! Please have a look at our [contributing guide](https://stryker-mutator.io/docs/stryker4s/contributing).
