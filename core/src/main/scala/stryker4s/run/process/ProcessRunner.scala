@@ -6,13 +6,13 @@ import scala.util.Try
 
 import better.files.File
 import cats.effect.IO
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 
-trait ProcessRunner extends Logging {
+abstract class ProcessRunner(implicit log: Logger) {
   def apply(command: Command, workingDir: File): Try[Seq[String]] = {
     Try {
       Process(s"${command.command} ${command.args}", workingDir.toJava)
-        .!!<(ProcessLogger(debug(_)))
+        .!!<(ProcessLogger(log.debug(_)))
         .linesIterator
         .toSeq
     }
@@ -20,7 +20,7 @@ trait ProcessRunner extends Logging {
 
   def apply(command: Command, workingDir: File, envVar: (String, String)): Try[Int] = {
     val mutantProcess = Process(s"${command.command} ${command.args}", workingDir.toJava, envVar)
-      .run(ProcessLogger(debug(_)))
+      .run(ProcessLogger(log.debug(_)))
 
     val exitCodeFuture = IO(mutantProcess.exitValue())
     // TODO: Maybe don't use unsafeRunTimed
@@ -32,7 +32,7 @@ trait ProcessRunner extends Logging {
 object ProcessRunner {
   private def isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
 
-  def apply(): ProcessRunner = {
+  def apply()(implicit log: Logger): ProcessRunner = {
     if (isWindows) new WindowsProcessRunner
     else new UnixProcessRunner
   }

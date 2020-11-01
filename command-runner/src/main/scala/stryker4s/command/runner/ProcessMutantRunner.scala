@@ -11,13 +11,14 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
 import stryker4s.run.process.{Command, ProcessRunner}
+import stryker4s.log.Logger
 
 class ProcessMutantRunner(
     command: Command,
     processRunner: ProcessRunner,
     sourceCollector: SourceCollector,
     reporter: Reporter
-)(implicit config: Config, timer: Timer[IO], cs: ContextShift[IO])
+)(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO])
     extends MutantRunner(sourceCollector, reporter) {
   type Context = CommandRunnerContext
 

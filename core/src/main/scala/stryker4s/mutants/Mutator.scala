@@ -3,13 +3,14 @@ package stryker4s.mutants
 import scala.meta.Tree
 
 import better.files.File
-import grizzled.slf4j.Logging
 import stryker4s.model.{MutatedFile, MutationsInSource, SourceTransformations}
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
+import stryker4s.log.Logger
 
-class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)
-    extends Logging {
+class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)(implicit
+    log: Logger
+) {
   def mutate(files: Iterable[File]): Iterable[MutatedFile] = {
     val mutatedFiles = files
       .map { file =>
@@ -45,18 +46,18 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
     val excludedMutants = mutatedFiles.map(_.excludedMutants).sum
     val totalMutants = includedMutants + excludedMutants
 
-    info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
-    info(s"$totalMutants Mutant(s) generated.${if (excludedMutants > 0)
+    log.info(s"Found ${mutatedFiles.size} of $totalAmountOfFiles file(s) to be mutated.")
+    log.info(s"$totalMutants Mutant(s) generated.${if (excludedMutants > 0)
       s" Of which $excludedMutants Mutant(s) are excluded."
     else ""}")
 
     if (totalAmountOfFiles == 0) {
-      warn(s"No files marked to be mutated. ${dryRunText("mutate")}")
+      log.warn(s"No files marked to be mutated. ${dryRunText("mutate")}")
     } else if (includedMutants == 0 && excludedMutants > 0) {
-      warn(s"All found mutations are excluded. ${dryRunText("excluded-mutations")}")
+      log.warn(s"All found mutations are excluded. ${dryRunText("excluded-mutations")}")
     } else if (totalMutants == 0) {
-      info("Files to be mutated are found, but no mutations were found in those files.")
-      info("If this is not intended, please check your configuration and try again.")
+      log.info("Files to be mutated are found, but no mutations were found in those files.")
+      log.info("If this is not intended, please check your configuration and try again.")
     }
 
     def dryRunText(configProperty: String): String =

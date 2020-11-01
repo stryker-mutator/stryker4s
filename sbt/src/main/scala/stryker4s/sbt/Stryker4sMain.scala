@@ -2,16 +2,13 @@ package stryker4s.sbt
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.language.implicitConversions
 
 import cats.effect.{ContextShift, IO => CatsIO, Timer}
-import org.apache.logging.log4j.core.LoggerContext
-import org.apache.logging.log4j.core.config.Configurator
-import org.apache.logging.log4j.{Level => Log4jLevel}
 import sbt.Keys._
 import sbt._
 import sbt.plugins._
 import stryker4s.run.threshold.ErrorStatus
+import stryker4s.log.{Logger, SbtLogger}
 
 /** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
   */
@@ -45,7 +42,7 @@ object Stryker4sMain extends AutoPlugin {
   lazy val strykerImpl = Def.task {
     implicit val cs: ContextShift[CatsIO] = CatsIO.contextShift(implicitly[ExecutionContext])
     implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
-    setStrykerLogLevel((logLevel in stryker).value)
+    implicit val logger: Logger = new SbtLogger(streams.value.log)
 
     new Stryker4sSbtRunner(state.value)
       .run()
@@ -64,19 +61,6 @@ object Stryker4sMain extends AutoPlugin {
       )
     throwVersionException()
   }
-
-  private def setStrykerLogLevel(level: Level.Value): Unit = {
-    Configurator.setRootLevel(level)
-    LoggerContext.getContext(false).getRootLogger.info(s"Set stryker4s logging level to $level")
-  }
-
-  implicit private[this] def toLog4jLogLevel(level: Level.Value): Log4jLevel =
-    level match {
-      case Level.Warn  => Log4jLevel.WARN
-      case Level.Error => Log4jLevel.ERROR
-      case Level.Debug => Log4jLevel.DEBUG
-      case _           => Log4jLevel.INFO
-    }
 
   private class UnsupportedSbtVersionException(s: String)
       extends IllegalArgumentException(s)

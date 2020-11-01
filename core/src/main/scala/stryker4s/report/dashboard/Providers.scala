@@ -1,8 +1,7 @@
 package stryker4s.report.dashboard
-import grizzled.slf4j.Logging
 import stryker4s.env.Environment
 
-object Providers extends Logging {
+object Providers {
   def determineCiProvider(env: Environment): Option[CiProvider] =
     if (readEnvironmentVariable("TRAVIS", env).isDefined) {
       Some(new TravisProvider(env))

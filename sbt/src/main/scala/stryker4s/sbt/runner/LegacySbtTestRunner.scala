@@ -1,7 +1,7 @@
 package stryker4s.sbt.runner
 
 import cats.effect.IO
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 import sbt.Keys._
 import sbt.Tests.Output
 import sbt._
@@ -9,9 +9,9 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model.{Error, Killed, Mutant, MutantRunResult, Survived}
 import stryker4s.run.TestRunner
 
-class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)
-    extends TestRunner
-    with Logging {
+class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)(implicit
+    log: Logger
+) extends TestRunner {
   def initialTestRun(): IO[Boolean] = runTests(
     initialState,
     throw InitialTestRunFailedException(
@@ -27,7 +27,7 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], ex
     runTests(
       mutationState,
       onError = {
-        error(s"An unexpected error occurred while running mutation ${mutant.id}")
+        log.error(s"An unexpected error occurred while running mutation ${mutant.id}")
         Error(mutant)
       },
       onSuccess = Survived(mutant),

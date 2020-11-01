@@ -1,33 +1,33 @@
 package stryker4s.report
 
 import cats.effect.IO
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions._
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
 
-class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with ProgressReporter with Logging {
+class ConsoleReporter(implicit config: Config, log: Logger) extends FinishedRunReporter with ProgressReporter {
   private[this] val mutationScoreString = "Mutation score:"
 
   override def reportMutationStart(mutant: Mutant): IO[Unit] =
     IO {
-      info(s"Starting test-run ${mutant.id + 1}...")
+      log.info(s"Starting test-run ${mutant.id + 1}...")
     }
 
   override def reportMutationComplete(mutant: MutantRunResult, totalMutants: Int): IO[Unit] =
     IO {
       val id = mutant.mutant.id + 1
-      info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
+      log.info(s"Finished mutation run $id/$totalMutants (${((id / totalMutants.toDouble) * 100).round}%)")
     }
 
   override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] =
     IO {
       val FinishedRunReport(report, metrics, duration, _) = runReport
 
-      info(s"Mutation run finished! Took ${duration.toHumanReadable}")
-      info(
+      log.info(s"Mutation run finished! Took ${duration.toHumanReadable}")
+      log.info(
         s"Total mutants: ${metrics.totalMutants}, detected: ${metrics.totalDetected}, undetected: ${metrics.totalUndetected}"
       )
 
@@ -38,19 +38,19 @@ class ConsoleReporter(implicit config: Config) extends FinishedRunReporter with 
         .partition(m => isDetected(m._2))
       val (undetectedMutants, _) = rest partition (m => isUndetected(m._2))
 
-      debug(resultToString("Detected", detectedMutants))
-      info(resultToString("Undetected", undetectedMutants))
+      log.debug(resultToString("Detected", detectedMutants))
+      log.info(resultToString("Undetected", undetectedMutants))
 
       val scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
       val mutationScoreRounded = metrics.mutationScore.roundDecimals(2)
       scoreStatus match {
-        case SuccessStatus => info(s"$mutationScoreString $mutationScoreRounded%")
-        case WarningStatus => warn(s"$mutationScoreString $mutationScoreRounded%")
+        case SuccessStatus => log.info(s"$mutationScoreString $mutationScoreRounded%")
+        case WarningStatus => log.warn(s"$mutationScoreString $mutationScoreRounded%")
         case DangerStatus =>
-          error(s"Mutation score dangerously low!")
-          error(s"$mutationScoreString $mutationScoreRounded%")
+          log.error(s"Mutation score dangerously low!")
+          log.error(s"$mutationScoreString $mutationScoreRounded%")
         case ErrorStatus =>
-          error(
+          log.error(
             s"Mutation score below threshold! Score: $mutationScoreRounded%. Threshold: ${config.thresholds.break}%"
           )
       }

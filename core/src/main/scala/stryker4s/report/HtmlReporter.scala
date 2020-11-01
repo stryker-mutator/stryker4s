@@ -4,11 +4,11 @@ import java.nio.file.Path
 
 import cats.Parallel
 import cats.effect.IO
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 import mutationtesting._
 import stryker4s.files.FileIO
 
-class HtmlReporter(fileIO: FileIO)(implicit p: Parallel[IO]) extends FinishedRunReporter with Logging {
+class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extends FinishedRunReporter {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -64,6 +64,6 @@ class HtmlReporter(fileIO: FileIO)(implicit p: Parallel[IO]) extends FinishedRun
       writeMutationTestElementsJsTo(mutationTestElementsLocation.path)
 
     reportsWriting *>
-      IO(info(s"Written HTML report to $indexLocation"))
+      IO(log.info(s"Written HTML report to $indexLocation"))
   }
 }

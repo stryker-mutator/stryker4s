@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 
 import cats.effect.concurrent.{Deferred, Ref}
 import cats.effect.{ContextShift, IO, Resource, Timer}
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 import stryker4s.config.Config
 import stryker4s.extension.CatsEffectExtensions._
 import stryker4s.extension.ResourceExtensions._
@@ -21,12 +21,13 @@ object TestRunner {
 
   def timeoutRunner(timeout: Deferred[IO, FiniteDuration], inner: Resource[IO, TestRunner])(implicit
       config: Config,
+      log: Logger,
       timer: Timer[IO],
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
-        new TestRunner with Logging {
+        new TestRunner {
           override def runMutant(mutant: Mutant): IO[MutantRunResult] =
             for {
               runner <- testRunnerRef.get
@@ -35,7 +36,7 @@ object TestRunner {
                 .runMutant(mutant)
                 .timeoutTo(
                   time,
-                  IO(debug(s"Mutant ${mutant.id} timed out over ${time.toCoarsest}")) *>
+                  IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toCoarsest}")) *>
                     releaseAndSwap
                       .as(TimedOut(mutant))
                 )
@@ -49,7 +50,7 @@ object TestRunner {
               _ <-
                 if (result)
                   timeout.complete(newTimeout) *>
-                    IO(info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
+                    IO(log.info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
                 else IO.unit
             } yield result
 
@@ -59,10 +60,12 @@ object TestRunner {
       }
     }
 
-  def retryRunner(inner: Resource[IO, TestRunner])(implicit cs: ContextShift[IO]): Resource[IO, TestRunner] =
+  def retryRunner(
+      inner: Resource[IO, TestRunner]
+  )(implicit log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
-        new TestRunner with Logging {
+        new TestRunner {
 
           override def runMutant(mutant: Mutant): IO[MutantRunResult] =
             retryRunMutation(mutant)
@@ -72,7 +75,7 @@ object TestRunner {
               // On error, get a new testRunner and set it
               case Left(_) =>
                 IO(
-                  info(
+                  log.info(
                     s"TestRunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant ${retriesLeft} more time(s)"
                   )
                 ) *>
@@ -91,17 +94,18 @@ object TestRunner {
     }
 
   def maxReuseTestRunner(maxReuses: Int, inner: Resource[IO, TestRunner])(implicit
+      log: Logger,
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
-        new TestRunner with Logging {
+        new TestRunner {
           def runMutant(mutant: Mutant): IO[MutantRunResult] = for {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner
               if (uses >= maxReuses)
-                IO(info(s"Testrunner has run for $uses times. Restarting it...")) *>
+                IO(log.info(s"Testrunner has run for $uses times. Restarting it...")) *>
                   releaseAndSwap *>
                   usesRef.set(1)
               else IO.unit

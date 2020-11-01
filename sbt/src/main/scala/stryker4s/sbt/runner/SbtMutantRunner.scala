@@ -15,9 +15,11 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
+import stryker4s.log.Logger
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
+    log: Logger,
     timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends MutantRunner(sourceCollector, reporter) {
@@ -38,7 +40,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
       settings: Seq[Def.Setting[_]],
       extracted: Extracted
   ): Resource[IO, TestRunner] = {
-    info("Using the legacy sbt testrunner")
+    log.info("Using the legacy sbt testrunner")
 
     val emptyLogManager =
       LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
@@ -59,7 +61,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
       extracted: Extracted
   ): Resource[IO, TestRunner] = {
     val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
-    debug(s"Resolved stryker4s version $stryker4sVersion")
+    log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
     val fullSettings = settings ++ Seq(
       libraryDependencies +=
@@ -70,7 +72,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
       Project.runTask(task, newState) match {
         case Some((_, Value(result))) => result
         case other =>
-          debug(s"Expected $name but got $other")
+          log.debug(s"Expected $name but got $other")
           throw new TestSetupException(
             s"Could not setup mutation testing environment. Unable to resolve project $name. This could be due to compile errors or misconfiguration of Stryker4s. See debug logs for more information."
           )
@@ -107,7 +109,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
         param = s"-D$key=$value"
       } yield param
     }
-    debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
+    log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
 
     val settings: Seq[Def.Setting[_]] = Seq(
       scalacOptions --= blocklistedScalacOptions,

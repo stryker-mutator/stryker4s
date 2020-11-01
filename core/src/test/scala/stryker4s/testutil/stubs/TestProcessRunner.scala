@@ -4,13 +4,16 @@ import scala.util.{Success, Try}
 
 import better.files.File
 import stryker4s.run.process.{Command, ProcessRunner}
+import stryker4s.log.Logger
 
 object TestProcessRunner {
-  def apply(testRunExitCode: Try[Int]*): TestProcessRunner = new TestProcessRunner(true, testRunExitCode: _*)
-  def failInitialTestRun(): TestProcessRunner = new TestProcessRunner(false)
+  def apply(testRunExitCode: Try[Int]*)(implicit log: Logger): TestProcessRunner =
+    new TestProcessRunner(true, testRunExitCode: _*)
+  def failInitialTestRun()(implicit log: Logger): TestProcessRunner = new TestProcessRunner(false)
 }
 
-class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int]*) extends ProcessRunner {
+class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int]*)(implicit log: Logger)
+    extends ProcessRunner {
   val timesCalled: Iterator[Int] = Iterator.from(0)
 
   /** Keep track on the amount of times the function is called.

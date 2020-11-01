@@ -11,11 +11,12 @@ import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.report._
 import stryker4s.report.dashboard.DashboardConfigProvider
+import stryker4s.log.Logger
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
-abstract class Stryker4sRunner(implicit cs: ContextShift[IO]) {
+abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO]) {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 

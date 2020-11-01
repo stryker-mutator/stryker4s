@@ -9,7 +9,7 @@ import better.files.File
 import cats.effect._
 import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.extension.CatsEffectExtensions._
@@ -22,10 +22,10 @@ import stryker4s.report.{FinishedRunReport, Reporter}
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
+    log: Logger,
     timer: Timer[IO],
     cs: ContextShift[IO]
-) extends MutantRunResultMapper
-    with Logging {
+) extends MutantRunResultMapper {
   type Context <: TestRunnerContext
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
@@ -54,8 +54,8 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   } yield context
 
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
-    IO(info("Setting up mutated environment...")) *>
-      IO(debug("Using temp directory: " + tmpDir)) *> {
+    IO(log.info("Setting up mutated environment...")) *>
+      IO(log.debug("Using temp directory: " + tmpDir)) *> {
         val mutatedPaths = mutatedFiles.map(_.fileOrigin)
         val unmutatedFilesStream =
           Stream
@@ -77,7 +77,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       in.evalMapChunk { file =>
         val newSubPath = file.inSubDir(tmpDir)
 
-        IO(debug(s"Copying $file to $newSubPath")) *>
+        IO(log.debug(s"Copying $file to $newSubPath")) *>
           io.file.createDirectories[IO](blocker, newSubPath.getParent()) *>
           io.file.copy[IO](blocker, file, newSubPath).void
       }
@@ -86,7 +86,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     in =>
       in.evalMapChunk { mutatedFile =>
         val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)
-        IO(debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
+        IO(log.debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
           io.file
             .createDirectories[IO](blocker, targetPath.getParent())
             .as((mutatedFile, targetPath))
@@ -120,7 +120,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult]
 
   def initialTestRun(context: Context): IO[Unit] = {
-    IO(info("Starting initial test run...")) *>
+    IO(log.info("Starting initial test run...")) *>
       runInitialTest(context).flatMap { result =>
         if (!result)
           IO.raiseError(
@@ -129,7 +129,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
             )
           )
         else
-          IO(info("Initial test run succeeded! Testing mutants..."))
+          IO(log.info("Initial test run succeeded! Testing mutants..."))
       }
   }
 

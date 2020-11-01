@@ -1,29 +1,29 @@
 package stryker4s.scalatest
 
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.LogEvent
 import org.scalatest.matchers.{BeMatcher, MatchResult}
-import org.scalatest.{BeforeAndAfterEach, Suite}
-import stryker4s.testutil.TestAppender
+import org.scalatest.Suite
+import stryker4s.testutil.{LogLevel, TestLogger}
+import org.scalatest.BeforeAndAfterEach
 
 trait LogMatchers extends BeforeAndAfterEach {
   // Will cause a compile error if LogMatchers is used outside of a ScalaTest Suite
   this: Suite =>
 
-  def loggedAsDebug = new LogMatcherWithLevel(Level.DEBUG)
-  def loggedAsInfo = new LogMatcherWithLevel(Level.INFO)
-  def loggedAsWarning = new LogMatcherWithLevel(Level.WARN)
-  def loggedAsError = new LogMatcherWithLevel(Level.ERROR)
+  implicit val testLogger = new TestLogger()
 
-  override def afterEach(): Unit = TestAppender.reset
+  override protected def afterEach(): Unit = {
+    try super.afterEach()
+    finally testLogger.clear()
+  }
 
-  /** The name of the current thread. AKA the current test (class) being executed
-    */
-  implicit private val threadName: String = Thread.currentThread().getName
+  def loggedAsDebug = new LogMatcherWithLevel(LogLevel.Debug)
+  def loggedAsInfo = new LogMatcherWithLevel(LogLevel.Info)
+  def loggedAsWarning = new LogMatcherWithLevel(LogLevel.Warn)
+  def loggedAsError = new LogMatcherWithLevel(LogLevel.Error)
 
-  protected class LogMatcherWithLevel(expectedLogLevel: Level)(implicit threadName: String) extends BeMatcher[String] {
+  private[scalatest] class LogMatcherWithLevel(expectedLogLevel: LogLevel) extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {
-      getLoggingEventWithLogMessage(expectedLogMessage) match {
+      testLogger.findEvent(expectedLogMessage, expectedLogLevel) match {
         case None =>
           MatchResult(
             matches = false,
@@ -31,25 +31,16 @@ trait LogMatchers extends BeforeAndAfterEach {
             s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
           )
         case Some(loggingEvent) =>
-          val result = validateLogLevel(loggingEvent.getLevel, expectedLogLevel)
+          val sameLogLevel = loggingEvent.level == expectedLogLevel
 
           MatchResult(
-            result,
+            sameLogLevel,
             s"Log message '$expectedLogMessage' was logged but not on correct log level, " +
-              s"expected [$expectedLogLevel] actual [${loggingEvent.getLevel}].",
+              s"expected [$expectedLogLevel] actual [${loggingEvent.level}].",
             s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
           )
       }
     }
 
-    private def validateLogLevel(actualLogLevel: Level, expectedLogLevel: Level): Boolean = {
-      expectedLogLevel.equals(actualLogLevel)
-    }
-
-    private def getLoggingEventWithLogMessage(expectedLogMessage: String): Option[LogEvent] = {
-      TestAppender
-        .events(threadName)
-        .find(_.getMessage.getFormattedMessage.contains(expectedLogMessage))
-    }
   }
 }

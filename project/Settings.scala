@@ -6,7 +6,6 @@ import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := false, // For logging tests
     libraryDependencies ++= (if (!isDotty.value) Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
                              else Nil)
   )
@@ -20,10 +19,6 @@ object Settings {
       Dependencies.pureconfigSttp,
       Dependencies.scalameta,
       Dependencies.betterFiles,
-      Dependencies.log4jApi,
-      Dependencies.log4jCore,
-      Dependencies.grizzledSlf4j,
-      Dependencies.log4jslf4jImpl % Test, // Logging tests need a slf4j implementation
       Dependencies.circeCore,
       Dependencies.sttpCirce,
       Dependencies.sttpCatsBackend,
@@ -38,7 +33,7 @@ object Settings {
 
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      Dependencies.log4jslf4jImpl,
+      Dependencies.log4j,
       Dependencies.test.scalatest
     )
   )
@@ -54,7 +49,6 @@ object Settings {
   )
 
   lazy val sbtTestrunnerSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true, // No logging tests, so parallel can be true
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     ),
@@ -62,7 +56,6 @@ object Settings {
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true, // No logging tests, so parallel can be true
     scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
   )
 

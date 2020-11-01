@@ -8,7 +8,7 @@ import scala.util.control.NonFatal
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.syntax.all._
-import grizzled.slf4j.Logging
+import stryker4s.log.Logger
 import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
@@ -16,7 +16,7 @@ import stryker4s.config.Config
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.TestRunner
 
-class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner with Logging {
+class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
   override def runMutant(mutant: Mutant): IO[MutantRunResult] = {
     val message = StartTestRun(mutant.id)
@@ -38,7 +38,7 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner wi
 
 }
 
-object ProcessTestRunner extends TestInterfaceMapper with Logging {
+object ProcessTestRunner extends TestInterfaceMapper {
   private val classPathSeparator = java.io.File.pathSeparator
 
   def newProcess(
@@ -46,7 +46,7 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
       javaOpts: Seq[String],
       frameworks: Seq[SbtFramework],
       testGroups: Seq[Tests.Group]
-  )(implicit config: Config, timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
+  )(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
     val socketConfig = TestProcessConfig(13337) // TODO: Don't hardcode socket port
 
     createProcess(classpath, javaOpts, socketConfig)
@@ -60,7 +60,7 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
       classpath: Seq[String],
       javaOpts: Seq[String],
       socketConfig: TestProcessConfig
-  )(implicit config: Config): Resource[IO, Process] = {
+  )(implicit log: Logger, config: Config): Resource[IO, Process] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
     val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
     val args = Seq(sysProps, mainClass)
@@ -68,30 +68,30 @@ object ProcessTestRunner extends TestInterfaceMapper with Logging {
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
 
     for {
-      _ <- Resource.liftF(IO(debug(s"Starting process ${command.mkString(" ")}")))
+      _ <- Resource.liftF(IO(log.debug(s"Starting process ${command.mkString(" ")}")))
       startedProcess <- Resource.liftF(IO(scala.sys.process.Process(command, config.baseDir.toJava)))
       process <-
         Resource
-          .make(IO(startedProcess.run(ProcessLogger(m => debug(s"testrunner: $m")))))(p => IO(p.destroy()))
-          .evalTap(_ => IO(debug("Started process")))
+          .make(IO(startedProcess.run(ProcessLogger(m => log.debug(s"testrunner: $m")))))(p => IO(p.destroy()))
+          .evalTap(_ => IO(log.debug("Started process")))
     } yield process
   }
 
   private def connectToProcess(
       config: TestProcessConfig
-  )(implicit timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
+  )(implicit timer: Timer[IO], log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.liftF(
-      IO(debug("Creating socket"))
+      IO(log.debug("Creating socket"))
         .delayBy(0.5.seconds)
     ) *>
       Resource
         .make(
-          retryWithBackoff(5, 0.5.seconds, info("Could not connect to testprocess. Retrying..."))(
+          retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
             IO(new Socket(InetAddress.getLocalHost(), config.port))
           )
         )(s => IO(s.close()))
-        .evalTap(_ => IO(debug("Created socket")))
+        .evalTap(_ => IO(log.debug("Created socket")))
         .flatMap(TestRunnerConnection.create(_))
   }
 
