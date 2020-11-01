@@ -4,9 +4,9 @@ import scala.meta.Source
 import scala.meta.parsers.{Parsed, XtensionParseInputLike}
 
 import better.files.File
-import stryker4s.log.Logger
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
+import stryker4s.log.Logger
 import stryker4s.model.{Mutant, MutationsInSource}
 
 class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger) {

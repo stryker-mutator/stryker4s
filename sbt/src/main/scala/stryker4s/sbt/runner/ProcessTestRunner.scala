@@ -8,11 +8,11 @@ import scala.util.control.NonFatal
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import cats.syntax.all._
-import stryker4s.log.Logger
 import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
 import stryker4s.config.Config
+import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.TestRunner
 

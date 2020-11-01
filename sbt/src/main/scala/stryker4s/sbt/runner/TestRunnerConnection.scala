@@ -4,9 +4,9 @@ import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.Socket
 
 import cats.effect.{Blocker, ContextShift, IO, Resource}
-import stryker4s.log.Logger
 import stryker4s.api.testprocess.{Request, Response}
 import stryker4s.extension.exception.MutationRunFailedException
+import stryker4s.log.Logger
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]

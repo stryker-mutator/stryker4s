@@ -1,9 +1,9 @@
 package stryker4s.report
 
 import cats.effect.IO
-import stryker4s.log.Logger
 import mutationtesting.{MetricsResult, MutationTestReport}
 import stryker4s.config.{Full, MutationScoreOnly}
+import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model._
 import sttp.client._

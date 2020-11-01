@@ -2,13 +2,13 @@ package stryker4s.mutants
 
 import scala.meta._
 
+import org.scalactic.source.Position
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions._
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantMatcher
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
-import org.scalactic.source.Position
 
 class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
 

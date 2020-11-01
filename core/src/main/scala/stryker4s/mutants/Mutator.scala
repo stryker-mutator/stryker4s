@@ -3,10 +3,10 @@ package stryker4s.mutants
 import scala.meta.Tree
 
 import better.files.File
+import stryker4s.log.Logger
 import stryker4s.model.{MutatedFile, MutationsInSource, SourceTransformations}
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
-import stryker4s.log.Logger
 
 class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)(implicit
     log: Logger

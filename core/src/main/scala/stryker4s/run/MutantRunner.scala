@@ -9,12 +9,12 @@ import better.files.File
 import cats.effect._
 import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
-import stryker4s.log.Logger
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.extension.CatsEffectExtensions._
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper

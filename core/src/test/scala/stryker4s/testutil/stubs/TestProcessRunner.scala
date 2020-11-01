@@ -3,8 +3,8 @@ package stryker4s.testutil.stubs
 import scala.util.{Success, Try}
 
 import better.files.File
-import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.log.Logger
+import stryker4s.run.process.{Command, ProcessRunner}
 
 object TestProcessRunner {
   def apply(testRunExitCode: Try[Int]*)(implicit log: Logger): TestProcessRunner =

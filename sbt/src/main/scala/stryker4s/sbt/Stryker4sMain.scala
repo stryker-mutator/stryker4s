@@ -7,8 +7,8 @@ import cats.effect.{ContextShift, IO => CatsIO, Timer}
 import sbt.Keys._
 import sbt._
 import sbt.plugins._
-import stryker4s.run.threshold.ErrorStatus
 import stryker4s.log.{Logger, SbtLogger}
+import stryker4s.run.threshold.ErrorStatus
 
 /** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
   */

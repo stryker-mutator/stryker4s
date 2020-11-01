@@ -4,9 +4,9 @@ import java.nio.file.Path
 
 import cats.Parallel
 import cats.effect.IO
-import stryker4s.log.Logger
 import mutationtesting._
 import stryker4s.files.FileIO
+import stryker4s.log.Logger
 
 class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extends FinishedRunReporter {
 

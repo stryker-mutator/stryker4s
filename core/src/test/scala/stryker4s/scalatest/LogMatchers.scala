@@ -1,9 +1,8 @@
 package stryker4s.scalatest
 
 import org.scalatest.matchers.{BeMatcher, MatchResult}
-import org.scalatest.Suite
+import org.scalatest.{BeforeAndAfterEach, Suite}
 import stryker4s.testutil.{LogLevel, TestLogger}
-import org.scalatest.BeforeAndAfterEach
 
 trait LogMatchers extends BeforeAndAfterEach {
   // Will cause a compile error if LogMatchers is used outside of a ScalaTest Suite

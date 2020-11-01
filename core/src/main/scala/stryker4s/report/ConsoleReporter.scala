@@ -1,10 +1,10 @@
 package stryker4s.report
 
 import cats.effect.IO
-import stryker4s.log.Logger
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions._
+import stryker4s.log.Logger
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
 

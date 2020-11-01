@@ -5,8 +5,8 @@ import pureconfig.error.ConfigReaderException
 import pureconfig.generic.auto._
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.config.ConfigReader
-import stryker4s.run.threshold.ErrorStatus
 import stryker4s.log.Logger
+import stryker4s.run.threshold.ErrorStatus
 
 object Stryker4sMain extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =

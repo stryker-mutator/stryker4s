@@ -6,10 +6,10 @@ import scala.concurrent.duration._
 
 import cats.effect.concurrent.{Deferred, Ref}
 import cats.effect.{ContextShift, IO, Resource, Timer}
-import stryker4s.log.Logger
 import stryker4s.config.Config
 import stryker4s.extension.CatsEffectExtensions._
 import stryker4s.extension.ResourceExtensions._
+import stryker4s.log.Logger
 import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
 trait TestRunner {

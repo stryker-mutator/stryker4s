@@ -1,11 +1,11 @@
 package stryker4s.sbt.runner
 
 import cats.effect.IO
-import stryker4s.log.Logger
 import sbt.Keys._
 import sbt.Tests.Output
 import sbt._
 import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.log.Logger
 import stryker4s.model.{Error, Killed, Mutant, MutantRunResult, Survived}
 import stryker4s.run.TestRunner
 

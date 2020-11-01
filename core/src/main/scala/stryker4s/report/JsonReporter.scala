@@ -3,9 +3,9 @@ package stryker4s.report
 import java.nio.file.Path
 
 import cats.effect.IO
-import stryker4s.log.Logger
 import mutationtesting.MutationTestReport
 import stryker4s.files.FileIO
+import stryker4s.log.Logger
 
 class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends FinishedRunReporter {
 

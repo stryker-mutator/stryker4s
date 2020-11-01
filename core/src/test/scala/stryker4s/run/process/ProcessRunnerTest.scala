@@ -1,7 +1,7 @@
 package stryker4s.run.process
 
-import stryker4s.testutil.Stryker4sSuite
 import stryker4s.scalatest.LogMatchers
+import stryker4s.testutil.Stryker4sSuite
 
 class ProcessRunnerTest extends Stryker4sSuite with LogMatchers {
   describe("resolveRunner") {

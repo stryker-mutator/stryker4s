@@ -10,12 +10,12 @@ import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.TestSetupException
+import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
-import stryker4s.log.Logger
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,

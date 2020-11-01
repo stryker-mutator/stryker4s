@@ -3,13 +3,13 @@ package stryker4s.sbt
 import cats.effect.{ContextShift, IO, Timer}
 import sbt._
 import stryker4s.config.Config
+import stryker4s.log.Logger
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
 import stryker4s.sbt.runner.SbtMutantRunner
-import stryker4s.log.Logger
 
 /** This Runner run Stryker mutations in a single SBT session
   *

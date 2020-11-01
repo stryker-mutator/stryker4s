@@ -1,6 +1,7 @@
 package stryker4s.testutil
 
 import stryker4s.log.Logger
+
 import LogLevel._
 
 class TestLogger extends Logger {

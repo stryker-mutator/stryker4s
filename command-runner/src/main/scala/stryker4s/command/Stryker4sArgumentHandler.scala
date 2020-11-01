@@ -19,8 +19,8 @@ object Stryker4sArgumentHandler {
       .filter(_.startsWith("--"))
       .map(_.drop(2))
       .map(_.toLowerCase)
-      .find(logLevels.contains)
-      .map(logLevels(_))
+      .flatMap(logLevels.get(_))
+      .headOption
       .getOrElse(Level.INFO)
 
     val logger = new Slf4jLogger()
