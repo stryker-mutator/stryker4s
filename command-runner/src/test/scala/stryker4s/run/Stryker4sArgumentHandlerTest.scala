@@ -25,7 +25,7 @@ class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
       })
       levelsWithoutLogging.foreach(level => {
         Stryker4sArgumentHandler.handleArgs(Seq(s"--$level"))
-        s"Set logging level to ${level.toUpperCase}" should not be loggedAsInfo
+        s"Set logging level to ${level.toUpperCase}" shouldBe loggedAsInfo
         LoggerContext.getContext(false).getRootLogger.getLevel.toString shouldEqual level.toUpperCase
       })
     }
