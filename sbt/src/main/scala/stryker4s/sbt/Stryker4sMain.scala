@@ -32,14 +32,12 @@ object Stryker4sMain extends AutoPlugin {
     strykerIsSupported := sbtVersion.value >= strykerMinimumSbtVersion.value
   )
 
-  lazy val strykerTask = Def.taskDyn[Unit] {
-    if (strykerIsSupported.value)
-      strykerImpl
-    else
-      strykerIsNotSupported
-  }
-
-  lazy val strykerImpl = Def.task {
+  lazy val strykerTask = Def.task {
+    if (!strykerIsSupported.value) {
+      throw new UnsupportedSbtVersionException(
+        s"Sbt version ${sbtVersion.value} is not supported by Stryker4s. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
+      )
+    }
     implicit val cs: ContextShift[CatsIO] = CatsIO.contextShift(implicitly[ExecutionContext])
     implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
     implicit val logger: Logger = new SbtLogger(streams.value.log)
@@ -51,15 +49,6 @@ object Stryker4sMain extends AutoPlugin {
         case _           => ()
       }
       .unsafeRunSync()
-  }
-
-  private lazy val strykerIsNotSupported: Def.Initialize[Task[Unit]] = Def.task {
-    // Put in Unit def to prevent dead code warning
-    def throwVersionException(): Unit =
-      throw new UnsupportedSbtVersionException(
-        s"Sbt version ${sbtVersion.value} is not supported by Stryker4s. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
-      )
-    throwVersionException()
   }
 
   private class UnsupportedSbtVersionException(s: String)
