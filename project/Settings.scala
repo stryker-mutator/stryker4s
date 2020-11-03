@@ -51,12 +51,10 @@ object Settings {
   lazy val sbtTestrunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.testInterface
-    ),
-    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
+    )
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
-    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
@@ -82,11 +80,4 @@ object Settings {
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
     )
   )
-
-  // Dotty doc generation creates warnings. Ignore them for now
-  val filterDottyDocScalacOptions = Def.task {
-    val options = (scalacOptions in (Compile, doc)).value
-    if (isDotty.value) options.filterNot(_ == "-Xfatal-warnings")
-    else options
-  }
 }

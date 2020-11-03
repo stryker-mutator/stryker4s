@@ -5,15 +5,15 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scala212 = "2.12.12"
     val scala213 = "2.13.3"
-    val dotty = "0.27.0-RC1"
+    val scala3 = "3.0.0-M1"
 
     /** Cross-versions for main projects
       */
     val crossScalaVersions = Seq(scala213, scala212)
 
-    /** Fuller cross-versions (used for injected packages)
+    /** Fuller cross-versions (used for injected packages like stryker4s-api and sbt-stryker4s-testrunner)
       */
-    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, dotty)
+    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, scala3)
 
     val testInterface = "1.0"
     val scalameta = "4.3.24"
