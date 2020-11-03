@@ -9,25 +9,28 @@ import stryker4s.testutil.Stryker4sSuite
 class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
   describe("parseArgs") {
     it("should set the default logLevel to INFO") {
-      Stryker4sArgumentHandler.handleArgs(Seq(""))
+      Stryker4sArgumentHandler.handleArgs(Seq.empty)
 
       "Set logging level to INFO" shouldBe loggedAsInfo
       LoggerContext.getContext(false).getRootLogger.getLevel shouldEqual Level.INFO
     }
 
-    it("should parse each log level correctly") {
-      val levelsWithLogging = Seq("info", "debug", "trace", "all")
-      val levelsWithoutLogging = Seq("off", "fatal", "error", "warn")
-      levelsWithLogging.foreach(level => {
+    val levels = Seq(
+      "off",
+      "trace",
+      "info",
+      "warn",
+      "error",
+      "fatal",
+      "all"
+    )
+
+    levels.foreach { level =>
+      it(s"should parse $level to ${level.toUpperCase()}") {
         Stryker4sArgumentHandler.handleArgs(Seq(s"--$level"))
         s"Set logging level to ${level.toUpperCase}" shouldBe loggedAsInfo
         LoggerContext.getContext(false).getRootLogger.getLevel.toString shouldEqual level.toUpperCase
-      })
-      levelsWithoutLogging.foreach(level => {
-        Stryker4sArgumentHandler.handleArgs(Seq(s"--$level"))
-        s"Set logging level to ${level.toUpperCase}" shouldBe loggedAsInfo
-        LoggerContext.getContext(false).getRootLogger.getLevel.toString shouldEqual level.toUpperCase
-      })
+      }
     }
 
     it("should parse regardless of casing") {
