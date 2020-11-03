@@ -124,7 +124,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       val head = exc.failures.head
       head shouldBe a[ConvertFailure]
       val errorMessage =
-        s"Cannot convert 'Invalid, StillInvalid, BooleanLiteral' to excluded-mutations: invalid option(s) 'Invalid, StillInvalid'. Valid exclusions are 'EqualityOperator, BooleanLiteral, ConditionalExpression, LogicalOperator, StringLiteral, MethodExpression'."
+        "Cannot convert 'Invalid, StillInvalid, BooleanLiteral' to excluded-mutations: invalid option(s) 'Invalid, StillInvalid'. Valid exclusions are 'EqualityOperator, BooleanLiteral, ConditionalExpression, LogicalOperator, StringLiteral, MethodExpression'."
       errorMessage shouldBe loggedAsError
     }
 

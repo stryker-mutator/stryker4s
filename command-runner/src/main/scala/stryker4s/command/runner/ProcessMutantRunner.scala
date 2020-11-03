@@ -6,6 +6,7 @@ import scala.util.{Failure, Success}
 import better.files.File
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import stryker4s.config.Config
+import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
@@ -17,7 +18,7 @@ class ProcessMutantRunner(
     processRunner: ProcessRunner,
     sourceCollector: SourceCollector,
     reporter: Reporter
-)(implicit config: Config, timer: Timer[IO], cs: ContextShift[IO])
+)(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO])
     extends MutantRunner(sourceCollector, reporter) {
   type Context = CommandRunnerContext
 

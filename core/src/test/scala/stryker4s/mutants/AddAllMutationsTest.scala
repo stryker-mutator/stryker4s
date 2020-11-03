@@ -2,6 +2,7 @@ package stryker4s.mutants
 
 import scala.meta._
 
+import org.scalactic.source.Position
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions._
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
@@ -30,7 +31,7 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
               }""")
     }
 
-    def checkAllMutationsAreAdded(tree: Stat) = {
+    def checkAllMutationsAreAdded(tree: Stat)(implicit pos: Position) = {
       val source = source"class Foo { $tree }"
       val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.flatten
       val transformed = new StatementTransformer().transformSource(source, foundMutants)

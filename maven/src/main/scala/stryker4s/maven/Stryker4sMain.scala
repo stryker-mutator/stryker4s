@@ -9,6 +9,7 @@ import org.apache.maven.plugin.{AbstractMojo, MojoFailureException}
 import org.apache.maven.plugins.annotations.{Mojo, Parameter}
 import org.apache.maven.project.MavenProject
 import stryker4s.run.threshold.ErrorStatus
+import stryker4s.log.{Logger, MavenMojoLogger}
 
 /** The main goal for this plugin. Starts Stryker4s.
   */
@@ -17,7 +18,7 @@ class Stryker4sMain @Inject() (@Parameter(defaultValue = "${project}") project: 
   override def execute(): Unit = {
     implicit val cs: ContextShift[IO] = IO.contextShift(implicitly[ExecutionContext])
     implicit val timer: Timer[IO] = IO.timer(implicitly[ExecutionContext])
-
+    implicit val logger: Logger = new MavenMojoLogger(getLog())
     new Stryker4sMavenRunner(project)
       .run()
       .map {

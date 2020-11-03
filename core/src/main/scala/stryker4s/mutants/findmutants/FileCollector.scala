@@ -3,9 +3,9 @@ package stryker4s.mutants.findmutants
 import scala.util.{Failure, Success}
 
 import better.files._
-import grizzled.slf4j.Logging
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions.RelativePathExtension
+import stryker4s.log.Logger
 import stryker4s.run.process.{Command, ProcessRunner}
 
 trait SourceCollector {
@@ -13,9 +13,8 @@ trait SourceCollector {
   def filesToCopy: Iterable[File]
 }
 
-class FileCollector(private[this] val processRunner: ProcessRunner)(implicit config: Config)
-    extends SourceCollector
-    with Logging {
+class FileCollector(private[this] val processRunner: ProcessRunner)(implicit config: Config, log: Logger)
+    extends SourceCollector {
 
   /** Get path separator because windows and unix systems have different separators.
     */
@@ -64,8 +63,8 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
   /** List all files from the base directory specified in the Stryker4s basedir config key.
     */
   private[this] def listAllFiles(): Iterable[File] = {
-    warn("No 'files' specified and not a git repository.")
-    warn("Falling back to copying everything except the 'target/' folder(s)")
+    log.warn("No 'files' specified and not a git repository.")
+    log.warn("Falling back to copying everything except the 'target/' folder(s)")
 
     config.baseDir.listRecursively.toSeq
   }
