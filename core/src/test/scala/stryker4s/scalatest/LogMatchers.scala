@@ -22,7 +22,7 @@ trait LogMatchers extends BeforeAndAfterEach {
 
   private[scalatest] class LogMatcherWithLevel(expectedLogLevel: LogLevel) extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {
-      testLogger.findEvent(expectedLogMessage, expectedLogLevel) match {
+      testLogger.findEvent(expectedLogMessage) match {
         case None =>
           MatchResult(
             matches = false,

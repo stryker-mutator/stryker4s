@@ -8,9 +8,7 @@ class TestLogger extends Logger {
 
   private val events = scala.collection.mutable.Queue[LogEvent]()
 
-  def findEvent(msg: String, level: LogLevel): Option[LogEvent] =
-    events
-      .find(event => event.level.equals(level) && event.msg.contains(msg))
+  def findEvent(msg: String): Option[LogEvent] = events.find(_.msg.contains(msg))
 
   def clear(): Unit = events.clear()
 
