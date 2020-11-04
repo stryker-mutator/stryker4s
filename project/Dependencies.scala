@@ -26,8 +26,8 @@ object Dependencies {
     val catsCore = "2.2.0"
     val catsEffect = "2.2.0"
     val circe = "0.13.0"
-    val mutationTestingElements = "1.4.2"
-    val mutationTestingMetrics = "1.4.0"
+    val mutationTestingElements = "1.4.3"
+    val mutationTestingMetrics = "1.4.4"
     val sttp = "2.2.9"
     val fs2 = "2.4.4"
   }
