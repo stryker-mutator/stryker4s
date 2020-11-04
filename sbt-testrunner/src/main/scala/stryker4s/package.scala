@@ -15,8 +15,7 @@ package object stryker4s {
 
     private val activeTest = new AtomicReference[Fingerprint]()
 
-    /**
-      * TODO: add per-test reporting
+    /** TODO: add per-test reporting
       *
       * @param id
       */

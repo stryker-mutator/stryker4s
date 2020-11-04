@@ -6,7 +6,6 @@ import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := false, // For logging tests
     libraryDependencies ++= (if (!isDotty.value) Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
                              else Nil)
   )
@@ -15,14 +14,11 @@ object Settings {
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
+      Dependencies.test.catsEffectScalaTest,
       Dependencies.pureconfig,
       Dependencies.pureconfigSttp,
       Dependencies.scalameta,
       Dependencies.betterFiles,
-      Dependencies.log4jApi,
-      Dependencies.log4jCore,
-      Dependencies.grizzledSlf4j,
-      Dependencies.log4jslf4jImpl % Test, // Logging tests need a slf4j implementation
       Dependencies.circeCore,
       Dependencies.sttpCirce,
       Dependencies.sttpCatsBackend,
@@ -37,7 +33,7 @@ object Settings {
 
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      Dependencies.log4jslf4jImpl,
+      Dependencies.log4j,
       Dependencies.test.scalatest
     )
   )
@@ -47,20 +43,18 @@ object Settings {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    // If you build and publish a plugin using sbt 1.4.0, your users will also be forced to upgrade to sbt 1.4.0 immediately. To prevent this you can cross build your plugin against sbt 1.2.8 (while using sbt 1.4.0) as follows:
+    pluginCrossBuild / sbtVersion := "1.2.8"
   )
 
   lazy val sbtTestrunnerSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true, // No logging tests, so parallel can be true
     libraryDependencies ++= Seq(
       Dependencies.testInterface
-    ),
-    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
+    )
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
-    Test / parallelExecution := true, // No logging tests, so parallel can be true
-    scalacOptions in (Compile, doc) := filterDottyDocScalacOptions.value
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
@@ -86,11 +80,4 @@ object Settings {
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
     )
   )
-
-  // Dotty doc generation creates warnings. Ignore them for now
-  val filterDottyDocScalacOptions = Def.task {
-    val options = (scalacOptions in (Compile, doc)).value
-    if (isDotty.value) options.filterNot(_ == "-Xfatal-warnings")
-    else options
-  }
 }

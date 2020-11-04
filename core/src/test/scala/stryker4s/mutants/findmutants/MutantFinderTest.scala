@@ -13,12 +13,12 @@ import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 
 class MutantFinderTest extends Stryker4sSuite with LogMatchers {
-  implicit private val config: Config = Config.default
-
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
 
   describe("parseFile") {
+    implicit val config: Config = Config.default
     it("should parse an existing file") {
+
       val sut = new MutantFinder(new MutantMatcher)
       val file = exampleClassFile
 
@@ -43,7 +43,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
 
       val expectedException = the[ParseException] thrownBy sut.parseFile(file)
 
-      expectedException.shortMessage should be("expected class or object definition")
+      expectedException.shortMessage should be("expected class or object definition identifier")
     }
 
     it("should fail on a nonexistent file") {
@@ -58,6 +58,8 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
 
   describe("findMutants") {
     it("should return empty list when given source has no possible mutations") {
+      implicit val config: Config = Config.default
+
       val sut = new MutantFinder(new MutantMatcher)
       val source = source"case class Foo(s: String)"
 
@@ -67,6 +69,8 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
     }
 
     it("should contain a mutant when given source has a possible mutation") {
+      implicit val config: Config = Config.default
+
       val sut = new MutantFinder(new MutantMatcher)
       val source =
         source"""case class Bar(s: String) {
@@ -87,8 +91,8 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
     }
 
     it("should filter out excluded mutants") {
-      val conf: Config = config.copy(excludedMutations = Set("LogicalOperator"))
-      val sut = new MutantFinder(new MutantMatcher()(conf))(conf)
+      implicit val conf: Config = Config.default.copy(excludedMutations = Set("LogicalOperator"))
+      val sut = new MutantFinder(new MutantMatcher())
       val source =
         source"""case class Bar(s: String) {
                     def and(a: Boolean, b: Boolean) = a && b
@@ -100,6 +104,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
     }
 
     it("should filter out string mutants inside annotations") {
+      implicit val config: Config = Config.default
       val sut = new MutantFinder(new MutantMatcher)
       val source =
         source"""@Annotation("Class Annotation")
@@ -126,6 +131,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
     }
 
     it("should filter out @SuppressWarnings annotated code") {
+      implicit val config: Config = Config.default
       val sut = new MutantFinder(new MutantMatcher)
 
       val source =
@@ -156,6 +162,8 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
   }
 
   describe("mutantsInFile") {
+    implicit val config: Config = Config.default
+
     it("should return a FoundMutantsInSource with correct mutants") {
       val sut = new MutantFinder(new MutantMatcher)
       val file = exampleClassFile
@@ -175,6 +183,8 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
 
   describe("logging") {
     it("should error log an unfound file") {
+      implicit val config: Config = Config.default
+
       val sut = new MutantFinder(new MutantMatcher)
       val noFile = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 

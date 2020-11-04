@@ -12,10 +12,12 @@ import stryker4s.model.{Killed, MavenRunnerContext, Mutant, MutantRunResult, Sur
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.MutantRunner
+import stryker4s.log.Logger
 
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
     implicit
     config: Config,
+    log: Logger,
     timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends MutantRunner(sourceCollector, reporter) {
@@ -51,7 +53,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
   private def createRequest(context: Context): InvocationRequest =
     new DefaultInvocationRequest()
       .setGoals(context.goals.asJava)
-      .setOutputHandler(debug(_))
+      .setOutputHandler(log.debug(_))
       .setBatchMode(true)
       .setProperties(context.properties)
       .setProfiles(project.getActiveProfiles.asScala.map(_.getId).asJava)

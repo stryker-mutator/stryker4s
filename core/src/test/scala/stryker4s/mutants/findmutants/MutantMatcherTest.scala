@@ -38,8 +38,7 @@ class MutantMatcherTest extends Stryker4sSuite {
     })
   }
 
-  /**
-    * Check if there is a mutant for every expected mutation
+  /** Check if there is a mutant for every expected mutation
     */
   def expectedMutations(
       matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],

@@ -7,12 +7,14 @@ import cats.effect.{ContextShift, IO, Resource, Timer}
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.config.Config
+import stryker4s.log.Logger
 import stryker4s.run.TestRunner
 
 object SbtTestRunner {
   def create(classpath: Seq[String], javaOpts: Seq[String], frameworks: Seq[Framework], testGroups: Seq[Tests.Group])(
       implicit
       config: Config,
+      log: Logger,
       timer: Timer[IO],
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] = {

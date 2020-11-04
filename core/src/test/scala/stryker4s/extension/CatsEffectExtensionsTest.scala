@@ -4,36 +4,34 @@ import scala.concurrent.duration._
 
 import cats.effect.{Clock, IO}
 import stryker4s.extension.CatsEffectExtensions._
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.Stryker4sIOSuite
 
-class CatsEffectExtensionsTest extends Stryker4sSuite {
+class CatsEffectExtensionsTest extends Stryker4sIOSuite {
 
   describe("timed") {
     it("should give the time an execution takes") {
       implicit val clock: Clock[IO] = counterClock
 
-      val (_, duration) = IO.unit.timed.unsafeRunSync()
-
-      duration shouldBe 50.millis
+      IO.unit.timed
+        .asserting(_._2 shouldBe 50.millis)
     }
 
     it("should increase over longer execution times") {
       implicit val clock: Clock[IO] = counterClock
 
-      val ((_, firstDuration), secondDuration) =
-        // starttime 0
-        IO.unit
-          .flatMap(_ =>
-            // starttime 50
-            IO.unit.timed
-          // endTime 100
-          )
-          .timed
-          // endtime 150
-          .unsafeRunSync()
-
-      firstDuration shouldBe 50.millis
-      secondDuration shouldBe 150.millis
+      // starttime 0
+      IO.unit
+        .flatMap(_ =>
+          // starttime 50
+          IO.unit.timed
+        // endTime 100
+        )
+        .timed
+        // endtime 150
+        .asserting { case ((_, firstDuration), secondDuration) =>
+          firstDuration shouldBe 50.millis
+          secondDuration shouldBe 150.millis
+        }
     }
 
     /** A 'clock' that counts the number of times it is invoked

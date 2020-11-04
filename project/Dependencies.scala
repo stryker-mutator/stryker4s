@@ -5,28 +5,28 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scala212 = "2.12.12"
     val scala213 = "2.13.3"
-    val dotty = "0.27.0-RC1"
+    val scala3 = "3.0.0-M1"
 
     /** Cross-versions for main projects
       */
     val crossScalaVersions = Seq(scala213, scala212)
 
-    /** Fuller cross-versions (used for injected packages)
+    /** Fuller cross-versions (used for injected packages like stryker4s-api and sbt-stryker4s-testrunner)
       */
-    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, dotty)
+    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, scala3)
 
     val testInterface = "1.0"
-    val scalameta = "4.3.22"
+    val scalameta = "4.3.24"
     val pureconfig = "0.14.0"
     val scalatest = "3.2.2"
+    val catsEffectScalaTest = "0.4.1"
     val mockitoScala = "1.16.0"
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
-    val grizzledSlf4j = "1.3.4"
     val catsCore = "2.2.0"
     val catsEffect = "2.2.0"
     val circe = "0.13.0"
-    val mutationTestingElements = "1.4.0"
+    val mutationTestingElements = "1.4.2"
     val mutationTestingMetrics = "1.4.0"
     val sttp = "2.2.9"
     val fs2 = "2.4.4"
@@ -35,6 +35,8 @@ object Dependencies {
   object test {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
+    // For easier testing with IO
+    val catsEffectScalaTest = "com.codecommit" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
   }
 
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
@@ -42,10 +44,7 @@ object Dependencies {
   val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val betterFiles = "com.github.pathikrit" %% "better-files" % versions.betterFiles
-  val log4jApi = "org.apache.logging.log4j" % "log4j-api" % versions.log4j
-  val log4jCore = "org.apache.logging.log4j" % "log4j-core" % versions.log4j
-  val log4jslf4jImpl = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
-  val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j
+  val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe

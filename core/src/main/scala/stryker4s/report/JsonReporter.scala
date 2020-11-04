@@ -3,11 +3,11 @@ package stryker4s.report
 import java.nio.file.Path
 
 import cats.effect.IO
-import grizzled.slf4j.Logging
 import mutationtesting.MutationTestReport
 import stryker4s.files.FileIO
+import stryker4s.log.Logger
 
-class JsonReporter(fileIO: FileIO) extends FinishedRunReporter with Logging {
+class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends FinishedRunReporter {
 
   def writeReportJsonTo(file: Path, report: MutationTestReport): IO[Unit] = {
     import io.circe.syntax._
@@ -20,6 +20,6 @@ class JsonReporter(fileIO: FileIO) extends FinishedRunReporter with Logging {
     val resultLocation = runReport.reportsLocation / "report.json"
 
     writeReportJsonTo(resultLocation.path, runReport.report) *>
-      IO(info(s"Written JSON report to $resultLocation"))
+      IO(log.info(s"Written JSON report to $resultLocation"))
   }
 }

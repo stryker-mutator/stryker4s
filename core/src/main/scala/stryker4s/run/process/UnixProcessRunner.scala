@@ -1,3 +1,5 @@
 package stryker4s.run.process
 
-class UnixProcessRunner extends ProcessRunner {}
+import stryker4s.log.Logger
+
+class UnixProcessRunner(implicit log: Logger) extends ProcessRunner {}

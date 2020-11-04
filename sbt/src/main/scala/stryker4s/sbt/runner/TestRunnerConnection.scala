@@ -4,28 +4,26 @@ import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.Socket
 
 import cats.effect.{Blocker, ContextShift, IO, Resource}
-import grizzled.slf4j.Logging
 import stryker4s.api.testprocess.{Request, Response}
 import stryker4s.extension.exception.MutationRunFailedException
+import stryker4s.log.Logger
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
 }
 
 final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream, in: ObjectInputStream)(implicit
+    log: Logger,
     cs: ContextShift[IO]
-) extends TestRunnerConnection
-    with Logging {
+) extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] = {
-    IO(debug(s"Sending message $request")) *>
+    IO(log.debug(s"Sending message $request")) *>
       blocker.delay[IO, Unit](out.writeObject(request)) *>
       blocker.delay[IO, Any](in.readObject()) flatMap {
         case response: Response =>
-          IO {
-            debug(s"Received message $response")
-            response
-          }
+          IO(log.debug(s"Received message $response"))
+            .as(response)
         case other =>
           IO.raiseError(
             new MutationRunFailedException(
@@ -37,7 +35,7 @@ final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream
 }
 
 object TestRunnerConnection {
-  def create(socket: Socket)(implicit cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] =
+  def create(socket: Socket)(implicit log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] =
     for {
       blocker <- Blocker[IO]
       out <- Resource.fromAutoCloseable(IO(new ObjectOutputStream(socket.getOutputStream())))

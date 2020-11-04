@@ -10,9 +10,9 @@ import mutationtesting.{Metrics, MutationTestReport, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers {
+class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("reportJson") {
     it("should contain the report") {
       val mockFileIO = mock[FileIO]
@@ -23,8 +23,10 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
       sut
         .writeReportJsonTo(testFile, report)
-        .unsafeRunSync()
-      verify(mockFileIO).createAndWrite(eqTo(testFile), any[String])
+        .map { _ =>
+          verify(mockFileIO).createAndWrite(eqTo(testFile), any[String])
+        }
+        .assertNoException
     }
   }
 
@@ -38,12 +40,12 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
 
       sut
         .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/")))
-        .unsafeRunSync()
-
-      val writtenFilesCaptor = ArgCaptor[Path]
-      verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
-      val path = writtenFilesCaptor.value.toString()
-      path should endWith("/target/stryker4s-report/report.json")
+        .asserting { _ =>
+          val writtenFilesCaptor = ArgCaptor[Path]
+          verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
+          val path = writtenFilesCaptor.value.toString()
+          path should endWith("/target/stryker4s-report/report.json")
+        }
     }
 
     it("should info log a message") {
@@ -56,10 +58,10 @@ class JsonReporterTest extends Stryker4sSuite with MockitoSuite with LogMatchers
       val captor = ArgCaptor[Path]
       sut
         .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, reportFile))
-        .unsafeRunSync()
-
-      verify(mockFileIO).createAndWrite(captor.capture, any[String])
-      s"Written JSON report to ${reportFile.toString}/report.json" shouldBe loggedAsInfo
+        .asserting { _ =>
+          verify(mockFileIO).createAndWrite(captor.capture, any[String])
+          s"Written JSON report to ${reportFile.toString}/report.json" shouldBe loggedAsInfo
+        }
     }
   }
 }
