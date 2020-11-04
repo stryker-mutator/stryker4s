@@ -35,7 +35,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       val mutationRunResults = Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
 
       val result = sut.toReport(mutationRunResults)
-      inside(result) { case MutationTestReport(_, _, thresholds, files) =>
+      inside(result) { case MutationTestReport(_, _, thresholds, _, files) =>
         thresholds should equal(Thresholds(high = 60, low = 40))
         files should have size 2
         val firstResult = files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
