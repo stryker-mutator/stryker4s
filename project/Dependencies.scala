@@ -20,7 +20,7 @@ object Dependencies {
     val pureconfig = "0.14.0"
     val scalatest = "3.2.2"
     val catsEffectScalaTest = "0.4.1"
-    val mockitoScala = "1.16.0"
+    val mockitoScala = "1.16.1"
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
     val catsCore = "2.2.0"
