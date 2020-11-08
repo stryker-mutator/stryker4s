@@ -19,7 +19,7 @@ object Dependencies {
     val scalameta = "4.3.24"
     val pureconfig = "0.14.0"
     val scalatest = "3.2.2"
-    val catsEffectScalaTest = "0.4.1"
+    val catsEffectScalaTest = "0.4.2"
     val mockitoScala = "1.16.1"
     val betterFiles = "3.9.1"
     val log4j = "2.13.3"
