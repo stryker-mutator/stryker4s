@@ -18,7 +18,7 @@ object Dependencies {
     val testInterface = "1.0"
     val scalameta = "4.3.24"
     val pureconfig = "0.14.0"
-    val scalatest = "3.2.2"
+    val scalatest = "3.2.3"
     val catsEffectScalaTest = "0.4.2"
     val mockitoScala = "1.16.1"
     val betterFiles = "3.9.1"
