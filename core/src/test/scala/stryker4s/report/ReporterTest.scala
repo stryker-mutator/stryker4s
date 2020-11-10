@@ -9,9 +9,9 @@ import mutationtesting._
 import stryker4s.extension.mutationtype.GreaterThan
 import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import stryker4s.testutil.{MockitoSuite, Stryker4sIOSuite}
 
-class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class ReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]

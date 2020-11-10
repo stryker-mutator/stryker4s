@@ -15,9 +15,9 @@ import stryker4s.report.{AggregateReporter, FinishedRunReport}
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import stryker4s.testutil.{MockitoSuite, Stryker4sIOSuite}
 
-class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]

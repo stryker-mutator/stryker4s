@@ -10,9 +10,9 @@ import mutationtesting.{Metrics, MutationTestReport, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import stryker4s.testutil.{MockitoSuite, Stryker4sIOSuite}
 
-class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class JsonReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
   describe("reportJson") {
     it("should contain the report") {
       val mockFileIO = mock[FileIO]
