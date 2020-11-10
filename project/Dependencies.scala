@@ -22,7 +22,7 @@ object Dependencies {
     val catsEffectScalaTest = "0.4.2"
     val mockitoScala = "1.16.1"
     val betterFiles = "3.9.1"
-    val log4j = "2.13.3"
+    val log4j = "2.14.0"
     val catsCore = "2.2.0"
     val catsEffect = "2.2.0"
     val circe = "0.13.0"
