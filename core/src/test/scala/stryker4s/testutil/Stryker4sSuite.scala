@@ -15,6 +15,7 @@ abstract class Stryker4sSuite extends AnyFunSpec with Stryker4sBaseSuite
   */
 abstract class Stryker4sIOSuite extends AsyncFunSpec with Stryker4sBaseSuite with AsyncIOSpec
 
+// https://github.com/djspiewak/cats-effect-testing/blob/master/scalatest/src/main/scala/cats/effect/testing/scalatest/AsyncIOSpec.scala
 // Same as cats.effect.testing.scalatest.AsyncIOSpec but without overriding the ExecutionContext
 // We want to keep ScalaTests default single-threaded EC to prevent any issues with concurrent tests
 trait AsyncIOSpec extends AssertingSyntax with EffectTestSupport { asyncTestSuite: AsyncTestSuite =>
