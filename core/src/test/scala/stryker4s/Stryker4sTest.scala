@@ -18,9 +18,9 @@ import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
-import stryker4s.testutil.{MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class Stryker4sTest extends Stryker4sIOSuite with MockitoSuite with Inside with LogMatchers {
+class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside with LogMatchers {
 
   case class TestTestRunnerContext() extends TestRunnerContext
   class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
@@ -42,9 +42,9 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoSuite with Inside with 
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val reporterMock = mock[AggregateReporter]
-      when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-      when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
-      when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
+      whenF(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+      whenF(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
+      whenF(reporterMock.reportMutationStart(any[Mutant])).thenReturn(())
 
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 

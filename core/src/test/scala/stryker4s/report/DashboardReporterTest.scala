@@ -9,11 +9,11 @@ import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 import sttp.client._
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
-class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
+class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("buildRequest") {
     it("should compose the request") {
       implicit val backend = backendStub

@@ -4,7 +4,6 @@ import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
 
-import cats.effect.IO
 import stryker4s.command.runner.ProcessMutantRunner
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
@@ -15,16 +14,16 @@ import stryker4s.report.{AggregateReporter, FinishedRunReport}
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
-import stryker4s.testutil.{MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
+class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   implicit private val config: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[AggregateReporter]
-  when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-  when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
-  when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
+  whenF(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+  whenF(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
+  whenF(reporterMock.reportMutationStart(any[Mutant])).thenReturn(())
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {
