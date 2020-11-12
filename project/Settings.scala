@@ -11,9 +11,11 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
+    parallelExecution in Test := false,
     libraryDependencies ++= Seq(
       Dependencies.test.scalatest,
       Dependencies.test.mockitoScala,
+      Dependencies.test.mockitoScalaCats,
       Dependencies.test.catsEffectScalaTest,
       Dependencies.pureconfig,
       Dependencies.pureconfigSttp,

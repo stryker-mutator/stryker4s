@@ -4,7 +4,6 @@ import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
 
-import cats.effect.IO
 import stryker4s.command.runner.ProcessMutantRunner
 import stryker4s.config.Config
 import stryker4s.extension.exception.InitialTestRunFailedException
@@ -22,9 +21,9 @@ class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with 
 
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[AggregateReporter]
-  when(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(IO.unit)
-  when(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(IO.unit)
-  when(reporterMock.reportMutationStart(any[Mutant])).thenReturn(IO.unit)
+  whenF(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+  whenF(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
+  whenF(reporterMock.reportMutationStart(any[Mutant])).thenReturn(())
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {

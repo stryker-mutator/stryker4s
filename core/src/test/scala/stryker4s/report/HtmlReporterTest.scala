@@ -46,7 +46,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
   describe("indexHtml") {
     it("should contain title") {
       val mockFileIO = mock[FileIO]
-      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val testFile = File("foo.bar").path
 
@@ -62,7 +62,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
   describe("reportJs") {
     it("should contain the report") {
       val mockFileIO = mock[FileIO]
-      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val testFile = File("foo.bar").path
       val runResults = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
@@ -120,8 +120,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
   describe("reportRunFinished") {
     it("should write the report files to the report directory") {
       val mockFileIO = mock[FileIO]
-      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
-      when(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(IO.unit)
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
+      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
@@ -140,8 +140,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
     it("should write the mutation-test-elements.js file to the report directory") {
       val mockFileIO = mock[FileIO]
-      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
-      when(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(IO.unit)
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
+      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
@@ -159,8 +159,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
     it("should info log a message") {
       val mockFileIO = mock[FileIO]
-      when(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(IO.unit)
-      when(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(IO.unit)
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
+      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
