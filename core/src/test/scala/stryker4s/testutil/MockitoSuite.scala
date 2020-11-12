@@ -8,7 +8,6 @@ trait MockitoSuite extends MockitoSugar {
   this: Stryker4sSuite =>
 }
 
-// AsyncMockitoSugar doesn't seem to work well with IO-based async tests
 trait MockitoIOSuite extends AsyncMockitoSugar with MockitoCats {
   this: Stryker4sIOSuite =>
 }
