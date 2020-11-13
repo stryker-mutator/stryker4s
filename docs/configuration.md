@@ -3,7 +3,7 @@ title: Configuration
 custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/configuration.md
 ---
 
-All configuration options can be set from the stryker4s.conf file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
+All configuration options can be set from the `stryker4s.conf` file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
 
 ```conf
 stryker4s {
@@ -117,9 +117,9 @@ Settings for the dashboard [reporter](#reporters-string). See the [dashboard doc
 **Since:** `v0.10.0`  
 **Description:**
 
-See [timeout](#timeout-number)
+See [timeout](#timeout-duration)
 
-### `timeout` [`number`]
+### `timeout` [`duration`]
 
 **Config file:** `timeout: 5000`  
 **Default value:** `5 seconds`  
