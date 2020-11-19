@@ -24,19 +24,18 @@ class ProcessMutantRunner(
 
   override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] = {
     val id = mutant.id
-    IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", id.toString))) map {
-      case Success(0)                         => Survived(mutant)
-      case Success(exitCode) if exitCode != 0 => Killed(mutant)
-      case Failure(_: TimeoutException)       => TimedOut(mutant)
-      case _                                  => Error(mutant)
+    IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", id.toString))).map {
+      case Success(0)                   => Survived(mutant)
+      case Success(_)                   => Killed(mutant)
+      case Failure(_: TimeoutException) => TimedOut(mutant)
+      case _                            => Error(mutant)
     }
   }
 
   override def runInitialTest(context: Context): IO[Boolean] = {
-    IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", "None"))) map {
-      case Success(0)                         => true
-      case Success(exitCode) if exitCode != 0 => false
-      case Failure(_: TimeoutException)       => false
+    IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", "None"))).map {
+      case Success(0) => true
+      case _          => false
     }
   }
 
