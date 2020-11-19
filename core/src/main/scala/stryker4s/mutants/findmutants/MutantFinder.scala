@@ -23,7 +23,8 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
   }
 
   def parseFile(file: File): Source =
-    file.toJava.parse[Source] match {
+    // Match is reported as non-exhaustive for some reason
+    (file.toJava.parse[Source]: @unchecked) match {
       case Success(source) =>
         source
       case Error(_, msg, ex) =>
