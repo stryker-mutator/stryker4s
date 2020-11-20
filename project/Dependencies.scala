@@ -4,7 +4,7 @@ object Dependencies {
   object versions {
     val scala211 = "2.11.12"
     val scala212 = "2.12.12"
-    val scala213 = "2.13.3"
+    val scala213 = "2.13.4"
     val scala3 = "3.0.0-M1"
 
     /** Cross-versions for main projects
@@ -16,7 +16,7 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, scala3)
 
     val testInterface = "1.0"
-    val scalameta = "4.3.24"
+    val scalameta = "4.4.0"
     val pureconfig = "0.14.0"
     val scalatest = "3.2.3"
     val catsEffectScalaTest = "0.4.2"

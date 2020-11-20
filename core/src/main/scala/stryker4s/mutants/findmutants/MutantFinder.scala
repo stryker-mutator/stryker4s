@@ -1,7 +1,8 @@
 package stryker4s.mutants.findmutants
 
+import scala.meta.Parsed.{Error, Success}
 import scala.meta.Source
-import scala.meta.parsers.{Parsed, XtensionParseInputLike}
+import scala.meta.parsers.XtensionParseInputLike
 
 import better.files.File
 import stryker4s.config.Config
@@ -22,10 +23,11 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
   }
 
   def parseFile(file: File): Source =
-    file.toJava.parse[Source] match {
-      case Parsed.Success(source) =>
+    // Match is reported as non-exhaustive for some reason
+    (file.toJava.parse[Source]: @unchecked) match {
+      case Success(source) =>
         source
-      case Parsed.Error(_, msg, ex) =>
+      case Error(_, msg, ex) =>
         log.error(s"Error while parsing file '${file.relativePath}', $msg")
         throw ex
     }
