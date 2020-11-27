@@ -24,7 +24,7 @@ object Dependencies {
     val betterFiles = "3.9.1"
     val log4j = "2.14.0"
     val catsCore = "2.3.0"
-    val catsEffect = "2.3.0"
+    val catsEffect = "2.2.0"
     val circe = "0.13.0"
     val mutationTestingElements = "1.4.3"
     val mutationTestingMetrics = "1.4.4"
