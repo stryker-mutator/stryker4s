@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    branches: [master, 'chore/gpg']
+    branches: [master]
     tags: ['*']
 jobs:
   publish:
@@ -17,7 +17,6 @@ jobs:
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: openjdk@1.11
-      - run: gpg --version
       - name: Publish
         run: csbt ci-release
         env:
