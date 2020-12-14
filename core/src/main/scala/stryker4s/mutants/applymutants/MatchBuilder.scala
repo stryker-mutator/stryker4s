@@ -58,7 +58,7 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
     q"($mutationContext match { ..case $cases })"
   }
 
-  private def mutantToCase(mutant: Mutant): Case =
+  def mutantToCase(mutant: Mutant): Case =
     buildCase(mutant.mutated, p"Some(${Lit.String(mutant.id.toString)})")
 
   private def defaultCase(originalStatement: Term): Case = buildCase(originalStatement, p"_")

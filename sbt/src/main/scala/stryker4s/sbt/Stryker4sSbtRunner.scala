@@ -10,6 +10,8 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
 import stryker4s.sbt.runner.SbtMutantRunner
+import stryker4s.mutants.applymutants.MatchBuilder
+import stryker4s.mutants.applymutants.CoverageMatchBuilder
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -19,6 +21,9 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
     extends Stryker4sRunner {
   override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
     new SbtMutantRunner(state, collector, reporter)
+
+  override def resolveMatchBuilder(implicit config: Config): MatchBuilder =
+    if (config.legacyTestRunner) new MatchBuilder(mutationActivation) else new CoverageMatchBuilder(mutationActivation)
 
   override val mutationActivation: ActiveMutationContext = ActiveMutationContext.sysProps
 }
