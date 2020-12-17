@@ -56,5 +56,5 @@ abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO]) {
     new MatchBuilder(mutationActivation)
   }
 
-  def mutationActivation: ActiveMutationContext
+  def mutationActivation(implicit config: Config): ActiveMutationContext
 }

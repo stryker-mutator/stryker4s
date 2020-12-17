@@ -25,5 +25,6 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
   override def resolveMatchBuilder(implicit config: Config): MatchBuilder =
     if (config.legacyTestRunner) new MatchBuilder(mutationActivation) else new CoverageMatchBuilder(mutationActivation)
 
-  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.sysProps
+  override def mutationActivation(implicit config: Config): ActiveMutationContext =
+    if (config.legacyTestRunner) ActiveMutationContext.sysProps else ActiveMutationContext.testRunner
 }

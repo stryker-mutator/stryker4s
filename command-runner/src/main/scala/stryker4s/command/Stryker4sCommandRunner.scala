@@ -17,7 +17,7 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit
     timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends Stryker4sRunner {
-  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.envVar
+  override def mutationActivation(implicit config: Config): ActiveMutationContext = ActiveMutationContext.envVar
 
   override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
     new ProcessMutantRunner(processRunnerConfig.testRunner, ProcessRunner(), collector, reporter)
