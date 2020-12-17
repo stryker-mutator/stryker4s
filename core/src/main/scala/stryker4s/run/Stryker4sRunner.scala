@@ -50,11 +50,7 @@ abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO]) {
 
   def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner
 
-  def resolveMatchBuilder(implicit config: Config): MatchBuilder = {
-    // Silence unused variables warning
-    val _ = config
-    new MatchBuilder(mutationActivation)
-  }
+  def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
 
   def mutationActivation(implicit config: Config): ActiveMutationContext
 }
