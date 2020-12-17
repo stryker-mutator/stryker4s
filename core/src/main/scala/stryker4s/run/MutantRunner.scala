@@ -49,9 +49,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     blocker <- Blocker[IO]
     targetDir = (config.baseDir / "target").path
     _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
-    tmpDir <- Resource.apply[IO, Path](
-      io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-").allocated.map(_._1 -> IO.unit)
-    )
+    tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
     _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
     context <- initializeTestContext(tmpDir)
   } yield context
