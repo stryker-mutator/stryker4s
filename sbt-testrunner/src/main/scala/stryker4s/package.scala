@@ -1,59 +1,69 @@
-import scala.collection.mutable
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+
+import scala.collection.concurrent.TrieMap
+
 import sbt.testing.Fingerprint
-import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.function.Consumer
+import stryker4s.api.testprocess.CoverageReport
+import stryker4s.sbt.testrunner.TestInterfaceMapper
 
 package object stryker4s {
+
+  /** object to collect coverage analysis on the mutated code
+    */
   object coverage {
 
     /** We have no idea how tests will run their code, so the coverage analysis needs to be able to handle concurrency
-      * The main action is to append, and at the end collect once which makes ConcurrentQueue a good candidate
       */
-    private val coveredTests = new ConcurrentLinkedQueue[(Fingerprint, Int)]()
+    private val coveredTests = TrieMap.empty[Int, Array[Fingerprint]]
 
     private val activeTest = new AtomicReference[Fingerprint]()
 
-    /** TODO: add per-test reporting
-      *
-      * @param id
+    /** If we are currently collecting coverage analysis. If not we can skip it for performance
+      */
+    private val collectCoverage = new AtomicBoolean()
+
+    /** Add a mutant to the current coverage report
       */
     def coverMutant(id: Int): Unit = {
-      val currentTest = activeTest.get
-      if (currentTest != null) {
-        coveredTests.add((currentTest, id))
-      }
-      ()
-    }
-
-    def setActiveTest(fingerPrint: Fingerprint) = activeTest.set(fingerPrint)
-
-    def report() = {
-      val buffer = mutable.Buffer[(Fingerprint, Int)]()
-      coveredTests.forEach(new Consumer[(Fingerprint, Int)] {
-        override def accept(t: (Fingerprint, Int)): Unit = {
-          buffer += t
-          ()
+      if (collectCoverage.get()) {
+        val currentTest = activeTest.get
+        if (currentTest != null) {
+          val currentCovered = coveredTests.getOrElseUpdate(id, Array.empty)
+          coveredTests.update(id, currentCovered :+ currentTest)
         }
-      })
-
-      buffer.toSeq
-        .groupBy(_._1)
-        .map({ case (key, values) => key -> values.map(_._2) })
+      }
     }
 
-    def clear(): Unit = coveredTests.clear()
+    /** Set the currently running test. This is needed to map the covered mutants with the test that was running at that time
+      */
+    def setActiveTest(fingerPrint: Fingerprint) = if (collectCoverage.get()) activeTest.set(fingerPrint)
+
+    /** Collect coverage analysis during the provided function and return it in a tuple
+      */
+    def collectCoverage[A](f: => A): (A, CoverageReport) = try {
+      collectCoverage.set(true)
+
+      val result = f
+
+      (result, report())
+    } finally {
+      collectCoverage.set(false)
+      coveredTests.clear()
+    }
+
+    /** Build the coverage report from the collected data
+      */
+    private def report(): CoverageReport =
+      coveredTests.map { case (mutant, tests) =>
+        mutant -> tests.map(TestInterfaceMapper.toFingerprint(_)).toArray
+      }.toArray
 
   }
 
-  object activeMutation {
+  private val activeMutationRef: AtomicReference[Option[Int]] = new AtomicReference(None)
 
-    private val activeMutationRef = new AtomicInteger(-1) // '-1' means no mutation is active at the start
+  def activeMutation = activeMutationRef.get()
 
-    def get: Int = activeMutationRef.get()
+  def activeMutation_=(mutation: Int) = activeMutationRef.set(Some(mutation))
 
-    def activate(mutation: Int): Unit = activeMutationRef.set(mutation)
-
-  }
 }

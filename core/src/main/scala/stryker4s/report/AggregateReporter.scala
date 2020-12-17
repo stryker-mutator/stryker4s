@@ -28,7 +28,7 @@ class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logge
   override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {
     reportAll[FinishedRunReporter](
       finishedRunReporters,
-      reporter => reporter.reportRunFinished(runReport)
+      _.reportRunFinished(runReport)
     )
   }
 

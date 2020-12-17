@@ -13,7 +13,7 @@ import stryker4s.log.Logger
 import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
 
 trait TestRunner {
-  def initialTestRun(): IO[Boolean]
+  def initialTestRun(): IO[InitialTestRunResult]
   def runMutant(mutant: Mutant): IO[MutantRunResult]
 }
 
@@ -42,13 +42,13 @@ object TestRunner {
                 )
             } yield result
 
-          override def initialTestRun(): IO[Boolean] =
+          override def initialTestRun(): IO[InitialTestRunResult] =
             for {
               runner <- testRunnerRef.get
               (result, duration) <- runner.initialTestRun().timed
               newTimeout = calculateTimeout(duration)
               _ <-
-                if (result)
+                if (result.fold(identity, _.isSuccessful))
                   timeout.complete(newTimeout) *>
                     IO(log.info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
                 else IO.unit
@@ -87,7 +87,7 @@ object TestRunner {
               case Right(value) => IO.pure(value)
             }
           }
-          override def initialTestRun(): IO[Boolean] =
+          override def initialTestRun(): IO[InitialTestRunResult] =
             testRunnerRef.get.flatMap(_.initialTestRun())
         }
       }
@@ -113,7 +113,7 @@ object TestRunner {
             result <- runner.runMutant(mutant)
           } yield result
 
-          override def initialTestRun(): IO[Boolean] = for {
+          override def initialTestRun(): IO[InitialTestRunResult] = for {
             _ <- usesRef.update(_ + 1)
             runner <- testRunnerRef.get
             result <- runner.initialTestRun()

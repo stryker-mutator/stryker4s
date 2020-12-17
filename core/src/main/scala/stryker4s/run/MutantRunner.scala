@@ -31,8 +31,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
       .use(context =>
-        initialTestRun(context) *>
-          runMutants(mutatedFiles, context).timed
+        initialTestRun(context).flatMap { coverageExclusions =>
+          runMutants(mutatedFiles, context, coverageExclusions).timed
+        }
       )
       .flatMap(t => createAndReportResults(t._1, t._2))
 
@@ -48,7 +49,9 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     blocker <- Blocker[IO]
     targetDir = (config.baseDir / "target").path
     _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
-    tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
+    tmpDir <- Resource.apply[IO, Path](
+      io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-").allocated.map(_._1 -> IO.unit)
+    )
     _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
     context <- initializeTestContext(tmpDir)
   } yield context
@@ -97,14 +100,25 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
           .through(io.file.writeAll(targetPath, blocker))
       }
 
-  private def runMutants(mutatedFiles: List[MutatedFile], context: Context): IO[Map[Path, List[MutantRunResult]]] = {
+  private def runMutants(
+      mutatedFiles: List[MutatedFile],
+      context: Context,
+      coverageExclusions: CoverageExclusions
+  ): IO[Map[Path, List[MutantRunResult]]] = {
     val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
     mutatedFiles
       .map(m => m.fileOrigin.relativePath -> m.mutants.toList)
       .traverse { case (subPath, mutants) =>
         mutants
-          .traverse(reportAndRunMutant(_, context, totalMutants))
+          .traverse { mutant =>
+            if (coverageExclusions.staticMutants.contains(mutant.id)) {
+              IO.pure(ignored(mutant))
+            } else if (coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(mutant.id)) {
+              IO.pure(NoCoverage(mutant))
+            } else
+              reportAndRunMutant(mutant, context, totalMutants)
+          }
           .tupleLeft(subPath)
       }
       .map(_.toMap)
@@ -119,22 +133,46 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
   def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult]
 
-  def initialTestRun(context: Context): IO[Unit] = {
+  def initialTestRun(context: Context): IO[CoverageExclusions] = {
     IO(log.info("Starting initial test run...")) *>
       runInitialTest(context).flatMap { result =>
-        if (!result)
+        if (!result.fold(identity, _.isSuccessful))
           IO.raiseError(
             InitialTestRunFailedException(
               "Initial test run failed. Please make sure your tests pass before running Stryker4s."
             )
           )
         else
-          IO(log.info("Initial test run succeeded! Testing mutants..."))
+          IO(log.info("Initial test run succeeded! Testing mutants...")).as {
+            result match {
+              case Left(_) => CoverageExclusions(false, List.empty, List.empty)
+              case Right(InitialTestRunCoverageReport(_, firstRun, secondRun)) =>
+                val firstRunMap = firstRun.toMap
+                val secondRunMap = secondRun.toMap
+                val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
+
+                val coveredMutants = firstRunMap
+                  .filterNot({ case (id, _) => staticMutants.contains(id) })
+                  .keys
+                  .toSeq
+
+                CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
+            }
+          }
       }
   }
 
-  def runInitialTest(context: Context): IO[Boolean]
+  private def ignored(mutant: Mutant) = Ignored(
+    mutant,
+    Some(
+      "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."
+    )
+  )
+
+  def runInitialTest(context: Context): IO[InitialTestRunResult]
 
   def initializeTestContext(tmpDir: File): Resource[IO, Context]
+
+  case class CoverageExclusions(hasCoverage: Boolean, coveredMutants: Seq[Int], staticMutants: Seq[Int])
 
 }

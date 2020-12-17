@@ -14,7 +14,7 @@ import stryker4s.api.testprocess._
 import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
-import stryker4s.run.TestRunner
+import stryker4s.run.{InitialTestRunResult, TestRunner}
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -28,14 +28,29 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
     }
   }
 
-  override def initialTestRun(): IO[Boolean] = {
-    testProcess.sendMessage(StartInitialTestRun()) map {
-      case _: TestsSuccessful => true
-      case _                  => false
-    }
+  /** Initial test-run is done twice. This allows us to collect coverage data while filtering out 'static' mutants.
+    * Mutants are considered static if they are initialized only once. This means the value cannot be changed using mutation switching.
+    * For example, a `val a = 2` inside an `object` is considered static.
+    *
+    * In the first initial test-run, coverage data is collected. When running the second time any static mutants will not have coverage because their code will not be executed a second time, so we can filter those out.
+    * See also https://github.com/stryker-mutator/stryker4s/pull/565#issuecomment-688438699
+    */
+  override def initialTestRun(): IO[InitialTestRunResult] = {
+    val initialTestRun = testProcess.sendMessage(StartInitialTestRun())
 
+    initialTestRun
+      .map2(initialTestRun) {
+        case (firstRun: CoverageTestRunResult, secondRun: CoverageTestRunResult) =>
+          Right(
+            InitialTestRunCoverageReport(
+              firstRun.isSuccessful && secondRun.isSuccessful,
+              firstRun.coverageReport.toMap.mapValues(_.toSeq),
+              secondRun.coverageReport.toMap.mapValues(_.toSeq)
+            )
+          )
+        case x => throw new MatchError(x)
+      }
   }
-
 }
 
 object ProcessTestRunner extends TestInterfaceMapper {

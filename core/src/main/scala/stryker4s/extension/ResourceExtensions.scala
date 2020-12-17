@@ -16,7 +16,7 @@ object ResourceExtensions {
       *   - A `F[Unit]` that releases the 'old' Resource and recreates a new one to store in the `Ref`
       * @return The new resource created with @param f
       */
-    def selfRecreatingResource(f: (Ref[F, A], F[Unit]) => F[A])(implicit F: Concurrent[F]): Resource[F, A] =
+    def selfRecreatingResource[B](f: (Ref[F, A], F[Unit]) => F[B])(implicit F: Concurrent[F]): Resource[F, B] =
       Hotswap(startResource).evalMap { case (hotswap, r) =>
         Ref[F].of(r).flatMap { ref =>
           // .clear to run the finalizer of the existing resource first before starting a new one

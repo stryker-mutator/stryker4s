@@ -11,9 +11,6 @@ import stryker4s.testutil.Stryker4sSuite
 
 class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
-  private val activeMutationString = Lit.String("ACTIVE_MUTATION")
-  private val activeMutationPropsExpr: Term.Apply = q"_root_.scala.sys.props.get($activeMutationString)"
-
   describe("buildMatch") {
     it("should transform 2 mutations into match statement with 2 mutated and 1 original") {
       // Arrange
@@ -21,19 +18,17 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
         .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
-      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
       val result = sut.buildMatch(TransformedMutants(originalStatement, mutants))
 
       // Assert
-      assert(result.expr.isEqual(activeMutationPropsExpr))
-      val someZero = someOf(0)
-      val someOne = someOf(1)
+      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"))
       result.cases.map(_.syntax) should (contain
         .inOrderOnly(
-          p"case $someZero => x > 15".syntax,
-          p"case $someOne => x <= 15".syntax,
+          p"case Some(0) => x > 15".syntax,
+          p"case Some(1) => x <= 15".syntax,
           p"case _ => x >= 15".syntax
         ))
     }
@@ -81,17 +76,17 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val transformed = TransformedMutants(q"14 < 15", failedMutants)
       val successfulTransformed = TransformedMutants(source.find(q"15 > 14").value, successfulMutants)
       val transStatements = SourceTransformations(source, List(transformed, successfulTransformed))
-      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
       val result = sut.buildNewSource(transStatements)
 
       // Assert
       val expected = source"""class Foo {
-        def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-              case Some("2") =>
+        def bar: Boolean = _root_.stryker4s.activeMutation match {
+              case Some(2) =>
                 15 < 14
-              case Some("3") =>
+              case Some(3) =>
                 15 <= 14
               case _ =>
                 15 > 14
@@ -120,12 +115,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       // Assert
       val expected =
         source"""class Foo {
-                   def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                     case Some("0") =>
+                   def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION").map(_root_.java.lang.Integer.parseInt(_)) match {
+                     case Some(0) =>
                        15 < 14
-                     case Some("1") =>
+                     case Some(1) =>
                        15 == 14
-                     case Some("2") =>
+                     case Some(2) =>
                        15 >= 14
                      case _ =>
                        15 > 14
@@ -142,7 +137,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val secondTrans = toTransformed(source, GreaterThanEqualTo, q">=", q">", q"==", q"<")
 
       val transformedStatements = SourceTransformations(source, List(firstTrans, secondTrans))
-      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -150,18 +145,18 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       // Assert
       val expected =
         source"""class Foo {
-                   def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                     case Some("0") =>
+                   def bar: Boolean = _root_.stryker4s.activeMutation match {
+                     case Some(0) =>
                        15 < 14 && 14 >= 13
-                     case Some("1") =>
+                     case Some(1) =>
                        15 == 14 && 14 >= 13
-                     case Some("2") =>
+                     case Some(2) =>
                        15 >= 14 && 14 >= 13
-                     case Some("3") =>
+                     case Some(3) =>
                        15 > 14 && 14 > 13
-                     case Some("4") =>
+                     case Some(4) =>
                        15 > 14 && 14 == 13
-                     case Some("5") =>
+                     case Some(5) =>
                        15 > 14 && 14 < 13
                      case _ =>
                        15 > 14 && 14 >= 13
@@ -182,7 +177,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
-      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -190,12 +185,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       // Assert
       val expected =
         source"""class Foo {
-            def foo = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-              case Some("0") =>
+            def foo = _root_.stryker4s.activeMutation match {
+              case Some(0) =>
                 "foo" != ""
-              case Some("1") =>
+              case Some(1) =>
                 "" == ""
-              case Some("2") =>
+              case Some(2) =>
                 "foo" == "Stryker was here!"
               case _ =>
                 "foo" == ""
@@ -222,7 +217,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
         toTransformed(source, EmptyString, Lit.String("nonEmpty"), Lit.String(""))
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
-      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -230,22 +225,22 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       // Assert
       val expected = source"""class Foo(list: Seq[String]) {
                                 def foo = 
-                                _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                  case Some("0") =>
+                                _root_.stryker4s.activeMutation match {
+                                  case Some(0) =>
                                     list.isEmpty match {
                                       case true =>
-                                        _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                          case Some("2") => ""
+                                        _root_.stryker4s.activeMutation match {
+                                          case Some(2) => ""
                                           case _         => "nonEmpty"
                                         }
                                       case _ =>
                                         otherValue
                                     }
-                                  case Some("1") =>
+                                  case Some(1) =>
                                     list.nonEmpty match {
                                       case false =>
-                                        _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                          case Some("2") => ""
+                                        _root_.stryker4s.activeMutation match {
+                                          case Some(2) => ""
                                           case _         => "nonEmpty"
                                         }
                                       case _ =>
@@ -254,8 +249,8 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                                   case _ =>
                                     list.nonEmpty match {
                                       case true =>
-                                        _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                          case Some("2") => ""
+                                        _root_.stryker4s.activeMutation match {
+                                          case Some(2) => ""
                                           case _         => "nonEmpty"
                                         }
                                       case _ =>
@@ -285,7 +280,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val thirdTransformed = toTransformed(source, EmptyString, Lit.String("Done"), Lit.String(""))
       val transformedStatements =
         SourceTransformations(source, List(firstTransformed, secondTransformed, thirdTransformed))
-      val sut = new MatchBuilder(ActiveMutationContext.sysProps)
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
       val result = sut.buildNewSource(transformedStatements)
@@ -293,23 +288,23 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       // Assert
       val expected = source"""class Foo() {
                                 def foo = try {
-                                  _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                    case Some("0") =>
+                                  _root_.stryker4s.activeMutation match {
+                                    case Some(0) =>
                                       runAndContinue("")
                                     case _ =>
                                       runAndContinue("task.run")
                                   }
                                 } catch {
                                   case _ =>
-                                    _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                      case Some("1") =>
+                                    _root_.stryker4s.activeMutation match {
+                                      case Some(1) =>
                                         logger.error("", e)
                                       case _ =>
                                         logger.error("Error during run", e)
                                     }
                                 } finally {
-                                  _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                                    case Some("2") =>
+                                  _root_.stryker4s.activeMutation match {
+                                    case Some(2) =>
                                       logger.info("")
                                     case _ =>
                                       logger.info("Done")
@@ -321,6 +316,8 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
   }
 
   describe("mutationActivation") {
+    val activeMutationString = Lit.String("ACTIVE_MUTATION")
+
     it("should build a pattern match with sys.props if sysProps is given") {
       val sut = new MatchBuilder(ActiveMutationContext.sysProps)
       implicit val ids: Iterator[Int] = Iterator.from(0)
@@ -329,7 +326,11 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       val result = sut.buildMatch(transformed)
 
-      assert(result.expr.isEqual(q"_root_.scala.sys.props.get($activeMutationString)"))
+      assert(
+        result.expr.isEqual(
+          q"_root_.scala.sys.props.get($activeMutationString).map(_root_.java.lang.Integer.parseInt(_))"
+        )
+      )
     }
 
     it("should build a pattern match with sys.env if envVar is given") {
@@ -340,15 +341,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       val result = sut.buildMatch(transformed)
 
-      assert(result.expr.isEqual(q"_root_.scala.sys.env.get($activeMutationString)"))
+      assert(
+        result.expr.isEqual(
+          q"_root_.scala.sys.env.get($activeMutationString).map(_root_.java.lang.Integer.parseInt(_))"
+        )
+      )
     }
-  }
-
-  /** Little helper method to get a Some(*string*) AST out of an Int
-    */
-  private def someOf(number: Int): Pat.Extract = {
-    val stringTerm = Lit.String(number.toString)
-    p"Some($stringTerm)"
   }
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants

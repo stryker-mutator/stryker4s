@@ -14,8 +14,8 @@ import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
 import stryker4s.report.{AggregateReporter, FinishedRunReport, Reporter}
-import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
+import stryker4s.run.{InitialTestRunResult, MutantRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
@@ -29,7 +29,7 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
     type Context = TestTestRunnerContext
     override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] =
       IO.pure(Killed(Mutant(stream.next(), q">", q"<", LesserThan)))
-    override def runInitialTest(context: Context): IO[Boolean] = IO.pure(true)
+    override def runInitialTest(context: Context): IO[InitialTestRunResult] = IO.pure(Left(true))
     override def initializeTestContext(tmpDir: File): Resource[IO, Context] =
       Resource.pure[IO, Context](TestTestRunnerContext())
   }
