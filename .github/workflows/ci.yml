@@ -44,7 +44,7 @@ jobs:
         with:
           path: |
             ~/.m2/repository
-            !~/.m2/repository/io/stryker-mutator/*stryker4s*/
+            !~/.m2/repository/io/stryker-mutator/stryker4s*/SET-BY-SBT-SNAPSHOT
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: olafurpg/setup-scala@v10
         with:
