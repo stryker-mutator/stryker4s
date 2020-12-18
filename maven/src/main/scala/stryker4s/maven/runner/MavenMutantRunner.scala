@@ -36,7 +36,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
   override def runInitialTest(context: Context): IO[InitialTestRunResult] = {
     val request = createRequest(context)
 
-    IO(invoker.execute(request)).map(_.getExitCode() == 0)
+    IO(invoker.execute(request)).map(_.getExitCode() == 0).map(Left(_))
   }
 
   override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] = {
