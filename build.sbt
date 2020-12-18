@@ -31,7 +31,7 @@ lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "comman
 // sbt plugins have to use Scala 2.12
 lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
   .enablePlugins(SbtPlugin)
-  .settings(commonSettings, sbtPluginSettings)
+  .settings(sbtPluginSettings)
   .dependsOn(stryker4sCore)
   .jvmPlatform(scalaVersions = Seq(versions.scala212))
 

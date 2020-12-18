@@ -9,6 +9,10 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 class CoverageMatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
     extends MatchBuilder(mutationContext) {
 
+  // sbt-stryker4s-testrunner matches on Int instead of Option[Int]
+  override def mutantToCase(mutant: Mutant): Case =
+    super.buildCase(mutant.mutated, p"${mutant.id}")
+
   override def defaultCase(transformedMutant: TransformedMutants): Case =
     withCoverage(super.defaultCase(transformedMutant), transformedMutant.mutantStatements)
 

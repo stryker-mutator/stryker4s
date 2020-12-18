@@ -15,6 +15,7 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.{InitialTestRunResult, TestRunner}
+import scala.jdk.CollectionConverters._
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -44,8 +45,8 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
           Right(
             InitialTestRunCoverageReport(
               firstRun.isSuccessful && secondRun.isSuccessful,
-              firstRun.coverageReport.toMap.mapValues(_.toSeq),
-              secondRun.coverageReport.toMap.mapValues(_.toSeq)
+              firstRun.coverageReport.asScala.toMap.mapValues(_.toSeq),
+              secondRun.coverageReport.asScala.toMap.mapValues(_.toSeq)
             )
           )
         case x => throw new MatchError(x)
