@@ -3,6 +3,7 @@ package stryker4s.sbt.runner
 import java.net.{InetAddress, Socket}
 
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.control.NonFatal
 
@@ -15,7 +16,6 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.{InitialTestRunResult, TestRunner}
-import scala.jdk.CollectionConverters._
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
