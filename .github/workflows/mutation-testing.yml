@@ -63,7 +63,7 @@ jobs:
       - name: Run Stryker4s
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
-          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"' stryker4s-core2_12/publishM2
+          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
           cd maven
           mvn -B --no-transfer-progress stryker4s:run
         env:
