@@ -121,7 +121,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
         mapPureValues(noCoverageMutants)(NoCoverage(_)) ++
         // Run all testable mutants
         testableMutants.zipWithIndex.map { case ((subPath, mutant), progress) =>
-          reporter.onMutationStart(StartMutationEvent(Progress(progress, totalTestableMutants))) *>
+          reporter.onMutationStart(StartMutationEvent(Progress(progress + 1, totalTestableMutants))) *>
             runMutant(mutant, context)
               .tupleLeft(subPath)
         }
