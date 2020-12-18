@@ -28,7 +28,6 @@ class ConsoleReporter(implicit config: Config, log: Logger) extends FinishedRunR
         .flatMap { case (loc, f) =>
           f.mutants.map(m => (loc, m, f.source))
         }
-        .sortBy(_._2.id)
         .partition(m => isDetected(m._2))
       val (undetectedMutants, _) = rest partition (m => isUndetected(m._2))
 

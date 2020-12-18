@@ -142,8 +142,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
     // Back to per-file structure
     testedMutants.sequence.map(
-      _.sortBy(_._2.mutant.id)
-        .groupBy(_._1)
+      _.groupBy(_._1)
         .map { kv => kv._1 -> kv._2.map(_._2) }
     )
   }
