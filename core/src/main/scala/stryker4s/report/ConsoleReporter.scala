@@ -10,14 +10,14 @@ import stryker4s.run.threshold._
 class ConsoleReporter(implicit config: Config, log: Logger) extends FinishedRunReporter with ProgressReporter {
   private[this] val mutationScoreString = "Mutation score:"
 
-  override def reportMutationStart(event: StartMutationEvent): IO[Unit] = {
+  override def onMutationStart(event: StartMutationEvent): IO[Unit] = {
     val Progress(tested, total) = event.progress
     IO(log.info(s"Starting mutation run ${tested}/${total} (${((tested / total.toDouble) * 100).round}%)"))
   }
 
-  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] =
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     IO {
-      val FinishedRunReport(report, metrics, duration, _) = runReport
+      val FinishedRunEvent(report, metrics, duration, _) = runReport
 
       log.info(s"Mutation run finished! Took ${duration.toHumanReadable}")
       log.info(

@@ -16,7 +16,7 @@ class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends FinishedRunRepo
     fileIO.createAndWrite(file, json)
   }
 
-  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
     val resultLocation = runReport.reportsLocation / "report.json"
 
     writeReportJsonTo(resultLocation.path, runReport.report) *>

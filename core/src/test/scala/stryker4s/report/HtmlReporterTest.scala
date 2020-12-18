@@ -117,7 +117,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
     }
   }
 
-  describe("reportRunFinished") {
+  describe("onRunFinished") {
     it("should write the report files to the report directory") {
       val mockFileIO = mock[FileIO]
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
@@ -127,7 +127,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val metrics = Metrics.calculateMetrics(report)
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics, 0.seconds, File("target/stryker4s-report/")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, File("target/stryker4s-report/")))
         .asserting { _ =>
           val writtenFilesCaptor = ArgCaptor[Path]
           verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor, any[String])
@@ -147,7 +147,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val metrics = Metrics.calculateMetrics(report)
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/")))
         .asserting { _ =>
           val elementsCaptor = ArgCaptor[Path]
           verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
@@ -166,7 +166,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val metrics = Metrics.calculateMetrics(report)
       val reportFile = File("target/stryker4s-report/")
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, reportFile))
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, reportFile))
         .asserting { _ =>
           val captor = ArgCaptor[Path]
           verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))

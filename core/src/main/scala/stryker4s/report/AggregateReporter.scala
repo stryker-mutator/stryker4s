@@ -12,16 +12,16 @@ class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logge
   private lazy val progressReporters = reporters collect { case r: ProgressReporter => r }
   private lazy val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
 
-  override def reportMutationStart(event: StartMutationEvent): IO[Unit] =
+  override def onMutationStart(event: StartMutationEvent): IO[Unit] =
     reportAll[ProgressReporter](
       progressReporters,
-      _.reportMutationStart(event)
+      _.onMutationStart(event)
     )
 
-  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
     reportAll[FinishedRunReporter](
       finishedRunReporters,
-      _.reportRunFinished(runReport)
+      _.onRunFinished(runReport)
     )
   }
 

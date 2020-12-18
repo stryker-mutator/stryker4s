@@ -15,7 +15,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
     httpBackend: SttpBackend[IO, Nothing, NothingT]
 ) extends FinishedRunReporter {
 
-  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] =
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     dashboardConfigProvider.resolveConfig() match {
       case Left(configKey) =>
         IO(

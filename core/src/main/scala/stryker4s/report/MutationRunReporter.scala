@@ -9,18 +9,18 @@ import mutationtesting._
 sealed trait MutationRunReporter
 
 trait ProgressReporter extends MutationRunReporter {
-  def reportMutationStart(event: StartMutationEvent): IO[Unit]
+  def onMutationStart(event: StartMutationEvent): IO[Unit]
 }
 
 trait FinishedRunReporter extends MutationRunReporter {
-  def reportRunFinished(runReport: FinishedRunReport): IO[Unit]
+  def onRunFinished(runReport: FinishedRunEvent): IO[Unit]
 }
 
 case class StartMutationEvent(progress: Progress)
 
 final case class Progress(tested: Int, total: Int)
 
-final case class FinishedRunReport(
+final case class FinishedRunEvent(
     report: MutationTestReport,
     metrics: MetricsResult,
     duration: FiniteDuration,

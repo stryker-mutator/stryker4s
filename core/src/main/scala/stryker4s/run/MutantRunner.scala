@@ -18,7 +18,7 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.{FinishedRunReport, Progress, Reporter, StartMutationEvent}
+import stryker4s.report.{FinishedRunEvent, Progress, Reporter, StartMutationEvent}
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
@@ -42,7 +42,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     report = toReport(runResults)
     metrics = Metrics.calculateMetrics(report)
     reportsLocation = config.baseDir / "target/stryker4s-report" / time.toString()
-    _ <- reporter.reportRunFinished(FinishedRunReport(report, metrics, duration, reportsLocation))
+    _ <- reporter.onRunFinished(FinishedRunEvent(report, metrics, duration, reportsLocation))
   } yield metrics
 
   def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] = for {
@@ -121,7 +121,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
         mapPureValues(noCoverageMutants)(NoCoverage(_)) ++
         // Run all testable mutants
         testableMutants.zipWithIndex.map { case ((subPath, mutant), progress) =>
-          reporter.reportMutationStart(StartMutationEvent(Progress(progress, totalTestableMutants))) *>
+          reporter.onMutationStart(StartMutationEvent(Progress(progress, totalTestableMutants))) *>
             runMutant(mutant, context)
               .tupleLeft(subPath)
         }

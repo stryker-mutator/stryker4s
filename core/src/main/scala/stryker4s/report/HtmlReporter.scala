@@ -54,7 +54,7 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extend
     fileIO.createAndWrite(file, reportContent)
   }
 
-  override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
     val mutationTestElementsLocation = runReport.reportsLocation / mutationTestElementsName
     val indexLocation = runReport.reportsLocation / "index.html"
     val reportLocation = runReport.reportsLocation / reportFilename

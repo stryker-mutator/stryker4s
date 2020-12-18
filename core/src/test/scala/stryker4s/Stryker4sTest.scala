@@ -13,7 +13,7 @@ import stryker4s.model.{Killed, Mutant, MutantRunResult, TestRunnerContext}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
-import stryker4s.report.{AggregateReporter, FinishedRunReport, Progress, Reporter, StartMutationEvent}
+import stryker4s.report.{AggregateReporter, FinishedRunEvent, Progress, Reporter, StartMutationEvent}
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.run.{InitialTestRunResult, MutantRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
@@ -42,8 +42,8 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val reporterMock = mock[AggregateReporter]
-      whenF(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
-      whenF(reporterMock.reportMutationStart(any[StartMutationEvent])).thenReturn(())
+      whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
+      whenF(reporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
 
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
@@ -61,7 +61,7 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
 
       sut.run().asserting { result =>
         val startCaptor = ArgCaptor[StartMutationEvent]
-        verify(reporterMock, times(4)).reportMutationStart(startCaptor)
+        verify(reporterMock, times(4)).onMutationStart(startCaptor)
         startCaptor.values should matchPattern {
           case List(
                 StartMutationEvent(Progress(1, 4)),
@@ -70,9 +70,9 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
                 StartMutationEvent(Progress(4, 4))
               ) =>
         }
-        val runReportMock = ArgCaptor[FinishedRunReport]
-        verify(reporterMock).reportRunFinished(runReportMock)
-        val FinishedRunReport(reportedResults, _, _, _) = runReportMock.value
+        val runReportMock = ArgCaptor[FinishedRunEvent]
+        verify(reporterMock).onRunFinished(runReportMock)
+        val FinishedRunEvent(reportedResults, _, _, _) = runReportMock.value
 
         reportedResults.files.flatMap(_._2.mutants) should have size 4
         reportedResults.files.map { case (path, _) =>
