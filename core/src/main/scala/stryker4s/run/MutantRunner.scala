@@ -18,7 +18,7 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.{FinishedRunReport, Reporter}
+import stryker4s.report.{FinishedRunReport, Progress, Reporter, StartMutationEvent}
 
 abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
     config: Config,
@@ -103,31 +103,36 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       context: Context,
       coverageExclusions: CoverageExclusions
   ): IO[Map[Path, List[MutantRunResult]]] = {
-    val totalMutants = mutatedFiles.flatMap(_.mutants).size
 
-    mutatedFiles
-      .map(m => m.fileOrigin.relativePath -> m.mutants.toList)
-      .traverse { case (subPath, mutants) =>
-        mutants
-          .traverse { mutant =>
-            if (coverageExclusions.staticMutants.contains(mutant.id)) {
-              IO.pure(ignored(mutant))
-            } else if (coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(mutant.id)) {
-              IO.pure(NoCoverage(mutant))
-            } else
-              reportAndRunMutant(mutant, context, totalMutants)
-          }
-          .tupleLeft(subPath)
-      }
-      .map(_.toMap)
+    val allMutants = mutatedFiles.flatMap(m => m.mutants.toList.map(m.fileOrigin.relativePath -> _))
+
+    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id))
+    val (noCoverageMutants, testableMutants) =
+      rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id))
+
+    val totalTestableMutants = testableMutants.size
+
+    def mapPureValues[A, B, C](l: List[(A, B)])(m: B => C) = l.map({ case (k, v) => IO.pure(m(v)).tupleLeft(k) })
+
+    val testedMutants =
+      // Map all static mutants
+      mapPureValues(staticMutants)(staticMutant(_)) ++
+        // Map all no-coverage mutants
+        mapPureValues(noCoverageMutants)(NoCoverage(_)) ++
+        // Run all testable mutants
+        testableMutants.zipWithIndex.map { case ((subPath, mutant), progress) =>
+          reporter.reportMutationStart(StartMutationEvent(Progress(progress, totalTestableMutants))) *>
+            runMutant(mutant, context)
+              .tupleLeft(subPath)
+        }
+
+    // Back to per-file structure
+    testedMutants.sequence.map(
+      _.sortBy(_._2.mutant.id)
+        .groupBy(_._1)
+        .map { kv => kv._1 -> kv._2.map(_._2) }
+    )
   }
-
-  private def reportAndRunMutant(mutant: Mutant, context: Context, totalMutants: Int): IO[MutantRunResult] =
-    for {
-      _ <- reporter.reportMutationStart(mutant)
-      result <- runMutant(mutant, context)
-      _ <- reporter.reportMutationComplete(result, totalMutants)
-    } yield result
 
   def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult]
 
@@ -154,13 +159,20 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
                   .keys
                   .toSeq
 
+                if (staticMutants.nonEmpty) {
+                  log.info(
+                    s"${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored"
+                  )
+                  log.debug(s"Static mutant ids are: ${staticMutants.mkString(", ")}")
+                }
+
                 CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
             }
           }
       }
   }
 
-  private def ignored(mutant: Mutant) = Ignored(
+  private def staticMutant(mutant: Mutant) = Ignored(
     mutant,
     Some(
       "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."

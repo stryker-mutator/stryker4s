@@ -3,7 +3,6 @@ package stryker4s.report
 import cats.effect.{ContextShift, IO}
 import cats.syntax.all._
 import stryker4s.log.Logger
-import stryker4s.model.{Mutant, MutantRunResult}
 
 class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logger, cs: ContextShift[IO])
     extends FinishedRunReporter
@@ -13,16 +12,10 @@ class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logge
   private lazy val progressReporters = reporters collect { case r: ProgressReporter => r }
   private lazy val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
 
-  override def reportMutationStart(mutant: Mutant): IO[Unit] =
+  override def reportMutationStart(event: StartMutationEvent): IO[Unit] =
     reportAll[ProgressReporter](
       progressReporters,
-      _.reportMutationStart(mutant)
-    )
-
-  override def reportMutationComplete(result: MutantRunResult, totalMutants: Int): IO[Unit] =
-    reportAll[ProgressReporter](
-      progressReporters,
-      _.reportMutationComplete(result, totalMutants)
+      _.reportMutationStart(event)
     )
 
   override def reportRunFinished(runReport: FinishedRunReport): IO[Unit] = {

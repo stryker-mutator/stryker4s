@@ -1,12 +1,9 @@
 package stryker4s.report
 
 import scala.concurrent.duration._
-import scala.meta._
 
 import better.files.File
 import mutationtesting._
-import stryker4s.extension.mutationtype.GreaterThan
-import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
@@ -30,67 +27,34 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
     }
 
     describe("reportMutationStart") {
-      it("should report to all progressReporters that a mutation run is started.") {
-        val mutantMock = Mutant(0, q">", q"<", GreaterThan)
-        val consoleReporterMock = mock[ConsoleReporter]
-        val progressReporterMock = mock[ProgressReporter]
-        whenF(consoleReporterMock.reportMutationStart(any[Mutant])).thenReturn(())
-        whenF(progressReporterMock.reportMutationStart(any[Mutant])).thenReturn(())
-        val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
-        sut
-          .reportMutationStart(mutantMock)
-          .map { _ =>
-            verify(consoleReporterMock).reportMutationStart(mutantMock)
-            verify(progressReporterMock).reportMutationStart(mutantMock)
-          }
-          .assertNoException
-      }
-
-      it("Should not report to finishedRunReporters that is mutation run is started.") {
-        val consoleReporterMock = mock[ConsoleReporter]
-        whenF(consoleReporterMock.reportMutationStart(any[Mutant])).thenReturn(())
-        val finishedRunReporterMock = mock[FinishedRunReporter]
-        val mutantMock = Mutant(0, q">", q"<", GreaterThan)
-        val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
-        sut
-          .reportMutationStart(mutantMock)
-          .map { _ =>
-            verify(consoleReporterMock).reportMutationStart(mutantMock)
-            verifyZeroInteractions(finishedRunReporterMock)
-          }
-          .assertNoException
-      }
-    }
-
-    describe("reportMutationComplete") {
-      it("should report to all progressReporters that a mutation run is completed") {
-        val mutantRunResultMock = mock[MutantRunResult]
+      it("should report to all progressReporters that a mutation run will start") {
+        val eventMock = mock[StartMutationEvent]
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
-        whenF(consoleReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
-        whenF(progressReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
+        whenF(consoleReporterMock.reportMutationStart(any[StartMutationEvent])).thenReturn(())
+        whenF(progressReporterMock.reportMutationStart(any[StartMutationEvent])).thenReturn(())
 
         sut
-          .reportMutationComplete(mutantRunResultMock, 1)
+          .reportMutationStart(eventMock)
           .map { _ =>
-            verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
-            verify(progressReporterMock).reportMutationComplete(mutantRunResultMock, 1)
+            verify(consoleReporterMock).reportMutationStart(eventMock)
+            verify(progressReporterMock).reportMutationStart(eventMock)
           }
           .assertNoException
       }
 
-      it("should not report to finishedMutationRunReporters that a mutation run is completed") {
+      it("should not report to finishedMutationRunReporters that a mutation run will start") {
         val consoleReporterMock = mock[ConsoleReporter]
         val finishedRunReporterMock = mock[FinishedRunReporter]
-        val mutantRunResultMock = mock[MutantRunResult]
+        val mutantRunResultMock = mock[StartMutationEvent]
         val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
-        whenF(consoleReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
+        whenF(consoleReporterMock.reportMutationStart(any[StartMutationEvent])).thenReturn(())
 
         sut
-          .reportMutationComplete(mutantRunResultMock, 1)
+          .reportMutationStart(mutantRunResultMock)
           .map { _ =>
-            verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
+            verify(consoleReporterMock).reportMutationStart(mutantRunResultMock)
             verifyZeroInteractions(finishedRunReporterMock)
           }
           .assertNoException

@@ -1,73 +1,43 @@
 package stryker4s.report
 
 import scala.concurrent.duration._
-import scala.meta._
 
 import mutationtesting.{Position, _}
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.{GreaterThan, LesserThan}
-import stryker4s.model._
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sIOSuite
 
 class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
-  describe("reportStartRun") {
-    it("Should log that test run 1 is started when mutant id is 0") {
-      implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
-      val mutant = Mutant(0, q">", q"<", GreaterThan)
 
-      sut
-        .reportMutationStart(mutant)
-        .asserting { _ =>
-          "Starting test-run 1..." shouldBe loggedAsInfo
-        }
-    }
-
-    it("should log multiple test runs") {
-      implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
-      val mutant1 = Mutant(0, q">", q"<", GreaterThan)
-      val mutant2 = Mutant(1, q">", q"<", GreaterThan)
-
-      (sut.reportMutationStart(mutant1) *>
-        sut.reportMutationStart(mutant2))
-        .asserting { _ =>
-          "Starting test-run 1..." shouldBe loggedAsInfo
-          "Starting test-run 2..." shouldBe loggedAsInfo
-        }
-    }
-  }
-
-  describe("reportFinishedMutation") {
+  describe("reportMutationStart") {
     it("Should log multiple test runs") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan))
-      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan))
+      val event1 = StartMutationEvent(Progress(1, 2))
+      val event2 = StartMutationEvent(Progress(2, 2))
 
-      (sut.reportMutationComplete(mutant1, 2) *>
-        sut.reportMutationComplete(mutant2, 2))
+      (sut.reportMutationStart(event1) *>
+        sut.reportMutationStart(event2))
         .asserting { _ =>
-          "Finished mutation run 1/2 (50%)" shouldBe loggedAsInfo
-          "Finished mutation run 2/2 (100%)" shouldBe loggedAsInfo
+          "Starting mutation run 1/2 (50%)" shouldBe loggedAsInfo
+          "Starting mutation run 2/2 (100%)" shouldBe loggedAsInfo
         }
     }
 
     it("Should round decimal numbers") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val mutant1 = Killed(Mutant(0, q">", q"<", GreaterThan))
-      val mutant2 = Survived(Mutant(1, q"<", q">", LesserThan))
-      val mutant3 = Survived(Mutant(2, q"<", q">", LesserThan))
+      val event1 = StartMutationEvent(Progress(1, 3))
+      val event2 = StartMutationEvent(Progress(2, 3))
+      val event3 = StartMutationEvent(Progress(3, 3))
 
-      (sut.reportMutationComplete(mutant1, 3) *>
-        sut.reportMutationComplete(mutant2, 3) *>
-        sut.reportMutationComplete(mutant3, 3))
+      (sut.reportMutationStart(event1) *>
+        sut.reportMutationStart(event2) *>
+        sut.reportMutationStart(event3))
         .asserting { _ =>
-          "Finished mutation run 1/3 (33%)" shouldBe loggedAsInfo
-          "Finished mutation run 2/3 (67%)" shouldBe loggedAsInfo
-          "Finished mutation run 3/3 (100%)" shouldBe loggedAsInfo
+          "Starting mutation run 1/3 (33%)" shouldBe loggedAsInfo
+          "Starting mutation run 2/3 (67%)" shouldBe loggedAsInfo
+          "Starting mutation run 3/3 (100%)" shouldBe loggedAsInfo
         }
     }
   }
