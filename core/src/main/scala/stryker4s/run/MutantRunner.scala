@@ -112,6 +112,20 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
     val totalTestableMutants = testableMutants.size
 
+    if (noCoverageMutants.nonEmpty) {
+      log.info(
+        s"${noCoverageMutants.size} mutants detected as having no code coverage. They will be skipped and marked as NoCoverage"
+      )
+      log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.mkString(", ")}")
+    }
+
+    if (staticMutants.nonEmpty) {
+      log.info(
+        s"${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored"
+      )
+      log.debug(s"Static mutant ids are: ${staticMutants.mkString(", ")}")
+    }
+
     def mapPureValues[A, B, C](l: List[(A, B)])(m: B => C) = l.map({ case (k, v) => IO.pure(m(v)).tupleLeft(k) })
 
     val testedMutants =
@@ -158,13 +172,6 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
                   .filterNot({ case (id, _) => staticMutants.contains(id) })
                   .keys
                   .toSeq
-
-                if (staticMutants.nonEmpty) {
-                  log.info(
-                    s"${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored"
-                  )
-                  log.debug(s"Static mutant ids are: ${staticMutants.mkString(", ")}")
-                }
 
                 CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
             }
