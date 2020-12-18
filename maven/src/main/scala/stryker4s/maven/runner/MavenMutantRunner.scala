@@ -11,7 +11,7 @@ import stryker4s.config.Config
 import stryker4s.model.{Killed, MavenRunnerContext, Mutant, MutantRunResult, Survived}
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
-import stryker4s.run.MutantRunner
+import stryker4s.run.{InitialTestRunResult, MutantRunner}
 import stryker4s.log.Logger
 
 class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector: SourceCollector, reporter: Reporter)(
@@ -33,7 +33,7 @@ class MavenMutantRunner(project: MavenProject, invoker: Invoker, sourceCollector
     Resource.pure[IO, Context](MavenRunnerContext(properties, goals))
   }
 
-  override def runInitialTest(context: Context): IO[Boolean] = {
+  override def runInitialTest(context: Context): IO[InitialTestRunResult] = {
     val request = createRequest(context)
 
     IO(invoker.execute(request)).map(_.getExitCode() == 0)
