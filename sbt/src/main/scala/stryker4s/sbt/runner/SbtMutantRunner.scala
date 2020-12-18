@@ -14,7 +14,7 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
-import stryker4s.run.{MutantRunner, TestRunner}
+import stryker4s.run.{InitialTestRunResult, MutantRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
@@ -127,7 +127,7 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     (settings, Project.extract(state))
   }
 
-  override def runInitialTest(context: Context): IO[Boolean] =
+  override def runInitialTest(context: Context): IO[InitialTestRunResult] =
     context.testRunner.initialTestRun()
 
   override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] =

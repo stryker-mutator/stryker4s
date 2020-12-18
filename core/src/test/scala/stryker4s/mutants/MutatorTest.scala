@@ -19,24 +19,24 @@ class MutatorTest extends Stryker4sSuite with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.sysProps)
+        new MatchBuilder(ActiveMutationContext.testRunner)
       )
 
       val result = sut.mutate(files)
 
       val expected = """object Foo {
-                       |  def bar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                       |    case Some("0") =>
+                       |  def bar = _root_.stryker4s.activeMutation match {
+                       |    case Some(0) =>
                        |      15 >= 14
-                       |    case Some("1") =>
+                       |    case Some(1) =>
                        |      15 < 14
-                       |    case Some("2") =>
+                       |    case Some(2) =>
                        |      15 == 14
                        |    case _ =>
                        |      15 > 14
                        |  }
-                       |  def foobar = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
-                       |    case Some("3") =>
+                       |  def foobar = _root_.stryker4s.activeMutation match {
+                       |    case Some(3) =>
                        |      ""
                        |    case _ =>
                        |      s"${bar}foo"

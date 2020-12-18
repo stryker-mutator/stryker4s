@@ -7,7 +7,15 @@ import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= (if (!isDotty.value) Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
-                             else Nil)
+                             else Nil),
+    // Add src/main/ scala-2.13- and scala-2.13+ source directories
+    unmanagedSourceDirectories in Compile += {
+      val sourceDir = (sourceDirectory in Compile).value
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, n)) if n <= 12 => sourceDir / "scala-2.13-"
+        case _                       => sourceDir / "scala-2.13+"
+      }
+    }
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(

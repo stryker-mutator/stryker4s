@@ -4,8 +4,8 @@ import cats.effect.{ContextShift, IO, Timer}
 import sbt._
 import stryker4s.config.Config
 import stryker4s.log.Logger
-import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
+import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuilder, MatchBuilder}
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, Stryker4sRunner}
@@ -20,5 +20,9 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
   override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
     new SbtMutantRunner(state, collector, reporter)
 
-  override val mutationActivation: ActiveMutationContext = ActiveMutationContext.sysProps
+  override def resolveMatchBuilder(implicit config: Config): MatchBuilder =
+    if (config.legacyTestRunner) new MatchBuilder(mutationActivation) else new CoverageMatchBuilder(mutationActivation)
+
+  override def mutationActivation(implicit config: Config): ActiveMutationContext =
+    if (config.legacyTestRunner) ActiveMutationContext.sysProps else ActiveMutationContext.testRunner
 }

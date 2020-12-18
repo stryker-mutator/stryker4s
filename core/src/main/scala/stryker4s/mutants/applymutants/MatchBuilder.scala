@@ -51,20 +51,18 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
   }
 
   def buildMatch(transformedMutant: TransformedMutants): Term.Match = {
-    val cases: List[Case] = transformedMutant.mutantStatements.map(mutantToCase) :+ defaultCase(
-      transformedMutant.originalStatement
-    )
+    val cases: List[Case] = transformedMutant.mutantStatements.map(mutantToCase) :+ defaultCase(transformedMutant)
 
-    val activeMutationEnv = Lit.String("ACTIVE_MUTATION")
-    q"(_root_.scala.sys.$mutationContext.get($activeMutationEnv) match { ..case $cases })"
+    q"($mutationContext match { ..case $cases })"
   }
 
-  private def mutantToCase(mutant: Mutant): Case =
-    buildCase(mutant.mutated, p"Some(${Lit.String(mutant.id.toString)})")
+  protected def mutantToCase(mutant: Mutant): Case =
+    buildCase(mutant.mutated, p"Some(${mutant.id})")
 
-  private def defaultCase(originalStatement: Term): Case = buildCase(originalStatement, p"_")
+  protected def defaultCase(transformedMutant: TransformedMutants): Case =
+    buildCase(transformedMutant.originalStatement, p"_")
 
-  private def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
+  protected def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 
   private def groupTransformedStatements(transformedStatements: SourceTransformations): Seq[TransformedMutants] = {
     transformedStatements.transformedStatements

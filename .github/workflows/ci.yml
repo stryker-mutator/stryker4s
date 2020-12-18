@@ -50,7 +50,7 @@ jobs:
         with:
           java-version: openjdk@1.11
       - name: Publish stryker4s-core
-        run: csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"; stryker4s-core2_12/publishM2'
+        run: csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
       - name: Run Maven tests
         run: |
           cd maven

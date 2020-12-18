@@ -25,7 +25,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     })
 
     (mutation: Option[Int]) => {
-      mutation.foreach(activateMutation)
+      mutation.foreach(stryker4s.activeMutation = _)
       runTests(tasks, new AtomicReference(Status.Success))
     }
   }
@@ -38,10 +38,6 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     testFunctions(None)
   }
 
-  private def activateMutation(mutation: Int) = {
-    sys.props += (("ACTIVE_MUTATION", String.valueOf(mutation)))
-  }
-
   @tailrec
   private def runTests(testTasks: Array[Task], status: AtomicReference[Status]): sbt.testing.Status = {
     val eventHandler = new StatusEventHandler(status)
@@ -52,6 +48,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
         case Status.Failure => Array.empty[Task]
         case Status.Error   => Array.empty[Task]
         case _ =>
+          stryker4s.coverage.setActiveTest(task.taskDef().fingerprint())
           task.execute(eventHandler, Array.empty)
       }
     )

@@ -16,7 +16,7 @@ class Stryker4sMavenRunner(project: MavenProject)(implicit log: Logger, timer: T
   override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
     new MavenMutantRunner(project, resolveInvoker(), collector, reporter)
 
-  override val mutationActivation: ActiveMutationContext = envVar
+  override def mutationActivation(implicit config: Config): ActiveMutationContext = envVar
 
   private def resolveInvoker(): Invoker = new DefaultInvoker
 }

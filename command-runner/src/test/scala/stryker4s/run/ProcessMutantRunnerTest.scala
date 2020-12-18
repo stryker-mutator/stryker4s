@@ -10,7 +10,7 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.{AggregateReporter, FinishedRunReport}
+import stryker4s.report.{AggregateReporter, FinishedRunEvent, StartMutationEvent}
 import stryker4s.run.process.Command
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
@@ -21,9 +21,8 @@ class ProcessMutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with 
 
   private val fileCollectorMock: SourceCollector = mock[SourceCollector]
   private val reporterMock = mock[AggregateReporter]
-  whenF(reporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
-  whenF(reporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
-  whenF(reporterMock.reportMutationStart(any[Mutant])).thenReturn(())
+  whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
+  whenF(reporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
 
   describe("apply") {
     it("should return a Survived mutant on an exitcode 0 process") {

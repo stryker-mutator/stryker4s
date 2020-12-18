@@ -10,8 +10,8 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
-import stryker4s.run.MutantRunner
 import stryker4s.run.process.{Command, ProcessRunner}
+import stryker4s.run.{InitialTestRunResult, MutantRunner}
 
 class ProcessMutantRunner(
     command: Command,
@@ -32,10 +32,10 @@ class ProcessMutantRunner(
     }
   }
 
-  override def runInitialTest(context: Context): IO[Boolean] = {
+  override def runInitialTest(context: Context): IO[InitialTestRunResult] = {
     IO(processRunner(command, context.tmpDir, ("ACTIVE_MUTATION", "None"))).map {
-      case Success(0) => true
-      case _          => false
+      case Success(0) => Left(true)
+      case _          => Left(false)
     }
   }
 

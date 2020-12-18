@@ -102,7 +102,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val result = sut.runInitialTest(context).unsafeRunSync()
 
-      result should be(false)
+      result should be(Left(false))
     }
 
     it("should not add the environment variable") {
@@ -115,7 +115,7 @@ class MavenMutantRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val result = sut.runInitialTest(context).unsafeRunSync()
 
-      result should be(true)
+      result should be(Left(true))
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
       invokedRequest.getShellEnvironments should be(empty)

@@ -17,6 +17,7 @@ lazy val root = (project withId "stryker4s" in file("."))
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(coreSettings)
+  .dependsOn(stryker4sApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
@@ -30,8 +31,8 @@ lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "comman
 // sbt plugins have to use Scala 2.12
 lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
   .enablePlugins(SbtPlugin)
-  .settings(commonSettings, sbtPluginSettings)
-  .dependsOn(stryker4sCore, stryker4sApi)
+  .settings(sbtPluginSettings)
+  .dependsOn(stryker4sCore)
   .jvmPlatform(scalaVersions = Seq(versions.scala212))
 
 lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner")

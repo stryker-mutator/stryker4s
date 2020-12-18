@@ -29,7 +29,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
     }
   }
 
-  describe("reportRunFinished") {
+  describe("onRunFinished") {
     it("should write the report file to the report directory") {
       val mockFileIO = mock[FileIO]
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
@@ -38,7 +38,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val metrics = Metrics.calculateMetrics(report)
 
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/")))
         .asserting { _ =>
           val writtenFilesCaptor = ArgCaptor[Path]
           verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
@@ -56,7 +56,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val reportFile = File("target/stryker4s-report/")
       val captor = ArgCaptor[Path]
       sut
-        .reportRunFinished(FinishedRunReport(report, metrics, 10.seconds, reportFile))
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, reportFile))
         .asserting { _ =>
           verify(mockFileIO).createAndWrite(captor.capture, any[String])
           s"Written JSON report to ${reportFile.toString}/report.json" shouldBe loggedAsInfo

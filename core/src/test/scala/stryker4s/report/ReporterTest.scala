@@ -1,12 +1,9 @@
 package stryker4s.report
 
 import scala.concurrent.duration._
-import scala.meta._
 
 import better.files.File
 import mutationtesting._
-import stryker4s.extension.mutationtype.GreaterThan
-import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
@@ -14,105 +11,72 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
-      whenF(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+      whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
 
       val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
-      val runReport = FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/"))
+      val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
       val sut = new AggregateReporter(Seq(consoleReporterMock))
 
       sut
-        .reportRunFinished(runReport)
+        .onRunFinished(runReport)
         .map { _ =>
-          verify(consoleReporterMock).reportRunFinished(runReport)
+          verify(consoleReporterMock).onRunFinished(runReport)
         }
         .assertNoException
     }
 
-    describe("reportMutationStart") {
-      it("should report to all progressReporters that a mutation run is started.") {
-        val mutantMock = Mutant(0, q">", q"<", GreaterThan)
+    describe("onMutationStart") {
+      it("should report to all progressReporters that a mutation run will start") {
+        val eventMock = mock[StartMutationEvent]
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
-        whenF(consoleReporterMock.reportMutationStart(any[Mutant])).thenReturn(())
-        whenF(progressReporterMock.reportMutationStart(any[Mutant])).thenReturn(())
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
+        whenF(consoleReporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
+        whenF(progressReporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
+
         sut
-          .reportMutationStart(mutantMock)
+          .onMutationStart(eventMock)
           .map { _ =>
-            verify(consoleReporterMock).reportMutationStart(mutantMock)
-            verify(progressReporterMock).reportMutationStart(mutantMock)
+            verify(consoleReporterMock).onMutationStart(eventMock)
+            verify(progressReporterMock).onMutationStart(eventMock)
           }
           .assertNoException
       }
 
-      it("Should not report to finishedRunReporters that is mutation run is started.") {
+      it("should not report to finishedMutationRunReporters that a mutation run will start") {
         val consoleReporterMock = mock[ConsoleReporter]
-        whenF(consoleReporterMock.reportMutationStart(any[Mutant])).thenReturn(())
         val finishedRunReporterMock = mock[FinishedRunReporter]
-        val mutantMock = Mutant(0, q">", q"<", GreaterThan)
+        val mutantRunResultMock = mock[StartMutationEvent]
         val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
+        whenF(consoleReporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
+
         sut
-          .reportMutationStart(mutantMock)
+          .onMutationStart(mutantRunResultMock)
           .map { _ =>
-            verify(consoleReporterMock).reportMutationStart(mutantMock)
+            verify(consoleReporterMock).onMutationStart(mutantRunResultMock)
             verifyZeroInteractions(finishedRunReporterMock)
           }
           .assertNoException
       }
     }
 
-    describe("reportMutationComplete") {
-      it("should report to all progressReporters that a mutation run is completed") {
-        val mutantRunResultMock = mock[MutantRunResult]
-        val consoleReporterMock = mock[ConsoleReporter]
-        val progressReporterMock = mock[ProgressReporter]
-        val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
-        whenF(consoleReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
-        whenF(progressReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
-
-        sut
-          .reportMutationComplete(mutantRunResultMock, 1)
-          .map { _ =>
-            verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
-            verify(progressReporterMock).reportMutationComplete(mutantRunResultMock, 1)
-          }
-          .assertNoException
-      }
-
-      it("should not report to finishedMutationRunReporters that a mutation run is completed") {
-        val consoleReporterMock = mock[ConsoleReporter]
-        val finishedRunReporterMock = mock[FinishedRunReporter]
-        val mutantRunResultMock = mock[MutantRunResult]
-        val sut = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
-        whenF(consoleReporterMock.reportMutationComplete(any[MutantRunResult], anyInt)).thenReturn(())
-
-        sut
-          .reportMutationComplete(mutantRunResultMock, 1)
-          .map { _ =>
-            verify(consoleReporterMock).reportMutationComplete(mutantRunResultMock, 1)
-            verifyZeroInteractions(finishedRunReporterMock)
-          }
-          .assertNoException
-      }
-    }
-
-    describe("reportRunFinished") {
+    describe("onRunFinished") {
       it("should report to all finished mutation run reporters that a mutation run is completed") {
         val consoleReporterMock = mock[ConsoleReporter]
         val finishedRunReporterMock = mock[FinishedRunReporter]
-        whenF(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
-        whenF(finishedRunReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+        whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
+        whenF(finishedRunReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
-        val runReport = FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/"))
+        val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
         val sut: AggregateReporter = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
 
         sut
-          .reportRunFinished(runReport)
+          .onRunFinished(runReport)
           .map { _ =>
-            verify(consoleReporterMock).reportRunFinished(runReport)
-            verify(finishedRunReporterMock).reportRunFinished(runReport)
+            verify(consoleReporterMock).onRunFinished(runReport)
+            verify(finishedRunReporterMock).onRunFinished(runReport)
           }
           .assertNoException
       }
@@ -120,16 +84,16 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
       it("should not report a finished mutation run to a progress reporter") {
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
-        whenF(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+        whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
-        val runReport = FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/"))
+        val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
 
         sut
-          .reportRunFinished(runReport)
+          .onRunFinished(runReport)
           .map { _ =>
-            verify(consoleReporterMock).reportRunFinished(runReport)
+            verify(consoleReporterMock).onRunFinished(runReport)
             verifyZeroInteractions(progressReporterMock)
           }
           .assertNoException
@@ -138,17 +102,17 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
       it("should still call other reporters if a reporter throws an exception") {
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[FinishedRunReporter]
-        whenF(progressReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+        whenF(progressReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
-        val runReport = FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/"))
+        val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
-        whenF(consoleReporterMock.reportRunFinished(runReport)).thenFailWith(new RuntimeException("Something happened"))
+        whenF(consoleReporterMock.onRunFinished(runReport)).thenFailWith(new RuntimeException("Something happened"))
 
         sut
-          .reportRunFinished(runReport)
+          .onRunFinished(runReport)
           .map { _ =>
-            verify(progressReporterMock).reportRunFinished(runReport)
+            verify(progressReporterMock).onRunFinished(runReport)
           }
           .assertNoException
       }
@@ -160,16 +124,16 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
         val progressReporterMock = mock[ProgressReporter]
         val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
-        val runReport = FinishedRunReport(report, metrics, 10.seconds, File("target/stryker4s-report/"))
+        val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
 
         it("should log if a report throws an exception") {
           val consoleReporterMock = mock[ConsoleReporter]
           val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
-          whenF(consoleReporterMock.reportRunFinished(runReport))
+          whenF(consoleReporterMock.onRunFinished(runReport))
             .thenFailWith(new RuntimeException("Something happened"))
 
           sut
-            .reportRunFinished(runReport)
+            .onRunFinished(runReport)
             .map { _ =>
               failedToReportMessage shouldBe loggedAsWarning
               exceptionMessage shouldBe loggedAsWarning
@@ -178,13 +142,13 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
 
         it("should not log warnings if no exceptions occur") {
           val consoleReporterMock = mock[ConsoleReporter]
-          whenF(consoleReporterMock.reportRunFinished(any[FinishedRunReport])).thenReturn(())
+          whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
           val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
 
           sut
-            .reportRunFinished(runReport)
+            .onRunFinished(runReport)
             .map { _ =>
-              verify(consoleReporterMock).reportRunFinished(runReport)
+              verify(consoleReporterMock).onRunFinished(runReport)
               failedToReportMessage should not be loggedAsWarning
               exceptionMessage should not be loggedAsWarning
             }

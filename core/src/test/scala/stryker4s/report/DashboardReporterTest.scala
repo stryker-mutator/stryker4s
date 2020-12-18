@@ -20,7 +20,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig
-      val FinishedRunReport(report, metrics, _, _) = baseResults
+      val FinishedRunEvent(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
@@ -42,7 +42,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig.copy(reportType = MutationScoreOnly)
-      val FinishedRunReport(report, metrics, _, _) = baseResults
+      val FinishedRunEvent(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
@@ -55,7 +55,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val mockDashConfig = mock[DashboardConfigProvider]
       val sut = new DashboardReporter(mockDashConfig)
       val dashConfig = baseDashConfig.copy(module = Some("myModule"))
-      val FinishedRunReport(report, metrics, _, _) = baseResults
+      val FinishedRunEvent(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
 
@@ -63,7 +63,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     }
   }
 
-  describe("reportRunFinished") {
+  describe("onRunFinished") {
     it("should send the request") {
       implicit val backend = backendStub.whenAnyRequest
         .thenRespond(Right(DashboardPutResult("https://hrefHere.com")))
@@ -73,7 +73,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val runReport = baseResults
 
       sut
-        .reportRunFinished(runReport)
+        .onRunFinished(runReport)
         .asserting { _ =>
           "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
         }
@@ -87,7 +87,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val runReport = baseResults
 
       sut
-        .reportRunFinished(runReport)
+        .onRunFinished(runReport)
         .asserting { _ =>
           "Could not resolve dashboard configuration key 'fooConfigKey', not sending report" shouldBe loggedAsWarning
         }
@@ -101,7 +101,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val runReport = baseResults
 
       sut
-        .reportRunFinished(runReport)
+        .onRunFinished(runReport)
         .asserting { _ =>
           "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
         }
@@ -116,7 +116,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val runReport = baseResults
 
       sut
-        .reportRunFinished(runReport)
+        .onRunFinished(runReport)
         .asserting { _ =>
           "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
         }
@@ -133,7 +133,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val runReport = baseResults
 
       sut
-        .reportRunFinished(runReport)
+        .onRunFinished(runReport)
         .asserting { _ =>
           "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
         }
@@ -155,7 +155,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       )
     val report = MutationTestReport(thresholds = mutationtesting.Thresholds(80, 60), files = files)
     val metrics = Metrics.calculateMetrics(report)
-    FinishedRunReport(report, metrics, 15.seconds, File("target/stryker4s-report/"))
+    FinishedRunEvent(report, metrics, 15.seconds, File("target/stryker4s-report/"))
   }
 
   def baseDashConfig =
