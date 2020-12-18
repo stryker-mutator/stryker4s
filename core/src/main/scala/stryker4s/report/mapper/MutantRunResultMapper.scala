@@ -12,7 +12,8 @@ trait MutantRunResultMapper {
   )(implicit config: Config): MutationTestReport =
     MutationTestReport(
       thresholds = toThresholds(config.thresholds),
-      files = toMutationTestResultMap(results)
+      files = toMutationTestResultMap(results),
+      projectRoot = Some(config.baseDir.path.toAbsolutePath().toString())
     )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =
