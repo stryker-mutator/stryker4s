@@ -16,7 +16,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
   describe("mapper") {
-    it("should map 4 files to valid MutationTestReport") {
+    it("should map 4 files to valid MutationTestResult") {
       val sut = new MutantRunResultMapper {}
       implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
 
@@ -35,12 +35,12 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       val mutationRunResults = Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
 
       val result = sut.toReport(mutationRunResults)
-      inside(result) { case MutationTestReport(_, _, thresholds, _, files) =>
-        thresholds should equal(Thresholds(high = 60, low = 40))
-        files should have size 2
-        val firstResult = files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
-        files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
-        inside(firstResult._2) { case MutationTestResult(source, mutants, language) =>
+      inside(result) { case m: MutationTestResult =>
+        m.thresholds should equal(Thresholds(high = 60, low = 40))
+        m.files should have size 2
+        val firstResult = m.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
+        m.files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
+        inside(firstResult._2) { case FileResult(source, mutants, language) =>
           language should equal("scala")
           mutants should (
             contain.only(

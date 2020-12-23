@@ -46,9 +46,9 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extend
   def writeIndexHtmlTo(file: Path): IO[Unit] =
     fileIO.createAndWrite(file, indexHtml)
 
-  def writeReportJsTo(file: Path, report: MutationTestReport): IO[Unit] = {
+  def writeReportJsTo(file: Path, report: MutationTestResult): IO[Unit] = {
     import io.circe.syntax._
-    import mutationtesting.MutationReportEncoder._
+    import mutationtesting.circe._
     val json = report.asJson.noSpaces
     val reportContent = s"document.querySelector('mutation-test-report-app').report = $json"
     fileIO.createAndWrite(file, reportContent)

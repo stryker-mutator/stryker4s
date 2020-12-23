@@ -5,7 +5,7 @@ import java.nio.file.Path
 import scala.concurrent.duration._
 
 import better.files.File
-import mutationtesting.{Metrics, MutationTestReport, Thresholds}
+import mutationtesting.{Metrics, MutationTestResult, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
@@ -18,7 +18,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new JsonReporter(mockFileIO)
       val testFile = File("foo.bar").path
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
       sut
         .writeReportJsonTo(testFile, report)
@@ -34,7 +34,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mockFileIO = mock[FileIO]
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new JsonReporter(mockFileIO)
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
       sut
@@ -51,7 +51,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mockFileIO = mock[FileIO]
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new JsonReporter(mockFileIO)
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
       val reportFile = File("target/stryker4s-report/")
       val captor = ArgCaptor[Path]

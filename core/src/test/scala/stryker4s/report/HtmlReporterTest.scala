@@ -8,7 +8,7 @@ import better.files.File
 import cats.effect.{Blocker, IO}
 import fs2._
 import fs2.io.file
-import mutationtesting.{Metrics, MutationTestReport, Thresholds}
+import mutationtesting.{Metrics, MutationTestResult, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
@@ -65,7 +65,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val testFile = File("foo.bar").path
-      val runResults = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val runResults = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
       sut
         .writeReportJsTo(testFile, runResults)
@@ -123,7 +123,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
       sut
@@ -143,7 +143,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
       sut
@@ -162,7 +162,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
       val reportFile = File("target/stryker4s-report/")
       sut
