@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import cats.effect.IO
-import mutationtesting.{MetricsResult, MutationTestReport}
+import mutationtesting.{MetricsResult, MutationTestResult}
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
@@ -28,7 +28,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
           .map(response => logResponse(response))
     }
 
-  def buildRequest(dashConfig: DashboardConfig, report: MutationTestReport, metrics: MetricsResult) = {
+  def buildRequest(dashConfig: DashboardConfig, report: MutationTestResult, metrics: MetricsResult) = {
     import io.circe.{Decoder, Encoder}
     implicit val decoder: Decoder[DashboardPutResult] = Decoder.forProduct1("href")(DashboardPutResult.apply)
     // Separate so any slashes won't be escaped in project or version
@@ -41,7 +41,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
       .put(uri)
     dashConfig.reportType match {
       case Full =>
-        import mutationtesting.MutationReportEncoder._
+        import mutationtesting.circe._
         request
           .body(report)
       case MutationScoreOnly =>

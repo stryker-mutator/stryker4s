@@ -1,7 +1,6 @@
 package stryker4s.report.mapper
 import java.nio.file.Path
 
-import mutationtesting.MutantStatus.MutantStatus
 import mutationtesting._
 import stryker4s.config.{Config, Thresholds => ConfigThresholds}
 import stryker4s.model._
@@ -9,27 +8,27 @@ import stryker4s.model._
 trait MutantRunResultMapper {
   protected[report] def toReport(
       results: Map[Path, List[MutantRunResult]]
-  )(implicit config: Config): MutationTestReport =
-    MutationTestReport(
+  )(implicit config: Config): MutationTestResult =
+    MutationTestResult(
       thresholds = toThresholds(config.thresholds),
-      files = toMutationTestResultMap(results),
+      files = toFileResultMap(results),
       projectRoot = Some(config.baseDir.path.toAbsolutePath().toString())
     )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =
     Thresholds(high = thresholds.high, low = thresholds.low)
 
-  private def toMutationTestResultMap(
+  private def toFileResultMap(
       results: Map[Path, List[MutantRunResult]]
-  )(implicit config: Config): Map[String, MutationTestResult] =
+  )(implicit config: Config): Map[String, FileResult] =
     results.map { case (path, runResults) =>
-      path.toString.replace('\\', '/') -> toMutationTestResult(path, runResults)
+      path.toString.replace('\\', '/') -> toFileResult(path, runResults)
     }
 
-  private def toMutationTestResult(path: Path, runResults: Seq[MutantRunResult])(implicit
+  private def toFileResult(path: Path, runResults: Seq[MutantRunResult])(implicit
       config: Config
-  ): MutationTestResult =
-    MutationTestResult(
+  ): FileResult =
+    FileResult(
       fileContentAsString(path),
       runResults.map(toMutantResult)
     )

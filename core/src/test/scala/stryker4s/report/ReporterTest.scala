@@ -13,7 +13,7 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
       val consoleReporterMock = mock[ConsoleReporter]
       whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
 
-      val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
       val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
       val sut = new AggregateReporter(Seq(consoleReporterMock))
@@ -67,7 +67,7 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
         val finishedRunReporterMock = mock[FinishedRunReporter]
         whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
         whenF(finishedRunReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
-        val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+        val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
         val sut: AggregateReporter = new AggregateReporter(Seq(consoleReporterMock, finishedRunReporterMock))
@@ -85,7 +85,7 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[ProgressReporter]
         whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
-        val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+        val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
@@ -103,7 +103,7 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
         val consoleReporterMock = mock[ConsoleReporter]
         val progressReporterMock = mock[FinishedRunReporter]
         whenF(progressReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
-        val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+        val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
         val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
@@ -122,7 +122,7 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
         val exceptionMessage = "java.lang.RuntimeException: Something happened"
 
         val progressReporterMock = mock[ProgressReporter]
-        val report = MutationTestReport(thresholds = Thresholds(100, 0), files = Map.empty)
+        val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
 

@@ -46,10 +46,10 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     it("should report killed mutants as debug") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val results = MutationTestReport(
+      val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "<!=",
             mutants = Seq(
               MutantResult("0", "BinaryOperator", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Killed)
@@ -75,17 +75,17 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     it("should report a finished run with multiple mutants") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val results = MutationTestReport(
+      val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "<!=",
             mutants = Seq(
               MutantResult("0", "BinaryOperator", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived),
               MutantResult("1", "BinaryOperator", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Killed)
             )
           ),
-          "subPath/stryker4s.scala" -> MutationTestResult(
+          "subPath/stryker4s.scala" -> FileResult(
             source = "1",
             mutants = Seq(
               MutantResult("2", "BinaryOperator", "0", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
@@ -116,16 +116,16 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     it("should log mutants sorted by id") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val results = MutationTestReport(
+      val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
-          "subPath/stryker4s.scala" -> MutationTestResult(
+          "subPath/stryker4s.scala" -> FileResult(
             source = "1",
             mutants = Seq(
               MutantResult("2", "BinaryOperator", "0", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived)
             )
           ),
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "<!=",
             mutants = Seq(
               MutantResult(
@@ -166,10 +166,10 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     it("should report two line mutants properly") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val results = MutationTestReport(
+      val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "foo\nbar\nbaz",
             mutants = Seq(
               MutantResult(
@@ -201,10 +201,10 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     it("should report multiline mutants properly") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
-      val results = MutationTestReport(
+      val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "foo\nbar\nbaz",
             mutants = Seq(
               MutantResult(
@@ -239,10 +239,10 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     it("should round decimal mutation scores") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
-      val threeReport = MutationTestReport(
+      val threeReport = MutationTestResult(
         thresholds = Thresholds(80, 60), // These thresholds are not used
         files = Map(
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "foo\nbar\nbaz",
             mutants = Seq(
               MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),
@@ -266,10 +266,10 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
 
-      val report = MutationTestReport(
+      val report = MutationTestResult(
         thresholds = Thresholds(80, 60),
         files = Map(
-          "stryker4s.scala" -> MutationTestResult(
+          "stryker4s.scala" -> FileResult(
             source = "foo\nbar\nbaz",
             mutants = Seq(
               MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.CompileError)
@@ -286,10 +286,10 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     // 1 killed, 1 survived, mutation score 50
-    val report = MutationTestReport(
+    val report = MutationTestResult(
       thresholds = Thresholds(80, 60), // These thresholds are not used
       files = Map(
-        "stryker4s.scala" -> MutationTestResult(
+        "stryker4s.scala" -> FileResult(
           source = "foo\nbar\nbaz",
           mutants = Seq(
             MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),

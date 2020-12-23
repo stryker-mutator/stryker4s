@@ -4,7 +4,7 @@ import scala.concurrent.duration._
 
 import better.files.File
 import cats.effect.IO
-import mutationtesting.{Metrics, MutationTestReport, _}
+import mutationtesting._
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
@@ -25,7 +25,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
       val jsonBody = {
-        import mutationtesting.MutationReportEncoder._
+        import mutationtesting.circe._
         import io.circe.syntax._
         report.asJson.noSpaces
       }
@@ -148,12 +148,12 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     val files =
       Map(
         "stryker4s.scala" ->
-          MutationTestResult(
+          FileResult(
             "package stryker4s",
             Seq(MutantResult("1", "-", "+", Location(Position(0, 0), Position(1, 0)), MutantStatus.Killed))
           )
       )
-    val report = MutationTestReport(thresholds = mutationtesting.Thresholds(80, 60), files = files)
+    val report = MutationTestResult(thresholds = mutationtesting.Thresholds(80, 60), files = files)
     val metrics = Metrics.calculateMetrics(report)
     FinishedRunEvent(report, metrics, 15.seconds, File("target/stryker4s-report/"))
   }

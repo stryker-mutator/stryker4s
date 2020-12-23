@@ -21,7 +21,7 @@ case class StartMutationEvent(progress: Progress)
 final case class Progress(tested: Int, total: Int)
 
 final case class FinishedRunEvent(
-    report: MutationTestReport,
+    report: MutationTestResult,
     metrics: MetricsResult,
     duration: FiniteDuration,
     reportsLocation: File
