@@ -1,8 +1,7 @@
 package stryker4s.mutants.findmutants
 
-import scala.meta.Parsed.{Error, Success}
-import scala.meta.Source
 import scala.meta.parsers.XtensionParseInputLike
+import scala.meta.{Dialect, Source}
 
 import better.files.File
 import stryker4s.config.Config
@@ -22,13 +21,18 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
     (included.flatten, excluded.size)
   }
 
-  def parseFile(file: File): Source =
-    // Match is reported as non-exhaustive for some reason
-    (file.toJava.parse[Source]: @unchecked) match {
-      case Success(source) =>
-        source
-      case Error(_, msg, ex) =>
-        log.error(s"Error while parsing file '${file.relativePath}', $msg")
-        throw ex
-    }
+  def parseFile(file: File): Source = {
+    implicit val dialect: Dialect = config.scalaDialect
+
+    file.toJava
+      .parse[Source]
+      .fold(
+        e => {
+          log.error(s"Error while parsing file '${file.relativePath}', ${e.message}")
+          throw e.details
+        },
+        identity
+      )
+
+  }
 }
