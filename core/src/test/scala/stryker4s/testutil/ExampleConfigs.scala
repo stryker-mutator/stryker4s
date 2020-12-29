@@ -33,6 +33,7 @@ object ExampleConfigs {
                                      |  max-test-runner-reuse=15
                                      |  legacy-test-runner=true
                                      |  timeout=5500
+                                     |  scala-dialect="scala212"
                                      |}""".stripMargin)
 
   def empty = ConfigSource.empty
@@ -78,4 +79,9 @@ object ExampleConfigs {
                                                | timeout = 6s
                                                |}
                                                |""".stripMargin)
+
+  def scalaDialect(dialect: String) = ConfigSource.string(s"""|stryker4s {
+                                                              | scala-dialect="$dialect"
+                                                              |}
+                                                              |""".stripMargin)
 }

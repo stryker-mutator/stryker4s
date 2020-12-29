@@ -3,6 +3,7 @@ package stryker4s.config
 import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration.FiniteDuration
+import scala.meta.{dialects, Dialect}
 
 import better.files._
 
@@ -18,7 +19,8 @@ final case class Config(
     timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
     timeoutFactor: Double = 1.5,
     maxTestRunnerReuse: Option[Int] = None,
-    legacyTestRunner: Boolean = false
+    legacyTestRunner: Boolean = false,
+    scalaDialect: Dialect = dialects.Scala3
 )
 
 object Config {

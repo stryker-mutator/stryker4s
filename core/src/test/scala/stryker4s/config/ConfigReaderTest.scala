@@ -1,6 +1,7 @@
 package stryker4s.config
 
 import scala.concurrent.duration._
+import scala.meta.dialects._
 
 import better.files.File
 import pureconfig.ConfigSource
@@ -28,6 +29,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
           config.timeout shouldBe 5.5.seconds
           config.maxTestRunnerReuse.value shouldBe 15
           config.legacyTestRunner shouldBe true
+          config.scalaDialect shouldBe Scala212
       }
     }
 
@@ -57,6 +59,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
         version = None,
         module = None
       )
+      result.scalaDialect shouldBe Scala3
     }
 
     it("should fail on an empty config file") {
@@ -197,8 +200,52 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
             case Right(value) => value shouldBe expected
             case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
               reason shouldBe expected
-            case other => fail(s"unexpected value $other")
+            case Left(other) => fail(s"unexpected value $other")
           }
+        }
+      }
+    }
+
+    describe("ScalaDialect") {
+      val validVersions = List(
+        "scala211" -> Scala211,
+        "scala2.11" -> Scala211,
+        "2.11" -> Scala211,
+        "211" -> Scala211,
+        "scala212" -> Scala212,
+        "scala2.12" -> Scala212,
+        "2.12" -> Scala212,
+        "212" -> Scala212,
+        "scala213" -> Scala213,
+        "scala2.13" -> Scala213,
+        "2.13" -> Scala213,
+        "213" -> Scala213,
+        "scala3" -> Scala3,
+        "dotty" -> Scala3,
+        "3" -> Scala3,
+        "3.0" -> Scala3,
+        "scala3.0" -> Scala3
+      )
+
+      validVersions.foreach { case (input, expected) =>
+        it(s"should parse $input to $expected") {
+          ExampleConfigs.scalaDialect(input).at("stryker4s").load[Config] match {
+            case Right(value) => value.scalaDialect shouldBe expected
+            case Left(value)  => fail(s"Expected valid parsing, got $value")
+          }
+
+        }
+      }
+
+      it("should not parse invalid scala-dialects") {
+        ExampleConfigs.scalaDialect("foobar").at("stryker4s").load[Config] match {
+          case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
+            reason shouldBe CannotConvert(
+              "foobar",
+              "scalaDialect",
+              "Unsupported scalaDialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala211', 'scala2.11', '2.11', '211', 'scala212', 'scala2.12', '2.12', '212', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala3', 'scala3.0', '3.0', '3', 'dotty'."
+            )
+          case value => fail(s"Expected parsing failure but got $value")
         }
       }
     }

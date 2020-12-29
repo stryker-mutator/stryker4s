@@ -177,6 +177,17 @@ Examples would be `sbt test`, `mvn test` or any other command to run your tests,
 
 **warning** The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
 
+### `scala-dialect` ['string']
+
+**Config file:** `scala-dialect: "2.13"`  
+**Default value:** `scala3`  
+**Since:** `v0.10.1`  
+**Description:**
+
+Set the Scala dialect that should be used for parsing Scala files. The default is Scala 3 as most syntax is backwards-compatible with Scala 2. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
+
+Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`). The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/core/src/main/scala/stryker4s/config/implicits/ConfigReaderImplicits.scala#L77).
+
 ## Other configuration options
 
 ### `log-level` [`string`]

@@ -9,6 +9,7 @@ import better.files.File
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.TreeExtensions.IsEqualExtension
+import stryker4s.log.Logger
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sSuite
 
@@ -53,6 +54,16 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       lazy val result = sut.parseFile(noFile)
 
       a[NoSuchFileException] should be thrownBy result
+    }
+
+    it("should parse a scala-3 file") {
+      import scala.meta.dialects.Scala3
+
+      val scala3DialectConfig = config.copy(scalaDialect = Scala3)
+      val sut = new MutantFinder(new MutantMatcher)(scala3DialectConfig, implicitly[Logger])
+      val file = FileUtil.getResource("scalaFiles/scala3File.scala")
+
+      noException shouldBe thrownBy(sut.parseFile(file))
     }
   }
 
