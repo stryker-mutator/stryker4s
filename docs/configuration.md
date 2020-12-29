@@ -177,7 +177,7 @@ Examples would be `sbt test`, `mvn test` or any other command to run your tests,
 
 **warning** The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
 
-### `scala-dialect` ['string']
+### `scala-dialect` [`string`]
 
 **Config file:** `scala-dialect: "2.13"`  
 **Default value:** `scala3`  
