@@ -4,7 +4,7 @@ import java.net.{InetAddress, Socket}
 
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
-import scala.sys.process.{Process, ProcessLogger}
+import scala.sys.process.Process
 import scala.util.control.NonFatal
 
 import cats.effect.{ContextShift, IO, Resource, Timer}
@@ -15,6 +15,7 @@ import stryker4s.api.testprocess._
 import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
+import stryker4s.run.process.ProcessResource
 import stryker4s.run.{InitialTestRunResult, TestRunner}
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
@@ -83,14 +84,11 @@ object ProcessTestRunner extends TestInterfaceMapper {
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
 
-    for {
-      _ <- Resource.liftF(IO(log.debug(s"Starting process ${command.mkString(" ")}")))
-      startedProcess <- Resource.liftF(IO(scala.sys.process.Process(command, config.baseDir.toJava)))
-      process <-
-        Resource
-          .make(IO(startedProcess.run(ProcessLogger(m => log.debug(s"testrunner: $m")))))(p => IO(p.destroy()))
-          .evalTap(_ => IO(log.debug("Started process")))
-    } yield process
+    Resource.liftF(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
+      ProcessResource
+        .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner: $m"))
+        .evalTap(_ => IO(log.debug("Started process")))
+
   }
 
   private def connectToProcess(
