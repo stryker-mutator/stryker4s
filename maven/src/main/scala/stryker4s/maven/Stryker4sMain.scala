@@ -1,15 +1,17 @@
 package stryker4s.maven
 
+import javax.inject.Inject
+
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.effect.{ContextShift, IO, Timer}
-import javax.inject.Inject
 import org.apache.maven.plugin.{AbstractMojo, MojoFailureException}
 import org.apache.maven.plugins.annotations.{Mojo, Parameter}
 import org.apache.maven.project.MavenProject
-import stryker4s.run.threshold.ErrorStatus
+import org.apache.maven.shared.invoker.DefaultInvoker
 import stryker4s.log.{Logger, MavenMojoLogger}
+import stryker4s.run.threshold.ErrorStatus
 
 /** The main goal for this plugin. Starts Stryker4s.
   */
@@ -19,7 +21,7 @@ class Stryker4sMain @Inject() (@Parameter(defaultValue = "${project}") project: 
     implicit val cs: ContextShift[IO] = IO.contextShift(implicitly[ExecutionContext])
     implicit val timer: Timer[IO] = IO.timer(implicitly[ExecutionContext])
     implicit val logger: Logger = new MavenMojoLogger(getLog())
-    new Stryker4sMavenRunner(project)
+    new Stryker4sMavenRunner(project, new DefaultInvoker())
       .run()
       .map {
         case ErrorStatus => throw new MojoFailureException("Mutation score was below configured threshold")

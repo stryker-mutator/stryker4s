@@ -1,16 +1,16 @@
 package stryker4s.command
 
-import cats.effect.{ContextShift, IO, Timer}
+import java.nio.file.Path
+
+import cats.effect.{ContextShift, IO, Resource, Timer}
 import stryker4s.command.config.ProcessRunnerConfig
-import stryker4s.command.runner.ProcessMutantRunner
+import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
-import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.Reporter
 import stryker4s.run.process.ProcessRunner
-import stryker4s.run.{MutantRunner, Stryker4sRunner}
+import stryker4s.run.{Stryker4sRunner, TestRunner}
 
 class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit
     log: Logger,
@@ -19,6 +19,6 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit
 ) extends Stryker4sRunner {
   override def mutationActivation(implicit config: Config): ActiveMutationContext = ActiveMutationContext.envVar
 
-  override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
-    new ProcessMutantRunner(processRunnerConfig.testRunner, ProcessRunner(), collector, reporter)
+  override def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, TestRunner] =
+    Resource.pure[IO, TestRunner](new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir))
 }
