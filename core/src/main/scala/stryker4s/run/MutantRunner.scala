@@ -26,13 +26,12 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends MutantRunResultMapper {
-  type Context <: TestRunnerContext
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
-      .use(context =>
-        initialTestRun(context).flatMap { coverageExclusions =>
-          runMutants(mutatedFiles, context, coverageExclusions).timed
+      .use(testRunner =>
+        initialTestRun(testRunner).flatMap { coverageExclusions =>
+          runMutants(mutatedFiles, testRunner, coverageExclusions).timed
         }
       )
       .flatMap(t => createAndReportResults(t._1, t._2))
@@ -45,14 +44,14 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     _ <- reporter.onRunFinished(FinishedRunEvent(report, metrics, duration, reportsLocation))
   } yield metrics
 
-  def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Context] = for {
+  def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, TestRunner] = for {
     blocker <- Blocker[IO]
     targetDir = (config.baseDir / "target").path
     _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
     tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
     _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
-    context <- initializeTestContext(tmpDir)
-  } yield context
+    testRunner <- initializeTestRunner(tmpDir)
+  } yield testRunner
 
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
     IO(log.info("Setting up mutated environment...")) *>
@@ -100,7 +99,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
 
   private def runMutants(
       mutatedFiles: List[MutatedFile],
-      context: Context,
+      testRunner: TestRunner,
       coverageExclusions: CoverageExclusions
   ): IO[Map[Path, List[MutantRunResult]]] = {
 
@@ -126,32 +125,33 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       log.debug(s"Static mutant ids are: ${staticMutants.mkString(", ")}")
     }
 
-    def mapPureValues[A, B, C](l: List[(A, B)])(m: B => C) = l.map({ case (k, v) => IO.pure(m(v)).tupleLeft(k) })
+    def mapPureMutants[K, V, VV](l: List[(K, V)], f: V => VV) = l.map { case (k, v) => k -> f(v) }.pure[IO]
 
-    val testedMutants =
-      // Map all static mutants
-      mapPureValues(staticMutants)(staticMutant(_)) ++
-        // Map all no-coverage mutants
-        mapPureValues(noCoverageMutants)(NoCoverage(_)) ++
-        // Run all testable mutants
-        testableMutants.zipWithIndex.map { case ((subPath, mutant), progress) =>
-          reporter.onMutationStart(StartMutationEvent(Progress(progress + 1, totalTestableMutants))) *>
-            runMutant(mutant, context)
-              .tupleLeft(subPath)
-        }
+    // Map all static mutants
+    val static = mapPureMutants(staticMutants, staticMutant(_))
+    // Map all no-coverage mutants
+    val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
+    // Run all testable mutants
+    val testedMutants = testableMutants.zipWithIndex.traverse { case ((subPath, mutant), progress) =>
+      reporter.onMutationStart(StartMutationEvent(Progress(progress + 1, totalTestableMutants))) *>
+        testRunner
+          .runMutant(mutant)
+          .tupleLeft(subPath)
+    }
 
     // Back to per-file structure
-    testedMutants.sequence.map(
-      _.groupBy(_._1)
-        .map { kv => kv._1 -> kv._2.map(_._2) }
-    )
+    static
+      .combine(noCoverage)
+      .combine(testedMutants)
+      .map(
+        _.groupBy(_._1)
+          .map { case (path, files) => path -> files.map(_._2) }
+      )
   }
 
-  def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult]
-
-  def initialTestRun(context: Context): IO[CoverageExclusions] = {
+  def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
     IO(log.info("Starting initial test run...")) *>
-      runInitialTest(context).flatMap { result =>
+      testRunner.initialTestRun().flatMap { result =>
         if (!result.fold(identity, _.isSuccessful))
           IO.raiseError(
             InitialTestRunFailedException(
@@ -178,16 +178,14 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       }
   }
 
-  private def staticMutant(mutant: Mutant) = Ignored(
+  private def staticMutant(mutant: Mutant): MutantRunResult = Ignored(
     mutant,
     Some(
       "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."
     )
   )
 
-  def runInitialTest(context: Context): IO[InitialTestRunResult]
-
-  def initializeTestContext(tmpDir: File): Resource[IO, Context]
+  def initializeTestRunner(tmpDir: File): Resource[IO, TestRunner]
 
   case class CoverageExclusions(hasCoverage: Boolean, coveredMutants: Seq[Int], staticMutants: Seq[Int])
 

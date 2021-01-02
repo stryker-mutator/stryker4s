@@ -11,10 +11,9 @@ import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.TestSetupException
 import stryker4s.log.Logger
-import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
-import stryker4s.run.{InitialTestRunResult, MutantRunner, TestRunner}
+import stryker4s.run.{MutantRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 
 class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: Reporter)(implicit
@@ -23,17 +22,14 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
     timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends MutantRunner(sourceCollector, reporter) {
-  type Context = SbtRunnerContext
 
-  def initializeTestContext(tmpDir: File): Resource[IO, Context] = {
+  def initializeTestRunner(tmpDir: File): Resource[IO, TestRunner] = {
     val (settings, extracted) = extractSbtProject(tmpDir)
-    val testRunner =
-      if (config.legacyTestRunner)
-        setupLegacySbtTestRunner(settings, extracted)
-      else
-        setupSbtTestRunner(settings, extracted)
 
-    testRunner.map(SbtRunnerContext(_))
+    if (config.legacyTestRunner)
+      setupLegacySbtTestRunner(settings, extracted)
+    else
+      setupSbtTestRunner(settings, extracted)
   }
 
   def setupLegacySbtTestRunner(
@@ -126,12 +122,6 @@ class SbtMutantRunner(state: State, sourceCollector: SourceCollector, reporter: 
 
     (settings, Project.extract(state))
   }
-
-  override def runInitialTest(context: Context): IO[InitialTestRunResult] =
-    context.testRunner.initialTestRun()
-
-  override def runMutant(mutant: Mutant, context: Context): IO[MutantRunResult] =
-    context.testRunner.runMutant(mutant)
 
   private def tmpDirFor(conf: Configuration, tmpDir: File): Def.Initialize[JFile] =
     (scalaSource in conf)(_.toScala)(source => (source inSubDir tmpDir).toJava)
