@@ -1,38 +1,21 @@
 package stryker4s
 
-import scala.meta._
 import scala.util.Success
 
-import better.files.File
-import cats.effect.{IO, Resource}
 import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{Killed, Mutant, MutantRunResult}
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher, SourceCollector}
-import stryker4s.report.{AggregateReporter, FinishedRunEvent, Progress, Reporter, StartMutationEvent}
+import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
+import stryker4s.report.{AggregateReporter, FinishedRunEvent, Progress, StartMutationEvent}
+import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
-import stryker4s.run.{MutantRunner, TestRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.stubs.{TestProcessRunner, TestSourceCollector}
+import stryker4s.testutil.stubs.{TestProcessRunner, TestRunnerStub, TestSourceCollector}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside with LogMatchers {
-
-  class TestRunnerStub() extends TestRunner {
-    private[this] val stream = Iterator.from(0)
-    def initialTestRun(): IO[stryker4s.run.InitialTestRunResult] = IO.pure(Left(true))
-
-    def runMutant(mutant: Mutant): IO[MutantRunResult] = IO.pure(Killed(Mutant(stream.next(), q">", q"<", LesserThan)))
-  }
-  class TestMutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit config: Config)
-      extends MutantRunner(sourceCollector, reporter) {
-    override def initializeTestRunner(tmpDir: File): Resource[IO, TestRunner] =
-      Resource.pure[IO, TestRunner](new TestRunnerStub())
-  }
 
   describe("run") {
 
@@ -47,7 +30,8 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
 
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
-      val testMutantRunner = new TestMutantRunner(new FileCollector(testProcessRunner), reporterMock)
+      val testMutantRunner =
+        new MutantRunner(TestRunnerStub.resource, new FileCollector(testProcessRunner), reporterMock)
 
       val sut = new Stryker4s(
         testSourceCollector,

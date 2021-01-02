@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration.FiniteDuration
 
-import better.files.File
 import cats.effect._
 import cats.syntax.all._
 import fs2.{io, text, Pipe, Stream}
@@ -20,12 +19,12 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, Progress, Reporter, StartMutationEvent}
 
-abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter)(implicit
-    config: Config,
-    log: Logger,
-    timer: Timer[IO],
-    cs: ContextShift[IO]
-) extends MutantRunResultMapper {
+class MutantRunner(
+    testRunnerResource: Path => Resource[IO, TestRunner],
+    sourceCollector: SourceCollector,
+    reporter: Reporter
+)(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO])
+    extends MutantRunResultMapper {
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
@@ -50,7 +49,7 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
     _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
     tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
     _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
-    testRunner <- initializeTestRunner(tmpDir)
+    testRunner <- testRunnerResource(tmpDir)
   } yield testRunner
 
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
@@ -184,8 +183,6 @@ abstract class MutantRunner(sourceCollector: SourceCollector, reporter: Reporter
       "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."
     )
   )
-
-  def initializeTestRunner(tmpDir: File): Resource[IO, TestRunner]
 
   case class CoverageExclusions(hasCoverage: Boolean, coveredMutants: Seq[Int], staticMutants: Seq[Int])
 

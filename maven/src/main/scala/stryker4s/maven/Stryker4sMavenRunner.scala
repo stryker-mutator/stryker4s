@@ -1,22 +1,61 @@
 package stryker4s.maven
 
-import cats.effect.{ContextShift, IO, Timer}
+import java.nio.file.Path
+import java.util.Properties
+
+import cats.effect.{ContextShift, IO, Resource, Timer}
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvoker, Invoker}
 import stryker4s.config.Config
-import stryker4s.maven.runner.MavenMutantRunner
+import stryker4s.log.Logger
+import stryker4s.maven.runner.MavenTestRunner
 import stryker4s.mutants.applymutants.ActiveMutationContext.{envVar, ActiveMutationContext}
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
-import stryker4s.run.{MutantRunner, Stryker4sRunner}
-import stryker4s.log.Logger
+import stryker4s.run.{MutantRunner, Stryker4sRunner, TestRunner}
 
-class Stryker4sMavenRunner(project: MavenProject)(implicit log: Logger, timer: Timer[IO], cs: ContextShift[IO])
-    extends Stryker4sRunner {
-  override def resolveRunner(collector: SourceCollector, reporter: Reporter)(implicit config: Config): MutantRunner =
-    new MavenMutantRunner(project, resolveInvoker(), collector, reporter)
+class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit
+    log: Logger,
+    timer: Timer[IO],
+    cs: ContextShift[IO]
+) extends Stryker4sRunner {
 
   override def mutationActivation(implicit config: Config): ActiveMutationContext = envVar
 
-  private def resolveInvoker(): Invoker = new DefaultInvoker
+  override def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, MavenTestRunner] = {
+    val goals = List("test")
+
+    val properties = new Properties(project.getProperties)
+    setTestProperties(properties, config.testFilter)
+    invoker.setWorkingDirectory(tmpDir.toFile())
+
+    Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals))
+  }
+
+  private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {
+    // Stop after first failure. Only works with surefire plugin, not scalatest
+    properties.setProperty(
+      "surefire.skipAfterFailureCount",
+      1.toString
+    )
+
+    // https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html
+    val surefireFilter = "test"
+    // https://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin
+    val scalatestFilter = "wildcardSuites"
+
+    if (testFilter.nonEmpty) {
+      if (properties.getProperty(surefireFilter) != null) {
+        val newTestProperty = properties.getProperty(surefireFilter) +: testFilter
+        properties.setProperty(surefireFilter, newTestProperty.mkString(", "))
+      } else if (properties.getProperty(scalatestFilter) != null) {
+        val newTestProperty = properties.getProperty(scalatestFilter) +: testFilter
+        properties.setProperty(scalatestFilter, newTestProperty.mkString(","))
+      } else {
+        properties.setProperty(surefireFilter, testFilter.mkString(", "))
+        properties.setProperty(scalatestFilter, testFilter.mkString(","))
+      }
+    }
+
+  }
 }
