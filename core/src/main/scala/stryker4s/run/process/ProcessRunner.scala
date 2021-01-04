@@ -17,10 +17,10 @@ abstract class ProcessRunner(implicit log: Logger, cs: ContextShift[IO]) {
     }
   }
 
-  def apply(command: Command, workingDir: File, envVar: (String, String), blocker: Blocker): IO[Try[Int]] = {
+  def apply(command: Command, workingDir: File, blocker: Blocker, envVar: (String, String)*): IO[Try[Int]] = {
     ProcessResource
       .fromProcessBuilder(
-        Process(s"${command.command} ${command.args}", workingDir.toJava, envVar)
+        Process(s"${command.command} ${command.args}", workingDir.toJava, envVar: _*)
       )(m => log.debug(s"testrunner: $m"))
       .use(p => blocker.delay[IO, Int](p.exitValue()))
       .attempt

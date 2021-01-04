@@ -22,12 +22,12 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
   /** Keep track on the amount of times the function is called.
     * Also return an exit code which the test runner would do as well.
     */
-  override def apply(command: Command, workingDir: File, envVar: (String, String), blocker: Blocker): IO[Try[Int]] = {
-    if (envVar._2.equals("None")) {
+  override def apply(command: Command, workingDir: File, blocker: Blocker, envVar: (String, String)*): IO[Try[Int]] = {
+    if (envVar.isEmpty) {
       IO.pure(Success(if (initialTestRunSuccess) 0 else 1))
     } else {
       timesCalled.next()
-      IO.pure(testRunExitCode(envVar._2.toInt))
+      IO.pure(testRunExitCode(envVar.map(_._2).head.toInt))
     }
   }
 }
