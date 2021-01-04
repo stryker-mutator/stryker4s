@@ -11,7 +11,7 @@ class WindowsProcessRunner(implicit log: Logger, cs: ContextShift[IO]) extends P
     super.apply(Command(s"cmd /c ${command.command}", command.args), workingDir)
   }
 
-  override def apply(command: Command, workingDir: File, envVar: (String, String), blocker: Blocker): IO[Try[Int]] = {
-    super.apply(Command(s"cmd /c ${command.command}", command.args), workingDir, envVar, blocker)
+  override def apply(command: Command, workingDir: File, blocker: Blocker, envVar: (String, String)*): IO[Try[Int]] = {
+    super.apply(Command(s"cmd /c ${command.command}", command.args), workingDir, blocker, envVar: _*)
   }
 }
