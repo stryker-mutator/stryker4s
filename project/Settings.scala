@@ -65,6 +65,9 @@ object Settings {
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.scodec(scalaVersion.value)
+    )
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(

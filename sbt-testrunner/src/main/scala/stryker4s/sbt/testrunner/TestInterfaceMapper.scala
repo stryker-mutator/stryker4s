@@ -18,7 +18,7 @@ trait TestInterfaceMapper {
   def toSbtTaskDef(td: TaskDefinition) = {
     val fingerprint = toSbtFingerprint(td.fingerprint)
     val selectors = td.selectors.map(toSbtSelector)
-    new TaskDef(td.fullyQualifiedName, fingerprint, td.explicitlySpecified, selectors)
+    new TaskDef(td.fullyQualifiedName, fingerprint, td.explicitlySpecified, selectors.toArray)
   }
 
   def toSbtSelector(s: Selector): sbt.testing.Selector =

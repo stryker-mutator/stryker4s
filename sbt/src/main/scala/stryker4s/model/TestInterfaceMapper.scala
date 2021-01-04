@@ -5,13 +5,13 @@ import sbt.{TestDefinition => SbtTestDefinition, TestFramework => SbtTestFramewo
 import stryker4s.api.testprocess._
 
 trait TestInterfaceMapper {
-  def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Array[TestGroup] = {
+  def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): List[TestGroup] = {
     val mapped = testMap(frameworks, sbtTestGroups.flatMap(_.tests))
     mapped.map { case (framework, tests) =>
-      val taskDefs: Array[TaskDefinition] = tests.map(toTaskDefinition).toArray
-      val runnerOptions = RunnerOptions(Array.empty, Array.empty)
+      val taskDefs = tests.map(toTaskDefinition).toList
+      val runnerOptions = RunnerOptions(List.empty, List.empty)
       TestGroup(framework.getClass.getCanonicalName(), taskDefs, runnerOptions)
-    }.toArray
+    }.toList
   }
 
   /** From https://github.com/sbt/sbt/blob/develop/testing/src/main/scala/sbt/TestFramework.scala
@@ -37,7 +37,7 @@ trait TestInterfaceMapper {
 
   private def toTaskDefinition(td: SbtTestDefinition): TaskDefinition = {
     val fingerprint = toFingerprint(td.fingerprint)
-    val selectors = td.selectors.map(toSelector)
+    val selectors = td.selectors.toList.map(toSelector)
     TaskDefinition(td.name, fingerprint, td.explicitlySpecified, selectors)
   }
 

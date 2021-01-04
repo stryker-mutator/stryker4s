@@ -7,19 +7,22 @@ import cats.effect.{Blocker, ContextShift, IO, Resource}
 import stryker4s.api.testprocess.{Request, Response}
 import stryker4s.extension.exception.MutationRunFailedException
 import stryker4s.log.Logger
+import stryker4s.api.testprocess.Codec.messageCodec
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
 }
 
+// TODO: Rework to no longer use objectstreams, but fs2 Stream to socket instead
 final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream, in: ObjectInputStream)(implicit
     log: Logger,
     cs: ContextShift[IO]
 ) extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] = {
+    val msg = messageCodec.encode(request).require
     IO(log.debug(s"Sending message $request")) *>
-      blocker.delay[IO, Unit](out.writeObject(request)) *>
+      blocker.delay[IO, Unit](out.write(msg.toByteArray)) *>
       blocker.delay[IO, Any](in.readObject()) flatMap {
         case response: Response =>
           IO(log.debug(s"Received message $response"))

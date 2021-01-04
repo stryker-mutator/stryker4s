@@ -1,4 +1,5 @@
 import sbt._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object Dependencies {
   object versions {
@@ -30,6 +31,9 @@ object Dependencies {
     val mutationTestingMetrics = "1.5.1"
     val sttp = "2.2.9"
     val fs2 = "2.5.0"
+    val scodec = "1.11.7"
+    val scodecScala211 = "1.11.4" // Last published 2.11 version
+    val scodecScala3 = "2.0.0-M3"
   }
 
   object test {
@@ -56,4 +60,10 @@ object Dependencies {
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
+  def scodec(scalaVersion: String) = "org.scodec" %% "scodec-core" % (if (scalaVersion.startsWith("3."))
+                                                                        versions.scodecScala3
+                                                                      else if (scalaVersion.startsWith("2.11"))
+                                                                        versions.scodecScala211
+                                                                      else
+                                                                        versions.scodec)
 }

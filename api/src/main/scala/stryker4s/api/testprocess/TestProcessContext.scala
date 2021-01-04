@@ -1,7 +1,7 @@
 package stryker4s.api.testprocess
 
 @SerialVersionUID(5212069436770507771L)
-final case class TestProcessContext(testGroups: Array[TestGroup])
+final case class TestProcessContext(testGroups: List[TestGroup])
 
 sealed trait Fingerprint
 @SerialVersionUID(3112062627280882148L)
@@ -27,11 +27,11 @@ final case class TaskDefinition(
     fullyQualifiedName: String,
     fingerprint: Fingerprint,
     explicitlySpecified: Boolean,
-    selectors: Array[Selector]
+    selectors: List[Selector]
 )
 
 @SerialVersionUID(7377193628937705593L)
-final case class TestGroup(frameworkClass: String, taskDefs: Array[TaskDefinition], runnerOptions: RunnerOptions)
+final case class TestGroup(frameworkClass: String, taskDefs: List[TaskDefinition], runnerOptions: RunnerOptions)
 
 @SerialVersionUID(4201390377840857593L)
-final case class RunnerOptions(args: Array[String], remoteArgs: Array[String])
+final case class RunnerOptions(args: List[String], remoteArgs: List[String])
