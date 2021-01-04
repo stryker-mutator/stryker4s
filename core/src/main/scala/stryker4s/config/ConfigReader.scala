@@ -12,7 +12,7 @@ import stryker4s.log.Logger
 
 object ConfigReader extends ConfigReaderImplicits {
   private val configDocUrl: String =
-    "https://github.com/stryker-mutator/stryker4s/blob/master/docs/CONFIGURATION.md"
+    "https://stryker-mutator.io/docs/stryker4s/configuration"
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 

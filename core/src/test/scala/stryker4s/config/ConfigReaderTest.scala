@@ -165,7 +165,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReader
       ConfigReader.readConfig(configSource)
 
       s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: 'other-unknown-key, unknown-key'.
-          |Please check the documentation at https://github.com/stryker-mutator/stryker4s/blob/master/docs/CONFIGURATION.md for available options.""".stripMargin shouldBe loggedAsWarning
+          |Please check the documentation at https://stryker-mutator.io/docs/stryker4s/configuration for available options.""".stripMargin shouldBe loggedAsWarning
     }
   }
 
