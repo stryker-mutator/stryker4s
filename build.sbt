@@ -5,7 +5,11 @@ lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     buildLevelSettings,
     skip in publish := true,
-    onLoad in Global ~= (_ andThen ("writeHooks" :: _))
+    onLoad in Global ~= (_ andThen ("writeHooks" :: _)),
+    addCommandAlias(
+      "publishPluginLocal",
+      "set version in ThisBuild := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s2_12/publishLocal; stryker4s-api/publishLocal; sbt-stryker4s-testrunner/publishLocal"
+    )
   )
   .aggregate(
     (stryker4sCore.projectRefs ++
