@@ -32,6 +32,7 @@ object Settings {
       Dependencies.circeCore,
       Dependencies.sttpCirce,
       Dependencies.sttpCatsBackend,
+      Dependencies.sttpModel,
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,
       Dependencies.catsCore,

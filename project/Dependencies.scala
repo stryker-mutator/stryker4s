@@ -29,6 +29,7 @@ object Dependencies {
     val mutationTestingElements = "1.5.2"
     val mutationTestingMetrics = "1.5.1"
     val sttp = "3.0.0"
+    val sttpModel = "1.2.0"
     val fs2 = "2.5.0"
   }
 
@@ -51,6 +52,8 @@ object Dependencies {
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
   val sttpCatsBackend = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % versions.sttp
+  // To prevent dependency clashes, directly depend on the latest version of sttp-model
+  val sttpModel = "com.softwaremill.sttp.model" %% "core" % versions.sttpModel
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
