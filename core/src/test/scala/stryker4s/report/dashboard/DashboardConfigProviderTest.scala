@@ -3,7 +3,7 @@ import org.scalatest.EitherValues
 import stryker4s.config.{Config, DashboardOptions, Full, MutationScoreOnly}
 import stryker4s.report.model.DashboardConfig
 import stryker4s.testutil.Stryker4sSuite
-import sttp.client.UriContext
+import sttp.client3.UriContext
 
 class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
   describe("resolveConfig") {

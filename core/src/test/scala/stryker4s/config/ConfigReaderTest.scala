@@ -10,7 +10,7 @@ import pureconfig.generic.auto._
 import stryker4s.config.implicits.ConfigReaderImplicits
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
-import sttp.client.UriContext
+import sttp.client3.UriContext
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
   describe("loadConfig") {

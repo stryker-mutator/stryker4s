@@ -16,7 +16,7 @@ import stryker4s.report._
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
-import sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend
+import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
 
 abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer: Timer[IO]) {
   def run(): IO[ScoreStatus] = {

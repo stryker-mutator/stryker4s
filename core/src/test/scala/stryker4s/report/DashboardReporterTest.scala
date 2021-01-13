@@ -10,7 +10,7 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
-import sttp.client._
+import sttp.client3._
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
 class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
@@ -29,7 +29,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
         import io.circe.syntax._
         report.asJson.noSpaces
       }
-      request.body shouldBe StringBody(jsonBody, "utf-8", Some(MediaType.ApplicationJson))
+      request.body shouldBe StringBody(jsonBody, "utf-8", MediaType.ApplicationJson)
       request.method shouldBe Method.PUT
       request.headers should (contain.allOf(
         new Header("X-Api-Key", "apiKeyHere"),
@@ -47,7 +47,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
       val jsonBody = """{"mutationScore":100.0}"""
-      request.body shouldBe StringBody(jsonBody, "utf-8", Some(MediaType.ApplicationJson))
+      request.body shouldBe StringBody(jsonBody, "utf-8", MediaType.ApplicationJson)
     }
 
     it("should add the module if it is present") {
@@ -140,9 +140,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     }
   }
 
-  def backendStub = {
-    sttp.client.asynchttpclient.cats.AsyncHttpClientCatsBackend.stub[IO]
-  }
+  def backendStub = sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend.stub[IO]
 
   def baseResults = {
     val files =

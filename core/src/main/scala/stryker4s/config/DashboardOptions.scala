@@ -1,6 +1,6 @@
 package stryker4s.config
 
-import sttp.client.UriContext
+import sttp.client3.UriContext
 import sttp.model.Uri
 
 final case class DashboardOptions(

@@ -28,7 +28,7 @@ object Dependencies {
     val circe = "0.13.0"
     val mutationTestingElements = "1.5.2"
     val mutationTestingMetrics = "1.5.1"
-    val sttp = "2.2.9"
+    val sttp = "3.0.0"
     val fs2 = "2.5.0"
   }
 
@@ -49,8 +49,8 @@ object Dependencies {
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
-  val sttpCirce = "com.softwaremill.sttp.client" %% "circe" % versions.sttp
-  val sttpCatsBackend = "com.softwaremill.sttp.client" %% "async-http-client-backend-cats" % versions.sttp
+  val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
+  val sttpCatsBackend = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % versions.sttp
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
