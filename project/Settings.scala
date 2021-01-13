@@ -31,7 +31,7 @@ object Settings {
       Dependencies.betterFiles,
       Dependencies.circeCore,
       Dependencies.sttpCirce,
-      Dependencies.sttpCatsBackend,
+      Dependencies.sttpFs2Backend,
       Dependencies.sttpModel,
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,

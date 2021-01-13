@@ -51,7 +51,8 @@ object Dependencies {
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
-  val sttpCatsBackend = "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % versions.sttp
+
+  val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
   // To prevent dependency clashes, directly depend on the latest version of sttp-model
   val sttpModel = "com.softwaremill.sttp.model" %% "core" % versions.sttpModel
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements

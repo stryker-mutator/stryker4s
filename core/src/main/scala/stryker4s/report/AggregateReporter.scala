@@ -1,5 +1,8 @@
 package stryker4s.report
 
+import scala.util.control.NonFatal
+
+import cats.effect.util.CompositeException
 import cats.effect.{ContextShift, IO}
 import cats.syntax.all._
 import stryker4s.log.Logger
@@ -17,6 +20,11 @@ class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logge
       progressReporters,
       _.onMutationStart(event)
     )
+      .onError { case NonFatal(e) =>
+        IO(log.error(e))
+      }
+      .attempt
+      .void
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
     reportAll[FinishedRunReporter](
@@ -36,12 +44,19 @@ class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logge
         reportF(reporter).attempt
       }
       .map { _ collect { case Left(f) => f } }
-      .flatMap { failed =>
-        if (failed.nonEmpty) IO {
-          log.warn(s"${failed.size} reporter(s) failed to report:")
-          failed.foreach(log.warn(_))
-        }
-        else IO.unit
+      .flatMap {
+        // No reporter failed
+        case Nil =>
+          IO.unit
+        // 1 reporter failed
+        case e :: Nil =>
+          IO(log.error("1 reporter failed to report:")) *>
+            IO.raiseError(e)
+        // Multiple reporters failed
+        case firstException :: secondException :: rest =>
+          val e = CompositeException(firstException, secondException, rest)
+          IO(log.error(s"${rest.length + 2} reporters failed to report:")) *>
+            IO.raiseError(e)
       }
   }
 }
