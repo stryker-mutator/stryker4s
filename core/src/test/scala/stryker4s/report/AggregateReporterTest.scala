@@ -3,11 +3,11 @@ package stryker4s.report
 import scala.concurrent.duration._
 
 import better.files.File
+import cats.data.NonEmptyList
+import cats.effect.util.CompositeException
 import mutationtesting._
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
-import cats.effect.util.CompositeException
-import cats.data.NonEmptyList
 
 class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("reporter") {

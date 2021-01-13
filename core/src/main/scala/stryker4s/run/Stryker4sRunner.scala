@@ -2,7 +2,7 @@ package stryker4s.run
 
 import java.nio.file.Path
 
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -16,7 +16,6 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
-import cats.effect.Blocker
 
 abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer: Timer[IO]) {
   def run(): IO[ScoreStatus] = {
