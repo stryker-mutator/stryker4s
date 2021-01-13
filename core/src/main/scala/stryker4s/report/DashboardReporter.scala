@@ -1,18 +1,19 @@
 package stryker4s.report
 
 import cats.effect.IO
+import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model._
-import sttp.client._
-import sttp.client.circe._
+import sttp.client3._
+import sttp.client3.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     log: Logger,
-    httpBackend: SttpBackend[IO, Nothing, NothingT]
+    httpBackend: SttpBackend[IO, Any]
 ) extends FinishedRunReporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
@@ -24,7 +25,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
       case Right(dashboardConfig) =>
         val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
         request
-          .send()
+          .send(httpBackend)
           .map(response => logResponse(response))
     }
 
@@ -51,7 +52,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
     }
   }
 
-  def logResponse(response: Response[Either[ResponseError[io.circe.Error], DashboardPutResult]]): Unit =
+  def logResponse(response: Response[Either[ResponseException[String, Error], DashboardPutResult]]): Unit =
     response.body match {
       case Left(HttpError(errorBody, StatusCode.Unauthorized)) =>
         log.error(
@@ -61,7 +62,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
         log.error(
           s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '${errorBody}'"
         )
-      case Left(DeserializationError(original, error)) =>
+      case Left(DeserializationException(original, error)) =>
         log.warn(
           s"Dashboard report was sent successfully, but could not decode the response: '$original'. Error:",
           error
