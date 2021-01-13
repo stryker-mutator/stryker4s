@@ -67,7 +67,7 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 - `console` will output progress and the final result to the console.
 - `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 - `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
-- `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.\*](#dashboard-object) configuration options. See the [dashboard docs](../General/dashboard.md) for more info.
+- `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.\*](#dashboard-object) configuration options. See the [dashboard docs](../General/dashboard.md) for more info. The dashboard reporter only works on Java 11 or higher.
 
 ### `excluded-mutations` [`string[]`]
 
