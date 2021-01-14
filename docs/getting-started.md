@@ -29,5 +29,5 @@ sbt stryker
 
 ## 4 Having trouble?
 
-Are you having troubles? Try enabling debug logging, for more information on how to enable debug logging visit our [configuration page](https://github.com/stryker-mutator/stryker4s/blob/master/docs/CONFIGURATION.md#log-level).
-If you are having issues, please let us know by [reporting an issue](https://github.com/stryker-mutator/stryker4s/issues/new) or talk to us on [Gitter](https://gitter.im/stryker-mutator/stryker4s).
+Are you having troubles? Try enabling debug logging. For more information on how to enable debug logging visit our [configuration page](./configuration.md#log-level).
+If you are having issues, please let us know by [reporting an issue](https://github.com/stryker-mutator/stryker4s/issues/new) or talk to us on [Slack](https://join.slack.com/t/stryker-mutator/shared_invite/enQtOTUyMTYyNTg1NDQ0LTU4ODNmZDlmN2I3MmEyMTVhYjZlYmJkOThlNTY3NTM1M2QxYmM5YTM3ODQxYmJjY2YyYzllM2RkMmM1NjNjZjM).
