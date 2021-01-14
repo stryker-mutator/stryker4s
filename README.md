@@ -37,7 +37,7 @@ After adding the plugin, Stryker4s can be used by running `sbt stryker` in the r
 
 ### Multi-module projects
 
-Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration#base-dir). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
+Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
 
 ## Maven plugin
 
