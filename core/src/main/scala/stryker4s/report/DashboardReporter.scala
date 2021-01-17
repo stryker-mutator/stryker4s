@@ -1,6 +1,6 @@
 package stryker4s.report
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
 import stryker4s.config.{Full, MutationScoreOnly}
@@ -13,7 +13,7 @@ import sttp.model.{MediaType, StatusCode}
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     log: Logger,
-    httpBackend: SttpBackend[IO, Any]
+    httpBackend: Resource[IO, SttpBackend[IO, Any]]
 ) extends FinishedRunReporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
@@ -24,9 +24,9 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
         )
       case Right(dashboardConfig) =>
         val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
-        request
-          .send(httpBackend)
-          .map(response => logResponse(response))
+        httpBackend
+          .use(request.send(_))
+          .map(logResponse(_))
     }
 
   def buildRequest(dashConfig: DashboardConfig, report: MutationTestResult, metrics: MetricsResult) = {

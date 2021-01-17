@@ -3,7 +3,7 @@ package stryker4s.report
 import scala.concurrent.duration._
 
 import better.files.File
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 import mutationtesting._
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
@@ -11,6 +11,7 @@ import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 import sttp.client3._
+import sttp.client3.testing.SttpBackendStub
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
 class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
@@ -65,8 +66,10 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
 
   describe("onRunFinished") {
     it("should send the request") {
-      implicit val backend = backendStub.whenAnyRequest
-        .thenRespond(Right(DashboardPutResult("https://hrefHere.com")))
+      implicit val backend = backendStub.map(
+        _.whenAnyRequest
+          .thenRespond(Right(DashboardPutResult("https://hrefHere.com")))
+      )
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
@@ -94,7 +97,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     }
 
     it("should log when a response can't be parsed to a href") {
-      implicit val backend = backendStub.whenAnyRequest.thenRespond("some other response")
+      implicit val backend = backendStub.map(_.whenAnyRequest.thenRespond("some other response"))
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
@@ -108,8 +111,10 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     }
 
     it("should log when a 401 is returned by the API") {
-      implicit val backend = backendStub.whenAnyRequest
-        .thenRespond(Response(Left(HttpError("auth required", StatusCode.Unauthorized)), StatusCode.Unauthorized))
+      implicit val backend = backendStub.map(
+        _.whenAnyRequest
+          .thenRespond(Response(Left(HttpError("auth required", StatusCode.Unauthorized)), StatusCode.Unauthorized))
+      )
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
       val sut = new DashboardReporter(mockDashConfig)
@@ -124,8 +129,10 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
 
     it("should log when a error code is returned by the API") {
       implicit val backend =
-        backendStub.whenAnyRequest.thenRespond(
-          Response(Left(HttpError("internal error", StatusCode.InternalServerError)), StatusCode.InternalServerError)
+        backendStub.map(
+          _.whenAnyRequest.thenRespond(
+            Response(Left(HttpError("internal error", StatusCode.InternalServerError)), StatusCode.InternalServerError)
+          )
         )
       val mockDashConfig = mock[DashboardConfigProvider]
       when(mockDashConfig.resolveConfig()).thenReturn(Right(baseDashConfig))
@@ -140,7 +147,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     }
   }
 
-  def backendStub = sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend.stub[IO]
+  def backendStub =
+    Resource.pure[IO, SttpBackendStub[IO, Any]](sttp.client3.httpclient.fs2.HttpClientFs2Backend.stub[IO])
 
   def baseResults = {
     val files =

@@ -8,9 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Add back jdk 14 when it works in Dotty again. Probably 3.0.0-M2
-        # java-version: ['adopt@1.8', 'openjdk@1.11', 'openjdk@1.14']
-        java-version: ['adopt@1.8', 'openjdk@1.11']
+        java-version: ['openjdk@1.11', 'openjdk@1.14']
     runs-on: ubuntu-latest
 
     steps:

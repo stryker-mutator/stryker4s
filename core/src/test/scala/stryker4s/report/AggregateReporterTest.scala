@@ -3,11 +3,13 @@ package stryker4s.report
 import scala.concurrent.duration._
 
 import better.files.File
+import cats.data.NonEmptyList
+import cats.effect.util.CompositeException
 import mutationtesting._
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
@@ -58,6 +60,29 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
             verifyZeroInteractions(finishedRunReporterMock)
           }
           .assertNoException
+      }
+
+      describe("logging") {
+        it("should log and continue if one  reporter throws an exception") {
+          val eventMock = mock[StartMutationEvent]
+          val consoleReporterMock = mock[ConsoleReporter]
+          val progressReporterMock = mock[ProgressReporter]
+          val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
+          val e = new RuntimeException("Something happened")
+          whenF(consoleReporterMock.onMutationStart(any[StartMutationEvent]))
+            .thenFailWith(e)
+          whenF(progressReporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
+
+          sut
+            .onMutationStart(eventMock)
+            .map { _ =>
+              "1 reporter failed to report:" shouldBe loggedAsError
+              e.toString() shouldBe loggedAsError
+              verify(consoleReporterMock).onMutationStart(eventMock)
+              verify(progressReporterMock).onMutationStart(eventMock)
+            }
+            .assertNoException
+        }
       }
     }
 
@@ -114,19 +139,16 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
           .map { _ =>
             verify(progressReporterMock).onRunFinished(runReport)
           }
-          .assertNoException
+          .assertThrows[RuntimeException]
       }
 
       describe("logging") {
-        val failedToReportMessage = "1 reporter(s) failed to report:"
-        val exceptionMessage = "java.lang.RuntimeException: Something happened"
-
         val progressReporterMock = mock[ProgressReporter]
         val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
         val metrics = Metrics.calculateMetrics(report)
         val runReport = FinishedRunEvent(report, metrics, 10.seconds, File("target/stryker4s-report/"))
 
-        it("should log if a report throws an exception") {
+        it("should log and throw if a report throws an exception") {
           val consoleReporterMock = mock[ConsoleReporter]
           val sut = new AggregateReporter(Seq(consoleReporterMock, progressReporterMock))
           whenF(consoleReporterMock.onRunFinished(runReport))
@@ -134,9 +156,37 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
 
           sut
             .onRunFinished(runReport)
-            .map { _ =>
-              failedToReportMessage shouldBe loggedAsWarning
-              exceptionMessage shouldBe loggedAsWarning
+            .attempt
+            .map {
+              case Left(e) =>
+                "1 reporter failed to report:" shouldBe loggedAsError
+                e shouldBe a[RuntimeException]
+                e.getMessage() shouldBe "Something happened"
+              case Right(r) => fail(s"Expected exception, got $r")
+            }
+        }
+
+        it("should log and combine the exceptions if multiple reporters throw an exception") {
+          val consoleReporterMock = mock[ConsoleReporter]
+          val dashboardReporterMock = mock[DashboardReporter]
+          val sut = new AggregateReporter(Seq(consoleReporterMock, dashboardReporterMock))
+          val firstExc = new RuntimeException("Something happened")
+          val secondExc = new IllegalArgumentException("Something also happened")
+          whenF(consoleReporterMock.onRunFinished(runReport))
+            .thenFailWith(firstExc)
+          whenF(dashboardReporterMock.onRunFinished(runReport))
+            .thenFailWith(secondExc)
+
+          sut
+            .onRunFinished(runReport)
+            .attempt
+            .map {
+              case Left(e) =>
+                e shouldBe a[CompositeException]
+                "2 reporters failed to report:" shouldBe loggedAsError
+                val ce = e.asInstanceOf[CompositeException]
+                ce.all shouldBe NonEmptyList(firstExc, secondExc :: Nil)
+              case Right(r) => fail(s"Expected exception, got $r")
             }
         }
 
@@ -149,8 +199,8 @@ class ReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers
             .onRunFinished(runReport)
             .map { _ =>
               verify(consoleReporterMock).onRunFinished(runReport)
-              failedToReportMessage should not be loggedAsWarning
-              exceptionMessage should not be loggedAsWarning
+              "1 reporter failed to report:" should not be loggedAsWarning
+              "java.lang.RuntimeException: Something happened" should not be loggedAsWarning
             }
         }
       }
