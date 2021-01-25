@@ -8,25 +8,33 @@ import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.extension.mutationtype._
 import stryker4s.model.Mutant
 import stryker4s.testutil.Stryker4sSuite
+import stryker4s.model.IgnoredMutationReason
 
 class MutantMatcherTest extends Stryker4sSuite {
   implicit private val config: Config = Config.default
   private val sut = new MutantMatcher()
 
   def expectMutations(
-      matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
+      matchFun: PartialFunction[Tree, Seq[Either[IgnoredMutationReason, Mutant]]],
       tree: Tree,
       original: Term,
       expectedTerms: Term*
-  ): Unit = {
-    val found: Seq[Option[Mutant]] = tree.collect(matchFun).flatten
+  )(implicit expectedName: String): Unit = {
+    val found = tree.collect(matchFun).flatten
 
     expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
   }
 
-  def expectMutations(actualMutants: Seq[Option[Mutant]], original: Term, expectedMutations: Term*): Unit = {
+  def expectMutations(
+      actualMutants: Seq[Either[IgnoredMutationReason, Mutant]],
+      original: Term,
+      expectedMutations: Term*
+  )(implicit
+      expectedName: String
+  ): Unit = {
     expectedMutations.foreach(expectedMutation => {
-      val actualMutant = actualMutants.flatten
+      val actualMutant = actualMutants
+        .collect { case Right(v) => v }
         .find(mutant =>
           mutant.mutated.isEqual(expectedMutation) &&
             mutant.original.isEqual(original)
@@ -35,17 +43,18 @@ class MutantMatcherTest extends Stryker4sSuite {
 
       assert(actualMutant.original.isEqual(original))
       assert(actualMutant.mutated.isEqual(expectedMutation))
+      actualMutant.mutationType.mutationName shouldBe expectedName
     })
   }
 
   /** Check if there is a mutant for every expected mutation
     */
   def expectedMutations(
-      matchFun: PartialFunction[Tree, Seq[Option[Mutant]]],
+      matchFun: PartialFunction[Tree, Seq[Either[IgnoredMutationReason, Mutant]]],
       tree: Tree,
       expectedMutations: MethodExpression*
   ): Unit = {
-    val found: Seq[Mutant] = tree.collect(matchFun).flatten.flatten
+    val found = tree.collect(matchFun).flatten.collect { case Right(v) => v }
     expectedMutations foreach { expectedMutation =>
       found
         .map(_.mutated)
@@ -58,59 +67,62 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should match a conditional statement") {
       val tree = q"def foo = 15 > 20 && 20 < 15"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 7
-      expectMutations(found, q">", q">=", q"<", q"==")
-      expectMutations(found, q"&&", q"||")
-      expectMutations(found, q"<", q"<=", q">", q"==")
+      expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
+      expectMutations(found, q"&&", q"||")("LogicalOperator")
+      expectMutations(found, q"<", q"<=", q">", q"==")("EqualityOperator")
     }
 
     it("should match a method") {
       val tree = q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 2
-      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")
+      expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")(
+        "MethodExpression"
+      )
       expectMutations(
         found,
         q"List(1, 2).filterNot(filterNotFunc).filter(filterFunc)",
         q"List(1, 2).filterNot(filterNotFunc).filterNot(filterFunc)"
-      )
+      )("MethodExpression")
     }
 
     it("should match a boolean and a conditional") {
       val tree = q"def foo = false && 15 > 4"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 5
-      expectMutations(found, q"false", q"true")
-      expectMutations(found, q"&&", q"||")
-      expectMutations(found, q">", q"<", q"==")
+      expectMutations(found, q"false", q"true")("BooleanLiteral")
+      expectMutations(found, q"&&", q"||")("LogicalOperator")
+      expectMutations(found, q">", q"<", q"==")("EqualityOperator")
     }
 
     it("should match the default case of a constructor argument") {
       val tree = q"class Person(isOld: Boolean = 18 > 15) { }"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 3
-      expectMutations(found, q">", q">=", q"<", q"==")
+      expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
     }
 
     it("should match on the default case of a function argument") {
       val tree = q"def hasGoodBack(isOld: Boolean = age > 60): Boolean = isOld"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 3
-      expectMutations(found, q">", q">=", q"<", q"==")
+      expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
     }
   }
 
   describe("matchEqualityOperator matcher") {
+    implicit val mutatorName = "EqualityOperator"
     it("should match >= sign with >, <, and ==") {
       expectMutations(
         sut.matchEqualityOperator,
@@ -192,6 +204,8 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
   }
   describe("matchLogicalOperator matcher") {
+    implicit val mutatorName = "LogicalOperator"
+
     it("should match && to ||") {
       expectMutations(
         sut.matchLogicalOperator,
@@ -286,6 +300,8 @@ class MutantMatcherTest extends Stryker4sSuite {
   }
 
   describe("matchBooleanLiteral matcher") {
+    implicit val mutatorName = "BooleanLiteral"
+
     it("should match false to true") {
       expectMutations(
         sut.matchBooleanLiteral,
@@ -305,6 +321,8 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
   }
   describe("matchStringLiteral matcher") {
+    implicit val mutatorName = "StringLiteral"
+
     it("should match foo to NonEmptyString") {
       expectMutations(
         sut.matchStringLiteral,
@@ -369,10 +387,90 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
   }
 
+  describe("regexMutator") {
+    implicit val mutatorName = "RegularExpression"
+    val regex = Lit.String(".*")
+
+    it("should match Regex constructor") {
+      val tree = q"""def foo = new Regex($regex)"""
+
+      expectMutations(
+        sut.matchRegex,
+        tree,
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should match scala.util.matching.Regex constructor") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = new scala.util.matching.Regex($regex)""",
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should match a Regex constructor with named groups") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = new Regex($regex, "any")""",
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should match Regex String ops") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = $regex.r""",
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should match Pattern.compile Regex constructor") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = Pattern.compile($regex)""",
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should match java.util.regex.Pattern.compile Regex constructor") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = java.util.regex.Pattern.compile($regex)""",
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should match Pattern.compile Regex constructor with flags") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = Pattern.compile($regex, CASE_INSENSITIVE)""",
+        regex,
+        RegularExpression(".")
+      )
+    }
+
+    it("should not match e regular string") {
+      expectMutations(
+        sut.matchRegex,
+        q"""def foo = $regex""",
+        regex
+      )
+    }
+
+  }
+
   describe("Create mutant id's") {
     it("should register multiple mutants from a found mutant with multiple mutations") {
-      val sut = new MutantMatcher()(Config.default)
-      val mutants = (sut.TermExtensions(GreaterThan).~~>(LesserThan, GreaterThanEqualTo, EqualTo)).flatten
+      val sut = new MutantMatcher()
+      val mutants =
+        sut.TermExtensions(GreaterThan).~~>(LesserThan, GreaterThanEqualTo, EqualTo).collect { case Right(v) => v }
 
       mutants.map(_.id) should contain theSameElementsAs List(0, 1, 2)
     }
@@ -406,7 +504,7 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should match a function with a single expression") {
       val tree = q"def isEmpty = exists"
 
-      val result: Seq[Mutant] = (tree collect sut.allMatchers).flatten.flatten
+      val result = tree.collect(sut.allMatchers).flatten.collect { case Right(v) => v }
 
       result.map(_.original) should not contain q"isEmpty"
     }
@@ -414,42 +512,42 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should mutate if statements with true and false as condition") {
       val tree = q"if(aVariable) { println }"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 2
-      expectMutations(found, q"aVariable", q"true")
-      expectMutations(found, q"aVariable", q"false")
+      expectMutations(found, q"aVariable", q"true")("ConditionalExpression")
+      expectMutations(found, q"aVariable", q"false")("ConditionalExpression")
     }
 
     it("should mutate while statements with false as condition") {
       val tree = q"while(aVariable) { println }"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 1
-      expectMutations(found, q"aVariable", q"false")
+      expectMutations(found, q"aVariable", q"false")("ConditionalExpression")
     }
 
     it("should mutate do while statements with false as condition") {
       val tree = q"do { println } while(aVariable)"
 
-      val found: Seq[Option[Mutant]] = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).flatten
 
       found should have length 1
-      expectMutations(found, q"aVariable", q"false")
+      expectMutations(found, q"aVariable", q"false")("ConditionalExpression")
     }
 
     it("should mutate conditional statements that have a literal boolean as condition only once") {
       val trueTree = q"if(true) { println }"
       val falseTree = q"if(false) { println }"
 
-      val trueFound: Seq[Option[Mutant]] = trueTree.collect(sut.allMatchers).flatten
-      val falseFound: Seq[Option[Mutant]] = falseTree.collect(sut.allMatchers).flatten
+      val trueFound = trueTree.collect(sut.allMatchers).flatten
+      val falseFound = falseTree.collect(sut.allMatchers).flatten
 
       trueFound should have length 1
       falseFound should have length 1
-      expectMutations(trueFound, q"true", q"false")
-      expectMutations(falseFound, q"false", q"true")
+      expectMutations(trueFound, q"true", q"false")("BooleanLiteral")
+      expectMutations(falseFound, q"false", q"true")("BooleanLiteral")
     }
   }
 }

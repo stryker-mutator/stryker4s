@@ -170,6 +170,28 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       excluded shouldBe 3
       result should have length 3
     }
+
+    it("should log unparsable regular expressions") {
+      implicit val config: Config = Config.default
+
+      val sut = new MutantFinder(new MutantMatcher)
+      val regex = Lit.String("[[]]")
+      val source =
+        source"""case class Bar() {
+                    def foobar = new Regex($regex)
+                  }"""
+
+      val result = sut.findMutants(source)
+
+      // 1 empty-string found
+      val mutant = result._1.loneElement
+      assert(mutant.original.isEqual(regex))
+      assert(mutant.mutated.isEqual(Lit.String("")))
+      // 0 excluded
+      result._2 shouldBe 0
+
+      "[RegexMutator]: The Regex parser of weapon-regex couldn't parse this regex pattern: '[[]]'. Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error:" shouldBe loggedAsError
+    }
   }
 
   describe("mutantsInFile") {

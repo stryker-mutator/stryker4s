@@ -21,24 +21,25 @@ object Settings {
   lazy val coreSettings: Seq[Setting[_]] = Seq(
     parallelExecution in Test := false,
     libraryDependencies ++= Seq(
-      Dependencies.test.scalatest,
-      Dependencies.test.mockitoScala,
-      Dependencies.test.mockitoScalaCats,
-      Dependencies.test.catsEffectScalaTest,
+      Dependencies.betterFiles,
+      Dependencies.catsCore,
+      Dependencies.catsEffect,
+      Dependencies.circeCore,
+      Dependencies.fs2Core,
+      Dependencies.fs2IO,
+      Dependencies.mutationTestingElements,
+      Dependencies.mutationTestingMetrics,
       Dependencies.pureconfig,
       Dependencies.pureconfigSttp,
       Dependencies.scalameta,
-      Dependencies.betterFiles,
-      Dependencies.circeCore,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
       Dependencies.sttpModel,
-      Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics,
-      Dependencies.catsCore,
-      Dependencies.catsEffect,
-      Dependencies.fs2Core,
-      Dependencies.fs2IO
+      Dependencies.weaponRegeX,
+      Dependencies.test.catsEffectScalaTest,
+      Dependencies.test.mockitoScala,
+      Dependencies.test.mockitoScalaCats,
+      Dependencies.test.scalatest
     )
   )
 
