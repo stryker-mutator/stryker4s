@@ -32,10 +32,10 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   def matchEqualityOperator: MutationMatcher = {
-    case GreaterThanEqualTo(orig) => orig ~~> (GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig)        => orig ~~> (GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig)  => orig ~~> (LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig)         => orig ~~> (LesserThanEqualTo, GreaterThan, EqualTo)
+    case GreaterThanEqualTo(orig) => orig.~~>(GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)        => orig.~~>(GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig)  => orig.~~>(LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)         => orig.~~>(LesserThanEqualTo, GreaterThan, EqualTo)
     case EqualTo(orig)            => orig ~~> NotEqualTo
     case NotEqualTo(orig)         => orig ~~> EqualTo
     case TypedEqualTo(orig)       => orig ~~> TypedNotEqualTo
@@ -48,30 +48,30 @@ class MutantMatcher()(implicit config: Config) {
   }
 
   def matchConditionalExpression: MutationMatcher = {
-    case If(condition)      => condition ~~> (ConditionalTrue, ConditionalFalse)
+    case If(condition)      => condition.~~>(ConditionalTrue, ConditionalFalse)
     case While(condition)   => condition ~~> ConditionalFalse
     case DoWhile(condition) => condition ~~> ConditionalFalse
   }
 
   def matchMethodExpression: MutationMatcher = {
-    case Filter(orig, f)      => orig ~~> (f, FilterNot)
-    case FilterNot(orig, f)   => orig ~~> (f, Filter)
-    case Exists(orig, f)      => orig ~~> (f, Forall)
-    case Forall(orig, f)      => orig ~~> (f, Exists)
-    case Take(orig, f)        => orig ~~> (f, Drop)
-    case Drop(orig, f)        => orig ~~> (f, Take)
-    case TakeRight(orig, f)   => orig ~~> (f, DropRight)
-    case DropRight(orig, f)   => orig ~~> (f, TakeRight)
-    case TakeWhile(orig, f)   => orig ~~> (f, DropWhile)
-    case DropWhile(orig, f)   => orig ~~> (f, TakeWhile)
-    case IsEmpty(orig, f)     => orig ~~> (f, NonEmpty)
-    case NonEmpty(orig, f)    => orig ~~> (f, IsEmpty)
-    case IndexOf(orig, f)     => orig ~~> (f, LastIndexOf)
-    case LastIndexOf(orig, f) => orig ~~> (f, IndexOf)
-    case Max(orig, f)         => orig ~~> (f, Min)
-    case Min(orig, f)         => orig ~~> (f, Max)
-    case MaxBy(orig, f)       => orig ~~> (f, MinBy)
-    case MinBy(orig, f)       => orig ~~> (f, MaxBy)
+    case Filter(orig, f)      => orig.~~>(f, FilterNot)
+    case FilterNot(orig, f)   => orig.~~>(f, Filter)
+    case Exists(orig, f)      => orig.~~>(f, Forall)
+    case Forall(orig, f)      => orig.~~>(f, Exists)
+    case Take(orig, f)        => orig.~~>(f, Drop)
+    case Drop(orig, f)        => orig.~~>(f, Take)
+    case TakeRight(orig, f)   => orig.~~>(f, DropRight)
+    case DropRight(orig, f)   => orig.~~>(f, TakeRight)
+    case TakeWhile(orig, f)   => orig.~~>(f, DropWhile)
+    case DropWhile(orig, f)   => orig.~~>(f, TakeWhile)
+    case IsEmpty(orig, f)     => orig.~~>(f, NonEmpty)
+    case NonEmpty(orig, f)    => orig.~~>(f, IsEmpty)
+    case IndexOf(orig, f)     => orig.~~>(f, LastIndexOf)
+    case LastIndexOf(orig, f) => orig.~~>(f, IndexOf)
+    case Max(orig, f)         => orig.~~>(f, Min)
+    case Min(orig, f)         => orig.~~>(f, Max)
+    case MaxBy(orig, f)       => orig.~~>(f, MinBy)
+    case MinBy(orig, f)       => orig.~~>(f, MaxBy)
   }
 
   /** Match both strings and regexes instead of stopping when one of them gives a match
