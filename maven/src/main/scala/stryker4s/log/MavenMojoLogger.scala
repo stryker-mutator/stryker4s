@@ -3,27 +3,26 @@ package stryker4s.log
 import org.apache.maven.plugin.logging.Log
 
 class MavenMojoLogger(mavenLogger: Log) extends Logger {
-  def debug(msg: => String): Unit = if (mavenLogger.isDebugEnabled()) mavenLogger.debug(msg)
 
-  def debug(msg: => String, e: Throwable): Unit = if (mavenLogger.isDebugEnabled()) mavenLogger.debug(msg, e)
+  def log(level: Level, msg: => String): Unit = level match {
+    case Debug => if (mavenLogger.isDebugEnabled()) mavenLogger.debug(msg)
+    case Info  => if (mavenLogger.isInfoEnabled()) mavenLogger.info(msg)
+    case Warn  => if (mavenLogger.isWarnEnabled()) mavenLogger.warn(msg)
+    case Error => if (mavenLogger.isErrorEnabled()) mavenLogger.error(msg)
+  }
 
-  def debug(e: Throwable): Unit = if (mavenLogger.isDebugEnabled()) mavenLogger.debug(e)
+  def log(level: Level, msg: => String, e: => Throwable): Unit = level match {
+    case Debug => if (mavenLogger.isDebugEnabled()) mavenLogger.debug(msg, e)
+    case Info  => if (mavenLogger.isInfoEnabled()) mavenLogger.info(msg, e)
+    case Warn  => if (mavenLogger.isWarnEnabled()) mavenLogger.warn(msg, e)
+    case Error => if (mavenLogger.isErrorEnabled()) mavenLogger.error(msg, e)
+  }
 
-  def info(msg: => String): Unit = if (mavenLogger.isInfoEnabled()) mavenLogger.info(msg)
+  def log(level: Level, e: Throwable): Unit = level match {
+    case Debug => if (mavenLogger.isDebugEnabled()) mavenLogger.debug(e)
+    case Info  => if (mavenLogger.isInfoEnabled()) mavenLogger.info(e)
+    case Warn  => if (mavenLogger.isWarnEnabled()) mavenLogger.warn(e)
+    case Error => if (mavenLogger.isErrorEnabled()) mavenLogger.error(e)
+  }
 
-  def info(msg: => String, e: Throwable): Unit = if (mavenLogger.isInfoEnabled()) mavenLogger.info(msg, e)
-
-  def info(e: Throwable): Unit = if (mavenLogger.isInfoEnabled()) mavenLogger.info(e)
-
-  def warn(msg: => String): Unit = if (mavenLogger.isWarnEnabled()) mavenLogger.warn(msg)
-
-  def warn(msg: => String, e: Throwable): Unit = if (mavenLogger.isWarnEnabled()) mavenLogger.warn(msg, e)
-
-  def warn(e: Throwable): Unit = if (mavenLogger.isWarnEnabled()) mavenLogger.warn(e)
-
-  def error(msg: => String): Unit = if (mavenLogger.isErrorEnabled()) mavenLogger.error(msg)
-
-  def error(msg: => String, e: Throwable): Unit = if (mavenLogger.isErrorEnabled()) mavenLogger.error(msg, e)
-
-  def error(e: Throwable): Unit = if (mavenLogger.isErrorEnabled()) mavenLogger.error(e)
 }
