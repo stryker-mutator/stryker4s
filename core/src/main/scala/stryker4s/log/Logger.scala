@@ -1,20 +1,23 @@
 package stryker4s.log
 
 trait Logger {
-  def debug(msg: => String): Unit
-  def debug(msg: => String, e: Throwable): Unit
-  def debug(e: Throwable): Unit
+  final def debug(msg: => String): Unit = log(Debug, msg)
+  final def debug(msg: => String, e: Throwable): Unit = log(Debug, msg, e)
+  final def debug(e: Throwable): Unit = log(Debug, e)
 
-  def info(msg: => String): Unit
-  def info(msg: => String, e: Throwable): Unit
-  def info(e: Throwable): Unit
+  final def info(msg: => String): Unit = log(Info, msg)
+  final def info(msg: => String, e: Throwable): Unit = log(Info, msg, e)
+  final def info(e: Throwable): Unit = log(Info, e)
 
-  def warn(msg: => String): Unit
-  def warn(msg: => String, e: Throwable): Unit
-  def warn(e: Throwable): Unit
+  final def warn(msg: => String): Unit = log(Warn, msg)
+  final def warn(msg: => String, e: Throwable): Unit = log(Warn, msg, e)
+  final def warn(e: Throwable): Unit = log(Warn, e)
 
-  def error(msg: => String): Unit
-  def error(msg: => String, e: Throwable): Unit
-  def error(e: Throwable): Unit
+  final def error(msg: => String): Unit = log(Error, msg)
+  final def error(msg: => String, e: Throwable): Unit = log(Error, msg, e)
+  final def error(e: Throwable): Unit = log(Error, e)
 
+  def log(level: Level, msg: => String): Unit
+  def log(level: Level, msg: => String, e: => Throwable): Unit
+  def log(level: Level, e: Throwable): Unit
 }

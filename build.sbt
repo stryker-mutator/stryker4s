@@ -6,9 +6,15 @@ lazy val root = (project withId "stryker4s" in file("."))
     buildLevelSettings,
     skip in publish := true,
     onLoad in Global ~= (_ andThen ("writeHooks" :: _)),
+    // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
       "set version in ThisBuild := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s2_12/publishLocal; stryker4s-api/publishLocal; sbt-stryker4s-testrunner/publishLocal"
+    ),
+    // Publish to .m2 folder for Maven plugin testing
+    addCommandAlias(
+      "publishM2Local",
+      "set version in ThisBuild := \"SET-BY-SBT-SNAPSHOT\"; stryker4s-core2_12/publishM2; stryker4s-api2_12/publishM2"
     )
   )
   .aggregate(

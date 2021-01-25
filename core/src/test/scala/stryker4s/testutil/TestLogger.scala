@@ -1,41 +1,26 @@
 package stryker4s.testutil
 
-import stryker4s.log.Logger
+import scala.collection.mutable.Queue
 
-import LogLevel._
+import stryker4s.log.{Level, Logger}
 
-class TestLogger extends Logger {
+class TestLogger(printLogs: Boolean) extends Logger {
 
-  private val events = scala.collection.mutable.Queue[LogEvent]()
+  private val events = Queue[(Level, String)]()
 
-  def findEvent(msg: String): Option[LogEvent] = events.find(_.msg.contains(msg))
+  def findEvent(msg: String): Option[(Level, String)] = events.find(_._2.contains(msg))
 
   def clear(): Unit = events.clear()
 
-  def debug(msg: => String): Unit = events.enqueue(LogEvent(Debug, msg))
+  def log(level: Level, msg: => String): Unit = addToLogs(level, msg)
 
-  def debug(msg: => String, e: Throwable): Unit = events.enqueue(LogEvent(Debug, s"$msg, ${e.toString()}"))
+  def log(level: Level, msg: => String, e: => Throwable): Unit = addToLogs(level, s"$msg, ${e.toString()}")
 
-  def debug(e: Throwable): Unit = events.enqueue(LogEvent(Debug, e.toString()))
+  def log(level: Level, e: Throwable): Unit = addToLogs(level, e.toString())
 
-  def info(msg: => String): Unit = events.enqueue(LogEvent(Info, msg))
-
-  def info(msg: => String, e: Throwable): Unit = events.enqueue(LogEvent(Info, s"$msg, ${e.toString()}"))
-
-  def info(e: Throwable): Unit = events.enqueue(LogEvent(Info, e.toString()))
-
-  def warn(msg: => String): Unit = events.enqueue(LogEvent(Warn, msg))
-
-  def warn(msg: => String, e: Throwable): Unit = events.enqueue(LogEvent(Warn, s"$msg, ${e.toString()}"))
-
-  def warn(e: Throwable): Unit = events.enqueue(LogEvent(Warn, e.toString()))
-
-  def error(msg: => String): Unit = events.enqueue(LogEvent(Error, msg))
-
-  def error(msg: => String, e: Throwable): Unit = events.enqueue(LogEvent(Error, s"$msg, ${e.toString()}"))
-
-  def error(e: Throwable): Unit = events.enqueue(LogEvent(Error, e.toString()))
+  private def addToLogs(level: Level, msg: => String): Unit = {
+    if (printLogs) { println(s"[${level.toString().toUpperCase()}]: $msg") }
+    events.enqueue((level, msg))
+  }
 
 }
-
-case class LogEvent(level: LogLevel, msg: String)
