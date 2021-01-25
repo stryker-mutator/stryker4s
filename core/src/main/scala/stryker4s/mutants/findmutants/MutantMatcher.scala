@@ -2,8 +2,8 @@ package stryker4s.mutants.findmutants
 
 import scala.meta._
 
-import cats.Semigroup
-import cats.implicits._
+import cats.syntax.either._
+import cats.syntax.semigroup._
 import stryker4s.config.Config
 import stryker4s.extension.PartialFunctionOps._
 import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtension}
@@ -76,7 +76,7 @@ class MutantMatcher()(implicit config: Config) {
 
   /** Match both strings and regexes instead of stopping when one of them gives a match
     */
-  def matchStringsAndRegex: MutationMatcher = Semigroup[MutationMatcher].combine(matchStringLiteral, matchRegex)
+  def matchStringsAndRegex: MutationMatcher = matchStringLiteral combine matchRegex
 
   def matchStringLiteral: MutationMatcher = {
     case EmptyString(orig)         => orig ~~> StrykerWasHereString
