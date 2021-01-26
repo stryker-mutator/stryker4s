@@ -3,7 +3,8 @@ package stryker4s.sbt
 import java.io.{File => JFile, PrintStream}
 import java.nio.file.Path
 
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{ContextShift, IO, Timer}
+import fs2.Stream
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
@@ -30,11 +31,11 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
   override def mutationActivation(implicit config: Config): ActiveMutationContext =
     if (config.legacyTestRunner) ActiveMutationContext.sysProps else ActiveMutationContext.testRunner
 
-  def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, stryker4s.run.TestRunner] = {
+  def resolveTestRunners(tmpDir: Path)(implicit config: Config): Stream[IO, stryker4s.run.TestRunner] = {
     def setupLegacySbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
-    ): Resource[IO, TestRunner] = {
+    ): Stream[IO, TestRunner] = {
       log.info("Using the legacy sbt testrunner")
 
       val emptyLogManager =
@@ -48,13 +49,13 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
-      Resource.pure[IO, TestRunner](new LegacySbtTestRunner(newState, fullSettings, extracted))
+      Stream.emit(new LegacySbtTestRunner(newState, fullSettings, extracted))
     }
 
     def setupSbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
-    ): Resource[IO, TestRunner] = {
+    ): Stream[IO, TestRunner] = {
       val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
@@ -81,7 +82,13 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
 
       val testGroups = extractTaskValue(testGrouping in Test, "testGrouping")
 
-      SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups)
+      log.info(s"Creating ${config.concurrency} test-runners")
+      val portStart = 13336
+      val portRanges = (1 to config.concurrency).map(_ + portStart)
+
+      Stream.emits(portRanges).flatMap { port =>
+        Stream.resource(SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port))
+      }
     }
 
     def extractSbtProject(tmpDir: Path)(implicit config: Config) = {

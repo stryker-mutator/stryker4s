@@ -62,24 +62,20 @@ object ProcessTestRunner extends TestInterfaceMapper {
       classpath: Seq[String],
       javaOpts: Seq[String],
       frameworks: Seq[SbtFramework],
-      testGroups: Seq[Tests.Group]
-  )(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] = {
-    val socketConfig = TestProcessConfig(13337) // TODO: Don't hardcode socket port
-
-    createProcess(classpath, javaOpts, socketConfig)
-      .parZip(connectToProcess(socketConfig))
-      .map(_._2)
+      testGroups: Seq[Tests.Group],
+      port: Int
+  )(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] =
+    createProcess(classpath, javaOpts, port) *> connectToProcess(port)
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
-  }
 
   def createProcess(
       classpath: Seq[String],
       javaOpts: Seq[String],
-      socketConfig: TestProcessConfig
+      port: Int
   )(implicit log: Logger, config: Config): Resource[IO, Process] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
-    val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
+    val sysProps = s"-D${TestProcessProperties.port}=$port"
     val args = Seq(sysProps, mainClass)
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
@@ -92,19 +88,19 @@ object ProcessTestRunner extends TestInterfaceMapper {
   }
 
   private def connectToProcess(
-      config: TestProcessConfig
+      port: Int
   )(implicit timer: Timer[IO], log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.liftF(
-      IO(log.debug("Creating socket"))
+      IO(log.debug(s"Creating socket on $port"))
         .delayBy(0.5.seconds)
     ) *>
       Resource
         .make(
           retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
-            IO(new Socket(InetAddress.getLocalHost(), config.port))
+            IO(new Socket(InetAddress.getLocalHost(), port))
           )
-        )(s => IO(s.close()))
+        )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
         .evalTap(_ => IO(log.debug("Created socket")))
         .flatMap(TestRunnerConnection.create(_))
   }

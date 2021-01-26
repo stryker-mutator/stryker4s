@@ -5,7 +5,8 @@ import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 import cats.effect.concurrent.Deferred
-import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
+import cats.effect.{Blocker, ContextShift, IO, Timer}
+import fs2.Stream
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
@@ -22,14 +23,14 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit
 ) extends Stryker4sRunner {
   override def mutationActivation(implicit config: Config): ActiveMutationContext = ActiveMutationContext.envVar
 
-  override def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, TestRunner] = {
-    Resource.liftF(Deferred[IO, FiniteDuration]).flatMap { timeout =>
+  override def resolveTestRunners(tmpDir: Path)(implicit config: Config): Stream[IO, TestRunner] = {
+    Stream.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
       val innerTestRunner = Blocker[IO]
         .map(new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir, _))
 
       val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
-      withTimeout
+      Stream.resource(withTimeout)
     }
   }
 }

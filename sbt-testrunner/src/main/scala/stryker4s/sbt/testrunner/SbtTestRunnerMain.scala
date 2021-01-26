@@ -3,7 +3,7 @@ package stryker4s.sbt.testrunner
 import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.{ServerSocket, Socket}
 
-import stryker4s.api.testprocess.{Request, TestProcessConfig}
+import stryker4s.api.testprocess.Request
 
 object SbtTestRunnerMain {
   def main(args: Array[String]): Unit = {
@@ -12,14 +12,14 @@ object SbtTestRunnerMain {
     setupSocketServer(config)
   }
 
-  private def setupSocketServer(config: TestProcessConfig) = {
+  private def setupSocketServer(port: Int) = {
     println("Setting up server")
-    val server = new ServerSocket(config.port)
+    val server = new ServerSocket(port)
     try {
       val socket = server.accept()
       try {
 
-        println(s"Ready to accept connections on port ${config.port}")
+        println(s"Ready to accept connections on port $port")
 
         val messageHandler = new TestRunnerMessageHandler()
         val server = new TestProcessServer(messageHandler, socket)

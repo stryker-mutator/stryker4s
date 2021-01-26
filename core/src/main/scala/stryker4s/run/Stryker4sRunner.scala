@@ -2,7 +2,8 @@ package stryker4s.run
 
 import java.nio.file.Path
 
-import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
+import cats.effect.{Blocker, ContextShift, IO, Timer}
+import fs2.Stream
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -30,7 +31,7 @@ abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer
         new StatementTransformer,
         resolveMatchBuilder
       ),
-      new MutantRunner(resolveTestRunner(_), collector, new AggregateReporter(resolveReporters()))
+      new MutantRunner(resolveTestRunners(_), collector, new AggregateReporter(resolveReporters()))
     )
     stryker4s.run()
   }
@@ -60,7 +61,7 @@ abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer
 
   def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
 
-  def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, stryker4s.run.TestRunner]
+  def resolveTestRunners(tmpDir: Path)(implicit config: Config): Stream[IO, stryker4s.run.TestRunner]
 
   def mutationActivation(implicit config: Config): ActiveMutationContext
 }

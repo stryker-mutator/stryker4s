@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import scala.meta._
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import cats.syntax.applicativeError._
 import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.{Killed, Mutant, MutantRunResult}
@@ -26,5 +26,5 @@ object TestRunnerStub {
 
   def resource = withResults(Killed(Mutant(0, q">", q"<", LesserThan)))
 
-  def withResults(mutants: MutantRunResult*) = (_: Path) => Resource.pure[IO, TestRunner](new TestRunnerStub(mutants))
+  def withResults(mutants: MutantRunResult*) = (_: Path) => fs2.Stream.emit[IO, TestRunner](new TestRunnerStub(mutants))
 }
