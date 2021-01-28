@@ -73,6 +73,12 @@ class MutationTypesTest extends Stryker4sSuite {
         case StringInterpolation(_) =>
       }
     }
+
+    it("t interpolation should not match StringInterpolation") {
+      Term.Interpolate(q"t", List(Lit.String("scala.util.matching.Regex")), List.empty) should not matchPattern {
+        case StringInterpolation(_) =>
+      }
+    }
   }
 
   describe("other cases") {
