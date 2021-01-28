@@ -385,6 +385,33 @@ class MutantMatcherTest extends Stryker4sSuite {
       interpolated.syntax should equal("q\"interpolate $foo\"")
       result should be(empty)
     }
+
+    it("should not match pattern interpolation") {
+      val tree = source"""class Foo {
+        def bar = {
+          case t"interpolate" => _
+        }
+      }"""
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should match pattern in string") {
+      val str = Lit.String("str")
+      val tree = source"""class Foo {
+        def bar = {
+          case "str" => 4
+        }
+      }"""
+      expectMutations(
+        sut.matchStringLiteral,
+        tree,
+        str,
+        Lit.String("")
+      )
+    }
   }
 
   describe("regexMutator") {

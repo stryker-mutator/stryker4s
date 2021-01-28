@@ -1,6 +1,6 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta.{Lit, Term}
+import scala.meta.{Lit, Pat, Term}
 
 case object EmptyString extends StringLiteral[Lit.String] {
   override val tree: Lit.String = Lit.String("")
@@ -36,6 +36,7 @@ private object ParentIsInterpolatedString {
     arg.parent match {
       // Do not mutate interpolated strings
       case Some(_: Term.Interpolate) => true
+      case Some(_: Pat.Interpolate)  => true
       case _                         => false
     }
 }
