@@ -32,7 +32,7 @@ object Dependencies {
     val pureconfig = "0.14.0"
     val scalameta = "4.4.7"
     val sttp = "3.0.0"
-    val sttpModel = "1.2.2"
+    val sttpModel = "1.3.1"
     val testInterface = "1.0"
     val weaponRegeX = "0.3.0"
   }
