@@ -22,7 +22,7 @@ object Dependencies {
 
     // Direct dependencies
     val betterFiles = "3.9.1"
-    val catsCore = "2.3.1"
+    val catsCore = "2.4.1"
     val catsEffect = "2.3.1"
     val circe = "0.13.0"
     val fs2 = "2.5.0"
