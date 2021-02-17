@@ -82,7 +82,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
     Resource.liftF(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
       ProcessResource
-        .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner: $m"))
+        .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner $port: $m"))
         .evalTap(_ => IO(log.debug("Started process")))
 
   }

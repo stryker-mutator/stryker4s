@@ -30,11 +30,9 @@ class MutantRunner(
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
       .map(createTestRunners)
-      .map(initialTestRun)
-      .use { initialTestRunner =>
-        initialTestRunner.use { case (coverageExclusions, testRunners) =>
-          runMutants(mutatedFiles, testRunners, coverageExclusions).timed
-        }
+      .flatMap(initialTestRun)
+      .use { case (coverageExclusions, testRunners) =>
+        runMutants(mutatedFiles, testRunners, coverageExclusions).timed
       }
       .flatMap(t => createAndReportResults(t._1, t._2))
 
@@ -192,7 +190,7 @@ class MutantRunner(
         case Some((initialTestRunner, rest)) =>
           Pull.output1(
             init(initialTestRunner)
-              .tupleRight(rest.cons1(initialTestRunner))
+              .tupleRight(rest)
           )
       }
       .stream

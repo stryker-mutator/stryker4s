@@ -20,13 +20,16 @@ object StreamExtensions {
   //   runConcurrent(config.concurrency.toLong)(F)
   // }
 
-  implicit class ParEvalMapExtension[F[_]: Concurrent, O](s: fs2.Stream[F, O]) {
+  implicit class ParEvalMapExtension[F[_]: Concurrent, O](mutants: fs2.Stream[F, O]) {
     def parEvalOn[O2, O3](
-        a: Stream[F, O2]
-    )(f: (O2, O) => F[O3]): Stream[F, O3] =
-      s.balanceAvailable
-        .zipWith(a)({ case (bs, as) => bs.evalMap(f(as, _)) })
+        testRunners: Stream[F, O2]
+    )(testF: (O2, O) => F[O3]): Stream[F, O3] = {
+      mutants
+        .balance(1)
+        .zip(testRunners)
+        .map({ case (bs, as) => bs.parEvalMapUnordered(8)(testF(as, _)) })
         .parJoinUnbounded
+    }
   }
 
 }

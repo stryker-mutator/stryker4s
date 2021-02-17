@@ -25,9 +25,9 @@ class StreamExtensionsTest extends Stryker4sIOSuite {
         val (ones, twos) = r.partition(_.startsWith("1"))
 
         zeros.length + ones.length + twos.length shouldBe size
-        zeros.length shouldBe >(2)
-        ones.length shouldBe >(2)
-        twos.length shouldBe >(2)
+        zeros.length shouldBe >(1)
+        ones.length shouldBe >(1)
+        twos.length shouldBe >(1)
       })
     }
   }
