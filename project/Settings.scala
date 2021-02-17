@@ -1,8 +1,8 @@
 import Release._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(

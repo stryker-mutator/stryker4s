@@ -1,7 +1,7 @@
+import scala.sys.process
+
 import sbt.Keys._
 import sbt._
-
-import scala.sys.process
 
 object Release {
   // Main release commands
@@ -38,10 +38,10 @@ object Release {
     def runGoal(command: String): process.ProcessBuilder =
       process.Process(s"mvn --batch-mode --no-transfer-progress $command -P release", baseDir / "maven")
 
-    runGoal(s"versions:set -DnewVersion=$version") #&&
+    (runGoal(s"versions:set -DnewVersion=$version") #&&
       runGoal(s"deploy --settings settings.xml -DskipTests") #&&
       // Reset version setting after deployment
-      runGoal("versions:revert") ! match {
+      runGoal("versions:revert")).! match {
       case 0 => state
       case _ => state.fail
     }
