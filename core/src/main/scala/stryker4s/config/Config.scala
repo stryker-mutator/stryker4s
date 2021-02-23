@@ -23,7 +23,7 @@ final case class Config(
     scalaDialect: Dialect = dialects.Scala3
 )
 
-object Config {
+object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
 
   /** Type alias for `Set[String]` so extra validation can be done
     */

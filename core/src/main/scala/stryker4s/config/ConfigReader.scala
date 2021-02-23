@@ -7,10 +7,10 @@ import pureconfig.error._
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto._
 import pureconfig.{ConfigReader => PureConfigReader, ConfigSource, Derivation}
-import stryker4s.config.implicits.ConfigReaderImplicits
+import stryker4s.config.Config._
 import stryker4s.log.Logger
 
-object ConfigReader extends ConfigReaderImplicits {
+object ConfigReader {
   private val configDocUrl: String =
     "https://stryker-mutator.io/docs/stryker4s/configuration"
 

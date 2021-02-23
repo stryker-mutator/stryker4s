@@ -7,12 +7,12 @@ import better.files.File
 import pureconfig.ConfigSource
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure}
 import pureconfig.generic.auto._
-import stryker4s.config.implicits.ConfigReaderImplicits
+import stryker4s.config.Config._
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
 import sttp.client3.UriContext
 
-class ConfigReaderTest extends Stryker4sSuite with LogMatchers with ConfigReaderImplicits {
+class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
   describe("loadConfig") {
     it("should load stryker4s by type") {
       val configSource = ExampleConfigs.filled

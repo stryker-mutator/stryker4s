@@ -5,6 +5,7 @@ import java.nio.file.Path
 import cats.Parallel
 import cats.effect.IO
 import mutationtesting._
+import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
 
@@ -46,7 +47,7 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extend
   def writeIndexHtmlTo(file: Path): IO[Unit] =
     fileIO.createAndWrite(file, indexHtml)
 
-  def writeReportJsTo(file: Path, report: MutationTestResult): IO[Unit] = {
+  def writeReportJsTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax._
     import mutationtesting.circe._
     val json = report.asJson.noSpaces
