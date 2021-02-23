@@ -8,11 +8,12 @@ import stryker4s.model._
 trait MutantRunResultMapper {
   protected[report] def toReport(
       results: Map[Path, List[MutantRunResult]]
-  )(implicit config: Config): MutationTestResult =
+  )(implicit config: Config): MutationTestResult[Config] =
     MutationTestResult(
       thresholds = toThresholds(config.thresholds),
       files = toFileResultMap(results),
-      projectRoot = Some(config.baseDir.path.toAbsolutePath().toString())
+      projectRoot = Some(config.baseDir.path.toAbsolutePath().toString()),
+      config = Some(config)
     )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =

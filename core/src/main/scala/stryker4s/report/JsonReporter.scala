@@ -4,12 +4,13 @@ import java.nio.file.Path
 
 import cats.effect.IO
 import mutationtesting.MutationTestResult
+import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
 
 class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends FinishedRunReporter {
 
-  def writeReportJsonTo(file: Path, report: MutationTestResult): IO[Unit] = {
+  def writeReportJsonTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax._
     import mutationtesting.circe._
     val json = report.asJson.noSpaces

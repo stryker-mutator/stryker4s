@@ -5,6 +5,7 @@ import scala.concurrent.duration.FiniteDuration
 import better.files.File
 import cats.effect.IO
 import mutationtesting._
+import stryker4s.config.Config
 
 sealed trait MutationRunReporter
 
@@ -21,7 +22,7 @@ case class StartMutationEvent(progress: Progress)
 final case class Progress(tested: Int, total: Int)
 
 final case class FinishedRunEvent(
-    report: MutationTestResult,
+    report: MutationTestResult[Config],
     metrics: MetricsResult,
     duration: FiniteDuration,
     reportsLocation: File

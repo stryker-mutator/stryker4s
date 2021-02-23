@@ -3,7 +3,7 @@ package stryker4s.report
 import cats.effect.{IO, Resource}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
-import stryker4s.config.{Full, MutationScoreOnly}
+import stryker4s.config.{Config, Full, MutationScoreOnly}
 import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model._
@@ -29,7 +29,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
           .map(logResponse(_))
     }
 
-  def buildRequest(dashConfig: DashboardConfig, report: MutationTestResult, metrics: MetricsResult) = {
+  def buildRequest(dashConfig: DashboardConfig, report: MutationTestResult[Config], metrics: MetricsResult) = {
     import io.circe.{Decoder, Encoder}
     implicit val decoder: Decoder[DashboardPutResult] = Decoder.forProduct1("href")(DashboardPutResult.apply)
     // Separate so any slashes won't be escaped in project or version

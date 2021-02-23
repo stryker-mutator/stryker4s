@@ -1,4 +1,4 @@
-package stryker4s.config.implicits
+package stryker4s.config.pure
 
 import java.nio.file.Path
 
@@ -15,18 +15,18 @@ import stryker4s.extension.mutationtype.Mutation
 /** Conversions of custom case classes or enums so PureConfig can read it.
   * @example `toFileReader` makes PureConfig able to read `better.files.File` from a `java.nio.file.Path`
   */
-trait ConfigReaderImplicits {
+trait ConfigConfigReader {
 
-  implicit private[config] val fileReader: ConfigReader[File] =
+  implicit def fileReader: ConfigReader[File] =
     ConfigReader[Path] map (p => File(p))
 
-  implicit private[config] val reporterReader: ConfigReader[ReporterType] =
+  implicit def reporterReader: ConfigReader[ReporterType] =
     deriveEnumerationReader[ReporterType]
 
-  implicit private[config] val dashboardReportTypeReader: ConfigReader[DashboardReportType] =
+  implicit def dashboardReportTypeReader: ConfigReader[DashboardReportType] =
     deriveEnumerationReader[DashboardReportType]
 
-  implicit private[config] val exclusionsReader: ConfigReader[Config.ExcludedMutations] =
+  implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] =
     ConfigReader[List[String]] emap { exclusions =>
       val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
       if (invalid.nonEmpty)
@@ -41,9 +41,9 @@ trait ConfigReaderImplicits {
         Right(valid.toSet)
     }
 
-  implicit private[config] val uriReader = pureconfig.module.sttp.reader
+  implicit def uriReader = _root_.pureconfig.module.sttp.reader
 
-  implicit private[config] val thresholdsReader: ConfigReader[Thresholds] = {
+  implicit def thresholdsReader: ConfigReader[Thresholds] = {
     def isNotPercentage(n: Int) = n < 0 || n > 100
 
     def notPercentageError(value: Int, name: String): Left[CannotConvert, Thresholds] =
@@ -73,7 +73,7 @@ trait ConfigReaderImplicits {
     }
   }
 
-  implicit private[config] val dialectReader: ConfigReader[Dialect] = {
+  implicit def dialectReader: ConfigReader[Dialect] = {
     val scalaVersions = Map(
       List("scala211", "scala2.11", "2.11", "211") -> Scala211,
       List("scala212", "scala2.12", "2.12", "212") -> Scala212,
