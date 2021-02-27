@@ -16,7 +16,7 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, scala3)
 
     // Test dependencies
-    val catsEffectScalaTest = "0.5.1"
+    val catsEffectScalaTest = "0.5.2"
     val mockitoScala = "1.16.29"
     val scalatest = "3.2.5"
 
