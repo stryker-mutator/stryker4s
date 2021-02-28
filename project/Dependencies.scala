@@ -29,7 +29,7 @@ object Dependencies {
     val log4j = "2.14.0"
     val mutationTestingElements = "1.6.2"
     val mutationTestingMetrics = "1.6.0"
-    val pureconfig = "0.14.0"
+    val pureconfig = "0.14.1"
     val scalameta = "4.4.10"
     val sttp = "3.1.6"
     val sttpModel = "1.3.3"
