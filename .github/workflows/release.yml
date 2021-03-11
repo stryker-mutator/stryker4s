@@ -13,7 +13,7 @@ jobs:
           fetch-depth: 0
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v5
+      - uses: coursier/cache-action@v6
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: openjdk@1.11
