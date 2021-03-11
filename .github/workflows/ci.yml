@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v5
+      - uses: coursier/cache-action@v6
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: ${{ matrix.java-version }}
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v5
+      - uses: coursier/cache-action@v6
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: openjdk@1.11
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v5
+      - uses: coursier/cache-action@v6
       - name: Cache Maven
         uses: actions/cache@v2.1.4
         with:
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: coursier/cache-action@v5
+      - uses: coursier/cache-action@v6
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
           extraKey: 'scalafmt'
