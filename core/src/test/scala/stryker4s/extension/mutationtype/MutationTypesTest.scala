@@ -85,9 +85,7 @@ class MutationTypesTest extends Stryker4sSuite {
     it("should return original tree on match") {
       val tree = q">="
 
-      val result = tree match {
-        case GreaterThanEqualTo(t) => t
-      }
+      val GreaterThanEqualTo(result) = tree
 
       result should be theSameInstanceAs tree
     }

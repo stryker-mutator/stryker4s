@@ -53,6 +53,7 @@ trait TestInterfaceMapper {
       case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint(a.isModule(), a.annotationName())
       case s: sbt.testing.SubclassFingerprint =>
         SubclassFingerprint(s.isModule(), s.superclassName(), s.requireNoArgConstructor())
+      case _ => throw new NotImplementedError(s"Can not map fingerprint $fp")
     }
 }
 
