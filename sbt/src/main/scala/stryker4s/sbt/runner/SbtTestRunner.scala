@@ -1,5 +1,8 @@
 package stryker4s.sbt.runner
 
+import scala.concurrent.duration.FiniteDuration
+
+import cats.effect.concurrent.Deferred
 import cats.effect.{ContextShift, IO, Resource, Timer}
 import sbt.Tests
 import sbt.testing.Framework
@@ -13,7 +16,8 @@ object SbtTestRunner {
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
-      port: Int
+      port: Int,
+      timeout: Deferred[IO, FiniteDuration]
   )(implicit
       config: Config,
       log: Logger,
@@ -21,16 +25,13 @@ object SbtTestRunner {
       cs: ContextShift[IO]
   ): Resource[IO, TestRunner] = {
     // Timeout will be set by timeoutRunner after initialTestRun
-    // The timeout Deferred is wrapped around all other Resources so it doesn't get recreated on errors
-    // Resource.liftF(Deferred[IO, FiniteDuration]).flatMap { timeout =>
     val innerTestRunner = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups, port)
 
-    // TODO: Set timeout in all testrunners
-    // val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
+    val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
     val maybeWithMaxReuse = config.maxTestRunnerReuse.filter(_ > 0) match {
-      case Some(reuses) => TestRunner.maxReuseTestRunner(reuses, innerTestRunner)
-      case None         => innerTestRunner
+      case Some(reuses) => TestRunner.maxReuseTestRunner(reuses, withTimeout)
+      case None         => withTimeout
     }
 
     val withRetryReuseAndTimeout = TestRunner.retryRunner(maybeWithMaxReuse)

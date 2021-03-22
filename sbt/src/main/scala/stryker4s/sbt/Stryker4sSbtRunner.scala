@@ -17,6 +17,8 @@ import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuild
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
+import cats.effect.concurrent.Deferred
+import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -86,8 +88,11 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], c
       val portStart = 13336
       val portRanges = (1 to config.concurrency).map(_ + portStart)
 
-      Stream.emits(portRanges).flatMap { port =>
-        Stream.resource(SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port))
+      // Shared `FiniteDuration` to set the timeout on. Based on initial test-run duration
+      Stream.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
+        Stream.emits(portRanges).flatMap { port =>
+          Stream.resource(SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, timeout))
+        }
       }
     }
 
