@@ -30,9 +30,9 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extend
        |    Please use a latest version of an evergreen browser (Firefox, Chrome, Safari, Opera, etc).
        |  </mutation-test-report-app>
        |  <script>
-       |    const app = document.getElementsByTagName('mutation-test-report-app').item(0)
+       |    const app = document.getElementsByTagName('mutation-test-report-app').item(0);
        |    function updateTheme() {
-       |      document.body.style.backgroundColor = app.theme === 'dark' ? '#222' : '#fff';
+       |      document.body.style.backgroundColor = app.themeBackgroundColor;
        |    }
        |    app.addEventListener('theme-changed', updateTheme);
        |    updateTheme();

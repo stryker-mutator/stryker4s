@@ -80,7 +80,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
 
-    Resource.liftF(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
+    Resource.eval(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
       ProcessResource
         .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner $port: $m"))
         .evalTap(_ => IO(log.debug("Started process")))
@@ -91,7 +91,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       port: Int
   )(implicit timer: Timer[IO], log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
-    Resource.liftF(
+    Resource.eval(
       IO(log.debug(s"Creating socket on $port"))
         .delayBy(0.5.seconds)
     ) *>

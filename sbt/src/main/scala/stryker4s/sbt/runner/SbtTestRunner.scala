@@ -37,6 +37,5 @@ object SbtTestRunner {
     val withRetryReuseAndTimeout = TestRunner.retryRunner(maybeWithMaxReuse)
 
     withRetryReuseAndTimeout
-    // }
   }
 }

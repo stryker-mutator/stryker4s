@@ -47,9 +47,9 @@ class MutantRunner(
   def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Path] = for {
     blocker <- Blocker[IO]
     targetDir = (config.baseDir / "target").path
-    _ <- Resource.liftF(io.file.createDirectories[IO](blocker, targetDir))
+    _ <- Resource.eval(io.file.createDirectories[IO](blocker, targetDir))
     tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
-    _ <- Resource.liftF(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
+    _ <- Resource.eval(setupFiles(blocker, tmpDir, mutatedFiles.toSeq))
   } yield tmpDir
 
   private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
