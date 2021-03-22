@@ -20,7 +20,7 @@ object SbtTestRunner {
   ): Resource[IO, TestRunner] = {
     // Timeout will be set by timeoutRunner after initialTestRun
     // The timeout Deferred is wrapped around all other Resources so it doesn't get recreated on errors
-    Resource.liftF(Deferred[IO, FiniteDuration]).flatMap { timeout =>
+    Resource.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
       val innerTestRunner = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups)
 
       val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
