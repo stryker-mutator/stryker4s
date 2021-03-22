@@ -130,29 +130,32 @@ class MutantRunner(
     // Map all no-coverage mutants
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
     // Run all testable mutants
+
     val testedMutants = Stream
       .emits(testableMutants)
       .zipWithIndex
       .covary[IO]
-      .parEvalOn(testRunners)({ case (testRunner, ((subPath, mutant), progress)) =>
+      .parEvalOn(testRunners) { case (testRunner, ((subPath, mutant), progress)) =>
         reporter
           .onMutationStart(StartMutationEvent(Progress(progress.toInt + 1, totalTestableMutants))) *>
           testRunner
             .runMutant(mutant)
             .tupleLeft(subPath)
-      })
+      }
 
     // Back to per-file structure
     (static ++ noCoverage ++ testedMutants)
-      .fold(Map.empty[Path, List[MutantRunResult]])({ case (resultsMap, (path, result)) =>
+      .fold(Map.empty[Path, List[MutantRunResult]]) { case (resultsMap, (path, result)) =>
         val results = resultsMap.getOrElse(path, List.empty) :+ result
         resultsMap + (path -> results)
-      })
+      }
       .compile
       .lastOrError
   }
 
-  def initialTestRun(testRunners: Stream[IO, TestRunner]) = {
+  def initialTestRun(
+      testRunners: Stream[IO, TestRunner]
+  ): Resource[IO, (CoverageExclusions, Stream[IO, TestRunner])] = {
     def init(testRunner: TestRunner): IO[CoverageExclusions] = IO(log.info("Starting initial test run...")) *>
       testRunner.initialTestRun().flatMap { result =>
         if (!result.fold(identity, _.isSuccessful))
@@ -172,7 +175,7 @@ class MutantRunner(
                   val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
 
                   val coveredMutants = firstRunMap
-                    .filterNot({ case (id, _) => staticMutants.contains(id) })
+                    .filterNot { case (id, _) => staticMutants.contains(id) }
                     .keys
                     .toSeq
 
@@ -181,20 +184,18 @@ class MutantRunner(
             }
       }
 
-    testRunners.pull.uncons1
+    // Use the first testRunner for the initial test run, then put it back in the Stream of TestRunners
+    testRunners.pull.peek1
       .flatMap {
         case None =>
           Pull.raiseError[IO](
             new IllegalStateException("Testrunner stream is empty but expected at least 1 testrunner")
           )
         case Some((initialTestRunner, rest)) =>
-          Pull.output1(
-            init(initialTestRunner)
-              .tupleRight(rest)
-          )
+          Pull.eval(init(initialTestRunner)).tupleRight(rest)
       }
+      .flatMap(Pull.output1(_))
       .stream
-      .evalMap(identity)
       .compile
       .resource
       .lastOrError

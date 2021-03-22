@@ -61,7 +61,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
       if (event.status() != Status.Success) {
         println(s"Test unsuccessful: ${event.fullyQualifiedName()} status ${event.status()} with ${event.throwable()}")
       }
-      event.status.updateAndGet(new UnaryOperator[Status]() {
+      status.updateAndGet(new UnaryOperator[Status]() {
         override def apply(old: Status) = {
           combineStatus(old, event.status())
         }

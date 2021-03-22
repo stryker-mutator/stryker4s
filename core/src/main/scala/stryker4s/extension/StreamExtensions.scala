@@ -24,11 +24,11 @@ object StreamExtensions {
     def parEvalOn[O2, O3](
         testRunners: Stream[F, O2]
     )(testF: (O2, O) => F[O3]): Stream[F, O3] = {
-      mutants
-        .balance(1)
+      mutants.balanceAvailable
         .zip(testRunners)
-        .map({ case (bs, as) => bs.parEvalMapUnordered(8)(testF(as, _)) })
+        .map { case (bs, as) => bs.evalMap(testF(as, _)) }
         .parJoinUnbounded
+
     }
   }
 
