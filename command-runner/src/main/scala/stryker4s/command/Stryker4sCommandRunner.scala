@@ -23,7 +23,7 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit
   override def mutationActivation(implicit config: Config): ActiveMutationContext = ActiveMutationContext.envVar
 
   override def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, TestRunner] = {
-    Resource.liftF(Deferred[IO, FiniteDuration]).flatMap { timeout =>
+    Resource.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
       val innerTestRunner = Blocker[IO]
         .map(new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir, _))
 
