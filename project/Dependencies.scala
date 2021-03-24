@@ -32,7 +32,6 @@ object Dependencies {
     val pureconfig = "0.14.1"
     val scalameta = "4.4.10"
     val sttp = "3.1.9"
-    val sttpModel = "1.3.4"
     val testInterface = "1.0"
     val weaponRegeX = "0.4.1"
   }
@@ -59,8 +58,6 @@ object Dependencies {
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
-  // To prevent dependency resolvement getting a lower version, directly depend on the latest version of sttp-model
-  val sttpModel = "com.softwaremill.sttp.model" %% "core" % versions.sttpModel
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
 

@@ -34,7 +34,6 @@ object Settings {
       Dependencies.scalameta,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
-      Dependencies.sttpModel,
       Dependencies.weaponRegeX,
       Dependencies.test.catsEffectScalaTest,
       Dependencies.test.mockitoScala,
