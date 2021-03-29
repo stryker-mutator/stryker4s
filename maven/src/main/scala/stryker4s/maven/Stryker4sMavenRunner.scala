@@ -3,7 +3,7 @@ package stryker4s.maven
 import java.nio.file.Path
 import java.util.Properties
 
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{IO, Resource}
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvoker, Invoker}
 import stryker4s.config.Config
@@ -14,11 +14,7 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, Stryker4sRunner, TestRunner}
 
-class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit
-    log: Logger,
-    timer: Timer[IO],
-    cs: ContextShift[IO]
-) extends Stryker4sRunner {
+class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4sRunner {
 
   override def mutationActivation(implicit config: Config): ActiveMutationContext = envVar
 

@@ -1,9 +1,6 @@
 package stryker4s.sbt
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import cats.effect.{ContextShift, IO => CatsIO, Timer}
+import cats.effect.unsafe.IORuntime
 import sbt.Keys._
 import sbt._
 import sbt.plugins._
@@ -38,8 +35,7 @@ object Stryker4sMain extends AutoPlugin {
         s"Sbt version ${sbtVersion.value} is not supported by Stryker4s. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
       )
     }
-    implicit val cs: ContextShift[CatsIO] = CatsIO.contextShift(implicitly[ExecutionContext])
-    implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
+    implicit val runtime: IORuntime = IORuntime.global
     implicit val logger: Logger = new SbtLogger(streams.value.log)
 
     new Stryker4sSbtRunner(state.value)

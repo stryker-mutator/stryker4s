@@ -5,9 +5,9 @@ import java.nio.file.{Path, Paths}
 import scala.concurrent.duration._
 
 import better.files.File
-import cats.effect.{Blocker, IO}
+import cats.effect.IO
 import fs2._
-import fs2.io.file
+import fs2.io.file.Files
 import mutationtesting.{Metrics, MutationTestResult, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
@@ -85,35 +85,33 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
       val targetPath = Paths.get("target/mte")
 
-      Blocker[IO].use { blocker =>
-        file.createDirectories[IO](blocker, targetPath) *>
-          file.tempDirectoryResource[IO](blocker, targetPath).use { tmpDir =>
-            val tempFile = tmpDir.resolve("mutation-test-elements.js")
-            val sut = new HtmlReporter(fileIO)
+      Files[IO].createDirectories(targetPath) *>
+        Files[IO].tempDirectory(Some(targetPath)).use { tmpDir =>
+          val tempFile = tmpDir.resolve("mutation-test-elements.js")
+          val sut = new HtmlReporter(fileIO)
 
-            // Act
-            sut
-              .writeMutationTestElementsJsTo(tempFile)
-              // Assert
-              .flatMap { _ =>
-                val atLeastSize: Long = 100 * 1024L // 100KB
-                file.size[IO](blocker, tempFile).asserting(_ should be > atLeastSize)
-              }
-              .flatMap { _ =>
-                val expectedHeader = "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
-                file
-                  // Read the first line
-                  .readRange[IO](tempFile, blocker, 256, 0, expectedHeader.getBytes().length.toLong)
-                  .through(text.utf8Decode)
-                  .head
-                  .compile
-                  .lastOrError
-                  .asserting(
-                    _ shouldBe expectedHeader
-                  )
-              }
-          }
-      }
+          // Act
+          sut
+            .writeMutationTestElementsJsTo(tempFile)
+            // Assert
+            .flatMap { _ =>
+              val atLeastSize: Long = 100 * 1024L // 100KB
+              Files[IO].size(tempFile).asserting(_ should be > atLeastSize)
+            }
+            .flatMap { _ =>
+              val expectedHeader = "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+              // Read the first line
+              Files[IO]
+                .readRange(tempFile, 256, 0, expectedHeader.getBytes().length.toLong)
+                .through(text.utf8Decode)
+                .head
+                .compile
+                .lastOrError
+                .asserting(
+                  _ shouldBe expectedHeader
+                )
+            }
+        }
     }
   }
 

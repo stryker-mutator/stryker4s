@@ -19,7 +19,6 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
-    parallelExecution in Test := false,
     libraryDependencies ++= Seq(
       Dependencies.betterFiles,
       Dependencies.catsCore,

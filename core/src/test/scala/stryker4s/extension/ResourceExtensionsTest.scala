@@ -1,7 +1,6 @@
 package stryker4s.extension
 
-import cats.effect.concurrent.Ref
-import cats.effect.{IO, Resource}
+import cats.effect.{IO, Ref, Resource}
 import stryker4s.extension.ResourceExtensions.SelfRecreatingResource
 import stryker4s.testutil.Stryker4sIOSuite
 
