@@ -1,6 +1,7 @@
 package stryker4s.sbt.runner
 
-import java.net.{InetAddress, Socket}
+import java.net.{InetAddress, InetSocketAddress}
+import java.nio.channels._
 
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
@@ -17,6 +18,9 @@ import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.process.ProcessResource
 import stryker4s.run.{InitialTestRunResult, TestRunner}
+import fs2.io.tcp
+import cats.effect.Blocker
+import fs2.io.tcp.SocketGroup
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -98,7 +102,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       Resource
         .make(
           retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
-            IO(new Socket(InetAddress.getLocalHost(), port))
+            createSocket(port)
           )
         )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
         .evalTap(_ => IO(log.debug("Created socket")))
@@ -126,4 +130,10 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .compile
       .lastOrError
   }
+
+  def createSocket(port: Int) = for {
+    addr <- IO(InetSocketAddress.createUnresolved(InetAddress.getLocalHost().getHostAddress(), port))
+    channel <- IO(SocketChannel.open(addr))
+  } yield channel.socket()
+
 }

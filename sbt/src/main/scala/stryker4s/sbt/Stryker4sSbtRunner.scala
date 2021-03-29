@@ -3,6 +3,9 @@ package stryker4s.sbt
 import java.io.{File => JFile, PrintStream}
 import java.nio.file.Path
 
+import scala.concurrent.duration.FiniteDuration
+
+import cats.effect.concurrent.Deferred
 import cats.effect.{ContextShift, IO, Timer}
 import fs2.Stream
 import sbt.Keys._
@@ -17,8 +20,6 @@ import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuild
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
-import cats.effect.concurrent.Deferred
-import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
   *

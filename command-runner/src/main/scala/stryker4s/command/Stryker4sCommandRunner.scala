@@ -16,21 +16,21 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 
-class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit
+class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: Deferred[IO, FiniteDuration])(implicit
     log: Logger,
     timer: Timer[IO],
     cs: ContextShift[IO]
 ) extends Stryker4sRunner {
   override def mutationActivation(implicit config: Config): ActiveMutationContext = ActiveMutationContext.envVar
 
-  override def resolveTestRunners(tmpDir: Path)(implicit config: Config): Stream[IO, TestRunner] = {
-    Stream.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
-      val innerTestRunner = Blocker[IO]
-        .map(new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir, _))
+  override def resolveTestRunners(tmpDir: Path)(implicit
+      config: Config
+  ): Stream[IO, TestRunner] = {
+    val innerTestRunner = Blocker[IO]
+      .map(new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir, _))
 
-      val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
+    val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
-      Stream.resource(withTimeout)
-    }
+    Stream.resource(withTimeout)
   }
 }
