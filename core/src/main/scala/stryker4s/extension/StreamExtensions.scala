@@ -1,7 +1,5 @@
 package stryker4s.extension
 
-import fs2.Stream
-import cats.effect.Concurrent
 // import stryker4s.config.Config
 
 object StreamExtensions {
@@ -20,16 +18,16 @@ object StreamExtensions {
   //   runConcurrent(config.concurrency.toLong)(F)
   // }
 
-  implicit class ParEvalMapExtension[F[_]: Concurrent, O](mutants: fs2.Stream[F, O]) {
-    def parEvalOn[O2, O3](
-        testRunners: Stream[F, O2]
-    )(testF: (O2, O) => F[O3]): Stream[F, O3] = {
-      mutants.balanceAvailable
-        .zip(testRunners)
-        .map { case (bs, as) => bs.evalMap(testF(as, _)) }
-        .parJoinUnbounded
+  // implicit class ParEvalMapExtension[F[_]: Async, O](mutants: fs2.Stream[F, O]) {
+  //   def parEvalOn[O2, O3](
+  //       testRunners: Stream[F, O2]
+  //   )(testF: (O2, O) => F[O3]): Stream[F, O3] = {
+  //     mutants.balanceAvailable
+  //       .zip(testRunners)
+  //       .map { case (bs, as) => bs.evalMap(testF(as, _)) }
+  //       .parJoinUnbounded
 
-    }
-  }
+  //   }
+  // }
 
 }

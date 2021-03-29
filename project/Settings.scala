@@ -19,7 +19,6 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
-    parallelExecution in Test := false,
     libraryDependencies ++= Seq(
       Dependencies.betterFiles,
       Dependencies.catsCore,
@@ -34,7 +33,6 @@ object Settings {
       Dependencies.scalameta,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
-      Dependencies.sttpModel,
       Dependencies.weaponRegeX,
       Dependencies.test.catsEffectScalaTest,
       Dependencies.test.mockitoScala,

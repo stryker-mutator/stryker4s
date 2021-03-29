@@ -8,7 +8,7 @@ import scala.jdk.CollectionConverters._
 import scala.sys.process.Process
 import scala.util.control.NonFatal
 
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{IO, Resource}
 import cats.syntax.all._
 import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}
@@ -18,9 +18,6 @@ import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.process.ProcessResource
 import stryker4s.run.{InitialTestRunResult, TestRunner}
-import fs2.io.tcp
-import cats.effect.Blocker
-import fs2.io.tcp.SocketGroup
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -68,7 +65,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       frameworks: Seq[SbtFramework],
       testGroups: Seq[Tests.Group],
       port: Int
-  )(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO]): Resource[IO, ProcessTestRunner] =
+  )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
     createProcess(classpath, javaOpts, port) *> connectToProcess(port)
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
@@ -93,7 +90,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
   private def connectToProcess(
       port: Int
-  )(implicit timer: Timer[IO], log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] = {
+  )(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.eval(
       IO(log.debug(s"Creating socket on $port"))
@@ -119,9 +116,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     testProcess.sendMessage(SetupTestContext(apiTestGroups)).void
   }
 
-  def retryWithBackoff[T](maxAttempts: Int, delay: FiniteDuration, onError: => Unit)(
-      f: IO[T]
-  )(implicit timer: Timer[IO]): IO[T] = {
+  def retryWithBackoff[T](maxAttempts: Int, delay: FiniteDuration, onError: => Unit)(f: IO[T]): IO[T] = {
     val retriableWithOnError = (NonFatal.apply(_)).compose((t: Throwable) => { onError; t })
 
     fs2.Stream

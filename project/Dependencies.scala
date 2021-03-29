@@ -16,29 +16,28 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, scala3)
 
     // Test dependencies
-    val catsEffectScalaTest = "0.5.2"
-    val mockitoScala = "1.16.32"
+    val catsEffectScalaTest = "1.0.0"
+    val mockitoScala = "1.16.33"
     val scalatest = "3.2.6"
 
     // Direct dependencies
     val betterFiles = "3.9.1"
     val catsCore = "2.4.2"
-    val catsEffect = "2.4.0"
+    val catsEffect = "3.0.0"
     val circe = "0.13.0"
-    val fs2 = "2.5.3"
+    val fs2 = "3.0.0"
     val log4j = "2.14.1"
     val mutationTestingElements = "1.7.0"
     val mutationTestingMetrics = "1.7.0"
     val pureconfig = "0.14.1"
     val scalameta = "4.4.10"
-    val sttp = "3.1.9"
-    val sttpModel = "1.3.4"
+    val sttp = "3.2.0"
     val testInterface = "1.0"
     val weaponRegeX = "0.4.1"
   }
 
   object test {
-    val catsEffectScalaTest = "com.codecommit" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
+    val catsEffectScalaTest = "org.typelevel" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
     val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala % Test
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
@@ -59,8 +58,6 @@ object Dependencies {
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
-  // To prevent dependency resolvement getting a lower version, directly depend on the latest version of sttp-model
-  val sttpModel = "com.softwaremill.sttp.model" %% "core" % versions.sttpModel
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
 

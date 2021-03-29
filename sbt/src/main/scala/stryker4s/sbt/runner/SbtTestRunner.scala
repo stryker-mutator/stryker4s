@@ -2,8 +2,7 @@ package stryker4s.sbt.runner
 
 import scala.concurrent.duration.FiniteDuration
 
-import cats.effect.concurrent.Deferred
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{Deferred, IO, Resource}
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.config.Config
@@ -20,9 +19,7 @@ object SbtTestRunner {
       timeout: Deferred[IO, FiniteDuration]
   )(implicit
       config: Config,
-      log: Logger,
-      timer: Timer[IO],
-      cs: ContextShift[IO]
+      log: Logger
   ): Resource[IO, TestRunner] = {
     // Timeout will be set by timeoutRunner after initialTestRun
     val innerTestRunner = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups, port)
