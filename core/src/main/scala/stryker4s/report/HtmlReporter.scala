@@ -2,14 +2,13 @@ package stryker4s.report
 
 import java.nio.file.Path
 
-import cats.Parallel
 import cats.effect.IO
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger, p: Parallel[IO]) extends FinishedRunReporter {
+class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends FinishedRunReporter {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"

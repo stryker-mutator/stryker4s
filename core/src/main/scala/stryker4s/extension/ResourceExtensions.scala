@@ -1,9 +1,8 @@
 package stryker4s.extension
 
-import cats.effect.concurrent.Ref
-import cats.effect.{Concurrent, Resource}
+import cats.effect.std.Hotswap
+import cats.effect.{Concurrent, Ref, Resource}
 import cats.syntax.flatMap._
-import fs2.Hotswap
 
 object ResourceExtensions {
 
@@ -20,7 +19,7 @@ object ResourceExtensions {
       Hotswap(startResource).evalMap { case (hotswap, r) =>
         Ref[F].of(r).flatMap { ref =>
           // .clear to run the finalizer of the existing resource first before starting a new one
-          val releaseAndSwapF = F.guarantee(hotswap.clear)(hotswap.swap(startResource).flatMap(ref.set(_)))
+          val releaseAndSwapF = F.guarantee(hotswap.clear, hotswap.swap(startResource).flatMap(ref.set(_)))
           f(ref, releaseAndSwapF)
         }
       }
