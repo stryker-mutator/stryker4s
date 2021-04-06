@@ -26,8 +26,8 @@ object Stryker4sMain extends AutoPlugin {
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
     stryker := strykerTask.value,
-    logLevel in stryker := Level.Info,
-    onLoadMessage in stryker := "", // Prevents "[info] Set current project to ..." in between mutations
+    stryker / logLevel := Level.Info,
+    stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations
     strykerMinimumSbtVersion := "1.1.1",
     strykerIsSupported := sbtVersion.value >= strykerMinimumSbtVersion.value
   )

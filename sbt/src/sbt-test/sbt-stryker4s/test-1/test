@@ -1,2 +1,2 @@
-> set logLevel in stryker := Level.Debug
+> set stryker / logLevel := Level.Debug
 > stryker

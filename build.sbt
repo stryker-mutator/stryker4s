@@ -4,17 +4,17 @@ import Settings._
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     buildLevelSettings,
-    skip in publish := true,
-    onLoad in Global ~= (_ andThen ("writeHooks" :: _)),
+    publish / skip := true,
+    Global / onLoad ~= (_ andThen ("writeHooks" :: _)),
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
-      "set version in ThisBuild := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s2_12/publishLocal; stryker4s-api/publishLocal; sbt-stryker4s-testrunner/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s2_12/publishLocal; stryker4s-api/publishLocal; sbt-stryker4s-testrunner/publishLocal"
     ),
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set version in ThisBuild := \"SET-BY-SBT-SNAPSHOT\"; stryker4s-core2_12/publishM2; stryker4s-api2_12/publishM2"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; stryker4s-core2_12/publishM2; stryker4s-api2_12/publishM2"
     )
   )
   .aggregate(
@@ -32,8 +32,7 @@ lazy val stryker4sCore = newProject("stryker4s-core", "core")
 
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
   .settings(
-    commandRunnerSettings,
-    mainClass in (Compile, run) := Some("stryker4s.run.Stryker4sCommandRunner")
+    commandRunnerSettings
   )
   .dependsOn(stryker4sCore, stryker4sCore % "test->test")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
