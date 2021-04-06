@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: openjdk@1.11
       - name: Publish
-        run: csbt ci-release
+        run: sbt ci-release
         env:
           CI_RELEASE: stryker4sPublishSigned
           CI_SNAPSHOT_RELEASE: stryker4sPublish
