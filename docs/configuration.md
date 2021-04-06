@@ -197,7 +197,7 @@ Examples would be `sbt test`, `mvn test` or any other command to run your tests,
 How to adjust the loglevel depends on how you run stryker4s:
 
 - sbt plugin
-  - Add `logLevel in stryker := Level.Debug` to your build.sbt. Or use `set logLevel in stryker := Level.Debug` if you are in a sbt session.
+  - Add `stryker / logLevel := Level.Debug` to your build.sbt. Or use `set stryker / logLevel := Level.Debug` if you are in a sbt session.
   - Options: `Debug`, `Info`, `Warn`, `Error`
 - Commandrunner
   - Pass the loglevel as a parameter when running, like so: `--debug`

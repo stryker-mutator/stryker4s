@@ -36,7 +36,7 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], ex
   }
 
   private def runTests[T](state: State, onError: => T, onSuccess: => T, onFailed: => T): IO[T] =
-    IO(Project.runTask(executeTests in Test, state)) map {
+    IO(Project.runTask(Test / executeTests, state)) map {
       case Some((_, Value(Output(TestResult.Passed, _, _)))) => onSuccess
       case Some((_, Value(Output(TestResult.Failed, _, _)))) => onFailed
       case Some((_, Value(Output(TestResult.Error, _, _))))  => onFailed
@@ -44,5 +44,5 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], ex
     }
 
   private def mutationSetting(mutation: Int): Def.Setting[_] =
-    javaOptions in Test += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
+    Test / javaOptions += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
 }
