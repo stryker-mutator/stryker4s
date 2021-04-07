@@ -4,13 +4,13 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration._
 
-import cats.effect.concurrent.{Deferred, Ref}
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{IO, Resource}
 import stryker4s.config.Config
 import stryker4s.extension.CatsEffectExtensions._
 import stryker4s.extension.ResourceExtensions._
 import stryker4s.log.Logger
 import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
+import cats.effect.{ Deferred, Ref, Temporal }
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]
@@ -22,9 +22,7 @@ object TestRunner {
   def timeoutRunner(timeout: Deferred[IO, FiniteDuration], inner: Resource[IO, TestRunner])(implicit
       config: Config,
       log: Logger,
-      timer: Timer[IO],
-      cs: ContextShift[IO]
-  ): Resource[IO, TestRunner] =
+      timer: Temporal[IO]): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner {
@@ -62,7 +60,7 @@ object TestRunner {
 
   def retryRunner(
       inner: Resource[IO, TestRunner]
-  )(implicit log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunner] =
+  )(implicit log: Logger): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner {
@@ -94,9 +92,7 @@ object TestRunner {
     }
 
   def maxReuseTestRunner(maxReuses: Int, inner: Resource[IO, TestRunner])(implicit
-      log: Logger,
-      cs: ContextShift[IO]
-  ): Resource[IO, TestRunner] =
+      log: Logger): Resource[IO, TestRunner] =
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner {

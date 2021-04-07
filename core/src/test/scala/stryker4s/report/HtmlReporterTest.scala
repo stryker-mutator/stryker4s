@@ -5,7 +5,7 @@ import java.nio.file.{Path, Paths}
 import scala.concurrent.duration._
 
 import better.files.File
-import cats.effect.{Blocker, IO}
+import cats.effect.IO
 import fs2._
 import fs2.io.file
 import mutationtesting.{Metrics, MutationTestResult, Thresholds}
@@ -13,6 +13,7 @@ import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import cats.effect.Resource
 
 class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
@@ -85,7 +86,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
       val targetPath = Paths.get("target/mte")
 
-      Blocker[IO].use { blocker =>
+      Resource.unit[IO].use { blocker =>
         file.createDirectories[IO](blocker, targetPath) *>
           file.tempDirectoryResource[IO](blocker, targetPath).use { tmpDir =>
             val tempFile = tmpDir.resolve("mutation-test-elements.js")

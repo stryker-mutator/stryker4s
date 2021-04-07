@@ -2,7 +2,7 @@ package stryker4s.run
 
 import java.nio.file.Path
 
-import cats.effect.{Blocker, ContextShift, IO, Resource, Timer}
+import cats.effect.{IO, Resource}
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -16,8 +16,9 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
+import cats.effect.Temporal
 
-abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer: Timer[IO]) {
+abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer: Temporal[IO]) {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 
@@ -41,7 +42,7 @@ abstract class Stryker4sRunner(implicit log: Logger, cs: ContextShift[IO], timer
       case Html    => new HtmlReporter(new DiskFileIO())
       case Json    => new JsonReporter(new DiskFileIO())
       case Dashboard =>
-        implicit val httpBackend = Blocker[IO]
+        implicit val httpBackend = Resource.unit[IO]
           // Catch if the user runs the dashboard on Java <11
           .flatMap { b =>
             try {

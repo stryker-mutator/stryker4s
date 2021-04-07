@@ -3,7 +3,7 @@ package stryker4s.report
 import scala.util.control.NonFatal
 
 import cats.effect.util.CompositeException
-import cats.effect.{ContextShift, IO}
+import cats.effect.IO
 import cats.syntax.all._
 import stryker4s.log.Logger
 

@@ -18,12 +18,13 @@ import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, Progress, Reporter, StartMutationEvent}
+import cats.effect.{ Resource, Temporal }
 
 class MutantRunner(
     testRunnerResource: Path => Resource[IO, TestRunner],
     sourceCollector: SourceCollector,
     reporter: Reporter
-)(implicit config: Config, log: Logger, timer: Timer[IO], cs: ContextShift[IO])
+)(implicit config: Config, log: Logger, timer: Temporal[IO], cs: ContextShift[IO])
     extends MutantRunResultMapper {
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
@@ -44,7 +45,7 @@ class MutantRunner(
   } yield metrics
 
   def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, TestRunner] = for {
-    blocker <- Blocker[IO]
+    blocker <- Resource.unit[IO]
     targetDir = (config.baseDir / "target").path
     _ <- Resource.eval(io.file.createDirectories[IO](blocker, targetDir))
     tmpDir <- io.file.tempDirectoryResource[IO](blocker, targetDir, "stryker4s-")
@@ -52,7 +53,7 @@ class MutantRunner(
     testRunner <- testRunnerResource(tmpDir)
   } yield testRunner
 
-  private def setupFiles(blocker: Blocker, tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
+  private def setupFiles(tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
     IO(log.info("Setting up mutated environment...")) *>
       IO(log.debug("Using temp directory: " + tmpDir)) *> {
         val mutatedPaths = mutatedFiles.map(_.fileOrigin)
@@ -71,7 +72,7 @@ class MutantRunner(
           mutatedFilesStream).compile.drain
       }
 
-  def writeOriginalFile(blocker: Blocker, tmpDir: Path): Pipe[IO, Path, Unit] =
+  def writeOriginalFile(tmpDir: Path): Pipe[IO, Path, Unit] =
     in =>
       in.evalMapChunk { file =>
         val newSubPath = file.inSubDir(tmpDir)
@@ -81,7 +82,7 @@ class MutantRunner(
           io.file.copy[IO](blocker, file, newSubPath).void
       }
 
-  def writeMutatedFile(blocker: Blocker, tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
+  def writeMutatedFile(tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
     in =>
       in.evalMapChunk { mutatedFile =>
         val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)

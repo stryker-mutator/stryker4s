@@ -4,7 +4,7 @@ import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
 
 import better.files.File
-import cats.effect.{Blocker, IO}
+import cats.effect.IO
 import stryker4s.model._
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.run.{InitialTestRunResult, TestRunner}

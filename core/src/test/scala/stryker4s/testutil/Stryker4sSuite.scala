@@ -1,10 +1,11 @@
 package stryker4s.testutil
 
 import cats.effect.testing.scalatest.{AssertingSyntax, EffectTestSupport}
-import cats.effect.{ContextShift, IO, Timer}
+import cats.effect.IO
 import org.scalatest.funspec.{AnyFunSpec, AsyncFunSpec}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{AsyncTestSuite, LoneElement, OptionValues, Suite}
+import cats.effect.Temporal
 
 private[testutil] trait Stryker4sBaseSuite extends Matchers with OptionValues with LoneElement { this: Suite => }
 
@@ -20,5 +21,5 @@ abstract class Stryker4sIOSuite extends AsyncFunSpec with Stryker4sBaseSuite wit
 // We want to keep ScalaTests default single-threaded EC to prevent any issues with concurrent tests
 trait AsyncIOSpec extends AssertingSyntax with EffectTestSupport { asyncTestSuite: AsyncTestSuite =>
   implicit val ioContextShift: ContextShift[IO] = IO.contextShift(executionContext)
-  implicit val ioTimer: Timer[IO] = IO.timer(executionContext)
+  implicit val ioTimer: Temporal[IO] = IO.timer(executionContext)
 }

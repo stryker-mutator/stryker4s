@@ -3,10 +3,11 @@ package stryker4s.sbt.runner
 import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.Socket
 
-import cats.effect.{Blocker, ContextShift, IO, Resource}
+import cats.effect.{IO, Resource}
 import stryker4s.api.testprocess.{Request, Response}
 import stryker4s.extension.exception.MutationRunFailedException
 import stryker4s.log.Logger
+import cats.effect.Sync
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
@@ -19,8 +20,8 @@ final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream
 
   override def sendMessage(request: Request): IO[Response] = {
     IO(log.debug(s"Sending message $request")) *>
-      blocker.delay[IO, Unit](out.writeObject(request)) *>
-      blocker.delay[IO, Any](in.readObject()) flatMap {
+      Sync[IO].blocking(out.writeObject(request)) *>
+      Sync[IO].blocking(in.readObject()) flatMap {
         case response: Response =>
           IO(log.debug(s"Received message $response"))
             .as(response)
@@ -35,9 +36,9 @@ final class SocketTestRunnerConnection(blocker: Blocker, out: ObjectOutputStream
 }
 
 object TestRunnerConnection {
-  def create(socket: Socket)(implicit log: Logger, cs: ContextShift[IO]): Resource[IO, TestRunnerConnection] =
+  def create(socket: Socket)(implicit log: Logger): Resource[IO, TestRunnerConnection] =
     for {
-      blocker <- Blocker[IO]
+      blocker <- Resource.unit[IO]
       out <- Resource.fromAutoCloseable(IO(new ObjectOutputStream(socket.getOutputStream())))
       in <- Resource.fromAutoCloseable(IO(new ObjectInputStream(socket.getInputStream())))
     } yield new SocketTestRunnerConnection(blocker, out, in)

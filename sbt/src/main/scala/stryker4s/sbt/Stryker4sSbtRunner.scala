@@ -3,7 +3,7 @@ package stryker4s.sbt
 import java.io.{File => JFile, PrintStream}
 import java.nio.file.Path
 
-import cats.effect.{ContextShift, IO, Resource, Timer}
+import cats.effect.{IO, Resource}
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
@@ -16,12 +16,13 @@ import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuild
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
+import cats.effect.Temporal
 
 /** This Runner run Stryker mutations in a single SBT session
   *
   * @param state SBT project state (contains all the settings about the project)
   */
-class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Timer[IO], cs: ContextShift[IO])
+class Stryker4sSbtRunner(state: State)(implicit log: Logger, timer: Temporal[IO], cs: ContextShift[IO])
     extends Stryker4sRunner {
 
   override def resolveMatchBuilder(implicit config: Config): MatchBuilder =

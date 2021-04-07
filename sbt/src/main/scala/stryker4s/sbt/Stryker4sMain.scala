@@ -3,12 +3,13 @@ package stryker4s.sbt
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.effect.{ContextShift, IO => CatsIO, Timer}
+import cats.effect.{IO => CatsIO}
 import sbt.Keys._
 import sbt._
 import sbt.plugins._
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
+import cats.effect.Temporal
 
 /** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
   */
@@ -39,7 +40,7 @@ object Stryker4sMain extends AutoPlugin {
       )
     }
     implicit val cs: ContextShift[CatsIO] = CatsIO.contextShift(implicitly[ExecutionContext])
-    implicit val timer: Timer[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
+    implicit val timer: Temporal[CatsIO] = CatsIO.timer(implicitly[ExecutionContext])
     implicit val logger: Logger = new SbtLogger(streams.value.log)
 
     new Stryker4sSbtRunner(state.value)

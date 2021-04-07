@@ -6,7 +6,7 @@ import scala.concurrent.TimeoutException
 import scala.meta._
 import scala.util.{Failure, Success}
 
-import cats.effect.{Blocker, IO}
+import cats.effect.IO
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
@@ -14,11 +14,12 @@ import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.stubs.TestProcessRunner
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import cats.effect.Resource
 
 class ProcessTestRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
   def processTestRunner(processRunner: ProcessRunner) =
-    Blocker[IO].map(new ProcessTestRunner(Command("foo", "test"), processRunner, Paths.get("."), _))
+    Resource.unit[IO].map(new ProcessTestRunner(Command("foo", "test"), processRunner, Paths.get("."), _))
 
   describe("runMutant") {
 

@@ -1,10 +1,11 @@
 package stryker4s.files
 import java.nio.file.Path
 
-import cats.effect.{Blocker, ContextShift, IO, Sync}
+import cats.effect.{IO, Sync}
 import fs2._
 import fs2.io.file._
 import fs2.io.readInputStream
+import cats.effect.Resource
 sealed trait FileIO {
   def createAndWriteFromResource(file: Path, resource: String): IO[Unit]
 
@@ -13,7 +14,7 @@ sealed trait FileIO {
 
 class DiskFileIO()(implicit cs: ContextShift[IO], s: Sync[IO]) extends FileIO {
   override def createAndWriteFromResource(file: Path, resourceName: String): IO[Unit] =
-    Blocker[IO].use { blocker =>
+    Resource.unit[IO].use { blocker =>
       val stream = IO { getClass().getResourceAsStream(resourceName) }
 
       createDirectories(blocker, file.getParent()) *>
@@ -24,7 +25,7 @@ class DiskFileIO()(implicit cs: ContextShift[IO], s: Sync[IO]) extends FileIO {
     }
 
   override def createAndWrite(file: Path, content: String): IO[Unit] =
-    Blocker[IO].use { blocker =>
+    Resource.unit[IO].use { blocker =>
       createDirectories(blocker, file.getParent()) *>
         Stream(content)
           .through(text.utf8Encode)
