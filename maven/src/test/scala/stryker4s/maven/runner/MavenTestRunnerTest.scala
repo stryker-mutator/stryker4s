@@ -8,6 +8,7 @@ import scala.meta._
 
 import better.files.File
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
@@ -20,7 +21,6 @@ import stryker4s.testutil.Stryker4sSuite
 
 class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
-  implicit val timer = IO.timer(ExecutionContext.global)
 
   val tmpDir = File("/home/user/tmpDir")
   def properties = new ju.Properties()

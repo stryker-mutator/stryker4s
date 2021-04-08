@@ -4,7 +4,7 @@ import scala.concurrent.duration._
 
 import better.files.File
 import cats.data.NonEmptyList
-import cats.effect.util.CompositeException
+import fs2.CompositeFailure
 import mutationtesting._
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
@@ -182,9 +182,9 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
             .attempt
             .map {
               case Left(e) =>
-                e shouldBe a[CompositeException]
+                e shouldBe a[CompositeFailure]
                 "2 reporters failed to report:" shouldBe loggedAsError
-                val ce = e.asInstanceOf[CompositeException]
+                val ce = e.asInstanceOf[CompositeFailure]
                 ce.all shouldBe NonEmptyList(firstExc, secondExc :: Nil)
               case Right(r) => fail(s"Expected exception, got $r")
             }
