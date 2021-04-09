@@ -13,8 +13,6 @@ import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
-  override def printLogs: Boolean = true
-
   describe("apply") {
     implicit val config = Config.default.copy(baseDir = FileUtil.getResource("scalaFiles"))
 
