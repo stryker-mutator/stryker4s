@@ -3,9 +3,7 @@ package stryker4s.sbt
 import java.io.{File => JFile, PrintStream}
 import java.nio.file.Path
 
-import scala.concurrent.duration.FiniteDuration
-
-import cats.effect.{Deferred, IO}
+import cats.effect.{IO, Resource}
 import fs2.Stream
 import sbt.Keys._
 import sbt._
@@ -44,7 +42,7 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
 
       val fullSettings = settings ++ Seq(
         logManager := {
-          if ((logLevel in stryker).value == Level.Debug) logManager.value
+          if ((stryker / logLevel).value == Level.Debug) logManager.value
           else emptyLogManager
         }
       )
@@ -75,13 +73,13 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
             )
         }
 
-      val classpath = extractTaskValue(fullClasspath in Test, "classpath").map(_.data.getPath())
+      val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
 
-      val javaOpts = extractTaskValue(javaOptions in Test, "javaOptions")
+      val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
 
-      val frameworks = extractTaskValue(loadedTestFrameworks in Test, "test frameworks").values.toSeq
+      val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
 
-      val testGroups = extractTaskValue(testGrouping in Test, "testGrouping")
+      val testGroups = extractTaskValue(Test / testGrouping, "testGrouping")
 
       log.info(s"Creating ${config.concurrency} test-runners")
       val portStart = 13336
@@ -118,9 +116,9 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
 
       val settings: Seq[Def.Setting[_]] = Seq(
         scalacOptions --= blocklistedScalacOptions,
-        fork in Test := true,
-        scalaSource in Compile := tmpDirFor(Compile, tmpDir).value,
-        javaOptions in Test ++= filteredSystemProperties
+        Test / fork := true,
+        Compile / scalaSource := tmpDirFor(Compile, tmpDir).value,
+        Test / javaOptions ++= filteredSystemProperties
       ) ++ {
         if (config.testFilter.nonEmpty) {
           val testFilter = new TestFilter()
@@ -133,7 +131,7 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
     }
 
     def tmpDirFor(conf: Configuration, tmpDir: Path): Def.Initialize[JFile] =
-      (scalaSource in conf)(_.toPath())(source => (source inSubDir tmpDir).toFile())
+      (conf / scalaSource)(_.toPath())(source => (source inSubDir tmpDir).toFile())
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 

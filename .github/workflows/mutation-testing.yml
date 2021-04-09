@@ -24,7 +24,7 @@ jobs:
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
-          csbt 'project stryker4s-core; stryker'
+          sbt 'project stryker4s-core; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -44,7 +44,7 @@ jobs:
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
           echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
-          csbt 'project stryker4s-command-runner; stryker'
+          sbt 'project stryker4s-command-runner; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -63,7 +63,7 @@ jobs:
       - name: Run Stryker4s
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
-          csbt 'set version in ThisBuild := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
+          sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
           cd maven
           mvn -B --no-transfer-progress stryker4s:run
         env:

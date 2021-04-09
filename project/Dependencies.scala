@@ -5,7 +5,7 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scala212 = "2.12.13"
     val scala213 = "2.13.5"
-    val scala3 = "3.0.0-RC1"
+    val scala3 = "3.0.0-RC2"
 
     /** Cross-versions for main projects
       */
@@ -16,22 +16,22 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala211, scala3)
 
     // Test dependencies
-    val catsEffectScalaTest = "1.0.0"
-    val mockitoScala = "1.16.33"
-    val scalatest = "3.2.6"
+    val catsEffectScalaTest = "1.0.1"
+    val mockitoScala = "1.16.37"
+    val scalatest = "3.2.7"
 
     // Direct dependencies
     val betterFiles = "3.9.1"
-    val catsCore = "2.4.2"
-    val catsEffect = "3.0.0"
+    val catsCore = "2.5.0"
+    val catsEffect = "3.0.1"
     val circe = "0.13.0"
-    val fs2 = "3.0.0"
+    val fs2 = "3.0.1"
     val log4j = "2.14.1"
     val mutationTestingElements = "1.7.0"
     val mutationTestingMetrics = "1.7.0"
     val pureconfig = "0.14.1"
-    val scalameta = "4.4.10"
-    val sttp = "3.2.0"
+    val scalameta = "4.4.12"
+    val sttp = "3.3.0-RC1"
     val testInterface = "1.0"
     val weaponRegeX = "0.4.1"
   }

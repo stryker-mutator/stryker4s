@@ -66,7 +66,8 @@ object ProcessTestRunner extends TestInterfaceMapper {
       testGroups: Seq[Tests.Group],
       port: Int
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
-    createProcess(classpath, javaOpts, port) *> connectToProcess(port)
+    (createProcess(classpath, javaOpts, socketConfig), connectToProcess(port))
+      .parMapN({ case (_, c) => c })
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
 
@@ -88,9 +89,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
   }
 
-  private def connectToProcess(
-      port: Int
-  )(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
+  private def connectToProcess(port: Int)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.eval(
       IO(log.debug(s"Creating socket on $port"))
