@@ -66,7 +66,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       testGroups: Seq[Tests.Group],
       port: Int
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
-    (createProcess(classpath, javaOpts, socketConfig), connectToProcess(port))
+    (createProcess(classpath, javaOpts, port), connectToProcess(port))
       .parMapN({ case (_, c) => c })
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
