@@ -1,18 +1,21 @@
 package stryker4s
 
-import scala.util.Success
-
+import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
+import stryker4s.report.{AggregateReporter, FinishedRunEvent, Progress, StartMutationEvent}
 import stryker4s.run.MutantRunner
+import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestRunnerStub, TestSourceCollector}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside {
+import scala.util.Success
+
+class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside with LogMatchers {
 
   describe("run") {
 
@@ -40,15 +43,14 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside {
         testMutantRunner
       )
 
-      sut.run().asserting { _ =>
-        succeed
+      sut.run().asserting { result =>
         val startCaptor = ArgCaptor[StartMutationEvent]
         verify(reporterMock, times(4)).onMutationStart(startCaptor)
         startCaptor.values shouldBe List(
-          StartMutationEvent(Progress(1, 4), 0),
-          StartMutationEvent(Progress(2, 4), 0),
-          StartMutationEvent(Progress(3, 4), 0),
-          StartMutationEvent(Progress(4, 4), 0)
+          StartMutationEvent(Progress(1, 4)),
+          StartMutationEvent(Progress(2, 4)),
+          StartMutationEvent(Progress(3, 4)),
+          StartMutationEvent(Progress(4, 4))
         )
         val runReportMock = ArgCaptor[FinishedRunEvent]
         verify(reporterMock).onRunFinished(runReportMock)

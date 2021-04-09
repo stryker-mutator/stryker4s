@@ -30,6 +30,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
+
       when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
       sut(List(mutatedFile)).asserting { result =>
