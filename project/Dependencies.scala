@@ -23,15 +23,15 @@ object Dependencies {
     // Direct dependencies
     val betterFiles = "3.9.1"
     val catsCore = "2.5.0"
-    val catsEffect = "3.0.1"
+    val catsEffect = "3.0.2"
     val circe = "0.13.0"
     val fs2 = "3.0.1"
     val log4j = "2.14.1"
     val mutationTestingElements = "1.7.0"
     val mutationTestingMetrics = "1.7.0"
     val pureconfig = "0.14.1"
-    val scalameta = "4.4.12"
-    val sttp = "3.3.0-RC1"
+    val scalameta = "4.4.13"
+    val sttp = "3.3.0-RC2"
     val testInterface = "1.0"
     val weaponRegeX = "0.4.1"
   }
