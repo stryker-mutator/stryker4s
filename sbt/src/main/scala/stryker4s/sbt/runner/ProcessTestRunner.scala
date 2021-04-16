@@ -1,13 +1,5 @@
 package stryker4s.sbt.runner
 
-import java.net.{InetAddress, InetSocketAddress}
-import java.nio.channels._
-
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
-import scala.sys.process.Process
-import scala.util.control.NonFatal
-
 import cats.effect.{IO, Resource}
 import cats.syntax.all._
 import sbt.Tests
@@ -18,6 +10,12 @@ import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.process.ProcessResource
 import stryker4s.run.{InitialTestRunResult, TestRunner}
+
+import java.net.{InetAddress, Socket}
+import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
+import scala.sys.process.Process
+import scala.util.control.NonFatal
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -98,7 +96,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       Resource
         .make(
           retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
-            createSocket(port)
+            IO(new Socket(InetAddress.getLocalHost(), port))
           )
         )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
         .evalTap(_ => IO(log.debug("Created socket")))
@@ -124,10 +122,5 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .compile
       .lastOrError
   }
-
-  def createSocket(port: Int) = for {
-    addr <- IO(InetSocketAddress.createUnresolved(InetAddress.getLocalHost().getHostAddress(), port))
-    channel <- IO(SocketChannel.open(addr))
-  } yield channel.socket()
 
 }

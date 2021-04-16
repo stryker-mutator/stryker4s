@@ -35,6 +35,9 @@ final case class CoverageTestRunResult(isSuccessful: Boolean, coverageReport: Co
 @SerialVersionUID(1058983162546605150L)
 final case class ErrorDuringTestRun(msg: String) extends TestResultResponse
 
+@SerialVersionUID(5801266848315151179L)
+final case class TestProcessConfig(port: Int)
+
 /** Keys for system properties passed to the testprocess
   */
 object TestProcessProperties {

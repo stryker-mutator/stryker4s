@@ -1,13 +1,8 @@
 package stryker4s.run
 
-import java.nio.file.Path
-
-import scala.concurrent.duration._
-
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
 import fs2.io.file.Files
-import fs2.{text, Pipe, Pull, Stream}
+import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
@@ -16,10 +11,15 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.{FinishedRunEvent, Progress, Reporter, StartMutationEvent}
+import stryker4s.report.{FinishedRunEvent, Reporter}
+
+import java.nio.file.Path
+import scala.concurrent.duration._
+import cats.data.NonEmptyList
 
 class MutantRunner(
-    createTestRunners: Path => Stream[IO, TestRunner],
+    // TODO: Move to `Path => Resource[IO, TestRunnerPool]`
+    createTestRunners: Path => Resource[IO, NonEmptyList[TestRunner]],
     sourceCollector: SourceCollector,
     reporter: Reporter
 )(implicit config: Config, log: Logger)
@@ -27,10 +27,13 @@ class MutantRunner(
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
-      .map(createTestRunners)
-      .flatMap(initialTestRun)
-      .use { case (coverageExclusions, testRunners) =>
-        runMutants(mutatedFiles, testRunners, coverageExclusions).timed
+      .flatMap(tmpDir => TestRunnerPool(createTestRunners(tmpDir)))
+      .use { testRunnerPool =>
+        testRunnerPool.testRunnerLoan
+          .use(initialTestRun)
+          .flatMap(runMutants(mutatedFiles, testRunnerPool, _))
+          .timed
+      // runMutants(mutatedFiles, testRunners, coverageExclusions).timed
       }
       .flatMap(t => createAndReportResults(t._1, t._2))
 
@@ -57,8 +60,7 @@ class MutantRunner(
         val mutatedPaths = mutatedFiles.map(_.fileOrigin)
         val unmutatedFilesStream =
           Stream
-            .evalSeq(IO(sourceCollector.filesToCopy.toSeq))
-            .filter(!mutatedPaths.contains(_))
+            .evalSeq(IO(sourceCollector.filesToCopy.filterNot(mutatedPaths.contains).toSeq))
             .map(_.path)
             .through(writeOriginalFile(tmpDir))
 
@@ -95,7 +97,7 @@ class MutantRunner(
 
   private def runMutants(
       mutatedFiles: List[MutatedFile],
-      testRunners: Stream[IO, TestRunner],
+      testRunnerPool: TestRunnerPool,
       coverageExclusions: CoverageExclusions
   ): IO[Map[Path, List[MutantRunResult]]] = {
 
@@ -104,8 +106,6 @@ class MutantRunner(
     val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id))
     val (noCoverageMutants, testableMutants) =
       rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id))
-
-    val totalTestableMutants = testableMutants.size
 
     if (noCoverageMutants.nonEmpty) {
       log.info(
@@ -128,20 +128,9 @@ class MutantRunner(
     val static = mapPureMutants(staticMutants, staticMutant(_))
     // Map all no-coverage mutants
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
+
     // Run all testable mutants
-    val testedMutants =
-      Stream
-        .emits(testableMutants)
-        .zipWithIndex
-        .covary[IO]
-        .zip(testRunners)
-        .evalMap { case (((subPath, mutant), progress), testRunner) =>
-          reporter
-            .onMutationStart(StartMutationEvent(Progress(progress.toInt + 1, totalTestableMutants))) *>
-            testRunner
-              .runMutant(mutant)
-              .tupleLeft(subPath)
-        }
+    val testedMutants = testRunnerPool.run(testableMutants, reporter.onMutationStart)
 
     // Back to per-file structure
     (static ++ noCoverage ++ testedMutants)
@@ -153,10 +142,8 @@ class MutantRunner(
       .lastOrError
   }
 
-  def initialTestRun(
-      testRunners: Stream[IO, TestRunner]
-  ): Resource[IO, (CoverageExclusions, Stream[IO, TestRunner])] = {
-    def init(testRunner: TestRunner): IO[CoverageExclusions] = IO(log.info("Starting initial test run...")) *>
+  def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
+    IO(log.info("Starting initial test run...")) *>
       testRunner.initialTestRun().flatMap { result =>
         if (!result.fold(identity, _.isSuccessful))
           IO.raiseError(
@@ -183,22 +170,6 @@ class MutantRunner(
               }
             }
       }
-
-    // Use the first testRunner for the initial test run, then put it back in the Stream of TestRunners
-    testRunners.pull.peek1
-      .flatMap {
-        case None =>
-          Pull.raiseError[IO](
-            new IllegalStateException("Testrunner stream is empty but expected at least 1 testrunner")
-          )
-        case Some((initialTestRunner, rest)) =>
-          Pull.eval(init(initialTestRunner)).tupleRight(rest)
-      }
-      .flatMap(Pull.output1(_))
-      .stream
-      .compile
-      .resource
-      .lastOrError
   }
 
   private def staticMutant(mutant: Mutant): MutantRunResult = Ignored(

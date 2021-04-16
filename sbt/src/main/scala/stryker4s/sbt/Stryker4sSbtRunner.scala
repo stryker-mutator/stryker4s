@@ -1,7 +1,7 @@
 package stryker4s.sbt
 
-import cats.effect.{Deferred, IO}
-import fs2.Stream
+import cats.effect.{Deferred, IO, Resource}
+
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
@@ -14,10 +14,11 @@ import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuild
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
-
+import cats.syntax.all._
 import java.io.{File => JFile, PrintStream}
 import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
+import cats.data.NonEmptyList
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -31,11 +32,13 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
   override def mutationActivation(implicit config: Config): ActiveMutationContext =
     if (config.legacyTestRunner) ActiveMutationContext.sysProps else ActiveMutationContext.testRunner
 
-  def resolveTestRunners(tmpDir: Path)(implicit config: Config): Stream[IO, stryker4s.run.TestRunner] = {
+  def resolveTestRunners(
+      tmpDir: Path
+  )(implicit config: Config): Resource[IO, NonEmptyList[TestRunner]] = {
     def setupLegacySbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
-    ): Stream[IO, TestRunner] = {
+    ): Resource[IO, NonEmptyList[TestRunner]] = {
       log.info("Using the legacy sbt testrunner")
 
       val emptyLogManager =
@@ -49,13 +52,13 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
-      Stream.emit(new LegacySbtTestRunner(newState, fullSettings, extracted))
+      Resource.pure(NonEmptyList.of(new LegacySbtTestRunner(newState, fullSettings, extracted)))
     }
 
     def setupSbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
-    ): Stream[IO, TestRunner] = {
+    ): Resource[IO, NonEmptyList[TestRunner]] = {
       val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
@@ -84,14 +87,16 @@ class Stryker4sSbtRunner(state: State)(implicit log: Logger) extends Stryker4sRu
 
       log.info(s"Creating ${config.concurrency} test-runners")
       val portStart = 13336
-      val portRanges = (1 to config.concurrency).map(_ + portStart)
+      val portRanges = NonEmptyList.fromListUnsafe((1 to config.concurrency).map(_ + portStart).toList)
 
       // Shared `FiniteDuration` to set the timeout on. Based on initial test-run duration
-      Stream.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
-        Stream.emits(portRanges).flatMap { port =>
-          Stream.resource(SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, timeout))
+      Resource
+        .eval(Deferred[IO, FiniteDuration])
+        .flatMap { timeout =>
+          portRanges.parTraverse { port =>
+            SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, timeout)
+          }
         }
-      }
     }
 
     def extractSbtProject(tmpDir: Path)(implicit config: Config) = {

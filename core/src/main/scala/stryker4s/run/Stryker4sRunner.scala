@@ -1,7 +1,7 @@
 package stryker4s.run
 
+import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import fs2.Stream
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -60,7 +60,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
 
-  def resolveTestRunners(tmpDir: Path)(implicit config: Config): Stream[IO, stryker4s.run.TestRunner]
+  def resolveTestRunners(tmpDir: Path)(implicit config: Config): Resource[IO, NonEmptyList[stryker4s.run.TestRunner]]
 
   def mutationActivation(implicit config: Config): ActiveMutationContext
 }

@@ -7,7 +7,10 @@ import cats.effect.IO
 import mutationtesting._
 import stryker4s.config.Config
 
-sealed trait MutationRunReporter
+sealed trait MutationRunReporter {
+  // def mutantTested: IO[Unit]
+
+}
 
 trait ProgressReporter extends MutationRunReporter {
   def onMutationStart(event: StartMutationEvent): IO[Unit]
