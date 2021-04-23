@@ -18,7 +18,10 @@ object Settings {
         case Some((2, n)) if n <= 12 => sourceDir / "scala-2.13-"
         case _                       => sourceDir / "scala-2.13+"
       }
-    }
+    },
+    // Fatal warnings only in CI
+    scalacOptions --= (if (sys.env.exists({ case (k, v) => k == "CI" && v == "true" })) Nil
+                       else Seq("-Xfatal-warnings"))
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
