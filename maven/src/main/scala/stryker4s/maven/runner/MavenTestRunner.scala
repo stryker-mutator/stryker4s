@@ -1,15 +1,14 @@
 package stryker4s.maven.runner
 
-import java.util.Properties
-
-import scala.collection.JavaConverters._
-
 import cats.effect.IO
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
 import stryker4s.log.Logger
 import stryker4s.model.{Killed, Mutant, MutantRunResult, Survived}
 import stryker4s.run.TestRunner
+
+import java.util.Properties
+import scala.collection.JavaConverters._
 
 case class MavenTestRunner(project: MavenProject, invoker: Invoker, properties: Properties, goals: Seq[String])(implicit
     log: Logger

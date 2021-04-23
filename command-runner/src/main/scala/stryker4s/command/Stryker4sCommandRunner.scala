@@ -21,12 +21,12 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: 
 
   override def resolveTestRunners(
       tmpDir: Path
-  )(implicit config: Config): Resource[IO, NonEmptyList[TestRunner]] = {
+  )(implicit config: Config): NonEmptyList[Resource[IO, TestRunner]] = {
     val innerTestRunner =
       Resource.pure[IO, TestRunner](new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir))
 
     val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
-    withTimeout.map(NonEmptyList.of(_))
+    NonEmptyList.of(withTimeout)
   }
 }
