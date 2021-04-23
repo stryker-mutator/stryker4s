@@ -33,7 +33,7 @@ object Dependencies {
     val scalameta = "4.4.14"
     val sttp = "3.3.0-RC4"
     val testInterface = "1.0"
-    val weaponRegeX = "0.4.1"
+    val weaponRegeX = "0.4.2"
   }
 
   object test {
