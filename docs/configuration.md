@@ -183,7 +183,7 @@ For the last two cases, please [let us know by creating an issue](https://github
 **Since:** `v0.12.0`  
 **Description:**
 
-Set the concurrency of testrunners. Stryker4s will create this many testrunners to run tests in parallel against. This defaults to `n / 2` where `n` is the number of available processors on your machine, or `n` if `n <= 4`. This is a sane default for most use cases. But as always with concurrency, test it yourself to be sure of the best performance.
+Set the concurrency of testrunners. Stryker4s will create this many testrunners to run mutants in parallel. This defaults to `n / 2` where `n` is the number of available processors on your machine, or `n` if `n <= 4`. This is a sane default for most use cases. But as always with concurrency, test it yourself to be sure of the best performance.
 
 ## Process runner config
 
