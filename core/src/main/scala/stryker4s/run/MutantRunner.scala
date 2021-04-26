@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{IO, Resource}
+import cats.syntax.all._
 import fs2.io.file.Files
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
@@ -11,15 +12,13 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.{FinishedRunEvent, Reporter}
+import stryker4s.report.{FinishedRunEvent, Progress, Reporter, StartMutationEvent}
 
 import java.nio.file.Path
 import scala.concurrent.duration._
-import cats.data.NonEmptyList
 
 class MutantRunner(
-    // TODO: Move to `Path => Resource[IO, TestRunnerPool]`
-    createTestRunners: Path => Resource[IO, NonEmptyList[TestRunner]],
+    createTestRunnerPool: Path => Resource[IO, TestRunnerPool],
     sourceCollector: SourceCollector,
     reporter: Reporter
 )(implicit config: Config, log: Logger)
@@ -27,13 +26,13 @@ class MutantRunner(
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
-      .flatMap(tmpDir => TestRunnerPool(createTestRunners(tmpDir)))
+      .flatMap(tmpDir => createTestRunnerPool(tmpDir))
       .use { testRunnerPool =>
-        testRunnerPool.testRunnerLoan
+        testRunnerPool.loan
           .use(initialTestRun)
-          .flatMap(runMutants(mutatedFiles, testRunnerPool, _))
-          .timed
-      // runMutants(mutatedFiles, testRunners, coverageExclusions).timed
+          .flatMap { coverageExclusions =>
+            runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
+          }
       }
       .flatMap(t => createAndReportResults(t._1, t._2))
 
@@ -130,7 +129,15 @@ class MutantRunner(
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
 
     // Run all testable mutants
-    val testedMutants = testRunnerPool.run(testableMutants, reporter.onMutationStart)
+    val totalTestableMutants = testableMutants.size
+    val testedMutants = Stream
+      .emits(testableMutants)
+      .zipWithIndex
+      .through(testRunnerPool.run { case (testRunner, ((path, mutant), index)) =>
+        IO(log.debug(s"Running mutant $mutant")) *>
+          reporter.onMutationStart(StartMutationEvent(Progress(index.toInt + 1, totalTestableMutants))) *>
+          testRunner.runMutant(mutant).tupleLeft(path)
+      })
 
     // Back to per-file structure
     (static ++ noCoverage ++ testedMutants)

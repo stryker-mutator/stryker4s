@@ -34,6 +34,7 @@ object ExampleConfigs {
                                      |  legacy-test-runner=true
                                      |  timeout=5500
                                      |  scala-dialect="scala212"
+                                     |  concurrency = 3
                                      |}""".stripMargin)
 
   def empty = ConfigSource.empty

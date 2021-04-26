@@ -11,7 +11,7 @@ class ResourceExtensionsTest extends Stryker4sIOSuite {
         log <- Ref[IO].of(List.empty[String])
         _ <- logged(log)
           .selfRecreatingResource { case (_, _) => IO.unit }
-          .use(_ => log.get.asserting(_ should contain.only("open")))
+          .surround(log.get.asserting(_ should contain.only("open")))
         value <- log.get
       } yield value
 
@@ -23,7 +23,7 @@ class ResourceExtensionsTest extends Stryker4sIOSuite {
         log <- Ref[IO].of(List.empty[String])
         _ <- logged(log)
           .selfRecreatingResource { case (_, release) => release }
-          .use(_ => log.get.map(_ shouldBe List("open", "close", "open")))
+          .surround(log.get.map(_ shouldBe List("open", "close", "open")))
         value <- log.get
       } yield value
 
