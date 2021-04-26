@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
 
 import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 import sbt.testing.{Event, EventHandler, Framework, Status, Task}
 import stryker4s.api.testprocess._
@@ -60,6 +61,16 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     override def handle(event: Event) = {
       if (event.status() != Status.Success) {
         println(s"Test unsuccessful: ${event.fullyQualifiedName()} status ${event.status()} with ${event.throwable()}")
+
+        // Re-throw Fatal exceptions to restart the testrunner
+        val maybethrowable =
+          if (event.throwable().isDefined())
+            Some(event.throwable().get()).filterNot(NonFatal(_))
+          else None
+        maybethrowable.foreach { t =>
+          println(s"Fatal exception reported by testrunner. Re-throwing $t")
+          throw t
+        }
       }
       status.updateAndGet(new UnaryOperator[Status]() {
         override def apply(old: Status) = {

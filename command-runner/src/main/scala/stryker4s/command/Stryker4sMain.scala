@@ -1,6 +1,8 @@
 package stryker4s.command
 
-import cats.effect.{ExitCode, IO, IOApp}
+import scala.concurrent.duration.FiniteDuration
+
+import cats.effect.{Deferred, ExitCode, IO, IOApp}
 import pureconfig.error.ConfigReaderException
 import pureconfig.generic.auto._
 import stryker4s.command.config.ProcessRunnerConfig
@@ -17,7 +19,8 @@ object Stryker4sMain extends IOApp {
         case Left(failures) => throw ConfigReaderException(failures)
         case Right(config)  => config
       })
-      result <- new Stryker4sCommandRunner(processRunnerConfig).run()
+      timeout <- Deferred[IO, FiniteDuration]
+      result <- new Stryker4sCommandRunner(processRunnerConfig, timeout).run()
     } yield result match {
       case ErrorStatus => ExitCode.Error
       case _           => ExitCode.Success

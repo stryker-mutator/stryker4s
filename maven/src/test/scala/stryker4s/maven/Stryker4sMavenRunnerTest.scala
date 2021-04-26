@@ -1,12 +1,5 @@
 package stryker4s.maven
 
-import java.io.{File => JFile}
-import java.{util => ju}
-
-import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext
-import scala.meta._
-
 import better.files._
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
@@ -22,6 +15,12 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.testutil.Stryker4sSuite
 
+import java.io.{File => JFile}
+import java.{util => ju}
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext
+import scala.meta._
+
 class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
@@ -34,7 +33,8 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
 
       sut
-        .resolveTestRunner(tmpDir)
+        .resolveTestRunners(tmpDir)
+        .head
         .use(result => {
           verify(invokerMock).setWorkingDirectory(eqTo(tmpDir.toFile()))
           result.goals should contain only "test"
@@ -51,7 +51,8 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
 
       sut
-        .resolveTestRunner(tmpDir)
+        .resolveTestRunners(tmpDir)
+        .head
         .use(result => {
           result.properties.getProperty("test") should equal(expectedTestFilter.mkString(", "))
           result.properties.getProperty("wildcardSuites") should equal(expectedTestFilter.mkString(","))
@@ -70,7 +71,8 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
 
       sut
-        .resolveTestRunner(tmpDir)
+        .resolveTestRunners(tmpDir)
+        .head
         .use(result => IO.pure(result.properties.getProperty("test") should equal(s"*OtherTest, $expectedTestFilter")))
         .unsafeRunSync()
     }
@@ -85,7 +87,8 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
 
       sut
-        .resolveTestRunner(tmpDir)
+        .resolveTestRunners(tmpDir)
+        .head
         .use(result =>
           IO.pure(result.properties.getProperty("wildcardSuites") should equal(s"*OtherTest,$expectedTestFilter"))
         )

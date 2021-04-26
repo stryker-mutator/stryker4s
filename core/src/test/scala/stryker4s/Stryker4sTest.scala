@@ -1,7 +1,5 @@
 package stryker4s
 
-import scala.util.Success
-
 import org.mockito.captor.ArgCaptor
 import org.scalatest.Inside
 import stryker4s.config.Config
@@ -14,6 +12,8 @@ import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestProcessRunner, TestRunnerStub, TestSourceCollector}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+
+import scala.util.Success
 
 class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside with LogMatchers {
 
@@ -46,14 +46,12 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       sut.run().asserting { result =>
         val startCaptor = ArgCaptor[StartMutationEvent]
         verify(reporterMock, times(4)).onMutationStart(startCaptor)
-        startCaptor.values should matchPattern {
-          case List(
-                StartMutationEvent(Progress(1, 4)),
-                StartMutationEvent(Progress(2, 4)),
-                StartMutationEvent(Progress(3, 4)),
-                StartMutationEvent(Progress(4, 4))
-              ) =>
-        }
+        startCaptor.values shouldBe List(
+          StartMutationEvent(Progress(1, 4)),
+          StartMutationEvent(Progress(2, 4)),
+          StartMutationEvent(Progress(3, 4)),
+          StartMutationEvent(Progress(4, 4))
+        )
         val runReportMock = ArgCaptor[FinishedRunEvent]
         verify(reporterMock).onRunFinished(runReportMock)
         val FinishedRunEvent(reportedResults, _, _, _) = runReportMock.value

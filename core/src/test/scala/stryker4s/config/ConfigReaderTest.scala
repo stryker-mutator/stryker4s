@@ -1,16 +1,16 @@
 package stryker4s.config
 
-import scala.concurrent.duration._
-import scala.meta.dialects._
-
 import better.files.File
-import pureconfig.ConfigSource
-import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure}
+import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
 import pureconfig.generic.auto._
+import pureconfig.{ConfigObjectSource, ConfigSource}
 import stryker4s.config.Config._
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
 import sttp.client3.UriContext
+
+import scala.concurrent.duration._
+import scala.meta.dialects._
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
   describe("loadConfig") {
@@ -30,10 +30,11 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           config.maxTestRunnerReuse.value shouldBe 15
           config.legacyTestRunner shouldBe true
           config.scalaDialect shouldBe Scala212
+          config.concurrency shouldBe 3
       }
     }
 
-    it("should load config by type and give config errors when sometimes wrong") {
+    it("should not be able to load a empty config") {
       val configSource = ExampleConfigs.empty
 
       ConfigReader.readConfigOfType[Config](configSource) match {
@@ -238,16 +239,21 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       }
 
       it("should not parse invalid scala-dialects") {
-        ExampleConfigs.scalaDialect("foobar").at("stryker4s").load[Config] match {
-          case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
-            reason shouldBe CannotConvert(
-              "foobar",
-              "scalaDialect",
-              "Unsupported scalaDialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala211', 'scala2.11', '2.11', '211', 'scala212', 'scala2.12', '2.12', '212', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala3', 'scala3.0', '3.0', '3', 'dotty'."
-            )
-          case value => fail(s"Expected parsing failure but got $value")
-        }
+        expectConfigFailure(
+          ExampleConfigs.scalaDialect("foobar"),
+          CannotConvert(
+            "foobar",
+            "scalaDialect",
+            "Unsupported scalaDialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala211', 'scala2.11', '2.11', '211', 'scala212', 'scala2.12', '2.12', '212', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala3', 'scala3.0', '3.0', '3', 'dotty'."
+          )
+        )
       }
     }
+
+    def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason) =
+      config.at("stryker4s").load[Config] match {
+        case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) => reason shouldBe failure
+        case value                                                        => fail(s"Expected parsing failure but got $value")
+      }
   }
 }

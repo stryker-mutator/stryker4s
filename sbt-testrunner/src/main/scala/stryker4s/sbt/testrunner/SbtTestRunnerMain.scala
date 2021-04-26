@@ -1,25 +1,25 @@
 package stryker4s.sbt.testrunner
 
+import stryker4s.api.testprocess.Request
+
 import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.{ServerSocket, Socket}
-
-import stryker4s.api.testprocess.{Request, TestProcessConfig}
 
 object SbtTestRunnerMain {
   def main(args: Array[String]): Unit = {
     println("Started testrunner")
-    val config = Context.resolveSocketConfig()
-    setupSocketServer(config)
+    val port = Context.resolveSocketConfig()
+    setupSocketServer(port)
   }
 
-  private def setupSocketServer(config: TestProcessConfig) = {
-    println("Setting up server")
-    val server = new ServerSocket(config.port)
+  private def setupSocketServer(port: Int) = {
+    println(s"Setting up server on port ${port}")
+    val server = new ServerSocket(port)
     try {
       val socket = server.accept()
       try {
 
-        println(s"Ready to accept connections on port ${config.port}")
+        println(s"Ready to accept connections on port ${port}")
 
         val messageHandler = new TestRunnerMessageHandler()
         val server = new TestProcessServer(messageHandler, socket)

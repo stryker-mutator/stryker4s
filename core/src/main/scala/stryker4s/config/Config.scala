@@ -20,10 +20,18 @@ final case class Config(
     timeoutFactor: Double = 1.5,
     maxTestRunnerReuse: Option[Int] = None,
     legacyTestRunner: Boolean = false,
-    scalaDialect: Dialect = dialects.Scala3
+    scalaDialect: Dialect = dialects.Scala3,
+    concurrency: Int = Config.defaultConcurrency
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
+
+  private def defaultConcurrency: Int = {
+    // Use n / 2 concurrency unless this machine has a low processor-count
+    val cpuCoreCount = Runtime.getRuntime().availableProcessors()
+    if (cpuCoreCount > 4) cpuCoreCount / 2
+    else cpuCoreCount
+  }
 
   /** Type alias for `Set[String]` so extra validation can be done
     */

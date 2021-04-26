@@ -1,5 +1,6 @@
 package stryker4s.run
 
+import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import stryker4s.Stryker4s
 import stryker4s.config._
@@ -24,6 +25,8 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
     val collector = new FileCollector(ProcessRunner())
 
+    val createTestRunnerPool = (path: Path) => ResourcePool(resolveTestRunners(path))
+
     val stryker4s = new Stryker4s(
       collector,
       new Mutator(
@@ -31,7 +34,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
         new StatementTransformer,
         resolveMatchBuilder
       ),
-      new MutantRunner(resolveTestRunner(_), collector, new AggregateReporter(resolveReporters()))
+      new MutantRunner(createTestRunnerPool, collector, new AggregateReporter(resolveReporters()))
     )
     stryker4s.run()
   }
@@ -59,7 +62,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
 
-  def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, stryker4s.run.TestRunner]
+  def resolveTestRunners(tmpDir: Path)(implicit config: Config): NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]
 
   def mutationActivation(implicit config: Config): ActiveMutationContext
 }

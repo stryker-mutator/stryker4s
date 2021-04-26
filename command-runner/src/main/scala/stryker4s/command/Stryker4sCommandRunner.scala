@@ -1,9 +1,6 @@
 package stryker4s.command
 
-import java.nio.file.Path
-
-import scala.concurrent.duration.FiniteDuration
-
+import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessTestRunner
@@ -14,17 +11,22 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 
-class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig)(implicit log: Logger) extends Stryker4sRunner {
+import java.nio.file.Path
+import scala.concurrent.duration.FiniteDuration
+
+class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: Deferred[IO, FiniteDuration])(implicit
+    log: Logger
+) extends Stryker4sRunner {
   override def mutationActivation(implicit config: Config): ActiveMutationContext = ActiveMutationContext.envVar
 
-  override def resolveTestRunner(tmpDir: Path)(implicit config: Config): Resource[IO, TestRunner] = {
-    Resource.eval(Deferred[IO, FiniteDuration]).flatMap { timeout =>
-      val innerTestRunner =
-        Resource.pure[IO, TestRunner](new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir))
+  override def resolveTestRunners(
+      tmpDir: Path
+  )(implicit config: Config): NonEmptyList[Resource[IO, TestRunner]] = {
+    val innerTestRunner =
+      Resource.pure[IO, TestRunner](new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir))
 
-      val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
+    val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
-      withTimeout
-    }
+    NonEmptyList.of(withTimeout)
   }
 }

@@ -1,12 +1,5 @@
 package stryker4s.sbt.runner
 
-import java.net.{InetAddress, Socket}
-
-import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
-import scala.sys.process.Process
-import scala.util.control.NonFatal
-
 import cats.effect.{IO, Resource}
 import cats.syntax.all._
 import sbt.Tests
@@ -17,6 +10,12 @@ import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.process.ProcessResource
 import stryker4s.run.{InitialTestRunResult, TestRunner}
+
+import java.net.{InetAddress, Socket}
+import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
+import scala.sys.process.Process
+import scala.util.control.NonFatal
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -62,48 +61,44 @@ object ProcessTestRunner extends TestInterfaceMapper {
       classpath: Seq[String],
       javaOpts: Seq[String],
       frameworks: Seq[SbtFramework],
-      testGroups: Seq[Tests.Group]
-  )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] = {
-    val socketConfig = TestProcessConfig(13337) // TODO: Don't hardcode socket port
-
-    (createProcess(classpath, javaOpts, socketConfig), connectToProcess(socketConfig))
+      testGroups: Seq[Tests.Group],
+      port: Int
+  )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
+    (createProcess(classpath, javaOpts, port), connectToProcess(port))
       .parMapN({ case (_, c) => c })
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
-  }
 
   def createProcess(
       classpath: Seq[String],
       javaOpts: Seq[String],
-      socketConfig: TestProcessConfig
+      port: Int
   )(implicit log: Logger, config: Config): Resource[IO, Process] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
-    val sysProps = s"-D${TestProcessProperties.port}=${socketConfig.port}"
+    val sysProps = s"-D${TestProcessProperties.port}=$port"
     val args = Seq(sysProps, mainClass)
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
 
     Resource.eval(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
       ProcessResource
-        .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner: $m"))
+        .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner $port: $m"))
         .evalTap(_ => IO(log.debug("Started process")))
 
   }
 
-  private def connectToProcess(
-      config: TestProcessConfig
-  )(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
+  private def connectToProcess(port: Int)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
     // Sleep 0.5 seconds to let the process startup before attempting connection
     Resource.eval(
-      IO(log.debug("Creating socket"))
+      IO(log.debug(s"Creating socket on $port"))
         .delayBy(0.5.seconds)
     ) *>
       Resource
         .make(
           retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
-            IO(new Socket(InetAddress.getLocalHost(), config.port))
+            IO(new Socket(InetAddress.getLocalHost(), port))
           )
-        )(s => IO(s.close()))
+        )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
         .evalTap(_ => IO(log.debug("Created socket")))
         .flatMap(TestRunnerConnection.create(_))
   }
@@ -127,4 +122,5 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .compile
       .lastOrError
   }
+
 }

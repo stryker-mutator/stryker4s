@@ -1,11 +1,13 @@
 package stryker4s.sbt
 
 import cats.effect.unsafe.IORuntime
+import cats.effect.{Deferred, IO}
 import sbt.Keys._
 import sbt._
 import sbt.plugins._
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
+import scala.concurrent.duration.FiniteDuration
 
 /** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
   */
@@ -38,8 +40,9 @@ object Stryker4sMain extends AutoPlugin {
     implicit val runtime: IORuntime = IORuntime.global
     implicit val logger: Logger = new SbtLogger(streams.value.log)
 
-    new Stryker4sSbtRunner(state.value)
-      .run()
+    Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
+      .map(new Stryker4sSbtRunner(state.value, _))
+      .flatMap(_.run())
       .map {
         case ErrorStatus => throw new MessageOnlyException("Mutation score is below configured threshold")
         case _           => ()
