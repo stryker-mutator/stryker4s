@@ -26,7 +26,7 @@ class MutantRunner(
 
   def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
-      .flatMap(tmpDir => createTestRunnerPool(tmpDir))
+      .flatMap(createTestRunnerPool)
       .use { testRunnerPool =>
         testRunnerPool.loan
           .use(initialTestRun)
@@ -159,23 +159,22 @@ class MutantRunner(
             )
           )
         else
-          IO(log.info("Initial test run succeeded! Testing mutants..."))
-            .as {
-              result match {
-                case Left(_) => CoverageExclusions(false, List.empty, List.empty)
-                case Right(InitialTestRunCoverageReport(_, firstRun, secondRun)) =>
-                  val firstRunMap = firstRun.toMap
-                  val secondRunMap = secondRun.toMap
-                  val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
+          IO(log.info("Initial test run succeeded! Testing mutants...")).as {
+            result match {
+              case Left(_) => CoverageExclusions(false, List.empty, List.empty)
+              case Right(InitialTestRunCoverageReport(_, firstRun, secondRun)) =>
+                val firstRunMap = firstRun.toMap
+                val secondRunMap = secondRun.toMap
+                val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
 
-                  val coveredMutants = firstRunMap
-                    .filterNot { case (id, _) => staticMutants.contains(id) }
-                    .keys
-                    .toSeq
+                val coveredMutants = firstRunMap
+                  .filterNot { case (id, _) => staticMutants.contains(id) }
+                  .keys
+                  .toSeq
 
-                  CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
-              }
+                CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
             }
+          }
       }
   }
 
