@@ -27,10 +27,10 @@ final case class Config(
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
 
   private def defaultConcurrency: Int = {
-    // Use n - 1 threads unless this machine has a low thread-count 🛏️
-    val cpus = Runtime.getRuntime().availableProcessors()
-    if (cpus > 4) cpus - 1
-    else cpus
+    // Use n / 2 concurrency unless this machine has a low processor-count
+    val cpuCoreCount = Runtime.getRuntime().availableProcessors()
+    if (cpuCoreCount > 4) cpuCoreCount / 2
+    else cpuCoreCount
   }
 
   /** Type alias for `Set[String]` so extra validation can be done
