@@ -59,7 +59,7 @@ class ResourcePoolTest extends Stryker4sIOSuite {
         }
         .asserting { results =>
           results.size shouldBe totalMutants
-          results.count(_._1 == "A") shouldBe 1
+          results.count(_._1 == "A") shouldBe >=(1)
           results.count(_._1 == "B") shouldBe >=(3)
           results.count(_._1 == "C") shouldBe >=(3)
         }
