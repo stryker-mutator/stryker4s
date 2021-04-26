@@ -12,7 +12,7 @@ import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.{FinishedRunEvent, Progress, Reporter, StartMutationEvent}
+import stryker4s.report.{FinishedRunEvent, Reporter}
 
 import java.nio.file.Path
 import scala.concurrent.duration._
@@ -66,12 +66,12 @@ class MutantRunner(
         val mutatedFilesStream = Stream
           .emits(mutatedFiles)
           .through(writeMutatedFile(tmpDir))
-        (unmutatedFilesStream ++ mutatedFilesStream).compile.drain
+        (unmutatedFilesStream merge mutatedFilesStream).compile.drain
       }
 
   def writeOriginalFile(tmpDir: Path): Pipe[IO, Path, Unit] =
     in =>
-      in.evalMapChunk { file =>
+      in.parEvalMapUnordered(config.concurrency) { file =>
         val newSubPath = file.inSubDir(tmpDir)
 
         IO(log.debug(s"Copying $file to $newSubPath")) *>
@@ -87,12 +87,14 @@ class MutantRunner(
           Files[IO]
             .createDirectories(targetPath.getParent())
             .as((mutatedFile, targetPath))
-      }.flatMap { case (mutatedFile, targetPath) =>
-        Stream(mutatedFile.tree.syntax)
-          .covary[IO]
-          .through(text.utf8Encode)
-          .through(Files[IO].writeAll(targetPath))
-      }
+      }.observe(_.flatMap(file => Stream.emits(file._1.mutants)).through(reporter.mutantPlaced))
+        .map { case (mutatedFile, targetPath) =>
+          Stream(mutatedFile.tree.syntax)
+            .covary[IO]
+            .through(text.utf8Encode)
+            .through(Files[IO].writeAll(targetPath))
+        }
+        .parJoinUnbounded
 
   private def runMutants(
       mutatedFiles: List[MutatedFile],
@@ -129,15 +131,13 @@ class MutantRunner(
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
 
     // Run all testable mutants
-    val totalTestableMutants = testableMutants.size
     val testedMutants = Stream
       .emits(testableMutants)
-      .zipWithIndex
-      .through(testRunnerPool.run { case (testRunner, ((path, mutant), index)) =>
+      .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
         IO(log.debug(s"Running mutant $mutant")) *>
-          reporter.onMutationStart(StartMutationEvent(Progress(index.toInt + 1, totalTestableMutants))) *>
           testRunner.runMutant(mutant).tupleLeft(path)
       })
+      .observe(reporter.mutantTested)
 
     // Back to per-file structure
     (static ++ noCoverage ++ testedMutants)

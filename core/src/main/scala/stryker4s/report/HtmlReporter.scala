@@ -8,7 +8,7 @@ import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends FinishedRunReporter {
+class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"

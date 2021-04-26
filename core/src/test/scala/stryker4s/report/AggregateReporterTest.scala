@@ -7,9 +7,9 @@ import cats.data.NonEmptyList
 import fs2.CompositeFailure
 import mutationtesting._
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import stryker4s.testutil.Stryker4sIOSuite
 
-class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers {
   describe("reporter") {
     it("should log that the console reporter is used when a non existing reporter is configured") {
       val consoleReporterMock = mock[ConsoleReporter]
