@@ -20,11 +20,15 @@ class AggregateReporter(reporters: Seq[Reporter])(implicit log: Logger) extends 
 
   /** Broadcast to all reporters in parallel
     */
-  def reportAll[T](toReporterPipe: Reporter => Pipe[IO, T, INothing]): Pipe[IO, T, INothing] =
-    _.broadcastThrough(reporters.map(toReporterPipe): _*).attempt
-      .collect { case Left(f) => f }
-      .evalMap { e =>
-        IO(log.error(s"Reporter failed to report:", e)) *>
-          IO.raiseError(e)
-      }
+  private def reportAll[T](toReporterPipe: Reporter => Pipe[IO, T, INothing]): Pipe[IO, T, INothing] = {
+    val pipes = reporters.map(toReporterPipe)
+    if (pipes.isEmpty) in => in.drain
+    else
+      _.broadcastThrough(reporters.map(toReporterPipe): _*).attempt
+        .collect { case Left(f) => f }
+        .evalMap { e =>
+          IO(log.error(s"Reporter failed to report", e)) *>
+            IO.raiseError(e)
+        }
+  }
 }

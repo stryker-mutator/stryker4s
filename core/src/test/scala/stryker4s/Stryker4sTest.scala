@@ -26,7 +26,6 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val reporterMock = mock[AggregateReporter]
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
-      whenF(reporterMock.onMutationStart(any[StartMutationEvent])).thenReturn(())
 
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
 
@@ -45,7 +44,6 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
 
       sut.run().asserting { result =>
         val startCaptor = ArgCaptor[StartMutationEvent]
-        verify(reporterMock, times(4)).onMutationStart(startCaptor)
         startCaptor.values shouldBe List(
           StartMutationEvent(Progress(1, 4)),
           StartMutationEvent(Progress(2, 4)),
