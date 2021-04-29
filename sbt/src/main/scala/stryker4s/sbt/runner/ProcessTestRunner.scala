@@ -31,11 +31,14 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
   }
 
   /** Initial test-run is done twice. This allows us to collect coverage data while filtering out 'static' mutants.
-    * Mutants are considered static if they are initialized only once. This means the value cannot be changed using mutation switching.
-    * For example, a `val a = 2` inside an `object` is considered static.
+    * Mutants are considered static if they are initialized only once. This means the value cannot be changed using
+    * mutation switching. For example, a `val a = 2` inside an `object` is considered static.
     *
-    * In the first initial test-run, coverage data is collected. When running the second time any static mutants will not have coverage because their code will not be executed a second time, so we can filter those out.
-    * See also https://github.com/stryker-mutator/stryker4s/pull/565#issuecomment-688438699
+    * In the first initial test-run, coverage data is collected. When running the second time any static mutants will
+    * not have coverage because their code will not be executed a second time, so we can filter those out.
+    *
+    * @see
+    *   https://github.com/stryker-mutator/stryker4s/pull/565#issuecomment-688438699
     */
   override def initialTestRun(): IO[InitialTestRunResult] = {
     val initialTestRun = testProcess.sendMessage(StartInitialTestRun()).timed
@@ -66,7 +69,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       port: Int
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
     (createProcess(classpath, javaOpts, port), connectToProcess(port))
-      .parMapN({ case (_, c) => c })
+      .parMapN { case (_, c) => c }
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
 

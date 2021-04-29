@@ -13,7 +13,9 @@ import stryker4s.config._
 import stryker4s.extension.mutationtype.Mutation
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
-  * @example `toFileReader` makes PureConfig able to read `better.files.File` from a `java.nio.file.Path`
+  *
+  * @example
+  *   `toFileReader` makes PureConfig able to read `better.files.File` from a `java.nio.file.Path`
   */
 trait ConfigConfigReader {
 

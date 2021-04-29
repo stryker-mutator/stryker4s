@@ -29,15 +29,18 @@ object ConfigReader {
   )(implicit log: Logger, pureconfig: PureConfigReader[T]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
-  /** A configuration on how to attempt to read a config. The reason for its existence is to
-    * provide a convenient way to attempt to read a config with various [[PureConfigReader]]s,
-    * depending on the [[ConfigReaderFailures]] that was returned from the last attempt.
-    * In addition to that, some logging is also enforced during the reading process.
-    * If not for those points, simply using the returned [[Either]] of the [[PureConfigReader]]
-    * would be sufficient as well, since the exposed API here is basically a subset of [[Either]]s.
-    * @param file the [[File]] from which the config is to be read.
-    * @param pureconfig [[PureConfigReader]] to read [[T]]
-    * @tparam T the type of the config that is to be read.
+  /** A configuration on how to attempt to read a config. The reason for its existence is to provide a convenient way to
+    * attempt to read a config with various `PureConfigReader`s, depending on the [[ConfigReaderFailures]] that was
+    * returned from the last attempt. In addition to that, some logging is also enforced during the reading process. If
+    * not for those points, simply using the returned [[Either]] of the [[PureConfigReader]] would be sufficient as
+    * well, since the exposed API here is basically a subset of [[Either]] s.
+    *
+    * @param file
+    *   the [[File]] from which the config is to be read.
+    * @param pureconfig
+    *   [[PureConfigReader]] to read [[T]]
+    * @tparam T
+    *   the type of the config that is to be read.
     */
   private class Reader[T] private (
       configSource: ConfigSource,
@@ -47,8 +50,7 @@ object ConfigReader {
       pureconfig: PureConfigReader[T]
   ) {
 
-    /** Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]]
-      * if they occur
+    /** Handle certain [[ConfigReaderFailures]] by providing a way to return a [[Reader.Result]] if they occur
       */
     def recoverWith(pf: PartialFunction[ConfigReaderFailures, Reader.Result[T]]): Reader[T] =
       new Reader[T](configSource, this.onFailure orElse pf)
@@ -65,8 +67,8 @@ object ConfigReader {
     }
 
     /** Force the reading of the config.
-      * @note this will throw exceptions when a [[ConfigReaderFailures]] occurs for
-      *       which no recover-strategy was defined,
+      * @note
+      *   this will throw exceptions when a [[ConfigReaderFailures]] occurs for which no recover-strategy was defined,
       */
     def config: T = tryRead.valueOr(Failure.throwException)
 
@@ -94,10 +96,8 @@ object ConfigReader {
 
     implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = true)
 
-    /** When the config-parsing fails because of an unknown key in the configuration, a
-      * [[PureConfigReader]] is provided that does not fail
-      * when unknown keys are present.
-      * The names of the unknown keys are logged.
+    /** When the config-parsing fails because of an unknown key in the configuration, a [[PureConfigReader]] is provided
+      * that does not fail when unknown keys are present. The names of the unknown keys are logged.
       */
     def onUnknownKey(implicit
         log: Logger
@@ -113,8 +113,7 @@ object ConfigReader {
         implicitly[PureConfigReader[Config]]
     }
 
-    /** When the config-parsing fails because no file is found at the specified location,
-      * a default config is provided.
+    /** When the config-parsing fails because no file is found at the specified location, a default config is provided.
       */
     def onFileNotFound(implicit log: Logger): PartialFunction[ConfigReaderFailures, Config] = {
       case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _*) =>

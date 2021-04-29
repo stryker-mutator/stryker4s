@@ -25,11 +25,12 @@ object Mutation {
 
 /** Base trait for substitution mutation
   *
-  * Can implicitly be converted to the appropriate `scala.meta.Tree` by importing [[stryker4s.extension.ImplicitMutationConversion]]
+  * Can implicitly be converted to the appropriate `scala.meta.Tree` by importing
+  * [[stryker4s.extension.ImplicitMutationConversion]]
   *
-  * @tparam T Has to be a subtype of Tree.
-  *           This is so that the tree value and unapply methods return the appropriate type.
-  *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
+  * @tparam T
+  *   Has to be a subtype of Tree. This is so that the tree value and unapply methods return the appropriate type. E.G.
+  *   a False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
   */
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] with NoInvalidPlacement[T] {
   def tree: T
@@ -90,11 +91,11 @@ protected trait NoInvalidPlacement[T <: Tree] {
 }
 
 private case object ParentIsTypeLiteral {
-  def unapply(t: Tree): Boolean = t.parent.exists({
+  def unapply(t: Tree): Boolean = t.parent.exists {
     case Defn.Val(_, _, Some(`t`), _)       => true
     case Defn.Var(_, _, Some(`t`), _)       => true
     case Defn.Def(_, _, _, _, Some(`t`), _) => true
     case Defn.Type(_, _, _, `t`)            => true
     case p                                  => p.is[Type] || p.is[Term.ApplyType]
-  })
+  }
 }

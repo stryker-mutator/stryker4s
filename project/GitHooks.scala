@@ -7,7 +7,8 @@ import scala.util.Properties
 import sbt._
 import sbt.internal.util.ManagedLogger
 
-/** Starting point: https://github.com/randomcoder/sbt-git-hooks/blob/master/src/main/scala/uk/co/randomcoding/sbt/GitHooks.scala
+/** Starting point:
+  * https://github.com/randomcoder/sbt-git-hooks/blob/master/src/main/scala/uk/co/randomcoding/sbt/GitHooks.scala
   */
 object GitHooks {
   def apply(hooksSourceDir: File, hooksTargetDir: File, log: ManagedLogger): Unit =

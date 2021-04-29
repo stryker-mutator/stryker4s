@@ -91,7 +91,7 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
             .getOrElse(
               fail {
                 val mutant = foundMutants.find(_.id == mutantStatement.id).get
-                s"Could not find mutation ${mutant.id} '${mutant.mutated}' (original '${mutant.original}') in mutated tree ${mutatedTree}"
+                s"Could not find mutation ${mutant.id} '${mutant.mutated}' (original '${mutant.original}') in mutated tree $mutatedTree"
               }
             )
         }

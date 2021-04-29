@@ -20,8 +20,12 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
     */
   private[this] val pathSeparator = config.baseDir.fileSystem.getSeparator
 
-  /**  Collect all files that are going to be mutated.
-    * Files that are configured to be excluded, in the target folder, or directories are skipped
+  /** Collect all files that are going to be mutated.
+    *
+    * Options are:
+    *   - Files that are configured to be excluded
+    *   - in the target folder
+    *   - directories are skipped
     */
   override def collectFilesToMutate(): Iterable[File] = {
     filesToMutate
@@ -32,9 +36,9 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
 
   /** Collect all files that are needed to be copied over to the Stryker4s-tmp folder.
     *
-    * Option 1: Copy every file that is listed by the 'files' config setting
-    * Option 2: Copy every file that is listed by git.
-    * Option 3: Copy every file in the 'baseDir' excluding target folders.
+    *   - Option 1: Copy every file that is listed by the 'files' config setting.
+    *   - Option 2: Copy every file that is listed by git.
+    *   - Option 3: Copy every file in the 'baseDir' excluding target folders.
     */
   override def filesToCopy: Iterable[File] = {
     (listFilesBasedOnConfiguration() orElse
@@ -48,7 +52,7 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
   /** List all files based on the 'files' configuration key from stryker4s.conf.
     */
   private[this] def listFilesBasedOnConfiguration(): Option[Iterable[File]] = {
-    config.files.map { glob }
+    config.files.map(glob)
   }
 
   /** List all files based on `git ls-files` command.

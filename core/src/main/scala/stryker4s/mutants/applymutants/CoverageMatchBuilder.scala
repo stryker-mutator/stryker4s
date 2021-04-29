@@ -16,7 +16,8 @@ class CoverageMatchBuilder(mutationContext: ActiveMutationContext)(implicit log:
   override def defaultCase(transformedMutant: TransformedMutants): Case =
     withCoverage(super.defaultCase(transformedMutant), transformedMutant.mutantStatements)
 
-  /** Call coverage in a place that's always safe to call: the 'if'-statement of the default match of the mutation switch. `coverMutant` always returns true
+  /** Call coverage in a place that's always safe to call: the 'if'-statement of the default match of the mutation
+    * switch. `coverMutant` always returns true
     */
   private def withCoverage(caze: Case, mutants: List[Mutant]): Case = {
     val coverageCond = q"_root_.stryker4s.coverage.coverMutant(..${mutants.map(_.id).map(Lit.Int(_))})"

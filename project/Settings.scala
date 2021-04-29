@@ -20,7 +20,7 @@ object Settings {
       }
     },
     // Fatal warnings only in CI
-    scalacOptions --= (if (sys.env.exists({ case (k, v) => k == "CI" && v == "true" })) Nil
+    scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
                        else Seq("-Xfatal-warnings"))
   )
 

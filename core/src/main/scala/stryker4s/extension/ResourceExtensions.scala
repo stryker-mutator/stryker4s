@@ -8,12 +8,15 @@ object ResourceExtensions {
 
   implicit class SelfRecreatingResource[F[_], A](startResource: Resource[F, A]) {
 
-    /** Build a resource that can destroy and recreate the 'inner' resource by evaluating a passed `F[Unit]`. The inner resource value is available inside a thread-safe mutable `Ref`
+    /** Build a resource that can destroy and recreate the 'inner' resource by evaluating a passed `F[Unit]`. The inner
+      * resource value is available inside a thread-safe mutable `Ref`
       *
-      * @param f Map function with two parameters:
+      * @param f
+      *   Map function with two parameters:
       *   - The value of the resource in a `Ref`
       *   - A `F[Unit]` that releases the 'old' Resource and recreates a new one to store in the `Ref`
-      * @return The new resource created with @param f
+      * @return
+      *   The new resource created with @param f
       */
     def selfRecreatingResource[B](f: (Ref[F, A], F[Unit]) => F[B])(implicit F: Concurrent[F]): Resource[F, B] =
       Hotswap(startResource).evalMap { case (hotswap, r) =>

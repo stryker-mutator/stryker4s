@@ -17,8 +17,7 @@ object TreeExtensions {
 
   implicit class TopStatementExtension(thisTerm: Term) {
 
-    /** Returns the statement this tree is part of.
-      * Recursively going up the tree until a full statement is found.
+    /** Returns the statement this tree is part of. Recursively going up the tree until a full statement is found.
       */
     @tailrec
     final def topStatement(): Term =
@@ -29,7 +28,8 @@ object TreeExtensions {
         case _                            => thisTerm
       }
 
-    /** Extractor object to check if the [[scala.meta.Term]] part of a pattern match (but not in the body of the pattern match)
+    /** Extractor object to check if the [[scala.meta.Term]] part of a pattern match (but not in the body of the pattern
+      * match)
       */
     private object ParentIsPatternMatch {
 
@@ -37,7 +37,7 @@ object TreeExtensions {
         */
       final def unapply(term: Term): Option[Term] =
         findParent[Case](term)
-          .filterNot(caze => caze.parent.collect({ case t: Term.Try => t }).exists(_.catchp.contains(caze)))
+          .filterNot(caze => caze.parent.collect { case t: Term.Try => t }.exists(_.catchp.contains(caze)))
           .flatMap(findParent[Term])
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
@@ -71,8 +71,10 @@ object TreeExtensions {
 
     /** Searches for the given statement in the tree
       *
-      * @param toFind Statement to find
-      * @return A <code>Some(Tree)</code> if the statement has been found, otherwise None
+      * @param toFind
+      *   Statement to find
+      * @return
+      *   A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
     def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
       thisTree.collectFirst {
@@ -82,8 +84,10 @@ object TreeExtensions {
 
   implicit class TransformOnceExtension(thisTree: Tree) {
 
-    /** The normal <code>Tree#transform</code> recursively transforms the tree each time a transformation is applied
-      * This causes a StackOverflowError when the transformation that is searched for is also present in the newly transformed tree. <br>
+    /** The normal <code>Tree#transform</code> recursively transforms the tree each time a transformation is applied.
+      * This causes a StackOverflowError when the transformation that is searched for is also present in the newly
+      * transformed tree.
+      *
       * This function does not recursively go into the transformed tree
       */
     def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
@@ -100,8 +104,8 @@ object TreeExtensions {
 
   implicit class TreeIsInExtension(thisTree: Tree) {
 
-    /** Returns if a tree is contained in a tree of type `[T]`.
-      * Recursively going up the tree until an annotation is found.
+    /** Returns if a tree is contained in a tree of type `[T]`. Recursively going up the tree until an annotation is
+      * found.
       */
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
       mapParent[T, Boolean](thisTree, _ => true, false)

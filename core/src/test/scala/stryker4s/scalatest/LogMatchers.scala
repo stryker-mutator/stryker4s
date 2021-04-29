@@ -12,9 +12,7 @@ trait LogMatchers extends BeforeAndAfterEach {
   /** Override to `true` if you want tests to print logs to the console for debugging purposes
     *
     * @example
-    * ```
-    * override def printLogs = true
-    * ```
+    *   `override def printLogs = true`
     */
   def printLogs: Boolean = false
 
@@ -45,7 +43,7 @@ trait LogMatchers extends BeforeAndAfterEach {
           MatchResult(
             sameLogLevel,
             s"Log message '$expectedLogMessage' was logged but not on correct log level, " +
-              s"expected [$expectedLogLevel] actual [${level}].",
+              s"expected [$expectedLogLevel] actual [$level].",
             s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
           )
       }

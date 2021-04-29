@@ -253,7 +253,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
     def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason) =
       config.at("stryker4s").load[Config] match {
         case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) => reason shouldBe failure
-        case value                                                        => fail(s"Expected parsing failure but got $value")
+        case value => fail(s"Expected parsing failure but got $value")
       }
   }
 }
