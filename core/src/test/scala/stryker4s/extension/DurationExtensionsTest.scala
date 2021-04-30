@@ -13,7 +13,15 @@ class DurationExtensionsTest extends Stryker4sSuite {
     }
 
     it("should parse 0 duration") {
-      0.seconds.toHumanReadable shouldBe ""
+      0.seconds.toHumanReadable shouldBe "0 seconds"
+    }
+
+    it("should parse 1 nanosecond to 0") {
+      1.nanosecond.toHumanReadable shouldBe "0 seconds"
+    }
+
+    it("should parse 1 ms") {
+      1.millisecond.toHumanReadable shouldBe "1 millisecond"
     }
 
     it("should parse multiple seconds") {
@@ -25,7 +33,7 @@ class DurationExtensionsTest extends Stryker4sSuite {
     }
 
     it("should parse a combination of units") {
-      (2.days + 3.hours + 2.minutes + 5.seconds).toHumanReadable shouldBe "2 days, 3 hours, 2 minutes and 5 seconds"
+      (2.days + 3.hours + 2.minutes + 5.seconds + 200.milliseconds).toHumanReadable shouldBe "2 days, 3 hours, 2 minutes, 5 seconds and 200 milliseconds"
     }
   }
 }
