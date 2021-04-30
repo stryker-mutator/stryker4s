@@ -1,15 +1,12 @@
 package stryker4s.report
 
-import better.files.File
 import cats.data.NonEmptyList
 import fs2.{CompositeFailure, Stream}
-import mutationtesting._
 import stryker4s.model.NoCoverage
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite, TestData}
 
 import java.nio.file.Paths
-import scala.concurrent.duration._
 
 class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers with TestData {
 

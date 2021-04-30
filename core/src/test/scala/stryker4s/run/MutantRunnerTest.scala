@@ -1,14 +1,6 @@
 package stryker4s.run
 
-import scala.meta._
-
-import stryker4s.config.Config
-import stryker4s.extension.mutationtype.EmptyString
-import stryker4s.model.{Killed, Mutant, MutatedFile, Survived}
-import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.{AggregateReporter, FinishedRunEvent, StartMutationEvent}
-import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.stubs.TestRunnerStub
+import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {

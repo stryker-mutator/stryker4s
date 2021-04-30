@@ -1,9 +1,5 @@
 package stryker4s.report
 
-import scala.concurrent.duration._
-
-import mutationtesting.{Position, _}
-import stryker4s.config.Config
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sIOSuite
 
