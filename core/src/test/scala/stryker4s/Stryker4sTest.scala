@@ -6,7 +6,7 @@ import stryker4s.config.Config
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
-import stryker4s.report.{AggregateReporter, FinishedRunEvent, Progress, StartMutationEvent}
+import stryker4s.report.{AggregateReporter, FinishedRunEvent}
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.scalatest.{FileUtil, LogMatchers}
@@ -25,6 +25,8 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val reporterMock = mock[AggregateReporter]
+      when(reporterMock.mutantPlaced).thenReturn(_.drain)
+      when(reporterMock.mutantTested).thenReturn(_.drain)
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
 
       implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
@@ -43,13 +45,6 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       )
 
       sut.run().asserting { result =>
-        val startCaptor = ArgCaptor[StartMutationEvent]
-        startCaptor.values shouldBe List(
-          StartMutationEvent(Progress(1, 4)),
-          StartMutationEvent(Progress(2, 4)),
-          StartMutationEvent(Progress(3, 4)),
-          StartMutationEvent(Progress(4, 4))
-        )
         val runReportMock = ArgCaptor[FinishedRunEvent]
         verify(reporterMock).onRunFinished(runReportMock)
         val FinishedRunEvent(reportedResults, _, _, _) = runReportMock.value

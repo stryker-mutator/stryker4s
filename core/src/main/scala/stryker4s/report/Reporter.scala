@@ -17,10 +17,6 @@ abstract class Reporter {
   def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = runReport.pure[IO].void
 }
 
-case class StartMutationEvent(progress: Progress)
-
-final case class Progress(tested: Int, total: Int)
-
 final case class FinishedRunEvent(
     report: MutationTestResult[Config],
     metrics: MetricsResult,
