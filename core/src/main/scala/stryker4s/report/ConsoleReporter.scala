@@ -19,15 +19,18 @@ class ConsoleReporter(total: Deferred[IO, Int])(implicit config: Config, log: Lo
   override def mutantPlaced: Pipe[IO, Mutant, INothing] =
     _.fold(0)({ case (size, _) => size + 1 }).evalMap(total.complete(_)).drain
 
-  override def mutantTested: Pipe[IO, (Path, MutantRunResult), INothing] = _.void.zipWithIndex
-    .debounce(2.seconds) // Log the latest status every 2 seconds
-    .map(_._2)
-    .evalMap { progress =>
-      total.tryGet.flatMap(_.traverse_ { total =>
-        IO(log.info(s"Starting mutation run ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"))
-      })
-    }
-    .drain
+  override def mutantTested: Pipe[IO, (Path, MutantRunResult), INothing] = in => {
+    val stream = in.void.zipWithIndex
+    // Log the first status right away, and then the latest every 2 seconds
+    (stream.head ++ stream.tail.debounce(1.second))
+      .map(_._2)
+      .evalMap { progress =>
+        total.tryGet.flatMap(_.traverse_ { total =>
+          IO(log.info(s"Starting mutation run ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"))
+        })
+      }
+      .drain
+  }
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     IO {
