@@ -40,7 +40,7 @@ class MutantRunner(
     time <- IO.realTime
     report = toReport(runResults)
     metrics = Metrics.calculateMetrics(report)
-    reportsLocation = config.baseDir / "target/stryker4s-report" / time.toString()
+    reportsLocation = config.baseDir / "target/stryker4s-report" / time.toMillis.toString()
     _ <- reporter.onRunFinished(FinishedRunEvent(report, metrics, duration, reportsLocation))
   } yield metrics
 
