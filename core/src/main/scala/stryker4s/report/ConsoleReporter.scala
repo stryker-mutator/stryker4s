@@ -19,7 +19,7 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
     (stream.head ++ stream.tail.debounce(1.second)).evalMap { case (MutantTestedEvent(total), progress) =>
       IO(
         log.info(
-          s"Finished testing mutant ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"
+          s"Tested mutant ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"
         )
       )
     }.drain

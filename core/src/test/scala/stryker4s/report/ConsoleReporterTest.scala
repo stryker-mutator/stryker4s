@@ -17,8 +17,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       mutantTestedStream(2).through(sut.mutantTested).compile.drain.asserting { _ =>
-        "Finished testing mutant 1/2 (50%)" shouldBe loggedAsInfo
-        "Finished testing mutant 2/2 (100%)" shouldBe loggedAsInfo
+        "Tested mutant 1/2 (50%)" shouldBe loggedAsInfo
+        "Tested mutant 2/2 (100%)" shouldBe loggedAsInfo
       }
     }
 
@@ -26,8 +26,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       mutantTestedStream(3).through(sut.mutantTested).compile.drain.asserting { _ =>
-        "Finished testing mutant 1/3 (33%)" shouldBe loggedAsInfo
-        "Finished testing mutant 3/3 (100%)" shouldBe loggedAsInfo
+        "Tested mutant 1/3 (33%)" shouldBe loggedAsInfo
+        "Tested mutant 3/3 (100%)" shouldBe loggedAsInfo
       }
     }
     def mutantTestedStream(size: Int) = Stream.constant(()).take(size.toLong).map(_ => MutantTestedEvent(size))
