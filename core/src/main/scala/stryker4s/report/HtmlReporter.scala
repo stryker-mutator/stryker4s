@@ -12,7 +12,7 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
-  private val htmlReportResource = s"/mutation-testing-elements/$mutationTestElementsName"
+  private val htmlReportResource = s"/elements/$mutationTestElementsName"
   private val reportFilename = "report.js"
 
   private val indexHtml: String =
