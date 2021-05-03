@@ -16,7 +16,7 @@ import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
-  private val elementsLocation = "/mutation-testing-elements/mutation-test-elements.js"
+  private val elementsLocation = "/elements/mutation-test-elements.js"
 
   private val expectedHtml =
     """<!DOCTYPE html>
