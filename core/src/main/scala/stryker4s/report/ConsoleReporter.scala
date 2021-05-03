@@ -1,35 +1,28 @@
 package stryker4s.report
 
-import cats.effect.{Deferred, IO}
-import cats.syntax.all._
+import cats.effect.IO
 import fs2.{INothing, Pipe}
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions._
 import stryker4s.log.Logger
-import stryker4s.model.{Mutant, MutantRunResult}
 import stryker4s.run.threshold._
 
-import java.nio.file.Path
 import scala.concurrent.duration._
 
-class ConsoleReporter(total: Deferred[IO, Int])(implicit config: Config, log: Logger) extends Reporter {
+class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
   private[this] val mutationScoreString = "Mutation score:"
 
-  override def mutantPlaced: Pipe[IO, Mutant, INothing] =
-    _.fold(0)({ case (size, _) => size + 1 }).evalMap(total.complete(_)).drain
-
-  override def mutantTested: Pipe[IO, (Path, MutantRunResult), INothing] = in => {
-    val stream = in.void.zipWithIndex
+  override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] = in => {
+    val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }
     // Log the first status right away, and then the latest every 2 seconds
-    (stream.head ++ stream.tail.debounce(1.second))
-      .map(_._2)
-      .evalMap { progress =>
-        total.tryGet.flatMap(_.traverse_ { total =>
-          IO(log.info(s"Starting mutation run ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"))
-        })
-      }
-      .drain
+    (stream.head ++ stream.tail.debounce(1.second)).evalMap { case (MutantTestedEvent(total), progress) =>
+      IO(
+        log.info(
+          s"Starting mutation run ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"
+        )
+      )
+    }.drain
   }
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =

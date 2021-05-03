@@ -25,7 +25,6 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       val testSourceCollector = new TestSourceCollector(testFiles)
       val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
       val reporterMock = mock[AggregateReporter]
-      when(reporterMock.mutantPlaced).thenReturn(_.drain)
       when(reporterMock.mutantTested).thenReturn(_.drain)
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
 

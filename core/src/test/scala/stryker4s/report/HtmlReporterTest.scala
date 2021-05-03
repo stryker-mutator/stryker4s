@@ -1,9 +1,5 @@
 package stryker4s.report
 
-import java.nio.file.{Path, Paths}
-
-import scala.concurrent.duration._
-
 import better.files.File
 import cats.effect.IO
 import fs2._
@@ -13,6 +9,9 @@ import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+
+import java.nio.file.{Path, Paths}
+import scala.concurrent.duration._
 
 class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 

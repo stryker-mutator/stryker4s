@@ -1,12 +1,12 @@
 package stryker4s.report
 
-import java.nio.file.Path
-
 import cats.effect.IO
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
+
+import java.nio.file.Path
 
 class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
 

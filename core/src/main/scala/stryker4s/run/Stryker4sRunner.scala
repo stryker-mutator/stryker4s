@@ -1,8 +1,7 @@
 package stryker4s.run
 
 import cats.data.NonEmptyList
-import cats.effect.{Deferred, IO, Resource}
-import cats.syntax.all._
+import cats.effect.{IO, Resource}
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -27,26 +26,25 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     val collector = new FileCollector(ProcessRunner())
 
     val createTestRunnerPool = (path: Path) => ResourcePool(resolveTestRunners(path))
-    resolveReporters()
-      .map { reporters =>
-        new Stryker4s(
-          collector,
-          new Mutator(
-            new MutantFinder(new MutantMatcher),
-            new StatementTransformer,
-            resolveMatchBuilder
-          ),
-          new MutantRunner(createTestRunnerPool, collector, new AggregateReporter(reporters))
-        )
-      }
-      .flatMap(_.run())
+
+    val stryker4s = new Stryker4s(
+      collector,
+      new Mutator(
+        new MutantFinder(new MutantMatcher),
+        new StatementTransformer,
+        resolveMatchBuilder
+      ),
+      new MutantRunner(createTestRunnerPool, collector, new AggregateReporter(resolveReporters()))
+    )
+
+    stryker4s.run()
   }
 
-  def resolveReporters()(implicit config: Config): IO[List[Reporter]] =
-    config.reporters.toList.traverse {
-      case Console => Deferred[IO, Int].map(new ConsoleReporter(_))
-      case Html    => IO.pure(new HtmlReporter(new DiskFileIO()))
-      case Json    => IO.pure(new JsonReporter(new DiskFileIO()))
+  def resolveReporters()(implicit config: Config): List[Reporter] =
+    config.reporters.toList.map {
+      case Console => new ConsoleReporter()
+      case Html    => new HtmlReporter(new DiskFileIO())
+      case Json    => new JsonReporter(new DiskFileIO())
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
           try {
@@ -60,7 +58,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
                 e
               )
           }
-        IO.pure(new DashboardReporter(new DashboardConfigProvider(sys.env)))
+        new DashboardReporter(new DashboardConfigProvider(sys.env))
     }
 
   def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)

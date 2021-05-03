@@ -2,7 +2,7 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
-import cats.syntax.all._
+import cats.syntax.traverse._
 import fs2.Stream
 import stryker4s.testutil.Stryker4sIOSuite
 
