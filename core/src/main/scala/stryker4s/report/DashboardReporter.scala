@@ -14,7 +14,7 @@ import sttp.model.{MediaType, StatusCode}
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     log: Logger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
-) extends FinishedRunReporter {
+) extends Reporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     dashboardConfigProvider.resolveConfig() match {

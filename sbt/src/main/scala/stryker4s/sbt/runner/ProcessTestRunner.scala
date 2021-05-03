@@ -1,7 +1,8 @@
 package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
+import cats.syntax.apply._
+import cats.syntax.parallel._
 import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._

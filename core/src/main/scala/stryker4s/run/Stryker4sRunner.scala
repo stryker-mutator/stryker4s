@@ -36,11 +36,12 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       ),
       new MutantRunner(createTestRunnerPool, collector, new AggregateReporter(resolveReporters()))
     )
+
     stryker4s.run()
   }
 
-  def resolveReporters()(implicit config: Config) =
-    config.reporters.toSeq.map {
+  def resolveReporters()(implicit config: Config): List[Reporter] =
+    config.reporters.toList.map {
       case Console => new ConsoleReporter()
       case Html    => new HtmlReporter(new DiskFileIO())
       case Json    => new JsonReporter(new DiskFileIO())

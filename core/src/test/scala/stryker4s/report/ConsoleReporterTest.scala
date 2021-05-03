@@ -1,45 +1,36 @@
 package stryker4s.report
 
-import scala.concurrent.duration._
-
-import mutationtesting.{Position, _}
+import fs2.Stream
+import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sIOSuite
 
+import scala.concurrent.duration._
+
 class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
-  describe("onMutationStart") {
-    it("Should log multiple test runs") {
-      implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
-      val event1 = StartMutationEvent(Progress(1, 2))
-      val event2 = StartMutationEvent(Progress(2, 2))
+  describe("mutantTested") {
+    implicit val config: Config = Config.default
 
-      (sut.onMutationStart(event1) *>
-        sut.onMutationStart(event2))
-        .asserting { _ =>
-          "Starting mutation run 1/2 (50%)" shouldBe loggedAsInfo
-          "Starting mutation run 2/2 (100%)" shouldBe loggedAsInfo
-        }
+    it("should log progress") {
+      val sut = new ConsoleReporter()
+
+      mutantTestedStream(2).through(sut.mutantTested).compile.drain.asserting { _ =>
+        "Tested mutant 1/2 (50%)" shouldBe loggedAsInfo
+        "Tested mutant 2/2 (100%)" shouldBe loggedAsInfo
+      }
     }
 
-    it("Should round decimal numbers") {
-      implicit val config: Config = Config.default
+    it("should round decimal numbers") {
       val sut = new ConsoleReporter()
-      val event1 = StartMutationEvent(Progress(1, 3))
-      val event2 = StartMutationEvent(Progress(2, 3))
-      val event3 = StartMutationEvent(Progress(3, 3))
 
-      (sut.onMutationStart(event1) *>
-        sut.onMutationStart(event2) *>
-        sut.onMutationStart(event3))
-        .asserting { _ =>
-          "Starting mutation run 1/3 (33%)" shouldBe loggedAsInfo
-          "Starting mutation run 2/3 (67%)" shouldBe loggedAsInfo
-          "Starting mutation run 3/3 (100%)" shouldBe loggedAsInfo
-        }
+      mutantTestedStream(3).through(sut.mutantTested).compile.drain.asserting { _ =>
+        "Tested mutant 1/3 (33%)" shouldBe loggedAsInfo
+        "Tested mutant 3/3 (100%)" shouldBe loggedAsInfo
+      }
     }
+    def mutantTestedStream(size: Int) = Stream.constant(()).take(size.toLong).map(_ => MutantTestedEvent(size))
   }
 
   describe("reportFinishedRun") {

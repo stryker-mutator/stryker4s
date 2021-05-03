@@ -1,62 +1,29 @@
 package stryker4s.report
 
-import scala.util.control.NonFatal
-
 import cats.effect.IO
-import cats.syntax.all._
-import fs2.CompositeFailure
+import cats.syntax.parallel._
+import fs2.{INothing, Pipe}
 import stryker4s.log.Logger
 
-class AggregateReporter(reporters: Seq[MutationRunReporter])(implicit log: Logger)
-    extends FinishedRunReporter
-    with ProgressReporter {
-  this: Reporter =>
+class AggregateReporter(reporters: List[Reporter])(implicit log: Logger) extends Reporter {
 
-  private lazy val progressReporters = reporters collect { case r: ProgressReporter => r }
-  private lazy val finishedRunReporters = reporters collect { case r: FinishedRunReporter => r }
+  override def mutantTested =
+    reportAll(_.mutantTested)
 
-  override def onMutationStart(event: StartMutationEvent): IO[Unit] =
-    reportAll[ProgressReporter](
-      progressReporters,
-      _.onMutationStart(event)
-    )
-      .recoverWith { case NonFatal(e) =>
-        IO(log.error(e))
-      }
-      .attempt
-      .void
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
+    reporters.parTraverse_(_.onRunFinished(runReport))
 
-  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
-    reportAll[FinishedRunReporter](
-      finishedRunReporters,
-      _.onRunFinished(runReport)
-    )
-  }
-
-  /** Calls all @param reporters with the given @param reportF function, logging any that failed
-    *
-    * @param reporters
-    * @param reportF
+  /** Broadcast to all reporters in parallel
     */
-  private def reportAll[T](reporters: Iterable[T], reportF: T => IO[Unit]): IO[Unit] = {
-    reporters.toList
-      .parTraverse { reporter =>
-        reportF(reporter).attempt
-      }
-      .map { _ collect { case Left(f) => f } }
-      .flatMap {
-        // No reporter failed
-        case Nil =>
-          IO.unit
-        // 1 reporter failed
-        case e :: Nil =>
-          IO(log.error("1 reporter failed to report:")) *>
-            IO.raiseError(e)
-        // Multiple reporters failed
-        case firstException :: secondException :: rest =>
-          val e = CompositeFailure(firstException, secondException, rest)
-          IO(log.error(s"${rest.length + 2} reporters failed to report:")) *>
-            IO.raiseError(e)
-      }
+  private def reportAll[T](toReporterPipe: Reporter => Pipe[IO, T, INothing]): Pipe[IO, T, INothing] = {
+    val pipes = reporters.map(toReporterPipe)
+    if (pipes.isEmpty) _.drain
+    else
+      _.broadcastThrough(reporters.map(toReporterPipe): _*).attempt
+        .collect { case Left(f) => f }
+        .evalMap { e =>
+          IO(log.error(s"Reporter failed to report", e))
+        }
+        .drain
   }
 }

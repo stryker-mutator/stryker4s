@@ -1,18 +1,29 @@
 package stryker4s.report
 
 import cats.effect.IO
+import fs2.{INothing, Pipe}
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions._
 import stryker4s.log.Logger
 import stryker4s.run.threshold._
 
-class ConsoleReporter(implicit config: Config, log: Logger) extends FinishedRunReporter with ProgressReporter {
+import scala.concurrent.duration._
+
+class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
   private[this] val mutationScoreString = "Mutation score:"
 
-  override def onMutationStart(event: StartMutationEvent): IO[Unit] = {
-    val Progress(tested, total) = event.progress
-    IO(log.info(s"Starting mutation run ${tested}/${total} (${((tested / total.toDouble) * 100).round}%)"))
+  override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] = in => {
+    val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }
+    // Log the first status right away, and then the latest every 0.5 seconds
+    // 0.5 seconds is a good middle-ground between not printing too much and still feeling snappy
+    (stream.head ++ stream.tail.debounce(0.5.seconds)).evalMap { case (MutantTestedEvent(total), progress) =>
+      IO(
+        log.info(
+          s"Tested mutant ${progress}/${total} (${((progress / total.toDouble) * 100).round}%)"
+        )
+      )
+    }.drain
   }
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
