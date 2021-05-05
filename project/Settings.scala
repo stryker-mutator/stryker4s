@@ -21,7 +21,8 @@ object Settings {
     },
     // Fatal warnings only in CI
     scalacOptions --= (if (sys.env.exists({ case (k, v) => k == "CI" && v == "true" })) Nil
-                       else Seq("-Xfatal-warnings"))
+                       else Seq("-Xfatal-warnings")),
+    resolvers += Resolver.sonatypeRepo("snapshots")
   )
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
