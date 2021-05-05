@@ -20,7 +20,7 @@ jobs:
       - name: Run Stryker4s
         run: |
           export JAVA_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx6G $JAVA_OPTS"
-          echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
+          echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core",concurrency=1}' > stryker4s.conf
           sbt 'project stryker4s-core; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
