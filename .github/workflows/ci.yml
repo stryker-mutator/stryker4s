@@ -9,7 +9,8 @@ jobs:
       fail-fast: false
       matrix:
         java-version: [11, 16]
-    runs-on: ubuntu-latest
+        os: ['ubuntu-latest', 'windows-latest']
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2.3.4
