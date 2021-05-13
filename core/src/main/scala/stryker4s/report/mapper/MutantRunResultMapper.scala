@@ -7,7 +7,7 @@ import stryker4s.model._
 
 trait MutantRunResultMapper {
   protected[report] def toReport(
-      results: Map[Path, List[MutantRunResult]]
+      results: Map[Path, Seq[MutantRunResult]]
   )(implicit config: Config): MutationTestResult[Config] =
     MutationTestResult(
       thresholds = toThresholds(config.thresholds),
@@ -20,7 +20,7 @@ trait MutantRunResultMapper {
     Thresholds(high = thresholds.high, low = thresholds.low)
 
   private def toFileResultMap(
-      results: Map[Path, List[MutantRunResult]]
+      results: Map[Path, Seq[MutantRunResult]]
   )(implicit config: Config): Map[String, FileResult] =
     results.map { case (path, runResults) =>
       path.toString.replace('\\', '/') -> toFileResult(path, runResults)

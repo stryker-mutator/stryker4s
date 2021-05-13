@@ -1,5 +1,6 @@
 package stryker4s.run
 
+import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model.{Killed, Mutant, MutatedFile, Survived}
@@ -21,7 +22,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val reporterMock = mock[Reporter]
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
       when(reporterMock.mutantTested).thenReturn(_.drain)
-      val mutant = Mutant(0, q"0", q"zero", EmptyString)
+      val mutant = Mutant(3, q"0", q"zero", EmptyString)
       val secondMutant = Mutant(1, q"1", q"one", EmptyString)
       val thirdMutant = Mutant(2, q"5", q"5", EmptyString)
 
@@ -34,11 +35,15 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
       sut(List(mutatedFile)).asserting { result =>
+        val captor = ArgCaptor[FinishedRunEvent]
+        verify(reporterMock, times(1)).onRunFinished(captor.capture)
+        val runReport = captor.value.report.files.loneElement
+
         "Setting up mutated environment..." shouldBe loggedAsInfo
         "Starting initial test run..." shouldBe loggedAsInfo
         "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
-        verify(reporterMock, times(1)).onRunFinished(any[FinishedRunEvent])
-
+        runReport._1 shouldBe "simpleFile.scala"
+        runReport._2.mutants.map(_.id) shouldBe List("1", "2", "3")
         result.mutationScore shouldBe ((2d / 3d) * 100)
         result.totalMutants shouldBe 3
         result.killed shouldBe 2
