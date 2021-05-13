@@ -16,6 +16,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: ${{ matrix.java-version }}
       - name: Run tests
         run: sbt 'compile; ++2.13.3 test'
@@ -27,6 +28,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: 11
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
@@ -46,6 +48,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: 11
       - name: Publish stryker4s-core
         run: sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
@@ -83,6 +86,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: 11
       - name: Publish
         run: sbt ci-release
