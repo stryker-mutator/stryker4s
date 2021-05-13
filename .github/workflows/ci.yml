@@ -10,6 +10,7 @@ jobs:
       matrix:
         java-version: ['openjdk@1.11', 'zulu@1.16']
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2.3.4
       - uses: coursier/cache-action@v6
