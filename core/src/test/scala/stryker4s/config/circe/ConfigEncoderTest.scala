@@ -7,7 +7,7 @@ import stryker4s.config._
 import stryker4s.testutil.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite {
-  val workspaceLocation = File("/workspace")
+  val workspaceLocation = File("workspace")
   describe("configEncoder") {
     it("should be able to encode a minimal config") {
       expectJsonConfig(
