@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: ['openjdk@1.11', 'zulu@1.16']
+        java-version: [11, 16]
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          java-version: openjdk@1.11
+          java-version: 11
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
         run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
@@ -46,7 +46,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: actions/setup-java@v2
         with:
-          java-version: openjdk@1.11
+          java-version: 11
       - name: Publish stryker4s-core
         run: sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
       - name: Run Maven tests
@@ -83,7 +83,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          java-version: openjdk@1.11
+          java-version: 11
       - name: Publish
         run: sbt ci-release
         env:
