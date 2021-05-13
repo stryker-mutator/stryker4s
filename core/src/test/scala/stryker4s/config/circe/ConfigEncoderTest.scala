@@ -12,7 +12,9 @@ class ConfigEncoderTest extends Stryker4sSuite {
       expectJsonConfig(
         defaultConfig,
         defaultConfigJson,
-        """{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"/workspace","reporters":["console","html"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${File(
+          "/workspace"
+        )}","reporters":["console","html"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
       )
     }
 
@@ -45,7 +47,9 @@ class ConfigEncoderTest extends Stryker4sSuite {
               )
             )
         ),
-        """{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"/workspace","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${File(
+          "/workspace"
+        )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
       )
     }
   }
