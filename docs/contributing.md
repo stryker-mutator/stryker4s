@@ -2,6 +2,7 @@
 sidebar_label: Contributing
 title: Contribute to Stryker4s
 custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/contributing.md
+sidebar_position: 3
 ---
 
 This is the contribution guide for Stryker4s. Great to have you here! Here are a few ways you can help to make this project better.

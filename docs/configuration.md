@@ -1,6 +1,7 @@
 ---
 title: Configuration
 custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/configuration.md
+sidebar_position: 2
 ---
 
 All configuration options can be set from the `stryker4s.conf` file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
