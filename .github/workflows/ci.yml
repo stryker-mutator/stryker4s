@@ -73,8 +73,7 @@ jobs:
         run: ./bin/scalafmt --test
   release:
     needs: [test, sbt-scripted, maven-plugin, formatting]
-    if: "github.event_name == 'push'
-      && startsWith(github.event.ref, 'refs/tags/')"
+    if: "github.event_name == 'push' || startsWith(github.event.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.4
