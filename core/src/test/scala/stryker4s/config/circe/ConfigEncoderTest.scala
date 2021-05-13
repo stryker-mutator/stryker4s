@@ -7,7 +7,7 @@ import stryker4s.config._
 import stryker4s.testutil.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite {
-  val workspaceLocation = File("workspace")
+  val workspaceLocation = File("workspace").path.toAbsolutePath().toString()
   describe("configEncoder") {
     it("should be able to encode a minimal config") {
       expectJsonConfig(
@@ -58,7 +58,7 @@ class ConfigEncoderTest extends Stryker4sSuite {
     result shouldBe json
   }
 
-  def defaultConfig: Config = Config.default.copy(baseDir = workspaceLocation)
+  def defaultConfig: Config = Config.default.copy(baseDir = File("workspace"))
 
   def defaultConfigJson = obj(
     "mutate" -> arr(fromString(defaultConfig.mutate.head)),
