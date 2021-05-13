@@ -4,12 +4,13 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: Test on JDK ${{matrix.java-version}}
+    name: Test on JDK ${{matrix.java-version}} (${{matrix.os}})
     strategy:
       fail-fast: false
       matrix:
         java-version: [11, 16]
-    runs-on: ubuntu-latest
+        os: ['ubuntu-latest', 'windows-latest']
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2.3.4
