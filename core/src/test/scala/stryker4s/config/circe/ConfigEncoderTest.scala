@@ -7,14 +7,13 @@ import stryker4s.config._
 import stryker4s.testutil.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite {
+  val workspaceLocation = File("/workspace")
   describe("configEncoder") {
     it("should be able to encode a minimal config") {
       expectJsonConfig(
         defaultConfig,
         defaultConfigJson,
-        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${File(
-          "/workspace"
-        )}","reporters":["console","html"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation}","reporters":["console","html"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
       )
     }
 
@@ -47,9 +46,7 @@ class ConfigEncoderTest extends Stryker4sSuite {
               )
             )
         ),
-        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${File(
-          "/workspace"
-        )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
       )
     }
   }
@@ -61,12 +58,12 @@ class ConfigEncoderTest extends Stryker4sSuite {
     result shouldBe json
   }
 
-  def defaultConfig: Config = Config.default.copy(baseDir = File("/workspace"))
+  def defaultConfig: Config = Config.default.copy(baseDir = workspaceLocation)
 
   def defaultConfigJson = obj(
     "mutate" -> arr(fromString(defaultConfig.mutate.head)),
     "test-filter" -> arr(),
-    "base-dir" -> fromString("/workspace"),
+    "base-dir" -> fromString(workspaceLocation.toString),
     "reporters" -> arr(fromString("console"), fromString("html")),
     "excluded-mutations" -> arr(),
     "thresholds" -> obj(
