@@ -1,6 +1,7 @@
 ---
 title: Getting started
 custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/getting-started.md
+sidebar_position: 1
 ---
 
 Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs.

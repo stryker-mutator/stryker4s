@@ -2,6 +2,7 @@
 sidebar_label: Versioning
 title: Versioning strategy
 custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/versioning.md
+sidebar_position: 4
 ---
 
 This document describes how versioning is managed for the Stryker4s project.
