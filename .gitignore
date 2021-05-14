@@ -68,6 +68,7 @@ _site/
 .metals/
 project/metals.sbt
 project/project/
+.vscode/launch.json
 
 # stryker specific
 /stryker4s.conf
