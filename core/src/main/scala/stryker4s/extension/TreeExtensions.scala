@@ -98,7 +98,7 @@ object TreeExtensions {
 
   implicit class TreeIsInExtension(thisTree: Tree) {
 
-    /** Returns if a tree is contained in an tree of type `[T]`.
+    /** Returns if a tree is contained in a tree of type `[T]`.
       * Recursively going up the tree until an annotation is found.
       */
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
