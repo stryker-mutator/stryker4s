@@ -528,6 +528,22 @@ class MutantMatcherTest extends Stryker4sSuite {
       result should be(empty)
     }
 
+    it("should not match on type arguments") {
+      val tree = q"type Foo = String Refined StartsWith[${Lit.String("jdbc:")}]"
+
+      val result = tree collect sut.allMatchers
+
+      result.flatten should be(empty)
+    }
+
+    it("should not match on infix type arguments") {
+      val tree = q"type Foo = String Refined ${Lit.String("jdbc:")}"
+
+      val result = tree collect sut.allMatchers
+
+      result.flatten should be(empty)
+    }
+
     it("should match a function with a single expression") {
       val tree = q"def isEmpty = exists"
 
