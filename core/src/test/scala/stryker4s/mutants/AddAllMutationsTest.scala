@@ -66,13 +66,13 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
       transformed.transformedStatements
         .flatMap(_.mutantStatements)
         .foreach { mutantStatement =>
-          val mutant = foundMutants.find(_.id == mutantStatement.id).value
           mutatedTree
-            .find(p"Some(${Lit.Int(mutant.id)})")
+            .find(p"Some(${Lit.Int(mutantStatement.id)})")
             .getOrElse(
-              fail(
-                s"Could not find mutant ${mutant.id} '${mutant.mutated}' (original '${mutant.original}') in mutated tree ${mutatedTree}"
-              )
+              fail {
+                val mutant = foundMutants.find(_.id == mutantStatement.id).get
+                s"Could not find mutation '${mutant.mutated}'' (original '${mutant.original}') in mutated tree ${mutatedTree}"
+              }
             )
         }
       "Failed to add mutation(s)" should not be loggedAsWarning
