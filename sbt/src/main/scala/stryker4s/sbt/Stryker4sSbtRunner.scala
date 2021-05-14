@@ -83,7 +83,14 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
 
       val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
 
-      val testGroups = extractTaskValue(Test / testGrouping, "testGrouping")
+      val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
+        if (config.testFilter.isEmpty) group
+        else {
+          val testFilter = new TestFilter()
+          val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
+          group.copy(tests = filteredTests)
+        }
+      }
 
       log.info(s"Creating ${config.concurrency} test-runners")
       val portStart = 13336
