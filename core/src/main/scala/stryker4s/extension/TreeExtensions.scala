@@ -49,11 +49,13 @@ object TreeExtensions {
     private object ParentIsFullStatement {
       final def unapply(term: Term): Boolean =
         term.parent exists {
-          case _: Defn          => true
-          case _: Term.Block    => true
-          case _: Term.ForYield => true
-          case _: Term.Assign   => true
-          case _                => false
+          case _: Term.Assign                                   => true
+          case _: Defn                                          => true
+          case p if p.parent.exists(_.isInstanceOf[Term.Apply]) => false
+          case _: Term.Block                                    => true
+          case _: Term.If                                       => true
+          case _: Term.ForYield                                 => true
+          case _                                                => false
         }
     }
 

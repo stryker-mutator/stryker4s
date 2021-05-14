@@ -258,7 +258,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                                     }
                                 }
                               }"""
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
 
     it("should include all mutants in a try-catch-finally") {

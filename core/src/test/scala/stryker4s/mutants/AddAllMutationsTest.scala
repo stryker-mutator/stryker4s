@@ -31,23 +31,50 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
               }""")
     }
 
+    it("#776 (if-else block statement)") {
+      checkAllMutationsAreAdded(q"""
+        if (foo) bar
+        else { 4 > 5 }
+      """)
+    }
+
+    it("#776 2") {
+      checkAllMutationsAreAdded(q"""
+        try {
+          val (p1, s, rs1) = runSeqCmds(sut, as.s, as.seqCmds)
+          val l1 = s"Initial State:\n \nSequential Commands:\n"
+          if (as.parCmds.isEmpty) p1 :| l1
+          else
+            propAnd(
+              p1.flatMap { r => if (!r.success) finalize; Prop(prms => r) } :| l1, {
+                try {
+                  val (p2, rs2) = runParCmds(sut, s, as.parCmds)
+                  val l2 = rs2.map(prettyCmdsRes(_, maxLength)).mkString("\n\n")
+                  p2 :| l1 :| s"Parallel Commands (starting in state = )\n"
+                } finally finalize
+              }
+            )
+        } finally if (as.parCmds.isEmpty) finalize
+      """)
+    }
+
     def checkAllMutationsAreAdded(tree: Stat)(implicit pos: Position) = {
       val source = source"class Foo { $tree }"
       val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.collect { case Right(v) => v }
       val transformed = new StatementTransformer().transformSource(source, foundMutants)
-      val mutatedTree = new MatchBuilder(ActiveMutationContext.envVar).buildNewSource(transformed)
-      transformed.transformedStatements.foreach(transformedMutants =>
-        transformedMutants.mutantStatements.foreach(mutantStatement =>
+      val mutatedTree = new MatchBuilder(ActiveMutationContext.testRunner).buildNewSource(transformed)
+      transformed.transformedStatements
+        .flatMap(_.mutantStatements)
+        .foreach { mutantStatement =>
+          val mutant = foundMutants.find(_.id == mutantStatement.id).value
           mutatedTree
-            .find(mutantStatement.mutated)
+            .collectFirst { case Case(Pat.Extract(Term.Name("Some"), List(Lit.Int(mutant.id))), _, _) => true }
             .getOrElse(
-              fail {
-                val mutant = foundMutants.find(_.id == mutantStatement.id).get
-                s"Could not find mutation '${mutant.mutated}'' (original '${mutant.original}') in mutated tree ${mutatedTree}"
-              }
+              fail(
+                s"Could not find mutant ${mutant.id} '${mutant.mutated}' (original '${mutant.original}') in mutated tree ${mutatedTree}"
+              )
             )
-        )
-      )
+        }
       "Failed to add mutation(s)" should not be loggedAsWarning
     }
   }

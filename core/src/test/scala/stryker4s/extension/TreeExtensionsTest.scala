@@ -134,7 +134,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"if(x > 5) x < 10"))
+      assert(result.isEqual(q"x < 10"))
     }
 
     it("should include the if statement if the expression is in the condition-statement") {
@@ -143,7 +143,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"if(x >= 5) x > 10"))
+      assert(result.isEqual(q"x >= 5"))
     }
 
     it("should include new operator") {
@@ -265,7 +265,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"if(!foo) bar else baz"))
+      assert(result.isEqual(q"!foo"))
     }
 
     it("should include pattern matches") {
@@ -278,7 +278,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(expectedTopStatement))
+      assert(result.isEqual(expectedTopStatement), result)
     }
 
     it("should not include a class as a topStatement") {
@@ -334,7 +334,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(q"true"))
+      assert(result.isEqual(q"true"), result)
     }
 
     it("should stop at named argument assignments for inheritance assignment") {
