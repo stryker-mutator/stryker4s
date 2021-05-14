@@ -15,20 +15,21 @@ case object StrykerWasHereString extends StringLiteral[Lit.String] {
 
 /** Not a mutation, just an extractor for pattern matching on empty string
   */
-case object NonEmptyString {
-  def unapply(arg: Lit.String): Option[Lit.String] =
-    Some(arg)
+case object NonEmptyString extends NoInvalidPlacement[Lit.String] {
+  override def unapply(arg: Lit.String): Option[Lit.String] =
+    super
+      .unapply(arg)
       .filter(_.value.nonEmpty)
       .filterNot(ParentIsInterpolatedString(_))
 }
 
 /** Not a mutation, just an extractor for pattern matching on interpolated strings
   */
-case object StringInterpolation {
+case object StringInterpolation extends NoInvalidPlacement[Term.Interpolate] {
   import stryker4s.extension.TreeExtensions.IsEqualExtension
 
-  def unapply(arg: Term.Interpolate): Option[Term.Interpolate] =
-    Some(arg).filter(_.prefix.isEqual(Term.Name("s")))
+  override def unapply(arg: Term.Interpolate): Option[Term.Interpolate] =
+    super.unapply(arg).filter(_.prefix.isEqual(Term.Name("s")))
 }
 
 private object ParentIsInterpolatedString {

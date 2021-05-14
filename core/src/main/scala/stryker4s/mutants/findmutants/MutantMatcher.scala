@@ -108,7 +108,7 @@ class MutantMatcher()(implicit config: Config) {
         mutations: List[T],
         mutationToTerm: T => Term
     ): List[Either[IgnoredMutationReason, Mutant]] =
-      ifNotInInvalidPlace {
+      ifNotInAnnotation {
         mutations
           .map { mutated =>
             if (matchExcluded(mutated) || isSuppressedByAnnotation(mutated, original))
@@ -118,10 +118,10 @@ class MutantMatcher()(implicit config: Config) {
           }
       }
 
-    private def ifNotInInvalidPlace(
+    private def ifNotInAnnotation(
         maybeMutants: => List[Either[IgnoredMutationReason, Mutant]]
     ): List[Either[IgnoredMutationReason, Mutant]] = {
-      if (original.isIn[Mod.Annot] || original.isIn[Type])
+      if (original.isIn[Mod.Annot])
         Nil
       else
         maybeMutants

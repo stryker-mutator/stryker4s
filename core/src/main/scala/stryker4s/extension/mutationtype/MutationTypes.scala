@@ -1,8 +1,8 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta.{Lit, Term, Tree}
-
 import stryker4s.extension.TreeExtensions.IsEqualExtension
+
+import scala.meta.{Defn, Lit, Term, Tree, Type}
 
 /** Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
@@ -31,16 +31,13 @@ object Mutation {
   *           This is so that the tree value and unapply methods return the appropriate type.
   *           E.G. A False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
   */
-trait SubstitutionMutation[T <: Tree] extends Mutation[T] {
+trait SubstitutionMutation[T <: Tree] extends Mutation[T] with NoInvalidPlacement[T] {
   def tree: T
 
-  def unapply(arg: T): Option[T] =
+  override def unapply(arg: T): Option[T] =
     Some(arg)
       .filter(_.isEqual(tree))
-      .filterNot {
-        case name: Term.Name => name.isDefinition
-        case _               => false
-      }
+      .flatMap(super.unapply)
 }
 
 trait EqualityOperator extends SubstitutionMutation[Term.Name] {
@@ -78,4 +75,26 @@ trait MethodExpression extends Mutation[Term] {
   def apply(f: String => Term): Term = f(methodName)
 
   def unapply(term: Term): Option[(Term, String => Term)]
+}
+
+/** Helper extractor to filter out mutants that syntactically can not be placed
+  */
+protected trait NoInvalidPlacement[T <: Tree] {
+  def unapply(arg: T): Option[T] =
+    Some(arg)
+      .filterNot {
+        case name: Term.Name       => name.isDefinition
+        case ParentIsTypeLiteral() => true
+        case _                     => false
+      }
+}
+
+private case object ParentIsTypeLiteral {
+  def unapply(t: Tree): Boolean = t.parent.exists({
+    case Defn.Val(_, _, Some(`t`), _)       => true
+    case Defn.Var(_, _, Some(`t`), _)       => true
+    case Defn.Def(_, _, _, _, Some(`t`), _) => true
+    case Defn.Type(_, _, _, `t`)            => true
+    case p                                  => p.is[Type] || p.is[Term.ApplyType]
+  })
 }

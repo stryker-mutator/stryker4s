@@ -39,7 +39,7 @@ class MutantMatcherTest extends Stryker4sSuite {
           mutant.mutated.isEqual(expectedMutation) &&
             mutant.original.isEqual(original)
         )
-        .getOrElse(fail("mutant not found"))
+        .getOrElse(fail(s"mutant ${expectedMutation} not found"))
 
       assert(actualMutant.original.isEqual(original))
       assert(actualMutant.mutated.isEqual(expectedMutation))
@@ -529,19 +529,75 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
 
     it("should not match on type arguments") {
-      val tree = q"type Foo = String Refined StartsWith[${Lit.String("jdbc:")}]"
+      val tree = t"String Refined StartsWith[${Lit.String("jdbc:")}]"
 
       val result = tree collect sut.allMatchers
 
-      result.flatten should be(empty)
+      result should be(empty)
     }
 
     it("should not match on infix type arguments") {
-      val tree = q"type Foo = String Refined ${Lit.String("jdbc:")}"
+      val tree = t"String Refined ${Lit.String("jdbc:")}"
 
       val result = tree collect sut.allMatchers
 
-      result.flatten should be(empty)
+      result should be(empty)
+    }
+
+    it("should not match on type apply") {
+      val tree = q"foo[${Lit.String("jdbc:")}]()"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match on literal type declarations") {
+      val tree = q"val a: ${Lit.String("4")} = ???"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match on literal type declarations for var") {
+      val tree = q"var a: ${Lit.String("4")} = ???"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match on infix literal type declarations") {
+      val tree = q"val a: ${Lit.String("4")} + ${Lit.String("6")} = ???"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match on def literal return types") {
+      val tree = q"def a: ${Lit.String("4")} = ???"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match on literal function types") {
+      val tree = q"def a: (Int => ${Lit.String("4")}) = ???"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match on type aliases") {
+      val tree = q"type Foo = ${Lit.String("4")}"
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
     }
 
     it("should match a function with a single expression") {
