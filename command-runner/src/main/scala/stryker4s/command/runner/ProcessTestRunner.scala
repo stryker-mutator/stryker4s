@@ -1,19 +1,19 @@
 package stryker4s.command.runner
 
-import scala.concurrent.TimeoutException
-import scala.util.{Failure, Success}
-
 import better.files.File
 import cats.effect.IO
 import stryker4s.model._
+import stryker4s.run.TestRunner
 import stryker4s.run.process.{Command, ProcessRunner}
-import stryker4s.run.{InitialTestRunResult, TestRunner}
+
+import scala.concurrent.TimeoutException
+import scala.util.{Failure, Success}
 
 class ProcessTestRunner(command: Command, processRunner: ProcessRunner, tmpDir: File) extends TestRunner {
   def initialTestRun(): IO[InitialTestRunResult] = {
     processRunner(command, tmpDir, List.empty[(String, String)]: _*).map {
-      case Success(0) => Left(true)
-      case _          => Left(false)
+      case Success(0) => NoCoverageInitialTestRun(true)
+      case _          => NoCoverageInitialTestRun(false)
     }
   }
 

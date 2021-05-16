@@ -6,8 +6,8 @@ import sbt.Tests.Output
 import sbt._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
-import stryker4s.model.{Error, Killed, Mutant, MutantRunResult, Survived}
-import stryker4s.run.{InitialTestRunResult, TestRunner}
+import stryker4s.model._
+import stryker4s.run.TestRunner
 
 class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)(implicit
     log: Logger
@@ -17,8 +17,8 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], ex
     throw InitialTestRunFailedException(
       s"Unable to execute initial test run. Sbt is unable to find the task 'test'."
     ),
-    onSuccess = Left(true),
-    onFailed = Left(false)
+    onSuccess = NoCoverageInitialTestRun(true),
+    onFailed = NoCoverageInitialTestRun(false)
   )
 
   def runMutant(mutant: Mutant): IO[MutantRunResult] = {
