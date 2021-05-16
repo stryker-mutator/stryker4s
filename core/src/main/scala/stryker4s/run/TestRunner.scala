@@ -1,20 +1,22 @@
 package stryker4s.run
 
-import java.util.concurrent.TimeUnit
-
-import scala.concurrent.duration._
-
 import cats.effect.{Deferred, IO, Ref, Resource}
 import stryker4s.config.Config
+import stryker4s.extension.DurationExtensions.HumanReadableExtension
 import stryker4s.extension.ResourceExtensions._
 import stryker4s.log.Logger
-import stryker4s.model.{Error, Mutant, MutantRunResult, TimedOut}
+import stryker4s.model.{Error, InitialTestRunResult, Mutant, MutantRunResult, TimedOut}
+
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration._
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]
   def runMutant(mutant: Mutant): IO[MutantRunResult]
 }
 
+/** Wrapping testrunners to add functionality to existing testrunners
+  */
 object TestRunner {
 
   def timeoutRunner(timeout: Deferred[IO, FiniteDuration], inner: Resource[IO, TestRunner])(implicit
@@ -32,7 +34,7 @@ object TestRunner {
                 .runMutant(mutant)
                 .timeoutTo(
                   time,
-                  IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toCoarsest}")) *>
+                  IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toHumanReadable}")) *>
                     releaseAndSwap
                       .as(TimedOut(mutant))
                 )
@@ -41,12 +43,15 @@ object TestRunner {
           override def initialTestRun(): IO[InitialTestRunResult] =
             for {
               runner <- testRunnerRef.get
-              (duration, result) <- runner.initialTestRun().timed
-              newTimeout = calculateTimeout(duration)
+              (timedDuration, result) <- runner.initialTestRun().timed
+              // Use reported duration if its available, or timed duration as a backup
+              duration = result.reportedDuration.getOrElse(timedDuration)
+
+              setTimeout = calculateTimeout(duration)
+              isSet <- timeout.complete(setTimeout)
               _ <-
-                if (result.fold(identity, _.isSuccessful))
-                  timeout.complete(newTimeout) *>
-                    IO(log.info(s"Timeout set to ${newTimeout.toCoarsest} (net ${duration.toCoarsest})"))
+                if (isSet)
+                  IO(log.info(s"Timeout set to ${setTimeout.toHumanReadable} (net ${duration.toHumanReadable})"))
                 else IO.unit
             } yield result
 
@@ -72,7 +77,7 @@ object TestRunner {
               case Left(_) =>
                 IO(
                   log.info(
-                    s"TestRunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant ${retriesLeft} more time(s)"
+                    s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant ${retriesLeft} more time(s)"
                   )
                 ) *>
                   // Release old resource and make a new one, then retry the mutation
@@ -99,7 +104,7 @@ object TestRunner {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner
-              if (uses >= maxReuses)
+              if (uses == maxReuses)
                 IO(log.info(s"Testrunner has run for $uses times. Restarting it...")) *>
                   releaseAndSwap *>
                   usesRef.set(1)

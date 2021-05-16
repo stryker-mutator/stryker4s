@@ -9,8 +9,8 @@ import stryker4s.api.testprocess._
 import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
+import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
-import stryker4s.run.{InitialTestRunResult, TestRunner}
 
 import java.net.{InetAddress, Socket}
 import scala.concurrent.duration._
@@ -38,17 +38,17 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
     * See also https://github.com/stryker-mutator/stryker4s/pull/565#issuecomment-688438699
     */
   override def initialTestRun(): IO[InitialTestRunResult] = {
-    val initialTestRun = testProcess.sendMessage(StartInitialTestRun())
+    val initialTestRun = testProcess.sendMessage(StartInitialTestRun()).timed
 
     initialTestRun
       .map2(initialTestRun) {
-        case (firstRun: CoverageTestRunResult, secondRun: CoverageTestRunResult) =>
-          Right(
-            InitialTestRunCoverageReport(
-              firstRun.isSuccessful && secondRun.isSuccessful,
-              firstRun.coverageReport.asScala.toMap.mapValues(_.toSeq),
-              secondRun.coverageReport.asScala.toMap.mapValues(_.toSeq)
-            )
+        case ((firstDuration, firstRun: CoverageTestRunResult), (secondDuration, secondRun: CoverageTestRunResult)) =>
+          val averageDuration = (firstDuration + secondDuration) / 2
+          InitialTestRunCoverageReport(
+            firstRun.isSuccessful && secondRun.isSuccessful,
+            firstRun.coverageReport.asScala.toMap.mapValues(_.toSeq),
+            secondRun.coverageReport.asScala.toMap.mapValues(_.toSeq),
+            averageDuration
           )
         case x => throw new MatchError(x)
       }

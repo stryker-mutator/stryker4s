@@ -1,11 +1,5 @@
 package stryker4s.maven.runner
 
-import java.{util => ju}
-
-import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext
-import scala.meta._
-
 import better.files.File
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
@@ -16,8 +10,13 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{Killed, Mutant, Survived}
+import stryker4s.model.{Killed, Mutant, NoCoverageInitialTestRun, Survived}
 import stryker4s.testutil.Stryker4sSuite
+
+import java.{util => ju}
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext
+import scala.meta._
 
 class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
@@ -37,7 +36,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val result = sut.initialTestRun().unsafeRunSync()
 
-      result should be(Left(false))
+      result shouldBe NoCoverageInitialTestRun(false)
     }
 
     it("should not add the environment variable") {
@@ -50,7 +49,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val result = sut.initialTestRun().unsafeRunSync()
 
-      result should be(Left(true))
+      result shouldBe NoCoverageInitialTestRun(true)
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
       invokedRequest.getShellEnvironments should be(empty)

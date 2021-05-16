@@ -150,7 +150,7 @@ class MutantRunner(
   def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
     IO(log.info("Starting initial test run...")) *>
       testRunner.initialTestRun().flatMap { result =>
-        if (!result.fold(identity, _.isSuccessful))
+        if (!result.isSuccessful)
           IO.raiseError(
             InitialTestRunFailedException(
               "Initial test run failed. Please make sure your tests pass before running Stryker4s."
@@ -159,8 +159,8 @@ class MutantRunner(
         else
           IO(log.info("Initial test run succeeded! Testing mutants...")).as {
             result match {
-              case Left(_) => CoverageExclusions(false, List.empty, List.empty)
-              case Right(InitialTestRunCoverageReport(_, firstRun, secondRun)) =>
+              case _: NoCoverageInitialTestRun => CoverageExclusions(false, List.empty, List.empty)
+              case InitialTestRunCoverageReport(_, firstRun, secondRun, _) =>
                 val firstRunMap = firstRun.toMap
                 val secondRunMap = secondRun.toMap
                 val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
