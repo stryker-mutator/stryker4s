@@ -19,8 +19,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       it("should complete the timeout after the initial testrun") {
         val op = for {
           timeout <- Deferred[IO, FiniteDuration]
-          innerTR = initialTestRunner()
-          sut = TestRunner.timeoutRunner(timeout, innerTR)
+          sut = TestRunner.timeoutRunner(timeout, initialTestRunner())
           _ <- sut.use(_.initialTestRun())
         } yield timeout
 
@@ -46,8 +45,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         val op = for {
           timeout <- Deferred[IO, FiniteDuration]
           _ <- timeout.complete(10.seconds)
-          innerTR = initialTestRunner()
-          sut = TestRunner.timeoutRunner(timeout, innerTR)
+          sut = TestRunner.timeoutRunner(timeout, initialTestRunner())
           _ <- sut.use(_.initialTestRun())
         } yield timeout
 
@@ -65,8 +63,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           // Set timeout to something short
           _ <- timeout.complete(1.millisecond)
           // TestRunner is slower than timeout
-          innerTR = timeoutRunner(5.milliseconds, mutant)
-          sut = TestRunner.timeoutRunner(timeout, innerTR)
+          sut = TestRunner.timeoutRunner(timeout, timeoutRunner(5.milliseconds, mutant))
           result <- sut.use(_.runMutant(mutant))
         } yield result
 
@@ -121,8 +118,9 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       val op = for {
         log <- Ref[IO].of(List.empty[String])
         stubResults = (1 to 3).toList.map(_ => () => fail("attempt should be retried"))
-        innerTR = recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
-        sut = TestRunner.retryRunner(innerTR)
+        sut = TestRunner.retryRunner(
+          recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
+        )
         result <- sut.use(_.runMutant(mutant))
         logResults <- log.get
       } yield (result, logResults)
@@ -146,8 +144,9 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           () => fail("attempt should be retried"),
           () => thirdResult
         )
-        innerTR = recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
-        sut = TestRunner.retryRunner(innerTR)
+        sut = TestRunner.retryRunner(
+          recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
+        )
         result <- sut.use(_.runMutant(mutant))
         logResults <- log.get
       } yield (result, logResults)
