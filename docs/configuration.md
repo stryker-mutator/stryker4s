@@ -180,11 +180,11 @@ For the last two cases, please [let us know by creating an issue](https://github
 ### `concurrency` [`number`]
 
 **Config file:** `concurrency: 4`  
-**Default value:** `if (cpuCoreCount > 4) cpuCoreCount / 2 else cpuCoreCount`  
+**Default value:** `(cpuCoreCount / 4).rounded + 1`  
 **Since:** `v0.12.0`  
 **Description:**
 
-Set the concurrency of testrunners. Stryker4s will create this many testrunners to run mutants in parallel. This defaults to `n / 2` where `n` is the number of available processors on your machine, or `n` if `n <= 4`. This is a sane default for most use cases. But as always with concurrency, test it yourself to be sure of the best performance.
+Set the concurrency of testrunners. Stryker4s will create this many testrunners to run mutants in parallel. This defaults to `(cpuCoreCount / 4).rounded + 1`. `cpuCoreCount` includes virtual processors such as from hyperthreading. This is a sane default for most use cases as most test frameworks already have some form of concurrency built in. But as always with concurrency, test it yourself to be sure of the best performance.
 
 ## Process runner config
 
