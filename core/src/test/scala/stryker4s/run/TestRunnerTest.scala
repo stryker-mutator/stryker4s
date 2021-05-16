@@ -63,7 +63,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           // Set timeout to something short
           _ <- timeout.complete(1.millisecond)
           // TestRunner is slower than timeout
-          sut = TestRunner.timeoutRunner(timeout, timeoutRunner(5.milliseconds, mutant))
+          sut = TestRunner.timeoutRunner(timeout, timeoutRunner(30.milliseconds, mutant))
           result <- sut.use(_.runMutant(mutant))
         } yield result
 
@@ -79,13 +79,30 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           // Set timeout to something short
           _ <- timeout.complete(1.millisecond)
           log <- Ref[IO].of(List.empty[String])
-          innerTR = recreateLoggingTestRunner(log, timeoutRunner(5.milliseconds, createMutant))
+          innerTR = recreateLoggingTestRunner(log, timeoutRunner(30.milliseconds, createMutant))
           sut = TestRunner.timeoutRunner(timeout, innerTR)
           _ <- sut.use(_.runMutant(createMutant))
         } yield log
 
         op.flatMap(_.get).asserting { log =>
           log shouldBe List("open", "close", "open", "close")
+        }
+      }
+
+      it("should not timeout fast mutant runs") {
+        val mutant = createMutant
+        val op = for {
+          timeout <- Deferred[IO, FiniteDuration]
+          // Set timeout to something short
+          _ <- timeout.complete(100.millis)
+          // TestRunner is slower than timeout
+          sut = TestRunner.timeoutRunner(timeout, timeoutRunner(1.milliseconds, mutant))
+          result <- sut.use(_.runMutant(mutant))
+        } yield result
+
+        op.asserting { result =>
+          result shouldBe Killed(mutant)
+          s"Mutant ${mutant.id} timed out over" should not be loggedAsDebug
         }
       }
     }
