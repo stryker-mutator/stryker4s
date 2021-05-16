@@ -51,10 +51,10 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
   }
 
   describe("initialTestRun") {
-    it("should throw an exception when the initial test run fails") {
+    it("should have isSuccessful false when the initial test run fails") {
       val testProcessRunner = TestProcessRunner.failInitialTestRun()
       processTestRunner(testProcessRunner).initialTestRun().asserting { result =>
-        result shouldBe Left(false)
+        result shouldBe NoCoverageInitialTestRun(false)
       }
     }
   }
