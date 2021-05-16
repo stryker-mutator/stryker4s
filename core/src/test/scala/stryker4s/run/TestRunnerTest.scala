@@ -63,7 +63,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           // Set timeout to something short
           _ <- timeout.complete(1.millisecond)
           // TestRunner is slower than timeout
-          sut = TestRunner.timeoutRunner(timeout, timeoutRunner(30.milliseconds, mutant))
+          sut = TestRunner.timeoutRunner(timeout, timeoutRunner(100.milliseconds, mutant))
           result <- sut.use(_.runMutant(mutant))
         } yield result
 
@@ -79,7 +79,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           // Set timeout to something short
           _ <- timeout.complete(1.millisecond)
           log <- Ref[IO].of(List.empty[String])
-          innerTR = recreateLoggingTestRunner(log, timeoutRunner(30.milliseconds, createMutant))
+          innerTR = recreateLoggingTestRunner(log, timeoutRunner(100.milliseconds, createMutant))
           sut = TestRunner.timeoutRunner(timeout, innerTR)
           _ <- sut.use(_.runMutant(createMutant))
         } yield log
