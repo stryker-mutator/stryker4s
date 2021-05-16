@@ -48,13 +48,11 @@ object TestRunner {
               duration = result.reportedDuration.getOrElse(timedDuration)
 
               setTimeout = calculateTimeout(duration)
-              _ <- timeout
-                .complete(setTimeout)
-                .flatMap { isSet =>
-                  if (isSet)
-                    IO(log.info(s"Timeout set to ${setTimeout.toHumanReadable} (net ${duration.toHumanReadable})"))
-                  else IO.unit
-                }
+              isSet <- timeout.complete(setTimeout)
+              _ <-
+                if (isSet)
+                  IO(log.info(s"Timeout set to ${setTimeout.toHumanReadable} (net ${duration.toHumanReadable})"))
+                else IO.unit
             } yield result
 
           def calculateTimeout(netTimeMS: FiniteDuration)(implicit config: Config): FiniteDuration =
