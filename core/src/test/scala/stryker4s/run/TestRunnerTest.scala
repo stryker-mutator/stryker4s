@@ -119,7 +119,6 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
     it("should report a mutant as Error after 3 failures") {
       val mutant = createMutant
       val op = for {
-
         log <- Ref[IO].of(List.empty[String])
         stubResults = (1 to 3).toList.map(_ => () => fail("attempt should be retried"))
         innerTR = recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
