@@ -45,12 +45,14 @@ jobs:
         with:
           path: |
             ~/.m2/repository
-            !~/.m2/repository/io/stryker-mutator/stryker4s*/SET-BY-SBT-SNAPSHOT
+            !~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
+      - name: Cleanup M2
+        run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
       - name: Publish stryker4s-core
         run: sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
       - name: Run Maven tests
