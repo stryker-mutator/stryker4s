@@ -28,7 +28,7 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
       when(reporterMock.mutantTested).thenReturn(_.drain)
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
 
-      implicit val conf: Config = Config(baseDir = FileUtil.getResource("scalaFiles"))
+      implicit val conf: Config = Config.default.copy(baseDir = FileUtil.getResource("scalaFiles"))
 
       val testMutantRunner =
         new MutantRunner(TestRunnerStub.resource, new FileCollector(testProcessRunner), reporterMock)
