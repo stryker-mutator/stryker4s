@@ -93,7 +93,7 @@ class MutationTypesTest extends Stryker4sSuite {
     it("should convert GreaterThan to >") {
       val wrapped = WrappedTree(GreaterThan)
 
-      assert(wrapped.term.isEqual(q">"))
+      assert(wrapped.term.isEqual(q">"), wrapped.term)
     }
 
     it("should convert to the proper type") {

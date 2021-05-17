@@ -41,8 +41,8 @@ class MutantMatcherTest extends Stryker4sSuite {
         )
         .getOrElse(fail(s"mutant ${expectedMutation} not found"))
 
-      assert(actualMutant.original.isEqual(original))
-      assert(actualMutant.mutated.isEqual(expectedMutation))
+      assert(actualMutant.original.isEqual(original), actualMutant.original)
+      assert(actualMutant.mutated.isEqual(expectedMutation), actualMutant.mutated)
       actualMutant.mutationType.mutationName shouldBe expectedName
     })
   }
