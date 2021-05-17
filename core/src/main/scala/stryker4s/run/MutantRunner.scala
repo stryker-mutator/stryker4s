@@ -15,7 +15,7 @@ import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
 import java.nio.file.Path
-import scala.collection.immutable.{SortedMap, SortedSet}
+import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
 
 class MutantRunner(
@@ -139,15 +139,14 @@ class MutantRunner(
       .observe(in => in.map(_ => MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 
     // Back to per-file structure
-    implicit val resultOrdering: Ordering[MutantRunResult] = (a, b) => a.mutant.id.compare(b.mutant.id)
     (static ++ noCoverage ++ testedMutants)
-      .fold(SortedMap.empty[Path, SortedSet[MutantRunResult]]) { case (resultsMap, (path, result)) =>
-        val results = resultsMap.getOrElse(path, SortedSet.empty) + result
+      .fold(SortedMap.empty[Path, Seq[MutantRunResult]]) { case (resultsMap, (path, result)) =>
+        val results = resultsMap.getOrElse(path, Seq.empty) :+ result
         resultsMap + (path -> results)
       }
       .compile
       .lastOrError
-      .map(_.map { case (k, v) => (k -> v.toSeq) })
+      .map(_.map { case (k, v) => (k -> v.sortBy(_.mutant.id)) })
   }
 
   def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
