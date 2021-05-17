@@ -22,7 +22,7 @@ class MutatorTest extends Stryker4sSuite with LogMatchers {
         new MatchBuilder(ActiveMutationContext.testRunner)
       )
 
-      val result = sut.mutate(files)
+      val result = sut.mutate(files).loneElement.tree
 
       val expected = """object Foo {
                        |  def bar = _root_.stryker4s.activeMutation match {
@@ -42,7 +42,7 @@ class MutatorTest extends Stryker4sSuite with LogMatchers {
                        |      s"${bar}foo"
                        |  }
                        |}""".stripMargin.parse[Source].get
-      assert(result.loneElement.tree.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
   }
   describe("logs") {

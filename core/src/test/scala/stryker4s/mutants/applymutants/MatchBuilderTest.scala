@@ -24,7 +24,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val result = sut.buildMatch(TransformedMutants(originalStatement, mutants))
 
       // Assert
-      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"))
+      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
       result.cases.map(_.syntax) should (contain
         .inOrderOnly(
           p"case Some(0) => x > 15".syntax,
@@ -92,7 +92,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                 15 > 14
             }
       }"""
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
       s"Failed to add mutation(s) 0, 1 to new mutated code" shouldBe loggedAsWarning
       s"The code that failed to mutate was: [14 < 15] at Input.None:0:0" shouldBe loggedAsWarning
       "This mutation will likely show up as Survived" shouldBe loggedAsWarning
@@ -126,7 +126,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                        15 > 14
                    }
                  }"""
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
 
     it("should build a tree with multiple cases out of multiple transformedStatements") {
@@ -162,7 +162,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                        15 > 14 && 14 >= 13
                    }
                  }"""
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
 
     it("should build a new tree out of a single statement with 3 mutants") {
@@ -196,7 +196,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                 "foo" == ""
             }
           }"""
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
 
     it("should build when the topstatement is also a mutation") {
@@ -311,7 +311,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                                   }
                                 }
                               }"""
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
   }
 
@@ -329,7 +329,8 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       assert(
         result.expr.isEqual(
           q"_root_.scala.sys.props.get($activeMutationString).map(_root_.java.lang.Integer.parseInt(_))"
-        )
+        ),
+        result.expr
       )
     }
 
@@ -344,7 +345,8 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       assert(
         result.expr.isEqual(
           q"_root_.scala.sys.env.get($activeMutationString).map(_root_.java.lang.Integer.parseInt(_))"
-        )
+        ),
+        result.expr
       )
     }
   }

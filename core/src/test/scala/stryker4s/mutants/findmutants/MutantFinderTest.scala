@@ -35,7 +35,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
                        |
                        |final case class Person(age: Int, name: String)
                        |""".stripMargin.parse[Source].get
-      assert(result.isEqual(expected))
+      assert(result.isEqual(expected), result)
     }
 
     it("should throw an exception on a non-parseable file") {
@@ -93,12 +93,12 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       result should have length 2
 
       val firstMutant = result.head
-      assert(firstMutant.original.isEqual(q"=="))
-      assert(firstMutant.mutated.isEqual(q"!="))
+      assert(firstMutant.original.isEqual(q"=="), firstMutant.original)
+      assert(firstMutant.mutated.isEqual(q"!="), firstMutant.mutated)
 
       val secondMutant = result(1)
-      assert(secondMutant.original.isEqual(Lit.String("foobar")))
-      assert(secondMutant.mutated.isEqual(Lit.String("")))
+      assert(secondMutant.original.isEqual(Lit.String("foobar")), secondMutant.original)
+      assert(secondMutant.mutated.isEqual(Lit.String("")), secondMutant.mutated)
     }
 
     it("should filter out excluded mutants") {
@@ -185,8 +185,8 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
 
       // 1 empty-string found
       val mutant = result._1.loneElement
-      assert(mutant.original.isEqual(regex))
-      assert(mutant.mutated.isEqual(Lit.String("")))
+      assert(mutant.original.isEqual(regex), mutant.original)
+      assert(mutant.mutated.isEqual(Lit.String("")), mutant.mutated)
       // 0 excluded
       result._2 shouldBe 0
 
@@ -205,12 +205,12 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
 
       result.source.children should not be empty
       val firstMutant = result.mutants.head
-      assert(firstMutant.original.isEqual(q"=="))
-      assert(firstMutant.mutated.isEqual(q"!="))
+      assert(firstMutant.original.isEqual(q"=="), firstMutant.original)
+      assert(firstMutant.mutated.isEqual(q"!="), firstMutant.mutated)
 
       val secondMutant = result.mutants(1)
-      assert(secondMutant.original.isEqual(Lit.String("Hugo")))
-      assert(secondMutant.mutated.isEqual(Lit.String("")))
+      assert(secondMutant.original.isEqual(Lit.String("Hugo")), secondMutant.original)
+      assert(secondMutant.mutated.isEqual(Lit.String("")), secondMutant.mutated)
     }
   }
 
