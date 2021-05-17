@@ -236,7 +236,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       assert(result.isEqual(q"variable match { case GET -> Root / $hello => 3; case _ => 4 }"), result)
     }
 
-    it("should stop at the body of a Case") {
+    it("should stop before the body of a Case") {
       val pf = q"{ case false => { foo(1); 2 }; case _ => 3 }"
       val defTree =
         q"""def foo: PartialFunction[Boolean, Int] = {
@@ -247,7 +247,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = subTree.topStatement()
 
-      assert(result.isEqual(pf), result)
+      assert(result.isEqual(q"foo(1)"), result)
     }
 
     it("should match on a Literal") {
