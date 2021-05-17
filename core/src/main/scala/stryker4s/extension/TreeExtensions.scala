@@ -37,7 +37,7 @@ object TreeExtensions {
         */
       final def unapply(term: Term): Option[Term] =
         findParent[Case](term)
-          .filter(c => c.cond.exists(_.find(term).isDefined) || c.pat.find(term).isDefined)
+          .filterNot(caze => caze.parent.collect({ case t: Term.Try => t }).exists(_.catchp.contains(caze)))
           .flatMap(findParent[Term])
 
       private def findParent[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
