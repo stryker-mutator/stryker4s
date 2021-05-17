@@ -58,6 +58,26 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
       """)
     }
 
+    it("each case of pattern match") {
+      checkAllMutationsAreAdded(q"""
+        foo match {
+          case _ => "break"
+          case _ if high == low => baz
+        }""")
+    }
+
+    it("try-catch-finally") {
+      checkAllMutationsAreAdded(q"""
+        def foo =
+          try {
+            runAndContinue("task.run")
+          } catch {
+            case _ => logger.error("Error during run", e)
+          } finally {
+            logger.info("Done")
+          }""")
+    }
+
     def checkAllMutationsAreAdded(tree: Stat)(implicit pos: Position) = {
       val source = source"class Foo { $tree }"
       val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.collect { case Right(v) => v }
@@ -71,7 +91,7 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
             .getOrElse(
               fail {
                 val mutant = foundMutants.find(_.id == mutantStatement.id).get
-                s"Could not find mutation '${mutant.mutated}'' (original '${mutant.original}') in mutated tree ${mutatedTree}"
+                s"Could not find mutation ${mutant.id} '${mutant.mutated}' (original '${mutant.original}') in mutated tree ${mutatedTree}"
               }
             )
         }

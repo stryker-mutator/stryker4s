@@ -223,41 +223,31 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val result = sut.buildNewSource(transformedStatements)
 
       // Assert
-      val expected = source"""class Foo(list: Seq[String]) {
-                                def foo = 
-                                _root_.stryker4s.activeMutation match {
-                                  case Some(0) =>
-                                    list.isEmpty match {
-                                      case true =>
-                                        _root_.stryker4s.activeMutation match {
-                                          case Some(2) => ""
-                                          case _         => "nonEmpty"
-                                        }
-                                      case _ =>
-                                        otherValue
-                                    }
-                                  case Some(1) =>
-                                    list.nonEmpty match {
-                                      case false =>
-                                        _root_.stryker4s.activeMutation match {
-                                          case Some(2) => ""
-                                          case _         => "nonEmpty"
-                                        }
-                                      case _ =>
-                                        otherValue
-                                    }
-                                  case _ =>
-                                    list.nonEmpty match {
-                                      case true =>
-                                        _root_.stryker4s.activeMutation match {
-                                          case Some(2) => ""
-                                          case _         => "nonEmpty"
-                                        }
-                                      case _ =>
-                                        otherValue
-                                    }
-                                }
-                              }"""
+      val expected = source"""
+        class Foo(list: Seq[String]) {
+          def foo = _root_.stryker4s.activeMutation match {
+            case Some(0) =>
+              list.isEmpty match {
+                case true => "nonEmpty"
+                case _    => otherValue
+              }
+            case Some(1) =>
+              list.nonEmpty match {
+                case false => "nonEmpty"
+                case _     => otherValue
+              }
+            case Some(2) =>
+              list.nonEmpty match {
+                case true => ""
+                case _    => otherValue
+              }
+            case _ =>
+              list.nonEmpty match {
+                case true => "nonEmpty"
+                case _    => otherValue
+              }
+          }
+        }"""
       assert(result.isEqual(expected), result)
     }
 
