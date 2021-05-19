@@ -67,7 +67,7 @@ package object stryker4s {
   // Starting value of  -1 means none
   private val activeMutationRef: AtomicInteger = new AtomicInteger(-1)
 
-  protected[stryker4s] def activeMutation: Int = activeMutationRef.get()
+  def activeMutation: Int = activeMutationRef.get()
 
   protected[stryker4s] def activeMutation_=(mutation: Int): Unit = activeMutationRef.set(mutation)
 
