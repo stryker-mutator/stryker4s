@@ -25,23 +25,27 @@ package object stryker4s {
 
     /** Add a mutant to the current coverage report
       */
-    def coverMutant(id: Int) = {
+    def coverMutant(ids: Int*): Boolean = {
       if (collectCoverage.get()) {
         val currentTest = activeTest.get
         if (currentTest != null) {
-          val currentCovered = coveredTests.getOrElseUpdate(id, new ConcurrentLinkedQueue())
-          currentCovered.add(currentTest)
+          ids.foreach { id =>
+            val currentCovered = coveredTests.getOrElseUpdate(id, new ConcurrentLinkedQueue())
+            currentCovered.add(currentTest)
+          }
         }
       }
+      true // Always return true, `coverMutant` is called in the guard condition of the default mutation switch
     }
 
     /** Set the currently running test. This is needed to map the covered mutants with the test that was running at that time
       */
-    def setActiveTest(fingerPrint: Fingerprint) = if (collectCoverage.get()) activeTest.set(fingerPrint)
+    protected[stryker4s] def setActiveTest(fingerPrint: Fingerprint) =
+      if (collectCoverage.get()) activeTest.set(fingerPrint)
 
     /** Collect coverage analysis during the provided function and return it in a tuple
       */
-    def collectCoverage[A](f: => A): (A, CoverageReport) = try {
+    protected[stryker4s] def collectCoverage[A](f: => A): (A, CoverageReport) = try {
       collectCoverage.set(true)
 
       val result = f
@@ -63,8 +67,8 @@ package object stryker4s {
   // Starting value of  -1 means none
   private val activeMutationRef: AtomicInteger = new AtomicInteger(-1)
 
-  def activeMutation: Int = activeMutationRef.get()
+  protected[stryker4s] def activeMutation: Int = activeMutationRef.get()
 
-  def activeMutation_=(mutation: Int): Unit = activeMutationRef.set(mutation)
+  protected[stryker4s] def activeMutation_=(mutation: Int): Unit = activeMutationRef.set(mutation)
 
 }
