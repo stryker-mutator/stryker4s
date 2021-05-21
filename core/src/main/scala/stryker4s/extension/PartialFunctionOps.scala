@@ -5,8 +5,10 @@ import cats.syntax.semigroup._
 
 object PartialFunctionOps {
 
-  /** Monoid to combine two `PartialFunctions`s into one.
-    * Instead of stopping after the first PartialFunction matches, combining will try to match both PartialFunctions, and combine the result
+  /** `Monoid` to combine two `PartialFunctions`s into one.
+    *
+    * Instead of stopping after the first PartialFunction matches, combining will try to match both PartialFunctions,
+    * and combine the result
     */
   implicit def partialFunctionMonoid[A, B: Semigroup]: Monoid[PartialFunction[A, B]] =
     new Monoid[PartialFunction[A, B]] {

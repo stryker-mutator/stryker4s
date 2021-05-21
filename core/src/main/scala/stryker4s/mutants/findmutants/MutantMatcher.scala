@@ -13,8 +13,10 @@ import stryker4s.model.{IgnoredMutationReason, Mutant, MutationExcluded}
 class MutantMatcher()(implicit config: Config) {
   private[this] val ids = Iterator.from(0)
 
-  /** A PartialFunction that can match on a ScalaMeta tree and return a `List[Either[IgnoredMutationReason, Mutant]]`
-    * If the result is a `Left`, it means a mutant was found, but ignored. The ADT [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons
+  /** A PartialFunction that can match on a ScalaMeta tree and return a `List[Either[IgnoredMutationReason, Mutant]]`.
+    *
+    * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
+    * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
     */
   type MutationMatcher = PartialFunction[Tree, List[Either[IgnoredMutationReason, Mutant]]]
 

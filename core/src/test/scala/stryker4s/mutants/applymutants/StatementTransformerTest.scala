@@ -46,7 +46,7 @@ class StatementTransformerTest extends Stryker4sSuite {
         (firstResult, secondResult)
       }"""
       // Second '_ * 5' instead of first one
-      val subTree = tree.collect({ case t @ Term.Name("*") => t }).last
+      val subTree = tree.collect { case t @ Term.Name("*") => t }.last
       val topStatement = subTree.topStatement()
 
       val result = sut.transformStatement(topStatement, subTree, q"/")

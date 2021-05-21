@@ -21,7 +21,8 @@ import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
   *
-  * @param state SBT project state (contains all the settings about the project)
+  * @param state
+  *   SBT project state (contains all the settings about the project)
   */
 class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuration])(implicit log: Logger)
     extends Stryker4sRunner {

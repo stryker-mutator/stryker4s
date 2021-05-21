@@ -9,11 +9,13 @@ import fs2.Pipe
 
 trait ResourcePool[T] {
 
-  /** Pipe that empties the given stream against the resource pool, using a concurrency of as many resources are available on the pool
+  /** Pipe that empties the given stream against the resource pool, using a concurrency of as many resources are
+    * available on the pool
     */
   def run[O, O2](f: (T, O) => IO[O2]): Pipe[IO, O, O2]
 
-  /** Take 1 Resource from the pool. Puts the resource back into the pool when the returned resource closes (after `.use`)
+  /** Take 1 Resource from the pool. Puts the resource back into the pool when the returned resource closes (after
+    * `.use`)
     */
   def loan: Resource[IO, T]
 

@@ -18,6 +18,7 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
   val timesCalled: Iterator[Int] = Iterator.from(0)
 
   /** Keep track on the amount of times the function is called.
+    *
     * Also return an exit code which the test runner would do as well.
     */
   override def apply(command: Command, workingDir: File, envVar: (String, String)*): IO[Try[Int]] = {

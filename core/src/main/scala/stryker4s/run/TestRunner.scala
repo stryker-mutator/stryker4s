@@ -77,7 +77,7 @@ object TestRunner {
               case Left(_) =>
                 IO(
                   log.info(
-                    s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant ${retriesLeft} more time(s)"
+                    s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant $retriesLeft more time(s)"
                   )
                 ) *>
                   // Release old resource and make a new one, then retry the mutation

@@ -38,7 +38,9 @@ package object stryker4s {
       true // Always return true, `coverMutant` is called in the guard condition of the default mutation switch
     }
 
-    /** Set the currently running test. This is needed to map the covered mutants with the test that was running at that time
+    /** Set the currently running test.
+      *
+      * This is to map the covered mutants with the test that was running at that time
       */
     protected[stryker4s] def setActiveTest(fingerPrint: Fingerprint) =
       if (collectCoverage.get()) activeTest.set(fingerPrint)

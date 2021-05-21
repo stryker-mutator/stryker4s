@@ -60,7 +60,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
         )
       case Left(HttpError(errorBody, statusCode)) =>
         log.error(
-          s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '${errorBody}'"
+          s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '$errorBody'"
         )
       case Left(DeserializationException(original, error)) =>
         log.warn(

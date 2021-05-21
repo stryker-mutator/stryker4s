@@ -47,10 +47,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       case Json    => new JsonReporter(new DiskFileIO())
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
-          try {
-            // Catch if the user runs the dashboard on Java <11
-            HttpClientFs2Backend.resource[IO]()
-          } catch {
+          // Catch if the user runs the dashboard on Java <11
+          try HttpClientFs2Backend.resource[IO]()
+          catch {
             case e: BootstrapMethodError =>
               // Wrap in a UnsupportedOperationException because BootstrapMethodError will not be caught
               throw new UnsupportedOperationException(

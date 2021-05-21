@@ -14,7 +14,7 @@ sealed trait FileIO {
 
 class DiskFileIO() extends FileIO {
   override def createAndWriteFromResource(file: Path, resourceName: String): IO[Unit] = {
-    val stream = IO { getClass().getResourceAsStream(resourceName) }
+    val stream = IO(getClass().getResourceAsStream(resourceName))
 
     Files[IO].createDirectories(file.getParent()) *>
       readInputStream(stream, 8192)

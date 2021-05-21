@@ -9,7 +9,8 @@ private[testutil] trait Stryker4sBaseSuite extends Matchers with OptionValues wi
 
 abstract class Stryker4sSuite extends AnyFunSpec with Stryker4sBaseSuite
 
-/** Base suite making it easier to test IO-based code
+/** Base suite making it easier to test IO-based code.
+  *
   * Every test is forced to return a `IO[scalatest.Assertion]`
   */
 abstract class Stryker4sIOSuite extends AsyncFunSpec with Stryker4sBaseSuite with AsyncIOSpec

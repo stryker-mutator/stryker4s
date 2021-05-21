@@ -10,7 +10,7 @@ object DurationExtensions {
       val units = Seq(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 
       val timeStrings = units
-        .foldLeft((Seq.empty[String], duration.toMillis))({ case ((humanReadable, rest), unit) =>
+        .foldLeft((Seq.empty[String], duration.toMillis)) { case ((humanReadable, rest), unit) =>
           val name = unit.toString().toLowerCase()
           val result = unit.convert(rest, TimeUnit.MILLISECONDS)
           val diff = rest - TimeUnit.MILLISECONDS.convert(result, unit)
@@ -20,7 +20,7 @@ object DurationExtensions {
             case more => humanReadable :+ s"$more $name"
           }
           (str, diff)
-        })
+        }
         ._1
 
       timeStrings.size match {

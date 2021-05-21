@@ -33,7 +33,8 @@ final class SocketTestRunnerConnection(out: ObjectOutputStream, in: ObjectInputS
 
   /** Returns a new IO that instantly returns when cancelled, instead of calling it's cancellation logic
     *
-    * This is needed because the blocking call only starts its cancellation logic when the blocking call returns, which goes against what we want when e.g. a timeout occurs
+    * This is needed because the blocking call only starts its cancellation logic when the blocking call returns, which
+    * goes against what we want when e.g. a timeout occurs
     */
   private def skipCancel[T](f: IO[T]) = f.start.flatMap(_.joinWithNever)
 
