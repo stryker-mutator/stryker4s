@@ -4,12 +4,13 @@ import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Config, Thresholds as ConfigThresholds}
 import stryker4s.model.*
+import stryker4s.model.MutantResultsPerFile
 
 import java.nio.file.Files
 
 trait MutantRunResultMapper {
-  protected[report] def toReport(
-      results: Map[Path, Seq[MutantRunResult]]
+  protected[stryker4s] def toReport(
+      results: MutantResultsPerFile
   )(implicit config: Config): MutationTestResult[Config] =
     MutationTestResult(
       thresholds = toThresholds(config.thresholds),
@@ -22,40 +23,29 @@ trait MutantRunResultMapper {
     Thresholds(high = thresholds.high, low = thresholds.low)
 
   private def toFileResultMap(
-      results: Map[Path, Seq[MutantRunResult]]
+      results: MutantResultsPerFile
   )(implicit config: Config): Map[String, FileResult] =
     results.map { case (path, runResults) =>
       path.toString.replace('\\', '/') -> toFileResult(path, runResults)
     }
 
-  private def toFileResult(path: Path, runResults: Seq[MutantRunResult])(implicit
+  private def toFileResult(path: Path, runResults: Seq[MutantResult])(implicit
       config: Config
   ): FileResult =
     FileResult(
       fileContentAsString(path),
-      runResults.map(toMutantResult)
+      runResults
     )
 
-  private def toMutantResult(runResult: MutantRunResult): MutantResult = {
-    val mutant = runResult.mutant
-    MutantResult(
-      mutant.id.globalId.toString,
-      mutant.mutationType.mutationName,
-      mutant.mutated.syntax,
-      toLocation(mutant.original.pos),
-      toMutantStatus(runResult),
-      runResult.description,
-      testsCompleted = runResult.testsCompleted
-    )
-  }
-
-  private def toLocation(pos: scala.meta.inputs.Position): Location =
+  // TODO: remove?
+  def toLocation(pos: scala.meta.inputs.Position): Location =
     Location(
       start = Position(line = pos.startLine + 1, column = pos.startColumn + 1),
       end = Position(line = pos.endLine + 1, column = pos.endColumn + 1)
     )
 
-  private def toMutantStatus(mutant: MutantRunResult): MutantStatus =
+  // TODO: remove?
+  def toMutantStatus(mutant: MutantRunResult): MutantStatus =
     mutant match {
       case _: Survived     => MutantStatus.Survived
       case _: Killed       => MutantStatus.Killed

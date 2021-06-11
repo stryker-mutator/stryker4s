@@ -4,8 +4,8 @@ import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.*
 import sbt.Keys.*
+import sbt.*
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions.*
@@ -13,14 +13,16 @@ import stryker4s.extension.exception.TestSetupException
 import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
+import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
-import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuilder, MatchBuilder}
+import stryker4s.mutants.tree.DefaultMutationCondition
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
+import scala.meta.*
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -36,11 +38,13 @@ class Stryker4sSbtRunner(
     log: Logger
 ) extends Stryker4sRunner {
 
-  override def resolveMatchBuilder(implicit config: Config): MatchBuilder =
-    if (config.legacyTestRunner) new MatchBuilder(mutationActivation) else new CoverageMatchBuilder(mutationActivation)
+  override def mutationCondition(implicit config: Config): Option[DefaultMutationCondition] =
+    if (config.legacyTestRunner) None
+    else Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
 
   override def mutationActivation(implicit config: Config): ActiveMutationContext =
-    if (config.legacyTestRunner) ActiveMutationContext.sysProps else ActiveMutationContext.testRunner
+    if (config.legacyTestRunner) ActiveMutationContext.sysProps
+    else ActiveMutationContext.testRunner
 
   def resolveTestRunners(
       tmpDir: Path

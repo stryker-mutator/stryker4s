@@ -111,7 +111,7 @@ class MutantMatcher()(implicit config: Config) {
         mutations
           .map { mutated =>
             if (matchExcluded(mutated) || isSuppressedByAnnotation(mutated, original))
-              Left(MutationExcluded())
+              Left(MutationExcluded)
             else {
               Right(
                 Mutant(
@@ -139,6 +139,7 @@ class MutantMatcher()(implicit config: Config) {
     }
 
     private def isSuppressedByAnnotation(mutation: Mutation[?], original: Term): Boolean = {
+
       original.pathToRoot.flatMap(_.getMods).exists(isSupressWarningsAnnotation(_, mutation))
     }
 

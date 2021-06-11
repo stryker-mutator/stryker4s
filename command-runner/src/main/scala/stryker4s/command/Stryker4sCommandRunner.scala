@@ -10,6 +10,7 @@ import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
+import stryker4s.mutants.tree.DefaultMutationCondition
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 
@@ -30,4 +31,6 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: 
 
     Right(NonEmptyList.of(withTimeout))
   }
+
+  override def mutationCondition(implicit config: Config): Option[DefaultMutationCondition] = None
 }

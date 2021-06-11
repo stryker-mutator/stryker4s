@@ -29,14 +29,14 @@ object TestRunnerStub {
   def withResults(mutants: MutantRunResult*) = (_: Path) => makeResults(mutants)
 
   def withInitialCompilerError(
-      errs: List[CompilerErrMsg],
+      errs: NonEmptyList[CompilerErrMsg],
       mutants: MutantRunResult*
   ): Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]] = {
     var firstRun = true
     (_: Path) =>
       if (firstRun) {
         firstRun = false
-        Left(NonEmptyList.fromListUnsafe(errs))
+        Left(errs)
       } else {
         makeResults(mutants)
       }

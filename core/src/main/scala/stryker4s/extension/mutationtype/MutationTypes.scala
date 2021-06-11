@@ -6,7 +6,7 @@ import scala.meta.{Defn, Lit, Term, Tree, Type}
 
 /** Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
-sealed trait Mutation[T <: Tree] {
+sealed trait Mutation[+T <: Tree] {
   def mutationName: String
 }
 

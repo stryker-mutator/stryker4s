@@ -1,5 +1,7 @@
 package stryker4s.extension
 
+import cats.syntax.option.*
+
 import scala.annotation.tailrec
 import scala.meta.*
 import scala.meta.transversers.SimpleTraverser
@@ -97,8 +99,26 @@ object TreeExtensions {
       }
     }
 
+    /** Tries to transform a tree exactly once, returning None if the transformation was never applied
+      */
+    def transformExactlyOnce(fn: PartialFunction[Tree, Tree]): Option[Tree] = {
+      var isTransformed = false
+      val checkFn = fn.andThen { t =>
+        isTransformed = true
+        t
+      }
+      val onceTransformer = new OnceTransformer(checkFn)
+      val result = onceTransformer(thisTree)
+
+      if (isTransformed) result.some
+      else None
+    }
+
     private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
-      override def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
+      override def apply(tree: Tree): Tree = {
+        val supered = super.apply(tree)
+        fn.applyOrElse(supered, identity[Tree])
+      }
     }
   }
 
@@ -165,11 +185,11 @@ object TreeExtensions {
   implicit class CollectFirstExtension(tree: Tree) {
     final def collectFirst[T](pf: PartialFunction[Tree, T]): Option[T] = {
       var result = Option.empty[T]
+      val fn = pf.lift
       object traverser extends SimpleTraverser {
         override def apply(t: Tree): Unit = {
-          if (result.isEmpty && pf.isDefinedAt(t)) {
-            result = Some(pf(t))
-          } else if (result.isEmpty) {
+          result = fn(t).orElse(result)
+          if (result.nonEmpty) {
             super.apply(t)
           }
         }

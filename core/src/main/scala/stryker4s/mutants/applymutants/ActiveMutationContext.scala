@@ -1,4 +1,5 @@
 package stryker4s.mutants.applymutants
+
 import scala.meta.*
 
 object ActiveMutationContext {

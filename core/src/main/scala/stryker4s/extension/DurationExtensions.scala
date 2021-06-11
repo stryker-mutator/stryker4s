@@ -1,7 +1,9 @@
 package stryker4s.extension
 
-import java.util.concurrent.TimeUnit
+import cats.data.Chain
+import cats.syntax.foldable.*
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
 object DurationExtensions {
@@ -10,7 +12,7 @@ object DurationExtensions {
       val units = Seq(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 
       val timeStrings = units
-        .foldLeft((Seq.empty[String], duration.toMillis)) { case ((humanReadable, rest), unit) =>
+        .foldLeft((Chain.empty[String], duration.toMillis)) { case ((humanReadable, rest), unit) =>
           val name = unit.toString().toLowerCase()
           val result = unit.convert(rest, TimeUnit.MILLISECONDS)
           val diff = rest - TimeUnit.MILLISECONDS.convert(result, unit)
@@ -23,10 +25,12 @@ object DurationExtensions {
         }
         ._1
 
-      timeStrings.size match {
-        case 0 => "0 seconds"
-        case 1 => timeStrings.head
-        case _ => timeStrings.init.mkString(", ") + " and " + timeStrings.last
+      timeStrings match {
+        case Chain()  => "0 seconds"
+        case Chain(a) => a
+        case _ =>
+          val (strings, last) = timeStrings.initLast.get
+          strings.mkString_(", ") + " and " + last
       }
     }
   }

@@ -23,7 +23,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
           buildMatch(mutants)
       } match {
         case Success(value) if isTransformed => value
-        case Success(value) =>
+        case Success(value)                  =>
+          // TODO: add these to the new code
           log.warn(
             s"Failed to add mutation(s) ${mutants.mutantStatements.map(_.id).mkString(", ")} to new mutated code"
           )
