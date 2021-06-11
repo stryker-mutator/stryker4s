@@ -303,6 +303,36 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
                               }"""
       assert(result.isEqual(expected), result)
     }
+
+    it("should place mutations in a wildcard anonymous function outside the function") {
+      // Arrange
+      implicit val ids: Iterator[Int] = Iterator.from(0)
+      val source = source"""class Foo() {
+                              def foo = peopleToGreet.filterNot(_ == "bar")
+                            }"""
+
+      val firstTransformed = toTransformed(source, EmptyString, Lit.String("bar"), Lit.String(""))
+      val secondTransformed = toTransformed(source, NotEqualTo, q"==", q"!=")
+      val transformedStatements =
+        SourceTransformations(source, List(firstTransformed, secondTransformed))
+      val sut = new MatchBuilder(ActiveMutationContext.testRunner)
+
+      // Act
+      val result = sut.buildNewSource(transformedStatements)
+
+      // Assert
+      val expected = source"""class Foo() {
+                                def foo = _root_.stryker4s.activeMutation match {
+                                  case Some(0) =>
+                                    peopleToGreet.filterNot(_ == "")
+                                  case Some(1) =>
+                                    peopleToGreet.filterNot(_ != "bar")
+                                  case _ =>
+                                    peopleToGreet.filterNot(_ == "bar")
+                                }
+                              }"""
+      assert(result.isEqual(expected), result)
+    }
   }
 
   describe("mutationActivation") {
