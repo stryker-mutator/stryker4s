@@ -69,7 +69,7 @@ See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configura
 
 ## Supported mutators
 
-Stryker4s supports a variety of mutators, which can be found in our [handbook](https://github.com/stryker-mutator/stryker-handbook/blob/master/mutator-types.md#supported-mutators).
+Stryker4s supports a variety of mutators, which can be found [here](https://stryker-mutator.io/docs/mutation-testing-elements/supported-mutators/).
 Do you have a suggestion for a (new) mutator? Feel free to create an [issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
 
 An always up-to-date reference is also available in the [MutantMatcher source](core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
