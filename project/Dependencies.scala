@@ -30,7 +30,7 @@ object Dependencies {
     val mutationTestingElements = "1.7.2"
     val mutationTestingMetrics = "1.7.2"
     val pureconfig = "0.16.0"
-    val scalameta = "4.4.22"
+    val scalameta = "4.4.23"
     val sttp = "3.3.7"
     val testInterface = "1.0"
     val weaponRegeX = "0.6.0"
