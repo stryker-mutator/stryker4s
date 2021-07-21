@@ -16,7 +16,9 @@ object ConfigReader {
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4s.conf"))(implicit log: Logger): Config = {
+  lazy val defaultConfig = ConfigSource.file(System.getProperty("stryker4s.config.file", "stryker4s.conf"))
+
+  def readConfig(confSource: ConfigSource = defaultConfig)(implicit log: Logger): Config = {
     Reader
       .withoutRecovery[Config](confSource)
       .recoverWithReader(Failure.onUnknownKey)
@@ -25,7 +27,7 @@ object ConfigReader {
   }
 
   def readConfigOfType[T](
-      confSource: ConfigSource = ConfigSource.file("stryker4s.conf")
+      confSource: ConfigSource = defaultConfig
   )(implicit log: Logger, pureconfig: PureConfigReader[T]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
@@ -75,7 +77,7 @@ object ConfigReader {
     /** Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
-      log.info(s"Attempting to read config from stryker4s.conf")
+      log.info(s"Attempting to read config from ${defaultConfig}")
       configSource
         .at("stryker4s")
         .load[T]
