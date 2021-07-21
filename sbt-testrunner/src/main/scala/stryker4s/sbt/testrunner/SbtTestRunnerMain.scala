@@ -3,7 +3,7 @@ package stryker4s.sbt.testrunner
 import stryker4s.api.testprocess.Request
 
 import java.io.{ObjectInputStream, ObjectOutputStream}
-import java.net.{ServerSocket, Socket}
+import java.net.{InetAddress, ServerSocket, Socket}
 
 object SbtTestRunnerMain {
   def main(args: Array[String]): Unit = {
@@ -14,7 +14,7 @@ object SbtTestRunnerMain {
 
   private def setupSocketServer(port: Int) = {
     println(s"Setting up server on port $port")
-    val server = new ServerSocket(port)
+    val server = new ServerSocket(port, 0, InetAddress.getLoopbackAddress)
     try {
       val socket = server.accept()
       try {
