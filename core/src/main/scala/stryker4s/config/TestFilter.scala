@@ -10,7 +10,7 @@ class TestFilter()(implicit config: Config) {
 
   val exclamationMark = "!"
 
-  lazy val partition: Partition = config.testFilter.partition(_.startsWith(exclamationMark)) match {
+  val partition: Partition = config.testFilter.partition(_.startsWith(exclamationMark)) match {
     case (negative, positive) =>
       Partition(
         negative.map(p => Regex(wildcardToRegex(p.substring(1)))),

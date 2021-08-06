@@ -23,7 +23,7 @@ object Stryker4sMain extends AutoPlugin {
   }
   import autoImport._
 
-  override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
+  override val projectSettings: Seq[Def.Setting[_]] = Seq(
     stryker := strykerTask.value,
     stryker / logLevel := Level.Info,
     stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations

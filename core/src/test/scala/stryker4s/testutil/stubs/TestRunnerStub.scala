@@ -17,7 +17,7 @@ class TestRunnerStub(results: Seq[() => MutantRunResult]) extends TestRunner {
 
   def runMutant(mutant: Mutant): IO[MutantRunResult] = {
     // Ensure runMutant can always continue
-    IO(results(stream.next())())
+    IO(results.applyOrElse(stream.next(), (_: Int) => results.head)())
       .recover { case _: ArrayIndexOutOfBoundsException => results.head() }
   }
 }

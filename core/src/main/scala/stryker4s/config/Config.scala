@@ -39,5 +39,5 @@ object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
     */
   type ExcludedMutations = Set[String]
 
-  lazy val default: Config = Config()
+  val default: Config = Config()
 }

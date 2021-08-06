@@ -9,8 +9,8 @@ import stryker4s.log.Logger
 import stryker4s.run.process.{Command, ProcessRunner}
 
 trait SourceCollector {
-  def collectFilesToMutate(): Iterable[File]
-  def filesToCopy: Iterable[File]
+  def collectFilesToMutate(): Seq[File]
+  def filesToCopy: Seq[File]
 }
 
 class FileCollector(private[this] val processRunner: ProcessRunner)(implicit config: Config, log: Logger)
@@ -27,7 +27,7 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
     *   - in the target folder
     *   - directories are skipped
     */
-  override def collectFilesToMutate(): Iterable[File] = {
+  override def collectFilesToMutate(): Seq[File] = {
     filesToMutate
       .filterNot(filesToExcludeFromMutation.contains(_))
       .filterNot(isInTargetDirectory)
@@ -40,7 +40,7 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
     *   - Option 2: Copy every file that is listed by git.
     *   - Option 3: Copy every file in the 'baseDir' excluding target folders.
     */
-  override def filesToCopy: Iterable[File] = {
+  override def filesToCopy: Seq[File] = {
     (listFilesBasedOnConfiguration() orElse
       listFilesBasedOnGit(processRunner) getOrElse
       listAllFiles())
@@ -51,13 +51,13 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
 
   /** List all files based on the 'files' configuration key from stryker4s.conf.
     */
-  private[this] def listFilesBasedOnConfiguration(): Option[Iterable[File]] = {
+  private[this] def listFilesBasedOnConfiguration(): Option[Seq[File]] = {
     config.files.map(glob)
   }
 
   /** List all files based on `git ls-files` command.
     */
-  private[this] def listFilesBasedOnGit(processRunner: ProcessRunner): Option[Iterable[File]] = {
+  private[this] def listFilesBasedOnGit(processRunner: ProcessRunner): Option[Seq[File]] = {
     processRunner(Command("git ls-files", "--others --exclude-standard --cached"), config.baseDir) match {
       case Success(files) => Option(files.map(config.baseDir / _).distinct)
       case Failure(_)     => None
@@ -66,7 +66,7 @@ class FileCollector(private[this] val processRunner: ProcessRunner)(implicit con
 
   /** List all files from the base directory specified in the Stryker4s basedir config key.
     */
-  private[this] def listAllFiles(): Iterable[File] = {
+  private[this] def listAllFiles(): Seq[File] = {
     log.warn("No 'files' specified and not a git repository.")
     log.warn("Falling back to copying everything except the 'target/' folder(s)")
 

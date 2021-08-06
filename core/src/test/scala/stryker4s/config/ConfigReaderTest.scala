@@ -85,7 +85,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
     it("should load a config with unknown keys") {
       val configSource = ExampleConfigs.overfilled
 
-      lazy val config = ConfigReader.readConfig(configSource)
+      val config = ConfigReader.readConfig(configSource)
 
       config.baseDir shouldBe File("/tmp/project")
       config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
