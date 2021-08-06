@@ -32,7 +32,7 @@ class TestFilter()(implicit config: Config) {
 case class Partition(negative: Seq[Regex], positive: Seq[Regex])
 
 case class Regex(regex: String) {
-  def matches(testName: String): Boolean = Try(Pattern.matches(regex, testName)).fold(_ => false, b => b)
+  def matches(testName: String): Boolean = Try(Pattern.matches(regex, testName)).getOrElse(false)
 }
 
 object TestFilter {
@@ -43,7 +43,7 @@ object TestFilter {
     c match {
       case '*'                 => ".*"
       case '?'                 => "."
-      case _ if isRegexChar(c) => s"\\${c.toString}"
+      case _ if isRegexChar(c) => "\\" + c.toString
       case c                   => c.toString
     }
 
