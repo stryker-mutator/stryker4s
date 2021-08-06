@@ -126,7 +126,10 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
       val settings: Seq[Def.Setting[_]] = Seq(
         scalacOptions --= blocklistedScalacOptions,
         Test / fork := true,
-        Compile / scalaSource := tmpDirFor(Compile, tmpDir).value,
+        Compile / scalaSource := tmpDirFor(Compile / scalaSource, tmpDir).value,
+        // Java code is not mutated, but can point to the same directory as the Scala code
+        // so we need to also change the directory for javaSource to the tmpDir to prevent this
+        Compile / javaSource := tmpDirFor(Compile / javaSource, tmpDir).value,
         Test / javaOptions ++= filteredSystemProperties
       ) ++ {
         if (config.testFilter.nonEmpty) {
@@ -139,8 +142,8 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
       (settings, Project.extract(state))
     }
 
-    def tmpDirFor(conf: Configuration, tmpDir: Path): Def.Initialize[JFile] =
-      (conf / scalaSource)(_.toPath())(source => (source inSubDir tmpDir).toFile())
+    def tmpDirFor(langSource: SettingKey[File], tmpDir: Path): Def.Initialize[JFile] =
+      langSource(source => (source.toPath() inSubDir tmpDir).toFile())
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 
