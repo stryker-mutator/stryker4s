@@ -143,7 +143,7 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
     }
 
     def tmpDirFor(langSource: SettingKey[File], tmpDir: Path): Def.Initialize[JFile] =
-      langSource(source => (fs2.io.file.Path.fromNioPath(source.toPath()) inSubDir tmpDir).toNioPath.toFile())
+      langSource(source => (Path.fromNioPath(source.toPath()) inSubDir tmpDir).toNioPath.toFile())
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 

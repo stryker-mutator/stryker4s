@@ -1,7 +1,6 @@
 package stryker4s.report
 
 import fs2.Stream
-import fs2.io.file.Path
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.scalatest.LogMatchers
@@ -51,7 +50,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           "Mutation run finished! Took 15 seconds" shouldBe loggedAsInfo
           "Total mutants: 1, detected: 1, undetected: 0" shouldBe loggedAsInfo
@@ -87,7 +86,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .onRunFinished(FinishedRunEvent(results, metrics, 1.minute, Path("")))
+        .onRunFinished(FinishedRunEvent(results, metrics, 1.minute, config.baseDir))
         .asserting { _ =>
           "Mutation run finished! Took 1 minute" shouldBe loggedAsInfo
           "Total mutants: 3, detected: 1, undetected: 2" shouldBe loggedAsInfo
@@ -133,7 +132,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
         )
       )
       sut
-        .onRunFinished(FinishedRunEvent(results, Metrics.calculateMetrics(results), 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(results, Metrics.calculateMetrics(results), 15.seconds, config.baseDir))
         .asserting { _ =>
           "Total mutants: 3, detected: 0, undetected: 3" shouldBe loggedAsInfo
           s"""Undetected mutants:
@@ -177,7 +176,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           s"""Undetected mutants:
              |0. [Survived] [StringLiteral]
@@ -212,7 +211,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       )
       val metrics = Metrics.calculateMetrics(results)
       sut
-        .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           "Total mutants: 1, detected: 0, undetected: 1" shouldBe loggedAsInfo
           s"""Undetected mutants:
@@ -247,7 +246,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .onRunFinished(
-          FinishedRunEvent(threeReport, Metrics.calculateMetrics(threeReport), 15.seconds, Path(""))
+          FinishedRunEvent(threeReport, Metrics.calculateMetrics(threeReport), 15.seconds, config.baseDir)
         )
         .asserting { _ =>
           "Mutation score: 66.67%" shouldBe loggedAsInfo
@@ -271,7 +270,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       )
 
       sut
-        .onRunFinished(FinishedRunEvent(report, Metrics.calculateMetrics(report), 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(report, Metrics.calculateMetrics(report), 15.seconds, config.baseDir))
         .asserting { _ =>
           "Mutation score: NaN" shouldBe loggedAsInfo
         }
@@ -297,7 +296,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           "Mutation score: 50.0%" shouldBe loggedAsInfo
         }
@@ -308,7 +307,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           "Mutation score: 50.0%" shouldBe loggedAsWarning
         }
@@ -319,7 +318,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           "Mutation score dangerously low!" shouldBe loggedAsError
           "Mutation score: 50.0%" shouldBe loggedAsError
@@ -331,7 +330,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new ConsoleReporter()
 
       sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, Path("")))
+        .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           "Mutation score below threshold! Score: 50.0%. Threshold: 51%" shouldBe loggedAsError
         }
