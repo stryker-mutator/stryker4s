@@ -3,11 +3,11 @@ package stryker4s.testutil.stubs
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.applicativeError._
+import fs2.io.file.Path
 import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.{InitialTestRunResult, Killed, Mutant, MutantRunResult, NoCoverageInitialTestRun}
 import stryker4s.run.{ResourcePool, TestRunner}
 
-import java.nio.file.Path
 import scala.meta._
 
 class TestRunnerStub(results: Seq[() => MutantRunResult]) extends TestRunner {

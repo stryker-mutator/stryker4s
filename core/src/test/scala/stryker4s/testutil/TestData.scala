@@ -1,6 +1,6 @@
 package stryker4s.testutil
 
-import better.files.File
+import fs2.io.file.Path
 import mutationtesting.{Metrics, MetricsResult, MutationTestResult, Thresholds}
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.GreaterThan
@@ -23,6 +23,6 @@ trait TestData {
       testResult,
       metrics.getOrElse(Metrics.calculateMetrics(testResult)),
       10.seconds,
-      File("target/stryker4s-report/")
+      Path("target/stryker4s-report/")
     )
 }

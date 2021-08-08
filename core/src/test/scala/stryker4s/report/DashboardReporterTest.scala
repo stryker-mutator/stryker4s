@@ -1,9 +1,7 @@
 package stryker4s.report
 
-import scala.concurrent.duration._
-
-import better.files.File
 import cats.effect.{IO, Resource}
+import fs2.io.file.Path
 import mutationtesting._
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
@@ -13,6 +11,8 @@ import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 import sttp.client3._
 import sttp.client3.testing.SttpBackendStub
 import sttp.model.{Header, MediaType, Method, StatusCode}
+
+import scala.concurrent.duration._
 
 class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("buildRequest") {
@@ -161,7 +161,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       )
     val report = MutationTestResult(thresholds = mutationtesting.Thresholds(80, 60), files = files)
     val metrics = Metrics.calculateMetrics(report)
-    FinishedRunEvent(report, metrics, 15.seconds, File("target/stryker4s-report/"))
+    FinishedRunEvent(report, metrics, 15.seconds, Path("target/stryker4s-report/"))
   }
 
   def baseDashConfig =

@@ -2,6 +2,7 @@ package stryker4s.maven
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvoker, Invoker}
 import stryker4s.config.Config
@@ -12,7 +13,6 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.Reporter
 import stryker4s.run.{MutantRunner, Stryker4sRunner, TestRunner}
 
-import java.nio.file.Path
 import java.util.Properties
 
 class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4sRunner {
@@ -26,7 +26,7 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
 
     val properties = new Properties(project.getProperties)
     setTestProperties(properties, config.testFilter)
-    invoker.setWorkingDirectory(tmpDir.toFile())
+    invoker.setWorkingDirectory(tmpDir.toNioPath.toFile())
 
     NonEmptyList.of(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals)))
   }

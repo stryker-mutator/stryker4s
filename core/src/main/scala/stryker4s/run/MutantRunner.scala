@@ -2,7 +2,7 @@ package stryker4s.run
 
 import cats.effect.{IO, Resource}
 import cats.syntax.functor._
-import fs2.io.file.Files
+import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
@@ -14,7 +14,7 @@ import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
-import java.nio.file.Path
+import java.nio
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
 
@@ -46,10 +46,10 @@ class MutantRunner(
   } yield metrics
 
   def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Path] = {
-    val targetDir = (config.baseDir / "target").path
+    val targetDir = config.baseDir / "target"
     for {
       _ <- Resource.eval(Files[IO].createDirectories(targetDir))
-      tmpDir <- Files[IO].tempDirectory(dir = Some(targetDir), prefix = "stryker4s-")
+      tmpDir <- Files[IO].tempDirectory(Some(targetDir), "stryker4s-", None)
       _ <- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq))
     } yield tmpDir
   }
@@ -61,7 +61,6 @@ class MutantRunner(
         val unmutatedFilesStream =
           Stream
             .evalSeq(IO(sourceCollector.filesToCopy.filterNot(mutatedPaths.contains).toSeq))
-            .map(_.path)
             .through(writeOriginalFile(tmpDir))
 
         val mutatedFilesStream = Stream
@@ -76,21 +75,21 @@ class MutantRunner(
         val newSubPath = file.inSubDir(tmpDir)
 
         IO(log.debug(s"Copying $file to $newSubPath")) *>
-          Files[IO].createDirectories(newSubPath.getParent()) *>
+          Files[IO].createDirectories(newSubPath.parent.get) *>
           Files[IO].copy(file, newSubPath).void
       }
 
   def writeMutatedFile(tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
     _.parEvalMap(config.concurrency) { mutatedFile =>
-      val targetPath = mutatedFile.fileOrigin.path.inSubDir(tmpDir)
+      val targetPath = mutatedFile.fileOrigin.inSubDir(tmpDir)
       IO(log.debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
         Files[IO]
-          .createDirectories(targetPath.getParent())
+          .createDirectories(targetPath.parent.get)
           .as((mutatedFile, targetPath))
     }.map { case (mutatedFile, targetPath) =>
       Stream(mutatedFile.tree.syntax)
         .covary[IO]
-        .through(text.utf8Encode)
+        .through(text.utf8.encode)
         .through(Files[IO].writeAll(targetPath))
     }.parJoin(config.concurrency)
 
@@ -139,6 +138,7 @@ class MutantRunner(
       .observe(in => in.map(_ => MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 
     // Back to per-file structure
+    implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)
     (static ++ noCoverage ++ testedMutants)
       .fold(SortedMap.empty[Path, Seq[MutantRunResult]]) { case (resultsMap, (path, result)) =>
         val results = resultsMap.getOrElse(path, Seq.empty) :+ result

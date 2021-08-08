@@ -2,6 +2,7 @@ package stryker4s.sbt
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import fs2.io.file.Path
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
@@ -16,7 +17,6 @@ import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File => JFile, PrintStream}
-import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
@@ -143,7 +143,7 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
     }
 
     def tmpDirFor(langSource: SettingKey[File], tmpDir: Path): Def.Initialize[JFile] =
-      langSource(source => (source.toPath() inSubDir tmpDir).toFile())
+      langSource(source => (Path.fromNioPath(source.toPath()) inSubDir tmpDir).toNioPath.toFile())
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 

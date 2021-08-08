@@ -1,17 +1,17 @@
 package stryker4s.mutants
 
-import scala.meta.Tree
-
-import better.files.File
+import fs2.io.file.Path
 import stryker4s.log.Logger
 import stryker4s.model.{MutatedFile, MutationsInSource, SourceTransformations}
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
+import scala.meta.Tree
+
 class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)(implicit
     log: Logger
 ) {
-  def mutate(files: Iterable[File]): Iterable[MutatedFile] = {
+  def mutate(files: Iterable[Path]): Iterable[MutatedFile] = {
     val mutatedFiles = files
       .map { file =>
         val mutationsInSource = findMutants(file)
@@ -29,7 +29,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
   /** Step 1: Find mutants in the found files
     */
-  private def findMutants(file: File): MutationsInSource = mutantFinder.mutantsInFile(file)
+  private def findMutants(file: Path): MutationsInSource = mutantFinder.mutantsInFile(file)
 
   /** Step 2: transform the statements of the found mutants (preparation of building pattern matches)
     */

@@ -1,14 +1,17 @@
 package stryker4s.scalatest
 
-import java.io.FileNotFoundException
+import fs2.io.file.Path
 
-import better.files.File
+import java.io.FileNotFoundException
+import java.nio.file
 
 object FileUtil {
   private lazy val classLoader = getClass.getClassLoader
 
-  def getResource(name: String): File =
+  def getResource(name: String): Path =
     Option(classLoader.getResource(name))
-      .map(File(_))
+      .map(_.toURI())
+      .map(file.Path.of)
+      .map(Path.fromNioPath)
       .getOrElse(throw new FileNotFoundException(s"File $name could not be found"))
 }

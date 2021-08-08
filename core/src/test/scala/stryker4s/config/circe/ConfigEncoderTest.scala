@@ -1,13 +1,13 @@
 package stryker4s.config.circe
 
-import better.files.File
+import fs2.io.file.Path
 import io.circe.Json._
 import io.circe.syntax._
 import stryker4s.config._
 import stryker4s.testutil.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite {
-  val workspaceLocation = File("workspace").path.toAbsolutePath().toString()
+  val workspaceLocation = Path("workspace").absolute.toString
   describe("configEncoder") {
     it("should be able to encode a minimal config") {
       expectJsonConfig(
@@ -64,12 +64,12 @@ class ConfigEncoderTest extends Stryker4sSuite {
     result shouldBe json
   }
 
-  def defaultConfig: Config = Config.default.copy(baseDir = File("workspace"))
+  def defaultConfig: Config = Config.default.copy(baseDir = Path("workspace"))
 
   def defaultConfigJson = obj(
     "mutate" -> arr(fromString(defaultConfig.mutate.head)),
     "test-filter" -> arr(),
-    "base-dir" -> fromString(workspaceLocation.toString),
+    "base-dir" -> fromString(workspaceLocation),
     "reporters" -> arr(fromString("console"), fromString("html")),
     "excluded-mutations" -> arr(),
     "thresholds" -> obj(

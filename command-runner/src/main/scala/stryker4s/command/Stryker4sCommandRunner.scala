@@ -2,6 +2,7 @@ package stryker4s.command
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import fs2.io.file.Path
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
@@ -11,7 +12,6 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 
-import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: Deferred[IO, FiniteDuration])(implicit

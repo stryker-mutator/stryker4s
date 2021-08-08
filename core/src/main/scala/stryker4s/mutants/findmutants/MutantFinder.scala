@@ -1,17 +1,17 @@
 package stryker4s.mutants.findmutants
 
-import scala.meta.parsers.XtensionParseInputLike
-import scala.meta.{Dialect, Source}
-
-import better.files.File
 import cats.implicits._
+import fs2.io.file.Path
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
 import stryker4s.log.Logger
 import stryker4s.model.{Mutant, MutationExcluded, MutationsInSource, RegexParseError}
 
+import scala.meta.parsers.XtensionParseInputLike
+import scala.meta.{Dialect, Source}
+
 class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger) {
-  def mutantsInFile(filePath: File): MutationsInSource = {
+  def mutantsInFile(filePath: Path): MutationsInSource = {
     val parsedSource = parseFile(filePath)
     val (included, excluded) = findMutants(parsedSource)
     MutationsInSource(parsedSource, included, excluded)
@@ -30,10 +30,10 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
     (included, excluded.size)
   }
 
-  def parseFile(file: File): Source = {
+  def parseFile(file: Path): Source = {
     implicit val dialect: Dialect = config.scalaDialect
 
-    file.toJava
+    file.toNioPath
       .parse[Source]
       .fold(
         e => {

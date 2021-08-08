@@ -1,8 +1,8 @@
 package stryker4s.maven.runner
 
-import better.files.File
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
+import fs2.io.file.Path
 import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
@@ -21,7 +21,7 @@ import scala.meta._
 class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
-  val tmpDir = File("/home/user/tmpDir")
+  val tmpDir = Path("/home/user/tmpDir")
   def properties = new ju.Properties()
   def goals = Seq("test")
 

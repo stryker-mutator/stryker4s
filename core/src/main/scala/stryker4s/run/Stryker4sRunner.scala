@@ -2,6 +2,7 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import fs2.io.file.Path
 import stryker4s.Stryker4s
 import stryker4s.config._
 import stryker4s.files.DiskFileIO
@@ -16,8 +17,6 @@ import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
-
-import java.nio.file.Path
 
 abstract class Stryker4sRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
