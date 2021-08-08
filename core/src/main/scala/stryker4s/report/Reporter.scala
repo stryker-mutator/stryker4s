@@ -1,8 +1,8 @@
 package stryker4s.report
 
-import better.files.File
 import cats.effect.IO
 import cats.syntax.applicative._
+import fs2.io.file.Path
 import fs2.{INothing, Pipe}
 import mutationtesting._
 import stryker4s.config.Config
@@ -20,5 +20,5 @@ final case class FinishedRunEvent(
     report: MutationTestResult[Config],
     metrics: MetricsResult,
     duration: FiniteDuration,
-    reportsLocation: File
+    reportsLocation: Path
 )

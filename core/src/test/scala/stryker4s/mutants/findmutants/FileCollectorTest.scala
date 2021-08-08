@@ -1,25 +1,26 @@
 package stryker4s.mutants.findmutants
 
-import scala.util.{Failure, Try}
-
-import better.files.File
+import fs2.io.file.Path
 import stryker4s.config.Config
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.TestProcessRunner
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class FileCollectorTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
-  private val filledDirPath: File = FileUtil.getResource("fileTests/filledDir")
-  private val basePath: File = filledDirPath / "src/main/scala"
+import java.nio.file.{Files => JFiles}
+import scala.util.{Failure, Try}
 
-  assume(filledDirPath.exists(), "Filled test dir does not exist")
-  assume(basePath.exists(), "Basepath dir does not exist")
+class FileCollectorTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+  private val filledDirPath: Path = FileUtil.getResource("fileTests/filledDir")
+  private val basePath: Path = filledDirPath / "src/main/scala"
+
+  assume(JFiles.exists(filledDirPath.toNioPath), "Filled test dir does not exist")
+  assume(JFiles.exists(basePath.toNioPath), "Basepath dir does not exist")
 
   describe("collect files to mutate") {
     describe("on empty dir") {
       val emptyDir = FileUtil.getResource("fileTests/emptyDir")
-      assume(emptyDir.exists(), "Empty test dir does not exist")
+      assume(JFiles.exists(emptyDir.toNioPath), "Empty test dir does not exist")
 
       it("should not collect the baseDir") {
         implicit val config: Config = Config.default.copy(baseDir = emptyDir)
@@ -246,7 +247,7 @@ class FileCollectorTest extends Stryker4sIOSuite with MockitoIOSuite with LogMat
           basePath / "package" / "target.scala"
         )
       val gitProcessResult = Failure(new Exception("Exception"))
-      when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
+      when(processRunnerMock(any[Command], any[Path])).thenReturn(gitProcessResult)
 
       val sut = new FileCollector(processRunnerMock)
 
@@ -274,7 +275,7 @@ class FileCollectorTest extends Stryker4sIOSuite with MockitoIOSuite with LogMat
       it("Should log that no files config option is found and is using fallback to copy all files") {
         implicit val config: Config = Config.default.copy(baseDir = filledDirPath)
         val gitProcessResult = Failure(new Exception(""))
-        when(processRunnerMock(any[Command], any[File])).thenReturn(gitProcessResult)
+        when(processRunnerMock(any[Command], any[Path])).thenReturn(gitProcessResult)
 
         val sut = new FileCollector(processRunnerMock)
 

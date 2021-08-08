@@ -1,11 +1,6 @@
 package stryker4s.run
 
-import java.nio.file.Paths
-
-import scala.concurrent.TimeoutException
-import scala.meta._
-import scala.util.{Failure, Success}
-
+import fs2.io.file.Path
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
@@ -14,10 +9,14 @@ import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.stubs.TestProcessRunner
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
+import scala.concurrent.TimeoutException
+import scala.meta._
+import scala.util.{Failure, Success}
+
 class ProcessTestRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
   def processTestRunner(processRunner: ProcessRunner) =
-    new ProcessTestRunner(Command("foo", "test"), processRunner, Paths.get("."))
+    new ProcessTestRunner(Command("foo", "test"), processRunner, Path("."))
 
   describe("runMutant") {
 

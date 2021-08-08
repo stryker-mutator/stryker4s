@@ -1,26 +1,25 @@
 package stryker4s.config.pure
 
-import java.nio.file.Path
-
-import scala.meta.Dialect
-import scala.meta.dialects._
-
-import better.files.File
+import fs2.io.file.Path
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto._
 import stryker4s.config._
 import stryker4s.extension.mutationtype.Mutation
 
+import java.nio.file.{Path => JPath}
+import scala.meta.Dialect
+import scala.meta.dialects._
+
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *
   * @example
-  *   `toFileReader` makes PureConfig able to read `better.files.File` from a `java.nio.file.Path`
+  *   `pathReader` makes PureConfig able to read `fs2.io.file.Path` from a `java.nio.file.Path`
   */
 trait ConfigConfigReader {
 
-  implicit def fileReader: ConfigReader[File] =
-    ConfigReader[Path] map (p => File(p))
+  implicit def pathReader: ConfigReader[Path] =
+    ConfigReader[JPath] map (Path.fromNioPath)
 
   implicit def reporterReader: ConfigReader[ReporterType] =
     deriveEnumerationReader[ReporterType]

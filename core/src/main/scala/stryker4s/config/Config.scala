@@ -1,16 +1,15 @@
 package stryker4s.config
 
-import java.util.concurrent.TimeUnit
+import fs2.io.file.Path
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
-
-import better.files._
 
 final case class Config(
     mutate: Seq[String] = Seq("**/main/scala/**.scala"),
     testFilter: Seq[String] = Seq.empty,
-    baseDir: File = File.currentWorkingDirectory,
+    baseDir: Path = Path("").absolute,
     reporters: Set[ReporterType] = Set(Console, Html),
     files: Option[Seq[String]] = None,
     excludedMutations: Config.ExcludedMutations = Set.empty,
