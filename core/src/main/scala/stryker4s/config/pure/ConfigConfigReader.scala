@@ -19,7 +19,7 @@ import scala.meta.dialects._
 trait ConfigConfigReader {
 
   implicit def pathReader: ConfigReader[Path] =
-    ConfigReader[JPath] map (Path.fromNioPath)
+    ConfigReader[JPath].map(Path.fromNioPath).map(_.absolute)
 
   implicit def reporterReader: ConfigReader[ReporterType] =
     deriveEnumerationReader[ReporterType]
