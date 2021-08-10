@@ -7,10 +7,11 @@ import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
+import stryker4s.extension.StreamExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
 import stryker4s.model._
-import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
@@ -20,12 +21,12 @@ import scala.concurrent.duration._
 
 class MutantRunner(
     createTestRunnerPool: Path => Resource[IO, TestRunnerPool],
-    sourceCollector: SourceCollector,
+    fileResolver: FilesFileResolver,
     reporter: Reporter
 )(implicit config: Config, log: Logger)
     extends MutantRunResultMapper {
 
-  def apply(mutatedFiles: List[MutatedFile]): IO[MetricsResult] =
+  def apply(mutatedFiles: Seq[MutatedFile]): IO[MetricsResult] =
     prepareEnv(mutatedFiles)
       .flatMap(createTestRunnerPool)
       .use { testRunnerPool =>
@@ -59,8 +60,8 @@ class MutantRunner(
       IO(log.debug("Using temp directory: " + tmpDir)) *> {
         val mutatedPaths = mutatedFiles.map(_.fileOrigin)
         val unmutatedFilesStream =
-          Stream
-            .evalSeq(IO(sourceCollector.filesToCopy.filterNot(mutatedPaths.contains).toSeq))
+          fileResolver.files
+            .filterNot(mutatedPaths.contains)
             .through(writeOriginalFile(tmpDir))
 
         val mutatedFilesStream = Stream
@@ -94,7 +95,7 @@ class MutantRunner(
     }.parJoin(config.concurrency)
 
   private def runMutants(
-      mutatedFiles: List[MutatedFile],
+      mutatedFiles: Seq[MutatedFile],
       testRunnerPool: TestRunnerPool,
       coverageExclusions: CoverageExclusions
   ): IO[Map[Path, Seq[MutantRunResult]]] = {
@@ -119,7 +120,7 @@ class MutantRunner(
       log.debug(s"Static mutant ids are: ${staticMutants.map(_._2.id).mkString(", ")}")
     }
 
-    def mapPureMutants[K, V, VV](l: List[(K, V)], f: V => VV) =
+    def mapPureMutants[K, V, VV](l: Seq[(K, V)], f: V => VV) =
       Stream.emits(l).map { case (k, v) => k -> f(v) }
 
     // Map all static mutants

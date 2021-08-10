@@ -1,7 +1,5 @@
 package stryker4s.mutants.findmutants
 
-import scala.meta._
-
 import cats.syntax.either._
 import cats.syntax.semigroup._
 import stryker4s.config.Config
@@ -10,8 +8,10 @@ import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtensio
 import stryker4s.extension.mutationtype._
 import stryker4s.model.{IgnoredMutationReason, Mutant, MutationExcluded}
 
+import scala.meta._
+
 class MutantMatcher()(implicit config: Config) {
-  private[this] val ids = Iterator.from(0)
+  private val ids = Iterator.from(0)
 
   /** A PartialFunction that can match on a ScalaMeta tree and return a `List[Either[IgnoredMutationReason, Mutant]]`.
     *

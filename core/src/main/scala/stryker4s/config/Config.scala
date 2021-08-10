@@ -7,11 +7,11 @@ import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
 
 final case class Config(
-    mutate: Seq[String] = Seq("**/main/scala/**.scala"),
+    mutate: Seq[String] = Seq.empty,
     testFilter: Seq[String] = Seq.empty,
     baseDir: Path = Path("").absolute,
     reporters: Set[ReporterType] = Set(Console, Html),
-    files: Option[Seq[String]] = None,
+    files: Seq[String] = Seq.empty,
     excludedMutations: Config.ExcludedMutations = Set.empty,
     thresholds: Thresholds = Thresholds(),
     dashboard: DashboardOptions = DashboardOptions(),

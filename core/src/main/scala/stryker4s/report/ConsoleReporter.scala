@@ -11,7 +11,7 @@ import stryker4s.run.threshold._
 import scala.concurrent.duration._
 
 class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
-  private[this] val mutationScoreString = "Mutation score:"
+  private val mutationScoreString = "Mutation score:"
 
   override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] = in => {
     val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }

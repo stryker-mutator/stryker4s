@@ -26,7 +26,6 @@ object Settings {
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      Dependencies.betterFiles,
       Dependencies.catsCore,
       Dependencies.catsEffect,
       Dependencies.circeCore,

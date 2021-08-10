@@ -1,9 +1,9 @@
 package stryker4s.mutants.applymutants
 
-import scala.meta.{Source, Term}
-
 import stryker4s.extension.TreeExtensions._
 import stryker4s.model._
+
+import scala.meta.{Source, Term}
 
 class StatementTransformer {
   def transformSource(source: Source, foundMutants: Seq[Mutant]): SourceTransformations = {

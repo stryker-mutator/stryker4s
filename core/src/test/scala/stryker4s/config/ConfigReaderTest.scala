@@ -49,7 +49,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       val result = ConfigReader.readConfig(configSource)
 
       result.baseDir shouldBe Path("").absolute
-      result.mutate shouldBe Seq("**/main/scala/**.scala")
+      result.mutate shouldBe empty
+      result.files shouldBe empty
       result.reporters should (contain.only(Html, Console))
       result.thresholds shouldBe Thresholds()
       result.maxTestRunnerReuse shouldBe None

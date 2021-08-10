@@ -1,5 +1,6 @@
 package stryker4s.mutants.findmutants
 
+import cats.effect.IO
 import cats.implicits._
 import fs2.io.file.Path
 import stryker4s.config.Config
@@ -8,14 +9,13 @@ import stryker4s.log.Logger
 import stryker4s.model.{Mutant, MutationExcluded, MutationsInSource, RegexParseError}
 
 import scala.meta.parsers.XtensionParseInputLike
-import scala.meta.{Dialect, Source}
+import scala.meta.{Dialect, Parsed, Source}
 
 class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger) {
-  def mutantsInFile(filePath: Path): MutationsInSource = {
-    val parsedSource = parseFile(filePath)
-    val (included, excluded) = findMutants(parsedSource)
-    MutationsInSource(parsedSource, included, excluded)
-  }
+  def mutantsInFile(filePath: Path): IO[MutationsInSource] = for {
+    parsedSource <- parseFile(filePath)
+    (included, excluded) <- IO(findMutants(parsedSource))
+  } yield MutationsInSource(parsedSource, included, excluded)
 
   def findMutants(source: Source): (Seq[Mutant], Int) = {
     val (ignored, included) = source.collect(matcher.allMatchers).flatten.partitionEither(identity)
@@ -30,18 +30,15 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
     (included, excluded.size)
   }
 
-  def parseFile(file: Path): Source = {
+  def parseFile(file: Path): IO[Source] = {
     implicit val dialect: Dialect = config.scalaDialect
 
-    file.toNioPath
-      .parse[Source]
-      .fold(
-        e => {
-          log.error(s"Error while parsing file '${file.relativePath}', ${e.message}")
-          throw e.details
-        },
-        identity
-      )
+    IO(file.toNioPath.parse[Source]).flatMap {
+      case e: Parsed.Error =>
+        log.error(s"Error while parsing file '${file.relativePath}', ${e.message}")
+        IO.raiseError(e.details)
+      case s => IO.pure(s.get)
+    }
 
   }
 }

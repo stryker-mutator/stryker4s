@@ -11,13 +11,13 @@ import stryker4s.run.{ResourcePool, TestRunner}
 import scala.meta._
 
 class TestRunnerStub(results: Seq[() => MutantRunResult]) extends TestRunner {
-  private[this] val stream = Iterator.from(0)
+  private val stream = Iterator.from(0)
 
   def initialTestRun(): IO[InitialTestRunResult] = IO.pure(NoCoverageInitialTestRun(true))
 
   def runMutant(mutant: Mutant): IO[MutantRunResult] = {
     // Ensure runMutant can always continue
-    IO(results(stream.next())())
+    IO(results.applyOrElse(stream.next(), (_: Int) => results.head)())
       .recover { case _: ArrayIndexOutOfBoundsException => results.head() }
   }
 }
