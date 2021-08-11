@@ -412,6 +412,47 @@ class MutantMatcherTest extends Stryker4sSuite {
         Lit.String("")
       )
     }
+
+    it("should not match xml literals") {
+      val tree = source"""class Foo {
+        def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(q"foo"))}
+      }"""
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should not match empty strings on xml literals") {
+      val tree = source"""class Foo {
+        def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("")), List(q"foo"))}
+      }"""
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
+
+    it("should match inside xml literal args") {
+      val str = Lit.String("str")
+      val tree = source"""class Foo {
+        def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(str))}
+      }"""
+      expectMutations(
+        sut.matchStringLiteral,
+        tree,
+        str,
+        Lit.String("")
+      )
+    }
+
+    it("should not match xml interpolation") {
+      val tree = Pat.Xml(List(Lit.String("<foo></xml>")), List.empty)
+
+      val result = tree collect sut.allMatchers
+
+      result should be(empty)
+    }
   }
 
   describe("regexMutator") {
