@@ -6,7 +6,10 @@ case object EmptyString extends StringLiteral[Lit.String] {
   override val tree: Lit.String = Lit.String("")
 
   override def unapply(arg: Lit.String): Option[Lit.String] =
-    super.unapply(arg).filterNot(ParentIsInterpolatedString(_))
+    super
+      .unapply(arg)
+      .filterNot(ParentIsInterpolatedString(_))
+      .filterNot(IsXmlLiteral(_))
 }
 
 case object StrykerWasHereString extends StringLiteral[Lit.String] {
@@ -21,6 +24,7 @@ case object NonEmptyString extends NoInvalidPlacement[Lit.String] {
       .unapply(arg)
       .filter(_.value.nonEmpty)
       .filterNot(ParentIsInterpolatedString(_))
+      .filterNot(IsXmlLiteral(_))
 }
 
 /** Not a mutation, just an extractor for pattern matching on interpolated strings
@@ -39,5 +43,15 @@ private object ParentIsInterpolatedString {
       case Some(_: Term.Interpolate) => true
       case Some(_: Pat.Interpolate)  => true
       case _                         => false
+    }
+}
+
+private object IsXmlLiteral {
+  def apply(arg: Lit.String): Boolean =
+    arg.parent match {
+      // Do not mutate XML literal strings
+      case Some(Term.Xml(parts, _)) if parts.contains(arg) => true
+      case Some(Pat.Xml(parts, _)) if parts.contains(arg)  => true
+      case _                                               => false
     }
 }
