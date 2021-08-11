@@ -101,7 +101,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     ) *>
       Resource
         .make(
-          retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
+          retryWithBackoff(5, 0.5.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
             IO(new Socket(InetAddress.getLoopbackAddress(), port))
           )
         )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
