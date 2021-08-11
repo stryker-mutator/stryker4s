@@ -20,7 +20,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       ConfigReader.readConfigOfType[Config](configSource) match {
         case Left(errors) => fail(errors.toList.mkString(","))
         case Right(config) =>
-          config.baseDir shouldBe Path("/tmp/project")
+          config.baseDir shouldBe Path("/tmp/project").absolute
           config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
           config.reporters.loneElement shouldBe Html
           config.excludedMutations shouldBe Set("BooleanLiteral")
@@ -87,7 +87,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       lazy val config = ConfigReader.readConfig(configSource)
 
-      config.baseDir shouldBe Path("/tmp/project")
+      config.baseDir shouldBe Path("/tmp/project").absolute
       config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       config.reporters.loneElement shouldBe Html
       config.excludedMutations shouldBe Set("BooleanLiteral")
@@ -98,7 +98,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       val result = ConfigReader.readConfig(configSource)
 
-      result.baseDir shouldBe Path("/tmp/project")
+      result.baseDir shouldBe Path("/tmp/project").absolute
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.reporters.loneElement shouldBe Html
       result.excludedMutations shouldBe Set("BooleanLiteral")
