@@ -1,8 +1,5 @@
 package stryker4s.testutil
 
-import scala.concurrent.ExecutionContext
-
-import cats.effect.IO
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{LoneElement, OptionValues}

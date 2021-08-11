@@ -1,6 +1,5 @@
 package stryker4s.maven.runner
 
-import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import fs2.io.file.Path
 import org.apache.maven.model.Profile
@@ -15,7 +14,6 @@ import stryker4s.testutil.Stryker4sSuite
 
 import java.{util => ju}
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext
 import scala.meta._
 
 class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
