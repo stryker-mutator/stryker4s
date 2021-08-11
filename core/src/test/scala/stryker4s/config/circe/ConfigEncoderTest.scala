@@ -13,18 +13,19 @@ class ConfigEncoderTest extends Stryker4sSuite {
       expectJsonConfig(
         defaultConfig,
         defaultConfigJson,
-        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation.replace(
+        s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
           "\\",
           "\\\\"
-        )}","reporters":["console","html"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
       )
     }
 
     it("should be able to encode a filled config") {
       expectJsonConfig(
         defaultConfig.copy(
+          mutate = Seq("**/main/scala/**.scala"),
           testFilter = Seq("foo.scala"),
-          files = Some(Seq("file.scala")),
+          files = Seq("file.scala"),
           excludedMutations = Set("bar.scala"),
           maxTestRunnerReuse = Some(2),
           dashboard = DashboardOptions(
@@ -34,7 +35,8 @@ class ConfigEncoderTest extends Stryker4sSuite {
           )
         ),
         defaultConfigJson.mapObject(
-          _.add("test-filter", arr(fromString("foo.scala")))
+          _.add("mutate", arr(fromString("**/main/scala/**.scala")))
+            .add("test-filter", arr(fromString("foo.scala")))
             .add("files", arr(fromString("file.scala")))
             .add("excluded-mutations", arr(fromString("bar.scala")))
             .add("max-test-runner-reuse", fromInt(2))
@@ -67,7 +69,8 @@ class ConfigEncoderTest extends Stryker4sSuite {
   def defaultConfig: Config = Config.default.copy(baseDir = Path("workspace"))
 
   def defaultConfigJson = obj(
-    "mutate" -> arr(fromString(defaultConfig.mutate.head)),
+    "mutate" -> arr(),
+    "files" -> arr(),
     "test-filter" -> arr(),
     "base-dir" -> fromString(workspaceLocation),
     "reporters" -> arr(fromString("console"), fromString("html")),

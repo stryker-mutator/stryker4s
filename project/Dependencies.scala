@@ -21,7 +21,6 @@ object Dependencies {
     val scalatest = "3.2.9"
 
     // Direct dependencies
-    val betterFiles = "3.9.1"
     val catsCore = "2.6.1"
     val catsEffect = "3.2.2"
     val circe = "0.14.1"
@@ -43,7 +42,6 @@ object Dependencies {
     val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
   }
 
-  val betterFiles = "com.github.pathikrit" %% "better-files" % versions.betterFiles
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe

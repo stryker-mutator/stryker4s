@@ -1,13 +1,13 @@
 package stryker4s.mutants.applymutants
 
-import scala.meta._
-import scala.util.{Failure, Success}
-
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.log.Logger
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
+
+import scala.meta._
+import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger) {
   def buildNewSource(transformedStatements: SourceTransformations): Tree = {

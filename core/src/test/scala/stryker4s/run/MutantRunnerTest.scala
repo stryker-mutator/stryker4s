@@ -4,10 +4,9 @@ import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model.{Killed, Mutant, MutatedFile, Survived}
-import stryker4s.mutants.findmutants.SourceCollector
 import stryker4s.report.{FinishedRunEvent, Reporter}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.stubs.TestRunnerStub
+import stryker4s.testutil.stubs.{TestFileResolver, TestRunnerStub}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 import scala.meta._
@@ -18,7 +17,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
     implicit val config = Config.default.copy(baseDir = FileUtil.getResource("scalaFiles"))
 
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
-      val fileCollectorMock: SourceCollector = mock[SourceCollector]
+      val fileCollectorMock = new TestFileResolver(Seq.empty)
       val reporterMock = mock[Reporter]
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
       when(reporterMock.mutantTested).thenReturn(_.drain)
@@ -31,8 +30,6 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, 0)
-
-      when(fileCollectorMock.filesToCopy).thenReturn(List.empty)
 
       sut(List(mutatedFile)).asserting { result =>
         val captor = ArgCaptor[FinishedRunEvent]

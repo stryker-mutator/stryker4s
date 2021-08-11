@@ -1,10 +1,11 @@
 package stryker4s.report.mapper
 
-import better.files.File
 import fs2.io.file.Path
 import mutationtesting._
 import stryker4s.config.{Config, Thresholds => ConfigThresholds}
 import stryker4s.model._
+
+import java.nio.file.Files
 
 trait MutantRunResultMapper {
   protected[report] def toReport(
@@ -64,5 +65,5 @@ trait MutantRunResultMapper {
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
-    File((config.baseDir / path.toString).toNioPath).contentAsString
+    Files.readString((config.baseDir / path.toString).toNioPath)
 }
