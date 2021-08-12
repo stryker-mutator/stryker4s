@@ -60,7 +60,9 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
               )
             )
           )
-          source should equal(Files.readString(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
+          source should equal(
+            new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
+          )
           m.config.value shouldBe config
         }
       }

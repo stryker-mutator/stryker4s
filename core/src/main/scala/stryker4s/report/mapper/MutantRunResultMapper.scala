@@ -65,5 +65,5 @@ trait MutantRunResultMapper {
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
-    Files.readString((config.baseDir / path.toString).toNioPath)
+    new String(Files.readAllBytes((config.baseDir / path).toNioPath))
 }
