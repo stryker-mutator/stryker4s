@@ -76,7 +76,7 @@ object TestRunner {
               // On error, get a new testRunner and set it
               case Left(_) =>
                 IO(
-                  log.info(
+                  log.debug(
                     s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant $retriesLeft more time(s)"
                   )
                 ) *>

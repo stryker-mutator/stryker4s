@@ -1,19 +1,18 @@
 package stryker4s.mutants.findmutants
 
-import java.nio.file.NoSuchFileException
-
-import scala.meta._
-import scala.meta.parsers.ParseException
-
-import better.files.File
+import fs2.io.file.Path
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.log.Logger
 import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.Stryker4sIOSuite
 
-class MutantFinderTest extends Stryker4sSuite with LogMatchers {
+import java.nio.file.NoSuchFileException
+import scala.meta._
+import scala.meta.parsers.ParseException
+
+class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
 
   describe("parseFile") {
@@ -23,37 +22,37 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MutantFinder(new MutantMatcher)
       val file = exampleClassFile
 
-      val result = sut.parseFile(file)
-
-      val expected = """package stryker4s
-                       |
-                       |class ExampleClass {
-                       |  def foo(num: Int) = num == 10
-                       |
-                       |  def createHugo = Person(22, "Hugo")
-                       |}
-                       |
-                       |final case class Person(age: Int, name: String)
-                       |""".stripMargin.parse[Source].get
-      assert(result.isEqual(expected), result)
+      sut.parseFile(file).asserting { result =>
+        val expected = """package stryker4s
+                         |
+                         |class ExampleClass {
+                         |  def foo(num: Int) = num == 10
+                         |
+                         |  def createHugo = Person(22, "Hugo")
+                         |}
+                         |
+                         |final case class Person(age: Int, name: String)
+                         |""".stripMargin.parse[Source].get
+        assert(result.isEqual(expected), result)
+      }
     }
 
     it("should throw an exception on a non-parseable file") {
       val sut = new MutantFinder(new MutantMatcher)
       val file = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
-      val expectedException = the[ParseException] thrownBy sut.parseFile(file)
+      sut.parseFile(file).attempt.asserting { result =>
+        val expectedException = result.swap.getOrElse(fail()).asInstanceOf[ParseException]
 
-      expectedException.shortMessage should be("expected class or object definition identifier")
+        expectedException.shortMessage should be("expected class or object definition identifier")
+      }
     }
 
     it("should fail on a nonexistent file") {
       val sut = new MutantFinder(new MutantMatcher)
-      val noFile = File("this/does/not/exist.scala")
+      val noFile = Path("this/does/not/exist.scala")
 
-      lazy val result = sut.parseFile(noFile)
-
-      a[NoSuchFileException] should be thrownBy result
+      sut.parseFile(noFile).assertThrows[NoSuchFileException]
     }
 
     it("should parse a scala-3 file") {
@@ -63,7 +62,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MutantFinder(new MutantMatcher)(scala3DialectConfig, implicitly[Logger])
       val file = FileUtil.getResource("scalaFiles/scala3File.scala")
 
-      noException shouldBe thrownBy(sut.parseFile(file))
+      sut.parseFile(file).assertNoException
     }
   }
 
@@ -74,7 +73,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MutantFinder(new MutantMatcher)
       val source = source"case class Foo(s: String)"
 
-      val result = sut.findMutants(source)._1
+      val (result, _) = sut.findMutants(source)
 
       result should be(empty)
     }
@@ -88,7 +87,7 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
                     def foobar = s == "foobar"
                   }"""
 
-      val result = sut.findMutants(source)._1
+      val (result, _) = sut.findMutants(source)
 
       result should have length 2
 
@@ -201,16 +200,16 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MutantFinder(new MutantMatcher)
       val file = exampleClassFile
 
-      val result = sut.mutantsInFile(file)
+      sut.mutantsInFile(file).asserting { result =>
+        result.source.children should not be empty
+        val firstMutant = result.mutants.head
+        assert(firstMutant.original.isEqual(q"=="), firstMutant.original)
+        assert(firstMutant.mutated.isEqual(q"!="), firstMutant.mutated)
 
-      result.source.children should not be empty
-      val firstMutant = result.mutants.head
-      assert(firstMutant.original.isEqual(q"=="), firstMutant.original)
-      assert(firstMutant.mutated.isEqual(q"!="), firstMutant.mutated)
-
-      val secondMutant = result.mutants(1)
-      assert(secondMutant.original.isEqual(Lit.String("Hugo")), secondMutant.original)
-      assert(secondMutant.mutated.isEqual(Lit.String("")), secondMutant.mutated)
+        val secondMutant = result.mutants(1)
+        assert(secondMutant.original.isEqual(Lit.String("Hugo")), secondMutant.original)
+        assert(secondMutant.mutated.isEqual(Lit.String("")), secondMutant.mutated)
+      }
     }
   }
 
@@ -221,9 +220,14 @@ class MutantFinderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MutantFinder(new MutantMatcher)
       val noFile = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
-      a[ParseException] should be thrownBy sut.parseFile(noFile)
-
-      s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(loggedAsError)
+      sut
+        .parseFile(noFile)
+        .assertThrows[ParseException]
+        .asserting { _ =>
+          s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(
+            loggedAsError
+          )
+        }
     }
   }
 }

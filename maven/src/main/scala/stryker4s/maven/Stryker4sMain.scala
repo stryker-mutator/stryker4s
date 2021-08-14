@@ -1,11 +1,5 @@
 package stryker4s.maven
 
-import javax.inject.Inject
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import org.apache.maven.plugin.{AbstractMojo, MojoFailureException}
 import org.apache.maven.plugins.annotations.{Mojo, Parameter}
@@ -13,6 +7,8 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.DefaultInvoker
 import stryker4s.log.{Logger, MavenMojoLogger}
 import stryker4s.run.threshold.ErrorStatus
+
+import javax.inject.Inject
 
 /** The main goal for this plugin. Starts Stryker4s.
   */

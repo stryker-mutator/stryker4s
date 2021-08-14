@@ -1,12 +1,11 @@
 package stryker4s.config.circe
 
+import fs2.io.file.Path
 import io.circe.Encoder
-
-import stryker4s.config.Config
-import better.files.File
-import stryker4s.config._
-import scala.concurrent.duration.FiniteDuration
+import stryker4s.config.{Config, _}
 import sttp.model.Uri
+
+import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
 
 /** Circe Encoder for encoding a [[stryker4s.config.Config]] to JSON
@@ -46,7 +45,7 @@ trait ConfigEncoder {
     )
     .mapJson(_.deepDropNullValues)
 
-  implicit def fileEncoder: Encoder[File] = Encoder[String].contramap(_.pathAsString)
+  implicit def pathEncoder: Encoder[Path] = Encoder[String].contramap(_.absolute.toString)
   implicit def reporterTypeEncoder: Encoder[ReporterType] = Encoder[String].contramap(_.toString.toLowerCase)
   implicit def thresholdsEncoder: Encoder[Thresholds] =
     Encoder.forProduct3("high", "low", "break")(t => (t.high, t.low, t.break))

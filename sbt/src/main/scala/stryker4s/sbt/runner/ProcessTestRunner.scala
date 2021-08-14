@@ -86,7 +86,9 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
     Resource.eval(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
       ProcessResource
-        .fromProcessBuilder(Process(command, config.baseDir.toJava))(m => log.debug(s"testrunner $port: $m"))
+        .fromProcessBuilder(Process(command, config.baseDir.toNioPath.toFile()))(m =>
+          log.debug(s"testrunner $port: $m")
+        )
         .evalTap(_ => IO(log.debug("Started process")))
 
   }
@@ -99,7 +101,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     ) *>
       Resource
         .make(
-          retryWithBackoff(5, 0.5.seconds, log.info("Could not connect to testprocess. Retrying..."))(
+          retryWithBackoff(5, 0.5.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
             IO(new Socket(InetAddress.getLoopbackAddress(), port))
           )
         )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))

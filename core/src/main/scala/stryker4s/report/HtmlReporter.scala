@@ -1,12 +1,11 @@
 package stryker4s.report
 
 import cats.effect.IO
+import fs2.io.file.Path
 import mutationtesting._
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
-
-import java.nio.file.Path
 
 class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
 
@@ -59,9 +58,9 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
     val indexLocation = runReport.reportsLocation / "index.html"
     val reportLocation = runReport.reportsLocation / reportFilename
 
-    val reportsWriting = writeIndexHtmlTo(indexLocation.path) &>
-      writeReportJsTo(reportLocation.path, runReport.report) &>
-      writeMutationTestElementsJsTo(mutationTestElementsLocation.path)
+    val reportsWriting = writeIndexHtmlTo(indexLocation) &>
+      writeReportJsTo(reportLocation, runReport.report) &>
+      writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
     reportsWriting *>
       IO(log.info(s"Written HTML report to $indexLocation"))

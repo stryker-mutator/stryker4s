@@ -1,9 +1,6 @@
 package stryker4s.report.mapper
-import java.nio.file.Path
 
-import scala.meta.{Lit, Term}
-
-import better.files.File
+import fs2.io.file.Path
 import mutationtesting._
 import org.scalatest.Inside
 import stryker4s.config.{Config, Thresholds => ConfigThresholds}
@@ -13,6 +10,9 @@ import stryker4s.extension.mutationtype._
 import stryker4s.model.{Killed, Mutant, Survived}
 import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
+
+import java.nio.file.Files
+import scala.meta.{Lit, Term}
 
 class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
   describe("mapper") {
@@ -60,7 +60,9 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
               )
             )
           )
-          source should equal(FileUtil.getResource("scalaFiles/ExampleClass.scala").contentAsString)
+          source should equal(
+            new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
+          )
           m.config.value shouldBe config
         }
       }
@@ -74,7 +76,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
     import stryker4s.extension.TreeExtensions.FindExtension
 
     import scala.meta._
-    val parsed = File(file).contentAsString.parse[Source]
+    val parsed = file.toNioPath.parse[Source]
     val foundOrig = parsed.get.find(original).value
     Mutant(id, foundOrig, category.tree, category)
   }

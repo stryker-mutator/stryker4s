@@ -1,8 +1,7 @@
 package stryker4s.report
 
-import java.nio.file.Path
-
 import cats.effect.IO
+import fs2.io.file.Path
 import mutationtesting.MutationTestResult
 import stryker4s.config.Config
 import stryker4s.files.FileIO
@@ -20,7 +19,7 @@ class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
     val resultLocation = runReport.reportsLocation / "report.json"
 
-    writeReportJsonTo(resultLocation.path, runReport.report) *>
+    writeReportJsonTo(resultLocation, runReport.report) *>
       IO(log.info(s"Written JSON report to $resultLocation"))
   }
 }

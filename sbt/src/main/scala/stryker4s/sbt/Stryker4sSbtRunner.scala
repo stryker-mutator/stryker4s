@@ -2,6 +2,7 @@ package stryker4s.sbt
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import fs2.io.file.Path
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
@@ -16,16 +17,25 @@ import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File => JFile, PrintStream}
-import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
+import stryker4s.files.SbtMutatesResolver
+import stryker4s.files.MutatesFileResolver
+import stryker4s.files.FilesFileResolver
+import stryker4s.files.SbtFilesResolver
 
 /** This Runner run Stryker mutations in a single SBT session
   *
   * @param state
   *   SBT project state (contains all the settings about the project)
   */
-class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuration])(implicit log: Logger)
-    extends Stryker4sRunner {
+class Stryker4sSbtRunner(
+    state: State,
+    sharedTimeout: Deferred[IO, FiniteDuration],
+    sources: Seq[Path],
+    targetDir: Path
+)(implicit
+    log: Logger
+) extends Stryker4sRunner {
 
   override def resolveMatchBuilder(implicit config: Config): MatchBuilder =
     if (config.legacyTestRunner) new MatchBuilder(mutationActivation) else new CoverageMatchBuilder(mutationActivation)
@@ -73,9 +83,7 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
           case Some((_, Value(result))) => result
           case other =>
             log.debug(s"Expected $name but got $other")
-            throw new TestSetupException(
-              s"Could not setup mutation testing environment. Unable to resolve project $name. This could be due to compile errors or misconfiguration of Stryker4s. See debug logs for more information."
-            )
+            throw new TestSetupException(name)
         }
 
       val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
@@ -143,7 +151,7 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
     }
 
     def tmpDirFor(langSource: SettingKey[File], tmpDir: Path): Def.Initialize[JFile] =
-      langSource(source => (source.toPath() inSubDir tmpDir).toFile())
+      langSource(source => (Path.fromNioPath(source.toPath()) inSubDir tmpDir).toNioPath.toFile())
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 
@@ -152,5 +160,11 @@ class Stryker4sSbtRunner(state: State, sharedTimeout: Deferred[IO, FiniteDuratio
     else
       setupSbtTestRunner(settings, extracted)
   }
+
+  override def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
+    if (config.mutate.isEmpty) new SbtMutatesResolver(state, targetDir) else super.resolveMutatesFileSource
+
+  override def resolveFilesFileSource(implicit config: Config): FilesFileResolver =
+    if (config.files.isEmpty) new SbtFilesResolver(sources, targetDir) else super.resolveFilesFileSource
 
 }

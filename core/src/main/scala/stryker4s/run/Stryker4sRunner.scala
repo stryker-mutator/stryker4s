@@ -2,14 +2,15 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import fs2.io.file.Path
 import stryker4s.Stryker4s
 import stryker4s.config._
-import stryker4s.files.DiskFileIO
+import stryker4s.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4s.log.Logger
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.{FileCollector, MutantFinder, MutantMatcher}
+import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.report._
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
@@ -17,24 +18,20 @@ import stryker4s.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 
-import java.nio.file.Path
-
 abstract class Stryker4sRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 
-    val collector = new FileCollector(ProcessRunner())
-
     val createTestRunnerPool = (path: Path) => ResourcePool(resolveTestRunners(path))
 
     val stryker4s = new Stryker4s(
-      collector,
+      resolveMutatesFileSource,
       new Mutator(
         new MutantFinder(new MutantMatcher),
         new StatementTransformer,
         resolveMatchBuilder
       ),
-      new MutantRunner(createTestRunnerPool, collector, new AggregateReporter(resolveReporters()))
+      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new AggregateReporter(resolveReporters()))
     )
 
     stryker4s.run()
@@ -63,6 +60,14 @@ abstract class Stryker4sRunner(implicit log: Logger) {
   def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
 
   def resolveTestRunners(tmpDir: Path)(implicit config: Config): NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]
+
+  def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
+    new GlobFileResolver(
+      config.baseDir,
+      if (config.mutate.nonEmpty) config.mutate else Seq("**/main/scala/**.scala")
+    )
+
+  def resolveFilesFileSource(implicit config: Config): FilesFileResolver = new ConfigFilesResolver(ProcessRunner())
 
   def mutationActivation(implicit config: Config): ActiveMutationContext
 }

@@ -1,5 +1,4 @@
 package stryker4s.files
-import java.nio.file.Path
 
 import cats.effect.IO
 import fs2._
@@ -16,7 +15,7 @@ class DiskFileIO() extends FileIO {
   override def createAndWriteFromResource(file: Path, resourceName: String): IO[Unit] = {
     val stream = IO(getClass().getResourceAsStream(resourceName))
 
-    Files[IO].createDirectories(file.getParent()) *>
+    Files[IO].createDirectories(file.parent.get) *>
       readInputStream(stream, 8192)
         .through(Files[IO].writeAll(file))
         .compile
@@ -24,9 +23,9 @@ class DiskFileIO() extends FileIO {
   }
 
   override def createAndWrite(file: Path, content: String): IO[Unit] = {
-    Files[IO].createDirectories(file.getParent()) *>
+    Files[IO].createDirectories(file.parent.get) *>
       Stream(content)
-        .through(text.utf8Encode)
+        .through(text.utf8.encode)
         .through(Files[IO].writeAll(file))
         .compile
         .drain

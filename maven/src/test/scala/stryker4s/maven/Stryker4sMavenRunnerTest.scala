@@ -1,30 +1,20 @@
 package stryker4s.maven
 
-import better.files._
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
-import org.apache.maven.model.Profile
+import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker._
-import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{Killed, Mutant, Survived}
-import stryker4s.mutants.findmutants.SourceCollector
-import stryker4s.report.Reporter
 import stryker4s.testutil.Stryker4sSuite
 
 import java.io.{File => JFile}
-import java.{util => ju}
-import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext
-import scala.meta._
 
 class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
-  val tmpDir = File("/home/user/tmpDir").path
+  val tmpDir = Path("/home/user/tmpDir")
 
   describe("resolveTestRunner") {
     it("should set the working directory") {
@@ -36,7 +26,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
         .resolveTestRunners(tmpDir)
         .head
         .use(result => {
-          verify(invokerMock).setWorkingDirectory(eqTo(tmpDir.toFile()))
+          verify(invokerMock).setWorkingDirectory(eqTo(tmpDir.toNioPath.toFile()))
           result.goals should contain only "test"
           IO.unit
         })

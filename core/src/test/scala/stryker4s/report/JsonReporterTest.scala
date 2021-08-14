@@ -1,15 +1,13 @@
 package stryker4s.report
 
-import java.nio.file.Path
-
-import scala.concurrent.duration._
-
-import better.files.File
+import fs2.io.file.Path
 import mutationtesting.{Metrics, MutationTestResult, Thresholds}
 import org.mockito.captor.ArgCaptor
 import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+
+import scala.concurrent.duration._
 
 class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("reportJson") {
@@ -17,7 +15,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mockFileIO = mock[FileIO]
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new JsonReporter(mockFileIO)
-      val testFile = File("foo.bar").path
+      val testFile = Path("foo.bar")
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
       sut
@@ -30,7 +28,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
   }
 
   describe("onRunFinished") {
-    val reportLocation = File("target") / "stryker4s-report"
+    val reportLocation = Path("target") / "stryker4s-report"
     it("should write the report file to the report directory") {
       val mockFileIO = mock[FileIO]
       whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
@@ -43,7 +41,7 @@ class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
         .asserting { _ =>
           val writtenFilesCaptor = ArgCaptor[Path]
           verify(mockFileIO, times(1)).createAndWrite(writtenFilesCaptor, any[String])
-          val path = writtenFilesCaptor.value.toString()
+          val path = writtenFilesCaptor.value.toString
           path should endWith((reportLocation / "report.json").toString)
         }
     }

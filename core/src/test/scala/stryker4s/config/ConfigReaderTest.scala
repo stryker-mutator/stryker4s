@@ -1,6 +1,6 @@
 package stryker4s.config
 
-import better.files.File
+import fs2.io.file.Path
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
 import pureconfig.generic.auto._
 import pureconfig.{ConfigObjectSource, ConfigSource}
@@ -20,7 +20,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       ConfigReader.readConfigOfType[Config](configSource) match {
         case Left(errors) => fail(errors.toList.mkString(","))
         case Right(config) =>
-          config.baseDir shouldBe File("/tmp/project")
+          config.baseDir shouldBe Path("/tmp/project").absolute
           config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
           config.reporters.loneElement shouldBe Html
           config.excludedMutations shouldBe Set("BooleanLiteral")
@@ -48,8 +48,9 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       val result = ConfigReader.readConfig(configSource)
 
-      result.baseDir shouldBe File.currentWorkingDirectory
-      result.mutate shouldBe Seq("**/main/scala/**.scala")
+      result.baseDir shouldBe Path("").absolute
+      result.mutate shouldBe empty
+      result.files shouldBe empty
       result.reporters should (contain.only(Html, Console))
       result.thresholds shouldBe Thresholds()
       result.maxTestRunnerReuse shouldBe None
@@ -87,7 +88,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       val config = ConfigReader.readConfig(configSource)
 
-      config.baseDir shouldBe File("/tmp/project")
+      config.baseDir shouldBe Path("/tmp/project").absolute
       config.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       config.reporters.loneElement shouldBe Html
       config.excludedMutations shouldBe Set("BooleanLiteral")
@@ -98,7 +99,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       val result = ConfigReader.readConfig(configSource)
 
-      result.baseDir shouldBe File("/tmp/project")
+      result.baseDir shouldBe Path("/tmp/project").absolute
       result.mutate shouldBe Seq("bar/src/main/**/*.scala", "foo/src/main/**/*.scala", "!excluded/file.scala")
       result.reporters.loneElement shouldBe Html
       result.excludedMutations shouldBe Set("BooleanLiteral")
@@ -155,7 +156,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       ConfigReader.readConfig(configSource)
 
-      s"Could not find config file ${File.currentWorkingDirectory / "nonExistentFile.conf"}" shouldBe loggedAsWarning
+      val absolutePath = Path("nonExistentFile.conf").absolute
+      s"Could not find config file $absolutePath" shouldBe loggedAsWarning
       "Using default config instead..." shouldBe loggedAsWarning
       s"Config used: ${Config.default}" shouldBe loggedAsDebug
     }

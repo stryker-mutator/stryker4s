@@ -126,7 +126,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       op.asserting { case (result, log) =>
         log shouldBe List("open", "close", "open", "close")
         result shouldBe secondResult
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsInfo
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsDebug
       }
     }
 
@@ -145,9 +145,9 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       op.asserting { case (result, log) =>
         log shouldBe List("open", "close", "open", "close", "open", "close", "open", "close")
         result shouldBe Error(mutant)
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsInfo
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 1 more time(s)" shouldBe loggedAsInfo
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 0 more time(s)" shouldBe loggedAsInfo
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsDebug
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 1 more time(s)" shouldBe loggedAsDebug
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 0 more time(s)" shouldBe loggedAsDebug
       }
     }
 
@@ -171,9 +171,9 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       op.asserting { case (result, log) =>
         log shouldBe List("open", "close", "open", "close", "open", "close")
         result shouldBe thirdResult
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsInfo
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 1 more time(s)" shouldBe loggedAsInfo
-        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 0 more time(s)" should not be loggedAsInfo
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsDebug
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 1 more time(s)" shouldBe loggedAsDebug
+        s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 0 more time(s)" should not be loggedAsDebug
       }
     }
   }

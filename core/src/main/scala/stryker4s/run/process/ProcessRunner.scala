@@ -1,26 +1,26 @@
 package stryker4s.run.process
 
+import cats.effect.IO
+import fs2.io.file.Path
+import stryker4s.log.Logger
+
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-import better.files.File
-import cats.effect.IO
-import stryker4s.log.Logger
-
 abstract class ProcessRunner(implicit log: Logger) {
-  def apply(command: Command, workingDir: File): Try[Seq[String]] = {
+  def apply(command: Command, workingDir: Path): Try[Seq[String]] = {
     Try {
-      Process(s"${command.command} ${command.args}", workingDir.toJava)
+      Process(s"${command.command} ${command.args}", workingDir.toNioPath.toFile())
         .!!<(ProcessLogger(log.debug(_)))
         .linesIterator
         .toSeq
     }
   }
 
-  def apply(command: Command, workingDir: File, envVar: (String, String)*): IO[Try[Int]] = {
+  def apply(command: Command, workingDir: Path, envVar: (String, String)*): IO[Try[Int]] = {
     ProcessResource
       .fromProcessBuilder(
-        Process(s"${command.command} ${command.args}", workingDir.toJava, envVar: _*)
+        Process(s"${command.command} ${command.args}", workingDir.toNioPath.toFile(), envVar: _*)
       )(m => log.debug(s"testrunner: $m"))
       .use(p => IO.blocking(p.exitValue()))
       .attempt

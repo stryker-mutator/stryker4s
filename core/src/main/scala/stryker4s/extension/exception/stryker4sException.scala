@@ -8,6 +8,9 @@ final case class UnableToBuildPatternMatchException() extends Stryker4sException
 
 final case class InitialTestRunFailedException(message: String) extends Stryker4sException(message) with NoStackTrace
 
-final case class TestSetupException(message: String) extends Stryker4sException(message)
+final case class TestSetupException(name: String)
+    extends Stryker4sException(
+      s"Could not setup mutation testing environment. Unable to resolve project $name. This could be due to compile errors or misconfiguration of Stryker4s. See debug logs for more information."
+    )
 
 final case class MutationRunFailedException(message: String) extends Stryker4sException(message)

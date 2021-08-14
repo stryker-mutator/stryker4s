@@ -1,7 +1,5 @@
 package stryker4s.config
 
-import java.io.FileNotFoundException
-
 import cats.syntax.either._
 import pureconfig.error._
 import pureconfig.generic.ProductHint
@@ -9,6 +7,8 @@ import pureconfig.generic.auto._
 import pureconfig.{ConfigReader => PureConfigReader, ConfigSource}
 import stryker4s.config.Config._
 import stryker4s.log.Logger
+
+import java.io.FileNotFoundException
 
 object ConfigReader {
   private val configDocUrl: String =

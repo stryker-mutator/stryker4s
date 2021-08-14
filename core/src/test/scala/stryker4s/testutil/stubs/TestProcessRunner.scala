@@ -1,11 +1,11 @@
 package stryker4s.testutil.stubs
 
-import scala.util.{Success, Try}
-
-import better.files.File
 import cats.effect.IO
+import fs2.io.file.Path
 import stryker4s.log.Logger
 import stryker4s.run.process.{Command, ProcessRunner}
+
+import scala.util.{Success, Try}
 
 object TestProcessRunner {
   def apply(testRunExitCode: Try[Int]*)(implicit log: Logger): TestProcessRunner =
@@ -21,7 +21,7 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
     *
     * Also return an exit code which the test runner would do as well.
     */
-  override def apply(command: Command, workingDir: File, envVar: (String, String)*): IO[Try[Int]] = {
+  override def apply(command: Command, workingDir: Path, envVar: (String, String)*): IO[Try[Int]] = {
     if (envVar.isEmpty) {
       IO.pure(Success(if (initialTestRunSuccess) 0 else 1))
     } else {

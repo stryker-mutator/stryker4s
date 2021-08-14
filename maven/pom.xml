@@ -143,6 +143,45 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <args>
+                        <arg>-encoding</arg>
+                        <arg>utf8</arg>
+                        <arg>-deprecation</arg>
+                        <arg>-Xcheckinit</arg>
+                        <arg>-Xlint:adapted-args</arg>
+                        <arg>-Xlint:by-name-right-associative</arg>
+                        <arg>-Xlint:constant</arg>
+                        <arg>-Xlint:delayedinit-select</arg>
+                        <arg>-Xlint:doc-detached</arg>
+                        <arg>-Xlint:inaccessible</arg>
+                        <arg>-Xlint:infer-any</arg>
+                        <arg>-Xlint:missing-interpolator</arg>
+                        <arg>-Xlint:nullary-override</arg>
+                        <arg>-Xlint:nullary-unit</arg>
+                        <arg>-Xlint:option-implicit</arg>
+                        <arg>-Xlint:package-object-classes</arg>
+                        <arg>-Xlint:poly-implicit-overload</arg>
+                        <arg>-Xlint:private-shadow</arg>
+                        <arg>-Xlint:stars-align</arg>
+                        <arg>-Xlint:type-parameter-shadow</arg>
+                        <arg>-Xlint:unsound-match</arg>
+                        <arg>-Yno-adapted-args</arg>
+                        <arg>-Ywarn-dead-code</arg>
+                        <arg>-Ywarn-extra-implicit</arg>
+                        <arg>-Ywarn-nullary-override</arg>
+                        <arg>-Ywarn-nullary-unit</arg>
+                        <arg>-Ywarn-numeric-widen</arg>
+                        <arg>-Ywarn-unused:implicits</arg>
+                        <arg>-Ywarn-unused:imports</arg>
+                        <arg>-Ywarn-unused:locals</arg>
+                        <arg>-Ywarn-unused:params</arg>
+                        <arg>-Ywarn-unused:patvars</arg>
+                        <arg>-Ywarn-unused:privates</arg>
+                        <arg>-Ypartial-unification</arg>
+                        <arg>-Xfatal-warnings</arg>
+                    </args>
+                </configuration>
             </plugin>
             <!-- Test -->
             <!-- disable surefire -->
