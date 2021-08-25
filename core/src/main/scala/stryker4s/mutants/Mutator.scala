@@ -4,28 +4,40 @@ import cats.effect.IO
 import cats.syntax.functor._
 import fs2.Stream
 import fs2.io.file.Path
+import stryker4s.CompileError
 import stryker4s.config.Config
 import stryker4s.extension.StreamExtensions._
 import stryker4s.log.Logger
-import stryker4s.model.{MutatedFile, MutationsInSource, SourceTransformations}
+import stryker4s.model.{MutantId, MutatedFile, MutationsInSource, SourceTransformations}
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
-
-import scala.meta.Tree
 
 class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)(implicit
     config: Config,
     log: Logger
 ) {
 
-  def mutate(files: Stream[IO, Path]): IO[Seq[MutatedFile]] = {
+  //Given compiler errors, return the mutants that caused it
+  def errorsToIds(compileError: Seq[CompileError], files: Seq[MutatedFile]): Seq[MutantId] = {
+    compileError.flatMap { err =>
+      files
+        //Find the file that the compiler error came from
+        .find(_.fileOrigin.toString.endsWith(err.path))
+        //Find the mutant case statement that cased the compiler error
+        .flatMap(file => file.mutantLineNumbers.get(err.line))
+    }
+  }
+
+  def mutate(files: Stream[IO, Path], nonCompilingMutants: Seq[MutantId] = Seq.empty): IO[Seq[MutatedFile]] = {
     files
       .parEvalMapUnordered(config.concurrency)(p => findMutants(p).tupleLeft(p))
       .map { case (file, mutationsInSource) =>
-        val transformed = transformStatements(mutationsInSource)
-        val builtTree = buildMatches(transformed)
+        val validMutants =
+          mutationsInSource.mutants.filterNot(mut => nonCompilingMutants.exists(_.sameMutation(mut.id)))
+        val transformed = transformStatements(mutationsInSource.copy(mutants = validMutants))
+        val (builtTree, mutations) = buildMatches(transformed)
 
-        MutatedFile(file, builtTree, mutationsInSource.mutants, mutationsInSource.excluded)
+        MutatedFile(file, builtTree, mutationsInSource.mutants, mutations, mutationsInSource.excluded)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)
       .compile
@@ -44,7 +56,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
   /** Step 3: Build pattern matches from transformed trees
     */
-  private def buildMatches(transformedMutantsInSource: SourceTransformations): Tree =
+  private def buildMatches(transformedMutantsInSource: SourceTransformations) =
     matchBuilder.buildNewSource(transformedMutantsInSource)
 
   private def logMutationResult(mutatedFiles: Iterable[MutatedFile]): IO[Unit] = {

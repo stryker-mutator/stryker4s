@@ -22,3 +22,5 @@ final case class NoCoverage(mutant: Mutant, description: Option[String] = None) 
 final case class Error(mutant: Mutant, description: Option[String] = None) extends MutantRunResult
 
 final case class Ignored(mutant: Mutant, description: Option[String] = None) extends MutantRunResult
+
+final case class CompilerError(mutant: Mutant, description: Option[String] = None) extends MutantRunResult

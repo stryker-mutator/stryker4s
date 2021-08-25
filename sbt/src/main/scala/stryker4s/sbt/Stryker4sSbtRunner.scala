@@ -6,9 +6,11 @@ import fs2.io.file.Path
 import sbt.Keys._
 import sbt._
 import sbt.internal.LogManager
+import stryker4s.{CompileError, MutationCompilationFailed}
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.TestSetupException
+import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuilder, MatchBuilder}
@@ -18,10 +20,6 @@ import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File => JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
-import stryker4s.files.SbtMutatesResolver
-import stryker4s.files.MutatesFileResolver
-import stryker4s.files.FilesFileResolver
-import stryker4s.files.SbtFilesResolver
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -78,13 +76,47 @@ class Stryker4sSbtRunner(
           "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
       )
       val newState = extracted.appendWithSession(fullSettings, state)
-      def extractTaskValue[T](task: TaskKey[T], name: String) =
-        Project.runTask(task, newState) match {
+
+      def extractTaskValue[T](task: TaskKey[T], name: String) = {
+
+        val ret = Project.runTask(task, newState) match {
           case Some((_, Value(result))) => result
           case other =>
             log.debug(s"Expected $name but got $other")
             throw new TestSetupException(name)
         }
+        ret
+      }
+
+      //SBT returns any errors as a Incomplete case class, which can contain other Incomplete instances
+      //You have to recursively search through them to get the real exception
+      def getRootCause(i: Incomplete): Seq[Throwable] = {
+        i.directCause match {
+          case None =>
+            i.causes.flatMap(getRootCause)
+          case Some(cause) =>
+            cause +: i.causes.flatMap(getRootCause)
+        }
+      }
+
+      //See if the mutations compile, and if not extract the errors and throw an exception
+      Project.runTask(Compile / Keys.compile, newState) match {
+        case Some((_, Inc(cause))) =>
+          val compileErrors = (getRootCause(cause) collect { case exception: sbt.internal.inc.CompileFailed =>
+            exception.problems.flatMap { e =>
+              for {
+                path <- e.position().sourceFile().asScala
+                pathStr = path.toPath.toAbsolutePath.toString.replace(tmpDir.toString, "")
+                line <- e.position().line().asScala
+              } yield CompileError(e.message(), pathStr, line)
+            }.toSeq
+          }).flatten.toList
+
+          if (compileErrors.nonEmpty) {
+            throw MutationCompilationFailed(compileErrors)
+          }
+        case _ =>
+      }
 
       val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
 

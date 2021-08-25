@@ -5,7 +5,7 @@ import cats.effect.{IO, Resource}
 import cats.syntax.applicativeError._
 import fs2.io.file.Path
 import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{InitialTestRunResult, Killed, Mutant, MutantRunResult, NoCoverageInitialTestRun}
+import stryker4s.model.{InitialTestRunResult, Killed, Mutant, MutantId, MutantRunResult, NoCoverageInitialTestRun}
 import stryker4s.run.{ResourcePool, TestRunner}
 
 import scala.meta._
@@ -24,7 +24,7 @@ class TestRunnerStub(results: Seq[() => MutantRunResult]) extends TestRunner {
 
 object TestRunnerStub {
 
-  def resource = withResults(Killed(Mutant(0, q">", q"<", LesserThan)))
+  def resource = withResults(Killed(Mutant(MutantId(0), q">", q"<", LesserThan)))
 
   def withResults(mutants: MutantRunResult*) = (_: Path) =>
     ResourcePool(NonEmptyList.of(Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _)))))

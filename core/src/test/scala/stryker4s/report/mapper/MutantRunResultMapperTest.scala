@@ -7,7 +7,7 @@ import stryker4s.config.{Config, Thresholds => ConfigThresholds}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.ImplicitMutationConversion._
 import stryker4s.extension.mutationtype._
-import stryker4s.model.{Killed, Mutant, Survived}
+import stryker4s.model.{Killed, Mutant, MutantId, Survived}
 import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
 
@@ -78,6 +78,6 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
     import scala.meta._
     val parsed = file.toNioPath.parse[Source]
     val foundOrig = parsed.get.find(original).value
-    Mutant(id, foundOrig, category.tree, category)
+    Mutant(MutantId(id), foundOrig, category.tree, category)
   }
 }

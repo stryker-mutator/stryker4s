@@ -11,7 +11,7 @@ class CoverageMatchBuilder(mutationContext: ActiveMutationContext)(implicit log:
 
   // sbt-stryker4s-testrunner matches on Int instead of Option[Int]
   override def mutantToCase(mutant: Mutant): Case =
-    super.buildCase(mutant.mutated, p"${mutant.id}")
+    super.buildCase(mutant.mutated, p"${mutant.id.globalId}")
 
   override def defaultCase(transformedMutant: TransformedMutants): Case =
     withCoverage(super.defaultCase(transformedMutant), transformedMutant.mutantStatements)
@@ -20,7 +20,7 @@ class CoverageMatchBuilder(mutationContext: ActiveMutationContext)(implicit log:
     * switch. `coverMutant` always returns true
     */
   private def withCoverage(caze: Case, mutants: List[Mutant]): Case = {
-    val coverageCond = q"_root_.stryker4s.coverage.coverMutant(..${mutants.map(_.id).map(Lit.Int(_))})"
+    val coverageCond = q"_root_.stryker4s.coverage.coverMutant(..${mutants.map(_.id.globalId).map(Lit.Int(_))})"
     caze.copy(cond = Some(coverageCond))
   }
 }

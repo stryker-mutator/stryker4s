@@ -3,50 +3,52 @@ package stryker4s.mutants.applymutants
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.log.Logger
-import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
+import stryker4s.model.{Mutant, MutantId, SourceTransformations, TransformedMutants}
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 
 import scala.meta._
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger) {
-  def buildNewSource(transformedStatements: SourceTransformations): Tree = {
+  def buildNewSource(transformedStatements: SourceTransformations): (Tree, Seq[(MutantId, Case)]) = {
     val source = transformedStatements.source
 
-    groupTransformedStatements(transformedStatements).foldLeft(source: Tree) { (rest, mutants) =>
-      val origStatement = mutants.originalStatement
+    groupTransformedStatements(transformedStatements).foldLeft((source, Seq.empty): (Tree, Seq[(MutantId, Case)])) {
+      (rest, mutants) =>
+        val origStatement = mutants.originalStatement
 
-      var isTransformed = false
-      rest transformOnce {
-        case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
-          isTransformed = true
-          buildMatch(mutants)
-      } match {
-        case Success(value) if isTransformed => value
-        case Success(value) =>
-          log.warn(
-            s"Failed to add mutation(s) ${mutants.mutantStatements.map(_.id).mkString(", ")} to new mutated code"
-          )
-          log.warn(
-            s"The code that failed to mutate was: [$origStatement] at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}"
-          )
-          log.warn("This mutation will likely show up as Survived")
-          log.warn(
-            "Please open an issue on github with sample code of the mutation that failed: https://github.com/stryker-mutator/stryker4s/issues/new"
-          )
-          value
-        case Failure(exception) =>
-          log.error(s"Failed to construct pattern match: original statement [$origStatement]")
-          log.error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")
-          log.error(
-            s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}"
-          )
-          log.error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
-          log.debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
-          log.debug("Please be so kind to copy the stacktrace into the issue", exception)
+        var isTransformed = false
+        rest._1 transformOnce {
+          case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
+            isTransformed = true
+            buildMatch(mutants)
+        } match {
+          case Success(value) if isTransformed =>
+            (value, rest._2 ++ mutants.mutantStatements.map(mut => (mut.id, mutantToCase(mut))))
+          case Success(value) =>
+            log.warn(
+              s"Failed to add mutation(s) ${mutants.mutantStatements.map(_.id.globalId).mkString(", ")} to new mutated code"
+            )
+            log.warn(
+              s"The code that failed to mutate was: [$origStatement] at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}"
+            )
+            log.warn("This mutation will likely show up as Survived")
+            log.warn(
+              "Please open an issue on github with sample code of the mutation that failed: https://github.com/stryker-mutator/stryker4s/issues/new"
+            )
+            (value, rest._2)
+          case Failure(exception) =>
+            log.error(s"Failed to construct pattern match: original statement [$origStatement]")
+            log.error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")
+            log.error(
+              s"at ${origStatement.pos.input}:${origStatement.pos.startLine + 1}:${origStatement.pos.startColumn + 1}"
+            )
+            log.error("This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s.")
+            log.debug("Please open an issue on github: https://github.com/stryker-mutator/stryker4s/issues/new")
+            log.debug("Please be so kind to copy the stacktrace into the issue", exception)
 
-          throw UnableToBuildPatternMatchException()
-      }
+            throw UnableToBuildPatternMatchException()
+        }
     }
   }
 
@@ -57,7 +59,7 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
   }
 
   protected def mutantToCase(mutant: Mutant): Case =
-    buildCase(mutant.mutated, p"Some(${mutant.id})")
+    buildCase(mutant.mutated, p"Some(${mutant.id.globalId})")
 
   protected def defaultCase(transformedMutant: TransformedMutants): Case =
     buildCase(transformedMutant.originalStatement, p"_")
@@ -72,6 +74,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
       }
       .map { case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) }
       .toSeq
-      .sortBy(_.mutantStatements.head.id) // Should be sorted so tree transformations are applied in order of discovery
+      .sortBy(
+        _.mutantStatements.head.id.globalId
+      ) // Should be sorted so tree transformations are applied in order of discovery
   }
 }

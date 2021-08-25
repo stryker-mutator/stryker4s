@@ -1,11 +1,10 @@
 package stryker4s.mutants.applymutants
 
 import scala.meta._
-
 import stryker4s.extension.TreeExtensions._
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype._
-import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
+import stryker4s.model.{Mutant, MutantId, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
@@ -17,7 +16,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
+        .map(Mutant(MutantId(ids.next()), originalStatement, _, GreaterThan))
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
@@ -53,7 +52,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       // Assert
       "Failed to construct pattern match: original statement [true]" shouldBe loggedAsError
-      "Failed mutation(s) Mutant(0,true,false,EmptyString)." shouldBe loggedAsError
+      "Failed mutation(s) Mutant(MutantId(0,,-1),true,false,EmptyString)." shouldBe loggedAsError
       "at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
       "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s." shouldBe loggedAsError
 
@@ -66,12 +65,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val source = source"""class Foo { def bar: Boolean = 15 > 14 }"""
 
       val failedMutants = List(
-        Mutant(0, q"foo", q"bar", GreaterThan),
-        Mutant(1, q"baz", q"qux", GreaterThan)
+        Mutant(MutantId(0), q"foo", q"bar", GreaterThan),
+        Mutant(MutantId(1), q"baz", q"qux", GreaterThan)
       )
       val successfulMutants = List(
-        Mutant(2, q">", q"15 < 14", GreaterThan),
-        Mutant(3, q">", q"15 <= 14", GreaterThan)
+        Mutant(MutantId(2), q">", q"15 < 14", GreaterThan),
+        Mutant(MutantId(3), q">", q"15 <= 14", GreaterThan)
       )
       val transformed = TransformedMutants(q"14 < 15", failedMutants)
       val successfulTransformed = TransformedMutants(source.find(q"15 > 14").value, successfulMutants)
@@ -79,7 +78,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val result = sut.buildNewSource(transStatements)
+      val (result, _) = sut.buildNewSource(transStatements)
 
       // Assert
       val expected = source"""class Foo {
@@ -110,7 +109,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
-      val result = sut.buildNewSource(transStatements)
+      val (result, _) = sut.buildNewSource(transStatements)
 
       // Assert
       val expected =
@@ -140,7 +139,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val result = sut.buildNewSource(transformedStatements)
+      val (result, _) = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected =
@@ -180,7 +179,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val result = sut.buildNewSource(transformedStatements)
+      val (result, _) = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected =
@@ -220,7 +219,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val result = sut.buildNewSource(transformedStatements)
+      val (result, _) = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected = source"""
@@ -273,7 +272,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val result = sut.buildNewSource(transformedStatements)
+      val (result, _) = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected = source"""class Foo() {
@@ -318,7 +317,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val result = sut.buildNewSource(transformedStatements)
+      val (result, _) = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected = source"""class Foo() {
@@ -379,7 +378,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement.transformOnce { case orig if orig.isEqual(origStatement) => m }.get)
-      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
+      .map(m => Mutant(MutantId(ids.next()), topStatement, m.asInstanceOf[Term], mutation))
       .toList
 
     TransformedMutants(topStatement, mutant)

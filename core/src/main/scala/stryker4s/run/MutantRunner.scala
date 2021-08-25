@@ -26,17 +26,18 @@ class MutantRunner(
 )(implicit config: Config, log: Logger)
     extends MutantRunResultMapper {
 
-  def apply(mutatedFiles: Seq[MutatedFile]): IO[MetricsResult] =
+  def apply(mutatedFiles: Seq[MutatedFile], nonCompilingMutants: Seq[MutantId]): IO[MetricsResult] = {
     prepareEnv(mutatedFiles)
       .flatMap(createTestRunnerPool)
       .use { testRunnerPool =>
         testRunnerPool.loan
           .use(initialTestRun)
           .flatMap { coverageExclusions =>
-            runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
+            runMutants(mutatedFiles, testRunnerPool, coverageExclusions, nonCompilingMutants).timed
           }
       }
       .flatMap(t => createAndReportResults(t._1, t._2))
+  }
 
   def createAndReportResults(duration: FiniteDuration, runResults: Map[Path, Seq[MutantRunResult]]) = for {
     time <- IO.realTime
@@ -88,7 +89,7 @@ class MutantRunner(
           .createDirectories(targetPath.parent.get)
           .as((mutatedFile, targetPath))
     }.map { case (mutatedFile, targetPath) =>
-      Stream(mutatedFile.tree.syntax)
+      Stream(mutatedFile.mutatedSource)
         .covary[IO]
         .through(text.utf8.encode)
         .through(Files[IO].writeAll(targetPath))
@@ -97,27 +98,41 @@ class MutantRunner(
   private def runMutants(
       mutatedFiles: Seq[MutatedFile],
       testRunnerPool: TestRunnerPool,
-      coverageExclusions: CoverageExclusions
+      coverageExclusions: CoverageExclusions,
+      nonCompilingMutants: Seq[MutantId]
   ): IO[Map[Path, Seq[MutantRunResult]]] = {
 
     val allMutants = mutatedFiles.flatMap(m => m.mutants.toList.map(m.fileOrigin.relativePath -> _))
 
-    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id))
+    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.globalId))
+
+    val (compilerErrorMutants, rest2) =
+      rest.partition(mut => nonCompilingMutants.exists(_.sameMutation(mut._2.id)))
+
     val (noCoverageMutants, testableMutants) =
-      rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id))
+      rest2.partition(m =>
+        coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.globalId)
+      )
 
     if (noCoverageMutants.nonEmpty) {
       log.info(
         s"${noCoverageMutants.size} mutants detected as having no code coverage. They will be skipped and marked as NoCoverage"
       )
-      log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.map(_._2.id).mkString(", ")}")
+      log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.map(_._2.id.globalId).mkString(", ")}")
     }
 
     if (staticMutants.nonEmpty) {
       log.info(
         s"${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored"
       )
-      log.debug(s"Static mutant ids are: ${staticMutants.map(_._2.id).mkString(", ")}")
+      log.debug(s"Static mutant ids are: ${staticMutants.map(_._2.id.globalId).mkString(", ")}")
+    }
+
+    if (compilerErrorMutants.nonEmpty) {
+      log.info(
+        s"${compilerErrorMutants.size} mutants gave a compiler error. They will be marked as such in the report."
+      )
+      log.debug(s"Non-compiling mutant ids are: ${compilerErrorMutants.map(_._2.id.globalId).mkString(", ")}")
     }
 
     def mapPureMutants[K, V, VV](l: Seq[(K, V)], f: V => VV) =
@@ -127,6 +142,8 @@ class MutantRunner(
     val static = mapPureMutants(staticMutants, staticMutant(_))
     // Map all no-coverage mutants
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
+    // Map all no-compiling mutants
+    val noCompiling = mapPureMutants(compilerErrorMutants, (m: Mutant) => CompilerError(m))
 
     // Run all testable mutants
     val totalTestableMutants = testableMutants.size
@@ -140,14 +157,14 @@ class MutantRunner(
 
     // Back to per-file structure
     implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)
-    (static ++ noCoverage ++ testedMutants)
+    (static ++ noCoverage ++ noCompiling ++ testedMutants)
       .fold(SortedMap.empty[Path, Seq[MutantRunResult]]) { case (resultsMap, (path, result)) =>
         val results = resultsMap.getOrElse(path, Seq.empty) :+ result
         resultsMap + (path -> results)
       }
       .compile
       .lastOrError
-      .map(_.map { case (k, v) => (k -> v.sortBy(_.mutant.id)) })
+      .map(_.map { case (k, v) => (k -> v.sortBy(_.mutant.id.globalId)) })
   }
 
   def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {

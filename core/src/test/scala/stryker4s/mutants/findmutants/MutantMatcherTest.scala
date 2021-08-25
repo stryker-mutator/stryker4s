@@ -540,7 +540,7 @@ class MutantMatcherTest extends Stryker4sSuite {
       val mutants =
         sut.TermExtensions(GreaterThan).~~>(LesserThan, GreaterThanEqualTo, EqualTo).collect { case Right(v) => v }
 
-      mutants.map(_.id) should contain theSameElementsAs List(0, 1, 2)
+      mutants.map(_.id.globalId) should contain theSameElementsAs List(0, 1, 2)
     }
   }
 

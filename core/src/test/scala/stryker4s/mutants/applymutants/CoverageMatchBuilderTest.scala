@@ -2,7 +2,7 @@ package stryker4s.mutants.applymutants
 
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.extension.mutationtype.GreaterThan
-import stryker4s.model.{Mutant, TransformedMutants}
+import stryker4s.model.{Mutant, MutantId, TransformedMutants}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
@@ -15,7 +15,7 @@ class CoverageMatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
+        .map(Mutant(MutantId(ids.next()), originalStatement, _, GreaterThan))
       val sut = new CoverageMatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
@@ -30,7 +30,7 @@ class CoverageMatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
+        .map(Mutant(MutantId(ids.next()), originalStatement, _, GreaterThan))
       val sut = new CoverageMatchBuilder(ActiveMutationContext.testRunner)
 
       // Act

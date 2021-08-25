@@ -6,7 +6,7 @@ import stryker4s.config.Config
 import stryker4s.extension.PartialFunctionOps._
 import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtension}
 import stryker4s.extension.mutationtype._
-import stryker4s.model.{IgnoredMutationReason, Mutant, MutationExcluded}
+import stryker4s.model.{IgnoredMutationReason, Mutant, MutantId, MutationExcluded}
 
 import scala.meta._
 
@@ -115,8 +115,17 @@ class MutantMatcher()(implicit config: Config) {
           .map { mutated =>
             if (matchExcluded(mutated) || isSuppressedByAnnotation(mutated, original))
               Left(MutationExcluded())
-            else
-              Right(Mutant(ids.next(), original, mutationToTerm(mutated), mutated))
+            else {
+              Right(
+                Mutant(
+                  //The file and idInFile are left empty for now, they're assigned later
+                  MutantId(globalId = ids.next()),
+                  original,
+                  mutationToTerm(mutated),
+                  mutated
+                )
+              )
+            }
           }
       }
 

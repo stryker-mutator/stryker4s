@@ -26,11 +26,12 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
     val stryker4s = new Stryker4s(
       resolveMutatesFileSource,
-      new Mutator(
-        new MutantFinder(new MutantMatcher),
-        new StatementTransformer,
-        resolveMatchBuilder
-      ),
+      () =>
+        new Mutator(
+          new MutantFinder(new MutantMatcher),
+          new StatementTransformer,
+          resolveMatchBuilder
+        ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new AggregateReporter(resolveReporters()))
     )
 
