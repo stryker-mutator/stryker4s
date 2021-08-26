@@ -1,4 +1,7 @@
 package stryker4s.report.dashboard
+
+import cats.data.NonEmptyChain
+import cats.syntax.validated._
 import org.scalatest.EitherValues
 import stryker4s.config.{Config, DashboardOptions, Full, MutationScoreOnly}
 import stryker4s.report.model.DashboardConfig
@@ -19,16 +22,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe Right(
-        DashboardConfig(
-          "apiKeyHere",
-          uri"https://dashboard.stryker-mutator.io",
-          Full,
-          "github.com/travisRepo/slug",
-          "travisBranch",
-          None
-        )
-      )
+      result shouldBe DashboardConfig(
+        "apiKeyHere",
+        uri"https://dashboard.stryker-mutator.io",
+        Full,
+        "github.com/travisRepo/slug",
+        "travisBranch",
+        None
+      ).valid
+
     }
 
     it("should resolve a CircleCI environment") {
@@ -44,16 +46,15 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe Right(
-        DashboardConfig(
-          "apiKeyHere",
-          config.dashboard.baseUrl,
-          Full,
-          "github.com/circleUsername/circleRepoName",
-          "circleBranch",
-          None
-        )
-      )
+      result shouldBe DashboardConfig(
+        "apiKeyHere",
+        config.dashboard.baseUrl,
+        Full,
+        "github.com/circleUsername/circleRepoName",
+        "circleBranch",
+        None
+      ).valid
+
     }
 
     it("should resolve a GitHub actions environment") {
@@ -68,16 +69,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe Right(
-        DashboardConfig(
-          "apiKeyHere",
-          config.dashboard.baseUrl,
-          Full,
-          "github.com/github/repo",
-          "feat/branch-1",
-          None
-        )
-      )
+      result shouldBe DashboardConfig(
+        "apiKeyHere",
+        config.dashboard.baseUrl,
+        Full,
+        "github.com/github/repo",
+        "feat/branch-1",
+        None
+      ).valid
     }
 
     it("should resolve a GitHub actions PR environment") {
@@ -92,16 +91,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe Right(
-        DashboardConfig(
-          "apiKeyHere",
-          config.dashboard.baseUrl,
-          Full,
-          "github.com/github/repo",
-          "PR-10",
-          None
-        )
-      )
+      result shouldBe DashboardConfig(
+        "apiKeyHere",
+        config.dashboard.baseUrl,
+        Full,
+        "github.com/github/repo",
+        "PR-10",
+        None
+      ).valid
     }
 
     it("should resolve a configured environment") {
@@ -121,16 +118,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe Right(
-        DashboardConfig(
-          "apiKeyHere",
-          uri"https://baseUrl.com",
-          MutationScoreOnly,
-          "projectHere",
-          "versionHere",
-          Some("moduleHere")
-        )
-      )
+      result shouldBe DashboardConfig(
+        "apiKeyHere",
+        uri"https://baseUrl.com",
+        MutationScoreOnly,
+        "projectHere",
+        "versionHere",
+        Some("moduleHere")
+      ).valid
     }
 
     it("should resolve without a module") {
@@ -146,16 +141,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe Right(
-        DashboardConfig(
-          "apiKeyHere",
-          config.dashboard.baseUrl,
-          Full,
-          "projectHere",
-          "versionHere",
-          None
-        )
-      )
+      result shouldBe DashboardConfig(
+        "apiKeyHere",
+        config.dashboard.baseUrl,
+        Full,
+        "projectHere",
+        "versionHere",
+        None
+      ).valid
     }
 
     it("should not resolve a GitHub actions with malformed ref") {
@@ -170,7 +163,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.left.value shouldBe "dashboard.version"
+      result shouldBe ("dashboard.version".invalidNec)
     }
 
     it("should not resolve empty env variables") {
@@ -186,17 +179,23 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.left.value shouldBe "dashboard.version"
+      result shouldBe ("dashboard.version".invalidNec)
     }
 
     it("should not resolve when there is no STRYKER_DASHBOARD_API_KEY environment") {
-      implicit val config = Config.default
+      implicit val config = Config.default.copy(
+        dashboard = DashboardOptions(
+          project = Some("projectHere"),
+          version = Some("versionHere"),
+          module = Some("moduleHere")
+        )
+      )
       val env = Map.empty[String, String]
       val sut = new DashboardConfigProvider(env)
 
       val result = sut.resolveConfig()
 
-      result.left.value shouldBe "STRYKER_DASHBOARD_API_KEY"
+      result shouldBe ("STRYKER_DASHBOARD_API_KEY".invalidNec)
     }
 
     it("should not resolve when there is no project") {
@@ -212,7 +211,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.left.value shouldBe "dashboard.project"
+      result shouldBe ("dashboard.project".invalidNec)
     }
 
     it("should not resolve when there is no version") {
@@ -228,7 +227,23 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result.left.value shouldBe "dashboard.version"
+      result shouldBe ("dashboard.version".invalidNec)
+    }
+
+    it("should return all unresolved") {
+      implicit val config = Config.default.copy(
+        dashboard = DashboardOptions(
+          project = None,
+          version = None,
+          module = Some("moduleHere")
+        )
+      )
+      val env = Map.empty[String, String]
+      val sut = new DashboardConfigProvider(env)
+
+      val result = sut.resolveConfig()
+
+      result shouldBe (NonEmptyChain("STRYKER_DASHBOARD_API_KEY", "dashboard.project", "dashboard.version").invalid)
     }
   }
 }

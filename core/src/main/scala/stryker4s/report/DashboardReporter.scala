@@ -1,6 +1,8 @@
 package stryker4s.report
 
+import cats.data.Validated.{Invalid, Valid}
 import cats.effect.{IO, Resource}
+import cats.syntax.foldable._
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
 import stryker4s.config.{Config, Full, MutationScoreOnly}
@@ -18,11 +20,10 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     dashboardConfigProvider.resolveConfig() match {
-      case Left(configKey) =>
-        IO(
-          log.warn(s"Could not resolve dashboard configuration key '$configKey', not sending report")
-        )
-      case Right(dashboardConfig) =>
+      case Invalid(configKeys) =>
+        val configKeysString = configKeys.map(c => s"'$c'").mkString_(", ")
+        IO(log.warn(s"Could not resolve dashboard configuration key(s) $configKeysString. Not sending report"))
+      case Valid(dashboardConfig) =>
         val request = buildRequest(dashboardConfig, runReport.report, runReport.metrics)
         httpBackend
           .use(request.send(_))
@@ -52,7 +53,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
     }
   }
 
-  def logResponse(response: Response[Either[ResponseException[String, Error], DashboardPutResult]]): Unit =
+  private def logResponse(response: Response[Either[ResponseException[String, Error], DashboardPutResult]]): Unit =
     response.body match {
       case Left(HttpError(errorBody, StatusCode.Unauthorized)) =>
         log.error(
