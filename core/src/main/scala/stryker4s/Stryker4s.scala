@@ -4,7 +4,6 @@ import cats.effect.IO
 import mutationtesting.MetricsResult
 import stryker4s.config.Config
 import stryker4s.files.MutatesFileResolver
-import stryker4s.model.MutantId
 import stryker4s.mutants.Mutator
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
@@ -24,21 +23,18 @@ class Stryker4s(fileSource: MutatesFileResolver, mutatorFactory: () => Mutator, 
   }
 
   //Retries the run, after removing the non-compiling mutants
-  def runWithRetry(nonCompilingMutants: Seq[MutantId]): IO[MetricsResult] = {
+  def runWithRetry(compilerErrors: Seq[CompileError]): IO[MetricsResult] = {
     //Recreate the mutator from the factory, otherwise the second run's ids will not start at 0
     val mutator = mutatorFactory()
     val filesToMutate = fileSource.files
     for {
-      mutatedFiles <- mutator.mutate(filesToMutate, nonCompilingMutants)
-      metrics <- runner(mutatedFiles, nonCompilingMutants).handleErrorWith {
+      mutatedFiles <- mutator.mutate(filesToMutate, compilerErrors)
+      metrics <- runner(mutatedFiles).handleErrorWith {
         //If a compiler error occurs, retry once without the lines that gave an error
-        case MutationCompilationFailed(errs) if nonCompilingMutants.isEmpty =>
-          val nonCompilingMutations = mutator.errorsToIds(errs, mutatedFiles)
-          if (nonCompilingMutations.nonEmpty) {
-            runWithRetry(nonCompilingMutations)
-          } else {
-            IO.raiseError(new RuntimeException("Unable to see which mutations caused the compiler failure"))
-          }
+        case MutationCompilationFailed(errs) if compilerErrors.isEmpty =>
+          runWithRetry(errs)
+        case MutationCompilationFailed(_) =>
+          IO.raiseError(new RuntimeException("Tried and failed to remove non-compiling mutants"))
         //Something else went wrong vOv
         case e => IO.raiseError(e)
       }

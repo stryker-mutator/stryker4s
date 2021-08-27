@@ -12,37 +12,80 @@ import stryker4s.model.{MutantId, MutatedFile, MutationsInSource, SourceTransfor
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
+import scala.meta._
+
 class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)(implicit
     config: Config,
     log: Logger
 ) {
 
-  //Given compiler errors, return the mutants that caused it
-  def errorsToIds(compileError: Seq[CompileError], files: Seq[MutatedFile]): Seq[MutantId] = {
-    compileError.flatMap { err =>
-      files
-        //Find the file that the compiler error came from
-        .find(_.fileOrigin.toString.endsWith(err.path))
-        //Find the mutant case statement that cased the compiler error
-        .flatMap(file => file.mutantLineNumbers.get(err.line))
-    }
-  }
-
-  def mutate(files: Stream[IO, Path], nonCompilingMutants: Seq[MutantId] = Seq.empty): IO[Seq[MutatedFile]] = {
+  def mutate(files: Stream[IO, Path], compileErrors: Seq[CompileError] = Seq.empty): IO[Seq[MutatedFile]] = {
     files
       .parEvalMapUnordered(config.concurrency)(p => findMutants(p).tupleLeft(p))
       .map { case (file, mutationsInSource) =>
-        val validMutants =
-          mutationsInSource.mutants.filterNot(mut => nonCompilingMutants.exists(_.sameMutation(mut.id)))
-        val transformed = transformStatements(mutationsInSource.copy(mutants = validMutants))
-        val (builtTree, mutations) = buildMatches(transformed)
-
-        MutatedFile(file, builtTree, mutationsInSource.mutants, mutations, mutationsInSource.excluded)
+        val errorsInThisFile = compileErrors.filter(err => file.toString.endsWith(err.path))
+        println(s"$file $errorsInThisFile $compileErrors ${file.toString}")
+        mutateFile(file, mutationsInSource, errorsInThisFile)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)
       .compile
       .toVector
       .flatTap(logMutationResult)
+  }
+
+  private def mutateFile(
+      file: Path,
+      mutationsInSource: MutationsInSource,
+      compileErrors: Seq[CompileError]
+  ): MutatedFile = {
+    val transformed = transformStatements(mutationsInSource)
+    val (builtTree, mutations) = buildMatches(transformed)
+
+    //If there are any compiler errors (i.e. we're currently retrying the mutation)
+    //Then we take the original tree built that didn't compile
+    //And then we search inside it to translate the compile errors to mutants
+    //Finally we rebuild it from scratch without those mutants
+    //This is not very performant, but you only pay the cost if there actually is a compiler error
+    val mutatedFile = MutatedFile(file, builtTree, mutationsInSource.mutants, Seq.empty, mutationsInSource.excluded)
+    if (compileErrors.isEmpty) {
+      mutatedFile
+    } else {
+      val nonCompiligIds = errorsToIds(compileErrors, mutatedFile.mutatedSource, mutations)
+      val (nonCompilingMutants, compilingMutants) =
+        mutationsInSource.mutants.partition(mut => nonCompiligIds.contains(mut.id))
+
+      val transformed = transformStatements(mutationsInSource.copy(mutants = compilingMutants))
+      val (builtTree, _) = buildMatches(transformed)
+      MutatedFile(file, builtTree, compilingMutants, nonCompilingMutants, mutationsInSource.excluded)
+    }
+  }
+
+  //Given compiler errors, return the mutants that caused it
+  private def errorsToIds(
+      compileErrors: Seq[CompileError],
+      mutatedFile: String,
+      mutants: Seq[(MutantId, Case)]
+  ): Seq[MutantId] = {
+    val statementToMutIdMap = mutants.map { case (mutantId, mutationStatement) =>
+      mutationStatement.structure -> mutantId
+    }.toMap
+
+    val lineToMutantId: Map[Int, MutantId] = mutatedFile
+      .parse[Stat] //Parse as a standalone statement, used in unit tests and conceivable in some real code
+      .orElse(mutatedFile.parse[Source]) //Parse as a complete scala source file
+      .get //If both failed something has gone very badly wrong, give up
+      .collect {
+        case node if statementToMutIdMap.contains(node.structure) =>
+          val mutId = statementToMutIdMap(node.structure)
+          //+1 because scalameta uses zero-indexed line numbers
+          (node.pos.startLine to node.pos.endLine).map(i => i + 1 -> mutId)
+      }
+      .flatten
+      .toMap
+
+    compileErrors.flatMap { err =>
+      lineToMutantId.get(err.line)
+    }
   }
 
   /** Step 1: Find mutants in the found files

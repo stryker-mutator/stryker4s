@@ -21,9 +21,9 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val reporterMock = mock[Reporter]
       whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
       when(reporterMock.mutantTested).thenReturn(_.drain)
-      val mutant = Mutant(MutantId(3, "scalaFiles/simpleFile.scala", 3), q"0", q"zero", EmptyString)
-      val secondMutant = Mutant(MutantId(1, "scalaFiles/simpleFile.scala", 1), q"1", q"one", EmptyString)
-      val thirdMutant = Mutant(MutantId(2, "scalaFiles/simpleFile.scala", 2), q"5", q"5", EmptyString)
+      val mutant = Mutant(MutantId(3), q"0", q"zero", EmptyString)
+      val secondMutant = Mutant(MutantId(1), q"1", q"one", EmptyString)
+      val thirdMutant = Mutant(MutantId(2), q"5", q"5", EmptyString)
 
       val testRunner = TestRunnerStub.withResults(Killed(mutant), Killed(secondMutant), Survived(thirdMutant))
       val sut = new MutantRunner(testRunner, fileCollectorMock, reporterMock)
@@ -31,7 +31,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq.empty, 0)
 
-      sut(List(mutatedFile), Seq.empty).asserting { result =>
+      sut(List(mutatedFile)).asserting { result =>
         val captor = ArgCaptor[FinishedRunEvent]
         verify(reporterMock, times(1)).onRunFinished(captor.capture)
         val runReport = captor.value.report.files.loneElement

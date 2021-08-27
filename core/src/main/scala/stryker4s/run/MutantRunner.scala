@@ -26,14 +26,14 @@ class MutantRunner(
 )(implicit config: Config, log: Logger)
     extends MutantRunResultMapper {
 
-  def apply(mutatedFiles: Seq[MutatedFile], nonCompilingMutants: Seq[MutantId]): IO[MetricsResult] = {
+  def apply(mutatedFiles: Seq[MutatedFile]): IO[MetricsResult] = {
     prepareEnv(mutatedFiles)
       .flatMap(createTestRunnerPool)
       .use { testRunnerPool =>
         testRunnerPool.loan
           .use(initialTestRun)
           .flatMap { coverageExclusions =>
-            runMutants(mutatedFiles, testRunnerPool, coverageExclusions, nonCompilingMutants).timed
+            runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
           }
       }
       .flatMap(t => createAndReportResults(t._1, t._2))
@@ -98,21 +98,20 @@ class MutantRunner(
   private def runMutants(
       mutatedFiles: Seq[MutatedFile],
       testRunnerPool: TestRunnerPool,
-      coverageExclusions: CoverageExclusions,
-      nonCompilingMutants: Seq[MutantId]
+      coverageExclusions: CoverageExclusions
   ): IO[Map[Path, Seq[MutantRunResult]]] = {
 
     val allMutants = mutatedFiles.flatMap(m => m.mutants.toList.map(m.fileOrigin.relativePath -> _))
 
     val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.globalId))
 
-    val (compilerErrorMutants, rest2) =
-      rest.partition(mut => nonCompilingMutants.exists(_.sameMutation(mut._2.id)))
-
     val (noCoverageMutants, testableMutants) =
-      rest2.partition(m =>
+      rest.partition(m =>
         coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.globalId)
       )
+
+    val compilerErrorMutants =
+      mutatedFiles.flatMap(m => m.nonCompilingMutants.toList.map(m.fileOrigin.relativePath -> _))
 
     if (noCoverageMutants.nonEmpty) {
       log.info(

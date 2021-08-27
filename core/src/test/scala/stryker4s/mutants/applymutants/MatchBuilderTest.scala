@@ -52,7 +52,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       // Assert
       "Failed to construct pattern match: original statement [true]" shouldBe loggedAsError
-      "Failed mutation(s) Mutant(MutantId(0,,-1),true,false,EmptyString)." shouldBe loggedAsError
+      "Failed mutation(s) Mutant(0,true,false,EmptyString)." shouldBe loggedAsError
       "at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
       "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s." shouldBe loggedAsError
 
