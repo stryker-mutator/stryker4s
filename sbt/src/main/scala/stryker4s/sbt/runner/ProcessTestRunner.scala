@@ -14,7 +14,6 @@ import stryker4s.run.process.ProcessResource
 
 import java.net.{InetAddress, Socket}
 import scala.concurrent.duration._
-import scala.jdk.CollectionConverters._
 import scala.sys.process.Process
 import scala.util.control.NonFatal
 
@@ -22,11 +21,11 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
   override def runMutant(mutant: Mutant): IO[MutantRunResult] = {
     val message = StartTestRun(mutant.id)
-    testProcess.sendMessage(message) map {
-      case _: TestsSuccessful      => Survived(mutant)
-      case _: TestsUnsuccessful    => Killed(mutant)
-      case ErrorDuringTestRun(msg) => Killed(mutant, Some(msg))
-      case _                       => Error(mutant)
+    testProcess.sendMessage(message).map {
+      case _: TestsSuccessful         => Survived(mutant)
+      case _: TestsUnsuccessful       => Killed(mutant)
+      case ErrorDuringTestRun(msg, _) => Killed(mutant, Some(msg))
+      case _                          => Error(mutant)
     }
   }
 
@@ -49,8 +48,8 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
           val averageDuration = (firstDuration + secondDuration) / 2
           InitialTestRunCoverageReport(
             firstRun.isSuccessful && secondRun.isSuccessful,
-            firstRun.coverageReport.asScala.toMap.mapValues(_.toSeq),
-            secondRun.coverageReport.asScala.toMap.mapValues(_.toSeq),
+            firstRun.coverageReport.mapValues(_.fingerprint),
+            secondRun.coverageReport.mapValues(_.fingerprint),
             averageDuration
           )
         case x => throw new MatchError(x)
@@ -94,19 +93,14 @@ object ProcessTestRunner extends TestInterfaceMapper {
   }
 
   private def connectToProcess(port: Int)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
-    // Sleep 0.5 seconds to let the process startup before attempting connection
-    Resource.eval(
-      IO(log.debug(s"Creating socket on $port"))
-        .delayBy(0.5.seconds)
-    ) *>
-      Resource
-        .make(
-          retryWithBackoff(5, 0.5.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
-            IO(new Socket(InetAddress.getLoopbackAddress(), port))
-          )
-        )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
-        .evalTap(_ => IO(log.debug("Created socket")))
-        .flatMap(TestRunnerConnection.create(_))
+    Resource
+      .make(
+        retryWithBackoff(6, 0.2.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
+          IO(new Socket(InetAddress.getLoopbackAddress(), port))
+        )
+      )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
+      .evalTap(_ => IO(log.debug("Created socket")))
+      .flatMap(TestRunnerConnection.create(_))
   }
 
   def setupTestRunner(
@@ -123,8 +117,8 @@ object ProcessTestRunner extends TestInterfaceMapper {
     val retriableWithOnError = (NonFatal.apply(_)).compose((t: Throwable) => { onError; t })
 
     fs2.Stream
-      // Exponential backoff
-      .retry(f, delay, d => d * 2, maxAttempts, retriableWithOnError)
+      // Linear backoff
+      .retry(f, delay, d => d + d, maxAttempts, retriableWithOnError)
       .compile
       .lastOrError
   }

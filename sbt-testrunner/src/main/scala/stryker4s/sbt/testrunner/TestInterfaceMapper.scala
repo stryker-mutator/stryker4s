@@ -17,27 +17,28 @@ trait TestInterfaceMapper {
 
   def toSbtTaskDef(td: TaskDefinition) = {
     val fingerprint = toSbtFingerprint(td.fingerprint)
-    val selectors = td.selectors.map(toSbtSelector)
+    val selectors = td.selectors.map(toSbtSelector).toArray
     new TaskDef(td.fullyQualifiedName, fingerprint, td.explicitlySpecified, selectors)
   }
 
   def toSbtSelector(s: Selector): sbt.testing.Selector =
     s match {
-      case NestedSuiteSelector(suiteId)          => new sbt.testing.NestedSuiteSelector(suiteId)
-      case NestedTestSelector(suiteId, testName) => new sbt.testing.NestedTestSelector(suiteId, testName)
-      case SuiteSelector()                       => new sbt.testing.SuiteSelector()
-      case TestSelector(testName)                => new sbt.testing.TestSelector(testName)
-      case TestWildcardSelector(testWildcard)    => new sbt.testing.TestWildcardSelector(testWildcard)
+      case NestedSuiteSelector(suiteId, _)          => new sbt.testing.NestedSuiteSelector(suiteId)
+      case NestedTestSelector(suiteId, testName, _) => new sbt.testing.NestedTestSelector(suiteId, testName)
+      case SuiteSelector(_)                         => new sbt.testing.SuiteSelector()
+      case TestSelector(testName, _)                => new sbt.testing.TestSelector(testName)
+      case TestWildcardSelector(testWildcard, _)    => new sbt.testing.TestWildcardSelector(testWildcard)
+      case Selector.Empty                           => throw new MatchError(s)
     }
 
   def toSbtFingerprint(f: Fingerprint): sbt.testing.Fingerprint =
     f match {
-      case AnnotatedFingerprint(fIsModule, annotation) =>
+      case AnnotatedFingerprint(fIsModule, annotation, _) =>
         new sbt.testing.AnnotatedFingerprint() {
           def isModule(): Boolean = fIsModule
           def annotationName(): String = annotation
         }
-      case SubclassFingerprint(fIsModule, superclass, noArgs) =>
+      case SubclassFingerprint(fIsModule, superclass, noArgs, _) =>
         new sbt.testing.SubclassFingerprint() {
           def isModule(): Boolean = fIsModule
 
@@ -46,6 +47,7 @@ trait TestInterfaceMapper {
           def requireNoArgConstructor(): Boolean = noArgs
 
         }
+      case Fingerprint.Empty => throw new MatchError(f)
     }
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =

@@ -1,13 +1,12 @@
 package stryker4s.sbt.testrunner
 
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.UnaryOperator
-
-import scala.annotation.tailrec
-import scala.util.control.NonFatal
-
 import sbt.testing.{Event, EventHandler, Framework, Status, Task}
 import stryker4s.api.testprocess._
+
+import java.util.concurrent.atomic.AtomicReference
+import java.util.function.UnaryOperator
+import scala.annotation.tailrec
+import scala.util.control.NonFatal
 
 sealed trait TestRunner {
   def runMutation(mutation: Int): Status
@@ -16,16 +15,17 @@ sealed trait TestRunner {
 
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
-  val testFunctions: Option[Int] => Status = {
-    val cl = getClass().getClassLoader()
-    val tasks = context.testGroups.flatMap(testGroup => {
-      val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions
+  val cl = getClass().getClassLoader()
+  val tasks = context.testGroups
+    .flatMap(testGroup => {
+      val RunnerOptions(args, remoteArgs, _) = testGroup.runnerOptions
       val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
-      val runner = framework.runner(args, remoteArgs, cl)
-      runner.tasks(testGroup.taskDefs.map(toSbtTaskDef))
+      val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
+      runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
     })
-
-    (mutation: Option[Int]) => {
+    .toArray
+  val testFunctions: Option[Int] => Status = { (mutation: Option[Int]) =>
+    {
       mutation.foreach(stryker4s.activeMutation = _)
       runTests(tasks, new AtomicReference(Status.Success))
     }
