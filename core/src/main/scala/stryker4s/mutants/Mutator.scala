@@ -7,7 +7,7 @@ import fs2.io.file.Path
 import stryker4s.config.Config
 import stryker4s.extension.StreamExtensions._
 import stryker4s.log.Logger
-import stryker4s.model.{CompileError, MutantId, MutatedFile, MutationsInSource, SourceTransformations}
+import stryker4s.model._
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
@@ -48,9 +48,9 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
     if (compileErrors.isEmpty) {
       mutatedFile
     } else {
-      val nonCompiligIds = errorsToIds(compileErrors, mutatedFile.mutatedSource, mutations)
+      val nonCompilingIds = errorsToIds(compileErrors, mutatedFile.mutatedSource, mutations)
       val (nonCompilingMutants, compilingMutants) =
-        mutationsInSource.mutants.partition(mut => nonCompiligIds.contains(mut.id))
+        mutationsInSource.mutants.partition(mut => nonCompilingIds.contains(mut.id))
 
       val transformed = transformStatements(mutationsInSource.copy(mutants = compilingMutants))
       val (builtTree, _) = buildMatches(transformed)
@@ -69,9 +69,9 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
     }.toMap
 
     val lineToMutantId: Map[Int, MutantId] = mutatedFile
-      .parse[Stat] //Parse as a standalone statement, used in unit tests and conceivable in some real code
-      .orElse(mutatedFile.parse[Source]) //Parse as a complete scala source file
-      .get //If both failed something has gone very badly wrong, give up
+      //Parsing the mutated tree again as a string is the only way to get the position info of the mutated statements
+      .parse[Source]
+      .getOrElse(throw new RuntimeException(s"Failed to parse $mutatedFile to remove non-compiling mutants"))
       .collect {
         case node if statementToMutIdMap.contains(node.structure) =>
           val mutId = statementToMutIdMap(node.structure)
