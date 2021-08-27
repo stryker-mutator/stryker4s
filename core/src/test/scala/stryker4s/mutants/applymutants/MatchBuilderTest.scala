@@ -78,7 +78,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val (result, _) = sut.buildNewSource(transStatements)
+      val result = sut.buildNewSource(transStatements)
 
       // Assert
       val expected = source"""class Foo {
@@ -109,7 +109,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.sysProps)
 
       // Act
-      val (result, _) = sut.buildNewSource(transStatements)
+      val result = sut.buildNewSource(transStatements)
 
       // Assert
       val expected =
@@ -139,7 +139,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val (result, _) = sut.buildNewSource(transformedStatements)
+      val result = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected =
@@ -179,7 +179,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val (result, _) = sut.buildNewSource(transformedStatements)
+      val result = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected =
@@ -219,7 +219,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val (result, _) = sut.buildNewSource(transformedStatements)
+      val result = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected = source"""
@@ -272,7 +272,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val (result, _) = sut.buildNewSource(transformedStatements)
+      val result = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected = source"""class Foo() {
@@ -317,7 +317,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
-      val (result, _) = sut.buildNewSource(transformedStatements)
+      val result = sut.buildNewSource(transformedStatements)
 
       // Assert
       val expected = source"""class Foo() {
