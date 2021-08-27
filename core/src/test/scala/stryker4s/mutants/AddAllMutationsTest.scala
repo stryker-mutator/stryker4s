@@ -82,11 +82,11 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
       val source = source"class Foo { $tree }"
       val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.collect { case Right(v) => v }
       val transformed = new StatementTransformer().transformSource(source, foundMutants)
-      val mutatedTree = new MatchBuilder(ActiveMutationContext.testRunner).buildNewSource(transformed)
+      val (mutatedTree, _) = new MatchBuilder(ActiveMutationContext.testRunner).buildNewSource(transformed)
       transformed.transformedStatements
         .flatMap(_.mutantStatements)
         .foreach { mutantStatement =>
-          mutatedTree._1
+          mutatedTree
             .find(p"Some(${Lit.Int(mutantStatement.id.globalId)})")
             .getOrElse(
               fail {

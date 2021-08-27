@@ -62,7 +62,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
   private def errorsToIds(
       compileErrors: Seq[CompileError],
       mutatedFile: String,
-      mutants: Seq[(MutantId, Case)]
+      mutants: Seq[(MutantId, Tree)]
   ): Seq[MutantId] = {
     val statementToMutIdMap = mutants.map { case (mutantId, mutationStatement) =>
       mutationStatement.structure -> mutantId

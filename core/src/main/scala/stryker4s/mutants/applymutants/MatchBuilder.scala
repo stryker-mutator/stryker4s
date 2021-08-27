@@ -10,21 +10,21 @@ import scala.meta._
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger) {
-  def buildNewSource(transformedStatements: SourceTransformations): (Tree, Seq[(MutantId, Case)]) = {
+  def buildNewSource(transformedStatements: SourceTransformations): (Tree, Seq[(MutantId, Tree)]) = {
     val source = transformedStatements.source
 
-    groupTransformedStatements(transformedStatements).foldLeft((source, Seq.empty): (Tree, Seq[(MutantId, Case)])) {
-      (rest, mutants) =>
+    groupTransformedStatements(transformedStatements).foldLeft((source, Seq.empty): (Tree, Seq[(MutantId, Tree)])) {
+      case ((tree, mutantCases), mutants) =>
         val origStatement = mutants.originalStatement
 
         var isTransformed = false
-        rest._1 transformOnce {
+        tree transformOnce {
           case found if found.isEqual(origStatement) && found.pos == origStatement.pos =>
             isTransformed = true
             buildMatch(mutants)
         } match {
           case Success(value) if isTransformed =>
-            (value, rest._2 ++ mutants.mutantStatements.map(mut => (mut.id, mutantToCase(mut))))
+            (value, mutantCases ++ mutants.mutantStatements.map(mut => (mut.id, mutantToCase(mut))))
           case Success(value) =>
             log.warn(
               s"Failed to add mutation(s) ${mutants.mutantStatements.map(_.id.globalId).mkString(", ")} to new mutated code"
@@ -36,7 +36,7 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
             log.warn(
               "Please open an issue on github with sample code of the mutation that failed: https://github.com/stryker-mutator/stryker4s/issues/new"
             )
-            (value, rest._2)
+            (value, mutantCases)
           case Failure(exception) =>
             log.error(s"Failed to construct pattern match: original statement [$origStatement]")
             log.error(s"Failed mutation(s) ${mutants.mutantStatements.mkString(",")}.")
