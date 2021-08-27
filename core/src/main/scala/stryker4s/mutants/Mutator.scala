@@ -4,11 +4,10 @@ import cats.effect.IO
 import cats.syntax.functor._
 import fs2.Stream
 import fs2.io.file.Path
-import stryker4s.CompileError
 import stryker4s.config.Config
 import stryker4s.extension.StreamExtensions._
 import stryker4s.log.Logger
-import stryker4s.model.{MutantId, MutatedFile, MutationsInSource, SourceTransformations}
+import stryker4s.model.{CompileError, MutantId, MutatedFile, MutationsInSource, SourceTransformations}
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
@@ -24,7 +23,6 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
       .parEvalMapUnordered(config.concurrency)(p => findMutants(p).tupleLeft(p))
       .map { case (file, mutationsInSource) =>
         val errorsInThisFile = compileErrors.filter(err => file.toString.endsWith(err.path))
-        println(s"$file $errorsInThisFile $compileErrors ${file.toString}")
         mutateFile(file, mutationsInSource, errorsInThisFile)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)

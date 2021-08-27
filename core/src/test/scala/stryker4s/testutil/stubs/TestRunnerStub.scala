@@ -27,5 +27,5 @@ object TestRunnerStub {
   def resource = withResults(Killed(Mutant(MutantId(0), q">", q"<", LesserThan)))
 
   def withResults(mutants: MutantRunResult*) = (_: Path) =>
-    ResourcePool(NonEmptyList.of(Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _)))))
+    Right(ResourcePool(NonEmptyList.of(Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _))))))
 }

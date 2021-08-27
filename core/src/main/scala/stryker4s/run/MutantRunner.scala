@@ -1,5 +1,6 @@
 package stryker4s.run
 
+import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.functor._
 import fs2.io.file.{Files, Path}
@@ -11,7 +12,7 @@ import stryker4s.extension.StreamExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
-import stryker4s.model._
+import stryker4s.model.{CompileError, _}
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
@@ -20,23 +21,40 @@ import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
 
 class MutantRunner(
-    createTestRunnerPool: Path => Resource[IO, TestRunnerPool],
+    createTestRunnerPool: Path => Either[NonEmptyList[CompileError], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
     reporter: Reporter
 )(implicit config: Config, log: Logger)
     extends MutantRunResultMapper {
 
-  def apply(mutatedFiles: Seq[MutatedFile]): IO[MetricsResult] = {
-    prepareEnv(mutatedFiles)
-      .flatMap(createTestRunnerPool)
-      .use { testRunnerPool =>
-        testRunnerPool.loan
-          .use(initialTestRun)
-          .flatMap { coverageExclusions =>
-            runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
+  def apply(mutateFiles: Seq[CompileError] => IO[Seq[MutatedFile]]): IO[MetricsResult] = {
+    mutateFiles(Seq.empty).flatMap { mutatedFiles =>
+      run(mutatedFiles)
+        .flatMap {
+          case Right(metrics) => IO(Right(metrics))
+          case Left(errors) =>
+            mutateFiles(errors.toList).flatMap(run)
+        }
+        .map(_.getOrElse(throw new RuntimeException(s"Unable to remove non-compiling mutants")))
+    }
+  }
+
+  def run(mutatedFiles: Seq[MutatedFile]): IO[Either[NonEmptyList[CompileError], MetricsResult]] = {
+    prepareEnv(mutatedFiles).use { path =>
+      createTestRunnerPool(path) match {
+        case Left(errs) => IO(Left(errs))
+        case Right(testRunnerPoolResource) =>
+          testRunnerPoolResource.use { testRunnerPool =>
+            testRunnerPool.loan
+              .use(initialTestRun)
+              .flatMap { coverageExclusions =>
+                runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
+              }
+              .flatMap(t => createAndReportResults(t._1, t._2))
+              .map(Right(_))
           }
       }
-      .flatMap(t => createAndReportResults(t._1, t._2))
+    }
   }
 
   def createAndReportResults(duration: FiniteDuration, runResults: Map[Path, Seq[MutantRunResult]]) = for {
@@ -142,7 +160,7 @@ class MutantRunner(
     // Map all no-coverage mutants
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
     // Map all no-compiling mutants
-    val noCompiling = mapPureMutants(compilerErrorMutants, (m: Mutant) => CompilerError(m))
+    val noCompiling = mapPureMutants(compilerErrorMutants, (m: Mutant) => NotCompiling(m))
 
     // Run all testable mutants
     val totalTestableMutants = testableMutants.size

@@ -3,9 +3,8 @@ package stryker4s.run
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import fs2.io.file.Path
-import stryker4s.Stryker4s
 import stryker4s.config._
-import stryker4s.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
+import stryker4s.files._
 import stryker4s.log.Logger
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
@@ -15,6 +14,8 @@ import stryker4s.report._
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
+import stryker4s.Stryker4s
+import stryker4s.model.CompileError
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 
@@ -22,7 +23,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 
-    val createTestRunnerPool = (path: Path) => ResourcePool(resolveTestRunners(path))
+    val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
 
     val stryker4s = new Stryker4s(
       resolveMutatesFileSource,
@@ -60,7 +61,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
 
-  def resolveTestRunners(tmpDir: Path)(implicit config: Config): NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]
+  def resolveTestRunners(tmpDir: Path)(implicit
+      config: Config
+  ): Either[NonEmptyList[CompileError], NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]]
 
   def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
     new GlobFileResolver(
