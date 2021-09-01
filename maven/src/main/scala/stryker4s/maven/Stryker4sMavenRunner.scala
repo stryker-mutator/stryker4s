@@ -8,6 +8,7 @@ import org.apache.maven.shared.invoker.Invoker
 import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.maven.runner.MavenTestRunner
+import stryker4s.model.CompileError
 import stryker4s.mutants.applymutants.ActiveMutationContext.{envVar, ActiveMutationContext}
 import stryker4s.run.Stryker4sRunner
 
@@ -19,14 +20,14 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
 
   override def resolveTestRunners(
       tmpDir: Path
-  )(implicit config: Config): NonEmptyList[Resource[IO, MavenTestRunner]] = {
+  )(implicit config: Config): Either[NonEmptyList[CompileError], NonEmptyList[Resource[IO, MavenTestRunner]]] = {
     val goals = List("test")
 
     val properties = new Properties(project.getProperties)
     setTestProperties(properties, config.testFilter)
     invoker.setWorkingDirectory(tmpDir.toNioPath.toFile())
 
-    NonEmptyList.of(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals)))
+    Right(NonEmptyList.of(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals))))
   }
 
   private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {

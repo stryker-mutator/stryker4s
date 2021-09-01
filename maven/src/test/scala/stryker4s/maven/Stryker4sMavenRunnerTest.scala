@@ -24,6 +24,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
+        .right.get
         .head
         .use(result => {
           verify(invokerMock).setWorkingDirectory(eqTo(tmpDir.toNioPath.toFile()))
@@ -42,6 +43,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
+        .right.get
         .head
         .use(result => {
           result.properties.getProperty("test") should equal(expectedTestFilter.mkString(", "))
@@ -62,6 +64,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
+        .right.get
         .head
         .use(result => IO.pure(result.properties.getProperty("test") should equal(s"*OtherTest, $expectedTestFilter")))
         .unsafeRunSync()
@@ -78,6 +81,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
+        .right.get
         .head
         .use(result =>
           IO.pure(result.properties.getProperty("wildcardSuites") should equal(s"*OtherTest,$expectedTestFilter"))
