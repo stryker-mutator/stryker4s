@@ -11,7 +11,7 @@ This is the contribution guide for Stryker4s. Great to have you here! Here are a
 
 To get started with developing Stryker4s, you'll need a couple of tools:
 
-- [Java JDK](https://openjdk.java.net/), a recent version like 11 is recommended
+- [Java JDK](https://openjdk.java.net/), a recent version like 11 or 17 is recommended
 - [sbt](https://www.scala-sbt.org/), to build and test the project
 
 Once these tools are installed you can open the project with [IntelliJ](https://www.jetbrains.com/idea/), or [VS Code](https://code.visualstudio.com/) combined with [Metals](https://scalameta.org/metals/).
