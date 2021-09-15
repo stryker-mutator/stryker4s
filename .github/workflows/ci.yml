@@ -13,11 +13,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
       - name: Run tests
         run: sbt 'compile; ++2.13.3 test'
@@ -25,11 +25,11 @@ jobs:
     name: sbt plugin scripted tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: 11
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
@@ -38,19 +38,13 @@ jobs:
     name: Test Maven plugin
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
-      - name: Cache Maven
-        uses: actions/cache@v2.1.6
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
       - uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: 11
+          cache: 'maven'
       - name: Cleanup M2
         run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
       - name: Publish stryker4s-core
@@ -63,14 +57,14 @@ jobs:
     name: Test formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
           extraKey: 'scalafmt'
       - uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: 11
       - name: Test formatting
         run: ./bin/scalafmt --test
@@ -79,7 +73,7 @@ jobs:
     if: "github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
@@ -88,8 +82,9 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
+          distribution: 'temurin'
           java-version: 11
+          cache: 'maven'
       - name: Publish
         run: sbt ci-release
         env:
