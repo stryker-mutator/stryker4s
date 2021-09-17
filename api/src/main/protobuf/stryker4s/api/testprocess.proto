@@ -4,6 +4,8 @@ package stryker4s.api;
 
 import "scalapb/scalapb.proto";
 option (scalapb.options) = {
+  // Removes the UnknownFieldSet property from generated classes
+  // This can cause incompatibility with older scalapb JARs on the classpath (like on old sbt versions), and we don't use it anyway
   preserve_unknown_fields: false
 };
 
