@@ -22,10 +22,10 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
   override def runMutant(mutant: Mutant): IO[MutantRunResult] = {
     val message = StartTestRun(mutant.id)
     testProcess.sendMessage(message).map {
-      case _: TestsSuccessful         => Survived(mutant)
-      case _: TestsUnsuccessful       => Killed(mutant)
+      case _: TestsSuccessful      => Survived(mutant)
+      case _: TestsUnsuccessful    => Killed(mutant)
       case ErrorDuringTestRun(msg) => Killed(mutant, Some(msg))
-      case _                          => Error(mutant)
+      case _                       => Error(mutant)
     }
   }
 
@@ -109,7 +109,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       testGroups: Seq[Tests.Group]
   ): IO[Unit] = {
     val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
-    
+
     testProcess.sendMessage(SetupTestContext(apiTestGroups)).void
   }
 
