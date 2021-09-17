@@ -23,22 +23,22 @@ trait TestInterfaceMapper {
 
   def toSbtSelector(s: Selector): sbt.testing.Selector =
     s match {
-      case NestedSuiteSelector(suiteId, _)          => new sbt.testing.NestedSuiteSelector(suiteId)
-      case NestedTestSelector(suiteId, testName, _) => new sbt.testing.NestedTestSelector(suiteId, testName)
-      case SuiteSelector(_)                         => new sbt.testing.SuiteSelector()
-      case TestSelector(testName, _)                => new sbt.testing.TestSelector(testName)
-      case TestWildcardSelector(testWildcard, _)    => new sbt.testing.TestWildcardSelector(testWildcard)
-      case Selector.Empty                           => throw new MatchError(s)
+      case NestedSuiteSelector(suiteId)          => new sbt.testing.NestedSuiteSelector(suiteId)
+      case NestedTestSelector(suiteId, testName) => new sbt.testing.NestedTestSelector(suiteId, testName)
+      case SuiteSelector()                       => new sbt.testing.SuiteSelector()
+      case TestSelector(testName)                => new sbt.testing.TestSelector(testName)
+      case TestWildcardSelector(testWildcard)    => new sbt.testing.TestWildcardSelector(testWildcard)
+      case Selector.Empty                        => throw new MatchError(s)
     }
 
   def toSbtFingerprint(f: Fingerprint): sbt.testing.Fingerprint =
     f match {
-      case AnnotatedFingerprint(fIsModule, annotation, _) =>
+      case AnnotatedFingerprint(fIsModule, annotation) =>
         new sbt.testing.AnnotatedFingerprint() {
           def isModule(): Boolean = fIsModule
           def annotationName(): String = annotation
         }
-      case SubclassFingerprint(fIsModule, superclass, noArgs, _) =>
+      case SubclassFingerprint(fIsModule, superclass, noArgs) =>
         new sbt.testing.SubclassFingerprint() {
           def isModule(): Boolean = fIsModule
 
