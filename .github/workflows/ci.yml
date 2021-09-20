@@ -17,7 +17,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
       - name: Run tests
         run: sbt 'compile; ++2.13.3 test'
@@ -29,7 +29,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: 17
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
@@ -42,7 +42,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: 17
           cache: 'maven'
       - name: Cleanup M2
@@ -64,7 +64,7 @@ jobs:
           extraKey: 'scalafmt'
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: 17
       - name: Test formatting
         run: ./bin/scalafmt --test
@@ -82,7 +82,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: 17
           cache: 'maven'
       - name: Publish
