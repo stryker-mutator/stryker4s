@@ -17,11 +17,11 @@ object Dependencies {
     // Test dependencies
     val catsEffectScalaTest = "1.3.0"
     val mockitoScala = "1.16.42"
-    val scalatest = "3.2.9"
+    val scalatest = "3.2.10"
 
     // Direct dependencies
     val catsCore = "2.6.1"
-    val catsEffect = "3.2.8"
+    val catsEffect = "3.2.9"
     val circe = "0.14.1"
     val fs2 = "3.1.2"
     val log4j = "2.14.1"
