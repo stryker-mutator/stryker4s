@@ -17,7 +17,7 @@ trait TestInterfaceMapper {
 
   def toSbtTaskDef(td: TaskDefinition) = {
     val fingerprint = toSbtFingerprint(td.fingerprint)
-    val selectors = td.selectors.map(toSbtSelector)
+    val selectors = td.selectors.map(toSbtSelector).toArray
     new TaskDef(td.fullyQualifiedName, fingerprint, td.explicitlySpecified, selectors)
   }
 
@@ -28,6 +28,7 @@ trait TestInterfaceMapper {
       case SuiteSelector()                       => new sbt.testing.SuiteSelector()
       case TestSelector(testName)                => new sbt.testing.TestSelector(testName)
       case TestWildcardSelector(testWildcard)    => new sbt.testing.TestWildcardSelector(testWildcard)
+      case Selector.Empty                        => throw new MatchError(s)
     }
 
   def toSbtFingerprint(f: Fingerprint): sbt.testing.Fingerprint =
@@ -46,6 +47,7 @@ trait TestInterfaceMapper {
           def requireNoArgConstructor(): Boolean = noArgs
 
         }
+      case Fingerprint.Empty => throw new MatchError(f)
     }
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =

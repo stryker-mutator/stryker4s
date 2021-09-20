@@ -1,11 +1,10 @@
+import sbt.testing.Fingerprint
+import stryker4s.api.testprocess.{CoverageReport, Fingerprints}
+import stryker4s.sbt.testrunner.TestInterfaceMapper
+
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
-
 import scala.collection.concurrent.TrieMap
-
-import sbt.testing.Fingerprint
-import stryker4s.api.testprocess.CoverageReport
-import stryker4s.sbt.testrunner.TestInterfaceMapper
 
 package object stryker4s {
 
@@ -60,10 +59,12 @@ package object stryker4s {
 
     /** Build the coverage report from the collected data
       */
-    private def report(): CoverageReport =
-      ScalaVersionCompat.mapAsJava(coveredTests.map { case (mutant, tests) =>
-        mutant -> ScalaVersionCompat.queueAsScala(tests).map(TestInterfaceMapper.toFingerprint(_)).toArray
-      })
+    private def report(): CoverageReport = {
+      import scala.jdk.CollectionConverters._
+      coveredTests.toMap.map { case (mutant, tests) =>
+        mutant -> Fingerprints(tests.asScala.map(TestInterfaceMapper.toFingerprint(_)).toSeq)
+      }
+    }
   }
 
   // Starting value of  -1 means none

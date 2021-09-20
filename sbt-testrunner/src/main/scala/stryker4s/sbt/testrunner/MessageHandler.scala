@@ -1,9 +1,9 @@
 package stryker4s.sbt.testrunner
 
-import scala.util.control.NonFatal
-
 import sbt.testing.Status
 import stryker4s.api.testprocess._
+
+import scala.util.control.NonFatal
 
 trait MessageHandler {
   def handleMessage(req: Request): Response
@@ -31,15 +31,16 @@ final class TestRunnerMessageHandler() extends MessageHandler {
         testRunner = new SbtTestInterfaceRunner(testContext)
         println("Set up testContext")
         SetupTestContextSuccessful()
+      case Request.Empty => throw new MatchError(req)
     }
 
-  def toTestResult(status: Status): TestResultResponse =
+  def toTestResult(status: Status): Response =
     status match {
       case Status.Success => TestsSuccessful()
       case _              => TestsUnsuccessful()
     }
 
-  def toInitialTestResult(status: Status, coverage: CoverageReport): TestResultResponse =
+  def toInitialTestResult(status: Status, coverage: CoverageReport): Response =
     status match {
       case Status.Success => CoverageTestRunResult(true, coverage)
       case _              => CoverageTestRunResult(false, coverage)

@@ -1,8 +1,8 @@
 package stryker4s.sbt.testrunner
 
-import stryker4s.api.testprocess.Request
+import com.google.protobuf.CodedInputStream
+import stryker4s.api.testprocess.RequestMessage
 
-import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.{InetAddress, ServerSocket, Socket}
 
 object SbtTestRunnerMain {
@@ -32,17 +32,16 @@ object SbtTestRunnerMain {
 final class TestProcessServer(messageHandler: MessageHandler, socket: Socket) {
 
   def start() = {
-    val objectInputStream = new ObjectInputStream(socket.getInputStream())
+    val inputStream = socket.getInputStream()
+    val input = CodedInputStream.newInstance(inputStream)
     try {
-      val objectOutputStream = new ObjectOutputStream(socket.getOutputStream())
-      try while (true)
-        objectInputStream.readObject() match {
-          case request: Request =>
-            println(s"Received message $request")
-            val response = messageHandler.handleMessage(request)
-            objectOutputStream.writeObject(response)
-          case other => throw new Exception(s"Could not handle message. Expected type 'Request', but received $other")
-        } finally objectOutputStream.close()
-    } finally objectInputStream.close()
+      val outputStream = socket.getOutputStream()
+      try while (true) {
+        val request = RequestMessage.parseDelimitedFrom(input).get.toRequest
+        println(s"Received message $request")
+        val response = messageHandler.handleMessage(request)
+        response.asMessage.writeDelimitedTo(outputStream)
+      } finally outputStream.close()
+    } finally inputStream.close()
   }
 }

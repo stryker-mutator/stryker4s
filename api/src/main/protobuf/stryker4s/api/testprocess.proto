@@ -1,0 +1,113 @@
+syntax = "proto2";
+
+package stryker4s.api;
+
+import "scalapb/scalapb.proto";
+option (scalapb.options) = {
+  // Removes the UnknownFieldSet property from generated classes
+  // This can cause incompatibility with older scalapb JARs on the classpath (like on old sbt versions), and we don't use it anyway
+  preserve_unknown_fields: false
+};
+
+message Request {
+  oneof sealed_value {
+    SetupTestContext SetupTestContext = 1;
+    StartTestRun startTestRun = 2;
+    StartInitialTestRun startInitialTestRun = 3;
+  }
+}
+
+message SetupTestContext {
+  required TestProcessContext context = 1;
+}
+message StartTestRun {
+  required int32 mutation = 1;
+}
+message StartInitialTestRun {}
+
+message TestProcessContext {
+  repeated TestGroup testGroups = 1;
+}
+
+message TestGroup {
+  required string frameworkClass = 1;
+  repeated TaskDefinition taskDefs = 2;
+  required RunnerOptions runnerOptions = 3;
+}
+
+message TaskDefinition {
+  required string fullyQualifiedName = 1;
+  required Fingerprint fingerprint = 2;
+  required bool explicitlySpecified = 3;
+  repeated Selector selectors = 4;
+}
+
+message RunnerOptions {
+  repeated string args = 1;
+  repeated string remoteArgs = 2;
+}
+
+message Selector {
+  oneof sealed_value {
+    NestedSuiteSelector nestedSuiteSelector = 1;
+    NestedTestSelector nestedTestSelector = 2;
+    SuiteSelector suiteSelector = 3;
+    TestSelector testSelector = 4;
+    TestWildcardSelector testWildcardSelector = 5;
+  }
+}
+message NestedSuiteSelector {
+  required string suiteId = 1;
+}
+message NestedTestSelector {
+  required string suiteId = 1;
+  required string testName = 2;
+}
+message SuiteSelector {}
+message TestSelector {
+  required string testName = 1;
+}
+message TestWildcardSelector {
+  required string testWildcard = 1;
+}
+
+message Response {
+  oneof sealed_value {
+    SetupTestContextSuccessful setupTestContextSuccess = 1;
+    TestsSuccessful TestsSuccessful = 2;
+    TestsUnsuccessful testsUnsuccessful = 3;
+    ErrorDuringTestRun errorDuringTestRun = 4;
+    CoverageTestRunResult coverageTestRunResult = 5;
+  }
+}
+
+message SetupTestContextSuccessful {}
+message TestsSuccessful {}
+message TestsUnsuccessful {}
+message ErrorDuringTestRun {
+  required string msg = 1;
+}
+message CoverageTestRunResult {
+  required bool isSuccessful = 1;
+  map<int32, Fingerprints> coverageReport = 2;
+}
+
+message Fingerprints {
+  repeated Fingerprint fingerprint = 1;
+}
+
+message Fingerprint {
+  oneof sealed_value {
+    AnnotatedFingerprint annotatedFingerprint = 1;
+    SubclassFingerprint subclassFingerprint = 2;
+  }
+}
+message AnnotatedFingerprint {
+  required bool isModule = 1;
+  required string annotationName = 2;
+}
+message SubclassFingerprint {
+  required bool isModule = 1;
+  required string superclassName = 2;
+  required bool requireNoArgsConstructor = 3;
+}
