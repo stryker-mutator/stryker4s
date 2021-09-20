@@ -17,13 +17,18 @@ final class SocketTestRunnerConnection(out: OutputStream, in: CodedInputStream)(
 
   override def sendMessage(request: Request): IO[Response] =
     IO(log.debug(s"Sending message $request")) *>
-      IO.interruptible(false)(request.asMessage.writeDelimitedTo(out)) *>
-      IO.interruptible(false)(ResponseMessage.parseDelimitedFrom(in))
+      skipCancel(IO.blocking(request.asMessage.writeDelimitedTo(out))) *>
+      skipCancel(IO.blocking(ResponseMessage.parseDelimitedFrom(in)))
         .map(_.get)
         .map(_.toResponse)
-        .flatTap { response =>
-          IO(log.debug(s"Received message $response"))
-        }
+        .flatTap(response => IO(log.debug(s"Received message $response")))
+
+  /** Returns a new IO that instantly returns when cancelled, instead of calling it's cancellation logic
+    *
+    * This is needed because the blocking call only starts its cancellation logic when the blocking call returns, which
+    * goes against what we want when e.g. a timeout occurs
+    */
+  private def skipCancel[T](f: IO[T]) = f.start.flatMap(_.joinWithNever)
 
 }
 

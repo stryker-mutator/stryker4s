@@ -15,17 +15,15 @@ sealed trait TestRunner {
 
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
-  val cl = getClass().getClassLoader()
-  val tasks = context.testGroups
-    .flatMap(testGroup => {
+  val testFunctions: Option[Int] => Status = {
+    val cl = getClass().getClassLoader()
+    val tasks = context.testGroups.flatMap(testGroup => {
       val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions
       val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
       val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
       runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
     })
-    .toArray
-  val testFunctions: Option[Int] => Status = { (mutation: Option[Int]) =>
-    {
+    (mutation: Option[Int]) => {
       mutation.foreach(stryker4s.activeMutation = _)
       runTests(tasks, new AtomicReference(Status.Success))
     }
@@ -40,7 +38,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
   }
 
   @tailrec
-  private def runTests(testTasks: Array[Task], status: AtomicReference[Status]): sbt.testing.Status = {
+  private def runTests(testTasks: Seq[Task], status: AtomicReference[Status]): sbt.testing.Status = {
     val eventHandler = new StatusEventHandler(status)
 
     val newTasks = testTasks.flatMap(task =>
