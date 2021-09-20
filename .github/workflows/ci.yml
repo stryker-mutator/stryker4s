@@ -30,7 +30,8 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: 17
+          # Sbt version that is tested (1.1.1) doesn't work on Java 17
+          java-version: 11
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
         run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
