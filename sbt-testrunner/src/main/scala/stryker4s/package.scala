@@ -59,10 +59,12 @@ package object stryker4s {
 
     /** Build the coverage report from the collected data
       */
-    private def report(): CoverageReport =
+    private def report(): CoverageReport = {
+      import scala.jdk.CollectionConverters._
       coveredTests.toMap.map { case (mutant, tests) =>
-        mutant -> Fingerprints(ScalaVersionCompat.queueAsScala(tests).map(TestInterfaceMapper.toFingerprint(_)).toSeq)
+        mutant -> Fingerprints(tests.asScala.map(TestInterfaceMapper.toFingerprint(_)).toSeq)
       }
+    }
   }
 
   // Starting value of  -1 means none
