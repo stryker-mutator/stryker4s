@@ -10,7 +10,7 @@ trait TestInterfaceMapper {
     mapped.map { case (framework, tests) =>
       val taskDefs: Array[TaskDefinition] = tests.map(toTaskDefinition).toArray
       val runnerOptions = RunnerOptions(Seq.empty, Seq.empty)
-      TestGroup(framework.getClass.getCanonicalName(), taskDefs, runnerOptions)
+      TestGroup(framework.getClass.getCanonicalName(), taskDefs, Some(runnerOptions))
     }.toArray
   }
 

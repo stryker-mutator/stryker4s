@@ -72,11 +72,9 @@ object Settings {
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
     Compile / PB.targets := Seq(
-      scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb",
-      scalapb.validate.gen() -> (Compile / sourceManaged).value / "scalapb"
+      scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime,
-    libraryDependencies += Dependencies.scalapbValidate
+    libraryDependencies += Dependencies.scalapbRuntime
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(

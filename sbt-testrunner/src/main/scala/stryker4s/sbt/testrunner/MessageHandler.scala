@@ -28,7 +28,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
         }
         toInitialTestResult(status, report)
       case SetupTestContext(testContext) =>
-        testRunner = new SbtTestInterfaceRunner(testContext)
+        testRunner = new SbtTestInterfaceRunner(testContext.get)
         println("Set up testContext")
         SetupTestContextSuccessful()
       case Request.Empty => throw new MatchError(req)

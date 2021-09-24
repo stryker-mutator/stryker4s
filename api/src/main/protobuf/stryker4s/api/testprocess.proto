@@ -3,26 +3,10 @@ syntax = "proto3";
 package stryker4s.api;
 
 import "scalapb/scalapb.proto";
-import "scalapb/validate.proto";
-import "validate/validate.proto";
 option (scalapb.options) = {
   // Removes the UnknownFieldSet property from generated classes
   // This can cause incompatibility with older scalapb JARs on the classpath (like on old sbt versions), and we don't use it anyway
   preserve_unknown_fields: false
-  field_transformations: [
-    {
-      when: {options: {[validate.rules] {message: {required: true}}}}
-      set: {
-        [scalapb.field] {
-          required: true
-        }
-      }
-    }
-  ]
-  [scalapb.validate.file] {
-    insert_validator_instance: false
-    skip: true
-}
 };
 
 message Request {
@@ -34,7 +18,7 @@ message Request {
 }
 
 message SetupTestContext {
-  TestProcessContext context = 1 [(validate.rules).message.required = true];
+  TestProcessContext context = 1;
 }
 message StartTestRun {
   int32 mutation = 1;
@@ -48,12 +32,12 @@ message TestProcessContext {
 message TestGroup {
   string framework_class = 1;
   repeated TaskDefinition task_defs = 2;
-  RunnerOptions runner_options = 3 [(validate.rules).message.required = true];
+  RunnerOptions runner_options = 3;
 }
 
 message TaskDefinition {
   string fully_qualified_name = 1;
-  Fingerprint fingerprint = 2 [(validate.rules).message.required = true];
+  Fingerprint fingerprint = 2;
   bool explicitly_specified = 3;
   repeated Selector selectors = 4;
 }

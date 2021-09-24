@@ -120,7 +120,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
   ): IO[Unit] = {
     val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
 
-    testProcess.sendMessage(SetupTestContext(apiTestGroups)).void
+    testProcess.sendMessage(SetupTestContext(Some(apiTestGroups))).void
   }
 
   def retryWithBackoff[T](maxAttempts: Int, delay: FiniteDuration, onError: => Unit)(f: IO[T]): IO[T] = {
