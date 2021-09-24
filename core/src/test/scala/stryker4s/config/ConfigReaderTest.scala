@@ -31,6 +31,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           config.legacyTestRunner shouldBe true
           config.scalaDialect shouldBe Scala212
           config.concurrency shouldBe 3
+          config.debug shouldBe DebugOptions(true, true)
       }
     }
 

@@ -16,7 +16,7 @@ class ConfigEncoderTest extends Stryker4sSuite {
         s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
           "\\",
           "\\\\"
-        )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
       )
     }
 
@@ -32,6 +32,10 @@ class ConfigEncoderTest extends Stryker4sSuite {
             project = Some("myProject"),
             version = Some("1.3.3.7"),
             module = Some("myModule")
+          ),
+          debug = DebugOptions(
+            logTestRunnerStdout = true,
+            debugTestRunner = true
           )
         ),
         defaultConfigJson.mapObject(
@@ -50,11 +54,18 @@ class ConfigEncoderTest extends Stryker4sSuite {
                 "module" -> fromString("myModule")
               )
             )
+            .add(
+              "debug",
+              obj(
+                "log-test-runner-stdout" -> fromBoolean(true),
+                "debug-test-runner" -> fromBoolean(true)
+              )
+            )
         ),
         s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation.replace(
           "\\",
           "\\\\"
-        )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3"}"""
+        )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3","debug":{"log-test-runner-stdout":true,"debug-test-runner":true}}"""
       )
     }
   }
@@ -87,6 +98,10 @@ class ConfigEncoderTest extends Stryker4sSuite {
     "timeout" -> fromInt(5000),
     "timeout-factor" -> fromDouble(1.5).get,
     "legacy-test-runner" -> False,
-    "scala-dialect" -> fromString("scala3")
+    "scala-dialect" -> fromString("scala3"),
+    "debug" -> obj(
+      "log-test-runner-stdout" -> False,
+      "debug-test-runner" -> False
+    )
   )
 }
