@@ -77,19 +77,29 @@ object ProcessTestRunner extends TestInterfaceMapper {
       javaOpts: Seq[String],
       port: Int
   )(implicit log: Logger, config: Config): Resource[IO, Process] = {
+    val classpathString = classpath.mkString(classPathSeparator)
+    val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
+
+    val logger: String => Unit =
+      if (config.debug.logTestRunnerStdout) m => log.debug(s"testrunner $port: $m")
+      else _ => ()
+
+    Resource.eval(IO(log.debug(s"Starting process '${command.mkString(" ")}'"))) *>
+      ProcessResource
+        .fromProcessBuilder(Process(command, config.baseDir.toNioPath.toFile()))(logger)
+        .evalTap(_ => IO(log.debug("Started process")))
+  }
+
+  private def args(port: Int)(implicit config: Config): Seq[String] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
     val sysProps = s"-D${TestProcessProperties.port}=$port"
-    val args = Seq(sysProps, mainClass)
-    val classpathString = classpath.mkString(classPathSeparator)
-    val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args
+    val debugArgs =
+      if (config.debug.debugTestRunner)
+        Seq("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:8000")
+      else Seq.empty
 
-    Resource.eval(IO(log.debug(s"Starting process ${command.mkString(" ")}"))) *>
-      ProcessResource
-        .fromProcessBuilder(Process(command, config.baseDir.toNioPath.toFile()))(m =>
-          log.debug(s"testrunner $port: $m")
-        )
-        .evalTap(_ => IO(log.debug("Started process")))
-
+    // Debug arguments must go before the main class
+    debugArgs ++ Seq(sysProps, mainClass)
   }
 
   private def connectToProcess(port: Int)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
@@ -98,8 +108,8 @@ object ProcessTestRunner extends TestInterfaceMapper {
         retryWithBackoff(6, 0.2.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
           IO(new Socket(InetAddress.getLoopbackAddress(), port))
         )
-      )(s => IO(log.debug(s"Closing test-runner on port $port")) *> IO(s.close()))
-      .evalTap(_ => IO(log.debug("Created socket")))
+      )(s => IO(log.debug(s"Closing test-runner on port $port")).guarantee(IO(s.close())))
+      .evalTap(_ => IO(log.debug(s"Created socket on port $port")))
       .flatMap(TestRunnerConnection.create(_))
   }
 

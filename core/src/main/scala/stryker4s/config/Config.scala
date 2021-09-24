@@ -20,7 +20,8 @@ final case class Config(
     maxTestRunnerReuse: Option[Int] = None,
     legacyTestRunner: Boolean = false,
     scalaDialect: Dialect = dialects.Scala3,
-    concurrency: Int = Config.defaultConcurrency
+    concurrency: Int = Config.defaultConcurrency,
+    debug: DebugOptions = DebugOptions()
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
