@@ -2,6 +2,7 @@ package stryker4s.run
 
 import fs2.io.file.Path
 import stryker4s.command.runner.ProcessTestRunner
+import stryker4s.config.Config
 import stryker4s.extension.mutationtype.EmptyString
 import stryker4s.model._
 import stryker4s.run.process.{Command, ProcessRunner}
@@ -15,6 +16,7 @@ import scala.util.{Failure, Success}
 
 class ProcessTestRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
+  implicit val config: Config = Config.default
   def processTestRunner(processRunner: ProcessRunner) =
     new ProcessTestRunner(Command("foo", "test"), processRunner, Path("."))
 

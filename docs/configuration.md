@@ -186,6 +186,50 @@ For the last two cases, please [let us know by creating an issue](https://github
 
 Set the concurrency of testrunners. Stryker4s will create this many testrunners to run mutants in parallel. This defaults to `(cpuCoreCount / 4).rounded + 1`. `cpuCoreCount` includes virtual processors such as from hyperthreading. This is a sane default for most use cases as most test frameworks already have some form of concurrency built in. But as always with concurrency, test it yourself to be sure of the best performance.
 
+### `debug` [`object`]
+
+Describes the `debug` config field
+
+#### `debug-test-runner` [`boolean`]
+**Config file:** `debug { debug-test-runner: true }`  
+**Default value:** `false`  
+**Since:** `v0.14.0`  
+**Description:**
+
+Passes additional JVM options to the created testrunner which debuggers can use to attach and debug. Debugging is opened on port 8000. Also limits concurrency to 1. How to debug is specific to your IDE. The used JVM debug argument is:
+
+```
+-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:8000
+```
+
+To debug in VS Code, you can use (and edit) this `launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "scala",
+      "name": "Attach to sbt test-runner",
+      "request": "attach",
+      "hostName": "127.0.0.1",
+      "port": 8000,
+      "buildTarget": "sbt-stryker4s-testrunner"
+    }
+  ]
+}
+```
+
+
+#### `log-test-runner-stdout` [`boolean`]
+
+**Config file:** `debug { log-test-runner-stdout: true }`  
+**Default value:** `false`  
+**Since:** `v0.14.0`  
+**Description:**
+
+By default, stdout from testrunners is not logged. With this option, stdout is sent to debug logging. Enabling this can be useful when debugging the testrunners, but is disabled by default because the output can be too much for normal debug logging.
+
 ## Process runner config
 
 ### `test-runner` [`object`]

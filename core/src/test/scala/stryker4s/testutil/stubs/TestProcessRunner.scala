@@ -2,6 +2,7 @@ package stryker4s.testutil.stubs
 
 import cats.effect.IO
 import fs2.io.file.Path
+import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.run.process.{Command, ProcessRunner}
 
@@ -21,7 +22,9 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
     *
     * Also return an exit code which the test runner would do as well.
     */
-  override def apply(command: Command, workingDir: Path, envVar: (String, String)*): IO[Try[Int]] = {
+  override def apply(command: Command, workingDir: Path, envVar: (String, String)*)(implicit
+      config: Config
+  ): IO[Try[Int]] = {
     if (envVar.isEmpty) {
       IO.pure(Success(if (initialTestRunSuccess) 0 else 1))
     } else {
