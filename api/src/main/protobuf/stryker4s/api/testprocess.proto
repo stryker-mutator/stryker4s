@@ -1,83 +1,99 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package stryker4s.api;
 
 import "scalapb/scalapb.proto";
+import "scalapb/validate.proto";
+import "validate/validate.proto";
 option (scalapb.options) = {
   // Removes the UnknownFieldSet property from generated classes
   // This can cause incompatibility with older scalapb JARs on the classpath (like on old sbt versions), and we don't use it anyway
   preserve_unknown_fields: false
+  field_transformations: [
+    {
+      when: {options: {[validate.rules] {message: {required: true}}}}
+      set: {
+        [scalapb.field] {
+          required: true
+        }
+      }
+    }
+  ]
+  [scalapb.validate.file] {
+    insert_validator_instance: false
+    skip: true
+}
 };
 
 message Request {
   oneof sealed_value {
-    SetupTestContext SetupTestContext = 1;
-    StartTestRun startTestRun = 2;
-    StartInitialTestRun startInitialTestRun = 3;
+    SetupTestContext setup_test_context = 1;
+    StartTestRun start_test_run = 2;
+    StartInitialTestRun start_initial_test_run = 3;
   }
 }
 
 message SetupTestContext {
-  required TestProcessContext context = 1;
+  TestProcessContext context = 1 [(validate.rules).message.required = true];
 }
 message StartTestRun {
-  required int32 mutation = 1;
+  int32 mutation = 1;
 }
 message StartInitialTestRun {}
 
 message TestProcessContext {
-  repeated TestGroup testGroups = 1;
+  repeated TestGroup test_groups = 1;
 }
 
 message TestGroup {
-  required string frameworkClass = 1;
-  repeated TaskDefinition taskDefs = 2;
-  required RunnerOptions runnerOptions = 3;
+  string framework_class = 1;
+  repeated TaskDefinition task_defs = 2;
+  RunnerOptions runner_options = 3 [(validate.rules).message.required = true];
 }
 
 message TaskDefinition {
-  required string fullyQualifiedName = 1;
-  required Fingerprint fingerprint = 2;
-  required bool explicitlySpecified = 3;
+  string fully_qualified_name = 1;
+  Fingerprint fingerprint = 2 [(validate.rules).message.required = true];
+  bool explicitly_specified = 3;
   repeated Selector selectors = 4;
 }
 
 message RunnerOptions {
   repeated string args = 1;
-  repeated string remoteArgs = 2;
+  repeated string remote_args = 2;
 }
 
 message Selector {
   oneof sealed_value {
-    NestedSuiteSelector nestedSuiteSelector = 1;
-    NestedTestSelector nestedTestSelector = 2;
-    SuiteSelector suiteSelector = 3;
-    TestSelector testSelector = 4;
-    TestWildcardSelector testWildcardSelector = 5;
+    NestedSuiteSelector nested_suite_selector = 1;
+    NestedTestSelector nested_test_selector = 2;
+    SuiteSelector suite_selector = 3;
+    TestSelector test_selector = 4;
+    TestWildcardSelector test_wildcard_selector = 5;
   }
 }
 message NestedSuiteSelector {
-  required string suiteId = 1;
+  string suite_id = 1;
 }
 message NestedTestSelector {
-  required string suiteId = 1;
-  required string testName = 2;
+  string suite_id = 1;
+  string test_name = 2;
 }
 message SuiteSelector {}
 message TestSelector {
-  required string testName = 1;
+  string test_name = 1;
 }
 message TestWildcardSelector {
-  required string testWildcard = 1;
+  string test_wildcard = 1;
 }
 
 message Response {
   oneof sealed_value {
-    SetupTestContextSuccessful setupTestContextSuccess = 1;
-    TestsSuccessful TestsSuccessful = 2;
-    TestsUnsuccessful testsUnsuccessful = 3;
-    ErrorDuringTestRun errorDuringTestRun = 4;
-    CoverageTestRunResult coverageTestRunResult = 5;
+    SetupTestContextSuccessful setup_test_context_success = 1;
+    TestsSuccessful tests_successful = 2;
+    TestsUnsuccessful tests_unsuccessful = 3;
+    ErrorDuringTestRun error_during_test_run = 4;
+    CoverageTestRunResult coverage_test_run_result = 5;
   }
 }
 
@@ -85,11 +101,11 @@ message SetupTestContextSuccessful {}
 message TestsSuccessful {}
 message TestsUnsuccessful {}
 message ErrorDuringTestRun {
-  required string msg = 1;
+  string msg = 1;
 }
 message CoverageTestRunResult {
-  required bool isSuccessful = 1;
-  map<int32, Fingerprints> coverageReport = 2;
+  bool is_successful = 1;
+  map<int32, Fingerprints> coverage_report = 2;
 }
 
 message Fingerprints {
@@ -98,16 +114,16 @@ message Fingerprints {
 
 message Fingerprint {
   oneof sealed_value {
-    AnnotatedFingerprint annotatedFingerprint = 1;
-    SubclassFingerprint subclassFingerprint = 2;
+    AnnotatedFingerprint annotated_fingerprint = 1;
+    SubclassFingerprint subclass_fingerprint = 2;
   }
 }
 message AnnotatedFingerprint {
-  required bool isModule = 1;
-  required string annotationName = 2;
+  bool is_module = 1;
+  string annotation_name = 2;
 }
 message SubclassFingerprint {
-  required bool isModule = 1;
-  required string superclassName = 2;
-  required bool requireNoArgsConstructor = 3;
+  bool is_module = 1;
+  string superclass_name = 2;
+  bool require_no_args_constructor = 3;
 }
