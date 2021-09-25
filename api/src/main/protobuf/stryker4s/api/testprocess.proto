@@ -84,11 +84,15 @@ message TestsUnsuccessful {}
 message ErrorDuringTestRun {
   string msg = 1;
 }
+
 message CoverageTestRunResult {
   bool is_successful = 1;
   CoverageTestRunMap coverage_test_run_map = 2;
 }
 
+/** Convert to a flat structure to save space of duplicate Fingerprint items when serializing.
+  * Without it, the size grows exponantially with the number of tests and mutants
+  */
 message CoverageTestRunMap {
   map<int32, Fingerprint> fingerprint_ids = 1;
   map<int32, Fingerprints> fingerprints = 2;
