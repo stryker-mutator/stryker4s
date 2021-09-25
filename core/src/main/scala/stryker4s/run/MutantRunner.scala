@@ -164,8 +164,8 @@ class MutantRunner(
             result match {
               case _: NoCoverageInitialTestRun => CoverageExclusions(false, List.empty, List.empty)
               case InitialTestRunCoverageReport(_, firstRun, secondRun, _) =>
-                val firstRunMap = firstRun.toMap
-                val secondRunMap = secondRun.toMap
+                val firstRunMap = firstRun.report
+                val secondRunMap = secondRun.report
                 val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
 
                 val coveredMutants = firstRunMap

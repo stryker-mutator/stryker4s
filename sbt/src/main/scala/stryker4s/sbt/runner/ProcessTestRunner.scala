@@ -48,8 +48,8 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
           val averageDuration = (firstDuration + secondDuration) / 2
           InitialTestRunCoverageReport(
             firstRun.isSuccessful && secondRun.isSuccessful,
-            firstRun.coverageReport.mapValues(_.fingerprint),
-            secondRun.coverageReport.mapValues(_.fingerprint),
+            CoverageReport(firstRun.coverageTestRunMap.get),
+            CoverageReport(secondRun.coverageTestRunMap.get),
             averageDuration
           )
         case x => throw new MatchError(x)
@@ -120,7 +120,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
   ): IO[Unit] = {
     val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
 
-    testProcess.sendMessage(SetupTestContext(Some(apiTestGroups))).void
+    testProcess.sendMessage(apiTestGroups).void
   }
 
   def retryWithBackoff[T](maxAttempts: Int, delay: FiniteDuration, onError: => Unit)(f: IO[T]): IO[T] = {

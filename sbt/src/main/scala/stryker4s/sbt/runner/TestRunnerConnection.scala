@@ -16,12 +16,22 @@ final class SocketTestRunnerConnection(out: OutputStream, in: CodedInputStream)(
     extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] =
-    IO(log.debug(s"Sending message $request")) *>
+    IO(
+      log.debug(
+        s"Sending  message ${request.getClass().getCanonicalName()} (${request.asMessage.toByteArray.length} bytes)"
+      )
+    ) *>
       skipCancel(IO.blocking(request.asMessage.writeDelimitedTo(out))) *>
       skipCancel(IO.blocking(ResponseMessage.parseDelimitedFrom(in)))
         .map(_.get)
         .map(_.toResponse)
-        .flatTap(response => IO(log.debug(s"Received message $response")))
+        .flatTap(response =>
+          IO(
+            log.debug(
+              s"Received message ${response.getClass().getCanonicalName()} (${response.asMessage.toByteArray.length} bytes)"
+            )
+          )
+        )
 
   /** Returns a new IO that instantly returns when cancelled, instead of calling it's cancellation logic
     *

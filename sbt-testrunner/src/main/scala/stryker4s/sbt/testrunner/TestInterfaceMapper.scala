@@ -50,6 +50,18 @@ trait TestInterfaceMapper {
       case Fingerprint.Empty => throw new MatchError(f)
     }
 
+  def toCoverageMap(coverage: Iterable[(Int, Iterable[sbt.testing.Fingerprint])]): CoverageTestRunMap = {
+    val mappedCoverage = coverage.map { case (k, v) => k -> v.map(toFingerprint) }
+    val fingerprintIds = mappedCoverage.flatMap(_._2).toSet.zipWithIndex.toMap
+    val fingerprints: Map[Int, Fingerprints] = mappedCoverage.map { case (id, fs) =>
+      id -> toFingerprints(fs, fingerprintIds)
+    }.toMap
+    CoverageTestRunMap(fingerprintIds.map(_.swap), fingerprints)
+  }
+
+  def toFingerprints(fs: Iterable[Fingerprint], fingerprintIds: Map[Fingerprint, Int]): Fingerprints =
+    Fingerprints(fs.map(fingerprint => fingerprintIds(fingerprint)).toSeq)
+
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {
       case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint(a.isModule(), a.annotationName())

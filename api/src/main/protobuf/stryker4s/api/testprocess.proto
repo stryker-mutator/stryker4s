@@ -11,15 +11,12 @@ option (scalapb.options) = {
 
 message Request {
   oneof sealed_value {
-    SetupTestContext setup_test_context = 1;
-    StartTestRun start_test_run = 2;
-    StartInitialTestRun start_initial_test_run = 3;
+    StartTestRun start_test_run = 1;
+    StartInitialTestRun start_initial_test_run = 2;
+    TestProcessContext test_process_context = 3;
   }
 }
 
-message SetupTestContext {
-  TestProcessContext context = 1;
-}
 message StartTestRun {
   int32 mutation = 1;
 }
@@ -49,9 +46,9 @@ message RunnerOptions {
 
 message Selector {
   oneof sealed_value {
-    NestedSuiteSelector nested_suite_selector = 1;
-    NestedTestSelector nested_test_selector = 2;
-    SuiteSelector suite_selector = 3;
+    SuiteSelector suite_selector = 1;
+    NestedSuiteSelector nested_suite_selector = 2;
+    NestedTestSelector nested_test_selector = 3;
     TestSelector test_selector = 4;
     TestWildcardSelector test_wildcard_selector = 5;
   }
@@ -73,11 +70,11 @@ message TestWildcardSelector {
 
 message Response {
   oneof sealed_value {
-    SetupTestContextSuccessful setup_test_context_success = 1;
-    TestsSuccessful tests_successful = 2;
-    TestsUnsuccessful tests_unsuccessful = 3;
-    ErrorDuringTestRun error_during_test_run = 4;
-    CoverageTestRunResult coverage_test_run_result = 5;
+    TestsSuccessful tests_successful = 1;
+    TestsUnsuccessful tests_unsuccessful = 2;
+    ErrorDuringTestRun error_during_test_run = 3;
+    CoverageTestRunResult coverage_test_run_result = 4;
+    SetupTestContextSuccessful setup_test_context_success = 5;
   }
 }
 
@@ -89,17 +86,22 @@ message ErrorDuringTestRun {
 }
 message CoverageTestRunResult {
   bool is_successful = 1;
-  map<int32, Fingerprints> coverage_report = 2;
+  CoverageTestRunMap coverage_test_run_map = 2;
+}
+
+message CoverageTestRunMap {
+  map<int32, Fingerprint> fingerprint_ids = 1;
+  map<int32, Fingerprints> fingerprints = 2;
 }
 
 message Fingerprints {
-  repeated Fingerprint fingerprint = 1;
+  repeated int32 fingerprint = 1;
 }
 
 message Fingerprint {
   oneof sealed_value {
-    AnnotatedFingerprint annotated_fingerprint = 1;
-    SubclassFingerprint subclass_fingerprint = 2;
+    SubclassFingerprint subclass_fingerprint = 1;
+    AnnotatedFingerprint annotated_fingerprint = 2;
   }
 }
 message AnnotatedFingerprint {

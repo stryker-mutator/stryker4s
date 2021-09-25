@@ -2,6 +2,7 @@ package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
 import cats.syntax.all._
+import stryker4s.api.testprocess.{CoverageReport, Fingerprint}
 import stryker4s.config.Config
 import stryker4s.model._
 import stryker4s.scalatest.LogMatchers
@@ -30,7 +31,8 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         val reportedTimeout = 2.seconds
         val op = for {
           timeout <- Deferred[IO, FiniteDuration]
-          innerTR = initialTestRunner(InitialTestRunCoverageReport(true, Map.empty, Map.empty, reportedTimeout))
+          emptyReport = CoverageReport(Map.empty[Int, Seq[Fingerprint]])
+          innerTR = initialTestRunner(InitialTestRunCoverageReport(true, emptyReport, emptyReport, reportedTimeout))
           sut = TestRunner.timeoutRunner(timeout, innerTR)
           _ <- sut.use(_.initialTestRun())
         } yield timeout
