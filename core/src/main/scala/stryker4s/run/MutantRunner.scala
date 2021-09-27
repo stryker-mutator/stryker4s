@@ -3,6 +3,7 @@ package stryker4s.run
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.functor._
+import cats.syntax.either._
 import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
@@ -31,7 +32,7 @@ class MutantRunner(
     mutateFiles(Seq.empty).flatMap { mutatedFiles =>
       run(mutatedFiles)
         .flatMap {
-          case Right(metrics) => IO(Right(metrics))
+          case Right(metrics) => IO.pure(metrics.asRight)
           case Left(errors) =>
             mutateFiles(errors.toList).flatMap(run)
         }
@@ -42,7 +43,7 @@ class MutantRunner(
   def run(mutatedFiles: Seq[MutatedFile]): IO[Either[NonEmptyList[CompileError], MetricsResult]] = {
     prepareEnv(mutatedFiles).use { path =>
       createTestRunnerPool(path) match {
-        case Left(errs) => IO(Left(errs))
+        case Left(errs) => IO.pure(errs.asLeft)
         case Right(testRunnerPoolResource) =>
           testRunnerPoolResource.use { testRunnerPool =>
             testRunnerPool.loan
