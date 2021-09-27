@@ -11,7 +11,7 @@ import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.TestSetupException
 import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
-import stryker4s.model.CompileError
+import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuilder, MatchBuilder}
 import stryker4s.run.{Stryker4sRunner, TestRunner}
@@ -43,7 +43,7 @@ class Stryker4sSbtRunner(
 
   def resolveTestRunners(
       tmpDir: Path
-  )(implicit config: Config): Either[NonEmptyList[CompileError], NonEmptyList[Resource[IO, TestRunner]]] = {
+  )(implicit config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
     def setupLegacySbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
@@ -67,7 +67,7 @@ class Stryker4sSbtRunner(
     def setupSbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
-    ): Either[NonEmptyList[CompileError], NonEmptyList[Resource[IO, TestRunner]]] = {
+    ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
       val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
@@ -108,7 +108,7 @@ class Stryker4sSbtRunner(
                 path <- e.position().sourceFile().asScala
                 pathStr = path.toPath.toAbsolutePath.toString.replace(tmpDir.toString, "")
                 line <- e.position().line().asScala
-              } yield CompileError(e.message(), pathStr, line)
+              } yield CompilerErrMsg(e.message(), pathStr, line)
             }.toSeq
           }).flatten.toList
 

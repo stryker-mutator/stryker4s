@@ -62,7 +62,7 @@ trait MutantRunResultMapper {
       case _: TimedOut     => MutantStatus.Timeout
       case _: Error        => MutantStatus.RuntimeError
       case _: Ignored      => MutantStatus.Ignored
-      case _: NotCompiling => MutantStatus.CompileError
+      case _: CompileError => MutantStatus.CompileError
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =

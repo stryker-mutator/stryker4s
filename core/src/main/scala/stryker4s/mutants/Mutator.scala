@@ -18,7 +18,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
     log: Logger
 ) {
 
-  def mutate(files: Stream[IO, Path], compileErrors: Seq[CompileError] = Seq.empty): IO[Seq[MutatedFile]] = {
+  def mutate(files: Stream[IO, Path], compileErrors: Seq[CompilerErrMsg] = Seq.empty): IO[Seq[MutatedFile]] = {
     files
       .parEvalMapUnordered(config.concurrency)(p => findMutants(p).tupleLeft(p))
       .map { case (file, mutationsInSource) =>
@@ -34,7 +34,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
   private def mutateFile(
       file: Path,
       mutationsInSource: MutationsInSource,
-      compileErrors: Seq[CompileError]
+      compileErrors: Seq[CompilerErrMsg]
   ): MutatedFile = {
     val transformed = transformStatements(mutationsInSource)
     val builtTree = buildMatches(transformed)
@@ -60,7 +60,7 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
   //Given compiler errors, return the mutants that caused it
   private def errorsToIds(
-      compileErrors: Seq[CompileError],
+      compileErrors: Seq[CompilerErrMsg],
       mutatedFile: String,
       mutants: Seq[Mutant]
   ): Seq[MutantId] = {

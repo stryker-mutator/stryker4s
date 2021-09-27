@@ -15,7 +15,7 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import stryker4s.Stryker4s
-import stryker4s.model.CompileError
+import stryker4s.model.CompilerErrMsg
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 
@@ -63,7 +63,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveTestRunners(tmpDir: Path)(implicit
       config: Config
-  ): Either[NonEmptyList[CompileError], NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]]
+  ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]]
 
   def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
     new GlobFileResolver(

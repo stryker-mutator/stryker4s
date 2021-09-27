@@ -13,7 +13,7 @@ import stryker4s.extension.StreamExtensions._
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
-import stryker4s.model.{CompileError, _}
+import stryker4s.model.{CompilerErrMsg, _}
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
@@ -22,13 +22,13 @@ import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
 
 class MutantRunner(
-    createTestRunnerPool: Path => Either[NonEmptyList[CompileError], Resource[IO, TestRunnerPool]],
+    createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
     reporter: Reporter
 )(implicit config: Config, log: Logger)
     extends MutantRunResultMapper {
 
-  def apply(mutateFiles: Seq[CompileError] => IO[Seq[MutatedFile]]): IO[MetricsResult] = {
+  def apply(mutateFiles: Seq[CompilerErrMsg] => IO[Seq[MutatedFile]]): IO[MetricsResult] = {
     mutateFiles(Seq.empty).flatMap { mutatedFiles =>
       run(mutatedFiles)
         .flatMap {
@@ -40,7 +40,7 @@ class MutantRunner(
     }
   }
 
-  def run(mutatedFiles: Seq[MutatedFile]): IO[Either[NonEmptyList[CompileError], MetricsResult]] = {
+  def run(mutatedFiles: Seq[MutatedFile]): IO[Either[NonEmptyList[CompilerErrMsg], MetricsResult]] = {
     prepareEnv(mutatedFiles).use { path =>
       createTestRunnerPool(path) match {
         case Left(errs) => IO.pure(errs.asLeft)
@@ -161,7 +161,7 @@ class MutantRunner(
     // Map all no-coverage mutants
     val noCoverage = mapPureMutants(noCoverageMutants, (m: Mutant) => NoCoverage(m))
     // Map all no-compiling mutants
-    val noCompiling = mapPureMutants(compilerErrorMutants, (m: Mutant) => NotCompiling(m))
+    val noCompiling = mapPureMutants(compilerErrorMutants, (m: Mutant) => CompileError(m))
 
     // Run all testable mutants
     val totalTestableMutants = testableMutants.size

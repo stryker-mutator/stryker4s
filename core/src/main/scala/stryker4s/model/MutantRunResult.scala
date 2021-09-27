@@ -23,4 +23,4 @@ final case class Error(mutant: Mutant, description: Option[String] = None) exten
 
 final case class Ignored(mutant: Mutant, description: Option[String] = None) extends MutantRunResult
 
-final case class NotCompiling(mutant: Mutant, description: Option[String] = None) extends MutantRunResult
+final case class CompileError(mutant: Mutant, description: Option[String] = None) extends MutantRunResult
