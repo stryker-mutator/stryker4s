@@ -2,15 +2,15 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.functor._
 import cats.syntax.either._
+import cats.syntax.functor._
 import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.StreamExtensions._
-import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.extension.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
 import stryker4s.model.{CompilerErrMsg, _}
@@ -33,10 +33,15 @@ class MutantRunner(
       run(mutatedFiles)
         .flatMap {
           case Right(metrics) => IO.pure(metrics.asRight)
-          case Left(errors) =>
+          case Left(errors)   =>
+            //Retry once with the non-compiling mutants removed
             mutateFiles(errors.toList).flatMap(run)
         }
-        .map(_.getOrElse(throw new RuntimeException(s"Unable to remove non-compiling mutants")))
+        .flatMap {
+          case Right(metrics) => IO.pure(metrics)
+          //Failed at remove the non-compiling mutants
+          case Left(errs) => IO.raiseError(UnableToFixCompilerErrorsException(errs.toList))
+        }
     }
   }
 

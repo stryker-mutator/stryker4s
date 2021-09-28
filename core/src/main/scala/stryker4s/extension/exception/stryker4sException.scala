@@ -1,5 +1,7 @@
 package stryker4s.extension.exception
 
+import stryker4s.model.CompilerErrMsg
+
 import scala.util.control.NoStackTrace
 
 sealed abstract class Stryker4sException(message: String) extends Exception(message)
@@ -14,3 +16,11 @@ final case class TestSetupException(name: String)
     )
 
 final case class MutationRunFailedException(message: String) extends Stryker4sException(message)
+
+final case class UnableToFixCompilerErrorsException(errs: List[CompilerErrMsg])
+    extends Stryker4sException(
+      "Unable to remove non-compiling mutants in the mutated-files. As a work-around you can exclude them in the stryker.conf. Please report this issue at https://github.com/stryker-mutator/stryker4s/issues\n"
+        + errs
+          .map(err => s"File: ${err.path} Line ${err.line}: '${err.msg}'")
+          .mkString("\n")
+    )
