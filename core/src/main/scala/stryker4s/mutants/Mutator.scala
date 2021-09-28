@@ -11,19 +11,26 @@ import stryker4s.model._
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
-import scala.meta._
-
-class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, matchBuilder: MatchBuilder)(implicit
+class Mutator(
+    mutantFinder: MutantFinder,
+    transformer: StatementTransformer,
+    matchBuilder: MatchBuilder
+)(implicit
     config: Config,
     log: Logger
 ) {
+
+  //Logic for dealing with compiler errors and removing non-compiling mutants from files
+  private val rollbackHandler: RollbackHandler = new RollbackHandler(matchBuilder)
 
   def mutate(files: Stream[IO, Path], compileErrors: Seq[CompilerErrMsg] = Seq.empty): IO[Seq[MutatedFile]] = {
     files
       .parEvalMapUnordered(config.concurrency)(p => findMutants(p).tupleLeft(p))
       .map { case (file, mutationsInSource) =>
-        val errorsInThisFile = compileErrors.filter(err => file.toString.endsWith(err.path))
-        mutateFile(file, mutationsInSource, errorsInThisFile)
+        if (compileErrors.isEmpty)
+          mutateFile(file, mutationsInSource)
+        else
+          rollbackHandler.rollbackNonCompilingMutants(file, mutationsInSource, mutateFile, compileErrors)
       }
       .filterNot(mutatedFile => mutatedFile.mutants.isEmpty && mutatedFile.excludedMutants == 0)
       .compile
@@ -33,57 +40,18 @@ class Mutator(mutantFinder: MutantFinder, transformer: StatementTransformer, mat
 
   private def mutateFile(
       file: Path,
-      mutationsInSource: MutationsInSource,
-      compileErrors: Seq[CompilerErrMsg]
+      mutationsInSource: MutationsInSource
   ): MutatedFile = {
     val transformed = transformStatements(mutationsInSource)
     val builtTree = buildMatches(transformed)
 
-    //If there are any compiler errors (i.e. we're currently retrying the mutation)
-    //Then we take the original tree built that didn't compile
-    //And then we search inside it to translate the compile errors to mutants
-    //Finally we rebuild it from scratch without those mutants
-    //This is not very performant, but you only pay the cost if there actually is a compiler error
-    val mutatedFile = MutatedFile(file, builtTree, mutationsInSource.mutants, Seq.empty, mutationsInSource.excluded)
-    if (compileErrors.isEmpty) {
-      mutatedFile
-    } else {
-      val nonCompilingIds = errorsToIds(compileErrors, mutatedFile.mutatedSource, mutationsInSource.mutants)
-      val (nonCompilingMutants, compilingMutants) =
-        mutationsInSource.mutants.partition(mut => nonCompilingIds.contains(mut.id))
-
-      val transformed = transformStatements(mutationsInSource.copy(mutants = compilingMutants))
-      val builtTree = buildMatches(transformed)
-      MutatedFile(file, builtTree, compilingMutants, nonCompilingMutants, mutationsInSource.excluded)
-    }
-  }
-
-  //Given compiler errors, return the mutants that caused it
-  private def errorsToIds(
-      compileErrors: Seq[CompilerErrMsg],
-      mutatedFile: String,
-      mutants: Seq[Mutant]
-  ): Seq[MutantId] = {
-    val statementToMutIdMap = mutants.map { mutant =>
-      matchBuilder.mutantToCase(mutant).structure -> mutant.id
-    }.toMap
-
-    val lineToMutantId: Map[Int, MutantId] = mutatedFile
-      //Parsing the mutated tree again as a string is the only way to get the position info of the mutated statements
-      .parse[Source]
-      .getOrElse(throw new RuntimeException(s"Failed to parse $mutatedFile to remove non-compiling mutants"))
-      .collect {
-        case node: Case if statementToMutIdMap.contains(node.structure) =>
-          val mutId = statementToMutIdMap(node.structure)
-          //+1 because scalameta uses zero-indexed line numbers
-          (node.pos.startLine to node.pos.endLine).map(i => i + 1 -> mutId)
-      }
-      .flatten
-      .toMap
-
-    compileErrors.flatMap { err =>
-      lineToMutantId.get(err.line)
-    }
+    MutatedFile(
+      fileOrigin = file,
+      tree = builtTree,
+      mutants = mutationsInSource.mutants,
+      nonCompilingMutants = Seq.empty,
+      excludedMutants = mutationsInSource.excluded
+    )
   }
 
   /** Step 1: Find mutants in the found files
