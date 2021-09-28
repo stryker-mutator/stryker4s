@@ -19,8 +19,8 @@ final case class MutationRunFailedException(message: String) extends Stryker4sEx
 
 final case class UnableToFixCompilerErrorsException(errs: List[CompilerErrMsg])
     extends Stryker4sException(
-      "Unable to remove non-compiling mutants in the mutated-files. As a work-around you can exclude them in the stryker.conf. Please report this issue at https://github.com/stryker-mutator/stryker4s/issues\n"
+      "Unable to remove non-compiling mutants in the mutated files. As a work-around you can exclude them in the stryker.conf. Please report this issue at https://github.com/stryker-mutator/stryker4s/issues\n"
         + errs
-          .map(err => s"File: ${err.path} Line ${err.line}: '${err.msg}'")
+          .map(err => s"${err.path}: '${err.msg}'")
           .mkString("\n")
     )

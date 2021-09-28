@@ -36,12 +36,11 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
 
       val sut = new Stryker4s(
         testSourceCollector,
-        () =>
-          new Mutator(
-            new MutantFinder(new MutantMatcher),
-            new StatementTransformer,
-            new MatchBuilder(ActiveMutationContext.sysProps)
-          ),
+        new Mutator(
+          new MutantFinder(new MutantMatcher),
+          new StatementTransformer,
+          new MatchBuilder(ActiveMutationContext.sysProps)
+        ),
         testMutantRunner
       )
 
