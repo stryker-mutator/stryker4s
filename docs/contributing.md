@@ -11,7 +11,7 @@ This is the contribution guide for Stryker4s. Great to have you here! Here are a
 
 To get started with developing Stryker4s, you'll need a couple of tools:
 
-- [Java JDK](https://openjdk.java.net/), a recent version like 11 is recommended
+- [Java JDK](https://openjdk.java.net/), a recent version like 11 or 17 is recommended
 - [sbt](https://www.scala-sbt.org/), to build and test the project
 
 Once these tools are installed you can open the project with [IntelliJ](https://www.jetbrains.com/idea/), or [VS Code](https://code.visualstudio.com/) combined with [Metals](https://scalameta.org/metals/).
@@ -46,6 +46,7 @@ We support mutation testing Stryker4s with Stryker4s! The easiest way is to foll
 
 Here are some resources you can use if you are new to mutation testing:
 
+- [Scala Love in the City 2021 - Hugo van Rijswijk - Who is Testing yout Tests?](https://youtu.be/Vq9eqZzblfg)
 - [What is mutation testing?](https://stryker-mutator.io/) (and the rest of the website). On the Stryker mutator website.
 - [Mutation Testing: Complete Guide - Guru99](https://www.guru99.com/mutation-testing.html)
 - [Scala Days 2019 - Daniel Westheide - Testing in the postapocalyptic future](https://portal.klewel.com/watch/webcast/scala-days-2019/talk/18/)

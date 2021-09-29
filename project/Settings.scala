@@ -2,6 +2,7 @@ import Release._
 import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
+import sbtprotoc.ProtocPlugin.autoImport.PB
 
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
@@ -70,6 +71,10 @@ object Settings {
   )
 
   lazy val apiSettings: Seq[Setting[_]] = Seq(
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
+    ),
+    libraryDependencies += Dependencies.scalapbRuntime
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(

@@ -31,6 +31,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           config.legacyTestRunner shouldBe true
           config.scalaDialect shouldBe Scala212
           config.concurrency shouldBe 3
+          config.debug shouldBe DebugOptions(true, true)
       }
     }
 
@@ -62,6 +63,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
         module = None
       )
       result.scalaDialect shouldBe Scala3
+      result.debug shouldBe DebugOptions(false, false)
     }
 
     it("should fail on an empty config file") {

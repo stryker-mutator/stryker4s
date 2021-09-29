@@ -1,23 +1,28 @@
-// For format details, see https://aka.ms/vscode-remote/devcontainer.json
-// Based on https://github.com/microsoft/vscode-dev-containers/tree/v0.117.0/containers/java-11
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/java
 {
-	"name": "Scala - JDK 11",
-	"dockerFile": "Dockerfile",
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash",
-		"java.home": "/docker-java-home",
-		"metals.javaHome": "/docker-java-home",
-		"metals.sbtScript": "/usr/bin/sbt"
-	},
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"scalameta.metals"
-	]
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "java -version",
-	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
-	// "remoteUser": "vscode"
+  "name": "Scala",
+  // Set *default* container specific settings.json values on container create.
+  "settings": {
+    "java.home": "/docker-java-home",
+    "metals.javaHome": "/docker-java-home",
+    "metals.sbtScript": "/home/vscode/.local/share/coursier/bin/sbt"
+  },
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      // Options
+      "VARIANT": "11",
+      "INSTALL_MAVEN": "true",
+      "INSTALL_GRADLE": "false",
+      "NODE_VERSION": "none"
+    }
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.local/share/coursier/bin"
+  },
+  // Add the IDs of extensions you want installed when the container is created.
+  "extensions": ["scalameta.metals"],
+  "onCreateCommand": "cs install sbt bloop",
+  "remoteUser": "vscode"
 }

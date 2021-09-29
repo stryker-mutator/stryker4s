@@ -53,22 +53,22 @@
     <properties>
         <encoding>UTF-8</encoding>
         <!-- Scala versions -->
-        <scala.version>2.12.14</scala.version>
+        <scala.version>2.12.15</scala.version>
         <scala.compat.version>2.12</scala.compat.version>
-        <scala-maven.version>4.5.3</scala-maven.version>
-        <scalatest.version>3.2.9</scalatest.version>
-        <mockito-scala.version>1.16.37</mockito-scala.version>
+        <scala-maven.version>4.5.4</scala-maven.version>
+        <scalatest.version>3.2.10</scalatest.version>
+        <mockito-scala.version>1.16.42</mockito-scala.version>
         <!-- Plugin versions-->
         <maven-plugin.version>3.6.1</maven-plugin.version>
         <maven-invoker.version>3.1.0</maven-invoker.version>
         <!-- Release versions-->
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <!-- The version that is used for running stryker4s on stryker4s -->
-        <stryker4s-plugin.version>0.10.0-RC3</stryker4s-plugin.version>
+        <stryker4s-plugin.version>0.13.1</stryker4s-plugin.version>
     </properties>
     <dependencies>
         <dependency>

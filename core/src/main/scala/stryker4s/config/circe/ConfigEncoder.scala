@@ -12,7 +12,7 @@ import scala.meta.Dialect
   */
 trait ConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder
-    .forProduct13(
+    .forProduct14(
       "mutate",
       "test-filter",
       "base-dir",
@@ -25,7 +25,8 @@ trait ConfigEncoder {
       "timeout-factor",
       "max-test-runner-reuse",
       "legacy-test-runner",
-      "scala-dialect"
+      "scala-dialect",
+      "debug"
     )((c: Config) =>
       (
         c.mutate,
@@ -40,7 +41,8 @@ trait ConfigEncoder {
         c.timeoutFactor,
         c.maxTestRunnerReuse,
         c.legacyTestRunner,
-        c.scalaDialect
+        c.scalaDialect,
+        c.debug
       )
     )
     .mapJson(_.deepDropNullValues)
@@ -74,4 +76,6 @@ trait ConfigEncoder {
 
   implicit def dialectEncoder: Encoder[Dialect] = Encoder[String].contramap(_.toString.toLowerCase)
 
+  implicit def debugOptionsEncoder: Encoder[DebugOptions] =
+    Encoder.forProduct2("log-test-runner-stdout", "debug-test-runner")(d => (d.logTestRunnerStdout, d.debugTestRunner))
 }

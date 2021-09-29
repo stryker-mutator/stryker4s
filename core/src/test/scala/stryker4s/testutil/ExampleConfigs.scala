@@ -35,6 +35,10 @@ object ExampleConfigs {
                                      |  timeout=5500
                                      |  scala-dialect="scala212"
                                      |  concurrency = 3
+                                     |  debug {
+                                     |    log-test-runner-stdout=true
+                                     |    debug-test-runner=true
+                                     |  }
                                      |}""".stripMargin)
 
   def empty = ConfigSource.empty

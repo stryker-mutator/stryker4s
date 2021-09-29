@@ -50,9 +50,11 @@ abstract class Stryker4sRunner(implicit log: Logger) {
           catch {
             case e: BootstrapMethodError =>
               // Wrap in a UnsupportedOperationException because BootstrapMethodError will not be caught
-              throw new UnsupportedOperationException(
-                "Could not send results to dashboard. The dashboard reporter only supports JDK 11 or above. If you are running on a lower Java version please upgrade or disable the dashboard reporter.",
-                e
+              Resource.raiseError[IO, Nothing, Throwable](
+                new UnsupportedOperationException(
+                  "Could not send results to dashboard. The dashboard reporter only supports JDK 11 or above. If you are running on a lower Java version please upgrade or disable the dashboard reporter.",
+                  e
+                )
               )
           }
         new DashboardReporter(new DashboardConfigProvider(sys.env))
