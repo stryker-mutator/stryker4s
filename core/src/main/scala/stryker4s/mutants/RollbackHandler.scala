@@ -20,7 +20,8 @@ class RollbackHandler(matchBuilder: MatchBuilder) {
     //This is not very performant, but you only pay the cost if there actually is a compiler error
     val originalFile = mutateFile(file, mutationsInSource)
 
-    val nonCompilingIds = errorsToIds(compileErrors, originalFile.mutatedSource, mutationsInSource.mutants)
+    val errorsInThisFile = compileErrors.filter(err => file.toString.endsWith(err.path))
+    val nonCompilingIds = errorsToIds(errorsInThisFile, originalFile.mutatedSource, mutationsInSource.mutants)
     val (nonCompilingMutants, compilingMutants) =
       mutationsInSource.mutants.partition(mut => nonCompilingIds.contains(mut.id))
 
