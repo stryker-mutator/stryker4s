@@ -136,19 +136,23 @@ class Stryker4sSbtRunner(
           }
 
           val concurrency = if (config.debug.debugTestRunner) {
-        log.warn(
-          "'debug.debug-test-runner' config is 'true', creating 1 test-runner with debug arguments enabled on port 8000."
-        )
-        1
-      } else {log.info(s"Creating ${config.concurrency} test-runners")
-          config.concurrency
-      }val portStart = 13336
+            log.warn(
+              "'debug.debug-test-runner' config is 'true', creating 1 test-runner with debug arguments enabled on port 8000."
+            )
+            1
+          } else {
+            log.info(s"Creating ${config.concurrency} test-runners")
+            config.concurrency
+          }
+
+          val portStart = 13336
           val portRanges = NonEmptyList.fromListUnsafe((1 to concurrency).map(_ + portStart).toList)
 
-          val testRunners = portRanges.map { port =>
-            SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
-          }
-          Right(testRunners)
+          Right(
+            portRanges.map { port =>
+              SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
+            }
+          )
       }
     }
 
