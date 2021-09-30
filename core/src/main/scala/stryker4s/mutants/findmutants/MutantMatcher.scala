@@ -118,7 +118,6 @@ class MutantMatcher()(implicit config: Config) {
             else {
               Right(
                 Mutant(
-                  //The file and idInFile are left empty for now, they're assigned later
                   MutantId(globalId = ids.next()),
                   original,
                   mutationToTerm(mutated),

@@ -33,7 +33,8 @@ class MutantRunner(
       run(mutatedFiles)
         .flatMap {
           case Right(metrics) => IO.pure(metrics.asRight)
-          case Left(errors)   =>
+          case Left(errors) =>
+            log.info("Attempting to remove mutants that gave a compile error...")
             //Retry once with the non-compiling mutants removed
             mutateFiles(errors.toList).flatMap(run)
         }
