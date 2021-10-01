@@ -1,12 +1,13 @@
 package stryker4s.mutants
 
 import fs2.io.file.Path
+import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.mutants.applymutants.MatchBuilder
 
 import scala.meta.{Case, Source, _}
 
-class RollbackHandler(matchBuilder: MatchBuilder) {
+class RollbackHandler(matchBuilder: MatchBuilder)(implicit log: Logger) {
   def rollbackNonCompilingMutants(
       file: Path,
       mutationsInSource: MutationsInSource,
@@ -21,11 +22,21 @@ class RollbackHandler(matchBuilder: MatchBuilder) {
     val originalFile = mutateFile(file, mutationsInSource)
 
     val errorsInThisFile = compileErrors.filter(err => file.toString.endsWith(err.path))
-    val nonCompilingIds = errorsToIds(errorsInThisFile, originalFile.mutatedSource, mutationsInSource.mutants)
-    val (nonCompilingMutants, compilingMutants) =
-      mutationsInSource.mutants.partition(mut => nonCompilingIds.contains(mut.id))
+    if (errorsInThisFile.isEmpty) {
+      log.debug(s"No compiler errors in $file")
+      originalFile
+    } else {
+      log.debug(s"Found ${errorsInThisFile.mkString(" ")} in $file")
 
-    mutateFile(file, mutationsInSource.copy(mutants = compilingMutants)).copy(nonCompilingMutants = nonCompilingMutants)
+      val nonCompilingIds = errorsToIds(errorsInThisFile, originalFile.mutatedSource, mutationsInSource.mutants)
+      log.debug(s"Removed mutant id[s] ${nonCompilingIds.mkString(";")} in $file")
+
+      val (nonCompilingMutants, compilingMutants) =
+        mutationsInSource.mutants.partition(mut => nonCompilingIds.contains(mut.id))
+
+      mutateFile(file, mutationsInSource.copy(mutants = compilingMutants))
+        .copy(nonCompilingMutants = nonCompilingMutants)
+    }
   }
 
   //Given compiler errors, return the mutants that caused it by searching for the matching case statement at that line

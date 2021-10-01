@@ -79,13 +79,12 @@ class Stryker4sSbtRunner(
 
       def extractTaskValue[T](task: TaskKey[T], name: String) = {
 
-        val ret = Project.runTask(task, newState) match {
+        Project.runTask(task, newState) match {
           case Some((_, Value(result))) => result
           case other =>
             log.debug(s"Expected $name but got $other")
-            throw new TestSetupException(name)
+            throw TestSetupException(name)
         }
-        ret
       }
 
       //SBT returns any errors as a Incomplete case class, which can contain other Incomplete instances
