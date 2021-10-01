@@ -12,7 +12,7 @@ import stryker4s.testutil.stubs.TestFileResolver
 import scala.meta._
 
 class RollbackTest extends Stryker4sIOSuite with LogMatchers {
-  describe("RollbackHandler") {
+  describe("Mutator") {
     it("should remove a non-compiling mutant") {
       implicit val conf: Config = Config.default.copy(
         baseDir = FileUtil.getResource("rollbackTest"),
