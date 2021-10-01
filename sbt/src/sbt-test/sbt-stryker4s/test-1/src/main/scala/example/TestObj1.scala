@@ -9,8 +9,8 @@ object TestObj {
 
   def least(a: Int, b: Int): Int = {
     (a, b) match {
-      case (a, b) if a < b => a
-      case (a, b) if a > b => b
+      case (a, b) if a < b  => a
+      case (a, b) if a > b  => b
       case (a, b) if a == b => 0
     }
   }
