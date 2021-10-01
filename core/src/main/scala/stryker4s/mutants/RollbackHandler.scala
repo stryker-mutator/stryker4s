@@ -21,7 +21,7 @@ class RollbackHandler(matchBuilder: MatchBuilder)(implicit log: Logger) {
     //This is not very performant, but you only pay the cost if there actually is a compiler error
     val originalFile = mutateFile(file, mutationsInSource)
 
-    val errorsInThisFile = compileErrors.filter(err => file.toString.endsWith(err.path))
+    val errorsInThisFile = compileErrors.filter(err => file.endsWith(err.path))
     if (errorsInThisFile.isEmpty) {
       log.debug(s"No compiler errors in $file")
       originalFile
