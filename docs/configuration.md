@@ -140,7 +140,7 @@ See [timeout](#timeout-duration)
 
 When Stryker4s is mutating code, it cannot determine indefinitely whether a code mutation results in an infinite loop (see [Halting problem](https://en.wikipedia.org/wiki/Halting_problem)).
 In order to battle infinite loops, a test run gets killed after a certain period of time. This period is configurable with two settings: `timeout` and `timeoutFactor`.
-To calculate the actual timeout in milliseconds the, following formula is used:
+To calculate the actual timeout in milliseconds the following formula is used:
 
 ```
 timeoutForTestRun = netTime * timeoutFactor + timeout
