@@ -75,7 +75,7 @@ def isAdult(person: Person) = {
 }
 ```
 
-The effect is the same as compiling each mutation seperately, but instead we only have to do it once. This is a big performance improvement, but does mean we have to be more careful about compile errors. Read more about mutation switching on [our blog](https://stryker-mutator.io/blog/2018-10-6/mutation-switching)
+The effect is the same as compiling each mutation separately, but instead we only have to do it once. This is a big performance improvement, but does mean we have to be more careful about compile errors. Read more about mutation switching on [our blog](https://stryker-mutator.io/blog/2018-10-6/mutation-switching)
 
 ## Community
 
