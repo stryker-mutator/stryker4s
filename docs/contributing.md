@@ -18,7 +18,7 @@ Once these tools are installed you can open the project with [IntelliJ](https://
 
 If you use VS Code with Metals, you can also install the [Bloop CLI](https://scalacenter.github.io/bloop/) for easier compiling and testing via the command-line.
 
-If you are have issues with setup, or want to keep a clean environment you can also use the [VS Code Remote Containers](https://code.visualstudio.com/docs/remote/containers) feature to develop in a clean reproducible Docker container. All you need for it is VS Code, the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and [Docker](https://www.docker.com/). Then run 'Remote-Containers: Open Repository in Container...' and enter `stryker-mutator/stryker4s` as the repository. The devcontainer also has the [Bloop](https://scalacenter.github.io/bloop/) and [Coursier](https://get-coursier.io/) CLI tools installed.
+If you are having issues with setup, or want to keep a clean environment you can also use the [VS Code Remote Containers](https://code.visualstudio.com/docs/remote/containers) feature to develop in a clean reproducible Docker container. All you need for it is VS Code, the [Remote Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) and [Docker](https://www.docker.com/). Then run 'Remote-Containers: Open Repository in Container...' and enter `stryker-mutator/stryker4s` as the repository. The devcontainer also has the [Bloop](https://scalacenter.github.io/bloop/) and [Coursier](https://get-coursier.io/) CLI tools installed.
 
 ## Adding a new feature
 
@@ -75,7 +75,7 @@ def isAdult(person: Person) = {
 }
 ```
 
-The effect is the same as compiling each mutation seperately, but instead we only have to do it once. This is a big performance improvement, but does mean we have to be more careful about compile errors. Read more about mutation switching on [our blog](https://stryker-mutator.io/blog/2018-10-6/mutation-switching)
+The effect is the same as compiling each mutation separately, but instead we only have to do it once. This is a big performance improvement, but does mean we have to be more careful about compile errors. Read more about mutation switching on [our blog](https://stryker-mutator.io/blog/2018-10-6/mutation-switching)
 
 ## Community
 
