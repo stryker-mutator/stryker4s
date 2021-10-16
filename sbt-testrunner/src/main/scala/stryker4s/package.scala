@@ -1,5 +1,5 @@
 import sbt.testing.Fingerprint
-import stryker4s.api.testprocess.{CoverageReport, Fingerprints}
+import stryker4s.api.testprocess.CoverageTestRunMap
 import stryker4s.sbt.testrunner.TestInterfaceMapper
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -46,7 +46,7 @@ package object stryker4s {
 
     /** Collect coverage analysis during the provided function and return it in a tuple
       */
-    protected[stryker4s] def collectCoverage[A](f: => A): (A, CoverageReport) = try {
+    protected[stryker4s] def collectCoverage[A](f: => A): (A, CoverageTestRunMap) = try {
       collectCoverage.set(true)
 
       val result = f
@@ -59,11 +59,9 @@ package object stryker4s {
 
     /** Build the coverage report from the collected data
       */
-    private def report(): CoverageReport = {
+    private def report(): CoverageTestRunMap = {
       import scala.jdk.CollectionConverters._
-      coveredTests.toMap.map { case (mutant, tests) =>
-        mutant -> Fingerprints(tests.asScala.map(TestInterfaceMapper.toFingerprint(_)).toSeq)
-      }
+      TestInterfaceMapper.toCoverageMap(coveredTests.map { case (k, v) => k -> v.asScala.toSeq })
     }
   }
 

@@ -1,6 +1,6 @@
 package stryker4s.model
 
-import stryker4s.api.testprocess.Fingerprint
+import stryker4s.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -14,8 +14,8 @@ sealed trait InitialTestRunResult {
 
 final case class InitialTestRunCoverageReport(
     isSuccessful: Boolean,
-    firstRun: Map[Int, Seq[Fingerprint]],
-    secondRun: Map[Int, Seq[Fingerprint]],
+    firstRun: CoverageReport,
+    secondRun: CoverageReport,
     duration: FiniteDuration
 ) extends InitialTestRunResult {
   override def reportedDuration: Option[FiniteDuration] = Some(duration)

@@ -14,7 +14,7 @@ abstract class Reporter {
   def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = runReport.pure[IO].void
 }
 
-final case class MutantTestedEvent(totalMutants: Int)
+final case class MutantTestedEvent(totalMutants: Int) extends AnyVal
 
 final case class FinishedRunEvent(
     report: MutationTestResult[Config],

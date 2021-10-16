@@ -29,9 +29,9 @@ class TestFilter()(implicit config: Config) {
   }
 }
 
-case class Partition(negative: Seq[Regex], positive: Seq[Regex])
+final case class Partition(negative: Seq[Regex], positive: Seq[Regex])
 
-case class Regex(regex: String) {
+final case class Regex(regex: String) extends AnyVal {
   def matches(testName: String): Boolean = Try(Pattern.matches(regex, testName)).getOrElse(false)
 }
 

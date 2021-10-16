@@ -27,7 +27,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
           testRunner.initialTestRun()
         }
         toInitialTestResult(status, report)
-      case SetupTestContext(testContext) =>
+      case testContext: TestProcessContext =>
         testRunner = new SbtTestInterfaceRunner(testContext)
         println("Set up testContext")
         SetupTestContextSuccessful()
@@ -40,10 +40,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
       case _              => TestsUnsuccessful()
     }
 
-  def toInitialTestResult(status: Status, coverage: CoverageReport): Response =
-    status match {
-      case Status.Success => CoverageTestRunResult(true, coverage)
-      case _              => CoverageTestRunResult(false, coverage)
-    }
+  def toInitialTestResult(status: Status, coverage: CoverageTestRunMap): Response =
+    CoverageTestRunResult(status == Status.Success, Some(coverage))
 
 }

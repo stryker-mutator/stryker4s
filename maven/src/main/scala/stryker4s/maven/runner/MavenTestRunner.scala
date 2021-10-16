@@ -10,8 +10,8 @@ import stryker4s.run.TestRunner
 import java.util.Properties
 import scala.collection.JavaConverters._
 
-case class MavenTestRunner(project: MavenProject, invoker: Invoker, properties: Properties, goals: Seq[String])(implicit
-    log: Logger
+class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: Properties, val goals: Seq[String])(
+    implicit log: Logger
 ) extends TestRunner {
 
   def initialTestRun(): IO[InitialTestRunResult] = {
