@@ -33,34 +33,27 @@ trait TestInterfaceMapper {
 
   def toSbtFingerprint(f: Fingerprint): sbt.testing.Fingerprint =
     f match {
-      case AnnotatedFingerprint(fIsModule, annotation) =>
-        new sbt.testing.AnnotatedFingerprint() {
-          def isModule(): Boolean = fIsModule
-          def annotationName(): String = annotation
-        }
+      case AnnotatedFingerprint(fIsModule, annotation) => interface.AnnotatedFingerprintImpl(fIsModule, annotation)
       case SubclassFingerprint(fIsModule, superclass, noArgs) =>
-        new sbt.testing.SubclassFingerprint() {
-          def isModule(): Boolean = fIsModule
-
-          def superclassName(): String = superclass
-
-          def requireNoArgConstructor(): Boolean = noArgs
-
-        }
+        interface.SubclassFingerprintImpl(fIsModule, superclass, noArgs)
       case Fingerprint.Empty => throw new MatchError(f)
     }
 
-  def toCoverageMap(coverage: Iterable[(Int, Iterable[sbt.testing.Fingerprint])]): CoverageTestRunMap = {
-    val mappedCoverage = coverage.map { case (k, v) => k -> v.map(toFingerprint) }
+  def toCoverageMap(coverage: Iterable[(Int, Seq[sbt.testing.Fingerprint])]): CoverageTestRunMap = {
+    // First map to stryker4s-api models
+    val mappedCoverage = coverage.map { case (mutantIds, fingerprints) =>
+      mutantIds -> fingerprints.map(toFingerprint)
+    }.toMap
+    // Then create a map of fingerprints to ids to efficiently send over the wire
     val fingerprintIds = mappedCoverage.flatMap(_._2).toSet.zipWithIndex.toMap
-    val fingerprints: Map[Int, Fingerprints] = mappedCoverage.map { case (id, fs) =>
-      id -> toFingerprints(fs, fingerprintIds)
+    val fingerprints: Map[Int, Fingerprints] = mappedCoverage.map { case (id, fingerprints) =>
+      id -> toFingerprints(fingerprints, fingerprintIds)
     }.toMap
     CoverageTestRunMap(fingerprintIds.map(_.swap), fingerprints)
   }
 
-  def toFingerprints(fs: Iterable[Fingerprint], fingerprintIds: Map[Fingerprint, Int]): Fingerprints =
-    Fingerprints(fs.map(fingerprint => fingerprintIds(fingerprint)).toSeq)
+  def toFingerprints(fingerprints: Seq[Fingerprint], fingerprintIds: Map[Fingerprint, Int]): Fingerprints =
+    Fingerprints(fingerprints.map(fingerprintIds(_)).toSeq)
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {

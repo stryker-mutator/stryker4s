@@ -115,5 +115,5 @@ message AnnotatedFingerprint {
 message SubclassFingerprint {
   bool is_module = 1;
   string superclass_name = 2;
-  bool require_no_args_constructor = 3;
+  bool require_no_arg_constructor = 3;
 }

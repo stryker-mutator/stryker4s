@@ -61,7 +61,7 @@ package object stryker4s {
       */
     private def report(): CoverageTestRunMap = {
       import scala.jdk.CollectionConverters._
-      TestInterfaceMapper.toCoverageMap(coveredTests.map { case (k, v) => k -> v.asScala })
+      TestInterfaceMapper.toCoverageMap(coveredTests.map { case (k, v) => k -> v.asScala.toSeq })
     }
   }
 
