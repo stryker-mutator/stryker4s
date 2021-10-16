@@ -20,7 +20,7 @@ jobs:
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
       - name: Run Stryker4s
-        run: sbt --client 'project stryker4s-core; stryker'
+        run: sbt 'project stryker4s-core; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -36,7 +36,7 @@ jobs:
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
       - name: Run Stryker4s
-        run: sbt --client 'project stryker4s-command-runner; stryker'
+        run: sbt 'project stryker4s-command-runner; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -51,7 +51,7 @@ jobs:
           java-version: 17
           cache: 'maven'
       - name: Publish Stryker4s maven deps locally
-        run: sbt --client 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
+        run: sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
       - name: Run Stryker4s
         run: |
           cd maven
