@@ -32,7 +32,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = Seq(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq.empty, 0)
 
-      sut(_ => IO(List(mutatedFile))).asserting { result =>
+      sut(_ => IO.pure(List(mutatedFile))).asserting { result =>
         val captor = ArgCaptor[FinishedRunEvent]
         verify(reporterMock, times(1)).onRunFinished(captor.capture)
         val runReport = captor.value.report.files.loneElement

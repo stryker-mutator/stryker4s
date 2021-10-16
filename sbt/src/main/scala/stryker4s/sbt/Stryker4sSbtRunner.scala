@@ -105,7 +105,7 @@ class Stryker4sSbtRunner(
             exception.problems.flatMap { e =>
               for {
                 path <- e.position().sourceFile().asScala
-                pathStr = tmpDir.toNioPath.relativize(path.toPath.toAbsolutePath).toString
+                pathStr = tmpDir.relativize(Path(path.absolutePath)).toString
                 line <- e.position().line().asScala
               } yield CompilerErrMsg(e.message(), pathStr, line)
             }.toSeq

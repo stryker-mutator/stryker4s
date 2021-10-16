@@ -24,8 +24,7 @@ class Mutator(
 
   def mutate(files: Stream[IO, Path], compileErrors: Seq[CompilerErrMsg] = Seq.empty): IO[Seq[MutatedFile]] = {
     if (compileErrors.nonEmpty) {
-      log.debug("Trying to remove mutants that gave these errors:")
-      compileErrors.foreach(err => log.debug(s"\t$err"))
+      log.debug("Trying to remove mutants that gave these errors:\n\t" + compileErrors.mkString("\n\t"))
     }
     files
       .parEvalMapUnordered(config.concurrency)(p => findMutants(p).tupleLeft(p))
