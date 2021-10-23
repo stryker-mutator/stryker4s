@@ -87,7 +87,7 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
         .flatMap(_.mutantStatements)
         .foreach { mutantStatement =>
           mutatedTree
-            .find(p"Some(${Lit.Int(mutantStatement.id)})")
+            .find(p"Some(${Lit.Int(mutantStatement.id.globalId)})")
             .getOrElse(
               fail {
                 val mutant = foundMutants.find(_.id == mutantStatement.id).get

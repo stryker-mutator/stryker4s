@@ -20,7 +20,7 @@ import scala.util.control.NonFatal
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
   override def runMutant(mutant: Mutant): IO[MutantRunResult] = {
-    val message = StartTestRun(mutant.id)
+    val message = StartTestRun(mutant.id.globalId)
     testProcess.sendMessage(message).map {
       case _: TestsSuccessful      => Survived(mutant)
       case _: TestsUnsuccessful    => Killed(mutant)

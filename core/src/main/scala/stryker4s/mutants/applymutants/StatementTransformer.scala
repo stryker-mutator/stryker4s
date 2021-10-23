@@ -11,7 +11,7 @@ class StatementTransformer {
       .groupBy(mutant => mutant.original)
       .map { case (original, mutants) => transformMutant(original, mutants) }
       .toSeq
-      .sortBy(_.mutantStatements.map(_.id).max)
+      .sortBy(_.mutantStatements.map(_.id.globalId).max)
 
     SourceTransformations(source, transformedMutants)
   }

@@ -4,4 +4,8 @@ import scala.meta.{Term, Tree}
 
 import stryker4s.extension.mutationtype.Mutation
 
-final case class Mutant(id: Int, original: Term, mutated: Term, mutationType: Mutation[_ <: Tree])
+case class MutantId(globalId: Int) extends AnyVal {
+  override def toString: String = globalId.toString
+}
+
+final case class Mutant(id: MutantId, original: Term, mutated: Term, mutationType: Mutation[_ <: Tree])

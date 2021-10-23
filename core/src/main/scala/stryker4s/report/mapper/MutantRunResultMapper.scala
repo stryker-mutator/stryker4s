@@ -39,7 +39,7 @@ trait MutantRunResultMapper {
   private def toMutantResult(runResult: MutantRunResult): MutantResult = {
     val mutant = runResult.mutant
     MutantResult(
-      mutant.id.toString,
+      mutant.id.globalId.toString,
       mutant.mutationType.mutationName,
       mutant.mutated.syntax,
       toLocation(mutant.original.pos),
@@ -56,12 +56,13 @@ trait MutantRunResultMapper {
 
   private def toMutantStatus(mutant: MutantRunResult): MutantStatus =
     mutant match {
-      case _: Survived   => MutantStatus.Survived
-      case _: Killed     => MutantStatus.Killed
-      case _: NoCoverage => MutantStatus.NoCoverage
-      case _: TimedOut   => MutantStatus.Timeout
-      case _: Error      => MutantStatus.RuntimeError
-      case _: Ignored    => MutantStatus.Ignored
+      case _: Survived     => MutantStatus.Survived
+      case _: Killed       => MutantStatus.Killed
+      case _: NoCoverage   => MutantStatus.NoCoverage
+      case _: TimedOut     => MutantStatus.Timeout
+      case _: Error        => MutantStatus.RuntimeError
+      case _: Ignored      => MutantStatus.Ignored
+      case _: CompileError => MutantStatus.CompileError
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =

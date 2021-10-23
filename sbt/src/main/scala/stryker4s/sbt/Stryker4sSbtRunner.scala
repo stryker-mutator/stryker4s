@@ -9,7 +9,9 @@ import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions._
 import stryker4s.extension.exception.TestSetupException
+import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
+import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuilder, MatchBuilder}
 import stryker4s.run.{Stryker4sRunner, TestRunner}
@@ -18,10 +20,6 @@ import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File => JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
-import stryker4s.files.SbtMutatesResolver
-import stryker4s.files.MutatesFileResolver
-import stryker4s.files.FilesFileResolver
-import stryker4s.files.SbtFilesResolver
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -45,7 +43,7 @@ class Stryker4sSbtRunner(
 
   def resolveTestRunners(
       tmpDir: Path
-  )(implicit config: Config): NonEmptyList[Resource[IO, TestRunner]] = {
+  )(implicit config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
     def setupLegacySbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
@@ -69,7 +67,7 @@ class Stryker4sSbtRunner(
     def setupSbtTestRunner(
         settings: Seq[Def.Setting[_]],
         extracted: Extracted
-    ): NonEmptyList[Resource[IO, TestRunner]] = {
+    ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
       val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
@@ -78,44 +76,82 @@ class Stryker4sSbtRunner(
           "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
       )
       val newState = extracted.appendWithSession(fullSettings, state)
-      def extractTaskValue[T](task: TaskKey[T], name: String) =
+
+      def extractTaskValue[T](task: TaskKey[T], name: String) = {
+
         Project.runTask(task, newState) match {
           case Some((_, Value(result))) => result
           case other =>
             log.debug(s"Expected $name but got $other")
-            throw new TestSetupException(name)
-        }
-
-      val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
-
-      val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
-
-      val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
-
-      val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
-        if (config.testFilter.isEmpty) group
-        else {
-          val testFilter = new TestFilter()
-          val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
-          group.copy(tests = filteredTests)
+            throw TestSetupException(name)
         }
       }
 
-      val concurrency = if (config.debug.debugTestRunner) {
-        log.warn(
-          "'debug.debug-test-runner' config is 'true', creating 1 test-runner with debug arguments enabled on port 8000."
-        )
-        1
-      } else {
-        log.info(s"Creating ${config.concurrency} test-runners")
-        config.concurrency
+      //SBT returns any errors as a Incomplete case class, which can contain other Incomplete instances
+      //You have to recursively search through them to get the real exception
+      def getRootCause(i: Incomplete): Seq[Throwable] = {
+        i.directCause match {
+          case None =>
+            i.causes.flatMap(getRootCause)
+          case Some(cause) =>
+            cause +: i.causes.flatMap(getRootCause)
+        }
       }
 
-      val portStart = 13336
-      val portRanges = NonEmptyList.fromListUnsafe((1 to concurrency).map(_ + portStart).toList)
+      //See if the mutations compile, and if not extract the errors
+      val compilerErrors = Project.runTask(Compile / Keys.compile, newState) match {
+        case Some((_, Inc(cause))) =>
+          val compileErrors = (getRootCause(cause) collect { case exception: sbt.internal.inc.CompileFailed =>
+            exception.problems.flatMap { e =>
+              for {
+                path <- e.position().sourceFile().asScala
+                pathStr = tmpDir.relativize(Path(path.absolutePath)).toString
+                line <- e.position().line().asScala
+              } yield CompilerErrMsg(e.message(), pathStr, line)
+            }.toSeq
+          }).flatten.toList
 
-      portRanges.map { port =>
-        SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
+          NonEmptyList.fromList(compileErrors)
+        case _ =>
+          None
+      }
+
+      compilerErrors match {
+        case Some(errors) => Left(errors)
+        case None =>
+          val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
+
+          val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
+
+          val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
+
+          val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
+            if (config.testFilter.isEmpty) group
+            else {
+              val testFilter = new TestFilter()
+              val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
+              group.copy(tests = filteredTests)
+            }
+          }
+
+          val concurrency = if (config.debug.debugTestRunner) {
+            log.warn(
+              "'debug.debug-test-runner' config is 'true', creating 1 test-runner with debug arguments enabled on port 8000."
+            )
+            1
+          } else {
+            log.info(s"Creating ${config.concurrency} test-runners")
+            config.concurrency
+          }
+
+          val portStart = 13336
+          val portRanges = NonEmptyList.fromListUnsafe((1 to concurrency).map(_ + portStart).toList)
+
+          Right(
+            portRanges.map { port =>
+              SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
+            }
+          )
       }
     }
 
@@ -164,9 +200,10 @@ class Stryker4sSbtRunner(
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 
-    if (config.legacyTestRunner)
-      setupLegacySbtTestRunner(settings, extracted)
-    else
+    if (config.legacyTestRunner) {
+      //No compiler error handling in the legacy runner
+      Right(setupLegacySbtTestRunner(settings, extracted))
+    } else
       setupSbtTestRunner(settings, extracted)
   }
 

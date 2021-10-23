@@ -15,7 +15,7 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
   def mutantsInFile(filePath: Path): IO[MutationsInSource] = for {
     parsedSource <- parseFile(filePath)
     (included, excluded) <- IO(findMutants(parsedSource))
-  } yield MutationsInSource(parsedSource, included, excluded)
+  } yield MutationsInSource(parsedSource, included, excluded, filePath.toString)
 
   def findMutants(source: Source): (Seq[Mutant], Int) = {
     val (ignored, included) = source.collect(matcher.allMatchers).flatten.partitionEither(identity)

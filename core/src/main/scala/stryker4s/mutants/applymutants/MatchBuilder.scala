@@ -56,8 +56,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
     q"($mutationContext match { ..case $cases })"
   }
 
-  protected def mutantToCase(mutant: Mutant): Case =
-    buildCase(mutant.mutated, p"Some(${mutant.id})")
+  def mutantToCase(mutant: Mutant): Case =
+    buildCase(mutant.mutated, p"Some(${mutant.id.globalId})")
 
   protected def defaultCase(transformedMutant: TransformedMutants): Case =
     buildCase(transformedMutant.originalStatement, p"_")
@@ -72,6 +72,8 @@ class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger)
       }
       .map { case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) }
       .toSeq
-      .sortBy(_.mutantStatements.head.id) // Should be sorted so tree transformations are applied in order of discovery
+      .sortBy(
+        _.mutantStatements.head.id.globalId
+      ) // Should be sorted so tree transformations are applied in order of discovery
   }
 }

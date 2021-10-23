@@ -1,11 +1,10 @@
 package stryker4s.mutants.applymutants
 
 import scala.meta._
-
 import stryker4s.extension.TreeExtensions._
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype._
-import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
+import stryker4s.model.{Mutant, MutantId, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
@@ -17,7 +16,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val ids = Iterator.from(0)
       val originalStatement = q"x >= 15"
       val mutants = List(q"x > 15", q"x <= 15")
-        .map(Mutant(ids.next(), originalStatement, _, GreaterThan))
+        .map(Mutant(MutantId(ids.next()), originalStatement, _, GreaterThan))
       val sut = new MatchBuilder(ActiveMutationContext.testRunner)
 
       // Act
@@ -66,12 +65,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val source = source"""class Foo { def bar: Boolean = 15 > 14 }"""
 
       val failedMutants = List(
-        Mutant(0, q"foo", q"bar", GreaterThan),
-        Mutant(1, q"baz", q"qux", GreaterThan)
+        Mutant(MutantId(0), q"foo", q"bar", GreaterThan),
+        Mutant(MutantId(1), q"baz", q"qux", GreaterThan)
       )
       val successfulMutants = List(
-        Mutant(2, q">", q"15 < 14", GreaterThan),
-        Mutant(3, q">", q"15 <= 14", GreaterThan)
+        Mutant(MutantId(2), q">", q"15 < 14", GreaterThan),
+        Mutant(MutantId(3), q">", q"15 <= 14", GreaterThan)
       )
       val transformed = TransformedMutants(q"14 < 15", failedMutants)
       val successfulTransformed = TransformedMutants(source.find(q"15 > 14").value, successfulMutants)
@@ -379,7 +378,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
     val topStatement = source.find(origStatement).value.topStatement()
     val mutant = mutants
       .map(m => topStatement.transformOnce { case orig if orig.isEqual(origStatement) => m }.get)
-      .map(m => Mutant(ids.next(), topStatement, m.asInstanceOf[Term], mutation))
+      .map(m => Mutant(MutantId(ids.next()), topStatement, m.asInstanceOf[Term], mutation))
       .toList
 
     TransformedMutants(topStatement, mutant)

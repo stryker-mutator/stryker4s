@@ -7,6 +7,7 @@ import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
 import stryker4s.log.Logger
+import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.run.process.ProcessRunner
@@ -21,12 +22,12 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: 
 
   override def resolveTestRunners(
       tmpDir: Path
-  )(implicit config: Config): NonEmptyList[Resource[IO, TestRunner]] = {
+  )(implicit config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
     val innerTestRunner =
       Resource.pure[IO, TestRunner](new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir))
 
     val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
-    NonEmptyList.of(withTimeout)
+    Right(NonEmptyList.of(withTimeout))
   }
 }
