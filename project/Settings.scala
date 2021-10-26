@@ -96,8 +96,8 @@ object Settings {
       )
     ),
     developers := List(
-      Developer("legopiraat", "Legopiraat", "", url("https://github.com/legopiraat")),
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
-    )
+    ),
+    versionScheme := Some("semver-spec")
   )
 }
