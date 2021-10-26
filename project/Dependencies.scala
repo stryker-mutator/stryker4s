@@ -1,4 +1,5 @@
 import sbt._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object Dependencies {
   object versions {
@@ -35,29 +36,31 @@ object Dependencies {
   }
 
   object test {
-    val catsEffectScalaTest = "org.typelevel" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
+    val catsEffectScalaTest =
+      Def.setting("org.typelevel" %%% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test)
     val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
     val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala % Test
-    val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
+    val scalatest = Def.setting("org.scalatest" %%% "scalatest" % versions.scalatest % Test)
   }
 
-  val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
-  val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
-  val circeCore = "io.circe" %% "circe-core" % versions.circe
-  val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
-  val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
+  val catsCore = Def.setting("org.typelevel" %%% "cats-core" % versions.catsCore)
+  val catsEffect = Def.setting("org.typelevel" %%% "cats-effect" % versions.catsEffect)
+  val circeCore = Def.setting("io.circe" %%% "circe-core" % versions.circe)
+  val fs2Core = Def.setting("co.fs2" %%% "fs2-core" % versions.fs2)
+  val fs2IO = Def.setting("co.fs2" %%% "fs2-io" % versions.fs2)
   val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
-    "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
+    Def.setting("io.stryker-mutator" %%% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics)
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
   val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
-  val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
+  val scalameta = Def.setting("org.scalameta" %%% "scalameta" % versions.scalameta)
   val scalapbRuntime =
-    "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
-  val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
+    Def.setting("com.thesamet.scalapb" %%% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf")
+  val sttpCirce = Def.setting("com.softwaremill.sttp.client3" %%% "circe" % versions.sttp)
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
+  val sttpCatsBackend = Def.setting("com.softwaremill.sttp.client3" %%% "cats" % versions.sttp)
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
-  val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
+  val weaponRegeX = Def.setting("io.stryker-mutator" %%% "weapon-regex" % versions.weaponRegeX)
 
 }

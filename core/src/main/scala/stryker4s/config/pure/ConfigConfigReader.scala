@@ -7,7 +7,6 @@ import pureconfig.generic.semiauto._
 import stryker4s.config._
 import stryker4s.extension.mutationtype.Mutation
 
-import java.nio.file.{Path => JPath}
 import scala.meta.Dialect
 import scala.meta.dialects._
 
@@ -19,7 +18,7 @@ import scala.meta.dialects._
 trait ConfigConfigReader {
 
   implicit def pathReader: ConfigReader[Path] =
-    ConfigReader[JPath].map(Path.fromNioPath).map(_.absolute)
+    ConfigReader[String].map(Path(_)).map(_.absolute)
 
   implicit def reporterReader: ConfigReader[ReporterType] =
     deriveEnumerationReader[ReporterType]

@@ -28,7 +28,12 @@ lazy val root = (project withId "stryker4s" in file("."))
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(coreSettings)
   .dependsOn(stryker4sApi)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .enablePlugins(ScalablyTypedConverterPlugin)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions, settings = coreJVMSettings)
+  .jsPlatform(
+    scalaVersions = versions.crossScalaVersions,
+    settings = coreJSettings
+  )
 
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
   .settings(
@@ -52,6 +57,7 @@ lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner"
 lazy val stryker4sApi = newProject("stryker4s-api", "api")
   .settings(apiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jsPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 def newProject(projectName: String, dir: String) =
   sbt.internal

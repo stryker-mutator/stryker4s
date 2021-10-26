@@ -3,7 +3,9 @@ import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt._
 import sbtprotoc.ProtocPlugin.autoImport.PB
-
+import scalajsbundler.sbtplugin.ScalaJSBundlerPlugin.autoImport._
+import org.scalablytyped.converter.plugin.ScalablyTypedPluginBase.autoImport._
+import org.scalablytyped.converter.plugin.ScalablyTypedConverterGenSourcePlugin.autoImport._
 object Settings {
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
@@ -27,30 +29,47 @@ object Settings {
 
   lazy val coreSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      Dependencies.catsCore,
-      Dependencies.catsEffect,
-      Dependencies.circeCore,
-      Dependencies.fs2Core,
-      Dependencies.fs2IO,
+      Dependencies.catsCore.value,
+      Dependencies.catsEffect.value,
+      Dependencies.circeCore.value,
+      Dependencies.fs2Core.value,
+      Dependencies.fs2IO.value,
       Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics,
-      Dependencies.pureconfig,
-      Dependencies.pureconfigSttp,
-      Dependencies.scalameta,
-      Dependencies.sttpCirce,
-      Dependencies.sttpFs2Backend,
-      Dependencies.weaponRegeX,
-      Dependencies.test.catsEffectScalaTest,
+      Dependencies.mutationTestingMetrics.value,
+      Dependencies.scalameta.value,
+      Dependencies.sttpCirce.value,
+      Dependencies.weaponRegeX.value,
+      Dependencies.test.catsEffectScalaTest.value,
+      Dependencies.test.scalatest.value
+    )
+  )
+
+  lazy val coreJVMSettings: Seq[Setting[_]] = Seq(
+    libraryDependencies ++= Seq(
       Dependencies.test.mockitoScala,
       Dependencies.test.mockitoScalaCats,
-      Dependencies.test.scalatest
+      Dependencies.pureconfig,
+      Dependencies.pureconfigSttp,
+      Dependencies.sttpFs2Backend
+    )
+  )
+
+  lazy val coreJSettings: Seq[Setting[_]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.sttpCatsBackend.value
+    ),
+    stOutputPackage := "stryker4s.st",
+    // stPrivateWithin := Some("stryker4s"),
+    Compile / npmDependencies ++= Seq(
+      "minimatch" -> "3.0.4",
+      "@types/minimatch" -> "3.0.5"
     )
   )
 
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.log4j,
-      Dependencies.test.scalatest
+      Dependencies.test.scalatest.value
     )
   )
 
@@ -74,7 +93,7 @@ object Settings {
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime
+    libraryDependencies += Dependencies.scalapbRuntime.value
   )
 
   lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(

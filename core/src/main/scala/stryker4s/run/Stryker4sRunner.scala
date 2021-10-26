@@ -17,9 +17,8 @@ import stryker4s.run.threshold.ScoreStatus
 import stryker4s.Stryker4s
 import stryker4s.model.CompilerErrMsg
 import sttp.client3.SttpBackend
-import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 
-abstract class Stryker4sRunner(implicit log: Logger) {
+abstract class Stryker4sRunner(implicit log: Logger) extends Stryker4sRunnerPlatformCompat {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 
@@ -44,19 +43,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       case Html    => new HtmlReporter(new DiskFileIO())
       case Json    => new JsonReporter(new DiskFileIO())
       case Dashboard =>
-        implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
-          // Catch if the user runs the dashboard on Java <11
-          try HttpClientFs2Backend.resource[IO]()
-          catch {
-            case e: BootstrapMethodError =>
-              // Wrap in a UnsupportedOperationException because BootstrapMethodError will not be caught
-              Resource.raiseError[IO, Nothing, Throwable](
-                new UnsupportedOperationException(
-                  "Could not send results to dashboard. The dashboard reporter only supports JDK 11 or above. If you are running on a lower Java version please upgrade or disable the dashboard reporter.",
-                  e
-                )
-              )
-          }
+        implicit val httpBackendResource: Resource[IO, SttpBackend[IO, Any]] = httpBackend
         new DashboardReporter(new DashboardConfigProvider(sys.env))
     }
 
