@@ -7,6 +7,7 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
+import stryker4s.api.testprocess._
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.{Killed, Mutant, MutantId, NoCoverageInitialTestRun, Survived}

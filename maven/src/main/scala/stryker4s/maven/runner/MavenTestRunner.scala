@@ -3,8 +3,8 @@ package stryker4s.maven.runner
 import cats.effect.IO
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
-import stryker4s.log.Logger
 import stryker4s.api.testprocess._
+import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.run.TestRunner
 
