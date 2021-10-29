@@ -20,6 +20,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")
+  val fingerprints = Seq.empty[Fingerprint]
   def properties = new ju.Properties()
   def goals = Seq("test")
 
@@ -81,7 +82,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
 
-      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan)).unsafeRunSync()
+      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
 
       result shouldBe a[Killed]
     }
@@ -93,7 +94,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
 
-      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan)).unsafeRunSync()
+      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
 
       result shouldBe a[Survived]
     }
@@ -109,7 +110,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val sut = new MavenTestRunner(project, invokerMock, project.getProperties(), goals)
 
-      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan)).unsafeRunSync()
+      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
@@ -132,7 +133,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals)
 
-      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan)).unsafeRunSync()
+      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
