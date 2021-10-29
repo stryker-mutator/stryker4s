@@ -9,13 +9,13 @@ import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
 sealed trait TestRunner {
-  def runMutation(mutation: Int): Status
+  def runMutation(mutation: Int, fingerprints: Seq[Fingerprint]): Status
   def initialTestRun(): Status
 }
 
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
-  val testFunctions: Option[Int] => Status = {
+  val testFunctions: Option[(Int, Seq[Fingerprint])] => Status = {
     val cl = getClass().getClassLoader()
     val tasks = context.testGroups.flatMap(testGroup => {
       val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
@@ -23,14 +23,18 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
       val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
       runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
     })
-    (mutation: Option[Int]) => {
-      mutation.foreach(stryker4s.activeMutation = _)
-      runTests(tasks, new AtomicReference(Status.Success))
+    (mutation: Option[(Int, Seq[Fingerprint])]) => {
+      val tasksToRun = mutation match {
+        case Some((_, fingerprints)) => tasks.filter(t => fingerprints.contains(t.taskDef().fingerprint()))
+        case None                    => tasks
+      }
+      mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId }
+      runTests(tasksToRun, new AtomicReference(Status.Success))
     }
   }
 
-  def runMutation(mutation: Int) = {
-    testFunctions(Some(mutation))
+  def runMutation(mutation: Int, fingerprints: Seq[Fingerprint]) = {
+    testFunctions(Some((mutation, fingerprints)))
   }
 
   def initialTestRun(): Status = {

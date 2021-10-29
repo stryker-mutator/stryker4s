@@ -9,6 +9,7 @@ import stryker4s.run.process.{Command, ProcessRunner}
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
+import stryker4s.api.testprocess.Fingerprint
 
 class ProcessTestRunner(command: Command, processRunner: ProcessRunner, tmpDir: Path)(implicit config: Config)
     extends TestRunner {
@@ -19,7 +20,7 @@ class ProcessTestRunner(command: Command, processRunner: ProcessRunner, tmpDir: 
     }
   }
 
-  def runMutant(mutant: Mutant): IO[MutantRunResult] = {
+  def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] = {
     val id = mutant.id.globalId
     processRunner(command, tmpDir, ("ACTIVE_MUTATION", id.toString)).map {
       case Success(0)                   => Survived(mutant)
