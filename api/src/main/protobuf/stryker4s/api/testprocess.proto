@@ -19,6 +19,7 @@ message Request {
 
 message StartTestRun {
   int32 mutation = 1;
+  repeated Fingerprint fingerprints = 2;
 }
 message StartInitialTestRun {}
 

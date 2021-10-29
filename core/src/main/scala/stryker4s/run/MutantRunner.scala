@@ -20,6 +20,7 @@ import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 import java.nio
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
+import stryker4s.api.testprocess.Fingerprint
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
@@ -174,8 +175,9 @@ class MutantRunner(
     val testedMutants = Stream
       .emits(testableMutants)
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
+        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id.globalId, Seq.empty)
         IO(log.debug(s"Running mutant $mutant")) *>
-          testRunner.runMutant(mutant).tupleLeft(path)
+          testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })
       .observe(in => in.map(_ => MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 
@@ -203,16 +205,13 @@ class MutantRunner(
         else
           IO(log.info("Initial test run succeeded! Testing mutants...")).as {
             result match {
-              case _: NoCoverageInitialTestRun => CoverageExclusions(false, List.empty, List.empty)
+              case _: NoCoverageInitialTestRun => CoverageExclusions(false, Map.empty, List.empty)
               case InitialTestRunCoverageReport(_, firstRun, secondRun, _) =>
                 val firstRunMap = firstRun.report
                 val secondRunMap = secondRun.report
                 val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq
 
-                val coveredMutants = firstRunMap
-                  .filterNot { case (id, _) => staticMutants.contains(id) }
-                  .keys
-                  .toSeq
+                val coveredMutants = firstRunMap.filterNot { case (id, _) => staticMutants.contains(id) }
 
                 CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
             }
@@ -227,6 +226,10 @@ class MutantRunner(
     )
   )
 
-  case class CoverageExclusions(hasCoverage: Boolean, coveredMutants: Seq[Int], staticMutants: Seq[Int])
+  case class CoverageExclusions(
+      hasCoverage: Boolean,
+      coveredMutants: Map[Int, Seq[Fingerprint]],
+      staticMutants: Seq[Int]
+  )
 
 }

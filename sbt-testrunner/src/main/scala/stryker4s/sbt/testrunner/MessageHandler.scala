@@ -14,9 +14,9 @@ final class TestRunnerMessageHandler() extends MessageHandler {
 
   def handleMessage(req: Request): Response =
     req match {
-      case StartTestRun(mutation) =>
+      case StartTestRun(mutation, fingerprints) =>
         try {
-          val status = testRunner.runMutation(mutation)
+          val status = testRunner.runMutation(mutation, fingerprints)
           toTestResult(status)
         } catch {
           case NonFatal(e) => ErrorDuringTestRun(e.toString())

@@ -13,6 +13,7 @@ import scala.concurrent.duration._
 
 class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
+  val fingerprints = Seq.empty[Fingerprint]
   describe("timeoutRunner") {
     implicit val config = Config.default
 
@@ -66,7 +67,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           _ <- timeout.complete(1.millisecond)
           // TestRunner is slower than timeout
           sut = TestRunner.timeoutRunner(timeout, timeoutRunner(100.milliseconds, mutant))
-          result <- sut.use(_.runMutant(mutant))
+          result <- sut.use(_.runMutant(mutant, fingerprints))
         } yield result
 
         op.asserting { result =>
@@ -83,7 +84,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           log <- Ref[IO].of(List.empty[String])
           innerTR = recreateLoggingTestRunner(log, timeoutRunner(100.milliseconds, createMutant))
           sut = TestRunner.timeoutRunner(timeout, innerTR)
-          _ <- sut.use(_.runMutant(createMutant))
+          _ <- sut.use(_.runMutant(createMutant, fingerprints))
         } yield log
 
         op.flatMap(_.get).asserting { log =>
@@ -99,7 +100,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           _ <- timeout.complete(100.millis)
           // TestRunner is slower than timeout
           sut = TestRunner.timeoutRunner(timeout, timeoutRunner(1.milliseconds, mutant))
-          result <- sut.use(_.runMutant(mutant))
+          result <- sut.use(_.runMutant(mutant, fingerprints))
         } yield result
 
         op.asserting { result =>
@@ -121,7 +122,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           Resource.pure(new TestRunnerStub(Seq(() => fail("first attempt should be retried"), () => secondResult)))
         )
         sut = TestRunner.retryRunner(innerTR)
-        result <- sut.use(_.runMutant(mutant))
+        result <- sut.use(_.runMutant(mutant, fingerprints))
         logResults <- log.get
       } yield (result, logResults)
 
@@ -140,7 +141,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         sut = TestRunner.retryRunner(
           recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
         )
-        result <- sut.use(_.runMutant(mutant))
+        result <- sut.use(_.runMutant(mutant, fingerprints))
         logResults <- log.get
       } yield (result, logResults)
 
@@ -166,7 +167,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         sut = TestRunner.retryRunner(
           recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(stubResults)))
         )
-        result <- sut.use(_.runMutant(mutant))
+        result <- sut.use(_.runMutant(mutant, fingerprints))
         logResults <- log.get
       } yield (result, logResults)
 
@@ -190,7 +191,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         innerTR = recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(expectedResults.map(() => _))))
         sut = TestRunner.maxReuseTestRunner(reuse, innerTR)
         result <- sut.use { tr =>
-          mutants.traverse(tr.runMutant(_))
+          mutants.traverse(tr.runMutant(_, fingerprints))
         }
         logResults <- log.get
       } yield (result, logResults)
@@ -211,7 +212,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         innerTR = recreateLoggingTestRunner(log, Resource.pure(new TestRunnerStub(expectedResults.map(() => _))))
         sut = TestRunner.maxReuseTestRunner(reuse, innerTR)
         result <- sut.use { tr =>
-          mutants.traverse(tr.runMutant(_))
+          mutants.traverse(tr.runMutant(_, fingerprints))
         }
         logResults <- log.get
       } yield (result, logResults)
@@ -227,13 +228,14 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
   def initialTestRunner(result: InitialTestRunResult = NoCoverageInitialTestRun(true)): Resource[IO, TestRunner] =
     Resource.pure(new TestRunner {
       def initialTestRun(): IO[InitialTestRunResult] = IO.pure(result)
-      def runMutant(mutant: Mutant): IO[MutantRunResult] = ???
+      def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] = ???
     })
 
   def timeoutRunner(sleep: FiniteDuration, result: Mutant): Resource[IO, TestRunner] =
     Resource.pure(new TestRunner {
       def initialTestRun(): IO[InitialTestRunResult] = ???
-      def runMutant(mutant: Mutant): IO[MutantRunResult] = IO.sleep(sleep).as(Killed(result))
+      def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] =
+        IO.sleep(sleep).as(Killed(result))
     })
 
   def recreateLoggingTestRunner(
