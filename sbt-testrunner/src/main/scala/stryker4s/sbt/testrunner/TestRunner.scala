@@ -25,8 +25,9 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     })
     (mutation: Option[(Int, Seq[Fingerprint])]) => {
       val tasksToRun = mutation match {
-        case Some((_, fingerprints)) => tasks.filter(t => fingerprints.contains(t.taskDef().fingerprint()))
-        case None                    => tasks
+        case Some((_, fingerprints)) =>
+          tasks.filter(t => fingerprints.map(toSbtFingerprint).contains(t.taskDef().fingerprint()))
+        case None => tasks
       }
       mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId }
       runTests(tasksToRun, new AtomicReference(Status.Success))
