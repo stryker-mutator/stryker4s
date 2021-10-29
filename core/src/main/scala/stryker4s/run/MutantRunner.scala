@@ -175,7 +175,7 @@ class MutantRunner(
     val testedMutants = Stream
       .emits(testableMutants)
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
-        val coverageForMutant = coverageExclusions.coveredMutants.apply(mutant.id.globalId)
+        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id.globalId, Seq.empty)
         IO(log.debug(s"Running mutant $mutant")) *>
           testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })
