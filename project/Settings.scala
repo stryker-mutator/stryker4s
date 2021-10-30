@@ -83,6 +83,12 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
+    // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
+    libraryDependencySchemes ++= Seq(
+      "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,
+      "io.stryker-mutator" %% "stryker4s-api" % VersionScheme.Always,
+      "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % VersionScheme.Always
+    ),
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),
