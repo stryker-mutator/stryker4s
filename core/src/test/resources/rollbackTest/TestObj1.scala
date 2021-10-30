@@ -4,7 +4,7 @@ import java.nio.file.{Files, Paths}
 
 object TestObj1 {
   def test2(a: String): Boolean = {
-    Files.exists(Paths.get(a)) //Should not get mutated!
+    Files.exists(Paths.get(a)) // Should not get mutated!
   }
 
   def least(a: Int, b: Int): Int = {

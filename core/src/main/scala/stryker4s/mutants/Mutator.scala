@@ -56,11 +56,11 @@ class Mutator(
     if (compileErrors.isEmpty)
       mutatedFile
     else {
-      //If there are any compiler errors (i.e. we're currently retrying the mutation with the bad ones rolled back)
-      //Then we take the original tree built that didn't compile
-      //And then we search inside it to translate the compile errors to mutants
-      //Finally we rebuild it from scratch without those mutants
-      //This is not very performant, but you only pay the cost if there actually is a compiler error
+      // If there are any compiler errors (i.e. we're currently retrying the mutation with the bad ones rolled back)
+      // Then we take the original tree built that didn't compile
+      // And then we search inside it to translate the compile errors to mutants
+      // Finally we rebuild it from scratch without those mutants
+      // This is not very performant, but you only pay the cost if there actually is a compiler error
       val errorsInThisFile = compileErrors.filter(err => file.endsWith(err.path))
       if (errorsInThisFile.isEmpty) {
         log.debug(s"No compiler errors in $file")
@@ -131,7 +131,7 @@ class Mutator(
       }
   }
 
-  //Given compiler errors, return the mutants that caused it by searching for the matching case statement at that line
+  // Given compiler errors, return the mutants that caused it by searching for the matching case statement at that line
   private def errorsToIds(
       compileErrors: Seq[CompilerErrMsg],
       mutatedFile: String,
@@ -142,13 +142,13 @@ class Mutator(
     }.toMap
 
     val lineToMutantId: Map[Int, MutantId] = mutatedFile
-      //Parsing the mutated tree again as a string is the only way to get the position info of the mutated statements
+      // Parsing the mutated tree again as a string is the only way to get the position info of the mutated statements
       .parse[Source]
       .getOrElse(throw new RuntimeException(s"Failed to parse $mutatedFile to remove non-compiling mutants"))
       .collect {
         case node: Case if statementToMutIdMap.contains(node.structure) =>
           val mutId = statementToMutIdMap(node.structure)
-          //+1 because scalameta uses zero-indexed line numbers
+          // +1 because scalameta uses zero-indexed line numbers
           (node.pos.startLine to node.pos.endLine).map(i => i + 1 -> mutId)
       }
       .flatten

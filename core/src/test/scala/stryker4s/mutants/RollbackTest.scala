@@ -16,7 +16,7 @@ class RollbackTest extends Stryker4sIOSuite with LogMatchers {
     it("should remove a non-compiling mutant") {
       implicit val conf: Config = Config.default.copy(
         baseDir = FileUtil.getResource("rollbackTest"),
-        concurrency = 1 //Concurrency 1 to make output order predictable
+        concurrency = 1 // Concurrency 1 to make output order predictable
       )
 
       val testObj1Path = FileUtil.getResource("rollbackTest/TestObj1.scala")
