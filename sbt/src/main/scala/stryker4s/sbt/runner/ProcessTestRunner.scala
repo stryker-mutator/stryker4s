@@ -7,6 +7,7 @@ import sbt.Tests
 import sbt.testing.{Framework => SbtFramework}
 import stryker4s.api.testprocess._
 import stryker4s.config.Config
+import stryker4s.extension.IOExtensions._
 import stryker4s.log.Logger
 import stryker4s.model.{MutantRunResult, _}
 import stryker4s.run.TestRunner
@@ -107,7 +108,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .make(
         retryWithBackoff(6, 0.2.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
           IO(new Socket(InetAddress.getLoopbackAddress(), port))
-        )
+        ).logTimed("ConnectToProcess")
       )(s => IO(log.debug(s"Closing test-runner on port $port")).guarantee(IO(s.close())))
       .evalTap(_ => IO(log.debug(s"Created socket on port $port")))
       .flatMap(TestRunnerConnection.create(_))
@@ -117,10 +118,10 @@ object ProcessTestRunner extends TestInterfaceMapper {
       testProcess: TestRunnerConnection,
       frameworks: Seq[SbtFramework],
       testGroups: Seq[Tests.Group]
-  ): IO[Unit] = {
+  )(implicit logger: Logger): IO[Unit] = {
     val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
 
-    testProcess.sendMessage(apiTestGroups).void
+    testProcess.sendMessage(apiTestGroups).logTimed("ProcessTestRunnerSendMessage").void
   }
 
   def retryWithBackoff[T](maxAttempts: Int, delay: FiniteDuration, onError: => Unit)(f: IO[T]): IO[T] = {

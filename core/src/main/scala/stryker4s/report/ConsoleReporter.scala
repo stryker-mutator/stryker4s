@@ -5,6 +5,7 @@ import fs2.{INothing, Pipe}
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions._
+import stryker4s.extension.IOExtensions._
 import stryker4s.log.Logger
 import stryker4s.run.threshold._
 
@@ -18,8 +19,10 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
     // Log the first status right away, and then the latest every 0.5 seconds
     // 0.5 seconds is a good middle-ground between not printing too much and still feeling snappy
     (stream.head ++ stream.tail.debounce(0.5.seconds)).evalMap { case (event, progress) =>
-      val total = event.totalMutants
-      IO(log.info(s"Tested mutant $progress/$total (${((progress / total.toDouble) * 100).round}%)"))
+      {
+        val total = event.totalMutants
+        IO(log.info(s"Tested mutant $progress/$total (${((progress / total.toDouble) * 100).round}%)"))
+      }.logTimed("MutantTested")
     }.drain
   }
 

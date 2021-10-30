@@ -2,6 +2,7 @@ package stryker4s.sbt.testrunner
 
 import com.google.protobuf.CodedInputStream
 import stryker4s.api.testprocess.RequestMessage
+import stryker4s.logTimed
 
 import java.net.{InetAddress, ServerSocket, Socket}
 
@@ -37,10 +38,10 @@ final class TestProcessServer(messageHandler: MessageHandler, socket: Socket) {
     try {
       val outputStream = socket.getOutputStream()
       try while (true) {
-        val request = RequestMessage.parseDelimitedFrom(input).get.toRequest
+        val request = logTimed("TestRunnerReadMessage")(RequestMessage.parseDelimitedFrom(input).get.toRequest)
         println(s"Received message $request")
         val response = messageHandler.handleMessage(request)
-        response.asMessage.writeDelimitedTo(outputStream)
+        logTimed("TestRunnerSendMessage")(response.asMessage.writeDelimitedTo(outputStream))
       } finally outputStream.close()
     } finally inputStream.close()
   }

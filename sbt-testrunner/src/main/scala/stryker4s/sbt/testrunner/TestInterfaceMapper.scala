@@ -53,7 +53,7 @@ trait TestInterfaceMapper {
   }
 
   def toFingerprints(fingerprints: Seq[Fingerprint], fingerprintIds: Map[Fingerprint, Int]): Fingerprints =
-    Fingerprints(fingerprints.map(fingerprintIds(_)).toSeq)
+    Fingerprints(fingerprints.map(fingerprintIds(_)).distinct)
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {

@@ -3,6 +3,7 @@ package stryker4s.sbt.runner
 import cats.effect.{IO, Resource}
 import com.google.protobuf.CodedInputStream
 import stryker4s.api.testprocess.{Request, Response, ResponseMessage}
+import stryker4s.extension.IOExtensions._
 import stryker4s.log.Logger
 
 import java.io.OutputStream
@@ -17,8 +18,8 @@ final class SocketTestRunnerConnection(out: OutputStream, in: CodedInputStream)(
 
   override def sendMessage(request: Request): IO[Response] =
     IO(log.debug(s"Sending message $request")) *>
-      skipCancel(IO.blocking(request.asMessage.writeDelimitedTo(out))) *>
-      skipCancel(IO.blocking(ResponseMessage.parseDelimitedFrom(in)))
+      skipCancel(IO.blocking(request.asMessage.writeDelimitedTo(out))).logTimed("SendMessage") *>
+      skipCancel(IO.blocking(ResponseMessage.parseDelimitedFrom(in))).logTimed("ReceiveMessage")
         .map(_.get)
         .map(_.toResponse)
         .flatTap(response => IO(log.debug(s"Received message $response")))

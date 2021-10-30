@@ -2,11 +2,27 @@ import sbt.testing.Fingerprint
 import stryker4s.api.testprocess.CoverageTestRunMap
 import stryker4s.sbt.testrunner.TestInterfaceMapper
 
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
+import java.util.concurrent.{ConcurrentLinkedQueue, TimeUnit}
 import scala.collection.concurrent.TrieMap
+import scala.concurrent.duration.Duration
 
 package object stryker4s {
+
+  /** Collect coverage analysis during the provided function and return it in a tuple
+    */
+  protected[stryker4s] def logTimed[A](scope: String)(f: => A): A = {
+
+    val startTime = System.nanoTime()
+    try {
+      val result = f
+      result
+    } finally {
+      val end = System.nanoTime()
+      val duration = Duration.apply(end - startTime, TimeUnit.NANOSECONDS)
+      println(s"TIMED: $scope took ${duration.toMillis}ms")
+    }
+  }
 
   /** object to collect coverage analysis on the mutated code
     */

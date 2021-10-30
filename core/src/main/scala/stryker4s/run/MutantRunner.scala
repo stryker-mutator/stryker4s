@@ -21,6 +21,7 @@ import java.nio
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
 import stryker4s.api.testprocess.Fingerprint
+import stryker4s.extension.IOExtensions._
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
@@ -30,7 +31,7 @@ class MutantRunner(
     extends MutantRunResultMapper {
 
   def apply(mutateFiles: Seq[CompilerErrMsg] => IO[Seq[MutatedFile]]): IO[MetricsResult] = {
-    mutateFiles(Seq.empty).flatMap { mutatedFiles =>
+    IO.defer(mutateFiles(Seq.empty)).logTimed("MutateFiles").flatMap { mutatedFiles =>
       run(mutatedFiles)
         .flatMap {
           case Right(metrics) => IO.pure(metrics.asRight)
@@ -58,7 +59,7 @@ class MutantRunner(
               .flatMap { coverageExclusions =>
                 runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
               }
-              .flatMap(t => createAndReportResults(t._1, t._2))
+              .flatMap(t => createAndReportResults(t._1, t._2).logTimed("ReportResults"))
               .map(Right(_))
           }
       }
@@ -78,7 +79,7 @@ class MutantRunner(
     for {
       _ <- Resource.eval(Files[IO].createDirectories(targetDir))
       tmpDir <- Files[IO].tempDirectory(Some(targetDir), "stryker4s-", None)
-      _ <- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq))
+      _ <- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq).logTimed("SetupFiles"))
     } yield tmpDir
   }
 
@@ -177,7 +178,7 @@ class MutantRunner(
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
         val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id.globalId, Seq.empty)
         IO(log.debug(s"Running mutant $mutant")) *>
-          testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
+          testRunner.runMutant(mutant, coverageForMutant).logTimed("RunMutant").tupleLeft(path)
       })
       .observe(in => in.map(_ => MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 

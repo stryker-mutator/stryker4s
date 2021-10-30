@@ -2,11 +2,12 @@ package stryker4s.sbt.testrunner
 
 import sbt.testing.{Event, EventHandler, Framework, Status, Task}
 import stryker4s.api.testprocess._
+import stryker4s.logTimed
 
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
-import scala.annotation.tailrec
 import scala.util.control.NonFatal
+import java.util.concurrent.atomic.AtomicInteger
 
 sealed trait TestRunner {
   def runMutation(mutation: Int, fingerprints: Seq[Fingerprint]): Status
@@ -16,13 +17,15 @@ sealed trait TestRunner {
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
   val testFunctions: Option[(Int, Seq[Fingerprint])] => Status = {
-    val cl = getClass().getClassLoader()
-    val tasks = context.testGroups.flatMap(testGroup => {
-      val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
-      val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
-      val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
-      runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
-    })
+    val tasks = logTimed("TestRunnerSetupTasks") {
+      val cl = getClass().getClassLoader()
+      context.testGroups.flatMap(testGroup => {
+        val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
+        val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
+        val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
+        runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
+      })
+    }
     (mutation: Option[(Int, Seq[Fingerprint])]) => {
       val tasksToRun = mutation match {
         case Some((_, fingerprints)) =>
@@ -30,21 +33,28 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
         case None => tasks
       }
       mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId }
-      runTests(tasksToRun, new AtomicReference(Status.Success))
+      val testsRan = new AtomicInteger()
+
+      try runTests(tasksToRun, new AtomicReference(Status.Success), testsRan)
+
+      finally mutation.foreach { case (mutantId, _) => println(s"Ran ${testsRan.get()} for mutant $mutantId") }
     }
   }
 
   def runMutation(mutation: Int, fingerprints: Seq[Fingerprint]) = {
-    testFunctions(Some((mutation, fingerprints)))
+    logTimed("TestRunnerRunMutation")(testFunctions(Some((mutation, fingerprints))))
   }
 
   def initialTestRun(): Status = {
     testFunctions(None)
   }
 
-  @tailrec
-  private def runTests(testTasks: Seq[Task], status: AtomicReference[Status]): sbt.testing.Status = {
-    val eventHandler = new StatusEventHandler(status)
+  private def runTests(
+      testTasks: Seq[Task],
+      status: AtomicReference[Status],
+      testsRan: AtomicInteger
+  ): sbt.testing.Status = {
+    val eventHandler = new StatusEventHandler(status, testsRan)
 
     val newTasks = testTasks.flatMap(task =>
       status.get() match {
@@ -56,12 +66,13 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
           task.execute(eventHandler, Array.empty)
       }
     )
-    if (newTasks.nonEmpty) runTests(newTasks, status)
+    if (newTasks.nonEmpty) logTimed("TestRunnerNewTasks")(runTests(newTasks, status, testsRan))
     else status.get()
   }
 
-  class StatusEventHandler(status: AtomicReference[Status]) extends EventHandler {
-    override def handle(event: Event) = {
+  class StatusEventHandler(status: AtomicReference[Status], testsRan: AtomicInteger) extends EventHandler {
+    override def handle(event: Event) = logTimed("TestRunnerTestEventHandler") {
+      testsRan.incrementAndGet()
       if (event.status() != Status.Success) {
         println(s"Test unsuccessful: ${event.fullyQualifiedName()} status ${event.status()} with ${event.throwable()}")
 
