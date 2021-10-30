@@ -36,12 +36,12 @@ class MutantRunner(
           case Right(metrics) => IO.pure(metrics.asRight)
           case Left(errors) =>
             log.info("Attempting to remove mutants that gave a compile error...")
-            //Retry once with the non-compiling mutants removed
+            // Retry once with the non-compiling mutants removed
             mutateFiles(errors.toList).flatMap(run)
         }
         .flatMap {
           case Right(metrics) => IO.pure(metrics)
-          //Failed at remove the non-compiling mutants
+          // Failed at remove the non-compiling mutants
           case Left(errs) => IO.raiseError(UnableToFixCompilerErrorsException(errs.toList))
         }
     }

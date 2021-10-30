@@ -87,8 +87,8 @@ class Stryker4sSbtRunner(
         }
       }
 
-      //SBT returns any errors as a Incomplete case class, which can contain other Incomplete instances
-      //You have to recursively search through them to get the real exception
+      // SBT returns any errors as a Incomplete case class, which can contain other Incomplete instances
+      // You have to recursively search through them to get the real exception
       def getRootCause(i: Incomplete): Seq[Throwable] = {
         i.directCause match {
           case None =>
@@ -98,7 +98,7 @@ class Stryker4sSbtRunner(
         }
       }
 
-      //See if the mutations compile, and if not extract the errors
+      // See if the mutations compile, and if not extract the errors
       val compilerErrors = Project.runTask(Compile / Keys.compile, newState) match {
         case Some((_, Inc(cause))) =>
           val compileErrors = (getRootCause(cause) collect { case exception: sbt.internal.inc.CompileFailed =>
@@ -201,7 +201,7 @@ class Stryker4sSbtRunner(
     val (settings, extracted) = extractSbtProject(tmpDir)
 
     if (config.legacyTestRunner) {
-      //No compiler error handling in the legacy runner
+      // No compiler error handling in the legacy runner
       Right(setupLegacySbtTestRunner(settings, extracted))
     } else
       setupSbtTestRunner(settings, extracted)
