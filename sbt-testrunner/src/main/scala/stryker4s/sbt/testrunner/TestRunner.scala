@@ -18,12 +18,12 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
   val testFunctions: Option[(Int, Seq[String])] => Status = {
     val tasks = {
       val cl = getClass().getClassLoader()
-      context.testGroups.flatMap(testGroup => {
+      context.testGroups.flatMap { testGroup =>
         val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
         val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
         val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
         runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
-      })
+      }
     }
     (mutation: Option[(Int, Seq[String])]) => {
       val tasksToRun = mutation match {
