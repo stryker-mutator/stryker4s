@@ -16,17 +16,17 @@ final class TestRunnerMessageHandler() extends MessageHandler {
     req match {
       case StartTestRun(mutation, testNames) =>
         try {
-          val status = testRunner.runMutation(mutation, testNames)
-          toTestResult(status)
+          val result = testRunner.runMutation(mutation, testNames)
+          toTestResult(result)
         } catch {
           case NonFatal(e) => ErrorDuringTestRun(e.toString())
         }
 
       case StartInitialTestRun() =>
-        val (status, report) = stryker4s.coverage.collectCoverage {
+        val (result, report) = stryker4s.coverage.collectCoverage {
           testRunner.initialTestRun()
         }
-        toInitialTestResult(status, report)
+        toInitialTestResult(result.status, report)
       case testContext: TestProcessContext =>
         testRunner = new SbtTestInterfaceRunner(testContext)
         println("Set up testContext")
@@ -34,11 +34,9 @@ final class TestRunnerMessageHandler() extends MessageHandler {
       case Request.Empty => throw new MatchError(req)
     }
 
-  def toTestResult(status: Status): Response =
-    status match {
-      case Status.Success => TestsSuccessful()
-      case _              => TestsUnsuccessful()
-    }
+  def toTestResult(result: TestRunResult): Response =
+    if (result.status == Status.Success) TestsSuccessful(result.testsCompleted)
+    else TestsUnsuccessful(result.testsCompleted)
 
   def toInitialTestResult(status: Status, coverage: CoverageTestNameMap): Response =
     CoverageTestRunResult(status == Status.Success, Some(coverage))
