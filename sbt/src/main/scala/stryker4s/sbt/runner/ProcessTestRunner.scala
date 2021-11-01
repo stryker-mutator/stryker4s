@@ -48,8 +48,8 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
           val averageDuration = (firstDuration + secondDuration) / 2
           InitialTestRunCoverageReport(
             firstRun.isSuccessful && secondRun.isSuccessful,
-            CoverageReport(firstRun.CoverageTestNameMap.get),
-            CoverageReport(secondRun.CoverageTestNameMap.get),
+            CoverageReport(firstRun.coverageTestNameMap.get),
+            CoverageReport(secondRun.coverageTestNameMap.get),
             averageDuration
           )
         case x => throw new MatchError(x)

@@ -87,7 +87,7 @@ message ErrorDuringTestRun {
 }
 message CoverageTestRunResult {
   bool is_successful = 1;
-  CoverageTestNameMap coverage_test_run_map = 3;
+  CoverageTestNameMap coverage_test_name_map = 3;
 }
 
 /** Convert to a flat structure to save space of duplicate test name items when serializing.
