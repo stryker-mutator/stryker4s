@@ -9,11 +9,10 @@ import stryker4s.model.{Error, InitialTestRunResult, Mutant, MutantRunResult, Ti
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
-import stryker4s.api.testprocess.Fingerprint
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]
-  def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult]
+  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult]
 }
 
 /** Wrapping testrunners to add functionality to existing testrunners
@@ -27,12 +26,12 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner {
-          override def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] =
+          override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] =
             for {
               runner <- testRunnerRef.get
               time <- timeout.get
               result <- runner
-                .runMutant(mutant, fingerprints)
+                .runMutant(mutant, testNames)
                 .timeoutTo(
                   time,
                   IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toHumanReadable}")) *>
@@ -69,15 +68,15 @@ object TestRunner {
       IO {
         new TestRunner {
 
-          override def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] =
-            retryRunMutation(mutant, fingerprints)
+          override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] =
+            retryRunMutation(mutant, testNames)
 
           def retryRunMutation(
               mutant: Mutant,
-              fingerprints: Seq[Fingerprint],
+              testNames: Seq[String],
               retriesLeft: Long = 2
           ): IO[MutantRunResult] = {
-            testRunnerRef.get.flatMap(_.runMutant(mutant, fingerprints)).attempt.flatMap {
+            testRunnerRef.get.flatMap(_.runMutant(mutant, testNames)).attempt.flatMap {
               // On error, get a new testRunner and set it
               case Left(_) =>
                 IO(
@@ -87,7 +86,7 @@ object TestRunner {
                 ) *>
                   // Release old resource and make a new one, then retry the mutation
                   releaseAndSwap *>
-                  (if (retriesLeft > 0) retryRunMutation(mutant, fingerprints, retriesLeft - 1)
+                  (if (retriesLeft > 0) retryRunMutation(mutant, testNames, retriesLeft - 1)
                    else IO.pure(Error(mutant)))
 
               case Right(value) => IO.pure(value)
@@ -105,7 +104,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner {
-          def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] = for {
+          def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = for {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner
@@ -115,7 +114,7 @@ object TestRunner {
                   usesRef.set(1)
               else IO.unit
             runner <- testRunnerRef.get
-            result <- runner.runMutant(mutant, fingerprints)
+            result <- runner.runMutant(mutant, testNames)
           } yield result
 
           override def initialTestRun(): IO[InitialTestRunResult] = for {

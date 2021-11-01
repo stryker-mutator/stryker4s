@@ -7,7 +7,6 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
-import stryker4s.api.testprocess._
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.{Killed, Mutant, MutantId, NoCoverageInitialTestRun, Survived}
@@ -21,7 +20,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")
-  val fingerprints = Seq.empty[Fingerprint]
+  val coverageTestNames = Seq.empty[String]
   def properties = new ju.Properties()
   def goals = Seq("test")
 
@@ -83,7 +82,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
 
-      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
+      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
 
       result shouldBe a[Killed]
     }
@@ -95,7 +94,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
 
-      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
+      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
 
       result shouldBe a[Survived]
     }
@@ -111,7 +110,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val sut = new MavenTestRunner(project, invokerMock, project.getProperties(), goals)
 
-      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
+      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
@@ -134,7 +133,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals)
 
-      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), fingerprints).unsafeRunSync()
+      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value

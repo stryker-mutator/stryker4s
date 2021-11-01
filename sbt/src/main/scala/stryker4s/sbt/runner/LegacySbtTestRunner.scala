@@ -8,7 +8,6 @@ import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
 import stryker4s.model._
 import stryker4s.run.TestRunner
-import stryker4s.api.testprocess.Fingerprint
 
 class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)(implicit
     log: Logger
@@ -22,7 +21,7 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], ex
     onFailed = NoCoverageInitialTestRun(false)
   )
 
-  def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] = {
+  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
     val mutationState =
       extracted.appendWithSession(settings :+ mutationSetting(mutant.id.globalId), initialState)
     runTests(

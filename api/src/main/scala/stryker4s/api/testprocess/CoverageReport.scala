@@ -1,11 +1,11 @@
 package stryker4s.api.testprocess
 
-case class CoverageReport(report: Map[Int, Seq[Fingerprint]]) extends AnyVal
+case class CoverageReport(report: Map[Int, Seq[String]]) extends AnyVal
 
 object CoverageReport {
-  def apply(testRunMap: CoverageTestRunMap): CoverageReport = {
-    val map = testRunMap.fingerprints.map { case (id, Fingerprints(fingerPrintIds)) =>
-      id -> fingerPrintIds.map(testRunMap.fingerprintIds)
+  def apply(testRunMap: CoverageTestNameMap): CoverageReport = {
+    val map = testRunMap.testNames.map { case (id, TestNames(testNameIds)) =>
+      id -> testNameIds.map(testRunMap.testNameIds)
     }
     CoverageReport(map)
   }

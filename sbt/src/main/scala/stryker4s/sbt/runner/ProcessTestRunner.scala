@@ -19,8 +19,8 @@ import scala.util.control.NonFatal
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
-  override def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] = {
-    val message = StartTestRun(mutant.id.globalId, fingerprints)
+  override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
+    val message = StartTestRun(mutant.id.globalId, testNames)
     testProcess.sendMessage(message).map {
       case _: TestsSuccessful      => Survived(mutant)
       case _: TestsUnsuccessful    => Killed(mutant)
@@ -48,8 +48,8 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
           val averageDuration = (firstDuration + secondDuration) / 2
           InitialTestRunCoverageReport(
             firstRun.isSuccessful && secondRun.isSuccessful,
-            CoverageReport(firstRun.coverageTestRunMap.get),
-            CoverageReport(secondRun.coverageTestRunMap.get),
+            CoverageReport(firstRun.coverageTestNameMap.get),
+            CoverageReport(secondRun.coverageTestNameMap.get),
             averageDuration
           )
         case x => throw new MatchError(x)
