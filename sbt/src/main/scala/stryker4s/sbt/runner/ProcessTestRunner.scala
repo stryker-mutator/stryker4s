@@ -22,10 +22,10 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
   override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
     val message = StartTestRun(mutant.id.globalId, testNames)
     testProcess.sendMessage(message).map {
-      case _: TestsSuccessful      => Survived(mutant)
-      case _: TestsUnsuccessful    => Killed(mutant)
-      case ErrorDuringTestRun(msg) => Killed(mutant, Some(msg))
-      case _                       => Error(mutant)
+      case TestsSuccessful(testsCompleted)   => Survived(mutant, testsCompleted = Some(testsCompleted))
+      case TestsUnsuccessful(testsCompleted) => Killed(mutant, testsCompleted = Some(testsCompleted))
+      case ErrorDuringTestRun(msg)           => Killed(mutant, Some(msg))
+      case _                                 => Error(mutant)
     }
   }
 

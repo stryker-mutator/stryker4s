@@ -80,8 +80,12 @@ message Response {
 }
 
 message SetupTestContextSuccessful {}
-message TestsSuccessful {}
-message TestsUnsuccessful {}
+message TestsSuccessful {
+  int32 tests_completed = 1;
+}
+message TestsUnsuccessful {
+  int32 tests_completed = 1;
+}
 message ErrorDuringTestRun {
   string msg = 1;
 }

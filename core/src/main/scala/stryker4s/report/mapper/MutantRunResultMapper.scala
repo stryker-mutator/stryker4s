@@ -44,7 +44,8 @@ trait MutantRunResultMapper {
       mutant.mutated.syntax,
       toLocation(mutant.original.pos),
       toMutantStatus(runResult),
-      runResult.description
+      runResult.description,
+      testsCompleted = runResult.testsCompleted
     )
   }
 
