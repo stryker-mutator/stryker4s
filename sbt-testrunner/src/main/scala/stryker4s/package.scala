@@ -1,5 +1,4 @@
-import sbt.testing.Fingerprint
-import stryker4s.api.testprocess.CoverageTestRunMap
+import stryker4s.api.testprocess.CoverageTestNameMap
 import stryker4s.sbt.testrunner.TestInterfaceMapper
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -14,9 +13,9 @@ package object stryker4s {
 
     /** We have no idea how tests will run their code, so the coverage analysis needs to be able to handle concurrency
       */
-    private val coveredTests = TrieMap.empty[Int, ConcurrentLinkedQueue[Fingerprint]]
+    private val coveredTests = TrieMap.empty[Int, ConcurrentLinkedQueue[String]]
 
-    private val activeTest = new AtomicReference[Fingerprint]()
+    private val activeTest = new AtomicReference[String]()
 
     /** If we are currently collecting coverage analysis. If not we can skip it for performance
       */
@@ -41,12 +40,12 @@ package object stryker4s {
       *
       * This is to map the covered mutants with the test that was running at that time
       */
-    protected[stryker4s] def setActiveTest(fingerPrint: Fingerprint) =
-      if (collectCoverage.get()) activeTest.set(fingerPrint)
+    protected[stryker4s] def setActiveTest(testName: String) =
+      if (collectCoverage.get()) activeTest.set(testName)
 
     /** Collect coverage analysis during the provided function and return it in a tuple
       */
-    protected[stryker4s] def collectCoverage[A](f: => A): (A, CoverageTestRunMap) = try {
+    protected[stryker4s] def collectCoverage[A](f: => A): (A, CoverageTestNameMap) = try {
       collectCoverage.set(true)
 
       val result = f
@@ -59,13 +58,13 @@ package object stryker4s {
 
     /** Build the coverage report from the collected data
       */
-    private def report(): CoverageTestRunMap = {
+    private def report(): CoverageTestNameMap = {
       import scala.jdk.CollectionConverters._
       TestInterfaceMapper.toCoverageMap(coveredTests.map { case (k, v) => k -> v.asScala.toSeq })
     }
   }
 
-  // Starting value of  -1 means none
+  // Starting value of -1 means none
   private val activeMutationRef: AtomicInteger = new AtomicInteger(-1)
 
   def activeMutation: Int = activeMutationRef.get()

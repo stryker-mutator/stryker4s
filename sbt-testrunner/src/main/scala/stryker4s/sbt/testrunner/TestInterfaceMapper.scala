@@ -39,21 +39,17 @@ trait TestInterfaceMapper {
       case Fingerprint.Empty => throw new MatchError(f)
     }
 
-  def toCoverageMap(coverage: Iterable[(Int, Seq[sbt.testing.Fingerprint])]): CoverageTestRunMap = {
-    // First map to stryker4s-api models
-    val mappedCoverage = coverage.map { case (mutantIds, fingerprints) =>
-      mutantIds -> fingerprints.map(toFingerprint)
+  def toCoverageMap(coverage: Iterable[(Int, Seq[String])]): CoverageTestNameMap = {
+    // Create a map of fingerprints to ids to efficiently send over the wire
+    val testNameIds = coverage.flatMap(_._2).toSet.zipWithIndex.toMap
+    val testNames: Map[Int, TestNames] = coverage.map { case (id, testNames) =>
+      id -> toTestNames(testNames, testNameIds)
     }.toMap
-    // Then create a map of fingerprints to ids to efficiently send over the wire
-    val fingerprintIds = mappedCoverage.flatMap(_._2).toSet.zipWithIndex.toMap
-    val fingerprints: Map[Int, Fingerprints] = mappedCoverage.map { case (id, fingerprints) =>
-      id -> toFingerprints(fingerprints, fingerprintIds)
-    }.toMap
-    CoverageTestRunMap(fingerprintIds.map(_.swap), fingerprints)
+    CoverageTestNameMap(testNameIds.map(_.swap), testNames)
   }
 
-  def toFingerprints(fingerprints: Seq[Fingerprint], fingerprintIds: Map[Fingerprint, Int]): Fingerprints =
-    Fingerprints(fingerprints.map(fingerprintIds(_)).toSeq)
+  def toTestNames(testNames: Seq[String], testnameIds: Map[String, Int]): TestNames =
+    TestNames(testNames.map(testnameIds(_)).toSeq)
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {

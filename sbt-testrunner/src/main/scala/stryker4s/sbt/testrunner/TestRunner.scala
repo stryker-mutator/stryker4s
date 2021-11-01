@@ -9,24 +9,26 @@ import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
 sealed trait TestRunner {
-  def runMutation(mutation: Int, fingerprints: Seq[Fingerprint]): Status
+  def runMutation(mutation: Int, fingerprints: Seq[String]): Status
   def initialTestRun(): Status
 }
 
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
-  val testFunctions: Option[(Int, Seq[Fingerprint])] => Status = {
-    val cl = getClass().getClassLoader()
-    val tasks = context.testGroups.flatMap(testGroup => {
-      val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
-      val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
-      val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
-      runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
-    })
-    (mutation: Option[(Int, Seq[Fingerprint])]) => {
+  val testFunctions: Option[(Int, Seq[String])] => Status = {
+    val tasks = {
+      val cl = getClass().getClassLoader()
+      context.testGroups.flatMap(testGroup => {
+        val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
+        val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
+        val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
+        runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
+      })
+    }
+    (mutation: Option[(Int, Seq[String])]) => {
       val tasksToRun = mutation match {
-        case Some((_, fingerprints)) =>
-          tasks.filter(t => fingerprints.map(toSbtFingerprint).contains(t.taskDef().fingerprint()))
+        case Some((_, testNames)) =>
+          tasks.filter(t => testNames.contains(t.taskDef().fullyQualifiedName()))
         case None => tasks
       }
       mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId }
@@ -34,11 +36,11 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     }
   }
 
-  def runMutation(mutation: Int, fingerprints: Seq[Fingerprint]) = {
-    testFunctions(Some((mutation, fingerprints)))
+  override def runMutation(mutation: Int, testNames: Seq[String]) = {
+    testFunctions(Some((mutation, testNames)))
   }
 
-  def initialTestRun(): Status = {
+  override def initialTestRun(): Status = {
     testFunctions(None)
   }
 
@@ -52,7 +54,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
         case Status.Failure => Array.empty[Task]
         case Status.Error   => Array.empty[Task]
         case _ =>
-          stryker4s.coverage.setActiveTest(task.taskDef().fingerprint())
+          stryker4s.coverage.setActiveTest(task.taskDef().fullyQualifiedName())
           task.execute(eventHandler, Array.empty)
       }
     )

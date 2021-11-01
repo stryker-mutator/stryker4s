@@ -19,7 +19,7 @@ message Request {
 
 message StartTestRun {
   int32 mutation = 1;
-  repeated Fingerprint fingerprints = 2;
+  repeated string test_names = 3;
 }
 message StartInitialTestRun {}
 
@@ -87,19 +87,19 @@ message ErrorDuringTestRun {
 }
 message CoverageTestRunResult {
   bool is_successful = 1;
-  CoverageTestRunMap coverage_test_run_map = 2;
+  CoverageTestNameMap coverage_test_run_map = 3;
 }
 
-/** Convert to a flat structure to save space of duplicate Fingerprint items when serializing.
+/** Convert to a flat structure to save space of duplicate test name items when serializing.
   * Without it, the size grows exponentially with the number of tests and mutants
   */
-message CoverageTestRunMap {
-  map<int32, Fingerprint> fingerprint_ids = 1;
-  map<int32, Fingerprints> fingerprints = 2;
+message CoverageTestNameMap {
+  map<int32, string> test_name_ids = 1;
+  map<int32, TestNames> test_names = 2;
 }
 
-message Fingerprints {
-  repeated int32 fingerprint = 1;
+message TestNames {
+  repeated int32 test_name = 1;
 }
 
 message Fingerprint {

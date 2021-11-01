@@ -20,7 +20,6 @@ import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 import java.nio
 import scala.collection.immutable.SortedMap
 import scala.concurrent.duration._
-import stryker4s.api.testprocess.Fingerprint
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
@@ -228,7 +227,7 @@ class MutantRunner(
 
   case class CoverageExclusions(
       hasCoverage: Boolean,
-      coveredMutants: Map[Int, Seq[Fingerprint]],
+      coveredMutants: Map[Int, Seq[String]],
       staticMutants: Seq[Int]
   )
 

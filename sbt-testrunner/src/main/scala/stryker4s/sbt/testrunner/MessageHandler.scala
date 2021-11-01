@@ -14,9 +14,9 @@ final class TestRunnerMessageHandler() extends MessageHandler {
 
   def handleMessage(req: Request): Response =
     req match {
-      case StartTestRun(mutation, fingerprints) =>
+      case StartTestRun(mutation, testNames) =>
         try {
-          val status = testRunner.runMutation(mutation, fingerprints)
+          val status = testRunner.runMutation(mutation, testNames)
           toTestResult(status)
         } catch {
           case NonFatal(e) => ErrorDuringTestRun(e.toString())
@@ -40,7 +40,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
       case _              => TestsUnsuccessful()
     }
 
-  def toInitialTestResult(status: Status, coverage: CoverageTestRunMap): Response =
+  def toInitialTestResult(status: Status, coverage: CoverageTestNameMap): Response =
     CoverageTestRunResult(status == Status.Success, Some(coverage))
 
 }

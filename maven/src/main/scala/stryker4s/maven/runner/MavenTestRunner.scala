@@ -21,7 +21,7 @@ class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: P
     IO(invoker.execute(request)).map(_.getExitCode() == 0).map(NoCoverageInitialTestRun(_))
   }
 
-  def runMutant(mutant: Mutant, fingerprints: Seq[Fingerprint]): IO[MutantRunResult] = {
+  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
     val request = createRequestWithMutation(mutant)
 
     IO(invoker.execute(request)).map { result =>
