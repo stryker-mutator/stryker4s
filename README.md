@@ -11,10 +11,6 @@
 _Professor X: For someone who hates mutants... you certainly keep some strange company._  
 _William Stryker: Oh, they serve their purpose... as long as they can be controlled._
 
-**Note: this project is still very much in early development and (probably) not ready to reliably be used in large projects!**
-
-**Despite that, we'd be happy to help you out if you run into any problems or have any questions 😁.**
-
 ## Introduction
 
 For an introduction to mutation testing and Stryker's features, see [stryker-mutator.io](https://stryker-mutator.io/). Looking for mutation testing in [JavaScript](https://github.com/stryker-mutator/stryker) or [.NET](https://github.com/stryker-mutator/stryker-net)?
