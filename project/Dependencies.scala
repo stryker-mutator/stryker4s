@@ -23,7 +23,7 @@ object Dependencies {
     val catsCore = "2.7.0"
     val catsEffect = "3.3.0"
     val circe = "0.14.1"
-    val fs2 = "3.2.2"
+    val fs2 = "3.2.3"
     val log4j = "2.14.1"
     val mutationTestingElements = "1.7.6"
     val mutationTestingMetrics = "1.7.6"
