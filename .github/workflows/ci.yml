@@ -85,7 +85,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 11
-          cache: 'maven'
+          # cache: 'maven'
       - name: Publish
         run: sbt ci-release
         env:
