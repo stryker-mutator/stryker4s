@@ -5,7 +5,6 @@ import sbt._
 
 object Release {
   // Main release commands
-  private val stryker4sPublish = "stryker4sPublish"
   private val stryker4sPublishSigned = "stryker4sPublishSigned"
   private val stryker4sReleaseAll = "stryker4sReleaseAll"
   // Helper command names
@@ -20,7 +19,6 @@ object Release {
 
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= Seq(
     // Called by sbt-ci-release
-    Command.command(stryker4sPublish)(crossPublish :: publishM2Api :: publishM2Core :: stryker4sMvnDeploy :: _),
     Command.command(stryker4sPublishSigned)(
       sonatypePrepare :: crossPublishSigned :: publishM2Api :: publishM2Core :: stryker4sMvnDeploy :: _
     ),
