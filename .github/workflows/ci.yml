@@ -90,7 +90,6 @@ jobs:
         run: sbt ci-release
         env:
           CI_RELEASE: stryker4sPublishSigned
-          CI_SNAPSHOT_RELEASE: stryker4sPublish
           CI_SONATYPE_RELEASE: stryker4sReleaseAll
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
