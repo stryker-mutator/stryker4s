@@ -57,7 +57,7 @@
         <scala.compat.version>2.12</scala.compat.version>
         <scala-maven.version>4.5.4</scala-maven.version>
         <scalatest.version>3.2.10</scalatest.version>
-        <mockito-scala.version>1.16.46</mockito-scala.version>
+        <mockito-scala.version>1.16.49</mockito-scala.version>
     </properties>
     <dependencies>
         <dependency>
