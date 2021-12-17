@@ -24,11 +24,11 @@ object Dependencies {
     val catsEffect = "3.3.0"
     val circe = "0.14.1"
     val fs2 = "3.2.3"
-    val log4j = "2.16.0"
     val mutationTestingElements = "1.7.8"
     val mutationTestingMetrics = "1.7.8"
     val pureconfig = "0.17.1"
     val scalameta = "4.4.31"
+    val slf4j = "1.7.32"
     val sttp = "3.3.18"
     val testInterface = "1.0"
     val weaponRegeX = "0.6.0"
@@ -46,7 +46,7 @@ object Dependencies {
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
-  val log4j = "org.apache.logging.log4j" % "log4j-slf4j-impl" % versions.log4j
+  val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics

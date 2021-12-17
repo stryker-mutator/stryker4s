@@ -1,8 +1,8 @@
 package stryker4s.command
 
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.config.Configurator
-import stryker4s.log.Logger
+import cats.effect.IO
+import org.slf4j.event.Level
+import stryker4s.log.{Logger, Slf4jLogger}
 
 object Stryker4sArgumentHandler {
   private lazy val logLevels: Map[String, Level] = Level
@@ -13,7 +13,7 @@ object Stryker4sArgumentHandler {
   /** Handle args will parse the giving arguments to the jvm. For now we search for a log level and handle those
     * appropriately.
     */
-  def handleArgs(args: Seq[String])(implicit log: Logger): Unit = {
+  def handleArgs(args: Seq[String]): String = {
     // Collect and handle log level argument
     val logLevel = args
       .filter(_.startsWith("--"))
@@ -23,8 +23,16 @@ object Stryker4sArgumentHandler {
       .headOption
       .getOrElse(Level.INFO)
 
-    Configurator.setRootLevel(logLevel)
+    sys.props(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY) = logLevel.toString();
 
-    log.info(s"Set logging level to $logLevel")
+    s"Set logging level to $logLevel"
   }
+
+  def configureLogger(args: Seq[String]): IO[Logger] =
+    for {
+      logString <- IO(handleArgs(args))
+      logger <- IO(new Slf4jLogger())
+      _ <- IO(logger.info(logString))
+    } yield logger
+
 }

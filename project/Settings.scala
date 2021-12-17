@@ -49,7 +49,7 @@ object Settings {
 
   lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
     libraryDependencies ++= Seq(
-      Dependencies.log4j,
+      Dependencies.slf4j,
       Dependencies.test.scalatest
     )
   )
