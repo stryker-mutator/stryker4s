@@ -36,12 +36,14 @@ final class TestProcessServer(messageHandler: MessageHandler, socket: Socket) {
     val input = CodedInputStream.newInstance(inputStream)
     try {
       val outputStream = socket.getOutputStream()
-      try while (true) {
-        val request = RequestMessage.parseDelimitedFrom(input).get.toRequest
-        println(s"Received message $request")
-        val response = messageHandler.handleMessage(request)
-        response.asMessage.writeDelimitedTo(outputStream)
-      } finally outputStream.close()
+      try
+        while (true) {
+          val request = RequestMessage.parseDelimitedFrom(input).get.toRequest
+          println(s"Received message $request")
+          val response = messageHandler.handleMessage(request)
+          response.asMessage.writeDelimitedTo(outputStream)
+        }
+      finally outputStream.close()
     } finally inputStream.close()
   }
 }
