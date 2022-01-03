@@ -43,20 +43,19 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
   override def initialTestRun(): IO[InitialTestRunResult] = {
     val initialTestRun = testProcess.sendMessage(StartInitialTestRun())
 
-    initialTestRun
-      .map2(initialTestRun) {
-        case (firstRun: CoverageTestRunResult, secondRun: CoverageTestRunResult) =>
-          val averageDuration =
-            FiniteDuration((firstRun.durationNanos + secondRun.durationNanos) / 2, TimeUnit.NANOSECONDS)
+    initialTestRun.map2(initialTestRun) {
+      case (firstRun: CoverageTestRunResult, secondRun: CoverageTestRunResult) =>
+        val averageDuration =
+          FiniteDuration((firstRun.durationNanos + secondRun.durationNanos) / 2, TimeUnit.NANOSECONDS)
 
-          InitialTestRunCoverageReport(
-            firstRun.isSuccessful && secondRun.isSuccessful,
-            CoverageReport(firstRun.coverageTestNameMap.get),
-            CoverageReport(secondRun.coverageTestNameMap.get),
-            averageDuration
-          )
-        case x => throw new MatchError(x)
-      }
+        InitialTestRunCoverageReport(
+          firstRun.isSuccessful && secondRun.isSuccessful,
+          CoverageReport(firstRun.coverageTestNameMap.get),
+          CoverageReport(secondRun.coverageTestNameMap.get),
+          averageDuration
+        )
+      case x => throw new MatchError(x)
+    }
   }
 }
 
