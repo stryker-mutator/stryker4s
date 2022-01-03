@@ -13,6 +13,7 @@ import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
 
 import java.net.{InetAddress, Socket}
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.sys.process.Process
 import scala.util.control.NonFatal
@@ -40,12 +41,14 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
     *   https://github.com/stryker-mutator/stryker4s/pull/565#issuecomment-688438699
     */
   override def initialTestRun(): IO[InitialTestRunResult] = {
-    val initialTestRun = testProcess.sendMessage(StartInitialTestRun()).timed
+    val initialTestRun = testProcess.sendMessage(StartInitialTestRun())
 
     initialTestRun
       .map2(initialTestRun) {
-        case ((firstDuration, firstRun: CoverageTestRunResult), (secondDuration, secondRun: CoverageTestRunResult)) =>
-          val averageDuration = (firstDuration + secondDuration) / 2
+        case (firstRun: CoverageTestRunResult, secondRun: CoverageTestRunResult) =>
+          val averageDuration =
+            FiniteDuration((firstRun.durationNanos + secondRun.durationNanos) / 2, TimeUnit.NANOSECONDS)
+
           InitialTestRunCoverageReport(
             firstRun.isSuccessful && secondRun.isSuccessful,
             CoverageReport(firstRun.coverageTestNameMap.get),

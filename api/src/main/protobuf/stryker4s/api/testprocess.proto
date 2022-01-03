@@ -92,6 +92,7 @@ message ErrorDuringTestRun {
 message CoverageTestRunResult {
   bool is_successful = 1;
   CoverageTestNameMap coverage_test_name_map = 3;
+  int64 duration_nanos = 4;
 }
 
 /** Convert to a flat structure to save space of duplicate test name items when serializing.
