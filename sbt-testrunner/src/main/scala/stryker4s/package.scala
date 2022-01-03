@@ -29,7 +29,8 @@ package object stryker4s {
         if (currentTest != null) {
           ids.foreach { id =>
             val currentCovered = coveredTests.getOrElseUpdate(id, new ConcurrentLinkedQueue())
-            currentCovered.add(currentTest)
+            if (!currentCovered.contains(currentTest))
+              currentCovered.add(currentTest)
           }
         }
       }
