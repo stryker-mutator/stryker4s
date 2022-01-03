@@ -1,9 +1,10 @@
 import stryker4s.api.testprocess.CoverageTestNameMap
 import stryker4s.sbt.testrunner.TestInterfaceMapper
 
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
+import java.util.concurrent.{ConcurrentLinkedQueue, TimeUnit}
 import scala.collection.concurrent.TrieMap
+import scala.concurrent.duration.FiniteDuration
 
 package object stryker4s {
 
@@ -55,6 +56,15 @@ package object stryker4s {
     } finally {
       collectCoverage.set(false)
       coveredTests.clear()
+    }
+
+    /** Time a given function and return the result and the duration of that function as a tuple
+      */
+    protected[stryker4s] def timed[A](f: => A): (FiniteDuration, A) = {
+      val start = System.nanoTime()
+      val result = f
+      val duration = FiniteDuration(System.nanoTime() - start, TimeUnit.NANOSECONDS)
+      (duration, result)
     }
 
     /** Build the coverage report from the collected data
