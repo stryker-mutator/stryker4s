@@ -51,4 +51,4 @@ Then you can activate this profile in `stryker4s-maven-plugin`'s `configuration`
 
 ## Developing
 
-The maven plugin depends on the `stryker4s-core` dependency. To install it locally, you can execute the following command in the root of this repository: `sbt 'publishM2Local`. This will install `stryker4s-core_2.12` into your local Maven repository so you can start local development.
+The maven plugin depends on the `stryker4s-core` dependency. To install it locally, you can execute the following command in the root of this repository: `sbt 'publishM2Local`. This will install `stryker4s-core_2.13` into your local Maven repository so you can start local development.

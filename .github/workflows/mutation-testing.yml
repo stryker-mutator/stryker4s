@@ -60,7 +60,7 @@ jobs:
           java-version: 17
           cache: 'maven'
       - name: Publish Stryker4s maven deps locally
-        run: sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
+        run: sbt 'publishM2Local'
       - name: Run Stryker4s
         run: |
           cd maven
