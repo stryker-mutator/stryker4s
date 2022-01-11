@@ -54,6 +54,6 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
         properties.setProperty(scalatestFilter, testFilter.mkString(","))
       }
     }
-
+    ()
   }
 }

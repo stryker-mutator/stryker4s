@@ -24,7 +24,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
-        .right
+        .toOption
         .get
         .head
         .use(result => {
@@ -44,7 +44,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
-        .right
+        .toOption
         .get
         .head
         .use(result => {
@@ -66,7 +66,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
-        .right
+        .toOption
         .get
         .head
         .use(result => IO.pure(result.properties.getProperty("test") should equal(s"*OtherTest, $expectedTestFilter")))
@@ -84,7 +84,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       sut
         .resolveTestRunners(tmpDir)
-        .right
+        .toOption
         .get
         .head
         .use(result =>

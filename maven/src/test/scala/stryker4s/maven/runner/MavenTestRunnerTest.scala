@@ -13,7 +13,7 @@ import stryker4s.model.{Killed, Mutant, MutantId, NoCoverageInitialTestRun, Surv
 import stryker4s.testutil.Stryker4sSuite
 
 import java.util as ju
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
 class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
