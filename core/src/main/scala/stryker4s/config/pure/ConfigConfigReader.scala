@@ -8,8 +8,7 @@ import stryker4s.config.*
 import stryker4s.extension.mutationtype.Mutation
 
 import java.nio.file.Path as JPath
-import scala.meta.Dialect
-import scala.meta.dialects.*
+import scala.meta.{dialects, Dialect}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *
@@ -75,25 +74,32 @@ trait ConfigConfigReader {
   }
 
   implicit def dialectReader: ConfigReader[Dialect] = {
-    val scalaVersions = Map(
-      List("scala211", "scala2.11", "2.11", "211") -> Scala211,
-      List("scala212", "scala2.12", "2.12", "212") -> Scala212,
-      List("scala213", "scala2.13", "2.13", "213", "2") -> Scala213,
-      List("scala3", "scala3.0", "3.0", "3", "dotty") -> Scala3
+    val deprecatedVersions = List("scala211", "scala2.11", "2.11", "211")
+
+    val scalaVersions = List(
+      List("scala212", "scala2.12", "2.12", "212") -> dialects.Scala212,
+      List("scala212source3") -> dialects.Scala212Source3,
+      List("scala213", "scala2.13", "2.13", "213", "2") -> dialects.Scala213,
+      List("scala213source3", "source3") -> dialects.Scala213Source3,
+      List("scala3", "scala3.0", "3.0", "3", "dotty") -> dialects.Scala3
     )
+
     ConfigReader[String].emap { input =>
-      scalaVersions
-        .collectFirst { case (strings, dialect) if strings.contains(input.toLowerCase()) => dialect }
-        .toRight(
-          CannotConvert(
-            input,
-            "scalaDialect",
-            s"Unsupported scalaDialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: ${scalaVersions
-              .flatMap(_._1)
-              .map(d => s"'$d'")
-              .mkString(", ")}."
-          )
-        )
+      def toCannotConvert(msg: String) = {
+        val invalidDialectString =
+          s"Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: ${scalaVersions
+            .flatMap(_._1)
+            .map(d => s"'$d'")
+            .mkString(", ")}"
+        CannotConvert(input, "scala-dialect", s"$msg. $invalidDialectString")
+      }
+
+      if (deprecatedVersions.contains(input))
+        Left(toCannotConvert("Deprecated dialect"))
+      else
+        scalaVersions
+          .collectFirst { case (strings, dialect) if strings.contains(input.toLowerCase()) => dialect }
+          .toRight(toCannotConvert("Unsupported dialect"))
     }
   }
 

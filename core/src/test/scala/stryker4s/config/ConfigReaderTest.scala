@@ -72,7 +72,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       lazy val result = ConfigReader.readConfig(configSource)
       val exc = the[ConfigReaderException[?]] thrownBy result
 
-      "Failures in reading config: " shouldBe loggedAsError
+      "Failures in reading config:" shouldBe loggedAsError
       exc.getMessage() should include("Key not found: 'stryker4s'.")
     }
 
@@ -213,10 +213,6 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
     describe("ScalaDialect") {
       val validVersions = List(
-        "scala211" -> Scala211,
-        "scala2.11" -> Scala211,
-        "2.11" -> Scala211,
-        "211" -> Scala211,
         "scala212" -> Scala212,
         "scala2.12" -> Scala212,
         "2.12" -> Scala212,
@@ -229,7 +225,9 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
         "dotty" -> Scala3,
         "3" -> Scala3,
         "3.0" -> Scala3,
-        "scala3.0" -> Scala3
+        "scala212source3" -> Scala212Source3,
+        "scala213source3" -> Scala213Source3,
+        "source3" -> Scala213Source3
       )
 
       validVersions.foreach { case (input, expected) =>
@@ -247,10 +245,25 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           ExampleConfigs.scalaDialect("foobar"),
           CannotConvert(
             "foobar",
-            "scalaDialect",
-            "Unsupported scalaDialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala211', 'scala2.11', '2.11', '211', 'scala212', 'scala2.12', '2.12', '212', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala3', 'scala3.0', '3.0', '3', 'dotty'."
+            "scala-dialect",
+            "Unsupported dialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala212', 'scala2.12', '2.12', '212', 'scala212source3', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala213source3', 'source3', 'scala3', 'scala3.0', '3.0', '3', 'dotty'"
           )
         )
+      }
+
+      val deprecatedVersions = List("scala211", "scala2.11", "2.11", "211")
+
+      deprecatedVersions.foreach { version =>
+        it(s"should error deprecated scala-dialect $version") {
+          expectConfigFailure(
+            ExampleConfigs.scalaDialect(version),
+            CannotConvert(
+              version,
+              "scala-dialect",
+              s"Deprecated dialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala212', 'scala2.12', '2.12', '212', 'scala212source3', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala213source3', 'source3', 'scala3', 'scala3.0', '3.0', '3', 'dotty'"
+            )
+          )
+        }
       }
     }
 
