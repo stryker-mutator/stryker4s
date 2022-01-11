@@ -127,10 +127,10 @@ object ConfigReader {
     /** Throw a [[ConfigReaderException]] and log the encountered failures.
       */
     def throwException[T](failures: ConfigReaderFailures)(implicit log: Logger): Nothing = {
-      log.error("Failures in reading config: ")
+      log.error("Failures in reading config:")
       log.error(failures.toList.map(_.description).mkString(System.lineSeparator))
 
-      throw ConfigReaderException(failures)
+      throw ConfigReaderException[Config](failures)
     }
   }
 }
