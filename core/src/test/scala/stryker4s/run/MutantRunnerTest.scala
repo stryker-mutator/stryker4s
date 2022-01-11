@@ -4,13 +4,13 @@ import cats.effect.IO
 import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.EmptyString
-import stryker4s.model._
+import stryker4s.model.*
 import stryker4s.report.{FinishedRunEvent, Reporter}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.stubs.{TestFileResolver, TestRunnerStub}
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-import scala.meta._
+import scala.meta.*
 
 class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 

@@ -2,8 +2,8 @@ package stryker4s.extension
 
 import stryker4s.testutil.Stryker4sSuite
 
-import PartialFunctionOps._
-import cats.syntax.monoid._
+import PartialFunctionOps.*
+import cats.syntax.monoid.*
 import cats.kernel.Monoid
 import scala.meta.Lit
 

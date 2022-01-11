@@ -2,24 +2,24 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.either._
-import cats.syntax.functor._
+import cats.syntax.either.*
+import cats.syntax.functor.*
 import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
-import stryker4s.extension.FileExtensions._
-import stryker4s.extension.StreamExtensions._
+import stryker4s.extension.FileExtensions.*
+import stryker4s.extension.StreamExtensions.*
 import stryker4s.extension.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
-import stryker4s.model.{CompilerErrMsg, _}
+import stryker4s.model.{CompilerErrMsg, *}
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
 import java.nio
 import scala.collection.immutable.SortedMap
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],

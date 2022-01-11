@@ -1,6 +1,6 @@
 package stryker4s.log
 
-import sbt.{Level => SbtLevel, Logger => SbtInternalLogger}
+import sbt.{Level as SbtLevel, Logger as SbtInternalLogger}
 
 class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
 

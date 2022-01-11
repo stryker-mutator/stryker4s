@@ -1,11 +1,11 @@
-import Release._
-import sbt.Keys._
+import Release.*
+import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
-import sbt._
+import sbt.*
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
 object Settings {
-  lazy val commonSettings: Seq[Setting[_]] = Seq(
+  lazy val commonSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
@@ -22,10 +22,14 @@ object Settings {
     },
     // Fatal warnings only in CI
     scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
-                       else Seq("-Xfatal-warnings"))
+                       else Seq("-Xfatal-warnings")),
+    scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) => Seq("-Xsource:3")
+      case _            => Seq.empty
+    })
   )
 
-  lazy val coreSettings: Seq[Setting[_]] = Seq(
+  lazy val coreSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.catsCore,
       Dependencies.catsEffect,
@@ -47,14 +51,14 @@ object Settings {
     )
   )
 
-  lazy val commandRunnerSettings: Seq[Setting[_]] = Seq(
+  lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.slf4j,
       Dependencies.test.scalatest
     )
   )
 
-  lazy val sbtPluginSettings: Seq[Setting[_]] = Seq(
+  lazy val sbtPluginSettings: Seq[Setting[?]] = Seq(
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
@@ -64,25 +68,25 @@ object Settings {
     pluginCrossBuild / sbtVersion := "1.2.8"
   )
 
-  lazy val sbtTestrunnerSettings: Seq[Setting[_]] = Seq(
+  lazy val sbtTestrunnerSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     )
   )
 
-  lazy val apiSettings: Seq[Setting[_]] = Seq(
+  lazy val apiSettings: Seq[Setting[?]] = Seq(
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies += Dependencies.scalapbRuntime
   )
 
-  lazy val buildLevelSettings: Seq[Setting[_]] = inThisBuild(
+  lazy val buildLevelSettings: Seq[Setting[?]] = inThisBuild(
     releaseCommands ++
       buildInfo
   )
 
-  lazy val buildInfo: Seq[Def.Setting[_]] = Seq(
+  lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,

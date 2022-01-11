@@ -1,12 +1,12 @@
 package stryker4s.report.mapper
 
 import fs2.io.file.Path
-import mutationtesting._
+import mutationtesting.*
 import org.scalatest.Inside
-import stryker4s.config.{Config, Thresholds => ConfigThresholds}
-import stryker4s.extension.FileExtensions._
-import stryker4s.extension.ImplicitMutationConversion._
-import stryker4s.extension.mutationtype._
+import stryker4s.config.{Config, Thresholds as ConfigThresholds}
+import stryker4s.extension.FileExtensions.*
+import stryker4s.extension.ImplicitMutationConversion.*
+import stryker4s.extension.mutationtype.*
 import stryker4s.model.{Killed, Mutant, MutantId, Survived}
 import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
@@ -72,10 +72,10 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
   /** Helper method to create a [[stryker4s.model.Mutant]], with the `original` param having the correct `Location`
     * property
     */
-  private def toMutant(id: Int, original: Term, category: SubstitutionMutation[_ <: Term], file: Path) = {
+  private def toMutant(id: Int, original: Term, category: SubstitutionMutation[? <: Term], file: Path) = {
     import stryker4s.extension.TreeExtensions.FindExtension
 
-    import scala.meta._
+    import scala.meta.*
     val parsed = file.toNioPath.parse[Source]
     val foundOrig = parsed.get.find(original).value
     Mutant(MutantId(id), foundOrig, category.tree, category)

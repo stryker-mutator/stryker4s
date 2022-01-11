@@ -1,12 +1,12 @@
 package stryker4s.report
 
 import fs2.Stream
-import mutationtesting._
+import mutationtesting.*
 import stryker4s.config.Config
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sIOSuite
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 

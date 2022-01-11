@@ -1,9 +1,9 @@
 package stryker4s.config.circe
 
 import fs2.io.file.Path
-import io.circe.Json._
-import io.circe.syntax._
-import stryker4s.config._
+import io.circe.Json.*
+import io.circe.syntax.*
+import stryker4s.config.*
 import stryker4s.testutil.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite {

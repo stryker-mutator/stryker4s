@@ -6,7 +6,7 @@ import stryker4s.model.{Mutant, MutantId, TransformedMutants}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.meta._
+import scala.meta.*
 
 class CoverageMatchBuilderTest extends Stryker4sSuite with LogMatchers {
   describe("buildMatch") {

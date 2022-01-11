@@ -3,13 +3,13 @@ package stryker4s.config.pure
 import fs2.io.file.Path
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
-import pureconfig.generic.semiauto._
-import stryker4s.config._
+import pureconfig.generic.semiauto.*
+import stryker4s.config.*
 import stryker4s.extension.mutationtype.Mutation
 
-import java.nio.file.{Path => JPath}
+import java.nio.file.Path as JPath
 import scala.meta.Dialect
-import scala.meta.dialects._
+import scala.meta.dialects.*
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *

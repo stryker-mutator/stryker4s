@@ -4,7 +4,7 @@ import fs2.io.file.Path
 import cats.effect.IO
 import fs2.io.file.Files
 import java.nio.file
-import stryker4s.extension.StreamExtensions._
+import stryker4s.extension.StreamExtensions.*
 
 object Glob {
 

@@ -1,10 +1,10 @@
 package stryker4s.run
 
 import cats.data.NonEmptyList
-import cats.effect._
-import cats.effect.std._
-import cats.syntax.functor._
-import cats.syntax.parallel._
+import cats.effect.*
+import cats.effect.std.*
+import cats.syntax.functor.*
+import cats.syntax.parallel.*
 import fs2.Pipe
 
 trait ResourcePool[T] {

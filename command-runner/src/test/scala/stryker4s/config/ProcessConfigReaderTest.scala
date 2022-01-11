@@ -2,7 +2,7 @@ package stryker4s.config
 
 import org.scalatest.EitherValues
 import pureconfig.error.{ConfigReaderFailures, ConvertFailure, KeyNotFound}
-import pureconfig.generic.auto._
+import pureconfig.generic.auto.*
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.run.process.Command
 import stryker4s.scalatest.LogMatchers

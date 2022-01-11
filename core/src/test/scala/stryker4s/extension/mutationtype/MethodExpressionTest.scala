@@ -1,6 +1,6 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta._
+import scala.meta.*
 
 import stryker4s.testutil.Stryker4sSuite
 

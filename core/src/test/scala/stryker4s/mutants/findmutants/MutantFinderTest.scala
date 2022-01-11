@@ -2,14 +2,14 @@ package stryker4s.mutants.findmutants
 
 import fs2.io.file.Path
 import stryker4s.config.Config
-import stryker4s.extension.FileExtensions._
+import stryker4s.extension.FileExtensions.*
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.log.Logger
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sIOSuite
 
 import java.nio.file.NoSuchFileException
-import scala.meta._
+import scala.meta.*
 import scala.meta.parsers.ParseException
 
 class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {

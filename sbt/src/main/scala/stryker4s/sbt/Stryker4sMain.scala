@@ -2,9 +2,9 @@ package stryker4s.sbt
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{Deferred, IO}
-import sbt.Keys._
-import sbt._
-import sbt.plugins._
+import sbt.Keys.*
+import sbt.*
+import sbt.plugins.*
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
 import scala.concurrent.duration.FiniteDuration
@@ -22,9 +22,9 @@ object Stryker4sMain extends AutoPlugin {
     val strykerMinimumSbtVersion = settingKey[String]("Lowest supported sbt version by Stryker4s")
     val strykerIsSupported = settingKey[Boolean]("If running Stryker4s is supported on this sbt version")
   }
-  import autoImport._
+  import autoImport.*
 
-  override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
+  override lazy val projectSettings: Seq[Def.Setting[?]] = Seq(
     stryker := strykerTask.value,
     stryker / logLevel := Level.Info,
     stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations

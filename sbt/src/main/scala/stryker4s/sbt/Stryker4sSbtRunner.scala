@@ -3,11 +3,11 @@ package stryker4s.sbt
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
 import fs2.io.file.Path
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
-import stryker4s.extension.FileExtensions._
+import stryker4s.extension.FileExtensions.*
 import stryker4s.extension.exception.TestSetupException
 import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
@@ -18,7 +18,7 @@ import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
-import java.io.{File => JFile, PrintStream}
+import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
@@ -45,7 +45,7 @@ class Stryker4sSbtRunner(
       tmpDir: Path
   )(implicit config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
     def setupLegacySbtTestRunner(
-        settings: Seq[Def.Setting[_]],
+        settings: Seq[Def.Setting[?]],
         extracted: Extracted
     ): NonEmptyList[Resource[IO, TestRunner]] = {
       log.info("Using the legacy sbt testrunner")
@@ -65,7 +65,7 @@ class Stryker4sSbtRunner(
     }
 
     def setupSbtTestRunner(
-        settings: Seq[Def.Setting[_]],
+        settings: Seq[Def.Setting[?]],
         extracted: Extracted
     ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
       val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
@@ -176,7 +176,7 @@ class Stryker4sSbtRunner(
       }
       log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
 
-      val settings: Seq[Def.Setting[_]] = Seq(
+      val settings: Seq[Def.Setting[?]] = Seq(
         scalacOptions --= blocklistedScalacOptions,
         Test / fork := true,
         Compile / scalaSource := tmpDirFor(Compile / scalaSource, tmpDir).value,

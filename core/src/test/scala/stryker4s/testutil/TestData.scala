@@ -7,8 +7,8 @@ import stryker4s.extension.mutationtype.GreaterThan
 import stryker4s.model.{Mutant, MutantId}
 import stryker4s.report.FinishedRunEvent
 
-import scala.concurrent.duration._
-import scala.meta._
+import scala.concurrent.duration.*
+import scala.meta.*
 
 trait TestData {
   def createMutant = Mutant(MutantId(0), q"<", q">", GreaterThan)

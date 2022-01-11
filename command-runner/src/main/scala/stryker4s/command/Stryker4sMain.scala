@@ -2,7 +2,7 @@ package stryker4s.command
 
 import cats.effect.{Deferred, ExitCode, IO, IOApp}
 import pureconfig.error.ConfigReaderException
-import pureconfig.generic.auto._
+import pureconfig.generic.auto.*
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.config.ConfigReader
 import stryker4s.log.Logger

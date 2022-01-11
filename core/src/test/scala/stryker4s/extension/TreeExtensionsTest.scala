@@ -1,8 +1,8 @@
 package stryker4s.extension
 
-import scala.meta._
+import scala.meta.*
 
-import stryker4s.extension.TreeExtensions._
+import stryker4s.extension.TreeExtensions.*
 import stryker4s.testutil.Stryker4sSuite
 
 class TreeExtensionsTest extends Stryker4sSuite {

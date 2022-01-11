@@ -3,12 +3,12 @@ package stryker4s.run
 import cats.effect.{Deferred, IO, Ref, Resource}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.HumanReadableExtension
-import stryker4s.extension.ResourceExtensions._
+import stryker4s.extension.ResourceExtensions.*
 import stryker4s.log.Logger
 import stryker4s.model.{Error, InitialTestRunResult, Mutant, MutantRunResult, TimedOut}
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]

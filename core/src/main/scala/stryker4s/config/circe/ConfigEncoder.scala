@@ -2,7 +2,7 @@ package stryker4s.config.circe
 
 import fs2.io.file.Path
 import io.circe.Encoder
-import stryker4s.config.{Config, _}
+import stryker4s.config.{Config, *}
 import sttp.model.Uri
 
 import scala.concurrent.duration.FiniteDuration

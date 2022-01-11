@@ -12,9 +12,9 @@ import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.{Killed, Mutant, MutantId, NoCoverageInitialTestRun, Survived}
 import stryker4s.testutil.Stryker4sSuite
 
-import java.{util => ju}
-import scala.collection.JavaConverters._
-import scala.meta._
+import java.util as ju
+import scala.collection.JavaConverters.*
+import scala.meta.*
 
 class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default

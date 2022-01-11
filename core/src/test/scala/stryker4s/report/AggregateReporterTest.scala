@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import cats.effect.{IO, Ref}
-import cats.syntax.all._
+import cats.syntax.all.*
 import fs2.{INothing, Pipe, Stream}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite, TestData}

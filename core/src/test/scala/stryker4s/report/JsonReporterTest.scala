@@ -7,7 +7,7 @@ import stryker4s.files.FileIO
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class JsonReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("reportJson") {

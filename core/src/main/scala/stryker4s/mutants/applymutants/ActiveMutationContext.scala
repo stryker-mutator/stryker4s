@@ -1,5 +1,5 @@
 package stryker4s.mutants.applymutants
-import scala.meta._
+import scala.meta.*
 
 object ActiveMutationContext {
   type ActiveMutationContext = Term

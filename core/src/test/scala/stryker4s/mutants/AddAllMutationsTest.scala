@@ -1,10 +1,10 @@
 package stryker4s.mutants
 
-import scala.meta._
+import scala.meta.*
 
 import org.scalactic.source.Position
 import stryker4s.config.Config
-import stryker4s.extension.TreeExtensions._
+import stryker4s.extension.TreeExtensions.*
 import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantMatcher
 import stryker4s.scalatest.LogMatchers

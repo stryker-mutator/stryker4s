@@ -1,8 +1,8 @@
 package stryker4s.model
 
-import sbt.testing.{Framework => SbtFramework}
-import sbt.{TestDefinition => SbtTestDefinition, TestFramework => SbtTestFramework, Tests}
-import stryker4s.api.testprocess._
+import sbt.testing.Framework as SbtFramework
+import sbt.{TestDefinition as SbtTestDefinition, TestFramework as SbtTestFramework, Tests}
+import stryker4s.api.testprocess.*
 
 trait TestInterfaceMapper {
   def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Array[TestGroup] = {

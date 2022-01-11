@@ -2,19 +2,19 @@ package stryker4s.report
 
 import cats.data.NonEmptyChain
 import cats.effect.{IO, Resource}
-import cats.syntax.validated._
+import cats.syntax.validated.*
 import fs2.io.file.Path
-import mutationtesting._
+import mutationtesting.*
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
-import sttp.client3._
+import sttp.client3.*
 import sttp.client3.testing.SttpBackendStub
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   describe("buildRequest") {
@@ -28,8 +28,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val request = sut.buildRequest(dashConfig, report, metrics)
       request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
       val jsonBody = {
-        import mutationtesting.circe._
-        import io.circe.syntax._
+        import mutationtesting.circe.*
+        import io.circe.syntax.*
         report.asJson.noSpaces
       }
       request.body shouldBe StringBody(jsonBody, "utf-8", MediaType.ApplicationJson)

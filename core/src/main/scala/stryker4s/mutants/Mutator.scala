@@ -1,17 +1,17 @@
 package stryker4s.mutants
 
 import cats.effect.IO
-import cats.syntax.functor._
+import cats.syntax.functor.*
 import fs2.Stream
 import fs2.io.file.Path
 import stryker4s.config.Config
-import stryker4s.extension.StreamExtensions._
+import stryker4s.extension.StreamExtensions.*
 import stryker4s.log.Logger
-import stryker4s.model._
+import stryker4s.model.*
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.MutantFinder
 
-import scala.meta._
+import scala.meta.*
 
 class Mutator(
     mutantFinder: MutantFinder,

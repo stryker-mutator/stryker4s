@@ -1,9 +1,9 @@
 package stryker4s.report.mapper
 
 import fs2.io.file.Path
-import mutationtesting._
-import stryker4s.config.{Config, Thresholds => ConfigThresholds}
-import stryker4s.model._
+import mutationtesting.*
+import stryker4s.config.{Config, Thresholds as ConfigThresholds}
+import stryker4s.model.*
 
 import java.nio.file.Files
 

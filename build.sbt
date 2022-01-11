@@ -1,5 +1,5 @@
-import Dependencies._
-import Settings._
+import Dependencies.*
+import Settings.*
 
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
@@ -22,7 +22,7 @@ lazy val root = (project withId "stryker4s" in file("."))
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs): _*
+      sbtTestRunner.projectRefs)*
   )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")

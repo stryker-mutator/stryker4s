@@ -1,20 +1,20 @@
 package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
-import cats.syntax.apply._
-import cats.syntax.parallel._
+import cats.syntax.apply.*
+import cats.syntax.parallel.*
 import sbt.Tests
-import sbt.testing.{Framework => SbtFramework}
-import stryker4s.api.testprocess._
+import sbt.testing.Framework as SbtFramework
+import stryker4s.api.testprocess.*
 import stryker4s.config.Config
 import stryker4s.log.Logger
-import stryker4s.model.{MutantRunResult, _}
+import stryker4s.model.{MutantRunResult, *}
 import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
 
 import java.net.{InetAddress, Socket}
 import java.util.concurrent.TimeUnit
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.sys.process.Process
 import scala.util.control.NonFatal
 

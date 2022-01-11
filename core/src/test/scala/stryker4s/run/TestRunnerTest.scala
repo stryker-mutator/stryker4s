@@ -1,15 +1,15 @@
 package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
-import cats.syntax.all._
+import cats.syntax.all.*
 import stryker4s.api.testprocess.CoverageReport
 import stryker4s.config.Config
-import stryker4s.model._
+import stryker4s.model.*
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.stubs.TestRunnerStub
 import stryker4s.testutil.{Stryker4sIOSuite, TestData}
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
