@@ -49,7 +49,7 @@ jobs:
       - name: Cleanup M2
         run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
       - name: Publish stryker4s-core
-        run: sbt 'set ThisBuild / version := "SET-BY-SBT-SNAPSHOT"; stryker4s-api2_12/publishM2; stryker4s-core2_12/publishM2'
+        run: sbt 'publishM2Local'
       - name: Run Maven tests
         run: |
           cd maven

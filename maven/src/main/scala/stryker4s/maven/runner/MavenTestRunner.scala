@@ -8,7 +8,7 @@ import stryker4s.model.*
 import stryker4s.run.TestRunner
 
 import java.util.Properties
-import scala.collection.JavaConverters.*
+import scala.jdk.CollectionConverters.*
 
 class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: Properties, val goals: Seq[String])(
     implicit log: Logger

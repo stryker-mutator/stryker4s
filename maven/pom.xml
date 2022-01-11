@@ -53,8 +53,8 @@
     <properties>
         <encoding>UTF-8</encoding>
         <!-- Scala versions -->
-        <scala.version>2.12.15</scala.version>
-        <scala.compat.version>2.12</scala.compat.version>
+        <scala.version>2.13.7</scala.version>
+        <scala.compat.version>2.13</scala.compat.version>
         <scala-maven.version>4.5.6</scala-maven.version>
         <scalatest.version>3.2.10</scalatest.version>
         <mockito-scala.version>1.16.49</mockito-scala.version>
@@ -115,7 +115,7 @@
             <plugin>
                 <groupId>io.stryker-mutator</groupId>
                 <artifactId>stryker4s-maven-plugin</artifactId>
-                <version>0.14.2</version>
+                <version>0.14.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -138,38 +138,45 @@
                     <args>
                         <arg>-encoding</arg>
                         <arg>utf8</arg>
-                        <arg>-deprecation</arg>
+                        <arg>-explaintypes</arg>
+                        <arg>-feature</arg>
+                        <arg>-language:existentials</arg>
+                        <arg>-language:experimental.macros</arg>
+                        <arg>-language:higherKinds</arg>
+                        <arg>-language:implicitConversions</arg>
+                        <arg>-unchecked</arg>
                         <arg>-Xcheckinit</arg>
                         <arg>-Xlint:adapted-args</arg>
-                        <arg>-Xlint:by-name-right-associative</arg>
                         <arg>-Xlint:constant</arg>
                         <arg>-Xlint:delayedinit-select</arg>
+                        <arg>-Xlint:deprecation</arg>
                         <arg>-Xlint:doc-detached</arg>
                         <arg>-Xlint:inaccessible</arg>
                         <arg>-Xlint:infer-any</arg>
                         <arg>-Xlint:missing-interpolator</arg>
-                        <arg>-Xlint:nullary-override</arg>
                         <arg>-Xlint:nullary-unit</arg>
                         <arg>-Xlint:option-implicit</arg>
                         <arg>-Xlint:package-object-classes</arg>
                         <arg>-Xlint:poly-implicit-overload</arg>
                         <arg>-Xlint:private-shadow</arg>
                         <arg>-Xlint:stars-align</arg>
+                        <arg>-Xlint:strict-unsealed-patmat</arg>
                         <arg>-Xlint:type-parameter-shadow</arg>
-                        <arg>-Xlint:unsound-match</arg>
-                        <arg>-Yno-adapted-args</arg>
-                        <arg>-Ywarn-dead-code</arg>
-                        <arg>-Ywarn-extra-implicit</arg>
-                        <arg>-Ywarn-nullary-override</arg>
-                        <arg>-Ywarn-nullary-unit</arg>
-                        <arg>-Ywarn-numeric-widen</arg>
-                        <arg>-Ywarn-unused:implicits</arg>
-                        <arg>-Ywarn-unused:imports</arg>
-                        <arg>-Ywarn-unused:locals</arg>
-                        <arg>-Ywarn-unused:params</arg>
-                        <arg>-Ywarn-unused:patvars</arg>
-                        <arg>-Ywarn-unused:privates</arg>
-                        <arg>-Ypartial-unification</arg>
+                        <arg>-Xlint:-byname-implicit</arg>
+                        <arg>-Wunused:nowarn</arg>
+                        <arg>-Wdead-code</arg>
+                        <arg>-Wextra-implicit</arg>
+                        <arg>-Wnumeric-widen</arg>
+                        <arg>-Wunused:implicits</arg>
+                        <arg>-Wunused:explicits</arg>
+                        <arg>-Wunused:imports</arg>
+                        <arg>-Wunused:locals</arg>
+                        <arg>-Wunused:params</arg>
+                        <arg>-Wunused:patvars</arg>
+                        <arg>-Wunused:privates</arg>
+                        <arg>-Wvalue-discard</arg>
+                        <arg>-Vimplicits</arg>
+                        <arg>-Vtype-diffs</arg>
                         <arg>-Xfatal-warnings</arg>
                         <arg>-Xsource:3</arg>
                     </args>
