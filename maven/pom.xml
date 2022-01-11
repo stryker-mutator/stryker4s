@@ -171,6 +171,7 @@
                         <arg>-Ywarn-unused:privates</arg>
                         <arg>-Ypartial-unification</arg>
                         <arg>-Xfatal-warnings</arg>
+                        <arg>-Xsource:3</arg>
                     </args>
                 </configuration>
             </plugin>
