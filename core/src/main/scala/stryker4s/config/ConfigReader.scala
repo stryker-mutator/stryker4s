@@ -1,11 +1,11 @@
 package stryker4s.config
 
-import cats.syntax.either._
-import pureconfig.error._
+import cats.syntax.either.*
+import pureconfig.error.*
 import pureconfig.generic.ProductHint
-import pureconfig.generic.auto._
-import pureconfig.{ConfigReader => PureConfigReader, ConfigSource}
-import stryker4s.config.Config._
+import pureconfig.generic.auto.*
+import pureconfig.{ConfigReader as PureConfigReader, ConfigSource}
+import stryker4s.config.Config.*
 import stryker4s.log.Logger
 
 import java.io.FileNotFoundException
@@ -102,7 +102,7 @@ object ConfigReader {
     def onUnknownKey(implicit
         log: Logger
     ): PartialFunction[ConfigReaderFailures, PureConfigReader[Config]] = {
-      case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures @ _*) =>
+      case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures*) =>
         val unknownKeys = key +: failures.collect { case ConvertFailure(UnknownKey(k), _, _) => k }
 
         log.warn(

@@ -9,7 +9,7 @@ import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sIOSuite
 import stryker4s.testutil.stubs.TestFileResolver
 
-import scala.meta._
+import scala.meta.*
 
 class RollbackTest extends Stryker4sIOSuite with LogMatchers {
   describe("Mutator") {

@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import cats.effect.std.Hotswap
 import cats.effect.{Concurrent, Ref, Resource}
-import cats.syntax.flatMap._
+import cats.syntax.flatMap.*
 
 object ResourceExtensions {
 

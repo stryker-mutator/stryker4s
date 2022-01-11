@@ -1,6 +1,6 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta.{Init, Term, _}
+import scala.meta.{Init, Term, *}
 import scala.util.{Failure, Success}
 
 import stryker4s.model.RegexParseError

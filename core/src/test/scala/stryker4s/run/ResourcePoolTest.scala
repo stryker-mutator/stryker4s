@@ -2,11 +2,11 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
-import cats.syntax.traverse._
+import cats.syntax.traverse.*
 import fs2.Stream
 import stryker4s.testutil.Stryker4sIOSuite
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class ResourcePoolTest extends Stryker4sIOSuite {
 

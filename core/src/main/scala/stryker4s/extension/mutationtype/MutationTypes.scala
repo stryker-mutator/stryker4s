@@ -17,7 +17,7 @@ object Mutation {
     classOf[BooleanLiteral].getSimpleName,
     classOf[ConditionalExpression].getSimpleName,
     classOf[LogicalOperator].getSimpleName,
-    classOf[StringLiteral[_]].getSimpleName,
+    classOf[StringLiteral[?]].getSimpleName,
     classOf[MethodExpression].getSimpleName,
     classOf[RegularExpression].getSimpleName()
   )
@@ -60,7 +60,7 @@ trait LogicalOperator extends SubstitutionMutation[Term.Name] {
 /** T &lt;: Term because it can be either a `Lit.String` or `Term.Interpolation`
   */
 trait StringLiteral[T <: Term] extends SubstitutionMutation[T] {
-  override val mutationName: String = classOf[StringLiteral[_]].getSimpleName
+  override val mutationName: String = classOf[StringLiteral[?]].getSimpleName
 }
 
 /** Base trait for method mutation

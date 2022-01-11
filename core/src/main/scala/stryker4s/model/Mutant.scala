@@ -8,4 +8,4 @@ case class MutantId(globalId: Int) extends AnyVal {
   override def toString: String = globalId.toString
 }
 
-final case class Mutant(id: MutantId, original: Term, mutated: Term, mutationType: Mutation[_ <: Tree])
+final case class Mutant(id: MutantId, original: Term, mutated: Term, mutationType: Mutation[? <: Tree])

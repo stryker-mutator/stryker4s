@@ -10,7 +10,7 @@ import scala.util.{Success, Try}
 
 object TestProcessRunner {
   def apply(testRunExitCode: Try[Int]*)(implicit log: Logger): TestProcessRunner =
-    new TestProcessRunner(true, testRunExitCode: _*)
+    new TestProcessRunner(true, testRunExitCode*)
   def failInitialTestRun()(implicit log: Logger): TestProcessRunner = new TestProcessRunner(false)
 }
 

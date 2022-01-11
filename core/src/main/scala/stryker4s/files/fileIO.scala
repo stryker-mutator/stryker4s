@@ -1,8 +1,8 @@
 package stryker4s.files
 
 import cats.effect.IO
-import fs2._
-import fs2.io.file._
+import fs2.*
+import fs2.io.file.*
 import fs2.io.readInputStream
 
 sealed trait FileIO {

@@ -2,7 +2,7 @@ package stryker4s.report
 
 import cats.effect.IO
 import fs2.io.file.Path
-import mutationtesting._
+import mutationtesting.*
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
@@ -46,8 +46,8 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
     fileIO.createAndWrite(file, indexHtml)
 
   def writeReportJsTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
-    import io.circe.syntax._
-    import mutationtesting.circe._
+    import io.circe.syntax.*
+    import mutationtesting.circe.*
     val json = report.asJson.noSpaces
     val reportContent = s"document.querySelector('mutation-test-report-app').report = $json"
     fileIO.createAndWrite(file, reportContent)

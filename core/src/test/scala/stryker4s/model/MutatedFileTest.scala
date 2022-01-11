@@ -3,7 +3,7 @@ package stryker4s.model
 import fs2.io.file.Path
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.meta._
+import scala.meta.*
 
 class MutatedFileTest extends Stryker4sSuite {
   describe("MutatedFile") {

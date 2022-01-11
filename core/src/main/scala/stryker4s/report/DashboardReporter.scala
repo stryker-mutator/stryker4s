@@ -2,14 +2,14 @@ package stryker4s.report
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.effect.{IO, Resource}
-import cats.syntax.foldable._
+import cats.syntax.foldable.*
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
 import stryker4s.config.{Config, Full, MutationScoreOnly}
 import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
-import stryker4s.report.model._
-import sttp.client3._
+import stryker4s.report.model.*
+import sttp.client3.*
 import sttp.client3.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
 
@@ -43,7 +43,7 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
       .put(uri)
     dashConfig.reportType match {
       case Full =>
-        import mutationtesting.circe._
+        import mutationtesting.circe.*
         request
           .body(report)
       case MutationScoreOnly =>

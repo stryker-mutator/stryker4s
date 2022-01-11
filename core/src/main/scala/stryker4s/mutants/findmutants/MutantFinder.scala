@@ -1,10 +1,10 @@
 package stryker4s.mutants.findmutants
 
 import cats.effect.IO
-import cats.implicits._
+import cats.implicits.*
 import fs2.io.file.Path
 import stryker4s.config.Config
-import stryker4s.extension.FileExtensions._
+import stryker4s.extension.FileExtensions.*
 import stryker4s.log.Logger
 import stryker4s.model.{Mutant, MutationExcluded, MutationsInSource, RegexParseError}
 

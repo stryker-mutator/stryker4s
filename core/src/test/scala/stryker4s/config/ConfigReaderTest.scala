@@ -2,15 +2,15 @@ package stryker4s.config
 
 import fs2.io.file.Path
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
-import pureconfig.generic.auto._
+import pureconfig.generic.auto.*
 import pureconfig.{ConfigObjectSource, ConfigSource}
-import stryker4s.config.Config._
+import stryker4s.config.Config.*
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
 import sttp.client3.UriContext
 
-import scala.concurrent.duration._
-import scala.meta.dialects._
+import scala.concurrent.duration.*
+import scala.meta.dialects.*
 
 class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
   describe("loadConfig") {
@@ -70,7 +70,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       val configSource = ExampleConfigs.empty
 
       lazy val result = ConfigReader.readConfig(configSource)
-      val exc = the[ConfigReaderException[_]] thrownBy result
+      val exc = the[ConfigReaderException[?]] thrownBy result
 
       "Failures in reading config: " shouldBe loggedAsError
       exc.getMessage() should include("Key not found: 'stryker4s'.")
@@ -80,7 +80,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       val configSource = ExampleConfigs.wrongReporter
 
       lazy val result = ConfigReader.readConfig(configSource)
-      val exc = the[ConfigReaderException[_]] thrownBy result
+      val exc = the[ConfigReaderException[?]] thrownBy result
 
       exc.getMessage() should include("Cannot convert configuration")
     }
@@ -126,7 +126,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       val configSource = ExampleConfigs.invalidExcludedMutation
 
       lazy val result = ConfigReader.readConfig(configSource)
-      val exc = the[ConfigReaderException[_]] thrownBy result
+      val exc = the[ConfigReaderException[?]] thrownBy result
 
       val head = exc.failures.head
       head shouldBe a[ConvertFailure]

@@ -2,13 +2,13 @@ package stryker4s.testutil.stubs
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.applicativeError._
+import cats.syntax.applicativeError.*
 import fs2.io.file.Path
 import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model._
+import stryker4s.model.*
 import stryker4s.run.{ResourcePool, TestRunner, TestRunnerPool}
 
-import scala.meta._
+import scala.meta.*
 
 class TestRunnerStub(results: Seq[() => MutantRunResult]) extends TestRunner {
   private val stream = Iterator.from(0)

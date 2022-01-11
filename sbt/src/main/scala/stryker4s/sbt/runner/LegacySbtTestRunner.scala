@@ -1,15 +1,15 @@
 package stryker4s.sbt.runner
 
 import cats.effect.IO
-import sbt.Keys._
+import sbt.Keys.*
 import sbt.Tests.Output
-import sbt._
+import sbt.*
 import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
-import stryker4s.model._
+import stryker4s.model.*
 import stryker4s.run.TestRunner
 
-class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], extracted: Extracted)(implicit
+class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], extracted: Extracted)(implicit
     log: Logger
 ) extends TestRunner {
   def initialTestRun(): IO[InitialTestRunResult] = runTests(
@@ -43,6 +43,6 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[_]], ex
       case _                                                 => onError
     }
 
-  private def mutationSetting(mutation: Int): Def.Setting[_] =
+  private def mutationSetting(mutation: Int): Def.Setting[?] =
     Test / javaOptions += s"-DACTIVE_MUTATION=${String.valueOf(mutation)}"
 }

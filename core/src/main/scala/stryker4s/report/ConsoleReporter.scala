@@ -4,11 +4,11 @@ import cats.effect.IO
 import fs2.{INothing, Pipe}
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
-import stryker4s.extension.DurationExtensions._
+import stryker4s.extension.DurationExtensions.*
 import stryker4s.log.Logger
-import stryker4s.run.threshold._
+import stryker4s.run.threshold.*
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
   private val mutationScoreString = "Mutation score:"

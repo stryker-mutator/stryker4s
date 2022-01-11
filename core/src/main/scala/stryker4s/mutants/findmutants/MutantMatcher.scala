@@ -1,14 +1,14 @@
 package stryker4s.mutants.findmutants
 
-import cats.syntax.either._
-import cats.syntax.semigroup._
+import cats.syntax.either.*
+import cats.syntax.semigroup.*
 import stryker4s.config.Config
-import stryker4s.extension.PartialFunctionOps._
+import stryker4s.extension.PartialFunctionOps.*
 import stryker4s.extension.TreeExtensions.{GetMods, PathToRoot, TreeIsInExtension}
-import stryker4s.extension.mutationtype._
+import stryker4s.extension.mutationtype.*
 import stryker4s.model.{IgnoredMutationReason, Mutant, MutantId, MutationExcluded}
 
-import scala.meta._
+import scala.meta.*
 
 class MutantMatcher()(implicit config: Config) {
   private val ids = Iterator.from(0)
@@ -100,13 +100,13 @@ class MutantMatcher()(implicit config: Config) {
         mutated: Either[IgnoredMutationReason, Seq[SubstitutionMutation[T]]]
     ): List[Either[IgnoredMutationReason, Mutant]] = mutated match {
       case Left(v)      => List(v.asLeft)
-      case Right(value) => ~~>(value: _*)
+      case Right(value) => ~~>(value*)
     }
 
     def ~~>(f: String => Term, mutated: MethodExpression*): List[Either[IgnoredMutationReason, Mutant]] =
       createMutants[MethodExpression](mutated.toList, _(f))
 
-    private def createMutants[T <: Mutation[_ <: Tree]](
+    private def createMutants[T <: Mutation[? <: Tree]](
         mutations: List[T],
         mutationToTerm: T => Term
     ): List[Either[IgnoredMutationReason, Mutant]] =
@@ -137,15 +137,15 @@ class MutantMatcher()(implicit config: Config) {
         maybeMutants
     }
 
-    private def matchExcluded(mutation: Mutation[_]): Boolean = {
+    private def matchExcluded(mutation: Mutation[?]): Boolean = {
       config.excludedMutations.contains(mutation.mutationName)
     }
 
-    private def isSuppressedByAnnotation(mutation: Mutation[_], original: Term): Boolean = {
+    private def isSuppressedByAnnotation(mutation: Mutation[?], original: Term): Boolean = {
       original.pathToRoot.flatMap(_.getMods).exists(isSupressWarningsAnnotation(_, mutation))
     }
 
-    private def isSupressWarningsAnnotation(mod: Mod, mutation: Mutation[_]) = {
+    private def isSupressWarningsAnnotation(mod: Mod, mutation: Mutation[?]) = {
       val mutationName = "stryker4s.mutation." + mutation.mutationName
       mod match {
         case Mod.Annot(Init(Type.Name("SuppressWarnings"), _, List(List(Term.Apply(Name("Array"), params))))) =>

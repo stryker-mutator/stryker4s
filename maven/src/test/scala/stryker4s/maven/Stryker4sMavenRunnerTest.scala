@@ -4,12 +4,12 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
-import org.apache.maven.shared.invoker._
+import org.apache.maven.shared.invoker.*
 import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.testutil.Stryker4sSuite
 
-import java.io.{File => JFile}
+import java.io.File as JFile
 
 class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
   implicit val config: Config = Config.default

@@ -8,7 +8,7 @@ import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sIOSuite
 
-import scala.meta._
+import scala.meta.*
 
 class MutatorTest extends Stryker4sIOSuite with LogMatchers {
 

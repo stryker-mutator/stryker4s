@@ -25,7 +25,7 @@ abstract class ProcessRunner(implicit log: Logger) {
 
     ProcessResource
       .fromProcessBuilder(
-        Process(s"${command.command} ${command.args}", workingDir.toNioPath.toFile(), envVar: _*)
+        Process(s"${command.command} ${command.args}", workingDir.toNioPath.toFile(), envVar*)
       )(logger)
       .use(p => IO.blocking(p.exitValue()))
       .attempt

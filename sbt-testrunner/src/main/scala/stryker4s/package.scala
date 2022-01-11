@@ -70,7 +70,7 @@ package object stryker4s {
     /** Build the coverage report from the collected data
       */
     private def report(): CoverageTestNameMap = {
-      import scala.jdk.CollectionConverters._
+      import scala.jdk.CollectionConverters.*
       TestInterfaceMapper.toCoverageMap(coveredTests.map { case (k, v) => k -> v.asScala.toSeq })
     }
   }

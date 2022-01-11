@@ -4,11 +4,11 @@ import cats.effect.IO
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
 import stryker4s.log.Logger
-import stryker4s.model._
+import stryker4s.model.*
 import stryker4s.run.TestRunner
 
 import java.util.Properties
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
 
 class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: Properties, val goals: Seq[String])(
     implicit log: Logger

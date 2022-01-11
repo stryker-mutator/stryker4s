@@ -56,7 +56,7 @@ object Providers {
         refs = ref.split('/')
         version <- refs match {
           case Array(_, "pull", prNumber, _*) => Some(s"PR-$prNumber")
-          case Array(_, _, tail @ _*)         => Some(tail.mkString("/"))
+          case Array(_, _, tail*)             => Some(tail.mkString("/"))
           case _                              => None
         }
         if version.nonEmpty

@@ -1,6 +1,6 @@
 package stryker4s.mutants.applymutants
 
-import scala.meta._
+import scala.meta.*
 
 import stryker4s.log.Logger
 import stryker4s.model.{Mutant, TransformedMutants}

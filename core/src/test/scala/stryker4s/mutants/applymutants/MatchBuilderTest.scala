@@ -1,9 +1,9 @@
 package stryker4s.mutants.applymutants
 
-import scala.meta._
-import stryker4s.extension.TreeExtensions._
+import scala.meta.*
+import stryker4s.extension.TreeExtensions.*
 import stryker4s.extension.exception.UnableToBuildPatternMatchException
-import stryker4s.extension.mutationtype._
+import stryker4s.extension.mutationtype.*
 import stryker4s.model.{Mutant, MutantId, SourceTransformations, TransformedMutants}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
@@ -372,7 +372,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
   /** Helper method to create a [[stryker4s.model.TransformedMutants]] out of a statement and it's mutants
     */
-  private def toTransformed(source: Source, mutation: Mutation[_ <: Tree], origStatement: Term, mutants: Term*)(implicit
+  private def toTransformed(source: Source, mutation: Mutation[? <: Tree], origStatement: Term, mutants: Term*)(implicit
       ids: Iterator[Int]
   ): TransformedMutants = {
     val topStatement = source.find(origStatement).value.topStatement()

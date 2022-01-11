@@ -3,14 +3,14 @@ package stryker4s.run
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import fs2.io.file.Path
-import stryker4s.config._
-import stryker4s.files._
+import stryker4s.config.*
+import stryker4s.files.*
 import stryker4s.log.Logger
 import stryker4s.mutants.Mutator
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.report._
+import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus

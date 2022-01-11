@@ -6,7 +6,7 @@ import stryker4s.log.Logger
 import stryker4s.model.{Mutant, SourceTransformations, TransformedMutants}
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 
-import scala.meta._
+import scala.meta.*
 import scala.util.{Failure, Success}
 
 class MatchBuilder(mutationContext: ActiveMutationContext)(implicit log: Logger) {

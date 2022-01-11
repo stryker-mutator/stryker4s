@@ -1,10 +1,10 @@
 package stryker4s.report.dashboard
 
 import cats.data.ValidatedNec
-import cats.syntax.all._
+import cats.syntax.all.*
 import stryker4s.config.Config
 import stryker4s.env.Environment
-import stryker4s.report.dashboard.Providers._
+import stryker4s.report.dashboard.Providers.*
 import stryker4s.report.model.DashboardConfig
 
 class DashboardConfigProvider(env: Environment)(implicit config: Config) {

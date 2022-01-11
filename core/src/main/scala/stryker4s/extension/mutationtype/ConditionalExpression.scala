@@ -1,6 +1,6 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta._
+import scala.meta.*
 
 case object If {
   def unapply(ifStatement: Term.If): Option[Term] = Some(ifStatement.cond).filterNot(_.is[Lit.Boolean])

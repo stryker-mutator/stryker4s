@@ -2,7 +2,7 @@ package stryker4s.extension
 
 import fs2.io.file.Path
 import stryker4s.config.Config
-import stryker4s.extension.FileExtensions._
+import stryker4s.extension.FileExtensions.*
 import stryker4s.testutil.Stryker4sSuite
 
 class FileExtensionsTest extends Stryker4sSuite {

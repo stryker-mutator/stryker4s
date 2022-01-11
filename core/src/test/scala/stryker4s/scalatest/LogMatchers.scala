@@ -2,7 +2,7 @@ package stryker4s.scalatest
 
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import stryker4s.log._
+import stryker4s.log.*
 import stryker4s.testutil.TestLogger
 
 trait LogMatchers extends BeforeAndAfterEach {

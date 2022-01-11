@@ -1,7 +1,7 @@
 package stryker4s.report.dashboard
 
 import cats.data.NonEmptyChain
-import cats.syntax.validated._
+import cats.syntax.validated.*
 import org.scalatest.EitherValues
 import stryker4s.config.{Config, DashboardOptions, Full, MutationScoreOnly}
 import stryker4s.report.model.DashboardConfig

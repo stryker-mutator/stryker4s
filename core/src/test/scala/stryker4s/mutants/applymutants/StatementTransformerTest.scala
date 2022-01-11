@@ -1,9 +1,9 @@
 package stryker4s.mutants.applymutants
 
-import scala.meta._
+import scala.meta.*
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
-import stryker4s.extension.TreeExtensions._
-import stryker4s.extension.mutationtype._
+import stryker4s.extension.TreeExtensions.*
+import stryker4s.extension.mutationtype.*
 import stryker4s.model.{Mutant, MutantId}
 import stryker4s.testutil.Stryker4sSuite
 

@@ -1,10 +1,10 @@
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermissions
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
 import scala.util.Properties
 
-import sbt._
+import sbt.*
 import sbt.internal.util.ManagedLogger
 
 /** Starting point:
