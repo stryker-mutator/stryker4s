@@ -2,6 +2,7 @@ package stryker4s.mutants
 
 import cats.effect.IO
 import cats.syntax.functor.*
+import fansi.Color
 import fs2.Stream
 import fs2.io.file.Path
 import stryker4s.config.Config
@@ -116,18 +117,21 @@ class Mutator(
       s"""Stryker4s will perform a dry-run without actually mutating anything.
          |You can configure the `$configProperty` property in your configuration""".stripMargin
 
-    IO(log.info(s"Found ${mutatedFiles.size} file(s) to be mutated.")) *>
+    IO(log.info(s"Found ${Color.Cyan(mutatedFiles.size.toString())} file(s) to be mutated.")) *>
       IO(
         log.info(
-          s"$totalMutants Mutant(s) generated.${if (excludedMutants > 0) s" Of which $excludedMutants mutant(s) are excluded."}"
+          s"${Color.Cyan(totalMutants.toString())} mutant(s) generated.${if (excludedMutants > 0)
+            s" Of which ${Color.LightRed(excludedMutants.toString())} mutant(s) are excluded."
+          else ""}"
         )
       ) *> {
         if (includedMutants == 0 && excludedMutants > 0) {
           IO(log.warn(s"All found mutations are excluded. ${dryRunText("mutate` or `excluded-mutations")}"))
-        } else if (totalMutants == 0) {
-          IO(log.info("Files to be mutated are found, but no mutations were found in those files.")) *>
-            IO(log.info("If this is not intended, please check your configuration and try again."))
-        } else IO.unit
+        } else
+          IO.whenA(totalMutants == 0) {
+            IO(log.info("Files to be mutated are found, but no mutations were found in those files.")) *>
+              IO(log.info("If this is not intended, please check your configuration and try again."))
+          }
       }
   }
 

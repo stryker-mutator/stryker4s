@@ -1,14 +1,20 @@
 package stryker4s.testutil
 
-import scala.collection.mutable.Queue
-
+import fansi.Str
 import stryker4s.log.{Level, Logger}
+
+import scala.collection.mutable.Queue
 
 class TestLogger(printLogs: Boolean) extends Logger {
 
   private val events = Queue[(Level, String)]()
 
   def findEvent(msg: String): Option[(Level, String)] = events.find(_._2.contains(msg))
+
+  /** `findEvent`, but ignoring color codes */
+  def findEventPlainText(msg: String): Option[(Level, String)] = events.find { case (_, event) =>
+    Str(event).plainText.contains(Str(msg).plainText)
+  }
 
   def clear(): Unit = events.clear()
 
@@ -23,4 +29,6 @@ class TestLogger(printLogs: Boolean) extends Logger {
     events.enqueue((level, msg))
   }
 
+  // Always log with colors so we can test for color codes
+  override val colorEnabled = true
 }

@@ -94,5 +94,13 @@ class ThresholdCheckerTest extends Stryker4sSuite with LogMatchers {
 
       lowerScoreStatus shouldBe ErrorStatus
     }
+
+    it("should return success for NaN") {
+      implicit val config: Config = Config.default
+
+      val lowerScoreStatus = ThresholdChecker.determineScoreStatus(Double.NaN)
+
+      lowerScoreStatus shouldBe SuccessStatus
+    }
   }
 }

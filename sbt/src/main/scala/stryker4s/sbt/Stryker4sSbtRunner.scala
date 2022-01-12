@@ -117,44 +117,40 @@ class Stryker4sSbtRunner(
           None
       }
 
-      compilerErrors match {
-        case Some(errors) => Left(errors)
-        case None =>
-          val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
+      compilerErrors.toLeft {
+        val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
 
-          val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
+        val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
 
-          val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
+        val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
 
-          val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
-            if (config.testFilter.isEmpty) group
-            else {
-              val testFilter = new TestFilter()
-              val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
-              new Tests.Group(name = group.name, tests = filteredTests, runPolicy = group.runPolicy)
-            }
+        val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
+          if (config.testFilter.isEmpty) group
+          else {
+            val testFilter = new TestFilter()
+            val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
+            new Tests.Group(name = group.name, tests = filteredTests, runPolicy = group.runPolicy)
           }
+        }
 
-          val concurrency = if (config.debug.debugTestRunner) {
-            log.warn(
-              "'debug.debug-test-runner' config is 'true', creating 1 test-runner with debug arguments enabled on port 8000."
-            )
-            1
-          } else {
-            log.info(s"Creating ${config.concurrency} test-runners")
-            config.concurrency
-          }
-
-          val portStart = 13336
-          val portRanges = NonEmptyList.fromListUnsafe(
-            (1 to concurrency).map(p => Port.fromInt(p + portStart).get).toList
+        val concurrency = if (config.debug.debugTestRunner) {
+          log.warn(
+            "'debug.debug-test-runner' config is 'true', creating 1 test-runner with debug arguments enabled on port 8000."
           )
+          1
+        } else {
+          log.info(s"Creating ${config.concurrency} test-runners")
+          config.concurrency
+        }
 
-          Right(
-            portRanges.map { port =>
-              SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
-            }
-          )
+        val portStart = 13336
+        val portRanges = NonEmptyList.fromListUnsafe(
+          (1 to concurrency).map(p => Port.fromInt(p + portStart).get).toList
+        )
+
+        portRanges.map { port =>
+          SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
+        }
       }
     }
 

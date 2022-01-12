@@ -17,8 +17,7 @@ final class SocketTestRunnerConnection(socket: Socket[IO])(implicit log: Logger)
 
   override def sendMessage(request: Request): IO[Response] =
     IO(log.debug(s"Sending message $request")) *>
-      write(request.asMessage) *>
-      read
+      (write(request.asMessage) *> read)
         .flatTap(response => IO(log.debug(s"Received message $response")))
 
   def write(msg: RequestMessage) = {

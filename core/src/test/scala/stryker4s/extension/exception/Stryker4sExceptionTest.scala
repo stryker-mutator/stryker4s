@@ -1,5 +1,6 @@
 package stryker4s.extension.exception
 
+import cats.data.NonEmptyList
 import stryker4s.model.CompilerErrMsg
 import stryker4s.testutil.Stryker4sSuite
 
@@ -30,7 +31,7 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
   }
   describe("UnableToFixCompilerErrorsException") {
     it("should have a nicely formatted message") {
-      val errs = List(
+      val errs = NonEmptyList.of(
         CompilerErrMsg(
           msg = "value forall is not a member of object java.nio.file.Files",
           path = "/src/main/scala/com/company/strykerTest/TestObj1.scala",

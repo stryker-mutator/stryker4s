@@ -23,6 +23,7 @@ object Dependencies {
     val catsCore = "2.7.0"
     val catsEffect = "3.3.4"
     val circe = "0.14.1"
+    val fansi = "0.3.0"
     val fs2 = "3.2.4"
     val mutationTestingElements = "1.7.8"
     val mutationTestingMetrics = "1.7.8"
@@ -44,9 +45,9 @@ object Dependencies {
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
+  val fansi = "com.lihaoyi" %% "fansi" % versions.fansi
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
-  val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
@@ -55,6 +56,7 @@ object Dependencies {
   val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val scalapbRuntime =
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
+  val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface

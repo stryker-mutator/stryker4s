@@ -3,6 +3,7 @@ package stryker4s.report
 import cats.data.NonEmptyChain
 import cats.effect.{IO, Resource}
 import cats.syntax.validated.*
+import fansi.Bold
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Full, MutationScoreOnly}
@@ -94,7 +95,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          "Could not resolve dashboard configuration key(s) 'fooConfigKey', 'barConfigKey'. Not sending report" shouldBe loggedAsWarning
+          s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report." shouldBe loggedAsWarning
         }
     }
 
