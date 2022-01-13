@@ -2,21 +2,22 @@ package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
 import cats.syntax.apply.*
-import cats.syntax.parallel.*
+import com.comcast.ip4s.SocketAddress
+import fs2.io.net.Network
 import sbt.Tests
 import sbt.testing.Framework as SbtFramework
 import stryker4s.api.testprocess.*
 import stryker4s.config.Config
+import stryker4s.extension.DurationExtensions.*
 import stryker4s.log.Logger
-import stryker4s.model.{MutantRunResult, *}
+import stryker4s.model.*
 import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
 
-import java.net.{InetAddress, Socket}
+import java.net.{ConnectException, InetAddress, InetSocketAddress}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 import scala.sys.process.Process
-import scala.util.control.NonFatal
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -69,8 +70,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       testGroups: Seq[Tests.Group],
       port: Int
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
-    (createProcess(classpath, javaOpts, port), connectToProcess(port))
-      .parMapN { case (_, c) => c }
+    (createProcess(classpath, javaOpts, port) *> connectToProcess(port))
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
 
@@ -86,10 +86,10 @@ object ProcessTestRunner extends TestInterfaceMapper {
       if (config.debug.logTestRunnerStdout) m => log.debug(s"testrunner $port: $m")
       else _ => ()
 
-    Resource.eval(IO(log.debug(s"Starting process '${command.mkString(" ")}'"))) *>
-      ProcessResource
-        .fromProcessBuilder(Process(command, config.baseDir.toNioPath.toFile()))(logger)
-        .evalTap(_ => IO(log.debug("Started process")))
+    ProcessResource
+      .fromProcessBuilder(Process(command, config.baseDir.toNioPath.toFile()))(logger)
+      .preAllocate(IO(log.debug(s"Starting process '${command.mkString(" ")}'")))
+      .evalTap(_ => IO(log.debug("Started process")))
   }
 
   private def args(port: Int)(implicit config: Config): Seq[String] = {
@@ -105,14 +105,18 @@ object ProcessTestRunner extends TestInterfaceMapper {
   }
 
   private def connectToProcess(port: Int)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
-    Resource
-      .make(
-        retryWithBackoff(6, 0.2.seconds, log.debug("Could not connect to testprocess. Retrying..."))(
-          IO(new Socket(InetAddress.getLoopbackAddress(), port))
-        )
-      )(s => IO(log.debug(s"Closing test-runner on port $port")).guarantee(IO(s.close())))
-      .evalTap(_ => IO(log.debug(s"Created socket on port $port")))
-      .flatMap(TestRunnerConnection.create(_))
+    val socketAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), port)
+
+    Network[IO]
+      .client(SocketAddress.fromInetSocketAddress(socketAddress))
+      .map(new SocketTestRunnerConnection(_))
+      .retryWithBackoff(
+        6,
+        0.2.seconds,
+        delay => IO(log.debug(s"Could not connect to testprocess. Retrying after ${delay.toHumanReadable}..."))
+      )
+      .evalTap(_ => IO(log.debug(s"Connected to testprocess on port $port")))
+      .onFinalize(IO(log.debug(s"Closing test-runner on port $port")))
   }
 
   def setupTestRunner(
@@ -125,14 +129,24 @@ object ProcessTestRunner extends TestInterfaceMapper {
     testProcess.sendMessage(apiTestGroups).void
   }
 
-  def retryWithBackoff[T](maxAttempts: Int, delay: FiniteDuration, onError: => Unit)(f: IO[T]): IO[T] = {
-    val retriableWithOnError = (NonFatal.apply(_)).compose((t: Throwable) => { onError; t })
+  implicit class ResourceOps[A](resource: Resource[IO, A]) {
 
-    fs2.Stream
-      // Linear backoff
-      .retry(f, delay, d => d + d, maxAttempts, retriableWithOnError)
-      .compile
-      .lastOrError
+    /** Retry creating the resource, with an increasing (doubling) backoff until the resource is created, or fails
+      * @param maxRetries
+      *   times.
+      */
+    def retryWithBackoff(
+        maxAttempts: Int,
+        delay: FiniteDuration,
+        onError: FiniteDuration => IO[Unit]
+    ): Resource[IO, A] = {
+      resource.handleErrorWith[A, Throwable] {
+        case _: ConnectException if maxAttempts != 0 =>
+          Resource.eval(onError(delay) *> IO.sleep(delay)) *>
+            retryWithBackoff(maxAttempts - 1, delay * 2, onError)
+        case _ => Resource.raiseError[IO, A, Throwable](new RuntimeException("Could not connect to testprocess"))
+      }
+    }
   }
 
 }
