@@ -2,9 +2,10 @@ package stryker4s.sbt
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions.*
@@ -145,7 +146,9 @@ class Stryker4sSbtRunner(
           }
 
           val portStart = 13336
-          val portRanges = NonEmptyList.fromListUnsafe((1 to concurrency).map(_ + portStart).toList)
+          val portRanges = NonEmptyList.fromListUnsafe(
+            (1 to concurrency).map(p => Port.fromInt(p + portStart).get).toList
+          )
 
           Right(
             portRanges.map { port =>

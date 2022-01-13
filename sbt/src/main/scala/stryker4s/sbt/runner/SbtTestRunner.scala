@@ -1,13 +1,14 @@
 package stryker4s.sbt.runner
 
-import scala.concurrent.duration.FiniteDuration
-
 import cats.effect.{Deferred, IO, Resource}
+import com.comcast.ip4s.Port
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.run.TestRunner
+
+import scala.concurrent.duration.FiniteDuration
 
 object SbtTestRunner {
   def create(
@@ -15,7 +16,7 @@ object SbtTestRunner {
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
-      port: Int,
+      port: Port,
       timeout: Deferred[IO, FiniteDuration]
   )(implicit
       config: Config,

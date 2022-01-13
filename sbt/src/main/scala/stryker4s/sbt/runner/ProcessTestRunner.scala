@@ -2,10 +2,10 @@ package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
 import cats.syntax.apply.*
-import com.comcast.ip4s.SocketAddress
+import com.comcast.ip4s.{IpLiteralSyntax, Port, SocketAddress}
 import fs2.io.net.Network
 import sbt.Tests
-import sbt.testing.Framework as SbtFramework
+import sbt.testing.Framework
 import stryker4s.api.testprocess.*
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.*
@@ -14,7 +14,7 @@ import stryker4s.model.*
 import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
 
-import java.net.{ConnectException, InetAddress, InetSocketAddress}
+import java.net.ConnectException
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 import scala.sys.process.Process
@@ -66,9 +66,9 @@ object ProcessTestRunner extends TestInterfaceMapper {
   def newProcess(
       classpath: Seq[String],
       javaOpts: Seq[String],
-      frameworks: Seq[SbtFramework],
+      frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
-      port: Int
+      port: Port
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
     (createProcess(classpath, javaOpts, port) *> connectToProcess(port))
       .evalTap(setupTestRunner(_, frameworks, testGroups))
@@ -77,7 +77,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
   def createProcess(
       classpath: Seq[String],
       javaOpts: Seq[String],
-      port: Int
+      port: Port
   )(implicit log: Logger, config: Config): Resource[IO, Process] = {
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
@@ -92,7 +92,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .evalTap(_ => IO(log.debug("Started process")))
   }
 
-  private def args(port: Int)(implicit config: Config): Seq[String] = {
+  private def args(port: Port)(implicit config: Config): Seq[String] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
     val sysProps = s"-D${TestProcessProperties.port}=$port"
     val debugArgs =
@@ -104,11 +104,11 @@ object ProcessTestRunner extends TestInterfaceMapper {
     debugArgs ++ Seq(sysProps, mainClass)
   }
 
-  private def connectToProcess(port: Int)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
-    val socketAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), port)
+  private def connectToProcess(port: Port)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
+    val socketAddress = SocketAddress(host"127.0.0.1", port)
 
     Network[IO]
-      .client(SocketAddress.fromInetSocketAddress(socketAddress))
+      .client(socketAddress)
       .map(new SocketTestRunnerConnection(_))
       .retryWithBackoff(
         6,
@@ -121,7 +121,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
   def setupTestRunner(
       testProcess: TestRunnerConnection,
-      frameworks: Seq[SbtFramework],
+      frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group]
   ): IO[Unit] = {
     val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
