@@ -131,7 +131,7 @@ class Stryker4sSbtRunner(
             else {
               val testFilter = new TestFilter()
               val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
-              group.copy(tests = filteredTests)
+              new Tests.Group(name = group.name, tests = filteredTests, runPolicy = group.runPolicy)
             }
           }
 

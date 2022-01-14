@@ -38,6 +38,9 @@ object Stryker4sMain extends AutoPlugin {
         s"Sbt version ${sbtVersion.value} is not supported by Stryker4s. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
       )
     }
+    // Call logLevel so it shows up as a used setting when set
+    val _ = (stryker / logLevel).value
+
     implicit val runtime: IORuntime = IORuntime.global
     implicit val logger: Logger = new SbtLogger(streams.value.log)
 

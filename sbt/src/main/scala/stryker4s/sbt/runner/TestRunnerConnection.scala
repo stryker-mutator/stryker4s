@@ -1,6 +1,7 @@
 package stryker4s.sbt.runner
 
 import cats.effect.IO
+import cats.syntax.bifunctor.*
 import com.google.protobuf.UInt32Value
 import fs2.Chunk
 import fs2.io.net.Socket
@@ -23,7 +24,7 @@ final class SocketTestRunnerConnection(socket: Socket[IO])(implicit log: Logger)
   def write(msg: RequestMessage) = {
     // Delimiter announcing the size of the upcoming message. `tail` because the first byte is the tag of the message, which isn't included in the delimiter (it is always uint32)
     val serializedSize = msg.serializedSize
-    val delimiter = Chunk.array(UInt32Value.of(serializedSize).toByteArray().tail)
+    val delimiter = Chunk.array(UInt32Value.newBuilder.setValue(serializedSize).build.toByteArray().tail)
 
     IO(log.debug(s"Writing message of $serializedSize bytes")) *>
       socket.write(delimiter ++ Chunk.array(msg.toByteArray))
@@ -32,18 +33,18 @@ final class SocketTestRunnerConnection(socket: Socket[IO])(implicit log: Logger)
   def read: IO[Response] = {
     // The delimiter tells us how many bytes to read for the response.
     // @see https://developers.google.com/protocol-buffers/docs/encoding#varints
-    def readDelimiter: IO[BitVector] =
+    def readDelimiter(acc: BitVector): IO[BitVector] =
       socket
         .readN(1)
-        .map(_.toBitVector)
-        .map(_.splitAt(1))
-        .flatMap { case (continue, sum) =>
-          // If the first bit is positive (1), continue reading bytes
-          if (continue.head) readDelimiter.map(_ ++ sum) // Construct all bits appending new reads to the _start_
+        // If the first bit is positive (1), continue reading bytes
+        .map(_.toBitVector.splitAt(1).leftMap(_.head))
+        .flatMap { case (continue, newBits) =>
+          val sum = newBits ++ acc
+          if (continue) readDelimiter(sum)
           else IO.pure(sum)
         }
 
-    readDelimiter
+    readDelimiter(BitVector.empty)
       .map(_.toInt(false))
       .flatTap(size => IO(log.debug(s"Reading message of $size bytes")))
       .flatMap(socket.readN)
