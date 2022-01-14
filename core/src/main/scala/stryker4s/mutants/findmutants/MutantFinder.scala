@@ -1,7 +1,8 @@
 package stryker4s.mutants.findmutants
 
 import cats.effect.IO
-import cats.implicits.*
+import cats.syntax.either.*
+import cats.syntax.foldable.*
 import fs2.io.file.Path
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions.*
@@ -37,7 +38,7 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
       case e: Parsed.Error =>
         log.error(s"Error while parsing file '${file.relativePath}', ${e.message}")
         IO.raiseError(e.details)
-      case s => IO.pure(s.get)
+      case s => IO.fromEither(s.toEither.leftMap(_.details))
     }
 
   }
