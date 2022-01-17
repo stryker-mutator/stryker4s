@@ -20,4 +20,6 @@ class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
     case Error => SbtLevel.Error
   }
 
+  override protected val colorEnabled: Boolean =
+    sbt.internal.util.Terminal.console.isColorEnabled && !sys.env.contains("NO_COLOR")
 }
