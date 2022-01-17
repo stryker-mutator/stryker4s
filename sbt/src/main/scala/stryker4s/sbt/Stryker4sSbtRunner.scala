@@ -100,17 +100,22 @@ class Stryker4sSbtRunner(
       }
 
       // See if the mutations compile, and if not extract the errors
-      val compilerErrors = Project.runTask(Compile / Keys.compile, newState) match {
+      val compilerErrors = Project.runTask(Compile / compile, newState) match {
         case Some((_, Inc(cause))) =>
-          val compileErrors = (getRootCause(cause) collect { case exception: sbt.internal.inc.CompileFailed =>
-            exception.problems.flatMap { e =>
-              for {
-                path <- e.position().sourceFile().asScala
-                pathStr = tmpDir.relativize(Path(path.absolutePath)).toString
-                line <- e.position().line().asScala
-              } yield CompilerErrMsg(e.message(), pathStr, line)
-            }.toSeq
-          }).flatten.toList
+          val rootCauses = getRootCause(cause)
+          rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
+          val compileErrors = rootCauses
+            .collect { case e: xsbti.CompileFailed => e }
+            .flatMap { exception =>
+              exception.problems.flatMap { e =>
+                for {
+                  path <- e.position().sourceFile().asScala
+                  pathStr = tmpDir.relativize(Path(path.absolutePath)).toString
+                  line <- e.position().line().asScala
+                } yield CompilerErrMsg(e.message(), pathStr, line)
+              }.toSeq
+            }
+            .toList
 
           NonEmptyList.fromList(compileErrors)
         case _ =>

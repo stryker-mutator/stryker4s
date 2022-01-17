@@ -28,7 +28,7 @@ object Stryker4sMain extends AutoPlugin {
     stryker := strykerTask.value,
     stryker / logLevel := Level.Info,
     stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations
-    strykerMinimumSbtVersion := "1.1.1",
+    strykerMinimumSbtVersion := "1.4.0",
     strykerIsSupported := sbtVersion.value >= strykerMinimumSbtVersion.value
   )
 
