@@ -1,6 +1,6 @@
 package stryker4s.run
 
-import cats.data.NonEmptyList
+import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.either.*
 import cats.syntax.functor.*
@@ -13,7 +13,7 @@ import stryker4s.extension.StreamExtensions.*
 import stryker4s.extension.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
-import stryker4s.model.{CompilerErrMsg, *}
+import stryker4s.model.*
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
 
@@ -30,36 +30,29 @@ class MutantRunner(
 
   def apply(mutateFiles: Seq[CompilerErrMsg] => IO[Seq[MutatedFile]]): IO[MetricsResult] = {
     mutateFiles(Seq.empty).flatMap { mutatedFiles =>
-      run(mutatedFiles)
-        .flatMap {
-          case Right(metrics) => IO.pure(metrics.asRight)
-          case Left(errors) =>
-            log.info("Attempting to remove mutants that gave a compile error...")
-            // Retry once with the non-compiling mutants removed
-            mutateFiles(errors.toList).flatMap(run)
+      EitherT(run(mutatedFiles))
+        .leftFlatMap { errors =>
+          log.info("Attempting to remove mutants that gave a compile error...")
+          // Retry once with the non-compiling mutants removed
+          EitherT(mutateFiles(errors.toList).flatMap(run))
         }
-        .flatMap {
-          case Right(metrics) => IO.pure(metrics)
-          // Failed at remove the non-compiling mutants
-          case Left(errs) => IO.raiseError(UnableToFixCompilerErrorsException(errs.toList))
-        }
+        // Failed at remove the non-compiling mutants
+        .leftMap(UnableToFixCompilerErrorsException(_))
+        .rethrowT
     }
   }
 
   def run(mutatedFiles: Seq[MutatedFile]): IO[Either[NonEmptyList[CompilerErrMsg], MetricsResult]] = {
     prepareEnv(mutatedFiles).use { path =>
-      createTestRunnerPool(path) match {
-        case Left(errs) => IO.pure(errs.asLeft)
-        case Right(testRunnerPoolResource) =>
-          testRunnerPoolResource.use { testRunnerPool =>
-            testRunnerPool.loan
-              .use(initialTestRun)
-              .flatMap { coverageExclusions =>
-                runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
-              }
-              .flatMap(t => createAndReportResults(t._1, t._2))
-              .map(Right(_))
-          }
+      createTestRunnerPool(path).traverse {
+        _.use { testRunnerPool =>
+          testRunnerPool.loan
+            .use(initialTestRun)
+            .flatMap { coverageExclusions =>
+              runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed
+            }
+            .flatMap(t => createAndReportResults(t._1, t._2))
+        }
       }
     }
   }

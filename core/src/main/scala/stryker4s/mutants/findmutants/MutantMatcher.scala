@@ -1,6 +1,6 @@
 package stryker4s.mutants.findmutants
 
-import cats.syntax.either.*
+import cats.data.EitherT
 import cats.syntax.semigroup.*
 import stryker4s.config.Config
 import stryker4s.extension.PartialFunctionOps.*
@@ -98,10 +98,7 @@ class MutantMatcher()(implicit config: Config) {
 
     def ~~>[T <: Term](
         mutated: Either[IgnoredMutationReason, Seq[SubstitutionMutation[T]]]
-    ): List[Either[IgnoredMutationReason, Mutant]] = mutated match {
-      case Left(v)      => List(v.asLeft)
-      case Right(value) => ~~>(value*)
-    }
+    ): List[Either[IgnoredMutationReason, Mutant]] = EitherT.fromEither[List](mutated).flatMapF(~~>(_*)).value
 
     def ~~>(f: String => Term, mutated: MethodExpression*): List[Either[IgnoredMutationReason, Mutant]] =
       createMutants[MethodExpression](mutated.toList, _(f))

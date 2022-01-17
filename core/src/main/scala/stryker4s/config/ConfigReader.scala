@@ -1,6 +1,7 @@
 package stryker4s.config
 
 import cats.syntax.either.*
+import fansi.Underlined
 import pureconfig.error.*
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto.*
@@ -75,7 +76,7 @@ object ConfigReader {
     /** Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
-      log.info(s"Attempting to read config from stryker4s.conf")
+      log.info(s"Attempting to read config from ${Underlined.On("stryker4s.conf")}")
       configSource
         .at("stryker4s")
         .load[T]

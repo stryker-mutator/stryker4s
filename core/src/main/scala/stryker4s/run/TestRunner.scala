@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
+import fansi.Color
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.HumanReadableExtension
 import stryker4s.extension.ResourceExtensions.*
@@ -50,9 +51,10 @@ object TestRunner {
               setTimeout = calculateTimeout(duration)
               isSet <- timeout.complete(setTimeout)
               _ <-
-                if (isSet)
-                  IO(log.info(s"Timeout set to ${setTimeout.toHumanReadable} (net ${duration.toHumanReadable})"))
-                else IO.unit
+                IO.whenA(isSet) {
+                  IO(log.info(s"Timeout set to ${setTimeout.toHumanReadable} (${Color
+                    .LightGray(s"net ${duration.toHumanReadable}")})"))
+                }
             } yield result
 
           def calculateTimeout(netTimeMS: FiniteDuration)(implicit config: Config): FiniteDuration =
@@ -76,20 +78,17 @@ object TestRunner {
               testNames: Seq[String],
               retriesLeft: Long = 2
           ): IO[MutantRunResult] = {
-            testRunnerRef.get.flatMap(_.runMutant(mutant, testNames)).attempt.flatMap {
+            testRunnerRef.get.flatMap(_.runMutant(mutant, testNames)).handleErrorWith { _ =>
               // On error, get a new testRunner and set it
-              case Left(_) =>
-                IO(
-                  log.debug(
-                    s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant $retriesLeft more time(s)"
-                  )
-                ) *>
-                  // Release old resource and make a new one, then retry the mutation
-                  releaseAndSwap *>
-                  (if (retriesLeft > 0) retryRunMutation(mutant, testNames, retriesLeft - 1)
-                   else IO.pure(Error(mutant)))
-
-              case Right(value) => IO.pure(value)
+              IO(
+                log.debug(
+                  s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant $retriesLeft more time(s)"
+                )
+              ) *>
+                // Release old resource and make a new one, then retry the mutation
+                releaseAndSwap *>
+                (if (retriesLeft > 0) retryRunMutation(mutant, testNames, retriesLeft - 1)
+                 else IO.pure(Error(mutant)))
             }
           }
           override def initialTestRun(): IO[InitialTestRunResult] =
@@ -108,11 +107,11 @@ object TestRunner {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner
-              if (uses == maxReuses)
+              IO.whenA(uses == maxReuses) {
                 IO(log.info(s"Testrunner has run for $uses times. Restarting it...")) *>
                   releaseAndSwap *>
                   usesRef.set(1)
-              else IO.unit
+              }
             runner <- testRunnerRef.get
             result <- runner.runMutant(mutant, testNames)
           } yield result

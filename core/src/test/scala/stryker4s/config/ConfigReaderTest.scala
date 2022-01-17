@@ -1,5 +1,6 @@
 package stryker4s.config
 
+import fansi.Underlined
 import fs2.io.file.Path
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
 import pureconfig.generic.auto.*
@@ -150,7 +151,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       ConfigReader.readConfig(configSource)
 
-      s"Attempting to read config from stryker4s.conf" shouldBe loggedAsInfo
+      s"Attempting to read config from ${Underlined.On("stryker4s.conf")}" shouldBe loggedAsInfo
     }
 
     it("should log warnings when no config file is found") {

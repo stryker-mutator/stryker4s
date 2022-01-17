@@ -34,6 +34,7 @@ object Settings {
       Dependencies.catsCore,
       Dependencies.catsEffect,
       Dependencies.circeCore,
+      Dependencies.fansi,
       Dependencies.fs2Core,
       Dependencies.fs2IO,
       Dependencies.mutationTestingElements,

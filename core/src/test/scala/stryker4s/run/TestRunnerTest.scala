@@ -2,6 +2,7 @@ package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
 import cats.syntax.all.*
+import fansi.Color.*
 import stryker4s.api.testprocess.CoverageReport
 import stryker4s.config.Config
 import stryker4s.model.*
@@ -40,7 +41,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
         op.flatMap(_.tryGet).asserting { setTimeout =>
           setTimeout.value shouldBe ((reportedTimeout * 1.5) + config.timeout)
-          "Timeout set to 8 seconds (net 2 seconds)" shouldBe loggedAsInfo
+          s"Timeout set to 8 seconds (${LightGray("net 2 seconds")})" shouldBe loggedAsInfo
         }
       }
 

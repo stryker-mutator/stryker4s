@@ -1,5 +1,7 @@
 package stryker4s.scalatest
 
+import fansi.Attr
+import fansi.Color.*
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import stryker4s.log.*
@@ -32,11 +34,25 @@ trait LogMatchers extends BeforeAndAfterEach {
     def apply(expectedLogMessage: String): MatchResult = {
       testLogger.findEvent(expectedLogMessage) match {
         case None =>
-          MatchResult(
-            matches = false,
-            s"Log message '$expectedLogMessage' wasn't logged at any level.",
-            s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
-          )
+          testLogger.findEventPlainText(expectedLogMessage) match {
+            case Some((_, message)) =>
+              val msg =
+                s"""Log message was logged with level $expectedLogLevel, but with different colors.
+                   |${Red("Obtained:")}
+                   |${Attr.Reset.escape}$message
+                   |
+                   |${Green("Expected:")}
+                   |${Attr.Reset.escape}$expectedLogMessage
+                   |
+                   |""".stripMargin
+              MatchResult(matches = false, msg, msg)
+            case None =>
+              MatchResult(
+                matches = false,
+                s"Log message '$expectedLogMessage' wasn't logged at any level.",
+                s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
+              )
+          }
         case Some((level, _)) =>
           val sameLogLevel = level == expectedLogLevel
 
