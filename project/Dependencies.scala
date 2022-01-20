@@ -16,7 +16,7 @@ object Dependencies {
 
     // Test dependencies
     val catsEffectScalaTest = "1.4.0"
-    val mockitoScala = "1.16.49"
+    val mockitoScala = "1.16.55"
     val scalatest = "3.2.10"
 
     // Direct dependencies
