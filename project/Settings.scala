@@ -96,7 +96,7 @@ object Settings {
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),
     homepage := Some(url("https://stryker-mutator.io/")),
-    licenses := Seq("Apache-2.0" -> url("https://github.com/stryker-mutator/stryker4s/blob/master/LICENSE")),
+    licenses := Seq(License.Apache2),
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/stryker-mutator/stryker4s"),
