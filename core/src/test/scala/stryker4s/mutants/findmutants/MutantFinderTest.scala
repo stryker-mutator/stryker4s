@@ -44,7 +44,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
       sut.parseFile(file).attempt.asserting { result =>
         val expectedException = result.swap.getOrElse(fail()).asInstanceOf[ParseException]
 
-        expectedException.shortMessage should be("expected class or object definition identifier")
+        expectedException.shortMessage should be("illegal start of definition identifier")
       }
     }
 
@@ -224,7 +224,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
         .parseFile(noFile)
         .assertThrows[ParseException]
         .asserting { _ =>
-          s"Error while parsing file '${noFile.relativePath}', expected class or object definition" should be(
+          s"Error while parsing file '${noFile.relativePath}', illegal start of definition identifier" should be(
             loggedAsError
           )
         }
