@@ -29,7 +29,7 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
 
       log.info(s"Mutation run finished! Took ${duration.toHumanReadable}")
       log.info(s"Total mutants: ${Color.Cyan(metrics.totalMutants.toString())}, detected: ${Color
-        .Green(metrics.totalDetected.toString())}, undetected: ${Color.Red(metrics.totalUndetected.toString())}")
+          .Green(metrics.totalDetected.toString())}, undetected: ${Color.Red(metrics.totalUndetected.toString())}")
 
       val (detectedMutants, rest) = report.files.toSeq
         .flatMap { case (loc, f) =>
