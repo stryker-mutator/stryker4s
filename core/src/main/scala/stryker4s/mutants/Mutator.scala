@@ -121,8 +121,8 @@ class Mutator(
       IO(
         log.info(
           s"${Color.Cyan(totalMutants.toString())} mutant(s) generated.${if (excludedMutants > 0)
-            s" Of which ${Color.LightRed(excludedMutants.toString())} mutant(s) are excluded."
-          else ""}"
+              s" Of which ${Color.LightRed(excludedMutants.toString())} mutant(s) are excluded."
+            else ""}"
         )
       ) *> {
         if (includedMutants == 0 && excludedMutants > 0) {

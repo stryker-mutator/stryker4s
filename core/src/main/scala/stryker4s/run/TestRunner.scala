@@ -53,7 +53,7 @@ object TestRunner {
               _ <-
                 IO.whenA(isSet) {
                   IO(log.info(s"Timeout set to ${setTimeout.toHumanReadable} (${Color
-                    .LightGray(s"net ${duration.toHumanReadable}")})"))
+                      .LightGray(s"net ${duration.toHumanReadable}")})"))
                 }
             } yield result
 
