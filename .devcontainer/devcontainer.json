@@ -12,7 +12,7 @@
     "dockerfile": "Dockerfile",
     "args": {
       // Options
-      "VARIANT": "11",
+      "VARIANT": "latest",
       "INSTALL_MAVEN": "true",
       "INSTALL_GRADLE": "false",
       "NODE_VERSION": "none"
