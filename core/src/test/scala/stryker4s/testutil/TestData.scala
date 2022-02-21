@@ -1,17 +1,20 @@
 package stryker4s.testutil
 
 import fs2.io.file.Path
-import mutationtesting.{Metrics, MetricsResult, MutationTestResult, Thresholds}
+import mutationtesting.*
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.GreaterThan
-import stryker4s.model.{Mutant, MutantId}
+import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode}
 import stryker4s.report.FinishedRunEvent
 
 import scala.concurrent.duration.*
-import scala.meta.*
+import scala.meta.quasiquotes.*
 
 trait TestData {
-  def createMutant = Mutant(MutantId(0), q"<", q">", GreaterThan)
+  def createMutant =
+    MutantWithId(MutantId(0), MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation)))
+
+  def createLocation = Location(Position(0, 0), Position(0, 0))
 
   def createMutationTestResult = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 

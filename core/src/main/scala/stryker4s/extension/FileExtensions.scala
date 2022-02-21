@@ -5,7 +5,7 @@ import stryker4s.config.Config
 
 object FileExtensions {
 
-  implicit class PathExtensions(path: Path) {
+  implicit class PathExtensions(val path: Path) extends AnyVal {
 
     /** The path relative to the base-dir of the project.
       *

@@ -8,9 +8,8 @@ import stryker4s.config.*
 import stryker4s.files.*
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.mutants.tree.{DefaultMutationCondition, MutantCollector, MutantInstrumenter}
+import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TraverserImpl}
 import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
@@ -31,9 +30,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       new Mutator(
         new MutantFinder(new MutantMatcher),
         new MutantCollector(new TraverserImpl),
-        new MutantInstrumenter(mutationActivation, mutationCondition)
+        new MutantInstrumenter(instrumenterOptions)
       ),
-      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, reporter),
+      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
       reporter
     )
 
@@ -74,7 +73,5 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveFilesFileSource(implicit config: Config): FilesFileResolver = new ConfigFilesResolver(ProcessRunner())
 
-  def mutationActivation(implicit config: Config): ActiveMutationContext
-
-  def mutationCondition(implicit config: Config): Option[DefaultMutationCondition]
+  def instrumenterOptions(implicit config: Config): InstrumenterOptions
 }

@@ -1,17 +1,14 @@
 package stryker4s.mutants
 
-import fansi.Color.*
 import fs2.Stream
 import stryker4s.config.Config
-import stryker4s.extension.TreeExtensions.IsEqualExtension
-import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
+import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
+import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sIOSuite
 
 import scala.meta.*
-import stryker4s.mutants.tree.MutantInstrumenter
-import stryker4s.mutants.tree.MutantCollector
 
 class MutatorTest extends Stryker4sIOSuite with LogMatchers {
 
@@ -23,7 +20,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new MutantCollector(new TraverserImpl),
-        new MutantInstrumenter(ActiveMutationContext.testRunner, None)
+        new MutantInstrumenter(InstrumenterOptions(ActiveMutationContext.testRunner))
       )
 
       sut.go(files).asserting { result =>
@@ -56,7 +53,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       val sut = new Mutator(
         new MutantFinder(new MutantMatcher),
         new MutantCollector(new TraverserImpl),
-        new MutantInstrumenter(ActiveMutationContext.testRunner, None)
+        new MutantInstrumenter(InstrumenterOptions(ActiveMutationContext.testRunner))
       )
 
       sut.go(files).asserting { result =>

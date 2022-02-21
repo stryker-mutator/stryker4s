@@ -47,7 +47,8 @@ class Mutator(
       .flatMap { case (ctx, (ignored, found)) => splitIgnoredAndFound(ctx, ignored, found) }
       // Instrument files
       .parEvalMapUnordered(config.concurrency)(_.traverse { case (context, mutations) =>
-        IO(instrumenter(context, mutations))
+        IO(log.debug(s"Instrumenting mutations in ${mutations.size} places in ${context.path}")) *>
+          IO(instrumenter(context, mutations))
       })
       // Fold into 2 separate lists of ignored and found mutants (in files)
       .fold((Map.newBuilder[Path, Vector[MutantResult]], Vector.newBuilder[MutatedFile])) {

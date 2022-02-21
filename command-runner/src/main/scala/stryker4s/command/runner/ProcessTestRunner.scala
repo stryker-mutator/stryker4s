@@ -2,6 +2,7 @@ package stryker4s.command.runner
 
 import cats.effect.IO
 import fs2.io.file.Path
+import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
 import stryker4s.model.*
 import stryker4s.run.TestRunner
@@ -19,13 +20,13 @@ class ProcessTestRunner(command: Command, processRunner: ProcessRunner, tmpDir: 
     }
   }
 
-  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
+  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
     val id = mutant.id.globalId
     processRunner(command, tmpDir, ("ACTIVE_MUTATION", id.toString)).map {
-      case Success(0)                   => Survived(mutant)
-      case Success(_)                   => Killed(mutant)
-      case Failure(_: TimeoutException) => TimedOut(mutant)
-      case _                            => Error(mutant)
+      case Success(0)                   => mutant.toMutantResult(MutantStatus.Survived)
+      case Success(_)                   => mutant.toMutantResult(MutantStatus.Killed)
+      case Failure(_: TimeoutException) => mutant.toMutantResult(MutantStatus.Timeout)
+      case _                            => mutant.toMutantResult(MutantStatus.RuntimeError)
     }
   }
 

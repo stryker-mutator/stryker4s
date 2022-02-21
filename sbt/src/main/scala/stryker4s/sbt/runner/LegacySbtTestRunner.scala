@@ -1,6 +1,7 @@
 package stryker4s.sbt.runner
 
 import cats.effect.IO
+import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Keys.*
 import sbt.Tests.Output
 import sbt.*
@@ -21,17 +22,17 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
     onFailed = NoCoverageInitialTestRun(false)
   )
 
-  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
+  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
     val mutationState =
       extracted.appendWithSession(settings :+ mutationSetting(mutant.id.globalId), initialState)
     runTests(
       mutationState,
       onError = {
         log.error(s"An unexpected error occurred while running mutation ${mutant.id}")
-        Error(mutant)
+        mutant.toMutantResult(MutantStatus.RuntimeError)
       },
-      onSuccess = Survived(mutant),
-      onFailed = Killed(mutant)
+      onSuccess = mutant.toMutantResult(MutantStatus.Survived),
+      onFailed = mutant.toMutantResult(MutantStatus.Killed)
     )
   }
 

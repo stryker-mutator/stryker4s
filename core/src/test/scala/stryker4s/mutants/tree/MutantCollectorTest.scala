@@ -9,8 +9,9 @@ import stryker4s.testutil.Stryker4sSuite
 
 import java.util.concurrent.atomic.AtomicInteger
 import scala.meta.*
+import stryker4s.scalatest.LogMatchers
 
-class MutantCollectorTest extends Stryker4sSuite {
+class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
 
   describe("onEnter") {
     it("should only call 'isDefinedAt' on the PartialFunction once") {
@@ -42,7 +43,7 @@ class MutantCollectorTest extends Stryker4sSuite {
       termToMatch: Term,
       pf: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
   ) extends Traverser {
-    override def canPlace(currentTree: Term, lastTopStatement: PlaceableTree): Option[Term] =
+    override def canPlace(currentTree: Term): Option[Term] =
       Some(termToMatch)
     override def findMutations: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]] = pf
   }

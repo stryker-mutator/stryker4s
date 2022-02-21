@@ -4,6 +4,7 @@ import cats.effect.{IO, Resource}
 import cats.syntax.apply.*
 import com.comcast.ip4s.{IpLiteralSyntax, Port, SocketAddress}
 import fs2.io.net.Network
+import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.api.testprocess.*
@@ -21,13 +22,15 @@ import scala.sys.process.Process
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
-  override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
+  override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
     val message = StartTestRun(mutant.id.globalId, testNames)
     testProcess.sendMessage(message).map {
-      case TestsSuccessful(testsCompleted)   => Survived(mutant, testsCompleted = Some(testsCompleted))
-      case TestsUnsuccessful(testsCompleted) => Killed(mutant, testsCompleted = Some(testsCompleted))
-      case ErrorDuringTestRun(msg)           => Killed(mutant, Some(msg))
-      case _                                 => Error(mutant)
+      case TestsSuccessful(testsCompleted) =>
+        mutant.toMutantResult(MutantStatus.Survived, testsCompleted = Some(testsCompleted))
+      case TestsUnsuccessful(testsCompleted) =>
+        mutant.toMutantResult(MutantStatus.Killed, testsCompleted = Some(testsCompleted))
+      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, description = Some(msg))
+      case _                       => mutant.toMutantResult(MutantStatus.RuntimeError)
     }
   }
 

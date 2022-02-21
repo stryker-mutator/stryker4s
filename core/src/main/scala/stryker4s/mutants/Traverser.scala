@@ -3,21 +3,19 @@ package stryker4s.mutants
 import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import cats.syntax.functor.*
-import mutationtesting.Location
-import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
+import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension, *}
 import stryker4s.extension.mutationtype.*
 import stryker4s.model.{MutantMetadata, MutatedCode, MutationExcluded, PlaceableTree}
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
-import scala.meta.inputs.Position
 
 trait Traverser {
 
   /** If the currently visiting node is a node where mutations can be placed, that node is returned, otherwise None
     */
-  def canPlace(currentTree: Term, lastTopStatement: PlaceableTree): Option[Term]
+  def canPlace(currentTree: Term): Option[Term]
 
   def findMutations: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
 
@@ -25,19 +23,31 @@ trait Traverser {
 
 class TraverserImpl extends Traverser {
 
-  def canPlace(currentTree: Term, lastTopStatement: PlaceableTree): Option[Term] =
-    currentTree.parent.flatMap {
-      case _: Defn.Def                                   => Some(currentTree.asInstanceOf[Term])
-      case _: Term.Name                                  => None
-      case t: Term.Assign                                => Some(t)
-      case p if p.parent.contains(lastTopStatement.tree) => None
-      case t: Term.Apply                                 => Some(t)
-      case t: Term.ApplyInfix                            => Some(t)
-      case t: Term.Block                                 => Some(t)
-      case t: Term.If                                    => Some(t)
-      case t: Term.ForYield                              => Some(t)
-      case _                                             => None
-    }
+  def canPlace(currentTree: Term): Option[Term] =
+    if (currentTree.topStatement() == currentTree) Some(currentTree) else None
+  // currentTree.parent.flatMap {
+  //   case d: Defn.Def if d.body == currentTree => Some(d.body)
+  //   case d: Defn.Val if d.rhs == currentTree  => Some(d.rhs)
+  //   case t: Term.Assign                       => Some(t)
+  //   case _: Term.Name                         => None
+  //   case t: Term.Match                        => Some(t)
+  //   case p
+  //       if p.parent
+  //         .collect { case c: Case => c }
+  //         .exists(_.cond.contains(currentTree)) =>
+  //     // .exists(caze => caze.parent.collect { case t: Term.Try => t }.exists(_.catchp.contains(caze))) =>
+  //     None
+  //   case t: Case if t.cond.flatMap(_.find(currentTree)).isDefined => None
+  //   // case t: Case if t.parent.exists(_.is[Term]) => t.parent.asInstanceOf[Option[Term]]
+  //   case p if p.parent.contains(lastTopStatement.tree) => None
+  //   case t: Term.Apply                                 => Some(t)
+  //   case t: Term.ApplyInfix                            => Some(t)
+  //   case t: Term.Block                                 => Some(t)
+  //   case t: Term.If                                    => Some(t)
+  //   case t: Term.ForYield                              => Some(t)
+  //   case t: Lit                                        => Some(t)
+  //   case _                                             => None
+  // }
 
   def findMutations: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]] = {
     case (EqualTo(orig))             => createMutations(orig)(NotEqualTo)
@@ -56,25 +66,29 @@ class TraverserImpl extends Traverser {
       NonEmptyVector(firstReplacement, restReplacements.toVector)
 
     val mutations = replacements.map { replacement =>
-      val tree: Tree = replacement.tree.asInstanceOf[Tree]
-      val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, toLocation(original.pos))
+      val tree: Tree = replacement.tree
+      val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, original.pos)
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
           case t if t.isEqual(original) =>
             tree
         }
-        .getOrElse(throw new RuntimeException(s"Could not transform $original in ${placeableTree.tree}"))
+        .getOrElse(
+          throw new RuntimeException(s"Could not transform $original in ${placeableTree.tree} (${metadata.location})")
+        )
 
-      MutatedCode(mutatedTopStatement, metadata)
+      mutatedTopStatement match {
+        case t: Term => MutatedCode(t, metadata)
+        case _ =>
+          throw new RuntimeException(
+            s"Could not transform $original in ${placeableTree.tree} (${metadata.location}). Expected a term, but was ${mutatedTopStatement.getClass} at ${mutatedTopStatement.pos.startLine}:${mutatedTopStatement.pos.startColumn}"
+          )
+      }
+
     }
     // TODO: filter out mutations excluded by config
     filterAnnotationExclusions(mutations, firstReplacement, original)
   }
-
-  private def toLocation(pos: Position): Location = Location(
-    start = mutationtesting.Position(line = pos.startLine + 1, column = pos.startColumn + 1),
-    end = mutationtesting.Position(line = pos.endLine + 1, column = pos.endColumn + 1)
-  )
 
   private def filterAnnotationExclusions(
       mutations: NonEmptyVector[MutatedCode],

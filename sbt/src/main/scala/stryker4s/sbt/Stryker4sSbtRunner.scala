@@ -14,8 +14,7 @@ import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
-import stryker4s.mutants.tree.DefaultMutationCondition
+import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
@@ -37,14 +36,6 @@ class Stryker4sSbtRunner(
 )(implicit
     log: Logger
 ) extends Stryker4sRunner {
-
-  override def mutationCondition(implicit config: Config): Option[DefaultMutationCondition] =
-    if (config.legacyTestRunner) None
-    else Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
-
-  override def mutationActivation(implicit config: Config): ActiveMutationContext =
-    if (config.legacyTestRunner) ActiveMutationContext.sysProps
-    else ActiveMutationContext.testRunner
 
   def resolveTestRunners(
       tmpDir: Path
@@ -220,5 +211,16 @@ class Stryker4sSbtRunner(
 
   override def resolveFilesFileSource(implicit config: Config): FilesFileResolver =
     if (config.files.isEmpty) new SbtFilesResolver(sources, targetDir) else super.resolveFilesFileSource
+
+  override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
+    if (config.legacyTestRunner) {
+      InstrumenterOptions(ActiveMutationContext.sysProps)
+    } else {
+      InstrumenterOptions(
+        ActiveMutationContext.testRunner,
+        i => p"$i",
+        Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
+      )
+    }
 
 }

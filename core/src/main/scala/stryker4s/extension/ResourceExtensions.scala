@@ -6,7 +6,7 @@ import cats.syntax.flatMap.*
 
 object ResourceExtensions {
 
-  implicit class SelfRecreatingResource[F[_], A](startResource: Resource[F, A]) {
+  implicit class SelfRecreatingResource[F[_], A](val startResource: Resource[F, A]) extends AnyVal {
 
     /** Build a resource that can destroy and recreate the 'inner' resource by evaluating a passed `F[Unit]`. The inner
       * resource value is available inside a thread-safe mutable `Ref`

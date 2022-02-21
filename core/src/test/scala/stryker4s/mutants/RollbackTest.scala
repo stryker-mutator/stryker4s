@@ -4,12 +4,10 @@ import stryker4s.config.Config
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
-import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter}
+import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sIOSuite
 import stryker4s.testutil.stubs.TestFileResolver
-
-import scala.meta.*
 
 class RollbackTest extends Stryker4sIOSuite with LogMatchers {
   describe("Mutator") {
@@ -29,7 +27,7 @@ class RollbackTest extends Stryker4sIOSuite with LogMatchers {
       val mutator = new Mutator(
         new MutantFinder(new MutantMatcher),
         new MutantCollector(new TraverserImpl()),
-        new MutantInstrumenter(ActiveMutationContext.sysProps, None)
+        new MutantInstrumenter(InstrumenterOptions(ActiveMutationContext.sysProps))
       )
 
       val errs = List(

@@ -2,16 +2,15 @@ package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
 import fansi.Color
+import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.HumanReadableExtension
 import stryker4s.extension.ResourceExtensions.*
 import stryker4s.log.Logger
-import stryker4s.model.{Error, InitialTestRunResult, MutantWithId, TimedOut}
+import stryker4s.model.{InitialTestRunResult, MutantWithId}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
-import mutationtesting.MutantResult
-import mutationtesting.MutantStatus
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]

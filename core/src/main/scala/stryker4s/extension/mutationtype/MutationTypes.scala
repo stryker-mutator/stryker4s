@@ -1,8 +1,9 @@
 package stryker4s.extension.mutationtype
 
-import stryker4s.extension.TreeExtensions.IsEqualExtension
+import stryker4s.extension.TreeExtensions.{IsEqualExtension, TreeIsInExtension}
 
 import scala.meta.{Defn, Lit, Term, Tree, Type}
+import scala.meta.Mod
 
 /** Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
@@ -88,6 +89,7 @@ protected trait NoInvalidPlacement[T <: Tree] {
         case ParentIsTypeLiteral() => true
         case _                     => false
       }
+      .filterNot(_.isIn[Mod.Annot])
 }
 
 private case object ParentIsTypeLiteral {

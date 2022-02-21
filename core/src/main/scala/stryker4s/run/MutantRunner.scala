@@ -1,34 +1,29 @@
 package stryker4s.run
 
-import cats.data.{EitherT, NonEmptyVector}
+import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
-import mutationtesting.{Metrics, MetricsResult}
+import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions.*
 import stryker4s.extension.StreamExtensions.*
 import stryker4s.extension.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger
-import stryker4s.model.*
-import stryker4s.report.mapper.MutantRunResultMapper
-import stryker4s.report.{FinishedRunEvent, MutantTestedEvent, Reporter}
-import stryker4s.model.MutantResultsPerFile
+import stryker4s.model.{MutantResultsPerFile, *}
+import stryker4s.report.{MutantTestedEvent, Reporter}
+
 import java.nio
-import scala.concurrent.duration.*
-import cats.data.NonEmptyList
-import mutationtesting.MutantResult
-import mutationtesting.MutantStatus
-import scala.collection.immutable.SortedMap
+import scala.collection.immutable.{SortedMap, SortedSet}
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
+    rollbackHandler: RollbackHandler,
     reporter: Reporter
 )(implicit config: Config, log: Logger) {
-  val rollbackHandler: RollbackHandler = ???
 
   def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
 
@@ -127,7 +122,7 @@ class MutantRunner(
       testRunnerPool: TestRunnerPool,
       coverageExclusions: CoverageExclusions
   ): IO[MutantResultsPerFile] = {
-    val allMutants = mutatedFiles.flatMap(m => m.mutants.toVector.map(m.fileOrigin.relativePath -> _))
+    val allMutants = mutatedFiles.flatMap(m => m.mutants.toVector.map(m.fileOrigin -> _))
 
     val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.globalId))
 
@@ -143,14 +138,14 @@ class MutantRunner(
       log.info(
         s"${noCoverageMutants.size} mutants detected as having no code coverage. They will be skipped and marked as NoCoverage"
       )
-      log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.map(_._2).mkString(", ")}")
+      log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.map(_._2.id).mkString(", ")}")
     }
 
     if (staticMutants.nonEmpty) {
       log.info(
         s"${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored"
       )
-      log.debug(s"Static mutant ids are: ${staticMutants.map(_._2).mkString(", ")}")
+      log.debug(s"Static mutant ids are: ${staticMutants.map(_._2.id).mkString(", ")}")
     }
 
     // TODO: move logging of compile-errors
@@ -182,14 +177,16 @@ class MutantRunner(
 
     // Back to per-file structure
     implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)
+    implicit val mutantResultOrdering: Ordering[MutantResult] = Ordering.String.on[MutantResult](_.id)
+
     (static ++ noCoverage ++ testedMutants)
-      .fold(SortedMap.empty[Path, Vector[MutantResult]]) { case (resultsMap, (path, result)) =>
-        val results = resultsMap.getOrElse(path, Vector.empty) :+ result
+      .fold(SortedMap.empty[Path, SortedSet[MutantResult]]) { case (resultsMap, (path, result)) =>
+        val results = resultsMap.getOrElse(path, SortedSet.empty[MutantResult]) + result
         resultsMap + (path -> results)
       }
       .compile
       .lastOrError
-      .map(_.map { case (k, v) => (k -> v.sortBy(_.id)) }.toMap)
+      .map(_.map { case (k, v) => k -> v.toVector })
   }
 
   def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
@@ -235,8 +232,6 @@ class MutantRunner(
       ),
       static = Some(true)
     )
-
-  private def compileErrorMutant(mutant: MutantWithId): MutantResult = mutant.toMutantResult(MutantStatus.CompileError)
 
   case class CoverageExclusions(
       hasCoverage: Boolean,
