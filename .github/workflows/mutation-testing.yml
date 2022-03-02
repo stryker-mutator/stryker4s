@@ -11,7 +11,7 @@ jobs:
   core:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
@@ -30,7 +30,7 @@ jobs:
   command-runner:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
@@ -49,7 +49,7 @@ jobs:
   maven-plugin:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
