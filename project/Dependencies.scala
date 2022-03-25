@@ -16,21 +16,21 @@ object Dependencies {
 
     // Test dependencies
     val catsEffectScalaTest = "1.4.0"
-    val mockitoScala = "1.17.0"
+    val mockitoScala = "1.17.5"
     val scalatest = "3.2.11"
 
     // Direct dependencies
     val catsCore = "2.7.0"
-    val catsEffect = "3.3.5"
+    val catsEffect = "3.3.9"
     val circe = "0.14.1"
     val fansi = "0.3.1"
-    val fs2 = "3.2.4"
+    val fs2 = "3.2.5"
     val mutationTestingElements = "1.7.10"
     val mutationTestingMetrics = "1.7.10"
     val pureconfig = "0.17.1"
-    val scalameta = "4.4.35"
+    val scalameta = "4.5.1"
     val slf4j = "1.7.36"
-    val sttp = "3.5.0"
+    val sttp = "3.5.1"
     val testInterface = "1.0"
     val weaponRegeX = "0.6.0"
   }
