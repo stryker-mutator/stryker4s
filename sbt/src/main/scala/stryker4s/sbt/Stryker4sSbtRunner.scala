@@ -21,7 +21,6 @@ import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
-import scala.meta.*
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -214,13 +213,9 @@ class Stryker4sSbtRunner(
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
     if (config.legacyTestRunner) {
-      InstrumenterOptions(ActiveMutationContext.sysProps)
+      InstrumenterOptions.sysContext(ActiveMutationContext.sysProps)
     } else {
-      InstrumenterOptions(
-        ActiveMutationContext.testRunner,
-        i => p"$i",
-        Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
-      )
+      InstrumenterOptions.testRunner
     }
 
 }

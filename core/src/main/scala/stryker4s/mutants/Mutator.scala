@@ -109,7 +109,8 @@ class Mutator(
   }
 
   private def logMutationResult(ignored: MutantResultsPerFile, mutatedFiles: Seq[MutatedFile]): IO[Unit] = {
-    val includedMutants = mutatedFiles.flatMap(_.mutants.toList).size
+    val totalFiles = (mutatedFiles.map(_.fileOrigin) ++ ignored.map(_._1)).distinct.size
+    val includedMutants = mutatedFiles.map(_.mutants.size).sum
     val excludedMutants = ignored.map(_._2.size).sum
     val totalMutants = includedMutants + excludedMutants
 
@@ -117,7 +118,7 @@ class Mutator(
       s"""Stryker4s will perform a dry-run without actually mutating anything.
          |You can configure the `${configProperties.mkString("` or `")}` property in your configuration""".stripMargin
 
-    IO(log.info(s"Found ${Color.Cyan(mutatedFiles.size.toString())} file(s) to be mutated.")) *>
+    IO(log.info(s"Found ${Color.Cyan(totalFiles.toString())} file(s) to be mutated.")) *>
       IO(
         log.info(
           s"${Color.Cyan(totalMutants.toString())} mutant(s) generated.${if (excludedMutants > 0)

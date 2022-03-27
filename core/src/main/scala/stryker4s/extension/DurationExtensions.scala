@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
 object DurationExtensions {
-  implicit class HumanReadableExtension(val duration: Duration) extends AnyVal {
+  implicit final class HumanReadableExtension(val duration: Duration) extends AnyVal {
     final def toHumanReadable: String = {
       val units = Seq(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES, TimeUnit.SECONDS, TimeUnit.MILLISECONDS)
 

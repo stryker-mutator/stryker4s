@@ -30,7 +30,6 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: 
     Right(NonEmptyList.of(withTimeout))
   }
 
-  override def instrumenterOptions(implicit config: Config): InstrumenterOptions = InstrumenterOptions(
-    ActiveMutationContext.envVar
-  )
+  override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
+    InstrumenterOptions.sysContext(ActiveMutationContext.envVar)
 }

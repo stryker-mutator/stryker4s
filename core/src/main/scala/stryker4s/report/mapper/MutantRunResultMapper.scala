@@ -3,7 +3,6 @@ package stryker4s.report.mapper
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Config, Thresholds as ConfigThresholds}
-import stryker4s.extension.FileExtensions.*
 import stryker4s.model.MutantResultsPerFile
 
 import java.nio.file.Files
@@ -24,9 +23,9 @@ trait MutantRunResultMapper {
 
   private def toFileResultMap(
       results: MutantResultsPerFile
-  )(implicit config: Config): Map[String, FileResult] =
+  ): Map[String, FileResult] =
     results.map { case (path, runResults) =>
-      path.relativePath.toString.replace('\\', '/') -> toFileResult(path, runResults)
+      path.toString.replace('\\', '/') -> toFileResult(path, runResults)
     }
 
   private def toFileResult(path: Path, runResults: Seq[MutantResult]): FileResult =

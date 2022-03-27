@@ -6,7 +6,7 @@ import cats.syntax.flatMap.*
 
 object ResourceExtensions {
 
-  implicit class SelfRecreatingResource[F[_], A](val startResource: Resource[F, A]) extends AnyVal {
+  implicit final class SelfRecreatingResource[F[_], A](val startResource: Resource[F, A]) extends AnyVal {
 
     /** Build a resource that can destroy and recreate the 'inner' resource by evaluating a passed `F[Unit]`. The inner
       * resource value is available inside a thread-safe mutable `Ref`
@@ -18,7 +18,7 @@ object ResourceExtensions {
       * @return
       *   The new resource created with @param f
       */
-    def selfRecreatingResource[B](f: (Ref[F, A], F[Unit]) => F[B])(implicit F: Concurrent[F]): Resource[F, B] =
+    final def selfRecreatingResource[B](f: (Ref[F, A], F[Unit]) => F[B])(implicit F: Concurrent[F]): Resource[F, B] =
       Hotswap(startResource).evalMap { case (hotswap, r) =>
         Ref[F].of(r).flatMap { ref =>
           // .clear to run the finalizer of the existing resource first before starting a new one

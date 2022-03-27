@@ -35,7 +35,7 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
       def lengthOfTree(t: Tree): Int = 1 + t.children.map(lengthOfTree(_)).sum
       onEnterCalled shouldBe lengthOfTree(tree)
       onEnterCalled shouldBe >(1)
-      results.size shouldBe onEnterCalled
+      results.size shouldBe 1
     }
   }
 
@@ -43,7 +43,7 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
       termToMatch: Term,
       pf: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
   ) extends Traverser {
-    override def canPlace(currentTree: Term): Option[Term] =
+    override def canPlace(currentTree: Tree): Option[Term] =
       Some(termToMatch)
     override def findMutations: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]] = pf
   }

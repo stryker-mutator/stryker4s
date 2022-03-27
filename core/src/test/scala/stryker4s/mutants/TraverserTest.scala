@@ -1,13 +1,14 @@
 package stryker4s.mutants
 
 import stryker4s.extension.TreeExtensions.*
-import stryker4s.model.PlaceableTree
 import stryker4s.testutil.Stryker4sSuite
 
 import scala.meta.Lit
 import scala.meta.quasiquotes.*
+import stryker4s.config.Config
 
 class TraverserTest extends Stryker4sSuite {
+  implicit val config = Config.default
   val traverser = new TraverserImpl()
 
   describe("canPlace") {

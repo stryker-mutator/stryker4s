@@ -114,7 +114,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       // Assert
       val expected =
         source"""class Foo {
-                   def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION").map(_root_.java.lang.Integer.parseInt(_)) match {
+                   def bar: Boolean = _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
                      case Some(0) =>
                        15 < 14
                      case Some(1) =>
@@ -345,12 +345,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       val result = sut.buildMatch(transformed)
 
-      assert(
-        result.expr.isEqual(
-          q"_root_.scala.sys.props.get($activeMutationString).map(_root_.java.lang.Integer.parseInt(_))"
-        ),
-        result.expr
-      )
+      assert(result.expr.isEqual(q"_root_.scala.sys.props.get($activeMutationString)"), result.expr)
     }
 
     it("should build a pattern match with sys.env if envVar is given") {
@@ -361,12 +356,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       val result = sut.buildMatch(transformed)
 
-      assert(
-        result.expr.isEqual(
-          q"_root_.scala.sys.env.get($activeMutationString).map(_root_.java.lang.Integer.parseInt(_))"
-        ),
-        result.expr
-      )
+      assert(result.expr.isEqual(q"_root_.scala.sys.env.get($activeMutationString)"), result.expr)
     }
   }
 

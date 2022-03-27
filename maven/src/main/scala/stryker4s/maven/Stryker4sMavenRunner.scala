@@ -9,14 +9,16 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.maven.runner.MavenTestRunner
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.ActiveMutationContext.{envVar, ActiveMutationContext}
+import stryker4s.mutants.applymutants.ActiveMutationContext
+import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.Stryker4sRunner
 
 import java.util.Properties
 
 class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4sRunner {
 
-  override def mutationActivation(implicit config: Config): ActiveMutationContext = envVar
+  override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
+    InstrumenterOptions.sysContext(ActiveMutationContext.envVar)
 
   override def resolveTestRunners(
       tmpDir: Path

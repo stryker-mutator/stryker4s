@@ -92,7 +92,7 @@ protected trait NoInvalidPlacement[T <: Tree] {
       .filterNot(_.isIn[Mod.Annot])
 }
 
-private case object ParentIsTypeLiteral {
+private[stryker4s] case object ParentIsTypeLiteral {
   def unapply(t: Tree): Boolean = t.parent.exists {
     case Defn.Val(_, _, Some(`t`), _)       => true
     case Defn.Var(_, _, Some(`t`), _)       => true

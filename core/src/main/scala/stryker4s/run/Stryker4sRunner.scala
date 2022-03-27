@@ -8,7 +8,7 @@ import stryker4s.config.*
 import stryker4s.files.*
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
+import stryker4s.mutants.findmutants.MutantFinder
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TraverserImpl}
 import stryker4s.report.*
@@ -28,7 +28,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     val stryker4s = new Stryker4s(
       resolveMutatesFileSource,
       new Mutator(
-        new MutantFinder(new MutantMatcher),
+        new MutantFinder(),
         new MutantCollector(new TraverserImpl),
         new MutantInstrumenter(instrumenterOptions)
       ),

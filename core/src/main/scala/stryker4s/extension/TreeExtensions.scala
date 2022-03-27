@@ -1,5 +1,7 @@
 package stryker4s.extension
 
+import cats.Eval
+import cats.data.OptionT
 import cats.syntax.option.*
 import mutationtesting.Location
 
@@ -18,7 +20,7 @@ object TreeExtensions {
       case _                => notFound
     }
 
-  implicit class TopStatementExtension(val thisTerm: Term) extends AnyVal {
+  implicit final class TopStatementExtension(val thisTerm: Term) extends AnyVal {
 
     /** Returns the statement this tree is part of. Recursively going up the tree until a full statement is found.
       */
@@ -69,7 +71,7 @@ object TreeExtensions {
       }
   }
 
-  implicit class FindExtension(val thisTree: Tree) extends AnyVal {
+  implicit final class FindExtension(val thisTree: Tree) extends AnyVal {
 
     /** Searches for the given statement in the tree
       *
@@ -78,16 +80,23 @@ object TreeExtensions {
       * @return
       *   A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
-    def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
+    final def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
       thisTree.collectFirst {
         case found: T if found.isEqual(toFind) => found
       }
 
-    def findParent[T <: Tree](implicit classTag: ClassTag[T]): Option[T] =
+    final def exists[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Boolean =
+      thisTree
+        .collectFirst {
+          case found: T if found.isEqual(toFind) => true
+        }
+        .getOrElse(false)
+
+    final def findParent[T <: Tree](implicit classTag: ClassTag[T]): Option[T] =
       mapParent[T, Option[T]](thisTree, Some(_), None)
   }
 
-  implicit class TransformOnceExtension(val thisTree: Tree) extends AnyVal {
+  implicit final class TransformOnceExtension(val thisTree: Tree) extends AnyVal {
 
     /** The normal <code>Tree#transform</code> recursively transforms the tree each time a transformation is applied.
       * This causes a StackOverflowError when the transformation that is searched for is also present in the newly
@@ -95,7 +104,7 @@ object TreeExtensions {
       *
       * This function does not recursively go into the transformed tree
       */
-    def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
+    final def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
       Try {
         val onceTransformer = new OnceTransformer(fn)
         onceTransformer(thisTree)
@@ -104,7 +113,7 @@ object TreeExtensions {
 
     /** Tries to transform a tree exactly once, returning None if the transformation was never applied
       */
-    def transformExactlyOnce(fn: PartialFunction[Tree, Tree]): Option[Tree] = {
+    final def transformExactlyOnce(fn: PartialFunction[Tree, Tree]): Option[Tree] = {
       var isTransformed = false
       val checkFn = fn.andThen { t =>
         isTransformed = true
@@ -125,7 +134,7 @@ object TreeExtensions {
     }
   }
 
-  implicit class TreeIsInExtension(val thisTree: Tree) extends AnyVal {
+  implicit final class TreeIsInExtension(val thisTree: Tree) extends AnyVal {
 
     /** Returns if a tree is contained in a tree of type `[T]`. Recursively going up the tree until an annotation is
       * found.
@@ -134,7 +143,7 @@ object TreeExtensions {
       mapParent[T, Boolean](thisTree, _ => true, false)
   }
 
-  implicit class PathToRoot(thisTree: Tree) {
+  implicit final class PathToRoot(thisTree: Tree) {
     class LeafToRootTraversable(t: Tree) extends Iterable[Tree] {
       @tailrec
       private def recTraverse[U](rt: Tree)(f: Tree => U): Unit = {
@@ -155,11 +164,11 @@ object TreeExtensions {
           }
         }
     }
-    def pathToRoot: Iterable[Tree] = new LeafToRootTraversable(thisTree) {}
+    final def pathToRoot: Iterable[Tree] = new LeafToRootTraversable(thisTree) {}
   }
 
-  implicit class GetMods(val tree: Tree) extends AnyVal {
-    def getMods: List[Mod] =
+  implicit final class GetMods(val tree: Tree) extends AnyVal {
+    final def getMods: List[Mod] =
       tree match {
         case mc: Defn.Class  => mc.mods
         case mc: Defn.Trait  => mc.mods
@@ -178,14 +187,14 @@ object TreeExtensions {
 
   }
 
-  implicit class IsEqualExtension(val thisTree: Tree) extends AnyVal {
+  implicit final class IsEqualExtension(val thisTree: Tree) extends AnyVal {
 
     /** Structural equality for Trees
       */
     final def isEqual(other: Tree): Boolean = thisTree == other || thisTree.structure == other.structure
   }
 
-  implicit class CollectFirstExtension(tree: Tree) {
+  implicit final class CollectFirstExtension(tree: Tree) {
     final def collectFirst[T](pf: PartialFunction[Tree, T]): Option[T] = {
       var result = Option.empty[T]
       val fn = pf.lift
@@ -200,7 +209,39 @@ object TreeExtensions {
     }
   }
 
-  implicit class PositionExtension(val pos: Position) extends AnyVal {
+  implicit final class CollectWithContextExtension(val tree: Tree) extends AnyVal {
+
+    /** Scalameta collector that collects on a PartialFunction, but can build up a 'context' object that is passed to
+      * each node
+      */
+    final def collectWithContext[T, C](
+        buildContext: PartialFunction[Tree, C]
+    )(collectFn: PartialFunction[Tree, C => T]): List[T] = {
+      val buf = scala.collection.mutable.ListBuffer[T]()
+      val collectFnLifted = collectFn.lift
+      val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
+
+      def traverse(tree: Tree, context: Eval[Option[C]]): Unit = {
+        // Either match on the context of the currently-visiting tree, or go looking upwards for one (that's what the context param does)
+        val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
+
+        val findAndCollect = for {
+          collectedTree <- OptionT.fromOption[Eval](collectFnLifted(tree))
+          contextForTree <- OptionT(newContext)
+        } yield buf += collectedTree(contextForTree)
+        findAndCollect.value.value
+
+        tree.children.foreach(child => traverse(child, newContext))
+      }
+
+      // Traverse the tree, starting with an empty context
+      traverse(tree, Eval.now(None))
+      buf.toList
+    }
+
+  }
+
+  implicit final class PositionExtension(val pos: Position) extends AnyVal {
 
     /** Map a `scala.meta.Position` to a `mutationtesting.Location`
       */

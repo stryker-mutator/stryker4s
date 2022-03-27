@@ -5,9 +5,9 @@ import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.TransformOnceExtension
 import stryker4s.model.{MutantWithId, MutatedFile, PlaceableTree}
 import stryker4s.mutants.SourceContext
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 
 import scala.meta.*
+import scala.util.{Failure, Success}
 
 /** Instrument (place) mutants in a tree
   *
@@ -33,9 +33,14 @@ final class MutantInstrumenter(options: InstrumenterOptions) {
             buildMatch(cases)
           }
         }
-      }
-      .get
-      .syntax
+      } match {
+      case Success(tree) => tree.syntax
+      case Failure(e) =>
+        throw new RuntimeException(
+          s"Failed to instrument mutants in `${context.path}`. Please create a new issue including the stacktrace on GitHub https://github.com/stryker-mutator/stryker4s/issues/new",
+          e
+        )
+    }
 
     val mutations: MutationsWithId = mutantMap.toSortedMap.toVector.toNev.get.flatMap(_._2)
 
@@ -55,9 +60,3 @@ final class MutantInstrumenter(options: InstrumenterOptions) {
 
   def buildMatch(cases: NonEmptyVector[Case]) = q"(${options.mutationContext} match { ..case ${cases.toList} })"
 }
-
-case class InstrumenterOptions(
-    mutationContext: ActiveMutationContext,
-    pattern: Int => Pat = i => p"Some($i)",
-    condition: Option[DefaultMutationCondition] = None
-)
