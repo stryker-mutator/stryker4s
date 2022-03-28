@@ -9,6 +9,7 @@ package object tree {
 
   type Mutations = NonEmptyVector[MutatedCode]
 
+  type IgnoredMutation = (MutatedCode, IgnoredMutationReason)
   type IgnoredMutations = NonEmptyVector[(MutatedCode, IgnoredMutationReason)]
 
   type MutationsWithId = NonEmptyVector[MutantWithId]

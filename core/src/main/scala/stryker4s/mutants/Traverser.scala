@@ -39,6 +39,7 @@ class TraverserImpl(implicit config: Config) extends Traverser {
       case t: Lit                                                   => Some(t)
       case _                                                        => None
     }
+
     toPlace
       // Filter out all the node places that are invalid
       .filter {
