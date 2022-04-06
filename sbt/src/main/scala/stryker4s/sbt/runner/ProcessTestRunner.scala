@@ -23,7 +23,7 @@ import scala.sys.process.Process
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
   override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
-    val message = StartTestRun(mutant.id.globalId, testNames)
+    val message = StartTestRun(mutant.id.value, testNames)
     testProcess.sendMessage(message).map {
       case TestsSuccessful(testsCompleted) =>
         mutant.toMutantResult(MutantStatus.Survived, testsCompleted = Some(testsCompleted))

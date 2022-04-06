@@ -6,7 +6,7 @@ import stryker4s.extension.TreeExtensions.PositionExtension
 import scala.meta.{Position, Term}
 
 final case class MutantId(value: Int) extends AnyVal {
-  override def toString: String = value.toString
+  override def toString(): String = value.toString
 }
 
 final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {

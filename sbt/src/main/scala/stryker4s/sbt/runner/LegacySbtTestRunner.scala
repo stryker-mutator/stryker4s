@@ -24,7 +24,7 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
 
   def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
     val mutationState =
-      extracted.appendWithSession(settings :+ mutationSetting(mutant.id.globalId), initialState)
+      extracted.appendWithSession(settings :+ mutationSetting(mutant.id.value), initialState)
     runTests(
       mutationState,
       onError = {

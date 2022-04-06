@@ -7,9 +7,11 @@ import stryker4s.mutants.Traverser
 
 import scala.collection.immutable.SortedMap
 import scala.meta.Tree
+import stryker4s.mutants.findmutants.MutantMatcher
 
 class MutantCollector(
-    traverser: Traverser
+    traverser: Traverser,
+    matcher: MutantMatcher
 ) {
 
   def apply(tree: Tree): (Vector[(MutatedCode, IgnoredMutationReason)], Map[PlaceableTree, Mutations]) = {
@@ -18,7 +20,7 @@ class MutantCollector(
     val canPlaceF: PartialFunction[Tree, PlaceableTree] = Function.unlift(traverser.canPlace).andThen(PlaceableTree(_))
 
     // PartialFunction that _sometimes_ matches and returns the mutations at a PlaceableTree `NonEmptyList[Mutant]`
-    val onEnterF = traverser.findMutations.andThen(f => (p: PlaceableTree) => p -> f(p))
+    val onEnterF = matcher.allMatchers.andThen(f => (p: PlaceableTree) => p -> f(p))
 
     // Walk through the tree and create a Map of PlaceableTree and Mutants
     val collected: List[(PlaceableTree, Either[IgnoredMutations, Mutations])] =

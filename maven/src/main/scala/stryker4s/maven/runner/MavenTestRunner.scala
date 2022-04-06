@@ -43,6 +43,6 @@ class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: P
 
   private def createRequestWithMutation(mutant: MutantId): InvocationRequest =
     createRequest()
-      .addShellEnvironment("ACTIVE_MUTATION", mutant.globalId.toString())
+      .addShellEnvironment("ACTIVE_MUTATION", mutant.value.toString())
 
 }

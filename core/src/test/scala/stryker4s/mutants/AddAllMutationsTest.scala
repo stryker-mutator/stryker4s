@@ -5,8 +5,8 @@ import scala.meta.*
 import org.scalactic.source.Position
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.*
-import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.MutantMatcher
+import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder}
+import stryker4s.mutants.findmutants.MutantMatcherImpl
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 import stryker4s.model.PlaceableTree
@@ -82,7 +82,7 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
     def checkAllMutationsAreAdded(tree: Stat)(implicit pos: Position) = {
       val source = q"class Foo { $tree }"
       val foundMutants = source
-        .collect(new MutantMatcher().allMatchers)
+        .collect(new MutantMatcherImpl().allMatchers)
         .map(_(PlaceableTree(source.templ)))
         .collect { case Right(v) => v.toVector }
         .flatten
@@ -92,7 +92,7 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
       //     .flatMap(_.mutantStatements)
       //     .foreach { mutantStatement =>
       //       mutatedTree
-      //         .find(p"Some(${Lit.Int(mutantStatement.id.globalId)})")
+      //         .find(p"Some(${Lit.Int(mutantStatement.id.value)})")
       //         .getOrElse(
       //           fail {
       //             val mutant = foundMutants.find(_.id == mutantStatement.id).get

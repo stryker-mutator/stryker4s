@@ -49,7 +49,7 @@ class MatchBuilder() {
   // }
 
   // def mutantToCase(mutant: Mutant): Case =
-  //   buildCase(mutant.mutated, p"Some(${mutant.id.globalId})")
+  //   buildCase(mutant.mutated, p"Some(${mutant.id.value})")
 
   // protected def defaultCase(transformedMutant: TransformedMutants): Case =
   //   buildCase(transformedMutant.originalStatement, p"_")
@@ -65,7 +65,7 @@ class MatchBuilder() {
   //     .map { case (originalStatement, mutants) => TransformedMutants(originalStatement, mutants.toList) }
   //     .toSeq
   //     .sortBy(
-  //       _.mutantStatements.head.id.globalId
+  //       _.mutantStatements.head.id.value
   //     ) // Should be sorted so tree transformations are applied in order of discovery
   // }
 }

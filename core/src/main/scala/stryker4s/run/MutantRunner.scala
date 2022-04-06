@@ -127,9 +127,7 @@ class MutantRunner(
     val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.value))
 
     val (noCoverageMutants, testableMutants) =
-      rest.partition(m =>
-        coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.value)
-      )
+      rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.value))
 
     // val compilerErrorMutants =
     //   mutatedFiles.flatMap(m => m.nonCompilingMutants.toList.map(m.fileOrigin.relativePath -> _))
@@ -153,7 +151,7 @@ class MutantRunner(
     //   log.info(
     //     s"${compilerErrorMutants.size} mutants gave a compiler error. They will be marked as such in the report."
     //   )
-    //   log.debug(s"Non-compiling mutant ids are: ${compilerErrorMutants.map(_._2.id.globalId).mkString(", ")}")
+    //   log.debug(s"Non-compiling mutant ids are: ${compilerErrorMutants.map(_._2.id.value).mkString(", ")}")
     // }
 
     def mapPureMutants[K, V, VV](l: Seq[(K, V)], f: V => VV) =

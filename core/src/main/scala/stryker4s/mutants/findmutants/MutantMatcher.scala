@@ -13,17 +13,29 @@ import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
+import MutantMatcher.MutationMatcher
 
-class MutantMatcher()(implicit config: Config) {
+trait MutantMatcher {
 
-  /** A PartialFunction that can match on a ScalaMeta tree and return a `List[Either[IgnoredMutationReason, Mutant]]`.
+  /** Matches on all types of mutations and returns a list of all the mutations that were found.
+    */
+  def allMatchers: MutationMatcher
+}
+
+object MutantMatcher {
+
+  /** A PartialFunction that can match on a ScalaMeta tree and return a `Either[IgnoredMutations, Mutations]`.
     *
     * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
     * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
     */
   type MutationMatcher = PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
 
-  def allMatchers: MutationMatcher =
+}
+
+class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
+
+  override def allMatchers: MutationMatcher =
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
       matchLogicalOperator orElse

@@ -5,7 +5,7 @@ import org.scalatest.Inside
 import stryker4s.config.Config
 import stryker4s.files.ConfigFilesResolver
 import stryker4s.mutants.applymutants.ActiveMutationContext
-import stryker4s.mutants.findmutants.MutantFinder
+import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TraverserImpl}
 import stryker4s.report.{AggregateReporter, FinishedRunEvent}
@@ -45,7 +45,7 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
         testSourceCollector,
         new Mutator(
           new MutantFinder(),
-          new MutantCollector(new TraverserImpl()),
+          new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
           new MutantInstrumenter(InstrumenterOptions.sysContext(ActiveMutationContext.sysProps))
         ),
         testMutantRunner,
