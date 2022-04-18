@@ -2,16 +2,11 @@ package stryker4s.model
 
 import mutationtesting.{Location, MutantResult, MutantStatus}
 import stryker4s.extension.TreeExtensions.PositionExtension
-import stryker4s.extension.mutationtype.Mutation
 
-import scala.meta.{Position, Term, Tree}
+import scala.meta.{Position, Term}
 
-// TODO: remove
-final case class Mutant(id: MutantId, original: Term, mutated: Term, mutationType: Mutation[? <: Tree])
-
-// TODO: rename globalId to value?
-final case class MutantId(globalId: Int) extends AnyVal {
-  override def toString: String = globalId.toString
+final case class MutantId(value: Int) extends AnyVal {
+  override def toString: String = value.toString
 }
 
 final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {
@@ -27,15 +22,16 @@ final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {
     )
 }
 
-/** A piece of mutated code
-  */
 final case class MutatedCode(mutatedStatement: Term, metadata: MutantMetadata)
 
 /** Metadata of [[stryker4s.model.MutatedCode]]
+  *
   * @param original
   *   Original code
   * @param replacement
   *   Mutated replaced code
+  * @param mutatorName
+  *   Mutator category
   * @param location
   *   The location of the mutated code
   */

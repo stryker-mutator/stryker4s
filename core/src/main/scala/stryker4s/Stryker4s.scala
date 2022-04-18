@@ -5,9 +5,8 @@ import cats.syntax.align.*
 import mutationtesting.Metrics
 import stryker4s.config.Config
 import stryker4s.files.MutatesFileResolver
-import stryker4s.model.RunResult
+import stryker4s.model.{MutantResultsPerFile, RunResult}
 import stryker4s.mutants.Mutator
-import stryker4s.model.MutantResultsPerFile
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, Reporter}
 import stryker4s.run.MutantRunner

@@ -124,11 +124,11 @@ class MutantRunner(
   ): IO[MutantResultsPerFile] = {
     val allMutants = mutatedFiles.flatMap(m => m.mutants.toVector.map(m.fileOrigin -> _))
 
-    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.globalId))
+    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.value))
 
     val (noCoverageMutants, testableMutants) =
       rest.partition(m =>
-        coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.globalId)
+        coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.value)
       )
 
     // val compilerErrorMutants =
@@ -169,7 +169,7 @@ class MutantRunner(
     val testedMutants = Stream
       .emits(testableMutants)
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
-        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id.globalId, Seq.empty)
+        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id.value, Seq.empty)
         IO(log.debug(s"Running mutant $mutant")) *>
           testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })

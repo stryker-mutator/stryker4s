@@ -21,7 +21,7 @@ class ProcessTestRunner(command: Command, processRunner: ProcessRunner, tmpDir: 
   }
 
   def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
-    val id = mutant.id.globalId
+    val id = mutant.id.value
     processRunner(command, tmpDir, ("ACTIVE_MUTATION", id.toString)).map {
       case Success(0)                   => mutant.toMutantResult(MutantStatus.Survived)
       case Success(_)                   => mutant.toMutantResult(MutantStatus.Killed)

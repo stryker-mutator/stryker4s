@@ -1,11 +1,10 @@
 package stryker4s.extension.mutationtype
 
+import stryker4s.model.{MutantMetadata, MutatedCode, RegexParseError}
+import stryker4s.mutants.tree.IgnoredMutation
+
 import scala.meta.{Init, Term, *}
 import scala.util.{Failure, Success}
-import stryker4s.mutants.tree.IgnoredMutation
-import stryker4s.model.RegexParseError
-import stryker4s.model.MutatedCode
-import stryker4s.model.MutantMetadata
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */

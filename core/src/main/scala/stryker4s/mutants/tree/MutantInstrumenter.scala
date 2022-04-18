@@ -3,7 +3,7 @@ package stryker4s.mutants.tree
 import cats.data.{NonEmptyList, NonEmptyMap, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.TransformOnceExtension
-import stryker4s.model.{MutantWithId, MutatedFile, PlaceableTree}
+import stryker4s.model.{MutantId, MutantWithId, MutatedFile, PlaceableTree}
 import stryker4s.mutants.SourceContext
 
 import scala.meta.*
@@ -26,7 +26,7 @@ final class MutantInstrumenter(options: InstrumenterOptions) {
           val p = PlaceableTree(t)
           mutantMap(p).map { case (mutations) =>
             val mutableCases = mutations.map(mutantToCase)
-            val default = defaultCase(p, mutations.map(_.id.globalId).toNonEmptyList)
+            val default = defaultCase(p, mutations.map(_.id).toNonEmptyList)
 
             val cases = mutableCases :+ default
 
@@ -50,11 +50,11 @@ final class MutantInstrumenter(options: InstrumenterOptions) {
   def mutantToCase(mutant: MutantWithId): Case = {
     val newTree = mutant.mutatedCode.mutatedStatement.asInstanceOf[Term]
 
-    buildCase(newTree, options.pattern(mutant.id.globalId))
+    buildCase(newTree, options.pattern(mutant.id.value))
   }
 
-  def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[Int]): Case =
-    p"case _ if ${options.condition.mapApply(mutantIds)} => ${placeableTree.tree.asInstanceOf[Term]}"
+  def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]): Case =
+    p"case _ if ${options.condition.mapApply(mutantIds.map(_.value))} => ${placeableTree.tree.asInstanceOf[Term]}"
 
   def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 
