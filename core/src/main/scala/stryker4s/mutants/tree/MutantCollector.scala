@@ -7,7 +7,6 @@ import stryker4s.mutants.Traverser
 import stryker4s.mutants.findmutants.MutantMatcher
 
 import scala.meta.Tree
-import stryker4s.mutants.findmutants.MutantMatcher
 
 class MutantCollector(
     traverser: Traverser,
