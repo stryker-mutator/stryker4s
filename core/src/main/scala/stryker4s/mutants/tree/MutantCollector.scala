@@ -4,10 +4,10 @@ import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.model.{IgnoredMutationReason, MutatedCode, PlaceableTree}
 import stryker4s.mutants.Traverser
+import stryker4s.mutants.findmutants.MutantMatcher
 
 import scala.collection.immutable.SortedMap
 import scala.meta.Tree
-import stryker4s.mutants.findmutants.MutantMatcher
 
 class MutantCollector(
     traverser: Traverser,
@@ -15,8 +15,8 @@ class MutantCollector(
 ) {
 
   def apply(tree: Tree): (Vector[(MutatedCode, IgnoredMutationReason)], Map[PlaceableTree, Mutations]) = {
-    // PartialFunction that always, and also checks if we can place a mutation on the currently-visiting Tree node
 
+    // PartialFunction to check if the currently-visiting tree node is a node where we can place mutants
     val canPlaceF: PartialFunction[Tree, PlaceableTree] = Function.unlift(traverser.canPlace).andThen(PlaceableTree(_))
 
     // PartialFunction that _sometimes_ matches and returns the mutations at a PlaceableTree `NonEmptyList[Mutant]`

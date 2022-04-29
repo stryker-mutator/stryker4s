@@ -11,10 +11,9 @@ import scala.util.{Failure, Success}
 
 /** Instrument (place) mutants in a tree
   *
-  * @param mutationContext
-  *   on what the mutation should be activated. E.g. on `sys.env.get("ACTIVE_MUTATION")`.
-  * @param condition
-  *   Optional condition to add to the default case. Useful to add a side-effectful coverage measurement.
+  * @param options
+  *   Options for instrumenting a mutation switch, such as on what the mutation should be activated (like
+  *   `sys.env.get("ACTIVE_MUTATION")`).
   */
 final class MutantInstrumenter(options: InstrumenterOptions) {
 
