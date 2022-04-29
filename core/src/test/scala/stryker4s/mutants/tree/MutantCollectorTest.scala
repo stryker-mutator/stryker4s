@@ -3,7 +3,7 @@ package stryker4s.mutants.tree
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
 import mutationtesting.{Location, Position}
-import stryker4s.model.{MutantMetadata, MutatedCode}
+import stryker4s.model.{MutantMetadata, MutatedCode, PlaceableTree}
 import stryker4s.mutants.Traverser
 import stryker4s.mutants.findmutants.MutantMatcher
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
@@ -18,10 +18,10 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
   describe("onEnter") {
     it("should only call 'isDefinedAt' on the PartialFunction once") {
       val onEnterCounter = new AtomicInteger(0)
-      val pf: MutationMatcher = {
+      val pf: PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]] = {
         // if-guard is always true and counts how many times it is called
         case _ if onEnterCounter.incrementAndGet() != -1 =>
-          _ =>
+          (_: PlaceableTree) =>
             NonEmptyVector
               .one(
                 MutatedCode(q"foo", MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8))))
