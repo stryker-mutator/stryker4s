@@ -4,7 +4,7 @@ object Dependencies {
   object versions {
     val scala212 = "2.12.15"
     val scala213 = "2.13.8"
-    val scala3 = "3.1.1"
+    val scala3 = "3.1.2"
 
     /** Cross-versions for main projects
       */
@@ -17,7 +17,7 @@ object Dependencies {
     // Test dependencies
     val catsEffectScalaTest = "1.4.0"
     val mockitoScala = "1.17.5"
-    val scalatest = "3.2.11"
+    val scalatest = "3.2.12"
 
     // Direct dependencies
     val catsCore = "2.7.0"
@@ -28,9 +28,9 @@ object Dependencies {
     val mutationTestingElements = "1.7.10"
     val mutationTestingMetrics = "1.7.10"
     val pureconfig = "0.17.1"
-    val scalameta = "4.5.2"
+    val scalameta = "4.5.4"
     val slf4j = "1.7.36"
-    val sttp = "3.5.1"
+    val sttp = "3.5.2"
     val testInterface = "1.0"
     val weaponRegeX = "0.6.0"
   }
