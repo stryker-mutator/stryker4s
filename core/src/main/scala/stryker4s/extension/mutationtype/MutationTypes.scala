@@ -1,6 +1,6 @@
 package stryker4s.extension.mutationtype
 
-import stryker4s.extension.TreeExtensions.{IsEqualExtension, TreeIsInExtension}
+import stryker4s.extension.TreeExtensions.IsEqualExtension
 
 import scala.meta.*
 
@@ -88,7 +88,6 @@ protected trait NoInvalidPlacement[T <: Tree] {
         case ParentIsTypeLiteral() => true
         case _                     => false
       }
-      .filterNot(_.isIn[Mod.Annot])
 }
 
 private[stryker4s] case object ParentIsTypeLiteral {
