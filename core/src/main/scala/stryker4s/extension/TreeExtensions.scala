@@ -85,7 +85,7 @@ object TreeExtensions {
         case found: T if found.isEqual(toFind) => found
       }
 
-    final def exists[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Boolean =
+    final def contains[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Boolean =
       thisTree
         .collectFirst {
           case found: T if found.isEqual(toFind) => true
