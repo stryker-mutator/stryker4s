@@ -143,30 +143,6 @@ object TreeExtensions {
       mapParent[T, Boolean](thisTree, _ => true, false)
   }
 
-  implicit final class PathToRoot(thisTree: Tree) {
-    class LeafToRootTraversable(t: Tree) extends Iterable[Tree] {
-      @tailrec
-      private def recTraverse[U](rt: Tree)(f: Tree => U): Unit = {
-        f(rt)
-        if (rt.parent.isDefined)
-          recTraverse[U](rt.parent.get)(f)
-      }
-      override def foreach[U](f: Tree => U): Unit = recTraverse(t)(f)
-
-      override def iterator: Iterator[Tree] =
-        new Iterator[Tree] {
-          var currentElement = Option(t)
-          override def hasNext: Boolean = currentElement.flatMap(_.parent).isDefined
-
-          override def next(): Tree = {
-            currentElement = currentElement.flatMap(_.parent)
-            currentElement.get
-          }
-        }
-    }
-    final def pathToRoot: Iterable[Tree] = new LeafToRootTraversable(thisTree) {}
-  }
-
   implicit final class GetMods(val tree: Tree) extends AnyVal {
     final def getMods: List[Mod] =
       tree match {
