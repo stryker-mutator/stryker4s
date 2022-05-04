@@ -16,7 +16,6 @@ import stryker4s.mutants.findmutants.MutantFinder
 import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter, Mutations, MutationsWithId}
 
 import java.util.concurrent.atomic.AtomicInteger
-import scala.meta.Source
 
 class Mutator(
     mutantFinder: MutantFinder,
@@ -48,7 +47,7 @@ class Mutator(
       // Instrument files
       .parEvalMapUnordered(config.concurrency)(_.traverse { case (context, mutations) =>
         IO(log.debug(s"Instrumenting mutations in ${mutations.size} places in ${context.path}")) *>
-          IO(instrumenter(context, mutations))
+          IO(instrumenter.instrumentFile(context, mutations))
       })
       // Fold into 2 separate lists of ignored and found mutants (in files)
       .fold((Map.newBuilder[Path, Vector[MutantResult]], Vector.newBuilder[MutatedFile])) {
@@ -249,4 +248,3 @@ class Mutator(
   //   }
   // }
 }
-case class SourceContext(source: Source, path: Path)

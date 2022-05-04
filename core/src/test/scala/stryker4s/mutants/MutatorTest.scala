@@ -44,7 +44,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
                          |  }
                          |}""".stripMargin.parse[Source].get
 
-        assert(result.loneElement.mutatedSource.parse[Source].get.isEqual(expected), result.loneElement.mutatedSource)
+        assert(result.loneElement.mutatedSource.isEqual(expected), result.loneElement.mutatedSource)
       }
     }
 
@@ -70,7 +70,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
                          |      s"${bar}foo"
                          |  }
                          |}""".stripMargin.parse[Source].get
-        assert(result.loneElement.mutatedSource.parse[Source].get.isEqual(expected), result.loneElement.mutatedSource)
+        assert(result.loneElement.mutatedSource.isEqual(expected), result.loneElement.mutatedSource)
       }
     }
   }

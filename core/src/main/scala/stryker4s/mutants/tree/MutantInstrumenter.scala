@@ -3,10 +3,12 @@ package stryker4s.mutants.tree
 import cats.data.{NonEmptyList, NonEmptyMap, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.TransformOnceExtension
-import stryker4s.model.{MutantId, MutantWithId, MutatedFile, PlaceableTree}
-import stryker4s.mutants.SourceContext
+import stryker4s.extension.exception.{Stryker4sException, UnableToBuildPatternMatchException}
+import stryker4s.log.Logger
+import stryker4s.model.{MutantId, MutantWithId, MutatedFile, PlaceableTree, SourceContext}
 
 import scala.meta.*
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
 /** Instrument (place) mutants in a tree
@@ -15,30 +17,40 @@ import scala.util.{Failure, Success}
   *   Options for instrumenting a mutation switch, such as on what the mutation should be activated (like
   *   `sys.env.get("ACTIVE_MUTATION")`).
   */
-final class MutantInstrumenter(options: InstrumenterOptions) {
+class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
-  def apply(context: SourceContext, mutantMap: NonEmptyMap[PlaceableTree, MutationsWithId]): MutatedFile = {
+  def instrumentFile(context: SourceContext, mutantMap: NonEmptyMap[PlaceableTree, MutationsWithId]): MutatedFile = {
 
     val newTree = context.source
       .transformOnce {
-        Function.unlift { t =>
-          val p = PlaceableTree(t)
+        Function.unlift { originalTree =>
+          val p = PlaceableTree(originalTree)
           mutantMap(p).map { case (mutations) =>
             val mutableCases = mutations.map(mutantToCase)
             val default = defaultCase(p, mutations.map(_.id).toNonEmptyList)
 
             val cases = mutableCases :+ default
 
-            buildMatch(cases)
+            try
+              buildMatch(cases)
+            catch {
+              case NonFatal(e) =>
+                log.error(s"Failed to instrument mutants in `${context.path}`. Original statement: [$originalTree]")
+                log.error(
+                  s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
+                )
+                log.error(
+                  "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s."
+                )
+                throw UnableToBuildPatternMatchException(context.path, e)
+            }
           }
         }
       } match {
-      case Success(tree) => tree.syntax
+      case Success(tree)                  => tree
+      case Failure(e: Stryker4sException) => throw e
       case Failure(e) =>
-        throw new RuntimeException(
-          s"Failed to instrument mutants in `${context.path}`. Please create a new issue including the stacktrace on GitHub https://github.com/stryker-mutator/stryker4s/issues/new",
-          e
-        )
+        throw new UnableToBuildPatternMatchException(context.path, e)
     }
 
     val mutations: MutationsWithId = mutantMap.toSortedMap.toVector.toNev.get.flatMap(_._2)
@@ -57,5 +69,6 @@ final class MutantInstrumenter(options: InstrumenterOptions) {
 
   def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 
-  def buildMatch(cases: NonEmptyVector[Case]) = q"(${options.mutationContext} match { ..case ${cases.toList} })"
+  def buildMatch(cases: NonEmptyVector[Case]): Term.Match =
+    q"(${options.mutationContext} match { ..case ${cases.toList} })"
 }

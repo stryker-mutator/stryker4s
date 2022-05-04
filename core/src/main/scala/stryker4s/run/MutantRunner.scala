@@ -111,7 +111,7 @@ class MutantRunner(
           .createDirectories(targetPath.parent.get)
           .as((mutatedFile, targetPath))
     }.map { case (mutatedFile, targetPath) =>
-      Stream(mutatedFile.mutatedSource)
+      Stream(mutatedFile.mutatedSource.syntax)
         .covary[IO]
         .through(text.utf8.encode)
         .through(Files[IO].writeAll(targetPath))

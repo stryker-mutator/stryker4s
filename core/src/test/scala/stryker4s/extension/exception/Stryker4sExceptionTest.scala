@@ -1,13 +1,20 @@
 package stryker4s.extension.exception
 
 import cats.data.NonEmptyList
+import fs2.io.file.Path
 import stryker4s.model.CompilerErrMsg
 import stryker4s.testutil.Stryker4sSuite
 
 class Stryker4sExceptionTest extends Stryker4sSuite {
   describe("UnableToBuildPatternMatchException") {
     it("should have the correct message") {
-      UnableToBuildPatternMatchException().getMessage shouldBe "Unable to build pattern match"
+      val parent = new RuntimeException("parent")
+      val sut = UnableToBuildPatternMatchException(
+        Path("foo/bar.scala"),
+        parent
+      )
+      sut.getMessage shouldBe s"Failed to instrument mutants in `foo/bar.scala`.\nlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
+      sut.cause shouldBe parent
     }
   }
 

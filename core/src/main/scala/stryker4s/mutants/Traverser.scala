@@ -36,7 +36,8 @@ final class TraverserImpl extends Traverser {
       .filter {
         case name: Name => !name.isDefinition
         // Don't place inside `case` patterns or conditions
-        case p if p.findParent[Case].exists(c => c.pat.contains(currentTree) || c.cond.exists(_.contains(currentTree))) =>
+        case p
+            if p.findParent[Case].exists(c => c.pat.contains(currentTree) || c.cond.exists(_.contains(currentTree))) =>
           false
         case t if t.parent.exists(_.is[Init])                              => false
         case t if t.parent.exists(p => p.is[Term] && p.isNot[Term.Select]) => false
