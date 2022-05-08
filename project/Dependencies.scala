@@ -30,7 +30,7 @@ object Dependencies {
     val pureconfig = "0.17.1"
     val scalameta = "4.5.6"
     val slf4j = "1.7.36"
-    val sttp = "3.5.2"
+    val sttp = "3.6.1"
     val testInterface = "1.0"
     val weaponRegeX = "0.6.0"
   }
@@ -58,7 +58,7 @@ object Dependencies {
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
-  val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
+  val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "fs2" % versions.sttp
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
 
