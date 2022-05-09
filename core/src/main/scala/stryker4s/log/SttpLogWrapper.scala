@@ -1,7 +1,7 @@
 package stryker4s.log
 
-import sttp.client3.logging as sttp
 import cats.effect.IO
+import sttp.client3.logging as sttp
 
 /** Wraps a [[stryker4s.log.Logger]] to a sttp Logger
   */
