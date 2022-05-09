@@ -3,6 +3,7 @@ package stryker4s.report
 import cats.data.Validated.{Invalid, Valid}
 import cats.effect.{IO, Resource}
 import cats.syntax.foldable.*
+import fansi.Color.Red
 import fansi.{Bold, Str}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
@@ -58,11 +59,12 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
     response.body match {
       case Left(HttpError(errorBody, StatusCode.Unauthorized)) =>
         log.error(
-          s"Error HTTP PUT '$errorBody'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?"
+          s"Error HTTP PUT '$errorBody'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+              .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
         )
       case Left(HttpError(errorBody, statusCode)) =>
         log.error(
-          s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '$errorBody'"
+          s"Failed to PUT report to dashboard. Response status code: ${Red(statusCode.code.toString())}. Response body: '$errorBody'"
         )
       case Left(DeserializationException(original, error)) =>
         log.warn(
