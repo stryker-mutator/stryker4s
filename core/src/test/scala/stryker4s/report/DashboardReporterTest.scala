@@ -4,6 +4,7 @@ import cats.data.NonEmptyChain
 import cats.effect.{IO, Resource}
 import cats.syntax.validated.*
 import fansi.Bold
+import fansi.Color.Red
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Full, MutationScoreOnly}
@@ -126,7 +127,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          "Error HTTP PUT 'auth required'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?" shouldBe loggedAsError
+          s"Error HTTP PUT 'auth required'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+              .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?" shouldBe loggedAsError
         }
     }
 
@@ -145,7 +147,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          "Failed to PUT report to dashboard. Response status code: 500. Response body: 'internal error'" shouldBe loggedAsError
+          s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'internal error'" shouldBe loggedAsError
         }
     }
   }
