@@ -21,7 +21,7 @@ object SbtTestRunnerMain {
 
         println(s"Ready to accept connections on port $port")
 
-        val messageHandler = new TestRunnerMessageHandler()
+        val messageHandler = new TestRunnerMessageHandler
         val server = new TestProcessServer(messageHandler, socket)
         server.start()
       } finally socket.close()

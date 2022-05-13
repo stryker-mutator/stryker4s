@@ -29,7 +29,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     }
     (mutation: Option[(Int, Seq[String])]) => {
       val tasksToRun = mutation match {
-        case Some((_, testNames)) =>
+        case Some(_, testNames) =>
           tasks.filter(t => testNames.contains(t.taskDef().fullyQualifiedName()))
         case None => tasks
       }
@@ -88,7 +88,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
           throw t
         }
       }
-      status.updateAndGet(new UnaryOperator[Status]() {
+      status.updateAndGet(new UnaryOperator[Status] {
         override def apply(old: Status) = {
           combineStatus(old, event.status())
         }

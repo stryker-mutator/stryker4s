@@ -42,7 +42,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
         m.files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
         inside(firstResult._2) { case FileResult(source, mutants, language) =>
           language should equal("scala")
-          mutants should (
+          mutants should
             contain.only(
               MutantResult(
                 "0",
@@ -59,7 +59,6 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
                 MutantStatus.Survived
               )
             )
-          )
           source should equal(
             new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
           )

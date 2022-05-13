@@ -10,7 +10,7 @@ import stryker4s.model.{IgnoredMutationReason, Mutant, MutantId, MutationExclude
 
 import scala.meta.*
 
-class MutantMatcher()(implicit config: Config) {
+class MutantMatcher(implicit config: Config) {
   private val ids = Iterator.from(0)
 
   /** A PartialFunction that can match on a ScalaMeta tree and return a `List[Either[IgnoredMutationReason, Mutant]]`.

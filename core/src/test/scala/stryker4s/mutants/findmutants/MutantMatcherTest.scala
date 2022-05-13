@@ -12,7 +12,7 @@ import stryker4s.model.IgnoredMutationReason
 
 class MutantMatcherTest extends Stryker4sSuite {
   implicit private val config: Config = Config.default
-  private val sut = new MutantMatcher()
+  private val sut = new MutantMatcher
 
   def expectMutations(
       matchFun: PartialFunction[Tree, Seq[Either[IgnoredMutationReason, Mutant]]],
@@ -536,7 +536,7 @@ class MutantMatcherTest extends Stryker4sSuite {
 
   describe("Create mutant id's") {
     it("should register multiple mutants from a found mutant with multiple mutations") {
-      val sut = new MutantMatcher()
+      val sut = new MutantMatcher
       val mutants =
         sut.TermExtensions(GreaterThan).~~>(LesserThan, GreaterThanEqualTo, EqualTo).collect { case Right(v) => v }
 

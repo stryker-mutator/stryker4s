@@ -42,9 +42,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
-      case Console => new ConsoleReporter()
-      case Html    => new HtmlReporter(new DiskFileIO())
-      case Json    => new JsonReporter(new DiskFileIO())
+      case Console => new ConsoleReporter
+      case Html    => new HtmlReporter(new DiskFileIO)
+      case Json    => new JsonReporter(new DiskFileIO)
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
           // Catch if the user runs the dashboard on Java <11
@@ -54,7 +54,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
               .map(
                 LoggingBackend(
                   _,
-                  new SttpLogWrapper(),
+                  new SttpLogWrapper,
                   logResponseBody = true,
                   sensitiveHeaders = HeaderNames.SensitiveHeaders + "X-Api-Key"
                 )

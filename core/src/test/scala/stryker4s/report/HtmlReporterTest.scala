@@ -78,7 +78,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
   describe("mutation-test-elements") {
     it("should write the resource") {
       // Arrange
-      val fileIO = new DiskFileIO()
+      val fileIO = new DiskFileIO
 
       Files[IO].tempDirectory.use { tmpDir =>
         val tempFile = tmpDir.resolve("mutation-test-elements.js")

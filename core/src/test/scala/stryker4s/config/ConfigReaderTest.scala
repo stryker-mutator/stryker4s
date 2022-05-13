@@ -53,7 +53,7 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.baseDir shouldBe Path("").absolute
       result.mutate shouldBe empty
       result.files shouldBe empty
-      result.reporters should (contain.only(Html, Console))
+      result.reporters should contain.only(Html, Console)
       result.thresholds shouldBe Thresholds()
       result.maxTestRunnerReuse shouldBe None
       result.dashboard shouldBe DashboardOptions(

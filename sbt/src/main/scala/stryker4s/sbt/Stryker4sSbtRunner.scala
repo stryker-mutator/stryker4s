@@ -81,7 +81,7 @@ class Stryker4sSbtRunner(
       def extractTaskValue[T](task: TaskKey[T], name: String) = {
 
         Project.runTask(task, newState) match {
-          case Some((_, Value(result))) => result
+          case Some(_, Value(result)) => result
           case other =>
             log.debug(s"Expected $name but got $other")
             throw TestSetupException(name)
@@ -101,7 +101,7 @@ class Stryker4sSbtRunner(
 
       // See if the mutations compile, and if not extract the errors
       val compilerErrors = Project.runTask(Compile / compile, newState) match {
-        case Some((_, Inc(cause))) =>
+        case Some(_, Inc(cause)) =>
           val rootCauses = getRootCause(cause)
           rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
           val compileErrors = rootCauses
@@ -132,7 +132,7 @@ class Stryker4sSbtRunner(
         val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
           if (config.testFilter.isEmpty) group
           else {
-            val testFilter = new TestFilter()
+            val testFilter = new TestFilter
             val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
             new Tests.Group(name = group.name, tests = filteredTests, runPolicy = group.runPolicy)
           }
@@ -190,7 +190,7 @@ class Stryker4sSbtRunner(
         Test / javaOptions ++= filteredSystemProperties
       ) ++ {
         if (config.testFilter.nonEmpty) {
-          val testFilter = new TestFilter()
+          val testFilter = new TestFilter
           Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
         } else
           Nil

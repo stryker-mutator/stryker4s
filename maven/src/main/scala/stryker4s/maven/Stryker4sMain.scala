@@ -13,11 +13,11 @@ import javax.inject.Inject
 /** The main goal for this plugin. Starts Stryker4s.
   */
 @Mojo(name = "run")
-class Stryker4sMain @Inject() (@Parameter(defaultValue = "${project}") project: MavenProject) extends AbstractMojo {
+class Stryker4sMain @Inject(@Parameter(defaultValue = "${project}") project: MavenProject) extends AbstractMojo {
   override def execute(): Unit = {
     implicit val runtime = IORuntime.global
     implicit val logger: Logger = new MavenMojoLogger(getLog())
-    new Stryker4sMavenRunner(project, new DefaultInvoker())
+    new Stryker4sMavenRunner(project, new DefaultInvoker)
       .run()
       .map {
         case ErrorStatus => throw new MojoFailureException("Mutation score was below configured threshold")

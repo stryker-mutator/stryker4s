@@ -15,7 +15,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     implicit val config: Config = Config.default
 
     it("should log progress") {
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       mutantTestedStream(2).through(sut.mutantTested).compile.drain.asserting { _ =>
         "Tested mutant 1/2 (50%)" shouldBe loggedAsInfo
@@ -24,7 +24,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     it("should round decimal numbers") {
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       mutantTestedStream(3).through(sut.mutantTested).compile.drain.asserting { _ =>
         "Tested mutant 1/3 (33%)" shouldBe loggedAsInfo
@@ -37,7 +37,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
   describe("reportFinishedRun") {
     it("should report killed mutants as debug") {
       implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
       val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
@@ -66,7 +66,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should report a finished run with multiple mutants") {
       implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
       val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
@@ -107,7 +107,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should log mutants sorted by id") {
       implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
       val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
@@ -157,7 +157,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should report two line mutants properly") {
       implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
       val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
@@ -190,7 +190,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should report multiline mutants properly") {
       implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
       val results = MutationTestResult(
         thresholds = mutationtesting.Thresholds(80, 60),
         files = Map(
@@ -224,7 +224,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should round decimal mutation scores") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
       val threeReport = MutationTestResult(
         thresholds = Thresholds(80, 60), // These thresholds are not used
         files = Map(
@@ -250,7 +250,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should log NaN correctly as n/a") {
       implicit val config: Config = Config.default
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       val report = MutationTestResult(
         thresholds = Thresholds(80, 60),
@@ -288,7 +288,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should report the mutation score when it is info") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
@@ -299,7 +299,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should report the mutation score when it is warning") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
@@ -310,7 +310,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should report the mutation score when it is dangerously low") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
@@ -322,7 +322,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     it("should log when below threshold") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
-      val sut = new ConsoleReporter()
+      val sut = new ConsoleReporter
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))

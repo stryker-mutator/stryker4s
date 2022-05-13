@@ -23,14 +23,13 @@ class GlobFileResolverTest extends Stryker4sIOSuite {
       val sut = new GlobFileResolver(filledDirPath, defaultGlob)
 
       sut.files.compile.toVector.asserting { results =>
-        results should (
+        results should
           contain.only(
             basePath / "fileInRootSourceDir.scala",
             basePath / "package" / "someFile.scala",
             basePath / "package" / "secondFile.scala",
             basePath / "package" / "target.scala"
           )
-        )
       }
     }
 
@@ -48,11 +47,11 @@ class GlobFileResolverTest extends Stryker4sIOSuite {
       val sut = new GlobFileResolver(filledDirPath, Seq("**/someFile.scala", "src/main/scala/**/*.scala"))
 
       sut.files.compile.toVector.asserting { results =>
-        results should (contain.only(
+        results should contain.only(
           basePath / "package" / "someFile.scala",
           basePath / "package" / "secondFile.scala",
           basePath / "package" / "target.scala"
-        ))
+        )
       }
     }
 
@@ -60,14 +59,13 @@ class GlobFileResolverTest extends Stryker4sIOSuite {
       val sut = new GlobFileResolver(filledDirPath.parent.get, defaultGlob)
 
       sut.files.compile.toVector.asserting { results =>
-        results should (
+        results should
           contain.only(
             basePath / "fileInRootSourceDir.scala",
             basePath / "package" / "someFile.scala",
             basePath / "package" / "secondFile.scala",
             basePath / "package" / "target.scala"
           )
-        )
       }
     }
   }

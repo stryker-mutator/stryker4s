@@ -36,10 +36,10 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       }
       request.body shouldBe StringBody(jsonBody, "utf-8", MediaType.ApplicationJson)
       request.method shouldBe Method.PUT
-      request.headers should (contain.allOf(
+      request.headers should contain.allOf(
         new Header("X-Api-Key", "apiKeyHere"),
         new Header("Content-Type", "application/json")
-      ))
+      )
     }
 
     it("should make a score-only request when score-only is configured") {

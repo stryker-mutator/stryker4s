@@ -6,5 +6,5 @@ import org.scalatest.{LoneElement, OptionValues}
 import stryker4s.log.Logger
 
 abstract class Stryker4sSuite extends AnyFunSpec with Matchers with OptionValues with LoneElement {
-  implicit val logger: Logger = new NoopLogger()
+  implicit val logger: Logger = new NoopLogger
 }

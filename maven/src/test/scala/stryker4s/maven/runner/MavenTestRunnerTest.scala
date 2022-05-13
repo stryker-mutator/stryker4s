@@ -21,7 +21,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
   val tmpDir = Path("/home/user/tmpDir")
   val coverageTestNames = Seq.empty[String]
-  def properties = new ju.Properties()
+  def properties = new ju.Properties
   def goals = Seq("test")
 
   describe("runInitialTest") {
@@ -31,7 +31,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(1)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
+      val sut = new MavenTestRunner(new MavenProject, invokerMock, properties, goals)
 
       val result = sut.initialTestRun().unsafeRunSync()
 
@@ -44,7 +44,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(mockResult.getExitCode).thenReturn(0)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
+      val sut = new MavenTestRunner(new MavenProject, invokerMock, properties, goals)
 
       val result = sut.initialTestRun().unsafeRunSync()
 
@@ -60,8 +60,8 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(mockResult.getExitCode).thenReturn(0)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
-      val mavenProject = new MavenProject()
-      val profile = new Profile()
+      val mavenProject = new MavenProject
+      val profile = new Profile
       profile.setId("best-profile-ever")
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals)
@@ -80,7 +80,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(1)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
+      val sut = new MavenTestRunner(new MavenProject, invokerMock, properties, goals)
 
       val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
 
@@ -92,7 +92,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       val mockResult = mock[InvocationResult]
       when(mockResult.getExitCode).thenReturn(0)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
+      val sut = new MavenTestRunner(new MavenProject, invokerMock, properties, goals)
 
       val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
 
@@ -105,7 +105,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(mockResult.getExitCode).thenReturn(1)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
-      val project = new MavenProject()
+      val project = new MavenProject
       project.getProperties().setProperty("surefire.skipAfterFailureCount", "1")
 
       val sut = new MavenTestRunner(project, invokerMock, project.getProperties(), goals)
@@ -127,8 +127,8 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(mockResult.getExitCode).thenReturn(0)
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val captor = ArgCaptor[InvocationRequest]
-      val mavenProject = new MavenProject()
-      val profile = new Profile()
+      val mavenProject = new MavenProject
+      val profile = new Profile
       profile.setId("best-profile-ever")
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals)

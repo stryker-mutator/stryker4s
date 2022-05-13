@@ -11,7 +11,7 @@ import stryker4s.run.threshold.*
 
 import scala.concurrent.duration.*
 
-class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
+class ConsoleReporter(implicit config: Config, log: Logger) extends Reporter {
 
   override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] = in => {
     val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }
@@ -19,7 +19,7 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
     // 0.5 seconds is a good middle-ground between not printing too much and still feeling snappy
     (stream.head ++ stream.tail.debounce(0.5.seconds)).evalMap { case (event, progress) =>
       val total = event.totalMutants
-      IO(log.info(s"Tested mutant $progress/$total (${((progress / total.toDouble) * 100).round}%)"))
+      IO(log.info(s"Tested mutant $progress/$total (${(progress / total.toDouble * 100).round}%)"))
     }.drain
   }
 

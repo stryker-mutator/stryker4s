@@ -6,7 +6,7 @@ import scala.util.Try
 
 import stryker4s.config.TestFilter.wildcardToRegex
 
-class TestFilter()(implicit config: Config) {
+class TestFilter(implicit config: Config) {
 
   val exclamationMark = "!"
 

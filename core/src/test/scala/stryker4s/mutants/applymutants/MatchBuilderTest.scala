@@ -24,12 +24,12 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
 
       // Assert
       assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
-      result.cases.map(_.syntax) should (contain
+      result.cases.map(_.syntax) should contain
         .inOrderOnly(
           p"case Some(0) => x > 15".syntax,
           p"case Some(1) => x <= 15".syntax,
           p"case _ => x >= 15".syntax
-        ))
+        )
     }
   }
 
@@ -44,7 +44,7 @@ class MatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val transformedStatements = SourceTransformations(source, List(firstTransformed))
       val sut = new MatchBuilder(ActiveMutationContext.sysProps) {
         override def buildMatch(transformedMutant: TransformedMutants): Term.Match =
-          throw new Exception()
+          throw new Exception
       }
 
       // Act

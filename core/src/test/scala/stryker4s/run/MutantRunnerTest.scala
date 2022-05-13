@@ -42,7 +42,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
         "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
         runReport._1 shouldBe "simpleFile.scala"
         runReport._2.mutants.map(_.id) shouldBe List("1", "2", "3")
-        result.mutationScore shouldBe ((2d / 3d) * 100)
+        result.mutationScore shouldBe 2d / 3d * 100
         result.totalMutants shouldBe 3
         result.killed shouldBe 2
         result.survived shouldBe 1
@@ -87,7 +87,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
         runReport._1 shouldBe "simpleFile.scala"
         runReport._2.mutants.map(_.id) shouldBe List("1", "2", "3", "4")
-        result.mutationScore shouldBe ((2d / 3d) * 100)
+        result.mutationScore shouldBe 2d / 3d * 100
         result.totalMutants shouldBe 4
         result.totalInvalid shouldBe 1
         result.killed shouldBe 2

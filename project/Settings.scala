@@ -7,7 +7,7 @@ import sbtprotoc.ProtocPlugin.autoImport.PB
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) =>
+      case Some(2, _) =>
         Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
       case _ =>
         Nil
@@ -16,16 +16,16 @@ object Settings {
     Compile / unmanagedSourceDirectories += {
       val sourceDir = (Compile / sourceDirectory).value
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, n)) if n <= 12 => sourceDir / "scala-2.13-"
-        case _                       => sourceDir / "scala-2.13+"
+        case Some(2, n) if n <= 12 => sourceDir / "scala-2.13-"
+        case _                     => sourceDir / "scala-2.13+"
       }
     },
     // Fatal warnings only in CI
     scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
                        else Seq("-Xfatal-warnings")),
     scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) => Seq("-Xsource:3")
-      case _            => Seq.empty
+      case Some(2, _) => Seq("-Xsource:3")
+      case _          => Seq.empty
     })
   )
 

@@ -16,11 +16,11 @@ package object stryker4s {
       */
     private val coveredTests = TrieMap.empty[Int, ConcurrentLinkedQueue[String]]
 
-    private val activeTest = new AtomicReference[String]()
+    private val activeTest = new AtomicReference[String]
 
     /** If we are currently collecting coverage analysis. If not we can skip it for performance
       */
-    private val collectCoverage = new AtomicBoolean()
+    private val collectCoverage = new AtomicBoolean
 
     /** Add a mutant to the current coverage report
       */
@@ -29,7 +29,7 @@ package object stryker4s {
         val currentTest = activeTest.get
         if (currentTest != null) {
           ids.foreach { id =>
-            val currentCovered = coveredTests.getOrElseUpdate(id, new ConcurrentLinkedQueue())
+            val currentCovered = coveredTests.getOrElseUpdate(id, new ConcurrentLinkedQueue)
             if (!currentCovered.contains(currentTest))
               currentCovered.add(currentTest)
           }

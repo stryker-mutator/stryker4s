@@ -37,11 +37,11 @@ class CoverageMatchBuilderTest extends Stryker4sSuite with LogMatchers {
       val result = sut.buildMatch(TransformedMutants(originalStatement, mutants)).cases.init
 
       // Assert
-      result.map(_.syntax) should (contain
+      result.map(_.syntax) should contain
         .inOrderOnly(
           p"case 0 => x > 15".syntax,
           p"case 1 => x <= 15".syntax
-        ))
+        )
     }
   }
 }

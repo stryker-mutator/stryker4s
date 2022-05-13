@@ -40,7 +40,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         } yield timeout
 
         op.flatMap(_.tryGet).asserting { setTimeout =>
-          setTimeout.value shouldBe ((reportedTimeout * 1.5) + config.timeout)
+          setTimeout.value shouldBe reportedTimeout * 1.5 + config.timeout
           s"Timeout set to 8 seconds (${LightGray("net 2 seconds")})" shouldBe loggedAsInfo
         }
       }

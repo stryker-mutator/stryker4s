@@ -35,7 +35,7 @@ trait LogMatchers extends BeforeAndAfterEach {
       testLogger.findEvent(expectedLogMessage) match {
         case None =>
           testLogger.findEventPlainText(expectedLogMessage) match {
-            case Some((_, message)) =>
+            case Some(_, message) =>
               val msg =
                 s"""Log message was logged with level $expectedLogLevel, but with different colors.
                    |${Red("Obtained:")}
@@ -53,7 +53,7 @@ trait LogMatchers extends BeforeAndAfterEach {
                 s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
               )
           }
-        case Some((level, _)) =>
+        case Some(level, _) =>
           val sameLogLevel = level == expectedLogLevel
 
           MatchResult(

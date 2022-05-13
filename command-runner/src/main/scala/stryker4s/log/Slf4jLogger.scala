@@ -4,7 +4,7 @@ import org.slf4j.impl.SimpleLoggerFactory
 import org.slf4j.Logger as Slf4jInternalLogger
 
 class Slf4jLogger() extends Logger {
-  private val slf4jLogger: Slf4jInternalLogger = new SimpleLoggerFactory().getLogger("Stryker4s")
+  private val slf4jLogger: Slf4jInternalLogger = new SimpleLoggerFactory.getLogger("Stryker4s")
 
   def log(level: Level, msg: => String): Unit =
     doLog(level)(

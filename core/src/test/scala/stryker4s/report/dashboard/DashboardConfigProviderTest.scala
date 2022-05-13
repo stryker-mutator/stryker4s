@@ -163,7 +163,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe ("dashboard.version".invalidNec)
+      result shouldBe "dashboard.version".invalidNec
     }
 
     it("should not resolve empty env variables") {
@@ -179,7 +179,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe ("dashboard.version".invalidNec)
+      result shouldBe "dashboard.version".invalidNec
     }
 
     it("should not resolve when there is no STRYKER_DASHBOARD_API_KEY environment") {
@@ -195,7 +195,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe ("STRYKER_DASHBOARD_API_KEY".invalidNec)
+      result shouldBe "STRYKER_DASHBOARD_API_KEY".invalidNec
     }
 
     it("should not resolve when there is no project") {
@@ -211,7 +211,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe ("dashboard.project".invalidNec)
+      result shouldBe "dashboard.project".invalidNec
     }
 
     it("should not resolve when there is no version") {
@@ -227,7 +227,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe ("dashboard.version".invalidNec)
+      result shouldBe "dashboard.version".invalidNec
     }
 
     it("should return all unresolved") {
@@ -243,7 +243,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
 
       val result = sut.resolveConfig()
 
-      result shouldBe (NonEmptyChain("STRYKER_DASHBOARD_API_KEY", "dashboard.project", "dashboard.version").invalid)
+      result shouldBe NonEmptyChain("STRYKER_DASHBOARD_API_KEY", "dashboard.project", "dashboard.version").invalid
     }
   }
 }

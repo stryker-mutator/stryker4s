@@ -32,7 +32,7 @@ class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: P
   }
 
   private def createRequest(): InvocationRequest =
-    new DefaultInvocationRequest()
+    new DefaultInvocationRequest
       .setGoals(goals.asJava)
       .setOutputHandler(log.debug(_))
       .setBatchMode(true)

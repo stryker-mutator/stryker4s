@@ -80,8 +80,8 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
 
     def checkAllMutationsAreAdded(tree: Stat)(implicit pos: Position) = {
       val source = source"class Foo { $tree }"
-      val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.collect { case Right(v) => v }
-      val transformed = new StatementTransformer().transformSource(source, foundMutants)
+      val foundMutants = source.collect(new MutantMatcher.allMatchers).flatten.collect { case Right(v) => v }
+      val transformed = new StatementTransformer.transformSource(source, foundMutants)
       val mutatedTree = new MatchBuilder(ActiveMutationContext.testRunner).buildNewSource(transformed)
       transformed.transformedStatements
         .flatMap(_.mutantStatements)

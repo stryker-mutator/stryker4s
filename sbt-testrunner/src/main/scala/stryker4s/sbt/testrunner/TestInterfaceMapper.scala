@@ -25,7 +25,7 @@ trait TestInterfaceMapper {
     s match {
       case NestedSuiteSelector(suiteId)          => new sbt.testing.NestedSuiteSelector(suiteId)
       case NestedTestSelector(suiteId, testName) => new sbt.testing.NestedTestSelector(suiteId, testName)
-      case SuiteSelector()                       => new sbt.testing.SuiteSelector()
+      case SuiteSelector()                       => new sbt.testing.SuiteSelector
       case TestSelector(testName)                => new sbt.testing.TestSelector(testName)
       case TestWildcardSelector(testWildcard)    => new sbt.testing.TestWildcardSelector(testWildcard)
       case Selector.Empty                        => throw new MatchError(s)

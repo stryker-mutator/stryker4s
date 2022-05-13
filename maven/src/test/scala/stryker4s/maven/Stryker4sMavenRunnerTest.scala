@@ -20,7 +20,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
     it("should set the working directory") {
       val invokerMock = mock[Invoker]
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
-      val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
+      val sut = new Stryker4sMavenRunner(new MavenProject, invokerMock)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -40,7 +40,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       implicit val config: Config = Config.default.copy(testFilter = expectedTestFilter)
       val invokerMock = mock[Invoker]
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
-      val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
+      val sut = new Stryker4sMavenRunner(new MavenProject, invokerMock)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -60,7 +60,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
       val invokerMock = mock[Invoker]
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
-      val mavenProject = new MavenProject()
+      val mavenProject = new MavenProject
       mavenProject.getProperties().setProperty("test", "*OtherTest")
       val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
 
@@ -78,7 +78,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
       val invokerMock = mock[Invoker]
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
-      val mavenProject = new MavenProject()
+      val mavenProject = new MavenProject
       mavenProject.getProperties().setProperty("wildcardSuites", "*OtherTest")
       val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
 

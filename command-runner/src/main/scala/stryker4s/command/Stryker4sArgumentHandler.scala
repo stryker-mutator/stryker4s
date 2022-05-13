@@ -31,7 +31,7 @@ object Stryker4sArgumentHandler {
   def configureLogger(args: Seq[String]): IO[Logger] =
     for {
       logString <- IO(handleArgs(args))
-      logger <- IO(new Slf4jLogger())
+      logger <- IO(new Slf4jLogger)
       _ <- IO(logger.info(logString))
     } yield logger
 
