@@ -6,7 +6,7 @@ import fs2.io.file.Path
 import stryker4s.Stryker4s
 import stryker4s.config.*
 import stryker4s.files.*
-import stryker4s.log.Logger
+import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
@@ -17,6 +17,8 @@ import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
+import sttp.client3.logging.LoggingBackend
+import sttp.model.HeaderNames
 
 abstract class Stryker4sRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
@@ -47,7 +49,17 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
           // Catch if the user runs the dashboard on Java <11
-          try HttpClientFs2Backend.resource[IO]()
+          try
+            HttpClientFs2Backend
+              .resource[IO]()
+              .map(
+                LoggingBackend(
+                  _,
+                  new SttpLogWrapper(),
+                  logResponseBody = true,
+                  sensitiveHeaders = HeaderNames.SensitiveHeaders + "X-Api-Key"
+                )
+              )
           catch {
             case e: BootstrapMethodError =>
               // Wrap in a UnsupportedOperationException because BootstrapMethodError will not be caught
