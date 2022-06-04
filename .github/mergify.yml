@@ -1,7 +1,7 @@
 pull_request_rules:
   - name: Automatic label for scala-steward PRs
     conditions:
-      - author=scala-steward
+      - author=stryker-scala-steward[bot]
     actions:
       label:
         add:
