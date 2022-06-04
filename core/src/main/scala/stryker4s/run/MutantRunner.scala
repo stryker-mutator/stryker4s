@@ -182,7 +182,7 @@ class MutantRunner(
       }
       .compile
       .lastOrError
-      .map(_.map { case (k, v) => (k -> v.sortBy(_.mutant.id.globalId)) })
+      .map(_.map { case (k, v) => k -> v.sortBy(_.mutant.id.globalId) })
   }
 
   def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
