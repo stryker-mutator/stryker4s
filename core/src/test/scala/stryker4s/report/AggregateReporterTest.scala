@@ -2,7 +2,7 @@ package stryker4s.report
 
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
-import fs2.{INothing, Pipe, Stream}
+import fs2.{Pipe, Stream}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite, TestData}
 
@@ -38,7 +38,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     it("should report to all reporters even if a first reporter fails") {
       createMutantTestedReporter.flatMap { case (completed1, reporter1) =>
         val failingReporter = new Reporter {
-          override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] =
+          override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
             _.flatMap(_ => Stream.raiseError[IO](new RuntimeException("Something happened")))
         }
         val sut = new AggregateReporter(List(failingReporter, reporter1))
@@ -58,7 +58,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       (
         completed,
         new Reporter {
-          override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] =
+          override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
             in => in.evalMap(_ => completed.set(true)).drain
         }
       )
