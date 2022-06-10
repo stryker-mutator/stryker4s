@@ -15,8 +15,8 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       Stream(MutantTestedEvent(1), MutantTestedEvent(2))
         .through(sut.mutantTested)
         .compile
-        .toVector
-        .asserting(_ shouldBe empty)
+        .count
+        .asserting(_ shouldBe 0)
     }
 
     it("should report to all reporters that a mutant is tested") {
@@ -27,7 +27,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
           Stream(MutantTestedEvent(1), MutantTestedEvent(2))
             .through(sut.mutantTested)
             .compile
-            .toVector
+            .drain
             .flatMap { _ =>
               completed1.get.asserting(_ shouldBe true) *>
                 completed2.get.asserting(_ shouldBe true)
@@ -46,7 +46,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
         Stream(MutantTestedEvent(1), MutantTestedEvent(2))
           .through(sut.mutantTested)
           .compile
-          .toVector
+          .drain
           .flatMap { _ =>
             "Reporter failed to report, java.lang.RuntimeException: Something happened" shouldBe loggedAsError
             completed1.get.asserting(_ shouldBe true)
