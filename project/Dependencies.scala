@@ -20,7 +20,7 @@ object Dependencies {
     val scalatest = "3.2.12"
 
     // Direct dependencies
-    val catsCore = "2.7.0"
+    val catsCore = "2.8.0"
     val catsEffect = "3.3.12"
     val circe = "0.14.2"
     val fansi = "0.3.1"
