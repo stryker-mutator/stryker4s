@@ -2,7 +2,7 @@ package stryker4s.report
 
 import cats.effect.IO
 import cats.syntax.parallel.*
-import fs2.{INothing, Pipe}
+import fs2.Pipe
 import stryker4s.log.Logger
 
 class AggregateReporter(reporters: List[Reporter])(implicit log: Logger) extends Reporter {
@@ -15,7 +15,7 @@ class AggregateReporter(reporters: List[Reporter])(implicit log: Logger) extends
 
   /** Broadcast to all reporters in parallel
     */
-  private def reportAll[T](toReporterPipe: Reporter => Pipe[IO, T, INothing]): Pipe[IO, T, INothing] = {
+  private def reportAll[T](toReporterPipe: Reporter => Pipe[IO, T, Nothing]): Pipe[IO, T, Nothing] = {
     val pipes = reporters.map(toReporterPipe)
     if (pipes.isEmpty) _.drain
     else

@@ -2,9 +2,9 @@ import sbt.*
 
 object Dependencies {
   object versions {
-    val scala212 = "2.12.15"
+    val scala212 = "2.12.16"
     val scala213 = "2.13.8"
-    val scala3 = "3.1.2"
+    val scala3 = "3.1.3"
 
     /** Cross-versions for main projects
       */
@@ -16,19 +16,19 @@ object Dependencies {
 
     // Test dependencies
     val catsEffectScalaTest = "1.4.0"
-    val mockitoScala = "1.17.5"
+    val mockitoScala = "1.17.7"
     val scalatest = "3.2.12"
 
     // Direct dependencies
-    val catsCore = "2.7.0"
+    val catsCore = "2.8.0"
     val catsEffect = "3.3.12"
     val circe = "0.14.2"
     val fansi = "0.3.1"
-    val fs2 = "3.2.7"
+    val fs2 = "3.2.8"
     val mutationTestingElements = "1.7.10"
     val mutationTestingMetrics = "1.7.10"
     val pureconfig = "0.17.1"
-    val scalameta = "4.5.8"
+    val scalameta = "4.5.9"
     val slf4j = "1.7.36"
     val sttp = "3.6.2"
     val testInterface = "1.0"
