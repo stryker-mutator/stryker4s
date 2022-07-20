@@ -1,9 +1,9 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta.{Init, Term, *}
-import scala.util.{Failure, Success}
-
+import cats.syntax.either.*
 import stryker4s.model.RegexParseError
+
+import scala.meta.{Init, Term, *}
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */
@@ -38,10 +38,10 @@ case object PatternConstructor {
 
 object RegexMutations {
   def apply(pattern: String): Either[RegexParseError, Seq[RegularExpression]] = {
-    weaponregex.WeaponRegeX.mutate(pattern, mutationLevels = Seq(1)) match {
-      case Failure(e)     => Left(RegexParseError(pattern, e))
-      case Success(value) => Right(value.map(r => RegularExpression(r.pattern)))
-    }
+    weaponregex.WeaponRegeX
+      .mutate(pattern, mutationLevels = Seq(1))
+      .leftMap(RegexParseError(pattern, _))
+      .map(_.map(r => RegularExpression(r.pattern)))
   }
 }
 

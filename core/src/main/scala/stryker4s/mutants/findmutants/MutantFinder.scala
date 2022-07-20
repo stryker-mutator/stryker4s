@@ -23,8 +23,7 @@ class MutantFinder(matcher: MutantMatcher)(implicit config: Config, log: Logger)
     val parseErrors = ignored.collect { case p: RegexParseError => p }
     parseErrors.foreach(p =>
       log.error(
-        s"[RegexMutator]: The Regex parser of weapon-regex couldn't parse this regex pattern: '${p.original}'. Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error:",
-        p.exception
+        s"[RegexMutator]: The Regex parser of weapon-regex couldn't parse this regex pattern: '${p.original}'. Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error: ${p.message}"
       )
     )
     val excluded = ignored.collect { case m: MutationExcluded => m }
