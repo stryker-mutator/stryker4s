@@ -150,14 +150,16 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
             tree
         }
         .getOrElse(
-          throw new RuntimeException(s"Could not transform $original in ${placeableTree.tree} (${metadata.location})")
+          throw new RuntimeException(
+            s"Could not transform $original in ${placeableTree.tree} (${metadata.location.start.line}:${metadata.location.start.column} to ${metadata.location.end.line}:${metadata.location.end.column})"
+          )
         )
 
       mutatedTopStatement match {
         case t: Term => MutatedCode(t, metadata)
         case _ =>
           throw new RuntimeException(
-            s"Could not transform $original in ${placeableTree.tree} (${metadata.location}). Expected a term, but was ${mutatedTopStatement.getClass} at ${mutatedTopStatement.pos.startLine}:${mutatedTopStatement.pos.startColumn}"
+            s"Could not transform $original in ${placeableTree.tree} (${metadata.location}). Expected a term, but was ${metadata.location.start.line}:${metadata.location.start.column} to ${metadata.location.end.line}:${metadata.location.end.column}"
           )
       }
 

@@ -1,10 +1,11 @@
 package stryker4s.extension.mutationtype
 
+import cats.syntax.either.*
 import stryker4s.model.{MutantMetadata, MutatedCode, RegexParseError}
 import stryker4s.mutants.tree.IgnoredMutation
+import weaponregex.WeaponRegeX
 
-import scala.meta.*
-import scala.util.{Failure, Success}
+import scala.meta.{Init, Term, *}
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */
@@ -40,13 +41,15 @@ case object PatternConstructor {
 object RegexMutations {
   def apply(lit: Lit.String): Either[IgnoredMutation, Seq[RegularExpression]] = {
     val pattern = lit.value
-    weaponregex.WeaponRegeX.mutate(pattern, mutationLevels = Seq(1)) match {
-      case Failure(e) =>
+    WeaponRegeX
+      .mutate(pattern, mutationLevels = Seq(1))
+      .leftMap { msg =>
         val metadata =
           MutatedCode(lit, MutantMetadata(pattern, "", new RegularExpression(pattern).mutationName, lit.pos))
-        Left((metadata, RegexParseError(pattern, e)))
-      case Success(value) => Right(value.map(r => RegularExpression(r.pattern)))
-    }
+        (metadata, RegexParseError(pattern, msg))
+
+      }
+      .map(_.map(r => RegularExpression(r.pattern)))
   }
 }
 

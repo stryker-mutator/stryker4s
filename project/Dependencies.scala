@@ -21,18 +21,18 @@ object Dependencies {
 
     // Direct dependencies
     val catsCore = "2.8.0"
-    val catsEffect = "3.3.12"
+    val catsEffect = "3.3.14"
     val circe = "0.14.2"
-    val fansi = "0.3.1"
-    val fs2 = "3.2.8"
+    val fansi = "0.4.0"
+    val fs2 = "3.2.10"
     val mutationTestingElements = "1.7.10"
     val mutationTestingMetrics = "1.7.10"
     val pureconfig = "0.17.1"
     val scalameta = "4.5.9"
     val slf4j = "1.7.36"
-    val sttp = "3.6.2"
+    val sttp = "3.7.0"
     val testInterface = "1.0"
-    val weaponRegeX = "0.6.0"
+    val weaponRegeX = "1.0.2"
   }
 
   object test {

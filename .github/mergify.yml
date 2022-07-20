@@ -1,14 +1,14 @@
 pull_request_rules:
   - name: Automatic label for scala-steward PRs
     conditions:
-      - author=stryker-scala-steward[bot]
+      - author=scala-steward
     actions:
       label:
         add:
           - dependencies
   - name: Automatic merge for scala-steward PRs
     conditions:
-      - author=stryker-scala-steward[bot]
+      - author=scala-steward
       - body~=labels:.*semver-(minor|patch)
       # Unfortunately we have to define every CI action. When the build starts there are 0 checks, so each (of the zero) is succesful
       - status-success~=^Test on JDK .*

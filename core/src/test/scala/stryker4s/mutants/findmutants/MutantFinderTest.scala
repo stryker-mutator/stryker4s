@@ -189,7 +189,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
     //   // 0 excluded
     //   result._2 shouldBe 0
 
-    //   "[RegexMutator]: The Regex parser of weapon-regex couldn't parse this regex pattern: '[[]]'. Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error:" shouldBe loggedAsError
+    //   "[RegexMutator]: The Regex parser of weapon-regex couldn't parse this regex pattern: '[[]]'. Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error: [Error] Parser: Position 1:1, found \"[[]]\"" shouldBe loggedAsError
     // }
   }
 
