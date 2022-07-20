@@ -10,4 +10,4 @@ final case class MutationExcluded() extends IgnoredMutationReason
 
 /** Weapon-regeX gave a failure when parsing a regular expression
   */
-final case class RegexParseError(original: String, exception: Throwable) extends IgnoredMutationReason
+final case class RegexParseError(original: String, message: String) extends IgnoredMutationReason
