@@ -13,6 +13,7 @@ import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
+
 import MutantMatcher.MutationMatcher
 
 trait MutantMatcher {
@@ -151,15 +152,15 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         }
         .getOrElse(
           throw new RuntimeException(
-            s"Could not transform $original in ${placeableTree.tree} (${metadata.location.start.line}:${metadata.location.start.column} to ${metadata.location.end.line}:${metadata.location.end.column})"
+            s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation})"
           )
         )
 
       mutatedTopStatement match {
         case t: Term => MutatedCode(t, metadata)
-        case _ =>
+        case t =>
           throw new RuntimeException(
-            s"Could not transform $original in ${placeableTree.tree} (${metadata.location}). Expected a term, but was ${metadata.location.start.line}:${metadata.location.start.column} to ${metadata.location.end.line}:${metadata.location.end.column}"
+            s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation}). Expected a Term, but was a ${t.getClass().getSimpleName}"
           )
       }
 

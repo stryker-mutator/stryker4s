@@ -202,9 +202,9 @@ object TreeExtensions {
         val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
 
         val findAndCollect = for {
-          collectedTree <- OptionT.fromOption[Eval](collectFnLifted(tree))
+          collectTreeFn <- OptionT.fromOption[Eval](collectFnLifted(tree))
           contextForTree <- OptionT(newContext)
-        } yield buf += collectedTree(contextForTree)
+        } yield buf += collectTreeFn(contextForTree)
         findAndCollect.value.value
 
         tree.children.foreach(child => traverse(child, newContext))

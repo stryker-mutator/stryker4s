@@ -348,6 +348,18 @@ class TreeExtensionsTest extends Stryker4sSuite {
     }
   }
 
+  describe("isIn") {
+    it("should be false for annotations") {
+      val tree = q"""
+        @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
+        def quantifierLong[A: P]: P[Quantifier] = ???
+        """
+      val subTree = tree.find(Lit.String("stryker4s.mutation.MethodExpression")).value
+
+      subTree.isIn[Mod.Annot] shouldBe true
+    }
+  }
+
   describe("find") {
     it("should find statement in simple tree") {
       val tree = q"val x = y >= 5"
@@ -523,6 +535,27 @@ class TreeExtensionsTest extends Stryker4sSuite {
       }
 
       calls shouldBe 2
+    }
+
+    it("should not pass context from separate trees") {
+      val tree = q"""def foo = {
+            1 + 2
+            3 - 4
+          }"""
+      var calls = 0
+
+      tree.collectWithContext {
+        // Only match context on the first statement
+        case t if t.syntax == "1" => "firstContext"
+      } {
+        case q"1" =>
+          c =>
+            calls += 1
+            c shouldBe "firstContext"
+        case q"3" =>
+          c => fail(s"Should not be called, context was $c")
+      }
+      calls shouldBe 1
     }
   }
 }

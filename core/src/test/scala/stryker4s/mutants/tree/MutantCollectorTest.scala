@@ -3,9 +3,10 @@ package stryker4s.mutants.tree
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
 import mutationtesting.{Location, Position}
+import stryker4s.config.Config
 import stryker4s.model.{MutantMetadata, MutatedCode, PlaceableTree}
-import stryker4s.mutants.Traverser
-import stryker4s.mutants.findmutants.MutantMatcher
+import stryker4s.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
+import stryker4s.mutants.{Traverser, TraverserImpl}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
@@ -40,13 +41,27 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
       onEnterCalled shouldBe >(1)
       results.size shouldBe 1
     }
+    class TraverserStub(
+        termToMatch: Term
+    ) extends Traverser {
+      override def canPlace(currentTree: Tree): Option[Term] =
+        Some(termToMatch)
+
+    }
   }
 
-  class TraverserStub(
-      termToMatch: Term
-  ) extends Traverser {
-    override def canPlace(currentTree: Tree): Option[Term] =
-      Some(termToMatch)
+  describe("apply") {
+    implicit val config = Config.default
+
+    it("should return the mutated code") {
+
+      val sut = new MutantCollector(new TraverserImpl(), new MutantMatcherImpl())
+      val tree = q"def bar = 15 > 14"
+
+      val (ignored, found) = sut(tree)
+      ignored shouldBe empty
+      found.size shouldBe 1
+    }
 
   }
 
