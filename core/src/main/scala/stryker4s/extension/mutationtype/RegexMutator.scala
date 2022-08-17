@@ -42,13 +42,13 @@ case object PatternConstructor {
 
 object RegexMutations {
   def apply(lit: Lit.String): Either[IgnoredMutation, NonEmptyVector[RegularExpression]] = {
-    val pattern = lit.value
     weaponregex.WeaponRegeX
-      .mutate(pattern, mutationLevels = Seq(1))
+      .mutate(lit.value, mutationLevels = Seq(1))
       .leftMap(ignoredMutation(lit, _))
-      .map(v =>
+      .map(_.toVector)
+      .map(
         NonEmptyVector
-          .fromVectorUnsafe(v.toVector)
+          .fromVectorUnsafe(_)
           .map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation)))
       )
   }

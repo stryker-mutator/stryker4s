@@ -35,7 +35,9 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
               buildMatch(cases)
             catch {
               case NonFatal(e) =>
-                log.error(s"Failed to instrument mutants in `${context.path}`. Original statement: [$originalTree]")
+                log.error(
+                  s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.syntax}]"
+                )
                 log.error(
                   s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
                 )
