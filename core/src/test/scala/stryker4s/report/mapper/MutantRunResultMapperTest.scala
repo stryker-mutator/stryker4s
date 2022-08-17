@@ -58,7 +58,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
         system.ci shouldBe sys.env.contains("CI")
         system.os.value shouldBe OSInformation(platform = sys.props("os.name"), version = Some(sys.props("os.version")))
         system.cpu.value shouldBe CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors())
-        system.ram.value shouldBe RamInformation(total = Runtime.getRuntime().totalMemory())
+        system.ram.value shouldBe RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024)
       }
 
     }

@@ -77,7 +77,8 @@ trait MutantRunResultMapper {
     ci = sys.env.contains("CI"),
     os = OSInformation(platform = sys.props("os.name"), version = sys.props("os.version").some).some,
     cpu = CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors()).some,
-    ram = RamInformation(total = Runtime.getRuntime().totalMemory()).some
+    // Should be in MB
+    ram = RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024).some
   )
 
   private def frameworkInformation: FrameworkInformation = {
