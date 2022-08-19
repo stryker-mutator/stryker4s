@@ -13,7 +13,7 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.mutants.findmutants.MutantFinder
-import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter, Mutations, MutationsWithId}
+import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -28,7 +28,7 @@ class Mutator(
 
   type Found[A, B] = (SourceContext, (Vector[A], Map[PlaceableTree, B]))
   type FoundMutations = Found[(MutatedCode, IgnoredMutationReason), Mutations]
-  type FoundMutationsWithId = Found[MutantResult, MutationsWithId]
+  type FoundMutationsWithId = Found[MutantResult, MutantsWithId]
 
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
     files
@@ -50,13 +50,7 @@ class Mutator(
           IO(instrumenter.instrumentFile(context, mutations))
       })
       // Fold into 2 separate lists of ignored and found mutants (in files)
-      .fold((Map.newBuilder[Path, Vector[MutantResult]], Vector.newBuilder[MutatedFile])) {
-        case ((l, r), Right(f)) =>
-          (l, r += f)
-        case ((l, r), Left(f)) =>
-          (l += f, r)
-      }
-      .map { case (l, r) => (l.result(), r.result()) }
+      .through(foldAndSplitEithers)
       .evalTap { case (ignored, files) => logMutationResult(ignored, files) }
       .compile
       .lastOrError
@@ -96,7 +90,7 @@ class Mutator(
   private def splitIgnoredAndFound(
       ctx: SourceContext,
       ignored: Vector[MutantResult],
-      found: Map[PlaceableTree, MutationsWithId]
+      found: Map[PlaceableTree, MutantsWithId]
   ) = {
     val leftStream = Stream.emit((ctx.path, ignored).asLeft)
 
@@ -134,5 +128,16 @@ class Mutator(
           }
       }
   }
+
+  def foldAndSplitEithers[A, B, C]: Pipe[IO, Either[
+    (A, B),
+    C
+  ], (Map[A, B], Vector[C])] =
+    _.fold((Map.newBuilder[A, B], Vector.newBuilder[C])) {
+      case ((l, r), Right(f)) =>
+        (l, r += f)
+      case ((l, r), Left(f)) =>
+        (l += f, r)
+    }.map { case (l, r) => (l.result(), r.result()) }
 
 }

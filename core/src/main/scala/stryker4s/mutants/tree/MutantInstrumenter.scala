@@ -19,7 +19,7 @@ import scala.util.{Failure, Success}
   */
 class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
-  def instrumentFile(context: SourceContext, mutantMap: NonEmptyMap[PlaceableTree, MutationsWithId]): MutatedFile = {
+  def instrumentFile(context: SourceContext, mutantMap: NonEmptyMap[PlaceableTree, MutantsWithId]): MutatedFile = {
 
     val newTree = context.source
       .transformOnce {
@@ -53,7 +53,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
         throw new UnableToBuildPatternMatchException(context.path, e)
     }
 
-    val mutations: MutationsWithId = mutantMap.toSortedMap.toVector.toNev.get.flatMap(_._2)
+    val mutations: MutantsWithId = mutantMap.toSortedMap.toVector.toNev.get.flatMap(_._2)
 
     MutatedFile(context.path, newTree, mutations)
   }

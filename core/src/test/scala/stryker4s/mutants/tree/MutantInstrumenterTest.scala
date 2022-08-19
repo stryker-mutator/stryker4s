@@ -125,7 +125,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       category: Mutation[T],
       firstReplacement: Term,
       replacements: Term*
-  ): MutationsWithId = {
+  ): MutantsWithId = {
     NonEmptyVector
       .of(firstReplacement, replacements*)
       .zipWithIndex

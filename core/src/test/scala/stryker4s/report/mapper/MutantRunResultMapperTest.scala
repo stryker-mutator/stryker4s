@@ -78,7 +78,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
     val mutantRunResult3 =
       toMutant(0, GreaterThan, LesserThan, path3).toMutantResult(MutantStatus.Killed)
 
-    Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
+    Map(path -> Vector(mutantRunResult, mutantRunResult2), path3 -> Vector(mutantRunResult3))
   }
 
   /** Helper method to create a [[stryker4s.model.MutantWithId]], with the `original` param having the correct

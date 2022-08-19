@@ -2,7 +2,7 @@ package stryker4s.mutants.findmutants
 
 import stryker4s.config.Config
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
-import stryker4s.extension.TreeExtensions.FindExtension
+import stryker4s.extension.TreeExtensions.{FindExtension, PositionExtension}
 import stryker4s.extension.mutationtype.*
 import stryker4s.model.PlaceableTree
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
@@ -468,7 +468,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         tree,
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -477,7 +477,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new scala.util.matching.Regex($regex)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -486,7 +486,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new Regex($regex, "any")""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -495,7 +495,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = $regex.r""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -504,7 +504,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -513,7 +513,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = java.util.regex.Pattern.compile($regex)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -522,7 +522,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex, CASE_INSENSITIVE)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 

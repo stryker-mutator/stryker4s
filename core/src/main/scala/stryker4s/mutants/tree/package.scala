@@ -12,7 +12,7 @@ package object tree {
   type IgnoredMutation = (MutatedCode, IgnoredMutationReason)
   type IgnoredMutations = NonEmptyVector[(MutatedCode, IgnoredMutationReason)]
 
-  type MutationsWithId = NonEmptyVector[MutantWithId]
+  type MutantsWithId = NonEmptyVector[MutantWithId]
 
   type MutationMatcher = PartialFunction[Tree, PlaceableTree => Mutations]
 

@@ -7,7 +7,6 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta.Lit
 import scala.meta.quasiquotes.*
 
-
 class TraverserTest extends Stryker4sSuite with LogMatchers {
 
   val traverser = new TraverserImpl()

@@ -29,50 +29,11 @@ trait MutantRunResultMapper {
       results: MutantResultsPerFile
   ): Map[String, FileResult] =
     results.map { case (path, runResults) =>
-      path.toString.replace('\\', '/') -> toFileResult(path, runResults)
+      path.toString.replace('\\', '/') -> FileResult(fileContentAsString(path), runResults)
     }
-
-  private def toFileResult(path: Path, runResults: Seq[MutantResult]): FileResult =
-    FileResult(
-      fileContentAsString(path),
-      runResults
-    )
 
   private def fileContentAsString(path: Path): String =
     new String(Files.readAllBytes(path.toNioPath))
-
-  private def toMutantResult(runResult: MutantRunResult): MutantResult = {
-    val mutant = runResult.mutant
-    MutantResult(
-      mutant.id.globalId.toString,
-      mutant.mutationType.mutationName,
-      mutant.mutated.syntax,
-      toLocation(mutant.original.pos),
-      toMutantStatus(runResult),
-      runResult.description,
-      testsCompleted = runResult.testsCompleted
-    )
-  }
-
-  private def toLocation(pos: scala.meta.inputs.Position): Location =
-    Location(
-      start = Position(line = pos.startLine + 1, column = pos.startColumn + 1),
-      end = Position(line = pos.endLine + 1, column = pos.endColumn + 1)
-    )
-
-  private def toMutantStatus(mutant: MutantRunResult): MutantStatus =
-    mutant match {
-      case _: Survived     => MutantStatus.Survived
-      case _: Killed       => MutantStatus.Killed
-      case _: NoCoverage   => MutantStatus.NoCoverage
-      case _: TimedOut     => MutantStatus.Timeout
-      case _: Error        => MutantStatus.RuntimeError
-      case _: Ignored      => MutantStatus.Ignored
-      case _: CompileError => MutantStatus.CompileError
-    }
-
-  private def fileContentAsString(path: Path)(implicit config: Config): String =
-    new String(Files.readAllBytes((config.baseDir / path).toNioPath))
 
   private def systemInformation: SystemInformation = SystemInformation(
     ci = sys.env.contains("CI"),

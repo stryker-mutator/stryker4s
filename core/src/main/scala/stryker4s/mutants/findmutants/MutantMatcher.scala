@@ -6,7 +6,7 @@ import cats.syntax.functor.*
 import cats.syntax.semigroup.*
 import stryker4s.config.Config
 import stryker4s.extension.PartialFunctionOps.*
-import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
+import stryker4s.extension.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
 import stryker4s.extension.mutationtype.*
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
@@ -119,11 +119,12 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
 
   private def createMutations[T <: Term](
       original: Term,
-      mutated: Either[IgnoredMutation, Seq[SubstitutionMutation[T]]]
+      mutated: Either[IgnoredMutation, NonEmptyVector[RegularExpression]]
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = { placeableTree =>
     mutated
       .leftMap(NonEmptyVector.one(_))
-      .flatMap(muts => createMutations(original)(muts.head, muts.tail*)(placeableTree))
+      .flatMap(muts => buildMutations[RegularExpression](original, muts, _.tree)(placeableTree))
+
   }
 
   private def createMutations[T <: Term](
@@ -143,8 +144,13 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       mutationToTerm: T => Term
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = placeableTree => {
     val mutations = replacements.map { replacement =>
+      val location = replacement match {
+        case r: RegularExpression => r.location
+        case _                    => original.pos.toLocation
+      }
+
       val tree: Tree = mutationToTerm(replacement)
-      val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, original.pos)
+      val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, location)
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
           case t if t.isEqual(original) =>
