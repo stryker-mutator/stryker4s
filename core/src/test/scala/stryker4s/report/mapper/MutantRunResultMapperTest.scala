@@ -20,53 +20,65 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       val sut = new MutantRunResultMapper {}
       implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
 
-      val path = FileUtil.getResource("scalaFiles/ExampleClass.scala").relativePath
-      val mutantRunResult = Killed(
-        toMutant(0, EqualTo, NotEqualTo, path)
-      )
-      val mutantRunResult2 = Survived(
-        toMutant(1, Lit.String("Hugo"), EmptyString, path)
-      )
-      val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala").relativePath
-      val mutantRunResult3 = Killed(
-        toMutant(0, GreaterThan, LesserThan, path3)
-      )
-
-      val mutationRunResults = Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
-
       val result = sut.toReport(mutationRunResults)
-      inside(result) { case m: MutationTestResult[Config] =>
-        m.thresholds should equal(Thresholds(high = 60, low = 40))
-        m.files should have size 2
-        val firstResult = m.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
-        m.files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
-        inside(firstResult._2) { case FileResult(source, mutants, language) =>
-          language should equal("scala")
-          mutants should (
-            contain.only(
-              MutantResult(
-                "0",
-                "EqualityOperator",
-                "!=",
-                Location(Position(4, 27), Position(4, 29)),
-                MutantStatus.Killed
-              ),
-              MutantResult(
-                "1",
-                "StringLiteral",
-                "\"\"",
-                Location(Position(6, 31), Position(6, 37)),
-                MutantStatus.Survived
-              )
+      result.thresholds should equal(Thresholds(high = 60, low = 40))
+      result.files should have size 2
+      val firstResult = result.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
+      result.files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
+      inside(firstResult._2) { case FileResult(source, mutants, language) =>
+        language should equal("scala")
+        mutants should (
+          contain.only(
+            MutantResult(
+              "0",
+              "EqualityOperator",
+              "!=",
+              Location(Position(4, 27), Position(4, 29)),
+              MutantStatus.Killed
+            ),
+            MutantResult(
+              "1",
+              "StringLiteral",
+              "\"\"",
+              Location(Position(6, 31), Position(6, 37)),
+              MutantStatus.Survived
             )
           )
-          source should equal(
-            new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
-          )
-          m.config.value shouldBe config
-        }
+        )
+        source should equal(
+          new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
+        )
+        val framework = result.framework.value
+        result.config.value shouldBe config
+        framework.name shouldBe "Stryker4s"
+        framework.branding.value.homepageUrl shouldBe "https://stryker-mutator.io"
+        framework.branding.value.imageUrl.value should not be empty
+
+        val system = result.system.value
+        system.ci shouldBe sys.env.contains("CI")
+        system.os.value shouldBe OSInformation(platform = sys.props("os.name"), version = Some(sys.props("os.version")))
+        system.cpu.value shouldBe CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors())
+        system.ram.value shouldBe RamInformation(total = Runtime.getRuntime().totalMemory())
       }
+
     }
+
+  }
+
+  def mutationRunResults(implicit config: Config) = {
+    val path = FileUtil.getResource("scalaFiles/ExampleClass.scala").relativePath
+    val mutantRunResult = Killed(
+      toMutant(0, EqualTo, NotEqualTo, path)
+    )
+    val mutantRunResult2 = Survived(
+      toMutant(1, Lit.String("Hugo"), EmptyString, path)
+    )
+    val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala").relativePath
+    val mutantRunResult3 = Killed(
+      toMutant(0, GreaterThan, LesserThan, path3)
+    )
+
+    Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
   }
 
   /** Helper method to create a [[stryker4s.model.Mutant]], with the `original` param having the correct `Location`
