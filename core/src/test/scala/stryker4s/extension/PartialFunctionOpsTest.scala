@@ -42,7 +42,7 @@ class PartialFunctionOpsTest extends Stryker4sSuite {
     }
 
     it("Empty Monoid is equal to empty PartialFunction") {
-      PartialFunction.empty shouldBe Monoid[TestPF].empty
+      PartialFunction.empty[Int, List[String]] shouldBe Monoid[TestPF].empty
     }
 
     it("Empty Monoid should not match on anything equal to empty PartialFunction") {
