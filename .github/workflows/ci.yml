@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
       - name: Run tests
-        run: sbt 'compile; ++2.13.8 test'
+        run: sbt 'compile; ++2.13 test'
   sbt-scripted:
     name: sbt plugin scripted tests
     runs-on: ubuntu-latest
