@@ -73,7 +73,7 @@ class MutantRunner(
     val targetDir = config.baseDir / "target"
     for {
       _ <- Resource.eval(Files[IO].createDirectories(targetDir))
-      tmpDir <- Files[IO].tempDirectory(Some(targetDir), "stryker4s-", None)
+      tmpDir <- Files[IO].tempDirectory(targetDir.some, "stryker4s-", None)
       _ <- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq))
     } yield tmpDir
   }
@@ -171,7 +171,7 @@ class MutantRunner(
         IO(log.debug(s"Running mutant $mutant")) *>
           testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })
-      .observe(in => in.map(_ => MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
+      .observe(in => in.as(MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 
     // Back to per-file structure
     implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)
@@ -219,16 +219,15 @@ class MutantRunner(
       description = Some(
         "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."
       ),
-      static = Some(true)
+      static = true.some
     )
 
   private def noCoverageMutant(mutant: MutantWithId): MutantResult = mutant
     .toMutantResult(MutantStatus.Ignored)
     .copy(
-      description = Some(
-        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."
-      ),
-      static = Some(true)
+      description =
+        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some,
+      static = true.some
     )
 
   case class CoverageExclusions(

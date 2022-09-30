@@ -1,6 +1,6 @@
 package stryker4s.mutants.tree
 
-import cats.syntax.all.*
+import cats.syntax.align.*
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.model.{IgnoredMutationReason, MutatedCode, PlaceableTree}
 import stryker4s.mutants.Traverser

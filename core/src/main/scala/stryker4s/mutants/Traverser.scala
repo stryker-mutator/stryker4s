@@ -20,17 +20,17 @@ final class TraverserImpl(implicit log: Logger) extends Traverser {
 
   def canPlace(currentTree: Tree): Option[Term] = {
     val toPlace = currentTree match {
-      case _: Term.Name                                             => None
-      case t: Term.Match                                            => Some(t)
-      case t: Case if t.cond.flatMap(_.find(currentTree)).isDefined => None
-      case t: Term.Apply                                            => Some(t)
-      case t: Term.ApplyInfix                                       => Some(t)
-      case t: Term.Block                                            => Some(t)
-      case t: Term.If                                               => Some(t)
-      case t: Term.ForYield                                         => Some(t)
-      case t: Term.Interpolate                                      => Some(t)
-      case t: Lit                                                   => Some(t)
-      case _                                                        => None
+      case _: Term.Name                                             => none
+      case t: Term.Match                                            => t.some
+      case t: Case if t.cond.flatMap(_.find(currentTree)).isDefined => none
+      case t: Term.Apply                                            => t.some
+      case t: Term.ApplyInfix                                       => t.some
+      case t: Term.Block                                            => t.some
+      case t: Term.If                                               => t.some
+      case t: Term.ForYield                                         => t.some
+      case t: Term.Interpolate                                      => t.some
+      case t: Lit                                                   => t.some
+      case _                                                        => none
     }
 
     toPlace

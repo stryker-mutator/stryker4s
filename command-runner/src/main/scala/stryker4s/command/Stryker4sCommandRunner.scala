@@ -2,6 +2,7 @@ package stryker4s.command
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import cats.syntax.either.*
 import fs2.io.file.Path
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessTestRunner
@@ -27,7 +28,7 @@ class Stryker4sCommandRunner(processRunnerConfig: ProcessRunnerConfig, timeout: 
 
     val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
-    Right(NonEmptyList.of(withTimeout))
+    NonEmptyList.one(withTimeout).asRight
   }
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =

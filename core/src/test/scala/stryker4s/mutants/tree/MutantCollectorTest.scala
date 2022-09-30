@@ -1,7 +1,8 @@
 package stryker4s.mutants.tree
 
 import cats.data.NonEmptyVector
-import cats.syntax.all.*
+import cats.syntax.either.*
+import cats.syntax.option.*
 import mutationtesting.{Location, Position}
 import stryker4s.config.Config
 import stryker4s.model.{MutantMetadata, MutatedCode, PlaceableTree}
@@ -33,7 +34,7 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
       val sut = new MutantCollector(new TraverserStub(q"foo"), matcher)
       val tree = q"def bar = 15 > 14"
 
-      val results = sut(tree)
+      val (_, results) = sut(tree)
       val onEnterCalled = onEnterCounter.get()
 
       def lengthOfTree(t: Tree): Int = 1 + t.children.map(lengthOfTree(_)).sum
@@ -44,9 +45,7 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
     class TraverserStub(
         termToMatch: Term
     ) extends Traverser {
-      override def canPlace(currentTree: Tree): Option[Term] =
-        Some(termToMatch)
-
+      override def canPlace(currentTree: Tree): Option[Term] = termToMatch.some
     }
   }
 

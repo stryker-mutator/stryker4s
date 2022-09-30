@@ -2,6 +2,7 @@ package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
 import cats.syntax.apply.*
+import cats.syntax.option.*
 import com.comcast.ip4s.{IpLiteralSyntax, Port, SocketAddress}
 import fs2.io.net.Network
 import mutationtesting.{MutantResult, MutantStatus}
@@ -26,10 +27,10 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
     val message = StartTestRun(mutant.id.value, testNames)
     testProcess.sendMessage(message).map {
       case TestsSuccessful(testsCompleted) =>
-        mutant.toMutantResult(MutantStatus.Survived, testsCompleted = Some(testsCompleted))
+        mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some)
       case TestsUnsuccessful(testsCompleted) =>
-        mutant.toMutantResult(MutantStatus.Killed, testsCompleted = Some(testsCompleted))
-      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, description = Some(msg))
+        mutant.toMutantResult(MutantStatus.Killed, testsCompleted = testsCompleted.some)
+      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, description = msg.some)
       case _                       => mutant.toMutantResult(MutantStatus.RuntimeError)
     }
   }

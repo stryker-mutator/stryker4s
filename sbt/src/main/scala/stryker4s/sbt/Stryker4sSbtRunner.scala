@@ -2,6 +2,7 @@ package stryker4s.sbt
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import cats.syntax.either.*
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
 import sbt.Keys.*
@@ -107,7 +108,7 @@ class Stryker4sSbtRunner(
                   pathStr = tmpDir.relativize(Path(path.absolutePath)).toString
                   line <- e.position().line().asScala
                 } yield CompilerErrMsg(e.message(), pathStr, line)
-              }.toSeq
+              }
             }
             .toList
 
@@ -200,7 +201,7 @@ class Stryker4sSbtRunner(
 
     if (config.legacyTestRunner) {
       // No compiler error handling in the legacy runner
-      Right(setupLegacySbtTestRunner(settings, extracted))
+      setupLegacySbtTestRunner(settings, extracted).asRight
     } else
       setupSbtTestRunner(settings, extracted)
   }

@@ -114,9 +114,10 @@ class Mutator(
     IO(log.info(s"Found ${Color.Cyan(totalFiles.toString())} file(s) to be mutated.")) *>
       IO(
         log.info(
-          s"${Color.Cyan(totalMutants.toString())} mutant(s) generated.${if (excludedMutants > 0)
-              s" Of which ${Color.LightRed(excludedMutants.toString())} mutant(s) are excluded."
-            else ""}"
+          s"${Color.Cyan(totalMutants.toString())} mutant(s) generated.${(excludedMutants > 0)
+              .guard[Option]
+              .as(s" Of which ${Color.LightRed(excludedMutants.toString())} mutant(s) are excluded.")
+              .orEmpty}"
         )
       ) *> {
         if (includedMutants == 0 && excludedMutants > 0)

@@ -1,7 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
-import cats.syntax.all.*
+import cats.syntax.traverse.*
 import fansi.Color.*
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.api.testprocess.CoverageReport

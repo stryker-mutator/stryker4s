@@ -2,6 +2,7 @@ package stryker4s.maven
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import cats.syntax.either.*
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
@@ -29,7 +30,9 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
     setTestProperties(properties, config.testFilter)
     invoker.setWorkingDirectory(tmpDir.toNioPath.toFile())
 
-    Right(NonEmptyList.of(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals))))
+    NonEmptyList
+      .one(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals)))
+      .asRight
   }
 
   private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {

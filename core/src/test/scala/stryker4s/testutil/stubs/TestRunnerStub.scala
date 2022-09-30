@@ -3,6 +3,7 @@ package stryker4s.testutil.stubs
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.applicativeError.*
+import cats.syntax.either.*
 import fs2.io.file.Path
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.model.*
@@ -44,5 +45,5 @@ object TestRunnerStub extends TestData {
   private def makeResults(
       mutants: Seq[MutantResult]
   ): Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]] =
-    Right(ResourcePool(NonEmptyList.of(Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _))))))
+    ResourcePool(NonEmptyList.one(Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _))))).asRight
 }
