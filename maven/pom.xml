@@ -53,9 +53,9 @@
     <properties>
         <encoding>UTF-8</encoding>
         <!-- Scala versions -->
-        <scala.version>2.13.8</scala.version>
+        <scala.version>2.13.9</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
-        <scala-maven.version>4.7.1</scala-maven.version>
+        <scala-maven.version>4.7.2</scala-maven.version>
         <scalatest.version>3.2.13</scalatest.version>
         <mockito-scala.version>1.17.12</mockito-scala.version>
     </properties>

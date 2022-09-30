@@ -23,7 +23,7 @@ object Stryker4sArgumentHandler {
       .headOption
       .getOrElse(Level.INFO)
 
-    sys.props(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY) = logLevel.toString();
+    sys.props(org.slf4j.simple.SimpleLogger.DEFAULT_LOG_LEVEL_KEY) = logLevel.toString();
 
     s"Set logging level to $logLevel"
   }
