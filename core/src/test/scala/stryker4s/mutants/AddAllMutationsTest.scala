@@ -1,15 +1,15 @@
 package stryker4s.mutants
 
-import cats.effect.IO
 import fs2.Stream
 import fs2.io.file.Path
 import org.scalactic.source.Position
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.FindExtension
-import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
+import stryker4s.mutants.findmutants.MutantMatcherImpl
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testutil.stubs.MutantFinderStub
 
 import scala.meta.*
 
@@ -128,9 +128,6 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
           "Failed to instrument mutants" should not be loggedAsWarning
         }
     }
-  }
-  private class MutantFinderStub(returns: Source)(implicit config: Config) extends MutantFinder {
-    override def parseFile(file: Path): IO[Source] = IO.pure(returns)
   }
 
 }
