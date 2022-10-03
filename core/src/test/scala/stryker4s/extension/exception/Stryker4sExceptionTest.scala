@@ -13,7 +13,7 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
         Path("foo/bar.scala"),
         parent
       )
-      sut.getMessage shouldBe s"Failed to instrument mutants in `foo/bar.scala`.\nlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
+      sut.getMessage shouldBe s"Failed to instrument mutants in `foo/bar.scala`.\nPlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
       sut.cause shouldBe parent
     }
   }

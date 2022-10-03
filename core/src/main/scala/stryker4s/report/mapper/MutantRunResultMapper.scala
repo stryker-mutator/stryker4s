@@ -4,6 +4,7 @@ import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Config, Thresholds as ConfigThresholds}
+import stryker4s.extension.FileExtensions.*
 import stryker4s.model.MutantResultsPerFile
 
 import java.nio.file.Files
@@ -29,11 +30,11 @@ trait MutantRunResultMapper {
       results: MutantResultsPerFile
   )(implicit config: Config): Map[String, FileResult] =
     results.map { case (path, runResults) =>
-      path.toString.replace('\\', '/') -> FileResult(fileContentAsString(path), runResults)
+      path.relativePath.toString.replace('\\', '/') -> FileResult(fileContentAsString(path), runResults)
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
-    new String(Files.readAllBytes((config.baseDir / path).toNioPath))
+    new String(Files.readAllBytes((if (path.isAbsolute) path else config.baseDir / path).toNioPath))
 
   private def systemInformation: SystemInformation = SystemInformation(
     ci = sys.env.contains("CI"),

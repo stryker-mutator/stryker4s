@@ -6,7 +6,6 @@ import stryker4s.model.{IgnoredMutationReason, MutatedCode, PlaceableTree}
 import stryker4s.mutants.Traverser
 import stryker4s.mutants.findmutants.MutantMatcher
 
-import scala.collection.immutable.SortedMap
 import scala.meta.Tree
 
 class MutantCollector(
@@ -27,14 +26,12 @@ class MutantCollector(
       tree.collectWithContext(canPlaceF)(onEnterF)
 
     // IgnoredMutations are grouped by PlaceableTree, but we want all IgnoredMutations per file, which we can do with a foldLeft
-    implicit val order = Ordering.by[PlaceableTree, String](_.toString)
     val (l, r) = collected.foldLeft(
-      (Vector.newBuilder[(MutatedCode, IgnoredMutationReason)], SortedMap.empty[PlaceableTree, Mutations])
+      (Vector.newBuilder[(MutatedCode, IgnoredMutationReason)], Map.empty[PlaceableTree, Mutations])
     ) {
       case ((acc, acc2), (_, Left(m)))  => (acc ++= m.toVector, acc2)
-      case ((acc, acc2), (p, Right(m))) => (acc, acc2.alignCombine(SortedMap(p -> m)))
+      case ((acc, acc2), (p, Right(m))) => (acc, acc2.alignCombine(Map(p -> m)))
     }
-    l.result() -> r.toMap
-
+    l.result() -> r
   }
 }

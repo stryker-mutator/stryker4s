@@ -3,7 +3,6 @@ package stryker4s.mutants
 import cats.Functor
 import cats.data.NonEmptyVector
 import cats.effect.IO
-import cats.kernel.Order
 import cats.syntax.all.*
 import fansi.Color
 import fs2.io.file.Path
@@ -93,11 +92,7 @@ class Mutator(
       found: Map[PlaceableTree, MutantsWithId]
   ) = {
     val leftStream = Stream.emit((ctx.path, ignored).asLeft)
-
-    implicit val ordering = Order.by[PlaceableTree, String](p => p.tree.structure)
-    val f = found.toVector.toNev.map(_.toNem).tupleLeft(ctx)
-    val rightStream = Stream.fromOption(f).map(_.asRight)
-
+    val rightStream = if (found.nonEmpty) Stream.emit((ctx, found).asRight) else Stream.empty
     leftStream ++ rightStream
   }
 

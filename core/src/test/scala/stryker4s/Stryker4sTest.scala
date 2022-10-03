@@ -58,9 +58,7 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
         val FinishedRunEvent(reportedResults, _, _, _) = runReportMock.value
 
         reportedResults.files.flatMap(_._2.mutants) should have size 4
-        reportedResults.files.map { case (path, _) =>
-          path shouldBe "simpleFile.scala"
-        }
+        reportedResults.files.loneElement._1 shouldBe "simpleFile.scala"
         result shouldBe SuccessStatus
       }
     }

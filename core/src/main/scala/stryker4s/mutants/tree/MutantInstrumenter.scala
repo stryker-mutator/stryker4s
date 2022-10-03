@@ -1,6 +1,6 @@
 package stryker4s.mutants.tree
 
-import cats.data.{NonEmptyList, NonEmptyMap, NonEmptyVector}
+import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.TransformOnceExtension
 import stryker4s.extension.exception.{Stryker4sException, UnableToBuildPatternMatchException}
@@ -19,13 +19,13 @@ import scala.util.{Failure, Success}
   */
 class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
-  def instrumentFile(context: SourceContext, mutantMap: NonEmptyMap[PlaceableTree, MutantsWithId]): MutatedFile = {
+  def instrumentFile(context: SourceContext, mutantMap: Map[PlaceableTree, MutantsWithId]): MutatedFile = {
 
     val newTree = context.source
       .transformOnce {
         Function.unlift { originalTree =>
           val p = PlaceableTree(originalTree)
-          mutantMap(p).map { case (mutations) =>
+          mutantMap.get(p).map { case (mutations) =>
             val mutableCases = mutations.map(mutantToCase)
             val default = defaultCase(p, mutations.map(_.id).toNonEmptyList)
 
@@ -55,7 +55,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
         throw new UnableToBuildPatternMatchException(context.path, e)
     }
 
-    val mutations: MutantsWithId = mutantMap.toSortedMap.toVector.toNev.get.flatMap(_._2)
+    val mutations: MutantsWithId = mutantMap.map(_._2).toVector.toNev.get.flatten
 
     MutatedFile(context.path, newTree, mutations)
   }

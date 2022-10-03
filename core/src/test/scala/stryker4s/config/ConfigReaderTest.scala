@@ -1,5 +1,6 @@
 package stryker4s.config
 
+import fansi.Color.Yellow
 import fansi.Underlined
 import fs2.io.file.Path
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
@@ -170,7 +171,9 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       ConfigReader.readConfig(configSource)
 
-      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: 'other-unknown-key, unknown-key'.
+      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: '${Yellow(
+           "other-unknown-key"
+         )}, ${Yellow("unknown-key")}'.
           |Please check the documentation at https://stryker-mutator.io/docs/stryker4s/configuration for available options.""".stripMargin shouldBe loggedAsWarning
     }
   }
