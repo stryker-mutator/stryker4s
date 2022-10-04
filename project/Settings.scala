@@ -1,3 +1,5 @@
+import io.github.davidgregory084.*
+import TpolecatPlugin.autoImport.*
 import Release.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
@@ -20,13 +22,7 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
-    // Fatal warnings only in CI
-    scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
-                       else Seq("-Xfatal-warnings")),
-    scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) => Seq("-Xsource:3")
-      case _            => Seq.empty
-    })
+    tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
@@ -86,6 +82,10 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
+    // Fatal warnings only in CI
+    tpolecatCiModeEnvVar := "CI",
+    tpolecatReleaseModeEnvVar := "CI_RELEASE",
+    tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,
