@@ -2,6 +2,7 @@ package stryker4s.maven
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import cats.syntax.either.*
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
@@ -9,14 +10,16 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.maven.runner.MavenTestRunner
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.ActiveMutationContext.{envVar, ActiveMutationContext}
+import stryker4s.mutants.applymutants.ActiveMutationContext
+import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.Stryker4sRunner
 
 import java.util.Properties
 
 class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4sRunner {
 
-  override def mutationActivation(implicit config: Config): ActiveMutationContext = envVar
+  override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
+    InstrumenterOptions.sysContext(ActiveMutationContext.envVar)
 
   override def resolveTestRunners(
       tmpDir: Path
@@ -27,7 +30,9 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
     setTestProperties(properties, config.testFilter)
     invoker.setWorkingDirectory(tmpDir.toNioPath.toFile())
 
-    Right(NonEmptyList.of(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals))))
+    NonEmptyList
+      .one(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals)))
+      .asRight
   }
 
   private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {

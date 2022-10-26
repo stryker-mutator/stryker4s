@@ -1,0 +1,7 @@
+{
+  "metals.scalafmtConfigPath": "../.scalafmt.conf",
+  "metals.scalafixConfigPath": "../.scalafix.conf",
+  "files.watcherExclude": {
+    "**/target": true
+  }
+}

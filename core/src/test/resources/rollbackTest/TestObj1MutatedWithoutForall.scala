@@ -5,23 +5,23 @@ object TestObj1 {
     Files.exists(Paths.get(a))
   }
   def least(a: Int, b: Int): Int = {
-    _root_.scala.sys.props.get("ACTIVE_MUTATION").map(_root_.java.lang.Integer.parseInt(_)) match {
-      case Some(1) =>
+    _root_.scala.sys.props.get("ACTIVE_MUTATION") match {
+      case Some("1") =>
         (a, b) match {
           case (a, b) if a <= b => a
           case (a, b) if a == b => 0
         }
-      case Some(2) =>
+      case Some("2") =>
         (a, b) match {
           case (a, b) if a > b  => a
           case (a, b) if a == b => 0
         }
-      case Some(3) =>
+      case Some("3") =>
         (a, b) match {
           case (a, b) if a == b => a
           case (a, b) if a == b => 0
         }
-      case Some(4) =>
+      case Some("4") =>
         (a, b) match {
           case (a, b) if a < b  => a
           case (a, b) if a != b => 0

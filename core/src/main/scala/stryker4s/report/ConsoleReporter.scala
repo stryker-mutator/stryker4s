@@ -6,6 +6,7 @@ import fs2.Pipe
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.*
+import stryker4s.extension.NumberExtensions.*
 import stryker4s.log.Logger
 import stryker4s.run.threshold.*
 
@@ -122,11 +123,4 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
   private def isUndetected(mutant: MutantResult): Boolean =
     mutant.status == MutantStatus.Survived || mutant.status == MutantStatus.NoCoverage
 
-  implicit class DoubleRoundTwoDecimals(score: Double) {
-    def roundDecimals(decimals: Int): Double =
-      if (!score.isNaN())
-        BigDecimal(score).setScale(decimals, BigDecimal.RoundingMode.HALF_UP).toDouble
-      else
-        score
-  }
 }

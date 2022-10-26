@@ -7,7 +7,7 @@ import stryker4s.config.{Config, Thresholds as ConfigThresholds}
 import stryker4s.extension.FileExtensions.*
 import stryker4s.extension.ImplicitMutationConversion.*
 import stryker4s.extension.mutationtype.*
-import stryker4s.model.{Killed, Mutant, MutantId, Survived}
+import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode}
 import stryker4s.scalatest.FileUtil
 import stryker4s.testutil.Stryker4sSuite
 
@@ -21,6 +21,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
       implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
 
       val result = sut.toReport(mutationRunResults)
+
       result.thresholds should equal(Thresholds(high = 60, low = 40))
       result.files should have size 2
       val firstResult = result.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
@@ -67,22 +68,21 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
 
   def mutationRunResults(implicit config: Config) = {
     val path = FileUtil.getResource("scalaFiles/ExampleClass.scala").relativePath
-    val mutantRunResult = Killed(
-      toMutant(0, EqualTo, NotEqualTo, path)
-    )
-    val mutantRunResult2 = Survived(
-      toMutant(1, Lit.String("Hugo"), EmptyString, path)
-    )
-    val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala").relativePath
-    val mutantRunResult3 = Killed(
-      toMutant(0, GreaterThan, LesserThan, path3)
-    )
+    val mutantRunResult =
+      toMutant(0, EqualTo, NotEqualTo, path).toMutantResult(MutantStatus.Killed)
 
-    Map(path -> List(mutantRunResult, mutantRunResult2), path3 -> List(mutantRunResult3))
+    val mutantRunResult2 =
+      toMutant(1, Lit.String("Hugo"), EmptyString, path).toMutantResult(MutantStatus.Survived)
+
+    val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala").relativePath
+    val mutantRunResult3 =
+      toMutant(0, GreaterThan, LesserThan, path3).toMutantResult(MutantStatus.Killed)
+
+    Map(path -> Vector(mutantRunResult, mutantRunResult2), path3 -> Vector(mutantRunResult3))
   }
 
-  /** Helper method to create a [[stryker4s.model.Mutant]], with the `original` param having the correct `Location`
-    * property
+  /** Helper method to create a [[stryker4s.model.MutantWithId]], with the `original` param having the correct
+    * `Location` property
     */
   private def toMutant(id: Int, original: Term, category: SubstitutionMutation[? <: Term], file: Path) = {
     import stryker4s.extension.TreeExtensions.FindExtension
@@ -90,6 +90,12 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
     import scala.meta.*
     val parsed = file.toNioPath.parse[Source]
     val foundOrig = parsed.get.find(original).value
-    Mutant(MutantId(id), foundOrig, category.tree, category)
+    MutantWithId(
+      MutantId(id),
+      MutatedCode(
+        foundOrig,
+        MutantMetadata(foundOrig.syntax, category.tree.syntax, category.mutationName, foundOrig.pos)
+      )
+    )
   }
 }

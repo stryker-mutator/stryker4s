@@ -1,5 +1,6 @@
 package stryker4s.config.pure
 
+import cats.syntax.either.*
 import fs2.io.file.Path
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
@@ -30,15 +31,13 @@ trait ConfigConfigReader {
     ConfigReader[List[String]] emap { exclusions =>
       val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
       if (invalid.nonEmpty)
-        Left(
-          CannotConvert(
-            exclusions.mkString(", "),
-            s"excluded-mutations",
-            s"invalid option(s) '${invalid.mkString(", ")}'. Valid exclusions are '${Mutation.mutations.mkString(", ")}'"
-          )
-        )
+        CannotConvert(
+          exclusions.mkString(", "),
+          s"excluded-mutations",
+          s"invalid option(s) '${invalid.mkString(", ")}'. Valid exclusions are '${Mutation.mutations.mkString(", ")}'"
+        ).asLeft
       else
-        Right(valid.toSet)
+        valid.toSet.asRight
     }
 
   implicit def uriReader = _root_.pureconfig.module.sttp.reader
@@ -46,30 +45,26 @@ trait ConfigConfigReader {
   implicit def thresholdsReader: ConfigReader[Thresholds] = {
     def isNotPercentage(n: Int) = n < 0 || n > 100
 
-    def notPercentageError(value: Int, name: String): Left[CannotConvert, Thresholds] =
-      Left(CannotConvert(value.toString(), s"thresholds.$name", "must be a percentage 0-100"))
+    def notPercentageError(value: Int, name: String): Either[CannotConvert, Thresholds] =
+      CannotConvert(value.toString(), s"thresholds.$name", "must be a percentage 0-100").asLeft
 
     deriveReader[Thresholds] emap {
       case Thresholds(high, _, _) if isNotPercentage(high)   => notPercentageError(high, "high")
       case Thresholds(_, low, _) if isNotPercentage(low)     => notPercentageError(low, "low")
       case Thresholds(_, _, break) if isNotPercentage(break) => notPercentageError(break, "break")
       case Thresholds(high, low, _) if high < low =>
-        Left(
-          CannotConvert(
-            high.toString(),
-            "thresholds.high",
-            s"'high' ($high) must be greater than or equal to 'low' ($low)"
-          )
-        )
+        CannotConvert(
+          high.toString(),
+          "thresholds.high",
+          s"'high' ($high) must be greater than or equal to 'low' ($low)"
+        ).asLeft
       case Thresholds(_, low, break) if low <= break =>
-        Left(
-          CannotConvert(
-            low.toString(),
-            "thresholds.low",
-            s"'low' ($low) must be greater than 'break' ($break)"
-          )
-        )
-      case valid => Right(valid)
+        CannotConvert(
+          low.toString(),
+          "thresholds.low",
+          s"'low' ($low) must be greater than 'break' ($break)"
+        ).asLeft
+      case valid => valid.asRight
     }
   }
 
@@ -95,7 +90,7 @@ trait ConfigConfigReader {
       }
 
       if (deprecatedVersions.contains(input))
-        Left(toCannotConvert("Deprecated dialect"))
+        toCannotConvert("Deprecated dialect").asLeft
       else
         scalaVersions
           .collectFirst { case (strings, dialect) if strings.contains(input.toLowerCase()) => dialect }

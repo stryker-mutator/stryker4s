@@ -1,15 +1,13 @@
 package stryker4s.mutants
 
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.Forall
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
+import stryker4s.mutants.applymutants.ActiveMutationContext
+import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
+import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.scalatest.{FileUtil, LogMatchers}
 import stryker4s.testutil.Stryker4sIOSuite
 import stryker4s.testutil.stubs.TestFileResolver
-
-import scala.meta.*
 
 class RollbackTest extends Stryker4sIOSuite with LogMatchers {
   describe("Mutator") {
@@ -27,47 +25,47 @@ class RollbackTest extends Stryker4sIOSuite with LogMatchers {
       val testSourceCollector = new TestFileResolver(testFiles)
 
       val mutator = new Mutator(
-        new MutantFinder(new MutantMatcher),
-        new StatementTransformer,
-        new MatchBuilder(ActiveMutationContext.sysProps)
+        new MutantFinder(),
+        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+        new MutantInstrumenter(InstrumenterOptions.sysContext(ActiveMutationContext.sysProps))
       )
 
       val errs = List(
         CompilerErrMsg("value forall is not a member of object java.nio.file.Files", "rollbackTest/TestObj1.scala", 7)
       )
+      fail()
+      // val ret = mutator.mutate(testSourceCollector.files, errs)
 
-      val ret = mutator.mutate(testSourceCollector.files, errs)
+      // ret.asserting { files =>
+      //   val testObj1Mutated = files.head
+      //   val testObj2Mutated = files.last
 
-      ret.asserting { files =>
-        val testObj1Mutated = files.head
-        val testObj2Mutated = files.last
+      //   testObj1Mutated.fileOrigin shouldBe testObj1Path
+      //   testObj1Mutated.tree.structure shouldBe FileUtil
+      //     .getResource("rollbackTest/TestObj1MutatedWithoutForall.scala")
+      //     .toNioPath
+      //     .parse[Source]
+      //     .get
+      //     .structure
 
-        testObj1Mutated.fileOrigin shouldBe testObj1Path
-        testObj1Mutated.tree.structure shouldBe FileUtil
-          .getResource("rollbackTest/TestObj1MutatedWithoutForall.scala")
-          .toNioPath
-          .parse[Source]
-          .get
-          .structure
+      //   testObj1Mutated.mutants.size shouldBe 4
 
-        testObj1Mutated.mutants.size shouldBe 4
+      //   testObj1Mutated.nonCompilingMutants.size shouldBe 1
+      //   testObj1Mutated.nonCompilingMutants.head.mutationType shouldBe Forall
 
-        testObj1Mutated.nonCompilingMutants.size shouldBe 1
-        testObj1Mutated.nonCompilingMutants.head.mutationType shouldBe Forall
+      //   testObj1Mutated.excludedMutants shouldBe 0
 
-        testObj1Mutated.excludedMutants shouldBe 0
-
-        testObj2Mutated.fileOrigin shouldBe testObj2Path
-        testObj2Mutated.tree.structure shouldBe FileUtil
-          .getResource("rollbackTest/TestObj2Mutated.scala")
-          .toNioPath
-          .parse[Source]
-          .get
-          .structure
-        testObj2Mutated.mutants.size shouldBe 2
-        testObj2Mutated.nonCompilingMutants.size shouldBe 0
-        testObj2Mutated.excludedMutants shouldBe 0
-      }
+      //   testObj2Mutated.fileOrigin shouldBe testObj2Path
+      //   testObj2Mutated.tree.structure shouldBe FileUtil
+      //     .getResource("rollbackTest/TestObj2Mutated.scala")
+      //     .toNioPath
+      //     .parse[Source]
+      //     .get
+      //     .structure
+      //   testObj2Mutated.mutants.size shouldBe 2
+      //   testObj2Mutated.nonCompilingMutants.size shouldBe 0
+      //   testObj2Mutated.excludedMutants shouldBe 0
+      // }
     }
   }
 }
