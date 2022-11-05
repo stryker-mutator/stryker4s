@@ -252,6 +252,7 @@
                                 </goals>
                                 <configuration>
                                     <keyname>strykermutator</keyname>
+                                    <!--suppress UnresolvedMavenProperty -->
                                     <passphrase>${env.PGP_PASSPHRASE}</passphrase>
                                     <!-- For gpg2 -->
                                     <useAgent>true</useAgent>

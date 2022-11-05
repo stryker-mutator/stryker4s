@@ -60,3 +60,21 @@ def newProject(projectName: String, dir: String) =
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
+
+lazy val stryker4jvmCore = newProject("stryker4jvm-core", "stryker4jvm-core")
+  .dependsOn(stryker4sApi)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+
+lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
+  .dependsOn(stryker4jvmCore)
+  .dependsOn(stryker4jvmMutatorKotlin)
+  .dependsOn(stryker4jvmMutatorScala)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+
+lazy val stryker4jvmMutatorKotlin = newProject("stryker4jvm-mutator-kotlin", "stryker4jvm-mutator-kotlin")
+  .dependsOn(stryker4jvmCore)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+
+lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")
+  .dependsOn(stryker4jvmCore)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
