@@ -53,10 +53,10 @@
     <properties>
         <encoding>UTF-8</encoding>
         <!-- Scala versions -->
-        <scala.version>2.13.9</scala.version>
+        <scala.version>2.13.10</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
         <scala-maven.version>4.7.2</scala-maven.version>
-        <scalatest.version>3.2.13</scalatest.version>
+        <scalatest.version>3.2.14</scalatest.version>
         <mockito-scala.version>1.17.12</mockito-scala.version>
     </properties>
     <dependencies>
@@ -196,7 +196,7 @@
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
-                <version>2.1.0-SNAP2</version>
+                <version>2.2.0</version>
                 <executions>
                     <execution>
                         <id>test</id>
