@@ -15,11 +15,11 @@ jobs:
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
-      - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
+          cache: 'sbt'
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
       - name: Run Stryker4s
@@ -34,11 +34,11 @@ jobs:
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
-      - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
+          cache: 'sbt'
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
       - name: Run Stryker4s
