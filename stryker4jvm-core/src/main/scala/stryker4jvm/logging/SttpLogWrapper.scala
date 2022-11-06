@@ -1,6 +1,9 @@
-package stryker4jvm.log
+package stryker4jvm.logging
 
-/** Wraps a [[stryker4s.log.Logger]] to a sttp Logger
+import cats.effect.IO
+import sttp.client3.logging as sttp
+
+/** Wraps a [[stryker4jvm.logging.Logger]] to a sttp Logger
   */
 class SttpLogWrapper(implicit log: Logger) extends sttp.Logger[IO] {
 
