@@ -51,6 +51,52 @@ object Settings {
     )
   )
 
+  lazy val jvmCoreSettings: Seq[Setting[?]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.catsCore,
+      Dependencies.catsEffect,
+      Dependencies.circeCore,
+      Dependencies.fansi,
+      Dependencies.fs2Core,
+      Dependencies.fs2IO,
+      Dependencies.mutationTestingElements,
+      Dependencies.mutationTestingMetrics,
+      Dependencies.pureconfig,
+      Dependencies.pureconfigSttp,
+      Dependencies.scalameta,
+      Dependencies.sttpCirce,
+      Dependencies.sttpFs2Backend,
+      Dependencies.weaponRegeX,
+      Dependencies.test.catsEffectScalaTest,
+      Dependencies.test.mockitoScala,
+      Dependencies.test.mockitoScalaCats,
+      Dependencies.test.scalatest
+    )
+  )
+
+  lazy val jvmMutatorScalaSettings: Seq[Setting[?]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.catsCore,
+      Dependencies.catsEffect,
+      Dependencies.circeCore,
+      Dependencies.fansi,
+      Dependencies.fs2Core,
+      Dependencies.fs2IO,
+      Dependencies.mutationTestingElements,
+      Dependencies.mutationTestingMetrics,
+      Dependencies.pureconfig,
+      Dependencies.pureconfigSttp,
+      Dependencies.scalameta,
+      Dependencies.sttpCirce,
+      Dependencies.sttpFs2Backend,
+      Dependencies.weaponRegeX,
+      Dependencies.test.catsEffectScalaTest,
+      Dependencies.test.mockitoScala,
+      Dependencies.test.mockitoScalaCats,
+      Dependencies.test.scalatest
+    )
+  )
+
   lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.slf4j,
