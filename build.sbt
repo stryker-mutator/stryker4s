@@ -61,20 +61,40 @@ def newProject(projectName: String, dir: String) =
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
 
+lazy val jvmRoot = (project withId "stryker4jvm" in file("."))
+  .settings(
+    buildLevelSettings,
+    publish / skip := true,
+    Global / onLoad ~= (_ andThen ("writeHooks" :: _))
+  )
+  .aggregate(
+    (stryker4jvmCore.projectRefs ++
+      stryker4jvm.projectRefs ++
+      stryker4jvmMutatorKotlin.projectRefs ++
+      stryker4jvmMutatorScala.projectRefs ++
+      stryker4sCore.projectRefs ++
+      stryker4sCommandRunner.projectRefs ++
+      sbtStryker4s.projectRefs ++
+      stryker4sApi.projectRefs ++
+      sbtTestRunner.projectRefs)*
+  )
+
 lazy val stryker4jvmCore = newProject("stryker4jvm-core", "stryker4jvm-core")
+  .settings(jvmCoreSettings)
   .dependsOn(stryker4sApi)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
   .dependsOn(stryker4jvmCore)
   .dependsOn(stryker4jvmMutatorKotlin)
   .dependsOn(stryker4jvmMutatorScala)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmMutatorKotlin = newProject("stryker4jvm-mutator-kotlin", "stryker4jvm-mutator-kotlin")
   .dependsOn(stryker4jvmCore)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")
+  .settings(jvmMutatorScalaSettings)
   .dependsOn(stryker4jvmCore)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
