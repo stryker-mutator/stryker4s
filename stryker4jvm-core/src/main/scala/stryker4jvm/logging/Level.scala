@@ -1,4 +1,4 @@
-package stryker4jvm.log
+package stryker4jvm.logging
 
 sealed trait Level
 
