@@ -1,0 +1,13 @@
+Copied all folders in their entirety.
+
+Renamed package:
+extension -> extensions
+exctension.exception -> exception
+
+Fixed imports, now importing from stryker4jvm-core
+
+updated stryker4sException to extend the exception in jvm-core
+
+Removed unnecessary models, extensions and exceptions
+
+Haven't moved tests yet.
