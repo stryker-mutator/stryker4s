@@ -1,10 +1,10 @@
-package stryker4s.mutants.findmutants
+package stryker4jvm.mutants.findmutants
 
 import cats.effect.IO
 import cats.syntax.either.*
 import fs2.io.file.Path
 import stryker4jvm.config.Config
-import stryker4s.extensions.FileExtensions.*
+import stryker4jvm.extensions.FileExtensions.*
 import stryker4jvm.logging.Logger
 
 import scala.meta.parsers.XtensionParseInputLike

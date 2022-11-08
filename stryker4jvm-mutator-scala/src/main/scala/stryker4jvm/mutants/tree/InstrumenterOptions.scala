@@ -1,7 +1,7 @@
-package stryker4s.mutants.tree
+package stryker4jvm.mutants.tree
 
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
-import stryker4s.mutants.applymutants.ActiveMutationContext
+import stryker4jvm.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
+import stryker4jvm.mutants.applymutants.ActiveMutationContext
 import scala.meta.{Lit, Pat}
 import scala.meta.quasiquotes.*
 

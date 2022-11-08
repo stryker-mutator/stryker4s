@@ -1,6 +1,6 @@
-package stryker4s.extensions.mutationtype
+package stryker4jvm.extensions.mutationtype
 
-import stryker4s.extensions.TreeExtensions.IsEqualExtension
+import stryker4jvm.extensions.TreeExtensions.IsEqualExtension
 
 import scala.meta.*
 
@@ -90,7 +90,7 @@ protected trait NoInvalidPlacement[T <: Tree] {
       }
 }
 
-private[stryker4s] case object ParentIsTypeLiteral {
+private[stryker4jvm] case object ParentIsTypeLiteral {
   def unapply(t: Tree): Boolean = t.parent.exists {
     case Defn.Val(_, _, Some(`t`), _)       => true
     case Defn.Var(_, _, Some(`t`), _)       => true

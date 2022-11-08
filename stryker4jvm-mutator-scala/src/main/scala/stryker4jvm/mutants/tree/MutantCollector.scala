@@ -1,10 +1,10 @@
-package stryker4s.mutants.tree
+package stryker4jvm.mutants.tree
 
 import cats.syntax.align.*
-import stryker4s.extensions.TreeExtensions.*
-import stryker4s.model.{IgnoredMutationReason, MutatedCode, PlaceableTree}
-import stryker4s.mutants.Traverser
-import stryker4s.mutants.findmutants.MutantMatcher
+import stryker4jvm.extensions.TreeExtensions.*
+import stryker4jvm.model.{IgnoredMutationReason, MutatedCode, PlaceableTree}
+import stryker4jvm.mutants.Traverser
+import stryker4jvm.mutants.findmutants.MutantMatcher
 
 import scala.meta.Tree
 

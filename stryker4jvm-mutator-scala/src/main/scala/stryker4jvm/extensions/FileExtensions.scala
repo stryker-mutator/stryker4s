@@ -1,4 +1,4 @@
-package stryker4s.extensions
+package stryker4jvm.extensions
 
 import fs2.io.file.Path
 import stryker4jvm.config.Config

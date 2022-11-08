@@ -1,15 +1,15 @@
-package stryker4s.mutants.findmutants
+package stryker4jvm.mutants.findmutants
 
 import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import cats.syntax.functor.*
 import cats.syntax.semigroup.*
 import stryker4jvm.config.Config
-import stryker4s.extensions.PartialFunctionOps.*
-import stryker4s.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
-import stryker4s.extensions.mutationtype.*
-import stryker4s.model.*
-import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
+import stryker4jvm.extensions.PartialFunctionOps.*
+import stryker4jvm.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
+import stryker4jvm.extensions.mutationtype.*
+import stryker4jvm.model.*
+import stryker4jvm.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -192,7 +192,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
 
   @tailrec
   private def excludedByAnnotation(original: Tree, mutationName: String): Boolean = {
-    import stryker4s.extensions.TreeExtensions.*
+    import stryker4jvm.extensions.TreeExtensions.*
     original.parent match {
       case Some(value) =>
         value.getMods.exists(isSupressWarningsAnnotation(_, mutationName)) || excludedByAnnotation(

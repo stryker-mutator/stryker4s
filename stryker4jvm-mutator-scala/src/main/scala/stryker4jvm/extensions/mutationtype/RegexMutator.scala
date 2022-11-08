@@ -1,11 +1,11 @@
-package stryker4s.extensions.mutationtype
+package stryker4jvm.extensions.mutationtype
 
 import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import mutationtesting.Location
-import stryker4s.extensions.TreeExtensions.{PositionExtension, RegexLocationExtension}
-import stryker4s.model.{MutantMetadata, MutatedCode, RegexParseError}
-import stryker4s.mutants.tree.IgnoredMutation
+import stryker4jvm.extensions.TreeExtensions.{PositionExtension, RegexLocationExtension}
+import stryker4jvm.model.{MutantMetadata, MutatedCode, RegexParseError}
+import stryker4jvm.mutants.tree.IgnoredMutation
 
 import scala.meta.*
 

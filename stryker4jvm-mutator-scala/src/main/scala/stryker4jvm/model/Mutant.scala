@@ -1,9 +1,9 @@
-package stryker4s.model
+package stryker4jvm.model
 
 import cats.Show
 import cats.syntax.show.*
 import mutationtesting.{Location, MutantResult, MutantStatus}
-import stryker4s.extensions.TreeExtensions.PositionExtension
+import stryker4jvm.extensions.TreeExtensions.PositionExtension
 
 import scala.meta.{Position, Term}
 

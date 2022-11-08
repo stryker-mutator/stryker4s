@@ -1,4 +1,4 @@
-package stryker4s.extensions
+package stryker4jvm.extensions
 
 import cats.{Monoid, Semigroup}
 import cats.syntax.semigroup.*
