@@ -1,4 +1,4 @@
-package stryker4s.extensions
+package stryker4jvm.extensions
 
 import cats.Eval
 import cats.data.OptionT

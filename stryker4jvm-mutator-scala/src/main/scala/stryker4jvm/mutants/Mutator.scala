@@ -1,4 +1,4 @@
-package stryker4s.mutants
+package stryker4jvm.mutants
 
 import cats.Functor
 import cats.data.NonEmptyVector
@@ -10,9 +10,9 @@ import fs2.{Chunk, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.logging.Logger
-import stryker4s.model.*
-import stryker4s.mutants.findmutants.MutantFinder
-import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
+import stryker4jvm.model.*
+import stryker4jvm.mutants.findmutants.MutantFinder
+import stryker4jvm.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
 
 import java.util.concurrent.atomic.AtomicInteger
 

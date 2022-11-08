@@ -1,4 +1,4 @@
-package stryker4s
+package stryker4jvm
 
 import fs2.io.file.Path
 import mutationtesting.MutantResult

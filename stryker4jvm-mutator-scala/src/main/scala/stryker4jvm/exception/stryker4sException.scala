@@ -1,4 +1,4 @@
-package stryker4s.exception
+package stryker4jvm.exception
 
 import fs2.io.file.Path
 import stryker4jvm.exception.Stryker4jvmException

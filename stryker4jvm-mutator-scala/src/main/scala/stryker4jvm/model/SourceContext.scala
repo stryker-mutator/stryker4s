@@ -1,4 +1,4 @@
-package stryker4s.model
+package stryker4jvm.model
 
 import fs2.io.file.Path
 
