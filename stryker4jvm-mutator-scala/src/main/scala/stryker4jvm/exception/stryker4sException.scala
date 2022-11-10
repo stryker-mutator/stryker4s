@@ -3,7 +3,6 @@ package stryker4jvm.exception
 import cats.data.NonEmptyList
 import cats.syntax.foldable.*
 import fs2.io.file.Path
-import stryker4jvm.model.CompilerErrMsg
 
 import scala.util.control.NoStackTrace
 
@@ -28,11 +27,3 @@ final case class TestSetupException(name: String)
     )
 
 final case class MutationRunFailedException(message: String) extends Stryker4sException(message)
-
-final case class UnableToFixCompilerErrorsException(errs: NonEmptyList[CompilerErrMsg])
-    extends Stryker4sException(
-      "Unable to remove non-compiling mutants in the mutated files. As a work-around you can exclude them in the stryker.conf. Please report this issue at https://github.com/stryker-mutator/stryker4s/issues\n"
-        + errs
-          .map(err => s"${err.path}: '${err.msg}'")
-          .mkString_("\n")
-    )
