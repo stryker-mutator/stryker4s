@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
-import stryker4jvm.config.{Config, ConfigReader, Dashboard, Html, Json}
+import stryker4jvm.config.{Config, ConfigReader, Dashboard, Html, Json, Console}
 import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.{Logger, SttpLogWrapper}
 import stryker4jvm.model.CompilerErrMsg
