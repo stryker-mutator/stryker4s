@@ -1,0 +1,43 @@
+Stryker4s -> Stryker4jvm
+Stryker4sRunner -> Stryker4jvmRunner
+run.package -> run.run
+extension.exception.stryker4sException.UnableToFixCompilerErrorsException -> exception.UnableToFixCompilerErrorsException
+
+TODO: Missing (?) sbtrunner/commandrunner/?runner
+TODO: Depends on api[api-sources] stryker4s.api.testprocess.CoverageReport
+TODO: move tests
+TODO: Depends on mutator-scala:
+- mutants.{
+    findmutants.{
+        MutantFinder,
+        MutantMatcher
+    }
+    tree.{
+        Instrumenteroptions,
+        MutantCollector,
+        MutantInstrumenter
+    },
+    Mutator,
+    Traverser,
+    }
+- model.MutatedFile
+
+Dependes on core:
+- config.Config
+- config.ConfigReader
+- config.ReporterType
+- exception.InitialTestRunFailedException
+- extensions.FileExtensions.PathExtensions
+- files.fileIO
+- files.FileResolver
+- logging.logger
+- logging.SttpLogWrapper
+- model.model
+- reporting.dashboard.DashboardConfigProvider
+- reporting.AggregateReporter
+- reporting.ConsoleReporter
+- reporting.DashboardReporter
+- reporting.HtmlReporter
+- reporting.JsonReporter
+- reporting.Reporter
+- run.threshold.ScoreStatus
