@@ -13,7 +13,7 @@ import stryker4jvm.run.MutantRunner
 import stryker4jvm.run.threshold.{ScoreStatus, ThresholdChecker}
 
 class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(implicit
-                                                                                                               config: Config
+    config: Config
 ) {
 
   def run(): IO[ScoreStatus] = {

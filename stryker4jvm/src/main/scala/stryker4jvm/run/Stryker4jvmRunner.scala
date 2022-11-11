@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
-import stryker4jvm.config.{Config, ConfigReader, Dashboard, Html, Json, Console}
+import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.{Logger, SttpLogWrapper}
 import stryker4jvm.model.CompilerErrMsg
@@ -12,7 +12,14 @@ import stryker4jvm.mutants.{Mutator, TraverserImpl}
 import stryker4jvm.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4jvm.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4jvm.reporting.dashboard.DashboardConfigProvider
-import stryker4jvm.reporting.{AggregateReporter, ConsoleReporter, DashboardReporter, HtmlReporter, JsonReporter, Reporter}
+import stryker4jvm.reporting.{
+  AggregateReporter,
+  ConsoleReporter,
+  DashboardReporter,
+  HtmlReporter,
+  JsonReporter,
+  Reporter
+}
 import stryker4jvm.run.process.ProcessRunner
 import stryker4jvm.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
