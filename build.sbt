@@ -27,7 +27,7 @@ lazy val root = (project withId "stryker4s" in file("."))
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs)*
+      sbtTestRunner.projectRefs) *
   )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
@@ -81,7 +81,7 @@ lazy val jvmRoot = (project withId "stryker4jvm" in file("."))
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs)*
+      sbtTestRunner.projectRefs) *
   )
 
 lazy val stryker4jvmCore = newProject("stryker4jvm-core", "stryker4jvm-core")
@@ -96,6 +96,32 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmMutatorKotlin = newProject("stryker4jvm-mutator-kotlin", "stryker4jvm-mutator-kotlin")
+  .settings(
+    Compile / kotlinSource := baseDirectory.value / "src/main/kotlin",
+    crossScalaVersions := List(versions.scala212),
+    crossPaths := false,
+    autoScalaLibrary := false,
+
+    // Include Kotlin files in sources
+    Compile / packageConfiguration := {
+      val old = (Compile / packageSrc / packageConfiguration).value
+      val newSources = (Compile / sourceDirectories).value.flatMap(_ ** "*.kt" get)
+
+      new Package.Configuration(
+        old.sources ++ newSources.map(f => f -> f.getName),
+        old.jar,
+        old.options
+      )
+    },
+    libraryDependencies ++= Seq(
+      "org.jetbrains.kotlin" % "kotlin-stdlib-jdk8" % "1.5.10",
+      "org.jetbrains.kotlin" % "kotlin-stdlib-common" % "1.5.10",
+      "org.jetbrains.kotlin" % "kotlin-compiler-embeddable" % "1.5.10"
+    ),
+    libraryDependencies ++= Seq(
+      "org.junit.jupiter" % "junit-jupiter-api" % "5.7.0"
+    ).map(_ % Test)
+  )
   .dependsOn(stryker4jvmCore)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 

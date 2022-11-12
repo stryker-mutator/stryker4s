@@ -18,7 +18,6 @@ class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: Mut
 
   def run(): IO[ScoreStatus] = {
     val filesToMutate = fileSource.files
-
     for {
       (ignored, files) <- mutator.go(filesToMutate)
       result <- runner(files)
