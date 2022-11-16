@@ -20,3 +20,8 @@ FileIO has been converted to a java interface;
 The class DisFileIO is reimplemented with pure java, in case that we still want IO[Unit] for fileIO in stryker4jvm
 we could implement a wrapper (should be possible).
 FileResolver has been ignored as it relies on fs2, this may instead be added to stryker4jvm
+
+Reporting:
+Converted scala Reporter to abstract java class without any IO (wrappers may be necessary in stryker4jvm if we wish to work with IO there);
+Converted the 'events' to java classes.
+Everything else in reporting is ignored as it should be inside stryker4jvm!

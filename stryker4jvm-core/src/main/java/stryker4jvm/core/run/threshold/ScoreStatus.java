@@ -1,12 +1,12 @@
 package stryker4jvm.core.run.threshold;
 
 public enum ScoreStatus {
-    SUCCESS, WARNING, DANGER, ERROR;
+    Success, Warning, Danger, Error;
 
     public ScoreStatus determineScoreStatus(Thresholds thresholds, double score) {
-        if (score < thresholds.error) return ERROR;
-        if (score < thresholds.low) return DANGER;
-        if (score < thresholds.high) return WARNING;
-        return SUCCESS;
+        if (score < thresholds.error) return Error;
+        if (score < thresholds.low) return Danger;
+        if (score < thresholds.high) return Warning;
+        return Success;
     }
 }
