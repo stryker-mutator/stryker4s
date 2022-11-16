@@ -14,51 +14,51 @@ public abstract class Logger {
     }
 
     public final void debug(String msg) {
-        logImpl(DEBUG, msg);
+        logImpl(Debug, msg);
     }
 
     public final void debug(Throwable e) {
-        logImpl(DEBUG, e);
+        logImpl(Debug, e);
     }
 
     public final void debug(String msg, Throwable e) {
-        logImpl(DEBUG, msg, e);
+        logImpl(Debug, msg, e);
     }
 
     public final void info(String msg) {
-        logImpl(INFO, msg);
+        logImpl(Info, msg);
     }
 
     public final void info(Throwable e) {
-        logImpl(INFO, e);
+        logImpl(Info, e);
     }
 
     public final void info(String msg, Throwable e) {
-        logImpl(INFO, msg, e);
+        logImpl(Info, msg, e);
     }
 
     public final void warn(String msg) {
-        logImpl(WARN, msg);
+        logImpl(Warn, msg);
     }
 
     public final void warn(Throwable e) {
-        logImpl(WARN, e);
+        logImpl(Warn, e);
     }
 
     public final void warn(String msg, Throwable e) {
-        logImpl(WARN, msg, e);
+        logImpl(Warn, msg, e);
     }
 
     public final void error(String msg) {
-        logImpl(ERROR, msg);
+        logImpl(Error, msg);
     }
 
     public final void error(Throwable e) {
-        logImpl(ERROR, e);
+        logImpl(Error, e);
     }
 
     public final void error(String msg, Throwable e) {
-        logImpl(ERROR, msg, e);
+        logImpl(Error, msg, e);
     }
 
     private String processMsg(String msg) {
