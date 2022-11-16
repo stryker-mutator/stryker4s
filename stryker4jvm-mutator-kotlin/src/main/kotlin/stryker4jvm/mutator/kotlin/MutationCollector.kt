@@ -18,8 +18,8 @@ If a mutation is ignored, why does it still have 'MutatedCode'?
 
 The second part of the tuple is a map of AST to a vector of possible mutations?
  */
-class MutationCollector : Collector<KtElement> {
-    override fun apply(tree: KtElement?): Tuple2<Vector<Tuple2<MutatedCode<KtElement>, IgnoredMutationReason>>, Map<KtElement, Vector<MutatedCode<KtElement>>>> {
+class MutationCollector : Collector<KotlinAST> {
+    override fun apply(tree: KotlinAST?): Tuple2<Vector<Tuple2<MutatedCode<KotlinAST>, IgnoredMutationReason>>, Map<KotlinAST, Vector<MutatedCode<KotlinAST>>>> {
         val t = Tuple2(1, 2)
         TODO("Not yet implemented")
     }
