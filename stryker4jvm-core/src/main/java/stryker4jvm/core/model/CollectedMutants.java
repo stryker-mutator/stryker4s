@@ -22,7 +22,13 @@ public class CollectedMutants<T extends AST> {
         mutations = new HashMap<>();
     }
 
-    public record IgnoredMutation<T>(MutatedCode<T> mutatedCode, IgnoredMutationReason reason) {
+    public static final class IgnoredMutation<T> {
+        public final MutatedCode<T> mutatedCode;
+        public final IgnoredMutationReason reason;
 
+        public IgnoredMutation(MutatedCode<T> mutatedCode, IgnoredMutationReason reason) {
+            this.mutatedCode = mutatedCode;
+            this.reason = reason;
+        }
     }
 }

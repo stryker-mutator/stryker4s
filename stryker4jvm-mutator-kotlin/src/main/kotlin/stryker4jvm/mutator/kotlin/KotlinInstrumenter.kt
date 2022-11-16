@@ -1,11 +1,11 @@
 package stryker4jvm.mutator.kotlin
 
-import scala.collection.Seq
-import stryker4jvm.core.model.MutantWithId
-import stryker4jvm.mutants.language.Instrumenter
+import stryker4jvm.core.model.Instrumenter
+import stryker4jvm.model.MutantWithId
 
 class KotlinInstrumenter : Instrumenter<KotlinAST> {
-    override fun apply(source: KotlinAST?, mutants: Seq<MutantWithId<KotlinAST>>?): KotlinAST {
+    override fun instrument(source: KotlinAST?, mutations: MutableList<MutantWithId<KotlinAST>>?): KotlinAST {
         TODO("Not yet implemented")
     }
+
 }
