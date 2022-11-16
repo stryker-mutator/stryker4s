@@ -1,3 +1,6 @@
+General note:
+there are no more dependencies on any scala library with the exception being 'fansi.Str'
+
 Thresholds:
 ScoreStatus has been made an enum and contains the determineScoreStatus method from scala's ThresholdChecker
 Scala's Thresholds has been moved from config package to run.threshold and converted to java
@@ -24,4 +27,9 @@ FileResolver has been ignored as it relies on fs2, this may instead be added to 
 Reporting:
 Converted scala Reporter to abstract java class without any IO (wrappers may be necessary in stryker4jvm if we wish to work with IO there);
 Converted the 'events' to java classes.
+Reporter has been parameterized to work with any Config class
 Everything else in reporting is ignored as it should be inside stryker4jvm!
+
+Config:
+Completely ignored, stryker4jvm would depend too much on the Config we provide.
+Instead, stryker4jvm should handle configuration things themselves
