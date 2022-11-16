@@ -8,6 +8,6 @@ import stryker4jvm.mutants.language.LanguageMutator
  * for some reason, LanguageMutator does not enforce the generic to be a subclass of AST
  * I can simply use KtElement directly even though it does not contain a 'syntax()' method
  */
-class KotlinMutator : LanguageMutator<KtElement>(KotlinParser(), MutationCollector(), KotlinInstrumenter()) {
+class KotlinMutator : LanguageMutator<KotlinAST>(KotlinParser(), MutationCollector(), KotlinInstrumenter()) {
 
 }

@@ -23,7 +23,11 @@ lazy val root = (project withId "stryker4s" in file("."))
     )
   )
   .aggregate(
-    (stryker4sCore.projectRefs ++
+    (stryker4jvmCore.projectRefs ++
+      stryker4jvmMutatorKotlin.projectRefs ++
+      stryker4jvmMutatorScala.projectRefs ++
+      stryker4jvm.projectRefs ++
+      stryker4sCore.projectRefs ++
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
@@ -66,7 +70,7 @@ def newProject(projectName: String, dir: String) =
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
 
-lazy val jvmRoot = (project withId "stryker4jvm" in file("."))
+lazy val jvmRoot = (project withId "stryker4jvm-root" in file("."))
   .settings(
     buildLevelSettings,
     publish / skip := true,
@@ -97,7 +101,8 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
 
 lazy val stryker4jvmMutatorKotlin = newProject("stryker4jvm-mutator-kotlin", "stryker4jvm-mutator-kotlin")
   .settings(
-    Compile / kotlinSource := baseDirectory.value / "src/main/kotlin",
+    //Compile / kotlinSource := baseDirectory.value / "stryker4jvm-mutator-kotlin/src/main/kotlin",
+    kotlinVersion := "1.5.10",
     crossScalaVersions := List(versions.scala212),
     crossPaths := false,
     autoScalaLibrary := false,
