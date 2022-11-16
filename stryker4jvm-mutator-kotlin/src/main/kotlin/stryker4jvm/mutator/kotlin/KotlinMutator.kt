@@ -1,7 +1,7 @@
 package stryker4jvm.mutator.kotlin
 
 import org.jetbrains.kotlin.psi.KtElement
-import stryker4jvm.mutants.language.LanguageMutator
+import stryker4jvm.core.model.LanguageMutator
 
 /*
  * Issue here:
