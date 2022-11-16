@@ -1,4 +1,4 @@
-package core.model;
+package stryker4jvm.core.model;
 
 public abstract class LanguageMutator<T extends AST> {
     private final Parser<T> parser;

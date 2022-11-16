@@ -1,4 +1,6 @@
-package core.model;
+package stryker4jvm.core.model;
+
+import stryker4jvm.model.MutatedCode;
 
 public record MutantWithId<T>(int id, MutatedCode<T> mutatedCode) {
     // todo: this function is available in scala but may not be required here

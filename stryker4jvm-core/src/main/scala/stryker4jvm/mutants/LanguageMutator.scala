@@ -1,7 +1,9 @@
 package stryker4jvm.mutants.language
 
+import stryker4jvm.core.model.{MutantWithId, MutatedCode}
+
 import java.nio.file.Path
-import stryker4jvm.model.{IgnoredMutationReason, MutantWithId, MutatedCode}
+import stryker4jvm.model.IgnoredMutationReason
 
 trait Parser[T] {
   def apply(path: Path): T

@@ -1,4 +1,6 @@
-package core.model;
+package stryker4jvm.core.model;
+
+import stryker4jvm.model.MutantWithId;
 
 import java.util.List;
 
