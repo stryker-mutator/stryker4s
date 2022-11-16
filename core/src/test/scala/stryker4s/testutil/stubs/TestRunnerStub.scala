@@ -2,7 +2,6 @@ package stryker4s.testutil.stubs
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.applicativeError.*
 import fs2.io.file.Path
 import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.*
