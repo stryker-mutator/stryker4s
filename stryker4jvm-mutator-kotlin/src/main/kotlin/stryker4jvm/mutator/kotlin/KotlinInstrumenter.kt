@@ -9,5 +9,4 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
     override fun apply(source: KotlinAST?, mutants: Seq<MutantWithId<KotlinAST>>?): KotlinAST {
         TODO("Not yet implemented")
     }
-
 }
