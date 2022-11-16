@@ -1,0 +1,8 @@
+Thresholds:
+ScoreStatus has been made an enum and contains the determineScoreStatus method from scala's ThresholdChecker
+Scala's Thresholds has been moved from config package to run.threshold and converted to java
+
+Logger:
+Level.scala is converted to a java enum LogLevel;
+Scala's Logger trait has been converted to a java abstract Logger class;
+fansi.Str is still used by the java Logger
