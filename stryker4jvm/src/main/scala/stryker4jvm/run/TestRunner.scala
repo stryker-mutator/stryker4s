@@ -4,10 +4,11 @@ import cats.effect.{Deferred, IO, Ref, Resource}
 import fansi.Color
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
+import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.extensions.DurationExtensions.HumanReadableExtension
 import stryker4jvm.extensions.ResourceExtensions.SelfRecreatingResource
 import stryker4jvm.logging.Logger
-import stryker4jvm.model.{InitialTestRunResult, MutantWithId}
+import stryker4jvm.model.InitialTestRunResult
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*

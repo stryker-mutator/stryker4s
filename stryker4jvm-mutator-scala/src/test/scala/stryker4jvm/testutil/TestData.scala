@@ -4,7 +4,7 @@ import fs2.io.file.Path
 import mutationtesting.*
 import stryker4jvm.config.Config
 import stryker4jvm.extensions.mutationtype.GreaterThan
-import stryker4jvm.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode}
+import stryker4jvm.model.{MutantId, MutantMetadata}
 import stryker4jvm.reporting.FinishedRunEvent
 
 import scala.concurrent.duration.*

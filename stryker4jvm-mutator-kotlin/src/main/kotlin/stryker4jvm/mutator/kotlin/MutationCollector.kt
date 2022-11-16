@@ -1,11 +1,10 @@
 package stryker4jvm.mutator.kotlin
 
-import org.jetbrains.kotlin.psi.KtElement
 import scala.Tuple2
 import scala.collection.immutable.Map
 import scala.collection.immutable.Vector
 import stryker4jvm.model.IgnoredMutationReason
-import stryker4jvm.model.MutatedCode
+import stryker4jvm.core.model.MutatedCode
 import stryker4jvm.mutants.language.Collector
 
 /*

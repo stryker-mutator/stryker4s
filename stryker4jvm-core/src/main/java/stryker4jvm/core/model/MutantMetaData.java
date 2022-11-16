@@ -1,4 +1,4 @@
-package core.model;
+package stryker4jvm.core.model;
 
 import mutationtesting.Location;
 
