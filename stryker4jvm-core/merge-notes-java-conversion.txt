@@ -6,3 +6,17 @@ Logger:
 Level.scala is converted to a java enum LogLevel;
 Scala's Logger trait has been converted to a java abstract Logger class;
 fansi.Str is still used by the java Logger
+SttpLogWrapper has not been converted as it should be implemented in stryker4jvm
+
+IgnoredMutationReason:
+Scala trait IgnoredMutationReason has been converted to java interface.
+Only the MutationExluded class has been added to core, the RegexParseError reason should be in scala-mutator
+
+Exception:
+Stryker4jvmException has been converted a java exception
+
+files:
+FileIO has been converted to a java interface;
+The class DisFileIO is reimplemented with pure java, in case that we still want IO[Unit] for fileIO in stryker4jvm
+we could implement a wrapper (should be possible).
+FileResolver has been ignored as it relies on fs2, this may instead be added to stryker4jvm
