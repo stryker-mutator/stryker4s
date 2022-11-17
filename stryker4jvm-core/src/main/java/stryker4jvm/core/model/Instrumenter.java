@@ -1,9 +1,8 @@
 package stryker4jvm.core.model;
 
-import stryker4jvm.model.MutantWithId;
-
 import java.util.List;
+import java.util.Map;
 
 public interface Instrumenter<T extends AST> {
-    T instrument(T source, List<MutantWithId<T>> mutations);
+    T instrument(T source, Map<T, List<MutantWithId<T>>> mutations);
 }
