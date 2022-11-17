@@ -26,7 +26,10 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
             (_: PlaceableTree) =>
               NonEmptyVector
                 .one(
-                  MutatedCode(q"foo", MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8))))
+                  MutatedCode(
+                    q"foo".asInstanceOf[Term],
+                    MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)))
+                  )
                 )
                 .asRight[IgnoredMutations]
         }

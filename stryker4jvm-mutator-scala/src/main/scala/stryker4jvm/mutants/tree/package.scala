@@ -6,14 +6,16 @@ import stryker4jvm.model.{IgnoredMutationReason, PlaceableTree}
 
 import scala.meta.{Term, Tree}
 
+import stryker4jvm.mutants.language.ScalaAST
+
 package object tree {
 
-  type Mutations = NonEmptyVector[MutatedCode]
+  type Mutations = NonEmptyVector[MutatedCode[Term]]
 
-  type IgnoredMutation = (MutatedCode, IgnoredMutationReason)
-  type IgnoredMutations = NonEmptyVector[(MutatedCode, IgnoredMutationReason)]
+  type IgnoredMutation = (MutatedCode[Term], IgnoredMutationReason)
+  type IgnoredMutations = NonEmptyVector[(MutatedCode[Term], IgnoredMutationReason)]
 
-  type MutantsWithId = NonEmptyVector[MutantWithId]
+  type MutantsWithId = NonEmptyVector[MutantWithId[Term]]
 
   type MutationMatcher = PartialFunction[Tree, PlaceableTree => Mutations]
 

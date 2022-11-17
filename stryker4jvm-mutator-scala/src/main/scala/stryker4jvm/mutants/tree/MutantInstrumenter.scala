@@ -61,7 +61,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     MutatedFile(context.path, newTree, mutations)
   }
 
-  def mutantToCase(mutant: MutantWithId): Case = {
+  def mutantToCase(mutant: MutantWithId[Term]): Case = {
     val newTree = mutant.mutatedCode.mutatedStatement.asInstanceOf[Term]
 
     buildCase(newTree, options.pattern(mutant.id.value))
