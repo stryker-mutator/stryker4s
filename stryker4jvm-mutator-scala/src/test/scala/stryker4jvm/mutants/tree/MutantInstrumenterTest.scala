@@ -181,7 +181,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
           MutantId(id),
           MutatedCode(
             replacement,
-            MutantMetadata(original.toString(), replacement.toString, category.mutationName, original.pos)
+            MutantMetadata(original.toString(), replacement.toString, category.mutationName, original.pos.toLocation)
           )
         )
       }

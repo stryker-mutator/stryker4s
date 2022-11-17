@@ -176,7 +176,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
   }
 
   private def filterExclusions(
-      mutations: NonEmptyVector[MutatedCode],
+      mutations: NonEmptyVector[MutatedCode[Term]],
       mutationType: Mutation[?],
       original: Tree
   ): Either[IgnoredMutations, Mutations] = {
