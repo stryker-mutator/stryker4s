@@ -5,7 +5,6 @@ import stryker4jvm.testutil.Stryker4sSuite
 import PartialFunctionOps.*
 import cats.syntax.monoid.*
 import cats.kernel.Monoid
-import scala.meta.Lit
 
 class PartialFunctionOpsTest extends Stryker4sSuite {
 

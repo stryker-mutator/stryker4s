@@ -26,23 +26,32 @@ trait ConfigConfigReader {
   implicit def dashboardReportTypeReader: ConfigReader[DashboardReportType] =
     deriveEnumerationReader[DashboardReportType]
 
-  // TODO! See merge-notes.txt in root of module
-  implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] = ???
+  val mutations: List[String] = List[String](
+    "EqualityOperator",
+    "BooleanLiteral",
+    "ConditionalExpression",
+    "LogicalOperator",
+    "StringLiteral",
+    "MethodExpression",
+    "RegularExpression"
+  )
 
-  /*
-  implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] =
+  // TODO: See merge-notes.txt in root of module (this is scala-specific)
+  implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] = {
     ConfigReader[List[String]] emap { exclusions =>
-      val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
+      val (valid, invalid) = exclusions.partition(mutations.contains)
       if (invalid.nonEmpty)
         CannotConvert(
           exclusions.mkString(", "),
           s"excluded-mutations",
-          s"invalid option(s) '${invalid.mkString(", ")}'. Valid exclusions are '${Mutation.mutations.mkString(", ")}'"
+          s"invalid option(s) '${invalid.mkString(", ")}'. Valid exclusions are '${mutations.mkString(", ")}'"
         ).asLeft
       else
         valid.toSet.asRight
     }
-   */
+  }
+
+
 
   implicit def uriReader = _root_.pureconfig.module.sttp.reader
 
