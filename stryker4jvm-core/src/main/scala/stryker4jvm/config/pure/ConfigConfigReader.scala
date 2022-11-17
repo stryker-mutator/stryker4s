@@ -51,8 +51,6 @@ trait ConfigConfigReader {
     }
   }
 
-
-
   implicit def uriReader = _root_.pureconfig.module.sttp.reader
 
   implicit def thresholdsReader: ConfigReader[Thresholds] = {

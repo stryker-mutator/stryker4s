@@ -4,7 +4,7 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
-import fs2.{Pipe, Stream, text}
+import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.model.MutantWithId
@@ -12,7 +12,14 @@ import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompiler
 import stryker4jvm.extensions.FileExtensions.PathExtensions
 import stryker4jvm.files.FilesFileResolver
 import stryker4jvm.logging.Logger
-import stryker4jvm.model.{CompilerErrMsg, InitialTestRunCoverageReport, MutantResultsPerFile, MutatedFile, NoCoverageInitialTestRun, RunResult}
+import stryker4jvm.model.{
+  CompilerErrMsg,
+  InitialTestRunCoverageReport,
+  MutantResultsPerFile,
+  MutatedFile,
+  NoCoverageInitialTestRun,
+  RunResult
+}
 import stryker4jvm.reporting.{MutantTestedEvent, Reporter}
 
 import java.nio

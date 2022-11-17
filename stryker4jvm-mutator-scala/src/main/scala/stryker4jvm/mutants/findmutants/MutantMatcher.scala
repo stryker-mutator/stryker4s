@@ -176,9 +176,9 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
   }
 
   private def filterExclusions(
-                                mutations: NonEmptyVector[model.MutatedCode],
-                                mutationType: Mutation[?],
-                                original: Tree
+      mutations: NonEmptyVector[model.MutatedCode],
+      mutationType: Mutation[?],
+      original: Tree
   ): Either[IgnoredMutations, Mutations] = {
     val mutationName = "stryker4s.mutation." + mutationType.mutationName
 
