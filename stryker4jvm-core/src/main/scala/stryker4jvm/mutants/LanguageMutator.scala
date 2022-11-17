@@ -1,7 +1,9 @@
 package stryker4jvm.mutants.language
 
+import stryker4jvm.core.model.{MutantWithId, MutatedCode}
+
 import java.nio.file.Path
-import stryker4jvm.model.{IgnoredMutationReason, MutantWithId, MutatedCode}
+import stryker4jvm.model.IgnoredMutationReason
 
 trait Parser[T] {
   def apply(path: Path): T
@@ -19,6 +21,8 @@ trait Instrumenter[T] {
   def apply(source: T, mutants: Seq[MutantWithId[T]]): T
 }
 
-case class LanguageMutator[T <: AST](parser: Parser[T], collector: Collector[T], instrumenter: Instrumenter[T]) {
+/* note: making this a case class makes it 'impossible' for other languages to use this without
+* including some scala library (serialization issues) */
+class LanguageMutator[T <: AST](parser: Parser[T], collector: Collector[T], instrumenter: Instrumenter[T]) {
   type Tree = T
 }

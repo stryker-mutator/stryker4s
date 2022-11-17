@@ -1,6 +1,7 @@
 package stryker4jvm.model
 
 import mutationtesting.{Location, MutantResult, MutantStatus}
+import stryker4jvm.core.model.MutatedCode
 
 final case class MutantId(value: Int) extends AnyVal {
   override def toString(): String = value.toString
@@ -21,7 +22,7 @@ final case class MutantWithId[T](id: MutantId, mutatedCode: MutatedCode[T]) {
 
 final case class MutatedCode[T](mutatedStatement: T, metadata: MutantMetadata)
 
-/** Metadata of [[stryker4s.model.MutatedCode]]
+/** Metadata of [[stryker4jvm.core.model.MutatedCode]]
   *
   * @param original
   *   Original code
