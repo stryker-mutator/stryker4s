@@ -13,8 +13,8 @@ import stryker4jvm.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
+
 import MutantMatcher.MutationMatcher
-import stryker4jvm.core.model
 
 trait MutantMatcher {
 
@@ -176,9 +176,9 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
   }
 
   private def filterExclusions(
-                                mutations: NonEmptyVector[model.MutatedCode],
-                                mutationType: Mutation[?],
-                                original: Tree
+      mutations: NonEmptyVector[MutatedCode[Term]],
+      mutationType: Mutation[?],
+      original: Tree
   ): Either[IgnoredMutations, Mutations] = {
     val mutationName = "stryker4s.mutation." + mutationType.mutationName
 

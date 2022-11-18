@@ -9,13 +9,15 @@ import fs2.io.file.Path
 import fs2.{Chunk, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
-import stryker4jvm.core.model
 import stryker4jvm.logging.Logger
 import stryker4jvm.model.*
 import stryker4jvm.mutants.findmutants.MutantFinder
 import stryker4jvm.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
 
 import java.util.concurrent.atomic.AtomicInteger
+import scala.meta.Term
+
+import stryker4jvm.mutants.language.ScalaAST
 
 class Mutator(
     mutantFinder: MutantFinder,
@@ -27,7 +29,7 @@ class Mutator(
 ) {
 
   type Found[A, B] = (SourceContext, (Vector[A], Map[PlaceableTree, B]))
-  type FoundMutations = Found[(model.MutatedCode, IgnoredMutationReason), Mutations]
+  type FoundMutations = Found[(MutatedCode[Term], IgnoredMutationReason), Mutations]
   type FoundMutationsWithId = Found[MutantResult, MutantsWithId]
 
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
@@ -58,7 +60,7 @@ class Mutator(
 
   private def updateWithId: Pipe[IO, FoundMutations, FoundMutationsWithId] = {
 
-    def mapLeft(lefts: Vector[(model.MutatedCode, IgnoredMutationReason)], i: AtomicInteger) =
+    def mapLeft(lefts: Vector[(MutatedCode[Term], IgnoredMutationReason)], i: AtomicInteger) =
       lefts.map { case (mutated, reason) =>
         MutantResult(
           i.getAndIncrement().toString(),
