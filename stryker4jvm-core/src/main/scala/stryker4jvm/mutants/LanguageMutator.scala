@@ -22,7 +22,7 @@ trait Instrumenter[T] {
 }
 
 /* note: making this a case class makes it 'impossible' for other languages to use this without
-* including some scala library (serialization issues) */
+ * including some scala library (serialization issues) */
 class LanguageMutator[T <: AST](parser: Parser[T], collector: Collector[T], instrumenter: Instrumenter[T]) {
   type Tree = T
 }
