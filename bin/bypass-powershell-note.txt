@@ -1,0 +1,2 @@
+Within powershell, execute the following to bypass security constraints and execute scalafmt.ps1 from root:
+powershell -executionpolicy bypass -File .\bin/scalafmt.ps1
