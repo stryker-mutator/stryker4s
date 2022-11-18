@@ -101,6 +101,11 @@ lazy val stryker4jvmMutatorKotlin = newProject("stryker4jvm-mutator-kotlin", "st
     crossScalaVersions := List(versions.scala212),
     crossPaths := false,
     autoScalaLibrary := false,
+    //Test / skip := true,
+//    test / target := new File((test / target).value.asFile.getAbsolutePath.replace("jvm-", "scala-")),
+//      .map(_.getAbsolutePath)
+//      .map(_.replace("jvm-", "scala-"))
+//      .map(new File(_)),
 
     // Include Kotlin files in sources
     Compile / packageConfiguration := {
