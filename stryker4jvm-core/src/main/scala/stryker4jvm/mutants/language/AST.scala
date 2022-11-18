@@ -1,5 +1,5 @@
 package stryker4jvm.mutants.language
 
-abstract class AST {
+trait AST {
   def syntax: String
 }
