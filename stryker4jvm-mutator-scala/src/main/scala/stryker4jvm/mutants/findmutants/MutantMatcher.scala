@@ -9,12 +9,15 @@ import stryker4jvm.extensions.PartialFunctionOps.*
 import stryker4jvm.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
 import stryker4jvm.extensions.mutationtype.*
 import stryker4jvm.model.*
+import stryker4jvm.core.model.*
+
+import stryker4jvm.model.MutationExcluded
 import stryker4jvm.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
-
 import MutantMatcher.MutationMatcher
+import stryker4jvm.core.model
 
 trait MutantMatcher {
 
@@ -150,7 +153,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       }
 
       val tree: Tree = mutationToTerm(replacement)
-      val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, location)
+      val metadata = new MutantMetaData(original.syntax, tree.syntax, replacement.mutationName, location)
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
           case t if t.isEqual(original) =>
@@ -163,7 +166,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         )
 
       mutatedTopStatement match {
-        case t: Term => MutatedCode(t, metadata)
+        case t: Term => new MutatedCode(t, metadata)
         case t =>
           throw new RuntimeException(
             s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation}). Expected a Term, but was a ${t.getClass().getSimpleName}"

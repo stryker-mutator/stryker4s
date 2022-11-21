@@ -4,7 +4,7 @@ import cats.syntax.flatMap.*
 import cats.syntax.option.*
 import stryker4jvm.extensions.TreeExtensions.{FindExtension, TreeIsInExtension}
 import stryker4jvm.extensions.mutationtype.ParentIsTypeLiteral
-import stryker4jvm.logging.Logger
+import stryker4jvm.core.logging.Logger
 
 import scala.meta.*
 
