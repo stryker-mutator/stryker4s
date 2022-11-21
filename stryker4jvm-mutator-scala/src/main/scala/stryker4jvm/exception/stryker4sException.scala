@@ -5,6 +5,7 @@ import cats.syntax.foldable.*
 import fs2.io.file.Path
 
 import scala.util.control.NoStackTrace
+import stryker4jvm.core.exception.Stryker4jvmException
 
 class Stryker4sException(message: String) extends Stryker4jvmException(message) {
   def this(message: String, cause: Throwable) = {
