@@ -2,11 +2,10 @@ package stryker4jvm.mutants.tree
 
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
-import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.extensions.TreeExtensions.TransformOnceExtension
 import stryker4jvm.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4jvm.logging.Logger
-import stryker4jvm.model.{MutantId, MutatedFile, PlaceableTree, SourceContext}
+import stryker4jvm.model.{MutantId, MutantWithId, MutatedFile, PlaceableTree, SourceContext}
 
 import scala.meta.*
 import scala.util.control.NonFatal
@@ -61,7 +60,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     MutatedFile(context.path, newTree, mutations)
   }
 
-  def mutantToCase(mutant: MutantWithId): Case = {
+  def mutantToCase(mutant: MutantWithId[Term]): Case = {
     val newTree = mutant.mutatedCode.mutatedStatement.asInstanceOf[Term]
 
     buildCase(newTree, options.pattern(mutant.id.value))

@@ -4,10 +4,12 @@ import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import mutationtesting.Location
 import stryker4jvm.extensions.TreeExtensions.{PositionExtension, RegexLocationExtension}
-import stryker4jvm.model.{MutantMetadata, RegexParseError}
+import stryker4jvm.model.{MutantMetadata, MutatedCode, RegexParseError}
 import stryker4jvm.mutants.tree.IgnoredMutation
 
 import scala.meta.*
+
+import stryker4jvm.mutants.language.ScalaAST
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */
@@ -55,9 +57,13 @@ object RegexMutations {
 
   private def ignoredMutation(lit: Lit.String, e: String) = {
     val metadata =
-      MutatedCode(lit, MutantMetadata(lit.value, "", "RegularExpression", lit.pos))
+      MutatedCode(
+        lit.asInstanceOf[Term],
+        MutantMetadata(lit.value, "", "RegularExpression", lit.pos.toLocation)
+      )
     (metadata, RegexParseError(lit.value, e))
   }
+
 }
 
 final case class RegularExpression(pattern: String, location: Location) extends SubstitutionMutation[Lit.String] {

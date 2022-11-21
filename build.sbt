@@ -1,7 +1,7 @@
 import Dependencies.*
 import Settings.*
 
-lazy val root = (project withId "stryker4s" in file("."))
+lazy val root = (project withId "stryker4jvm-root" in file("."))
   .settings(
     buildLevelSettings,
     publish / skip := true,
@@ -18,15 +18,14 @@ lazy val root = (project withId "stryker4s" in file("."))
     )
   )
   .aggregate(
-    (stryker4jvmCore.projectRefs ++
-      stryker4jvmMutatorKotlin.projectRefs ++
+    (stryker4jvm.projectRefs ++
       stryker4jvmMutatorScala.projectRefs ++
-      stryker4jvm.projectRefs ++
       stryker4sCore.projectRefs ++
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs) *
+      sbtTestRunner.projectRefs ++
+      stryker4jvmMutatorTest.projectRefs)*
   )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
@@ -65,67 +64,32 @@ def newProject(projectName: String, dir: String) =
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
 
-lazy val jvmRoot = (project withId "stryker4jvm-root" in file("."))
-  .settings(
-    buildLevelSettings,
-    publish / skip := true,
-    Global / onLoad ~= (_ andThen ("writeHooks" :: _))
-  )
-  .aggregate(
-    (stryker4jvmCore.projectRefs ++
-      stryker4jvm.projectRefs ++
-      stryker4jvmMutatorKotlin.projectRefs ++
-      stryker4jvmMutatorScala.projectRefs ++
-      stryker4sCore.projectRefs ++
-      stryker4sCommandRunner.projectRefs ++
-      sbtStryker4s.projectRefs ++
-      stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs) *
-  )
-
-lazy val stryker4jvmCore = newProject("stryker4jvm-core", "stryker4jvm-core")
-  .settings(jvmCoreSettings)
-  .dependsOn(stryker4sApi)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
-
 lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
-  .dependsOn(stryker4jvmCore)
-  .dependsOn(stryker4jvmMutatorKotlin)
+  //  .settings(
+  //    resolvers += Resolver.mavenLocal,
+  //    libraryDependencies ++= Seq("io.stryker-mutator" % "mutator-kotlin" % "1.0")
+  //  )
   .dependsOn(stryker4jvmMutatorScala)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-lazy val stryker4jvmMutatorKotlin = newProject("stryker4jvm-mutator-kotlin", "stryker4jvm-mutator-kotlin")
+lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")
   .settings(
-    //Compile / kotlinSource := baseDirectory.value / "stryker4jvm-mutator-kotlin/src/main/kotlin",
-    kotlinVersion := "1.5.10",
-    crossScalaVersions := List(versions.scala212),
-    crossPaths := false,
-    autoScalaLibrary := false,
-
-    // Include Kotlin files in sources
-    Compile / packageConfiguration := {
-      val old = (Compile / packageSrc / packageConfiguration).value
-      val newSources = (Compile / sourceDirectories).value.flatMap(_ ** "*.kt" get)
-
-      new Package.Configuration(
-        old.sources ++ newSources.map(f => f -> f.getName),
-        old.jar,
-        old.options
-      )
-    },
+    jvmMutatorScalaSettings,
+    resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
-      "org.jetbrains.kotlin" % "kotlin-stdlib-jdk8" % "1.5.10",
-      "org.jetbrains.kotlin" % "kotlin-stdlib-common" % "1.5.10",
-      "org.jetbrains.kotlin" % "kotlin-compiler-embeddable" % "1.5.10"
-    ),
-    libraryDependencies ++= Seq(
-      "org.junit.jupiter" % "junit-jupiter-api" % "5.7.0"
-    ).map(_ % Test)
+      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0" intransitive (),
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive ()
+    )
   )
-  .dependsOn(stryker4jvmCore)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")
-  .settings(jvmMutatorScalaSettings)
-  .dependsOn(stryker4jvmCore)
+lazy val stryker4jvmMutatorTest = newProject("stryker4jvm-mutator-test", "stryker4jvm-mutator-test")
+  .settings(
+    jvmMutatorScalaSettings,
+    resolvers += Resolver.mavenLocal,
+    libraryDependencies ++= Seq(
+      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0" intransitive (),
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive ()
+    )
+  )
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
