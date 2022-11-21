@@ -117,10 +117,10 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
           file.mutants.toVector.map { mutant =>
             file.mutatedSource
               .find(mutant.mutatedCode.mutatedStatement)
-              .flatMap(_ => file.mutatedSource.find(p"${Lit.Int(mutant.id.value)}"))
+              .flatMap(_ => file.mutatedSource.find(p"${Lit.Int(mutant.id)}"))
               .getOrElse(
                 fail(
-                  s"Could not find mutant ${mutant.id} `${mutant.mutatedCode.metadata.replacement}` (original `${mutant.mutatedCode.metadata.original}`) in mutated tree ${file.mutatedSource}"
+                  s"Could not find mutant ${mutant.id} `${mutant.mutatedCode.metaData.replacement}` (original `${mutant.mutatedCode.metaData.original}`) in mutated tree ${file.mutatedSource}"
                 )
               )
           }

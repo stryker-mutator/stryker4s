@@ -1,18 +1,22 @@
 package stryker4jvm.testutil
 
-import fs2.io.file.Path
+import java.nio.file.{Path, Paths}
 import mutationtesting.*
 import stryker4jvm.config.Config
 import stryker4jvm.extensions.mutationtype.GreaterThan
-import stryker4jvm.model.{MutantId, MutantMetadata}
-import stryker4jvm.reporting.FinishedRunEvent
+import stryker4jvm.core.model.{MutantMetaData, MutantWithId, MutatedCode}
+import stryker4jvm.model.MutantId
+import stryker4jvm.core.reporting.events.FinishedRunEvent
 
 import scala.concurrent.duration.*
 import scala.meta.quasiquotes.*
 
 trait TestData {
   def createMutant =
-    MutantWithId(MutantId(0), MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation)))
+    new MutantWithId(
+      0,
+      new MutatedCode(q"<", new MutantMetaData(">", "<", GreaterThan.mutationName, createLocation))
+    )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))
 
@@ -22,10 +26,10 @@ trait TestData {
       testResult: MutationTestResult[Config] = createMutationTestResult,
       metrics: Option[MetricsResult] = None
   ) =
-    FinishedRunEvent(
+    new FinishedRunEvent(
       testResult,
       metrics.getOrElse(Metrics.calculateMetrics(testResult)),
       10.seconds,
-      Path("target/stryker4s-report/")
+      Paths.get("target/stryker4s-report/")
     )
 }

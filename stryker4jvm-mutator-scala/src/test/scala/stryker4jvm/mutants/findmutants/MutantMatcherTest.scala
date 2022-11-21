@@ -38,7 +38,7 @@ class MutantMatcherTest extends Stryker4sSuite {
       val actualMutant = actualMutants
         .flatMap(_.toSeq)
         .flatMap(_.toVector)
-        .map(_.metadata)
+        .map(_.metaData)
         .find(m => m.original == original.syntax && m.replacement == expectedMutation.syntax)
         .getOrElse(fail(s"mutant $expectedMutation not found"))
 
@@ -641,7 +641,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         .map(_(PlaceableTree(tree.body)))
         .flatMap(_.toSeq)
         .flatMap(_.toVector)
-        .map(_.metadata)
+        .map(_.metaData)
 
       result.map(_.original) should not contain "isEmpty"
     }
