@@ -4,7 +4,7 @@ import fs2.io.file.Path
 import stryker4jvm.config.Config
 import stryker4jvm.extensions.FileExtensions.*
 import stryker4jvm.extensions.TreeExtensions.IsEqualExtension
-import stryker4jvm.logging.Logger
+import stryker4jvm.core.logging.Logger
 import stryker4jvm.scalatest.{FileUtil, LogMatchers}
 import stryker4jvm.testutil.Stryker4sIOSuite
 

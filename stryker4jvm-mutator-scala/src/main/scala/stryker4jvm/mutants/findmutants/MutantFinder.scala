@@ -5,7 +5,7 @@ import cats.syntax.either.*
 import fs2.io.file.Path
 import stryker4jvm.config.Config
 import stryker4jvm.extensions.FileExtensions.*
-import stryker4jvm.logging.Logger
+import stryker4jvm.core.logging.Logger
 
 import scala.meta.parsers.XtensionParseInputLike
 import scala.meta.{Dialect, Parsed, Source}

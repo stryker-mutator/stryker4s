@@ -1,3 +1,0 @@
-Empty file is only created in order for git to include the empty directories
-as part of the push. You can delete this later. The stryker4jvm all start with
-the same directory structure...

@@ -5,32 +5,24 @@ import scala.meta.Tree
 import scala.meta.internal.trees.Origin
 import scala.meta
 
-class ScalaAST extends AST {
+import stryker4jvm.core.model.AST
+
+class ScalaAST(term: Term) extends AST {
   def syntax: String = {
-    "1"
-  }
-}
-
-abstract class ASTScala extends Term with AST {
-
-  override def syntax: String = {
-    "2"
+    term.syntax
   }
 
-  override def productElement(n: Int): Any = ???
+  override def equals(x: Any): Boolean = {
+    if (x == null) {
+      return false
+    } else if (!(x.isInstanceOf[AST])) {
+      return false
+    }
 
-  override def productArity: Int = ???
+    term == x
+  }
 
-  override def privatePrototype: Tree = ???
-
-  override def privateParent: Tree = ???
-
-  override def privateOrigin: Origin = ???
-
-  override def privateCopy(prototype: Tree, parent: Tree, destination: String, origin: Origin): Tree = ???
-
-  override def productFields: List[String] = ???
-
-  override def children: List[Tree] = ???
-
+  override def hashCode(): Int = {
+    term.hashCode
+  }
 }

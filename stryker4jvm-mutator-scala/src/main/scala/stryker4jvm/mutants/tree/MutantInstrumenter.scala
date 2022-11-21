@@ -4,8 +4,9 @@ import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4jvm.extensions.TreeExtensions.TransformOnceExtension
 import stryker4jvm.exception.{Stryker4sException, UnableToBuildPatternMatchException}
-import stryker4jvm.logging.Logger
-import stryker4jvm.model.{MutantId, MutantWithId, MutatedFile, PlaceableTree, SourceContext}
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.MutantWithId
+import stryker4jvm.model.{MutantId, MutatedFile, PlaceableTree, SourceContext}
 
 import scala.meta.*
 import scala.util.control.NonFatal
@@ -39,7 +40,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
                   s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.syntax}]"
                 )
                 log.error(
-                  s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
+                  s"Failed mutation(s) '${mutations.map(_.id).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
                 )
                 log.error(
                   "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s."
@@ -63,11 +64,11 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   def mutantToCase(mutant: MutantWithId[Term]): Case = {
     val newTree = mutant.mutatedCode.mutatedStatement.asInstanceOf[Term]
 
-    buildCase(newTree, options.pattern(mutant.id.value))
+    buildCase(newTree, options.pattern(mutant.id))
   }
 
-  def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]): Case =
-    p"case _ if ${options.condition.mapApply(mutantIds.map(_.value))} => ${placeableTree.tree.asInstanceOf[Term]}"
+  def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[Int]): Case =
+    p"case _ if ${options.condition.mapApply(mutantIds)} => ${placeableTree.tree.asInstanceOf[Term]}"
 
   def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 

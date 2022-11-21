@@ -5,7 +5,8 @@ import cats.syntax.either.*
 import cats.syntax.option.*
 import mutationtesting.{Location, Position}
 import stryker4jvm.config.Config
-import stryker4jvm.model.{MutantMetadata, MutatedCode, PlaceableTree}
+import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
+import stryker4jvm.model.PlaceableTree
 import stryker4jvm.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
 import stryker4jvm.mutants.{Traverser, TraverserImpl}
 import stryker4jvm.scalatest.LogMatchers
@@ -26,9 +27,9 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
             (_: PlaceableTree) =>
               NonEmptyVector
                 .one(
-                  MutatedCode(
+                  new MutatedCode(
                     q"foo".asInstanceOf[Term],
-                    MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)))
+                    new MutantMetaData("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)))
                   )
                 )
                 .asRight[IgnoredMutations]
