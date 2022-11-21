@@ -30,7 +30,7 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
 object PsiUtility {
-    private val project: MockProject
+    val project: MockProject
 
     init {
         project = createPsiProject()
