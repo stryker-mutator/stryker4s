@@ -4,7 +4,7 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
-import fs2.{Pipe, Stream, text}
+import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
