@@ -2,7 +2,6 @@ package stryker4jvm.exception
 
 import cats.data.NonEmptyList
 import fs2.io.file.Path
-import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.testutil.Stryker4sSuite
 
 class Stryker4sExceptionTest extends Stryker4sSuite {

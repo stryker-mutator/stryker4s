@@ -59,7 +59,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
     val mutations: MutantsWithId = mutantMap.map(_._2).toVector.toNev.get.flatten
 
-    MutatedFile(context.path, newTree, mutations)
+    new MutatedFile(context.path, newTree, mutations)
   }
 
   def mutantToCase(mutant: MutantWithId[Term]): Case = {
