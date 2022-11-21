@@ -10,15 +10,13 @@ import fs2.{Chunk, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.model.*
 import stryker4jvm.core.model.*
+import stryker4jvm.model.*
 import stryker4jvm.mutants.findmutants.MutantFinder
 import stryker4jvm.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
 
 import java.util.concurrent.atomic.AtomicInteger
 import scala.meta.Term
-
-import stryker4jvm.mutants.language.ScalaAST
 
 class Mutator(
     mutantFinder: MutantFinder,

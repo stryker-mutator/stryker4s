@@ -3,8 +3,8 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  test:
-    name: Test on JDK ${{matrix.java-version}} (${{matrix.os}})
+  compile:
+    name: Test compilation on JDK ${{matrix.java-version}} (${{matrix.os}})
     strategy:
       fail-fast: false
       matrix:
@@ -21,20 +21,20 @@ jobs:
           cache: 'sbt'
       - name: Run tests
         run: sbt 'compile; ++2.13 test'
-  sbt-scripted:
-    name: sbt plugin scripted tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          # Sbt version that is tested (1.1.1) doesn't work on Java 17
-          java-version: 11
-          cache: 'sbt'
-      - name: Run tests
-        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
+#  sbt-scripted:
+#    name: sbt plugin scripted tests
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          # Sbt version that is tested (1.1.1) doesn't work on Java 17
+#          java-version: 11
+#          cache: 'sbt'
+#      - name: Run tests
+#        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
+#        run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest

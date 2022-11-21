@@ -4,10 +4,11 @@ import cats.effect.{Deferred, IO, Ref, Resource}
 import fansi.Color
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
-import stryker4jvm.core.model.MutantWithId
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.extensions.DurationExtensions.HumanReadableExtension
+import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.extensions.ResourceExtensions.SelfRecreatingResource
-import stryker4jvm.logging.Logger
 import stryker4jvm.model.InitialTestRunResult
 
 import java.util.concurrent.TimeUnit
@@ -15,7 +16,7 @@ import scala.concurrent.duration.*
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult]
+  def runMutant(mutant: MutantWithId[AST], testNames: Seq[String]): IO[MutantResult]
 }
 
 /** Wrapping testrunners to add functionality to existing testrunners
@@ -29,7 +30,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner {
-          override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
+          override def runMutant(mutant: MutantWithId[AST], testNames: Seq[String]): IO[MutantResult] =
             for {
               runner <- testRunnerRef.get
               time <- timeout.get
@@ -72,11 +73,11 @@ object TestRunner {
       IO {
         new TestRunner {
 
-          override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
+          override def runMutant(mutant: MutantWithId[AST], testNames: Seq[String]): IO[MutantResult] =
             retryRunMutation(mutant, testNames)
 
           def retryRunMutation(
-              mutant: MutantWithId,
+              mutant: MutantWithId[AST],
               testNames: Seq[String],
               retriesLeft: Long = 2
           ): IO[MutantResult] = {
@@ -105,7 +106,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner {
-          def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = for {
+          def runMutant(mutant: MutantWithId[AST], testNames: Seq[String]): IO[MutantResult] = for {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner
