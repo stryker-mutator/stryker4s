@@ -18,9 +18,9 @@ class TestLogger(printLogs: Boolean) extends Logger {
 
   def clear(): Unit = events.clear()
 
-  def log(level: LogLevel, msg: => String): Unit = addToLogs(level, msg)
+  def log(level: LogLevel, msg: String): Unit = addToLogs(level, msg)
 
-  def log(level: LogLevel, msg: => String, e: => Throwable): Unit = addToLogs(level, s"$msg, ${e.toString()}")
+  def log(level: LogLevel, msg: String, e: Throwable): Unit = addToLogs(level, s"$msg, ${e.toString()}")
 
   def log(level: LogLevel, e: Throwable): Unit = addToLogs(level, e.toString())
 
@@ -30,5 +30,5 @@ class TestLogger(printLogs: Boolean) extends Logger {
   }
 
   // Always log with colors so we can test for color codes
-  override val colorEnabled = true
+  // override val colorEnabled = true
 }
