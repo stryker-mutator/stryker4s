@@ -5,4 +5,8 @@ public abstract class Stryker4jvmException extends Exception {
         super(msg, cause);
         initCause(cause);
     }
+
+    public Stryker4jvmException(String msg) {
+        super(msg);
+    }
 }
