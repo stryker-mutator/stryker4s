@@ -29,7 +29,7 @@ class Mutator(
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
     files
       // Parse and mutate files
-      .parEvalMap(config.concurrency){path =>
+      .parEvalMap(config.concurrency) { path =>
         val mutator = mutantRouter(path.extName)
         try {
           val source = mutator.parse(path.toNioPath)
@@ -43,12 +43,11 @@ class Mutator(
       // Give each mutation a unique id
       .through(updateWithId())
       // Split mutations into active and ignored mutations
-      .flatMap{ case (ctx, collectedWithId) => splitIgnoredAndFound(
-        ctx,
-        collectedWithId.mutantResults,
-        collectedWithId.mutations)}
+      .flatMap { case (ctx, collectedWithId) =>
+        splitIgnoredAndFound(ctx, collectedWithId.mutantResults, collectedWithId.mutations)
+      }
       // Instrument files
-      .parEvalMapUnordered(config.concurrency)(_.traverse{ case (context, mutations) =>
+      .parEvalMapUnordered(config.concurrency)(_.traverse { case (context, mutations) =>
         val mutator = mutantRouter(context.path.extName)
         val instrumented = mutator.instrument(context.source, mutations)
         val mutants = mutations.asScala.values.map(_.asScala.toVector).toVector.flatten
@@ -63,7 +62,8 @@ class Mutator(
       .lastOrError
   }
 
-  private def updateWithId(): Pipe[IO, (SourceContext, CollectedMutants[AST]), (SourceContext, CollectedMutantsWithId[AST])] = {
+  private def updateWithId()
+      : Pipe[IO, (SourceContext, CollectedMutants[AST]), (SourceContext, CollectedMutantsWithId[AST])] = {
 
     def mapLeft(lefts: util.List[IgnoredMutation[AST]], i: AtomicInteger) = {
       lefts.asScala.map { ignored =>
@@ -82,9 +82,9 @@ class Mutator(
 
     def mapRight(rights: util.Map[AST, util.List[MutatedCode[AST]]], i: AtomicInteger) = {
       //   // Functor to use a deep map instead of .map(_.map...)
-      rights.asScala.mapValues(mutations =>
-        mutations.asScala.map(mut => new MutantWithId(i.getAndIncrement(), mut)).asJava
-      ).asJava
+      rights.asScala
+        .mapValues(mutations => mutations.asScala.map(mut => new MutantWithId(i.getAndIncrement(), mut)).asJava)
+        .asJava
     }
 
     _.scanChunks(new AtomicInteger()) { case (i, chunk) =>
