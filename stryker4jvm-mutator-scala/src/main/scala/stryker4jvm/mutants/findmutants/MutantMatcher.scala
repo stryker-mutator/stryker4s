@@ -13,8 +13,8 @@ import stryker4jvm.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 
 import scala.annotation.tailrec
 import scala.meta.*
-
 import MutantMatcher.MutationMatcher
+import stryker4jvm.core.model
 
 trait MutantMatcher {
 

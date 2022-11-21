@@ -1,7 +1,5 @@
 package stryker4jvm.exception
 
-import cats.data.NonEmptyList
-import cats.syntax.foldable.*
 import fs2.io.file.Path
 
 import scala.util.control.NoStackTrace
