@@ -1,9 +1,9 @@
 package stryker4jvm.mutants.tree
 
 import cats.syntax.align.*
-import stryker4jvm.core.model.MutatedCode
 import stryker4jvm.extensions.TreeExtensions.*
-import stryker4jvm.model.{IgnoredMutationReason, PlaceableTree}
+import stryker4jvm.core.model.{IgnoredMutationReason, MutatedCode}
+import stryker4jvm.model.PlaceableTree
 import stryker4jvm.mutants.Traverser
 import stryker4jvm.mutants.findmutants.MutantMatcher
 

@@ -1,8 +1,8 @@
 package stryker4jvm.mutants
 
 import cats.data.{NonEmptyList, NonEmptyVector}
-import stryker4jvm.core.model.{MutantWithId, MutatedCode}
-import stryker4jvm.model.{IgnoredMutationReason, PlaceableTree}
+import stryker4jvm.core.model.{IgnoredMutationReason, MutantWithId, MutatedCode}
+import stryker4jvm.model.PlaceableTree
 
 import scala.meta.{Term, Tree}
 

@@ -4,7 +4,8 @@ import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import mutationtesting.Location
 import stryker4jvm.extensions.TreeExtensions.{PositionExtension, RegexLocationExtension}
-import stryker4jvm.model.{MutantMetadata, RegexParseError}
+import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
+import stryker4jvm.model.RegexParseError
 import stryker4jvm.mutants.tree.IgnoredMutation
 
 import scala.meta.*
@@ -57,9 +58,9 @@ object RegexMutations {
 
   private def ignoredMutation(lit: Lit.String, e: String) = {
     val metadata =
-      MutatedCode(
+      new MutatedCode(
         lit.asInstanceOf[Term],
-        MutantMetadata(lit.value, "", "RegularExpression", lit.pos.toLocation)
+        new MutantMetaData(lit.value, "", "RegularExpression", lit.pos.toLocation)
       )
     (metadata, RegexParseError(lit.value, e))
   }
