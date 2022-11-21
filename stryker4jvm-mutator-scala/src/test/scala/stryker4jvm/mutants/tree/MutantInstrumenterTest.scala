@@ -156,7 +156,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
 
       val expectedException = UnableToBuildPatternMatchException(path, new Exception("e"))
       val sut = new MutantInstrumenter(InstrumenterOptions.testRunner) {
-        override def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]) =
+        override def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[Int]) =
           throw expectedException
       }
 
