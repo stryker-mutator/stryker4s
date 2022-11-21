@@ -10,6 +10,6 @@ extension.FileExtensionTest         -> stryker4jvm-core
 extension.NumberExtensionTest       -> stryker4jvm-core
 extension.PartialFunctionOpsTest    -> stryker4jvm-mutator-scala
 extension.ResourceExtensionsTest    -> stryker4jvm
-extension.TreeExtensionsTest        ->
+extension.TreeExtensionsTest        -> stryker4jvm-mutator-scala
 
 TODO Share Stryker4jvmSuite between modules
