@@ -10,17 +10,8 @@ import stryker4jvm.logging.{Logger, SttpLogWrapper}
 import stryker4jvm.mutants.{Mutator, TraverserImpl}
 import stryker4jvm.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4jvm.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
-import stryker4jvm.reporting.dashboard.DashboardConfigProvider
-import stryker4jvm.reporting.{
-  AggregateReporter,
-  ConsoleReporter,
-  DashboardReporter,
-  HtmlReporter,
-  JsonReporter,
-  Reporter
-}
+import stryker4jvm.mutants.{Mutator, TraverserImpl}
 import stryker4jvm.run.process.ProcessRunner
-import stryker4jvm.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 import sttp.client3.logging.LoggingBackend
