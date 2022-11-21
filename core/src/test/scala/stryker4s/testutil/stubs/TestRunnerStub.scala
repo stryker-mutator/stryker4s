@@ -2,8 +2,6 @@ package stryker4s.testutil.stubs
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.applicativeError.*
-import cats.syntax.either.*
 import fs2.io.file.Path
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.model.*
