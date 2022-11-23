@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.stryker-mutator</groupId>
+    <artifactId>Stryker4jvm-root</artifactId>
+    <name>Stryker4jvm root</name>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>../stryker4jvm-core</module>
+        <module>../stryker4jvm-mutator-kotlin</module>
+    </modules>
+
+</project>

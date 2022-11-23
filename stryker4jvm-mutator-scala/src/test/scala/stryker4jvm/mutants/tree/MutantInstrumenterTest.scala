@@ -6,6 +6,7 @@ import stryker4jvm.extensions.TreeExtensions.*
 import stryker4jvm.exception.UnableToBuildPatternMatchException
 import stryker4jvm.extensions.mutationtype.{ConditionalTrue, GreaterThan, Mutation, True}
 import stryker4jvm.model.*
+import stryker4jvm.core.model.*
 import stryker4jvm.mutants.applymutants.ActiveMutationContext
 import stryker4jvm.scalatest.LogMatchers
 import stryker4jvm.testutil.{Stryker4sSuite, TestData}
@@ -155,7 +156,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
 
       val expectedException = UnableToBuildPatternMatchException(path, new Exception("e"))
       val sut = new MutantInstrumenter(InstrumenterOptions.testRunner) {
-        override def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]) =
+        override def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[Int]) =
           throw expectedException
       }
 
@@ -177,11 +178,16 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       .of(firstReplacement, replacements*)
       .zipWithIndex
       .map { case (replacement, id) =>
-        MutantWithId(
-          MutantId(id),
-          MutatedCode(
+        new MutantWithId(
+          id,
+          new MutatedCode(
             replacement,
-            MutantMetadata(original.toString(), replacement.toString, category.mutationName, original.pos.toLocation)
+            new MutantMetaData(
+              original.toString(),
+              replacement.toString,
+              category.mutationName,
+              original.pos.toLocation
+            )
           )
         )
       }

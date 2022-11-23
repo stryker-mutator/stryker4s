@@ -1,54 +1,59 @@
 package stryker4jvm.mutants
 
 import cats.Functor
-import cats.data.NonEmptyVector
 import cats.effect.IO
 import cats.syntax.all.*
 import fansi.Color
 import fs2.io.file.Path
 import fs2.{Chunk, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
+
+import scala.collection.JavaConverters.*
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.model.*
+import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
+import stryker4jvm.logging.Logger
+import stryker4jvm.core.model.{AST, CollectedMutants, CollectedMutantsWithId, MutantWithId, MutatedCode}
 import stryker4jvm.model.*
-import stryker4jvm.mutants.findmutants.MutantFinder
-import stryker4jvm.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
 
 import java.util.concurrent.atomic.AtomicInteger
-import scala.meta.Term
+
+import java.util
+import java.io.IOException
 
 class Mutator(
-    mutantFinder: MutantFinder,
-    collector: MutantCollector,
-    instrumenter: MutantInstrumenter
+    mutantRouter: Map[String, LanguageMutator[? <: AST]]
 )(implicit
     config: Config,
     log: Logger
 ) {
-
-  type Found[A, B] = (SourceContext, (Vector[A], Map[PlaceableTree, B]))
-  type FoundMutations = Found[(MutatedCode[Term], IgnoredMutationReason), Mutations]
-  type FoundMutationsWithId = Found[MutantResult, MutantsWithId]
-
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
     files
       // Parse and mutate files
-      .parEvalMap(config.concurrency)(path =>
-        mutantFinder.parseFile(path).map { source =>
-          val foundMutations = collector(source)
+      .parEvalMap(config.concurrency) { path =>
+        val mutator = mutantRouter(path.extName)
+        try {
+          val source = mutator.parse(path.toNioPath)
+          val foundMutations = mutator.collect(source).asInstanceOf[CollectedMutants[AST]]
 
-          (SourceContext(source, path), foundMutations)
+          IO((SourceContext(source, path), foundMutations))
+        } catch {
+          case e: IOException => IO.raiseError(e)
         }
-      )
+      }
       // Give each mutation a unique id
-      .through(updateWithId)
+      .through(updateWithId())
       // Split mutations into active and ignored mutations
-      .flatMap { case (ctx, (ignored, found)) => splitIgnoredAndFound(ctx, ignored, found) }
+      .flatMap { case (ctx, collectedWithId) =>
+        splitIgnoredAndFound(ctx, collectedWithId.mutantResults, collectedWithId.mutations)
+      }
       // Instrument files
       .parEvalMapUnordered(config.concurrency)(_.traverse { case (context, mutations) =>
+        val mutator = mutantRouter(context.path.extName)
+        val instrumented = mutator.instrument(context.source, mutations)
+        val mutants = mutations.asScala.values.map(_.asScala.toVector).toVector.flatten
+        val mutatedFile = MutatedFile(context.path, instrumented, mutants)
         IO(log.debug(s"Instrumenting mutations in ${mutations.size} places in ${context.path}")) *>
-          IO(instrumenter.instrumentFile(context, mutations))
+          IO(mutatedFile)
       })
       // Fold into 2 separate lists of ignored and found mutants (in files)
       .through(foldAndSplitEithers)
@@ -57,31 +62,39 @@ class Mutator(
       .lastOrError
   }
 
-  private def updateWithId: Pipe[IO, FoundMutations, FoundMutationsWithId] = {
+  private def updateWithId()
+      : Pipe[IO, (SourceContext, CollectedMutants[AST]), (SourceContext, CollectedMutantsWithId[AST])] = {
 
-    def mapLeft(lefts: Vector[(MutatedCode[Term], IgnoredMutationReason)], i: AtomicInteger) =
-      lefts.map { case (mutated, reason) =>
+    def mapLeft(lefts: util.List[IgnoredMutation[AST]], i: AtomicInteger) = {
+      lefts.asScala.map { ignored =>
+        val reason = ignored.reason
+        val mutation = ignored.mutatedCode
         MutantResult(
-          i.getAndIncrement().toString(),
-          mutated.metaData.mutatorName,
-          mutated.metaData.replacement,
-          mutated.metaData.location,
+          i.getAndIncrement().toString,
+          mutation.metaData.mutatorName,
+          mutation.metaData.replacement,
+          mutation.metaData.location,
           MutantStatus.Ignored,
           statusReason = Some(reason.explanation)
         )
-      }
+      }.asJava
+    }
 
-    def mapRight(rights: Map[PlaceableTree, Mutations], i: AtomicInteger) =
+    def mapRight(rights: util.Map[AST, util.List[MutatedCode[AST]]], i: AtomicInteger) = {
       //   // Functor to use a deep map instead of .map(_.map...)
-      Functor[Map[PlaceableTree, *]]
-        .compose[NonEmptyVector]
-        .map(rights)(m => new MutantWithId((new MutantId(i.getAndIncrement())).value, m))
+      rights.asScala
+        .mapValues(mutations => mutations.asScala.map(mut => new MutantWithId(i.getAndIncrement(), mut)).asJava)
+        .asJava
+    }
 
     _.scanChunks(new AtomicInteger()) { case (i, chunk) =>
       val out = Functor[Chunk]
         .compose[(SourceContext, *)]
-        .map(chunk) { case (l, r) =>
-          mapLeft(l, i) -> mapRight(r, i)
+        .map(chunk) { collected =>
+          new CollectedMutantsWithId(
+            mapLeft(collected.ignoredMutations, i),
+            mapRight(collected.mutations, i)
+          )
         }
 
       (i, out)
@@ -90,16 +103,16 @@ class Mutator(
 
   private def splitIgnoredAndFound(
       ctx: SourceContext,
-      ignored: Vector[MutantResult],
-      found: Map[PlaceableTree, MutantsWithId]
+      ignored: util.List[MutantResult],
+      found: util.Map[AST, util.List[MutantWithId[AST]]]
   ) = {
-    val leftStream = Stream.emit((ctx.path, ignored).asLeft)
-    val rightStream = if (found.nonEmpty) Stream.emit((ctx, found).asRight) else Stream.empty
+    val leftStream = Stream.emit((ctx.path, ignored.asScala.toVector).asLeft)
+    val rightStream = if (found.size() == 0) Stream.emit((ctx, found).asRight) else Stream.empty
     leftStream ++ rightStream
   }
 
   private def logMutationResult(ignored: MutantResultsPerFile, mutatedFiles: Seq[MutatedFile]): IO[Unit] = {
-    val totalFiles = (mutatedFiles.map(_.fileOrigin) ++ ignored.map(_._1)).distinct.size
+    val totalFiles = (mutatedFiles.map(_.fileOrigin) ++ ignored.keys).distinct.size
     val includedMutants = mutatedFiles.map(_.mutants.size).sum
     val excludedMutants = ignored.map(_._2.size).sum
     val totalMutants = includedMutants + excludedMutants
