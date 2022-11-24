@@ -3,4 +3,6 @@ package stryker4jvm.model
 import fs2.io.file.Path
 import stryker4jvm.core.model.AST
 
-final case class SourceContext(source: AST, path: Path)
+import scala.meta.Source
+
+final case class SourceContext(source: Source, path: Path)
