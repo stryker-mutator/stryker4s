@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-class LanguageMutator<T extends AST> {
+public class LanguageMutator<T extends AST> {
     private final Parser<T> parser;
     private final Collector<T> collector;
     private final Instrumenter<T> instrumenter;
