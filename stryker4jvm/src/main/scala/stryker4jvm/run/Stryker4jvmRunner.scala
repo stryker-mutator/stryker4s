@@ -5,6 +5,7 @@ import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
+import stryker4jvm.core.files.DiskFileIO
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.AST
 import stryker4jvm.core.reporting.Reporter
@@ -14,6 +15,7 @@ import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4jvm.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4jvm.mutants.{Mutator, TraverserImpl}
+import stryker4jvm.reporting.{AggregateReporter, ConsoleReporter, HtmlReporter, JsonReporter}
 import stryker4jvm.run.process.ProcessRunner
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend

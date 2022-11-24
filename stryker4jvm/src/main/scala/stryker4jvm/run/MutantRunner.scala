@@ -4,7 +4,7 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
-import fs2.{text, Pipe, Stream}
+import fs2.{Pipe, Stream, text}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
@@ -12,6 +12,7 @@ import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4jvm.extensions.FileExtensions.PathExtensions
+import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.files.FilesFileResolver
 import stryker4jvm.model.*
 
@@ -215,7 +216,7 @@ class MutantRunner(
       }
   }
 
-  private def staticMutant(mutant: MutantWithId): MutantResult = mutant
+  private def staticMutant(mutant: MutantWithId[AST]): MutantResult = mutant
     .toMutantResult(MutantStatus.Ignored)
     .copy(
       description = Some(
@@ -224,7 +225,7 @@ class MutantRunner(
       static = true.some
     )
 
-  private def noCoverageMutant(mutant: MutantWithId): MutantResult = mutant
+  private def noCoverageMutant(mutant: MutantWithId[AST]): MutantResult = mutant
     .toMutantResult(MutantStatus.Ignored)
     .copy(
       description =
