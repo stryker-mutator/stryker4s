@@ -24,8 +24,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs ++
-      stryker4jvmMutatorTest.projectRefs)*
+      sbtTestRunner.projectRefs) *
   )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
@@ -65,10 +64,13 @@ lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
 
 lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
-  //  .settings(
-  //    resolvers += Resolver.mavenLocal,
-  //    libraryDependencies ++= Seq("io.stryker-mutator" % "mutator-kotlin" % "1.0")
-  //  )
+  .settings(
+    resolvers += Resolver.mavenLocal,
+    libraryDependencies ++= Seq(
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive (),
+      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0" intransitive ()
+    )
+  )
   .dependsOn(stryker4jvmMutatorScala)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
@@ -77,18 +79,6 @@ lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stry
     jvmMutatorScalaSettings,
     resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
-      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0" intransitive (),
-      "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive ()
-    )
-  )
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
-
-lazy val stryker4jvmMutatorTest = newProject("stryker4jvm-mutator-test", "stryker4jvm-mutator-test")
-  .settings(
-    jvmMutatorScalaSettings,
-    resolvers += Resolver.mavenLocal,
-    libraryDependencies ++= Seq(
-      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0" intransitive (),
       "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive ()
     )
   )
