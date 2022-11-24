@@ -1,6 +1,6 @@
 package stryker4jvm.model
 
-import stryker4s.api.testprocess.CoverageReport
+import stryker4jvm.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.FiniteDuration
 
