@@ -29,7 +29,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
       stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs) *
+      sbtTestRunner.projectRefs)*
   )
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
