@@ -10,13 +10,12 @@ import mutationtesting.{MutantResult, MutantStatus}
 
 import scala.collection.JavaConverters.*
 import stryker4jvm.config.Config
+import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
-import stryker4jvm.logging.Logger
-import stryker4jvm.core.model.{AST, CollectedMutants, CollectedMutantsWithId, MutantWithId, MutatedCode}
-import stryker4jvm.model.*
+import stryker4jvm.core.model.{AST, CollectedMutants, CollectedMutantsWithId, LanguageMutator, MutantWithId, MutatedCode}
+import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
 import java.util.concurrent.atomic.AtomicInteger
-
 import java.util
 import java.io.IOException
 
