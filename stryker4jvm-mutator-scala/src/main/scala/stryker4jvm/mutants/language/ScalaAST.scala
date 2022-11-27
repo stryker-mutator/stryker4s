@@ -1,15 +1,20 @@
 package stryker4jvm.mutants.language
 
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.internal.trees.Origin
 import scala.meta
-
 import stryker4jvm.core.model.AST
 
-class ScalaAST(term: Term) extends AST {
+class ScalaAST(val term: meta.Term = null, val source: meta.Source = null) extends AST {
+
   def syntax: String = {
-    term.syntax
+    if (term != null) {
+      return term.syntax
+    }
+
+    if (source != null) {
+      return source.syntax
+    }
+
+    "No term or source!"
   }
 
   override def equals(x: Any): Boolean = {
@@ -23,6 +28,14 @@ class ScalaAST(term: Term) extends AST {
   }
 
   override def hashCode(): Int = {
-    term.hashCode
+    if (term != null) {
+      return term.hashCode()
+    }
+
+    if (source != null) {
+      return source.hashCode()
+    }
+
+    -1
   }
 }

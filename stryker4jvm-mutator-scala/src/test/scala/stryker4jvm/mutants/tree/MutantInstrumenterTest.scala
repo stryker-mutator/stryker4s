@@ -12,6 +12,7 @@ import stryker4jvm.scalatest.LogMatchers
 import stryker4jvm.testutil.{Stryker4sSuite, TestData}
 
 import scala.meta.*
+import stryker4jvm.mutants.language.ScalaAST
 
 class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatchers {
 
@@ -22,7 +23,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       // Arrange
       val source = source"""class Foo { def foo = x >= 15 }"""
       val originalStatement = source.find(q"x >= 15").value
-      val context = SourceContext(source, path)
+      // val context = SourceContext(source, path)
+      val context = new ScalaAST(source = source)
       val mutants = Map(
         PlaceableTree(originalStatement) ->
           toMutations(originalStatement, GreaterThan, q"x > 15", q"x <= 15")
@@ -68,7 +70,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       // bars should have length 2
       val originalStatement = bars.last
 
-      val context = SourceContext(source, path)
+      // val context = SourceContext(source, path)
+      val context = new ScalaAST(source = source)
       val mutants = Map(
         PlaceableTree(originalStatement) -> toMutations(originalStatement, ConditionalTrue, q"true", q"false")
       )
@@ -110,7 +113,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     it("should apply the correct instrumenter options") {
       val source = source"""class Foo { def foo = x >= 15 }"""
       val originalStatement = source.find(q"x >= 15").value
-      val context = SourceContext(source, path)
+      // val context = SourceContext(source, path)
+      val context = new ScalaAST(source = source)
       val mutants = Map(
         PlaceableTree(originalStatement) ->
           toMutations(originalStatement, GreaterThan, q"x > 15", q"x <= 15")
@@ -131,7 +135,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       // Arrange
       val source = """class Foo { def foo = true }""".parse[Source].get
       val original = source.find(q"true").value
-      val context = SourceContext(source, path)
+      // val context = SourceContext(source, path)
+      val context = new ScalaAST(source = source)
       val mutants = Map(PlaceableTree(original) -> toMutations(original, True, q"false", q"true"))
 
       val sut = new MutantInstrumenter(InstrumenterOptions.testRunner) {
@@ -151,7 +156,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     it("should rethrow Stryker4sExceptions") {
       val source = """class Foo { def foo = true }""".parse[Source].get
       val original = source.find(q"true").value
-      val context = SourceContext(source, path)
+      // val context = SourceContext(source, path)
+      val context = new ScalaAST(source = source)
       val mutants = Map(PlaceableTree(original) -> toMutations(original, True, q"false", q"true"))
 
       val expectedException = UnableToBuildPatternMatchException(path, new Exception("e"))
