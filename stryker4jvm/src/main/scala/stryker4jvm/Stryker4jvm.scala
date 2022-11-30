@@ -14,8 +14,8 @@ import stryker4jvm.mutants.Mutator
 import stryker4jvm.reporting.mapper.MutantRunResultMapper
 import stryker4jvm.run.MutantRunner
 
-class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter[Config])(implicit
-    config: Config
+class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter[Config])(
+    implicit config: Config
 ) {
 
   def run(): IO[ScoreStatus] = {

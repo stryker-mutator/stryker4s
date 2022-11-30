@@ -15,8 +15,8 @@ sealed trait InitialTestRunResult {
 // TODO: CoverageReport from api
 final case class InitialTestRunCoverageReport(
     isSuccessful: Boolean,
-    firstRun: Any, //CoverageReport,
-    secondRun: Any, //CoverageReport,
+    firstRun: Any, // CoverageReport,
+    secondRun: Any, // CoverageReport,
     duration: FiniteDuration
 ) extends InitialTestRunResult {
   override def reportedDuration: Option[FiniteDuration] = Some(duration)
