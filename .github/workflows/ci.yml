@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  test:
+  compile:
     name: Test on JDK ${{matrix.java-version}} (${{matrix.os}})
     strategy:
       fail-fast: false
@@ -19,41 +19,42 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
           cache: 'sbt'
-      - name: Run tests
-        run: sbt 'compile; ++2.13 test'
-  sbt-scripted:
-    name: sbt plugin scripted tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          # Sbt version that is tested (1.1.1) doesn't work on Java 17
-          java-version: 11
-          cache: 'sbt'
-      - name: Run tests
-        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
-  maven-plugin:
-    name: Test Maven plugin
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
-          cache: 'maven'
-      - name: Cleanup M2
-        run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
-      - name: Publish stryker4s-core
-        run: sbt 'publishM2Local'
-      - name: Run Maven tests
-        run: |
-          cd maven
-          mvn verify -B --no-transfer-progress
+      - name: Compile Stryker4jvm
+        run: sbt 'project stryker4jvm; compile'
+#  sbt-scripted:
+#    name: sbt plugin scripted tests
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          # Sbt version that is tested (1.1.1) doesn't work on Java 17
+#          java-version: 11
+#          cache: 'sbt'
+#      - name: Run tests
+#        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
+#        run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
+#  maven-plugin:
+#    name: Test Maven plugin
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: coursier/cache-action@v6
+#      - uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          java-version: 17
+#          cache: 'maven'
+#      - name: Cleanup M2
+#        run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
+#      - name: Publish stryker4s-core
+#        run: sbt 'publishM2Local'
+#      - name: Run Maven tests
+#        run: |
+#          cd maven
+#          mvn verify -B --no-transfer-progress
+
   formatting:
     name: Test formatting
     runs-on: ubuntu-latest
@@ -69,28 +70,29 @@ jobs:
           java-version: 17
       - name: Test formatting
         run: ./bin/scalafmt --test
-  release:
-    needs: [test, sbt-scripted, maven-plugin, formatting]
-    if: "github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/')"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          # Fetch all commits, used by sbt-dynver plugin to determine version
-          fetch-depth: 0
-      # Fetch all tags
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 11
-          cache: 'sbt'
-      - name: Publish
-        run: sbt ci-release
-        env:
-          CI_RELEASE: stryker4sPublishSigned
-          CI_SONATYPE_RELEASE: stryker4sReleaseAll
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
+#  release:
+#    needs: [test, sbt-scripted, maven-plugin, formatting]
+#    if: "github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/')"
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          # Fetch all commits, used by sbt-dynver plugin to determine version
+#          fetch-depth: 0
+#      # Fetch all tags
+#      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+#      - uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          java-version: 11
+#          cache: 'sbt'
+#      - name: Publish
+#        run: sbt ci-release
+#        env:
+#          CI_RELEASE: stryker4sPublishSigned
+#          CI_SONATYPE_RELEASE: stryker4sReleaseAll
+#          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+#          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+#          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+#          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
