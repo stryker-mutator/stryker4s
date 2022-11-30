@@ -7,15 +7,16 @@ import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.core.files.DiskFileIO
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.model.AST
 import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.core.run.threshold.ScoreStatus
 import stryker4jvm.files.{ConfigFilesResolver, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
+import stryker4jvm.logging.SttpLogWrapper
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4jvm.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4jvm.mutants.{Mutator, TraverserImpl}
-import stryker4jvm.reporting.{AggregateReporter, ConsoleReporter, HtmlReporter, JsonReporter}
+import stryker4jvm.reporting.dashboard.DashboardConfigProvider
+import stryker4jvm.reporting.*
 import stryker4jvm.run.process.ProcessRunner
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
@@ -43,7 +44,7 @@ abstract class Stryker4jvmRunner(implicit log: Logger) {
     stryker4s.run()
   }
 
-  def resolveReporters()(implicit config: Config): List[Reporter] =
+  def resolveReporters()(implicit config: Config): List[Reporter[Config]] =
     config.reporters.toList.map {
       case Console => new ConsoleReporter()
       case Html    => new HtmlReporter(new DiskFileIO())

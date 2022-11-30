@@ -4,13 +4,16 @@ import cats.effect.IO
 import cats.syntax.align.*
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4jvm.config.Config
+import stryker4jvm.core.model.AST
 import stryker4jvm.core.reporting.Reporter
+import stryker4jvm.core.reporting.events.FinishedRunEvent
 import stryker4jvm.core.run.threshold.{ScoreStatus, Thresholds}
 import stryker4jvm.files.MutatesFileResolver
 import stryker4jvm.mutants.Mutator
+import stryker4jvm.reporting.mapper.MutantRunResultMapper
 import stryker4jvm.run.MutantRunner
 
-class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(implicit
+class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter[Config])(implicit
     config: Config
 ) {
 
@@ -32,8 +35,8 @@ class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: Mut
       time <- IO.realTime
       report = mapper.toReport(merged)
       metrics = Metrics.calculateMetrics(report)
-      reportsLocation = config.baseDir / "target/stryker4s-report" / time.toMillis.toString
-      _ <- reporter.onRunFinished(FinishedRunEvent(report, metrics, results.duration, reportsLocation))
+      reportsLocation = config.baseDir / "target/stryker4jvm-report" / time.toMillis.toString
+      _ <- reporter.onRunFinished(FinishedRunEvent[AST](report, metrics, results.duration, reportsLocation))
     } yield metrics
   }
 }
