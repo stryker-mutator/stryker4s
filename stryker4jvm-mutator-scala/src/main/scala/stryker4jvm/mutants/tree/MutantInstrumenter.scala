@@ -6,7 +6,7 @@ import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4jvm.extensions.TreeExtensions.TransformOnceExtension
-import stryker4jvm.model.{MutatedFile, PlaceableTree, SourceContext}
+import stryker4jvm.model.{MutatedFile, PlaceableTree}
 
 import scala.meta.*
 import scala.util.control.NonFatal

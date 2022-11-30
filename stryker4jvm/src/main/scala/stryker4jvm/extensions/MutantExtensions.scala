@@ -1,7 +1,7 @@
 package stryker4jvm.extensions
 
 import mutationtesting.{MutantResult, MutantStatus}
-import stryker4jvm.core.model.{AST, MutantWithId, MutatedCode}
+import stryker4jvm.core.model.{AST, MutantWithId}
 
 object MutantExtensions {
   implicit final class ToMutantResultExtension(val mutantWithId: MutantWithId[AST]) {
