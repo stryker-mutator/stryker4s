@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import cats.effect.IO
+import fs2.io.file.{Files, Path}
 import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.EmptyString
@@ -15,7 +16,13 @@ import scala.meta.*
 class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
 
   describe("apply") {
-    implicit val config = Config.default.copy(baseDir = FileUtil.getResource("scalaFiles"))
+    val baseDir = FileUtil.getResource("scalaFiles")
+    val staticTmpDir = baseDir.resolve("target/stryker4s-tmpDir")
+
+    implicit val config = Config.default.copy(baseDir = baseDir)
+
+    val staticTmpDirConfig = config.copy(staticTmpDir = true)
+    val noCleanTmpDirConfig = staticTmpDirConfig.copy(cleanTmpDir = false)
 
     it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
@@ -26,7 +33,12 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val secondMutant = Mutant(MutantId(1), q"1", q"one", EmptyString)
       val thirdMutant = Mutant(MutantId(2), q"5", q"5", EmptyString)
 
-      val testRunner = TestRunnerStub.withResults(Killed(mutant), Killed(secondMutant), Survived(thirdMutant))
+      val testRunner = { (path: Path) =>
+        // Static temp dir is not used with default settings.
+        path.toString should not endWith "stryker4s-tmpDir"
+        TestRunnerStub.withResults(Killed(mutant), Killed(secondMutant), Survived(thirdMutant))(path)
+      }
+
       val sut = new MutantRunner(testRunner, fileCollectorMock, reporterMock)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = Seq(mutant, secondMutant, thirdMutant)
@@ -94,6 +106,99 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
         result.survived shouldBe 1
         result.compileErrors shouldBe 1
       }
+    }
+
+    it("should use static temp dir if it was requested") {
+      val fileCollectorMock = new TestFileResolver(Seq.empty)
+      val reporterMock = mock[Reporter]
+      whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
+      when(reporterMock.mutantTested).thenReturn(_.drain)
+      val mutant = Mutant(MutantId(1), q"0", q"zero", EmptyString)
+
+      val testRunner = { (path: Path) =>
+        // Static temp dir is used.
+        path.toString should endWith("stryker4s-tmpDir")
+        TestRunnerStub.withResults(Killed(mutant))(path)
+      }
+
+      val sut = new MutantRunner(testRunner, fileCollectorMock, reporterMock)(staticTmpDirConfig, testLogger)
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val mutants = Seq(mutant)
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq.empty, 0)
+
+      sut(_ => IO.pure(List(mutatedFile))).asserting { result =>
+        val captor = ArgCaptor[FinishedRunEvent]
+        verify(reporterMock, times(1)).onRunFinished(captor.capture)
+        val runReport = captor.value.report.files.loneElement
+
+        runReport._1 shouldBe "simpleFile.scala"
+        runReport._2.mutants.map(_.id) shouldBe List("1")
+        result.mutationScore shouldBe 100
+        result.totalMutants shouldBe 1
+        result.killed shouldBe 1
+        result.survived shouldBe 0
+      }
+    }
+
+    it("should not clean up tmp dir on errors") {
+      val fileCollectorMock = new TestFileResolver(Seq.empty)
+      val reporterMock = mock[Reporter]
+
+      val testRunner = { (path: Path) =>
+        TestRunnerStub.withResults(initialTestRunResultIsSuccessful = false)()(path)
+      }
+
+      val sut = new MutantRunner(testRunner, fileCollectorMock, reporterMock)(staticTmpDirConfig, testLogger)
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val mutants = Seq()
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq.empty, 0)
+
+      sut(_ => IO.pure(List(mutatedFile))).attempt
+        .asserting { result =>
+          staticTmpDir.toNioPath.toFile should exist
+
+          result shouldBe a[Left[Throwable, ?]]
+          result.asInstanceOf[Left[Throwable, ?]].value.getMessage should startWith("Initial test run failed")
+        }
+        .flatMap { result =>
+          // Simulate the user manually cleaned up the tmp dir (before we run the next test case).
+          Files[IO].deleteRecursively(staticTmpDir).as(result)
+        }
+    }
+
+    it("should not clean up tmp dir if clean-tmp-dir is disabled") {
+      val fileCollectorMock = new TestFileResolver(Seq.empty)
+      val reporterMock = mock[Reporter]
+      whenF(reporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
+      when(reporterMock.mutantTested).thenReturn(_.drain)
+      val mutant = Mutant(MutantId(1), q"0", q"zero", EmptyString)
+
+      val testRunner = TestRunnerStub.withResults(Killed(mutant))
+
+      val sut = new MutantRunner(testRunner, fileCollectorMock, reporterMock)(noCleanTmpDirConfig, testLogger)
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val mutants = Seq(mutant)
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq.empty, 0)
+
+      sut(_ => IO.pure(List(mutatedFile)))
+        .asserting { result =>
+          staticTmpDir.toNioPath.toFile should exist
+
+          val captor = ArgCaptor[FinishedRunEvent]
+          verify(reporterMock, times(1)).onRunFinished(captor.capture)
+          val runReport = captor.value.report.files.loneElement
+
+          runReport._1 shouldBe "simpleFile.scala"
+          runReport._2.mutants.map(_.id) shouldBe List("1")
+          result.mutationScore shouldBe 100
+          result.totalMutants shouldBe 1
+          result.killed shouldBe 1
+          result.survived shouldBe 0
+        }
+        .flatMap { result =>
+          // Simulate the user manually cleaned up the tmp dir (before we run the next test case).
+          Files[IO].deleteRecursively(staticTmpDir).as(result)
+        }
     }
   }
 }

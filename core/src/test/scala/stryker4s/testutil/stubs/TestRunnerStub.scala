@@ -9,10 +9,11 @@ import stryker4s.run.{ResourcePool, TestRunner, TestRunnerPool}
 
 import scala.meta.*
 
-class TestRunnerStub(results: Seq[() => MutantRunResult]) extends TestRunner {
+class TestRunnerStub(results: Seq[() => MutantRunResult], initialTestRunResultIsSuccessful: Boolean = true)
+    extends TestRunner {
   private val stream = Iterator.from(0)
 
-  def initialTestRun(): IO[InitialTestRunResult] = IO.pure(NoCoverageInitialTestRun(true))
+  def initialTestRun(): IO[InitialTestRunResult] = IO.pure(NoCoverageInitialTestRun(initialTestRunResultIsSuccessful))
 
   def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
     // Ensure runMutant can always continue
@@ -26,6 +27,9 @@ object TestRunnerStub {
   def resource = withResults(Killed(Mutant(MutantId(0), q">", q"<", LesserThan)))
 
   def withResults(mutants: MutantRunResult*) = (_: Path) => makeResults(mutants)
+
+  def withResults(initialTestRunResultIsSuccessful: Boolean)(mutants: MutantRunResult*) = (_: Path) =>
+    makeResults(mutants, initialTestRunResultIsSuccessful)
 
   def withInitialCompilerError(
       errs: List[CompilerErrMsg],
@@ -42,7 +46,14 @@ object TestRunnerStub {
   }
 
   private def makeResults(
-      mutants: Seq[MutantRunResult]
+      mutants: Seq[MutantRunResult],
+      initialTestRunResultIsSuccessful: Boolean = true
   ): Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]] =
-    Right(ResourcePool(NonEmptyList.of(Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _))))))
+    Right(
+      ResourcePool(
+        NonEmptyList.of(
+          Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _), initialTestRunResultIsSuccessful))
+        )
+      )
+    )
 }
