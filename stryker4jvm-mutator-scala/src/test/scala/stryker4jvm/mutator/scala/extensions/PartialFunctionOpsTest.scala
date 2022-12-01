@@ -2,6 +2,7 @@ package stryker4jvm.mutator.scala.extensions
 
 import cats.syntax.monoid.*
 import cats.kernel.Monoid
+import stryker4jvm.mutator.scala.extensions.PartialFunctionOps.partialFunctionMonoid
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 
 class PartialFunctionOpsTest extends Stryker4sSuite {

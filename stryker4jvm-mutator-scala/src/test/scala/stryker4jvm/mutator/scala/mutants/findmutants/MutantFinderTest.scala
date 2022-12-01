@@ -1,8 +1,10 @@
 package stryker4jvm.mutator.scala.mutants.findmutants
 
 import fs2.io.file.Path
-import stryker4jvm.config.Config
+import stryker4jvm.mutator.scala.config.Config
 import stryker4jvm.core.logging.Logger
+import stryker4jvm.mutator.scala.extensions.FileExtensions.PathExtensions
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.IsEqualExtension
 import stryker4jvm.mutator.scala.scalatest.{FileUtil, LogMatchers}
 import stryker4jvm.mutator.scala.testutil.Stryker4sIOSuite
 

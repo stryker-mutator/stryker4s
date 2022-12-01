@@ -4,10 +4,11 @@ import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import cats.syntax.option.*
 import mutationtesting.{Location, Position}
-import stryker4jvm.config.Config
+import stryker4jvm.mutator.scala.config.Config
 import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
-import stryker4jvm.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
-import stryker4jvm.mutants.{Traverser, TraverserImpl}
+import stryker4jvm.mutator.scala.model.PlaceableTree
+import stryker4jvm.mutator.scala.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
+import stryker4jvm.mutator.scala.mutants.{IgnoredMutations, Traverser, TraverserImpl}
 import stryker4jvm.mutator.scala.scalatest.LogMatchers
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 

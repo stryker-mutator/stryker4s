@@ -1,5 +1,6 @@
 package stryker4jvm.mutator.scala.mutants
 
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.FindExtension
 import stryker4jvm.mutator.scala.scalatest.LogMatchers
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 
