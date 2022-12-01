@@ -39,6 +39,8 @@ object ExampleConfigs {
                                      |    log-test-runner-stdout=true
                                      |    debug-test-runner=true
                                      |  }
+                                     |  static-tmp-dir = true
+                                     |  clean-tmp-dir = false
                                      |}""".stripMargin)
 
   def empty = ConfigSource.empty
