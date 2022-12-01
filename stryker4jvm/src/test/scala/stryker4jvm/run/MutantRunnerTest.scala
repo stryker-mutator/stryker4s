@@ -3,11 +3,9 @@ package stryker4jvm.run
 import cats.data.NonEmptyList
 import mutationtesting.MutantStatus
 import stryker4jvm.config.Config
-import stryker4jvm.model.*
+import stryker4jvm.mutator.scala.scalatest.{FileUtil, LogMatchers}
+import stryker4jvm.mutator.scala.testutil.{MockitoIOSuite, TestData}
 import stryker4jvm.reporting.{FinishedRunEvent, Reporter}
-import stryker4jvm.scalatest.{FileUtil, LogMatchers}
-import stryker4jvm.testutil.stubs.{TestFileResolver, TestRunnerStub}
-import stryker4jvm.testutil.{MockitoIOSuite, Stryker4jvmIOSuite, TestData}
 
 class MutantRunnerTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMatchers with TestData {
 

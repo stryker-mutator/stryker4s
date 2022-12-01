@@ -2,7 +2,6 @@ package stryker4jvm.extensions
 
 import cats.effect.{IO, Ref, Resource}
 import stryker4jvm.extensions.ResourceExtensions.SelfRecreatingResource
-import stryker4jvm.testutil.Stryker4jvmIOSuite
 
 class ResourceExtensionsTest extends Stryker4jvmIOSuite {
   describe("selfRecreatingResource") {

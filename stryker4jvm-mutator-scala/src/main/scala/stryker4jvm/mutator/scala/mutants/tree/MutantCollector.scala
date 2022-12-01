@@ -1,11 +1,12 @@
-package stryker4jvm.mutants.tree
+package stryker4jvm.mutator.scala.mutants.tree
 
 import cats.syntax.align.*
-import stryker4jvm.extensions.TreeExtensions.*
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.*
 import stryker4jvm.core.model.{IgnoredMutationReason, MutatedCode}
-import stryker4jvm.model.PlaceableTree
-import stryker4jvm.mutants.Traverser
-import stryker4jvm.mutants.findmutants.MutantMatcher
+import stryker4jvm.mutator.scala.model.PlaceableTree
+import stryker4jvm.mutator.scala.mutants.Traverser
+import stryker4jvm.mutator.scala.mutants.findmutants.MutantMatcher
+import stryker4jvm.mutator.scala.mutants.{IgnoredMutations, Mutations}
 
 import scala.meta.Tree
 import scala.meta.Term

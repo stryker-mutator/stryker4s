@@ -1,6 +1,6 @@
-package stryker4jvm.extensions.mutationtype
+package stryker4jvm.mutator.scala.extensions.mutationtype
 
-import stryker4jvm.extensions.TreeExtensions.IsEqualExtension
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.IsEqualExtension
 
 import scala.meta.*
 
@@ -26,7 +26,7 @@ object Mutation {
 /** Base trait for substitution mutation
   *
   * Can implicitly be converted to the appropriate `scala.meta.Tree` by importing
-  * [[stryker4jvm.extensions.ImplicitMutationConversion]]
+  * [[stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion]]
   *
   * @tparam T
   *   Has to be a subtype of Tree. This is so that the tree value and unapply methods return the appropriate type. E.G.

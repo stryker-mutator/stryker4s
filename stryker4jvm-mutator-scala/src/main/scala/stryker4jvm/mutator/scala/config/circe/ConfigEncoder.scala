@@ -1,14 +1,14 @@
-package stryker4jvm.config.circe
+package stryker4jvm.mutator.scala.config.circe
 
 import fs2.io.file.Path
 import io.circe.Encoder
-import stryker4jvm.config.{Config, *}
+import stryker4jvm.mutator.scala.config.*
 import sttp.model.Uri
 
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
 
-/** Circe Encoder for encoding a [[stryker4jvm.config.Config]] to JSON
+/** Circe Encoder for encoding a [[stryker4jvm.mutator.scala.config.Config]] to JSON
   */
 trait ConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder

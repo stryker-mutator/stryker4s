@@ -1,4 +1,4 @@
-package stryker4jvm.extensions
+package stryker4jvm.mutator.scala.extensions
 
 import cats.Eval
 import cats.data.OptionT

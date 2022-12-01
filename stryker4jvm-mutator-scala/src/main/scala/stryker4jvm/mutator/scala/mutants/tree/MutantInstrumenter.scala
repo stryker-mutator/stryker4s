@@ -1,19 +1,19 @@
-package stryker4jvm.mutants.tree
+package stryker4jvm.mutator.scala.mutants.tree
 
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
-import stryker4jvm.core.model.MutantWithId
-import stryker4jvm.extensions.TreeExtensions.TransformOnceExtension
-import stryker4jvm.exception.{Stryker4sException, UnableToBuildPatternMatchException}
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.TransformOnceExtension
+import stryker4jvm.mutator.scala.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.MutantWithId
-import stryker4jvm.model.{MutantId, MutatedFile, PlaceableTree}
+import stryker4jvm.mutator.scala.model.{MutantId, MutatedFile, PlaceableTree}
 
 import scala.meta.*
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
-import stryker4jvm.mutants.language.ScalaAST
+import stryker4jvm.mutator.scala.mutants.language.ScalaAST
 import fs2.io.file.Path
+import stryker4jvm.mutator.scala.mutants.MutantsWithId
 
 /** Instrument (place) mutants in a tree
   *

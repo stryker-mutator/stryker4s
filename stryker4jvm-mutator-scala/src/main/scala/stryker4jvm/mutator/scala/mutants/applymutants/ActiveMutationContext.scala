@@ -1,4 +1,4 @@
-package stryker4jvm.mutants.applymutants
+package stryker4jvm.mutator.scala.mutants.applymutants
 
 import scala.meta.*
 

@@ -20,7 +20,6 @@ import stryker4jvm.core.model.{
   MutantWithId,
   MutatedCode
 }
-import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
 import java.util.concurrent.atomic.AtomicInteger
 import java.util

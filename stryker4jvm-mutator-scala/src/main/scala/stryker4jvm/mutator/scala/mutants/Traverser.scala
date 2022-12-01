@@ -1,9 +1,9 @@
-package stryker4jvm.mutants
+package stryker4jvm.mutator.scala.mutants
 
 import cats.syntax.flatMap.*
 import cats.syntax.option.*
-import stryker4jvm.extensions.TreeExtensions.{FindExtension, TreeIsInExtension}
-import stryker4jvm.extensions.mutationtype.ParentIsTypeLiteral
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{FindExtension, TreeIsInExtension}
+import stryker4jvm.mutator.scala.extensions.mutationtype.ParentIsTypeLiteral
 import stryker4jvm.core.logging.Logger
 
 import scala.meta.*

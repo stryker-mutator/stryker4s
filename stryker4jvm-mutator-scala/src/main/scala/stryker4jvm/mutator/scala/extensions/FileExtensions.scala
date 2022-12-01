@@ -1,7 +1,7 @@
-package stryker4jvm.extensions
+package stryker4jvm.mutator.scala.extensions
 
 import fs2.io.file.Path
-import stryker4jvm.config.Config
+import stryker4jvm.mutator.scala.config.Config
 
 object FileExtensions {
 

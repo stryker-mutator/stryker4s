@@ -1,4 +1,4 @@
-package stryker4jvm.model
+package stryker4jvm.mutator.scala.model
 
 import scala.meta.Tree
 

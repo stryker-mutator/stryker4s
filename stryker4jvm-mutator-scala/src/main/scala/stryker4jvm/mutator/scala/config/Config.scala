@@ -1,4 +1,4 @@
-package stryker4jvm.config
+package stryker4jvm.mutator.scala.config
 
 import fs2.io.file.Path
 
