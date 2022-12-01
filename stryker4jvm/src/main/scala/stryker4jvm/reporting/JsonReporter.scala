@@ -10,7 +10,7 @@ import stryker4jvm.core.reporting.events.FinishedRunEvent
 
 import java.nio.file.Path
 
-class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
+class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter[Config] {
 
   def writeReportJsonTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax.*
@@ -20,9 +20,9 @@ class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
   }
 
   override def onRunFinished(runReport: FinishedRunEvent[Config]): IO[Unit] = {
-    val resultLocation = runReport.reportsLocation / "report.json"
+    val resultLocation = fs2.io.file.Path.fromNioPath(runReport.reportsLocation) / "report.json"
 
-    writeReportJsonTo(resultLocation, runReport.report) *>
+    writeReportJsonTo(resultLocation.toNioPath, runReport.report) *>
       IO(log.info(s"Written JSON report to $resultLocation"))
   }
 }

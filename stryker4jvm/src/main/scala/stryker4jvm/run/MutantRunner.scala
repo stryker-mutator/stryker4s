@@ -4,12 +4,13 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
-import fs2.{text, Pipe, Stream}
+import fs2.{Pipe, Stream, text}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.core.reporting.Reporter
+import stryker4jvm.core.reporting.events.MutantTestedEvent
 import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4jvm.extensions.FileExtensions.PathExtensions
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
@@ -24,7 +25,7 @@ class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
     rollbackHandler: RollbackHandler,
-    reporter: Reporter[AST]
+    reporter: Reporter[Config]
 )(implicit config: Config, log: Logger) {
 
   def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
@@ -173,7 +174,7 @@ class MutantRunner(
         IO(log.debug(s"Running mutant $mutant")) *>
           testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })
-      .observe(in => in.as(MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
+      .observe(in => in.as(new MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 
     // Back to per-file structure
     implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)

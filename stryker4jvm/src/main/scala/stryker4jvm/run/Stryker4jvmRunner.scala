@@ -8,16 +8,15 @@ import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.core.files.DiskFileIO
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.reporting.Reporter
-import stryker4jvm.core.run.threshold.ScoreStatus
 import stryker4jvm.files.{ConfigFilesResolver, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.SttpLogWrapper
 import stryker4jvm.model.CompilerErrMsg
-import stryker4jvm.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
-import stryker4jvm.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
-import stryker4jvm.mutants.{Mutator, TraverserImpl}
+import stryker4jvm.mutants.Mutator
+import stryker4jvm.mutator.scala.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4jvm.reporting.dashboard.DashboardConfigProvider
 import stryker4jvm.reporting.*
 import stryker4jvm.run.process.ProcessRunner
+import stryker4jvm.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 import sttp.client3.logging.LoggingBackend
@@ -25,23 +24,25 @@ import sttp.model.HeaderNames
 
 abstract class Stryker4jvmRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
+    // todo: scala mutator still uses their own config object so this implicit won't work
     implicit val config: Config = ConfigReader.readConfig()
 
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
     val reporter = new AggregateReporter(resolveReporters())
 
-    val stryker4s = new Stryker4jvm(
+    val stryker4jvm = new Stryker4jvm(
       resolveMutatesFileSource,
       new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
-        new MutantInstrumenter(instrumenterOptions)
+        Map.empty
+//        new MutantFinder(),
+//        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+//        new MutantInstrumenter(instrumenterOptions)
       ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
       reporter
     )
 
-    stryker4s.run()
+    stryker4jvm.run()
   }
 
   def resolveReporters()(implicit config: Config): List[Reporter[Config]] =
