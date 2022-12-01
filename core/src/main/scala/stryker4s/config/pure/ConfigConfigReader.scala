@@ -7,9 +7,10 @@ import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
 import stryker4s.config.*
 import stryker4s.extension.mutationtype.Mutation
+import sttp.model.Uri
 
 import java.nio.file.Path as JPath
-import scala.meta.{dialects, Dialect}
+import scala.meta.{Dialect, dialects}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *
@@ -40,7 +41,7 @@ trait ConfigConfigReader {
         valid.toSet.asRight
     }
 
-  implicit def uriReader = _root_.pureconfig.module.sttp.reader
+  implicit def uriReader: ConfigReader[Uri] = _root_.pureconfig.module.sttp.reader
 
   implicit def thresholdsReader: ConfigReader[Thresholds] = {
     def isNotPercentage(n: Int) = n < 0 || n > 100

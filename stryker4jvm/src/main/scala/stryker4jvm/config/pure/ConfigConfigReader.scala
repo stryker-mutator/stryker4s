@@ -5,7 +5,9 @@ import fs2.io.file.Path
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
-import stryker4jvm.mutator.scala.config.{Config, DashboardReportType, ReporterType, Thresholds}
+import stryker4jvm.mutator.scala.config.*
+import stryker4jvm.mutator.scala.extensions.mutationtype.Mutation
+import sttp.model.Uri
 
 import java.nio.file.Path as JPath
 import scala.meta.{Dialect, dialects}
@@ -26,10 +28,6 @@ trait ConfigConfigReader {
   implicit def dashboardReportTypeReader: ConfigReader[DashboardReportType] =
     deriveEnumerationReader[DashboardReportType]
 
-  // TODO! See merge-notes.txt in root of module
-  implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] = ???
-
-  /*
   implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] =
     ConfigReader[List[String]] emap { exclusions =>
       val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
@@ -42,9 +40,8 @@ trait ConfigConfigReader {
       else
         valid.toSet.asRight
     }
-   */
 
-  implicit def uriReader = _root_.pureconfig.module.sttp.reader
+  implicit def uriReader: ConfigReader[Uri] = _root_.pureconfig.module.sttp.reader
 
   implicit def thresholdsReader: ConfigReader[Thresholds] = {
     def isNotPercentage(n: Int) = n < 0 || n > 100

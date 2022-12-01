@@ -5,11 +5,9 @@ import cats.syntax.parallel.*
 import fs2.Pipe
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.model.AST
-import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.core.reporting.events.FinishedRunEvent
 
-class AggregateReporter(reporters: List[Reporter[Config]])(implicit log: Logger) extends Reporter[Config] {
+class AggregateReporter(reporters: List[IOReporter[Config]])(implicit log: Logger) extends IOReporter[Config] {
 
   override def mutantTested =
     reportAll(_.mutantTested)
@@ -19,7 +17,7 @@ class AggregateReporter(reporters: List[Reporter[Config]])(implicit log: Logger)
 
   /** Broadcast to all reporters in parallel
     */
-  private def reportAll[T](toReporterPipe: Reporter[Config] => Pipe[IO, T, Nothing]): Pipe[IO, T, Nothing] = {
+  private def reportAll[T](toReporterPipe: IOReporter[Config] => Pipe[IO, T, Nothing]): Pipe[IO, T, Nothing] = {
     val pipes = reporters.map(toReporterPipe)
     if (pipes.isEmpty) _.drain
     else

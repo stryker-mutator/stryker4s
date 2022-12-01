@@ -7,20 +7,19 @@ import fansi.Color.Red
 import fansi.{Bold, Str}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
-import stryker4jvm.config.{Config, Full, MutationScoreOnly}
-import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.reporting.Reporter
-import stryker4jvm.core.reporting.events.{FinishedRunEvent, MutantTestedEvent}
-import stryker4jvm.reporting.dashboard.DashboardConfigProvider
-import stryker4jvm.reporting.model.*
 import sttp.client3.*
 import sttp.client3.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
+import stryker4jvm.reporting.model.*
+import stryker4jvm.reporting.dashboard.DashboardConfigProvider
+import stryker4jvm.config.{Config, Full, MutationScoreOnly}
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.reporting.events.FinishedRunEvent
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     log: Logger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
-) extends Reporter[Config] {
+) extends IOReporter[Config] {
 
   override def onRunFinished(runReport: FinishedRunEvent[Config]): IO[Unit] =
     dashboardConfigProvider.resolveConfig() match {
@@ -76,6 +75,4 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
       case Right(DashboardPutResult(href)) =>
         log.info(s"Sent report to dashboard. Available at $href")
     }
-
-  override def mutantTested(mutantTestedEvent: MutantTestedEvent): Unit = ???
 }
