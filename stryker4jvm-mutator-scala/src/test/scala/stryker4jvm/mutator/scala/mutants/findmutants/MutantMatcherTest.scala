@@ -1,8 +1,12 @@
 package stryker4jvm.mutator.scala.mutants.findmutants
 
-import stryker4jvm.config.Config
-import stryker4jvm.mutants.findmutants.MutantMatcher.MutationMatcher
-import stryker4jvm.mutants.tree.{IgnoredMutations, Mutations}
+import stryker4jvm.mutator.scala.config.Config
+import stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion.mutationToTree
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{FindExtension, PositionExtension}
+import stryker4jvm.mutator.scala.extensions.mutationtype.*
+import stryker4jvm.mutator.scala.model.PlaceableTree
+import stryker4jvm.mutator.scala.mutants.{IgnoredMutations, Mutations}
+import stryker4jvm.mutator.scala.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 
 import scala.meta.*

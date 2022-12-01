@@ -1,8 +1,8 @@
-package stryker4jvm.mutator.scala.exception.extensions.mutationtype
+package stryker4jvm.mutator.scala.extensions.mutationtype
 
 import scala.meta.*
-import stryker4jvm.extensions.ImplicitMutationConversion.mutationToTree
-import stryker4jvm.extensions.TreeExtensions.IsEqualExtension
+import stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion.mutationToTree
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.IsEqualExtension
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 
 class MutationTypesTest extends Stryker4sSuite {

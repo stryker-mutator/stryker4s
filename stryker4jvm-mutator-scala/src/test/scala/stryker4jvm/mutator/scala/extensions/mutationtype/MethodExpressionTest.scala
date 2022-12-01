@@ -1,4 +1,4 @@
-package stryker4jvm.mutator.scala.exception.extensions.mutationtype
+package stryker4jvm.mutator.scala.extensions.mutationtype
 
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 

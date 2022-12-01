@@ -1,6 +1,6 @@
-package stryker4jvm.mutator.scala.exception.extensions
+package stryker4jvm.mutator.scala.extensions
 
-import stryker4jvm.extensions.TreeExtensions.*
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.*
 import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 
 import scala.collection.mutable.ListBuffer

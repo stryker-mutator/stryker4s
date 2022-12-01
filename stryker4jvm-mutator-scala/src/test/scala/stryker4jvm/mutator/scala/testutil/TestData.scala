@@ -2,8 +2,8 @@ package stryker4jvm.mutator.scala.testutil
 
 import java.nio.file.{Path, Paths}
 import mutationtesting.*
-import stryker4jvm.config.Config
-import stryker4jvm.extensions.mutationtype.GreaterThan
+import stryker4jvm.mutator.scala.config.Config
+import stryker4jvm.mutator.scala.extensions.mutationtype.GreaterThan
 import stryker4jvm.core.model.{MutantMetaData, MutantWithId, MutatedCode}
 import stryker4jvm.core.reporting.events.FinishedRunEvent
 
