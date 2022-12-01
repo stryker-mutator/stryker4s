@@ -2,14 +2,13 @@ package stryker4jvm.reporting
 
 import cats.effect.IO
 import fs2.io.file.Path
-import mutationtesting.*
+import mutationtesting.MutationTestResult
 import stryker4jvm.config.Config
 import stryker4jvm.core.files.FileIO
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.core.reporting.events.FinishedRunEvent
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter[Config] {
+class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends IOReporter[Config] {
 
   private val title = "stryker4jvm report"
   private val mutationTestElementsName = "mutation-test-elements.js"

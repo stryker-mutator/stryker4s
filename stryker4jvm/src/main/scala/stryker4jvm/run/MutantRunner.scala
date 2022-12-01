@@ -9,13 +9,13 @@ import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
-import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.core.reporting.events.MutantTestedEvent
 import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4jvm.extensions.FileExtensions.PathExtensions
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.files.FilesFileResolver
 import stryker4jvm.model.*
+import stryker4jvm.reporting.IOReporter
 
 import java.nio
 import scala.collection.immutable.SortedMap
@@ -25,7 +25,7 @@ class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
     rollbackHandler: RollbackHandler,
-    reporter: Reporter[Config]
+    reporter: IOReporter[Config]
 )(implicit config: Config, log: Logger) {
 
   def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
@@ -36,7 +36,7 @@ class MutantRunner(
 
   }
 
-  def handleRollback(mutatedFiles: Seq[MutatedFile]) =
+  def handleRollback(mutatedFiles: Seq[MutatedFile]): IO[RunResult] =
     EitherT(run(mutatedFiles))
       .leftFlatMap { errors =>
         log.info(s"Attempting to remove ${errors.size} mutants that gave a compile error...")
@@ -203,7 +203,7 @@ class MutantRunner(
         else
           IO(log.info("Initial test run succeeded! Testing mutants...")).as {
             result match {
-              case _: NoCoverageInitialTestRun => CoverageExclusions(false, Map.empty, List.empty)
+              case _: NoCoverageInitialTestRun => CoverageExclusions(hasCoverage = false, Map.empty, List.empty)
               case InitialTestRunCoverageReport(_, firstRun, secondRun, _) =>
                 val firstRunMap = firstRun.report
                 val secondRunMap = secondRun.report
@@ -211,7 +211,7 @@ class MutantRunner(
 
                 val coveredMutants = firstRunMap.filterNot { case (id, _) => staticMutants.contains(id) }
 
-                CoverageExclusions(true, staticMutants = staticMutants, coveredMutants = coveredMutants)
+                CoverageExclusions(hasCoverage = true, staticMutants = staticMutants, coveredMutants = coveredMutants)
             }
           }
       }

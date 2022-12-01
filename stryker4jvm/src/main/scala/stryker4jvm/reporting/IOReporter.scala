@@ -14,10 +14,6 @@ class IOReporter[C] {
 }
 
 class ReporterWrapper[C](val reporter: Reporter[C]) extends IOReporter[C] {
-  override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in => in.map(reporter.mutantTested)
+  override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in => in.map(reporter.mutantTested).drain
   override def onRunFinished(runReport: FinishedRunEvent[C]): IO[Unit] = IO(reporter.onRunFinished(runReport))
-}
-
-object ReporterWrapper {
-  implicit def CoreReporterToReporterWrapper[C](reporter: Reporter[C]): IOReporter[C] = new ReporterWrapper(reporter)
 }

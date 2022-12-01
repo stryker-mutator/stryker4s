@@ -2,7 +2,7 @@ package stryker4s
 
 import cats.effect.IO
 import cats.syntax.align.*
-import mutationtesting.Metrics
+import mutationtesting.{Metrics, MetricsResult}
 import stryker4s.config.Config
 import stryker4s.files.MutatesFileResolver
 import stryker4s.model.{MutantResultsPerFile, RunResult}
@@ -28,7 +28,7 @@ class Stryker4s(fileSource: MutatesFileResolver, mutator: Mutator, runner: Mutan
   }
 
   // TODO: move result reporting
-  def createAndReportResults(results: RunResult, ignored: MutantResultsPerFile) = {
+  def createAndReportResults(results: RunResult, ignored: MutantResultsPerFile): IO[MetricsResult] = {
     val merged = results.results.alignCombine(ignored)
     val mapper = new MutantRunResultMapper() {}
     for {

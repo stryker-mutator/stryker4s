@@ -1,21 +1,21 @@
 package stryker4jvm
 
 import cats.effect.IO
-import cats.effect.IO.*
-import cats.syntax.align.*
+import cats.effect.IO
+import cats.implicits.toAlignOps
+import cats.syntax.align
 import mutationtesting.{Metrics, MetricsResult}
 import stryker4jvm.config.Config
-import stryker4jvm.core.model.AST
-import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.core.reporting.events.FinishedRunEvent
 import stryker4jvm.files.MutatesFileResolver
 import stryker4jvm.model.{MutantResultsPerFile, RunResult}
 import stryker4jvm.mutants.Mutator
+import stryker4jvm.reporting.IOReporter
 import stryker4jvm.reporting.mapper.MutantRunResultMapper
 import stryker4jvm.run.MutantRunner
 import stryker4jvm.run.threshold.{ScoreStatus, ThresholdChecker}
 
-class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter[Config])(
+class Stryker4jvm(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: IOReporter[Config])(
     implicit config: Config
 ) {
 

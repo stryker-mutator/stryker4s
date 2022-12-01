@@ -83,6 +83,7 @@ class Mutator(
       //   // Functor to use a deep map instead of .map(_.map...)
       rights.asScala
         .mapValues(mutations => mutations.asScala.map(mut => new MutantWithId(i.getAndIncrement(), mut)).asJava)
+        .toMap
         .asJava
     }
 
