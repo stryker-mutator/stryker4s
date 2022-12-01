@@ -7,11 +7,14 @@ import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
-import stryker4jvm.core.model.MutantWithId
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.{AST, MutantWithId}
+import stryker4jvm.core.reporting.Reporter
+import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4jvm.extensions.FileExtensions.PathExtensions
+import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.files.FilesFileResolver
-import stryker4jvm.logging.Logger
-import stryker4jvm.reporting.{MutantTestedEvent, Reporter}
+import stryker4jvm.model.*
 
 import java.nio
 import scala.collection.immutable.SortedMap
@@ -21,7 +24,7 @@ class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
     rollbackHandler: RollbackHandler,
-    reporter: Reporter
+    reporter: Reporter[AST]
 )(implicit config: Config, log: Logger) {
 
   def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
@@ -123,10 +126,10 @@ class MutantRunner(
   ): IO[MutantResultsPerFile] = {
     val allMutants = mutatedFiles.flatMap(m => m.mutants.toVector.map(m.fileOrigin -> _))
 
-    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id.value))
+    val (staticMutants, rest) = allMutants.partition(m => coverageExclusions.staticMutants.contains(m._2.id))
 
     val (noCoverageMutants, testableMutants) =
-      rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.value))
+      rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id))
 
     // val compilerErrorMutants =
     //   mutatedFiles.flatMap(m => m.nonCompilingMutants.toList.map(m.fileOrigin.relativePath -> _))
@@ -166,7 +169,7 @@ class MutantRunner(
     val testedMutants = Stream
       .emits(testableMutants)
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
-        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id.value, Seq.empty)
+        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id, Seq.empty)
         IO(log.debug(s"Running mutant $mutant")) *>
           testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })
@@ -213,7 +216,7 @@ class MutantRunner(
       }
   }
 
-  private def staticMutant(mutant: MutantWithId): MutantResult = mutant
+  private def staticMutant(mutant: MutantWithId[AST]): MutantResult = mutant
     .toMutantResult(MutantStatus.Ignored)
     .copy(
       description = Some(
@@ -222,7 +225,7 @@ class MutantRunner(
       static = true.some
     )
 
-  private def noCoverageMutant(mutant: MutantWithId): MutantResult = mutant
+  private def noCoverageMutant(mutant: MutantWithId[AST]): MutantResult = mutant
     .toMutantResult(MutantStatus.Ignored)
     .copy(
       description =

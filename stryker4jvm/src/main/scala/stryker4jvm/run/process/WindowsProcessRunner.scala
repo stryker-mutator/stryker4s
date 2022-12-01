@@ -3,7 +3,7 @@ package stryker4jvm.run.process
 import cats.effect.IO
 import fs2.io.file.Path
 import stryker4jvm.config.Config
-import stryker4jvm.logging.Logger
+import stryker4jvm.core.logging.Logger
 
 import scala.util.Try
 

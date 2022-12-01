@@ -1,6 +1,6 @@
 package stryker4jvm.model
 
-import stryker4s.api.testprocess.CoverageReport
+//import stryker4jvm.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -12,10 +12,11 @@ sealed trait InitialTestRunResult {
   def reportedDuration: Option[FiniteDuration] = None
 }
 
+// TODO: CoverageReport from api
 final case class InitialTestRunCoverageReport(
     isSuccessful: Boolean,
-    firstRun: CoverageReport,
-    secondRun: CoverageReport,
+    firstRun: Any, // CoverageReport,
+    secondRun: Any, // CoverageReport,
     duration: FiniteDuration
 ) extends InitialTestRunResult {
   override def reportedDuration: Option[FiniteDuration] = Some(duration)
