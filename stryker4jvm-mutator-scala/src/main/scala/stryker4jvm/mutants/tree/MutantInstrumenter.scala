@@ -6,11 +6,13 @@ import stryker4jvm.extensions.TreeExtensions.TransformOnceExtension
 import stryker4jvm.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.MutantWithId
-import stryker4jvm.model.{MutantId, MutatedFile, PlaceableTree, SourceContext}
+import stryker4jvm.model.{MutantId, MutatedFile, PlaceableTree}
 
 import scala.meta.*
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
+import stryker4jvm.mutants.language.ScalaAST
+import fs2.io.file.Path
 
 /** Instrument (place) mutants in a tree
   *
@@ -20,7 +22,7 @@ import scala.util.{Failure, Success}
   */
 class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
-  def instrumentFile(context: SourceContext, mutantMap: Map[PlaceableTree, MutantsWithId]): MutatedFile = {
+  def instrumentFile(context: ScalaAST, mutantMap: Map[PlaceableTree, MutantsWithId]): MutatedFile = {
 
     val newTree = context.source
       .transformOnce {
@@ -37,7 +39,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
             catch {
               case NonFatal(e) =>
                 log.error(
-                  s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.syntax}]"
+                  s"Failed to instrument mutants in [${originalTree.syntax}]"
                 )
                 log.error(
                   s"Failed mutation(s) '${mutations.map(_.id).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
@@ -45,7 +47,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
                 log.error(
                   "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s."
                 )
-                throw UnableToBuildPatternMatchException(context.path, e)
+                throw UnableToBuildPatternMatchException(Path("test"), e)
             }
           }
         }
@@ -53,12 +55,12 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
       case Success(tree)                  => tree
       case Failure(e: Stryker4sException) => throw e
       case Failure(e) =>
-        throw new UnableToBuildPatternMatchException(context.path, e)
+        throw new UnableToBuildPatternMatchException(Path("test"), e)
     }
 
     val mutations: MutantsWithId = mutantMap.map(_._2).toVector.toNev.get.flatten
 
-    new MutatedFile(context.path, newTree, mutations)
+    new MutatedFile(newTree, mutations)
   }
 
   def mutantToCase(mutant: MutantWithId[Term]): Case = {
