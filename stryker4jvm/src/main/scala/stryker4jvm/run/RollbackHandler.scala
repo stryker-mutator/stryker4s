@@ -1,6 +1,7 @@
 package stryker4jvm.run
 
 import cats.data.NonEmptyList
+import stryker4jvm.model.{CompilerErrMsg, MutantResultsPerFile, MutatedFile}
 
 class RollbackHandler {
   def rollbackFiles(

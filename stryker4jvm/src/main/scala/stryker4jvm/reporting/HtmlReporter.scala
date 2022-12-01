@@ -7,8 +7,9 @@ import stryker4jvm.config.Config
 import stryker4jvm.core.files.FileIO
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.reporting.Reporter
+import stryker4jvm.core.reporting.events.FinishedRunEvent
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
+class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter[Config] {
 
   private val title = "stryker4jvm report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -41,23 +42,24 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
        |</html>""".stripMargin
 
   def writeMutationTestElementsJsTo(file: Path): IO[Unit] =
-    fileIO.createAndWriteFromResource(file, htmlReportResource)
+    IO(fileIO.createAndWriteFromResource(file.toNioPath, htmlReportResource))
 
   def writeIndexHtmlTo(file: Path): IO[Unit] =
-    fileIO.createAndWrite(file, indexHtml)
+    IO(fileIO.createAndWrite(file.toNioPath, indexHtml))
 
   def writeReportJsTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax.*
     import mutationtesting.circe.*
     val json = report.asJson.noSpaces
     val reportContent = s"document.querySelector('mutation-test-report-app').report = $json"
-    fileIO.createAndWrite(file, reportContent)
+    IO(fileIO.createAndWrite(file.toNioPath, reportContent))
   }
 
-  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
-    val mutationTestElementsLocation = runReport.reportsLocation / mutationTestElementsName
-    val indexLocation = runReport.reportsLocation / "index.html"
-    val reportLocation = runReport.reportsLocation / reportFilename
+  override def onRunFinished(runReport: FinishedRunEvent[Config]): IO[Unit] = {
+    val path = fs2.io.file.Path.fromNioPath(runReport.reportsLocation)
+    val mutationTestElementsLocation = path / mutationTestElementsName
+    val indexLocation = path / "index.html"
+    val reportLocation = path / reportFilename
 
     val reportsWriting = writeIndexHtmlTo(indexLocation) &>
       writeReportJsTo(reportLocation, runReport.report) &>

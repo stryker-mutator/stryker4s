@@ -4,8 +4,8 @@ import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4jvm.config.{Config, Thresholds as ConfigThresholds}
-import stryker4jvm.extensions.FileExtensions.*
 import stryker4jvm.model.MutantResultsPerFile
+import stryker4jvm.extensions.FileExtensions.PathExtensions
 
 import java.nio.file.Files
 import scala.util.Try

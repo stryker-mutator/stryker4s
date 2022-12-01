@@ -7,7 +7,7 @@ import stryker4s.log.Logger
 
 class AggregateReporter(reporters: List[Reporter])(implicit log: Logger) extends Reporter {
 
-  override def mutantTested =
+  override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
     reportAll(_.mutantTested)
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =

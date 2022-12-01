@@ -9,7 +9,7 @@ import stryker4jvm.core.model.AST
 import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.core.reporting.events.FinishedRunEvent
 
-class AggregateReporter(reporters: List[Reporter[Config]])(implicit log: Logger) extends Reporter {
+class AggregateReporter(reporters: List[Reporter[Config]])(implicit log: Logger) extends Reporter[Config] {
 
   override def mutantTested =
     reportAll(_.mutantTested)
