@@ -1,7 +1,6 @@
-package stryker4jvm.model
+package stryker4jvm.mutator.scala.model
 
-import fs2.io.file.Path
-import stryker4jvm.mutants.tree.MutantsWithId
+import stryker4jvm.mutator.scala.mutants.MutantsWithId
 
 import scala.meta.Tree
 

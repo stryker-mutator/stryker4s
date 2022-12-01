@@ -1,16 +1,15 @@
-package stryker4jvm.extensions.mutationtype
+package stryker4jvm.mutator.scala.extensions.mutationtype
 
 import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import mutationtesting.Location
-import stryker4jvm.extensions.TreeExtensions.{PositionExtension, RegexLocationExtension}
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{PositionExtension, RegexLocationExtension}
 import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
-import stryker4jvm.model.RegexParseError
-import stryker4jvm.mutants.tree.IgnoredMutation
+import stryker4jvm.mutator.scala.model.RegexParseError
+import stryker4jvm.mutator.scala.mutants.IgnoredMutation
 
 import scala.meta.*
-
-import stryker4jvm.mutants.language.ScalaAST
+import stryker4jvm.mutator.scala.mutants.language.ScalaAST
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */

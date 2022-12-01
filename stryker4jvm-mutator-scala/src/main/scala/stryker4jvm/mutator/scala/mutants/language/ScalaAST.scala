@@ -1,4 +1,4 @@
-package stryker4jvm.mutants.language
+package stryker4jvm.mutator.scala.mutants.language
 
 import scala.meta
 import stryker4jvm.core.model.AST

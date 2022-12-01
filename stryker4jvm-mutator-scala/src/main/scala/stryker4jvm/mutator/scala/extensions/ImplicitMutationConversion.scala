@@ -1,12 +1,12 @@
-package stryker4jvm.extensions
+package stryker4jvm.mutator.scala.extensions
 
 import scala.meta.{Term, Tree}
 
-import stryker4jvm.extensions.mutationtype.SubstitutionMutation
-import stryker4jvm.mutants.language.ScalaAST
+import stryker4jvm.mutator.scala.extensions.mutationtype.SubstitutionMutation
+import stryker4jvm.mutator.scala.mutants.language.ScalaAST
 import scala.meta.Source
 
-/** Converts [[stryker4s.extension.mutationtype.SubstitutionMutation]] to a `scala.meta.Tree`
+/** Converts [[stryker4jvm.mutator.scala.extensions.mutationtype.SubstitutionMutation]] to a `scala.meta.Tree`
   *
   * {{{
   * import stryker4jvm.extension.ImplicitMutationConversion._

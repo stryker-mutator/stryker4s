@@ -5,10 +5,8 @@ import cats.syntax.traverse.*
 import fansi.Color.*
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
-import stryker4jvm.model.MutantWithId
-import stryker4jvm.model.{InitialTestRunCoverageReport, InitialTestRunResult, NoCoverageInitialTestRun}
-import stryker4jvm.scalatest.LogMatchers
-import stryker4jvm.testutil.{Stryker4jvmIOSuite, TestData}
+import stryker4jvm.mutator.scala.scalatest.LogMatchers
+import stryker4jvm.mutator.scala.testutil.TestData
 import stryker4s.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.*

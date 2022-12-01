@@ -1,4 +1,4 @@
-package stryker4jvm.config
+package stryker4jvm.mutator.scala.config
 
 import sttp.client3.UriContext
 import sttp.model.Uri

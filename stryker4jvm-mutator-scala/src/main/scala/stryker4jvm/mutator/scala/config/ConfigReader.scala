@@ -1,4 +1,4 @@
-package stryker4jvm.config
+package stryker4jvm.mutator.scala.config
 
 import cats.syntax.either.*
 import fansi.{Color, Underlined}
@@ -6,7 +6,7 @@ import pureconfig.error.*
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto.*
 import pureconfig.{ConfigReader as PureConfigReader, ConfigSource}
-import stryker4jvm.config.Config.*
+import stryker4jvm.mutator.scala.config.Config.* // <- for implicit conversion, intellij may mark this as unused import!
 import stryker4jvm.core.logging.Logger
 
 import java.io.FileNotFoundException

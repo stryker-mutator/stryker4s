@@ -1,4 +1,4 @@
-package stryker4jvm.extensions.mutationtype
+package stryker4jvm.mutator.scala.extensions.mutationtype
 
 import scala.meta.Term
 import scala.meta.Term.{Name, Select}

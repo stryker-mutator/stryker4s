@@ -1,4 +1,4 @@
-package stryker4jvm.exception
+package stryker4jvm.mutator.scala.exception
 
 import fs2.io.file.Path
 

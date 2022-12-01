@@ -7,7 +7,6 @@ import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.{Logger, SttpLogWrapper}
-import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.mutants.{Mutator, TraverserImpl}
 import stryker4jvm.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4jvm.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}

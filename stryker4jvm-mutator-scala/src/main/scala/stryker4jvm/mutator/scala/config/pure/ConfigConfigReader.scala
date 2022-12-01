@@ -1,14 +1,14 @@
-package stryker4jvm.config.pure
+package stryker4jvm.mutator.scala.config.pure
 
 import cats.syntax.either.*
 import fs2.io.file.Path
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
-import stryker4jvm.config.*
+import stryker4jvm.mutator.scala.config.{Config, DashboardReportType, ReporterType, Thresholds}
 
 import java.nio.file.Path as JPath
-import scala.meta.{dialects, Dialect}
+import scala.meta.{Dialect, dialects}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *

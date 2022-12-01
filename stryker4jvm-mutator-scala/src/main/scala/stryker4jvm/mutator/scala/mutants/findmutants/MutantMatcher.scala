@@ -1,23 +1,22 @@
-package stryker4jvm.mutants.findmutants
+package stryker4jvm.mutator.scala.mutants.findmutants
 
 import cats.data.NonEmptyVector
 import cats.syntax.either.*
 import cats.syntax.functor.*
 import cats.syntax.semigroup.*
-import stryker4jvm.config.Config
-import stryker4jvm.extensions.PartialFunctionOps.*
-import stryker4jvm.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
-import stryker4jvm.extensions.mutationtype.*
-import stryker4jvm.model.*
+import stryker4jvm.mutator.scala.config.Config
+import stryker4jvm.mutator.scala.extensions.PartialFunctionOps.*
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
+import stryker4jvm.mutator.scala.extensions.mutationtype.*
+import stryker4jvm.mutator.scala.model.*
 import stryker4jvm.core.model.*
-
-import stryker4jvm.model.MutationExcluded
-import stryker4jvm.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
+import stryker4jvm.mutator.scala.model.MutationExcluded
 
 import scala.annotation.tailrec
 import scala.meta.*
 import MutantMatcher.MutationMatcher
 import stryker4jvm.core.model
+import stryker4jvm.mutator.scala.mutants.{IgnoredMutation, IgnoredMutations, Mutations}
 
 trait MutantMatcher {
 
@@ -31,7 +30,7 @@ object MutantMatcher {
   /** A PartialFunction that can match on a ScalaMeta tree and return a `Either[IgnoredMutations, Mutations]`.
     *
     * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
-    * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
+    * [[stryker4jvm.core.model.IgnoredMutationReason]] shows the possible reasons.
     */
   type MutationMatcher = PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
 
@@ -195,7 +194,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
 
   @tailrec
   private def excludedByAnnotation(original: Tree, mutationName: String): Boolean = {
-    import stryker4jvm.extensions.TreeExtensions.*
+    import stryker4jvm.mutator.scala.extensions.TreeExtensions.*
     original.parent match {
       case Some(value) =>
         value.getMods.exists(isSupressWarningsAnnotation(_, mutationName)) || excludedByAnnotation(

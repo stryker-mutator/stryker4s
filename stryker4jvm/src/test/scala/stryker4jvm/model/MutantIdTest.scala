@@ -1,7 +1,5 @@
 package stryker4jvm.model
 
-import stryker4jvm.testutil.Stryker4jvmSuite
-
 class MutantIdTest extends Stryker4jvmSuite {
   describe("MutantId") {
     it("should have a toString that returns a number") {

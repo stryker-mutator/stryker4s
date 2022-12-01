@@ -2,7 +2,6 @@ package stryker4jvm.exception
 
 import cats.data.NonEmptyList
 import cats.syntax.foldable.*
-import stryker4jvm.model.CompilerErrMsg
 
 final case class UnableToFixCompilerErrorsException(errs: NonEmptyList[CompilerErrMsg])
     extends Stryker4sException(

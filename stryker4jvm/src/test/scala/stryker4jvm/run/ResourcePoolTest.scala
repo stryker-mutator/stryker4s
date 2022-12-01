@@ -4,7 +4,6 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
 import cats.syntax.traverse.*
 import fs2.Stream
-import stryker4jvm.testutil.Stryker4jvmIOSuite
 
 import scala.concurrent.duration.*
 
