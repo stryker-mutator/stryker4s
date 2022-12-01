@@ -29,6 +29,4 @@ public class LanguageMutator<T extends AST> {
             (Map<T, List<MutantWithId<T>>>) (Map<T, ?>) mutations
         );
     }
-
-
 }
