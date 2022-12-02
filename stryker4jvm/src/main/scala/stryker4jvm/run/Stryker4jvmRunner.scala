@@ -7,7 +7,6 @@ import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.core.files.DiskFileIO
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.reporting.Reporter
 import stryker4jvm.files.{ConfigFilesResolver, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.SttpLogWrapper
 import stryker4jvm.model.CompilerErrMsg
