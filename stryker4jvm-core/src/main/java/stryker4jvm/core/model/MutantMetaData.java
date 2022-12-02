@@ -1,6 +1,6 @@
 package stryker4jvm.core.model;
 
-import mutationtesting.Location;
+import stryker4jvm.core.model.elements.Location;
 
 public final class MutantMetaData {
 
@@ -18,7 +18,7 @@ public final class MutantMetaData {
 
     public String showLocation() {
         return String.format("%d:%d to %d:%d",
-                location.start().line(), location.start().column(),
-                location.end().line(), location.end().column());
+                location.start.line, location.start.column,
+                location.end.line, location.end.column);
     }
 }
