@@ -6,6 +6,7 @@ import cats.syntax.option.*
 import mutationtesting.{Location, Position}
 import stryker4jvm.mutator.scala.config.Config
 import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
+import stryker4jvm.mutator.scala.extensions.Stryker4jvmCoreConversions.LocationExtension
 import stryker4jvm.mutator.scala.model.PlaceableTree
 import stryker4jvm.mutator.scala.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
 import stryker4jvm.mutator.scala.mutants.{IgnoredMutations, Traverser, TraverserImpl}
@@ -29,7 +30,7 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
                 .one(
                   new MutatedCode(
                     q"foo".asInstanceOf[Term],
-                    new MutantMetaData("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)))
+                    new MutantMetaData("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)).asCoreElement)
                   )
                 )
                 .asRight[IgnoredMutations]
