@@ -1,6 +1,6 @@
 package stryker4jvm.core.model;
 
-import mutationtesting.MutantResult;
+import stryker4jvm.core.model.elements.MutantResult;
 
 import java.util.HashMap;
 import java.util.LinkedList;

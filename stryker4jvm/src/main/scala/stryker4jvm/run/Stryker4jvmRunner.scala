@@ -14,6 +14,13 @@ import stryker4jvm.mutants.Mutator
 import stryker4jvm.mutator.scala.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4jvm.reporting.dashboard.DashboardConfigProvider
 import stryker4jvm.reporting.*
+import stryker4jvm.reporting.reporters.{
+  AggregateReporter,
+  ConsoleReporter,
+  DashboardReporter,
+  HtmlReporter,
+  JsonReporter
+}
 import stryker4jvm.run.process.ProcessRunner
 import stryker4jvm.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend

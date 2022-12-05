@@ -8,7 +8,7 @@ import pureconfig.generic.semiauto.*
 import stryker4jvm.mutator.scala.config.{Config, DashboardReportType, ReporterType, Thresholds}
 
 import java.nio.file.Path as JPath
-import scala.meta.{Dialect, dialects}
+import scala.meta.{dialects, Dialect}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *

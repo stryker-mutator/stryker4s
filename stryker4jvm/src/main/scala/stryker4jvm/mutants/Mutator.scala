@@ -7,12 +7,21 @@ import fansi.Color
 import fs2.io.file.Path
 import fs2.{Chunk, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
+import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 
 import scala.collection.JavaConverters.*
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
-import stryker4jvm.core.model.{AST, CollectedMutants, CollectedMutantsWithId, LanguageMutator, MutantWithId, MutatedCode}
+import stryker4jvm.core.model.{
+  AST,
+  CollectedMutants,
+  CollectedMutantsWithId,
+  LanguageMutator,
+  MutantWithId,
+  MutatedCode
+}
+import stryker4jvm.extensions.Stryker4jvmCoreConversions
 import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -72,10 +81,10 @@ class Mutator(
           i.getAndIncrement().toString,
           mutation.metaData.mutatorName,
           mutation.metaData.replacement,
-          mutation.metaData.location,
+          mutation.metaData.location.asMutationElement,
           MutantStatus.Ignored,
           statusReason = Some(reason.explanation)
-        )
+        ).asCoreElement
       }.asJava
     }
 
@@ -103,11 +112,11 @@ class Mutator(
 
   private def splitIgnoredAndFound(
       ctx: SourceContext,
-      ignored: util.List[MutantResult],
+      ignored: util.List[stryker4jvm.core.model.elements.MutantResult],
       found: util.Map[AST, util.List[MutantWithId[AST]]]
   ) = {
-    val leftStream = Stream.emit((ctx.path, ignored.asScala.toVector).asLeft)
-    val rightStream = if (found.size() == 0) Stream.emit((ctx, found).asRight) else Stream.empty
+    val leftStream = Stream.emit((ctx.path, ignored.asScala.toVector.map(_.asMutationElement)).asLeft)
+    val rightStream = if (found.size() != 0) Stream.emit((ctx, found).asRight) else Stream.empty
     leftStream ++ rightStream
   }
 

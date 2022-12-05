@@ -1,7 +1,5 @@
 package stryker4jvm.mutator.kotlin.utility
 
-import mutationtesting.Location
-import mutationtesting.Position
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -25,6 +23,8 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import stryker4jvm.core.model.elements.Location
+import stryker4jvm.core.model.elements.Position
 import sun.reflect.ReflectionFactory
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream

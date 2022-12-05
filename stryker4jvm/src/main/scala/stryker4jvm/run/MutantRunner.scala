@@ -4,18 +4,17 @@ import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
-import fs2.{Pipe, Stream, text}
+import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
-import stryker4jvm.core.reporting.events.MutantTestedEvent
 import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4jvm.extensions.FileExtensions.PathExtensions
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.files.FilesFileResolver
 import stryker4jvm.model.*
-import stryker4jvm.reporting.IOReporter
+import stryker4jvm.reporting.{IOReporter, MutantTestedEvent}
 
 import java.nio
 import scala.collection.immutable.SortedMap
@@ -174,7 +173,7 @@ class MutantRunner(
         IO(log.debug(s"Running mutant $mutant")) *>
           testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
       })
-      .observe(in => in.as(new MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
+      .observe(in => in.as(MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 
     // Back to per-file structure
     implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)
