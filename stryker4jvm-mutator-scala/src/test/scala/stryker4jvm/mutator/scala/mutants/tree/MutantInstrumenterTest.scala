@@ -5,7 +5,12 @@ import fs2.io.file.Path
 import stryker4jvm.core.model.*
 import stryker4jvm.mutator.scala.exception.UnableToBuildPatternMatchException
 import stryker4jvm.mutator.scala.extensions.Stryker4jvmCoreConversions.LocationExtension
-import stryker4jvm.mutator.scala.extensions.TreeExtensions.{CollectFirstExtension, FindExtension, IsEqualExtension, PositionExtension}
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{
+  CollectFirstExtension,
+  FindExtension,
+  IsEqualExtension,
+  PositionExtension
+}
 import stryker4jvm.mutator.scala.extensions.mutationtype.*
 import stryker4jvm.mutator.scala.model.PlaceableTree
 import stryker4jvm.mutator.scala.mutants.MutantsWithId
