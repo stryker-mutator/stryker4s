@@ -61,16 +61,12 @@ public abstract class Logger {
         logImpl(Error, msg, e);
     }
 
-    private String processMsg(String msg) {
-        return colorEnabled ? fansi.Str.implicitApply(msg).render() : msg;
-    }
-
     private void logImpl(LogLevel level, String msg) {
-        log(level, processMsg(msg));
+        log(level, msg);
     }
 
     private void logImpl(LogLevel level, String msg, Throwable e) {
-        log(level, processMsg(msg), e);
+        log(level, msg, e);
     }
 
     private void logImpl(LogLevel level, Throwable e) {
@@ -82,6 +78,10 @@ public abstract class Logger {
     public abstract void log(LogLevel level, String msg, Throwable e);
 
     public abstract void log(LogLevel level, Throwable e);
+
+    public boolean isColorEnabled() {
+        return colorEnabled;
+    }
 
     private boolean determineColorEnabled() {
         // Explicitly disable color https://no-color.org/

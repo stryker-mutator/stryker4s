@@ -10,7 +10,7 @@ import stryker4jvm.mutator.scala.extensions.mutationtype.Mutation
 import sttp.model.Uri
 
 import java.nio.file.Path as JPath
-import scala.meta.{Dialect, dialects}
+import scala.meta.{dialects, Dialect}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *

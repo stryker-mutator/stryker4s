@@ -6,7 +6,12 @@ import cats.syntax.functor.*
 import cats.syntax.semigroup.*
 import stryker4jvm.mutator.scala.config.Config
 import stryker4jvm.mutator.scala.extensions.PartialFunctionOps.*
-import stryker4jvm.mutator.scala.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{
+  IsEqualExtension,
+  LocationExtension,
+  PositionExtension,
+  TransformOnceExtension
+}
 import stryker4jvm.mutator.scala.extensions.mutationtype.*
 import stryker4jvm.mutator.scala.model.*
 import stryker4jvm.core.model.*
@@ -152,7 +157,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       }
 
       val tree: Tree = mutationToTerm(replacement)
-      val metadata = new MutantMetaData(original.syntax, tree.syntax, replacement.mutationName, location)
+      val metadata = new MutantMetaData(original.syntax, tree.syntax, replacement.mutationName, location.asJvmCore)
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
           case t if t.isEqual(original) =>
