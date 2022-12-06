@@ -27,7 +27,7 @@ class Stryker4s(fileSource: MutatesFileResolver, mutator: Mutator, runner: Mutan
     } yield scoreStatus
   }
 
-  // TODO: move
+  // TODO: move result reporting
   def createAndReportResults(results: RunResult, ignored: MutantResultsPerFile) = {
     val merged = results.results.alignCombine(ignored)
     val mapper = new MutantRunResultMapper() {}

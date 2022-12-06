@@ -41,8 +41,8 @@ class MutantRunner(
         // Retry once with the non-compiling mutants removed
         EitherT(
           rollbackHandler
-            .rollbackFiles(errors, mutatedFiles)
-            // TODO: cleanup
+            .rollbackFiles()
+            // TODO: handle rollbacks in a different place
             .flatTraverse { case RollbackResult(newFiles, rollbackedMutants) =>
               run(newFiles).map { result =>
                 result.map { r =>

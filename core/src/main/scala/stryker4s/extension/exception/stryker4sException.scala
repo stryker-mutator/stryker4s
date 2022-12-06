@@ -7,17 +7,11 @@ import stryker4s.model.CompilerErrMsg
 
 import scala.util.control.NoStackTrace
 
-sealed abstract class Stryker4sException(message: String) extends Exception(message) {
-  def this(message: String, cause: Throwable) = {
-    this(message)
-    initCause(cause)
-  }
-}
+sealed abstract class Stryker4sException(message: String) extends Exception(message)
 
-final case class UnableToBuildPatternMatchException(file: Path, cause: Throwable)
+final case class UnableToBuildPatternMatchException(file: Path)
     extends Stryker4sException(
-      s"Failed to instrument mutants in `$file`.\nPlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new",
-      cause
+      s"Failed to instrument mutants in `$file`.\nPlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
     )
 
 final case class InitialTestRunFailedException(message: String) extends Stryker4sException(message) with NoStackTrace
