@@ -21,7 +21,9 @@ final case class Config(
     legacyTestRunner: Boolean = false,
     scalaDialect: Dialect = dialects.Scala3,
     concurrency: Int = Config.defaultConcurrency,
-    debug: DebugOptions = DebugOptions()
+    debug: DebugOptions = DebugOptions(),
+    staticTmpDir: Boolean = false,
+    cleanTmpDir: Boolean = true
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
