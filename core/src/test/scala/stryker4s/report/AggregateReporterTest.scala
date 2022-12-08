@@ -27,11 +27,10 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
           Stream(MutantTestedEvent(1), MutantTestedEvent(2))
             .through(sut.mutantTested)
             .compile
-            .drain
-            .flatMap { _ =>
-              completed1.get.asserting(_ shouldBe true) *>
-                completed2.get.asserting(_ shouldBe true)
-            }
+            .drain >> {
+            completed1.get.asserting(_ shouldBe true) *>
+              completed2.get.asserting(_ shouldBe true)
+          }
       }
     }
 
@@ -39,18 +38,17 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       createMutantTestedReporter.flatMap { case (completed1, reporter1) =>
         val failingReporter = new Reporter {
           override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
-            _.flatMap(_ => Stream.raiseError[IO](new RuntimeException("Something happened")))
+            _ *> (Stream.raiseError[IO](new RuntimeException("Something happened")))
         }
         val sut = new AggregateReporter(List(failingReporter, reporter1))
 
         Stream(MutantTestedEvent(1), MutantTestedEvent(2))
           .through(sut.mutantTested)
           .compile
-          .drain
-          .flatMap { _ =>
-            "Reporter failed to report, java.lang.RuntimeException: Something happened" shouldBe loggedAsError
-            completed1.get.asserting(_ shouldBe true)
-          }
+          .drain >> {
+          "Reporter failed to report, java.lang.RuntimeException: Something happened" shouldBe loggedAsError
+          completed1.get.asserting(_ shouldBe true)
+        }
       }
     }
 

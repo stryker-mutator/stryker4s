@@ -21,7 +21,7 @@ object Dependencies {
 
     // Direct dependencies
     val catsCore = "2.9.0"
-    val catsEffect = "3.4.1"
+    val catsEffect = "3.4.2"
     val circe = "0.14.3"
     val fansi = "0.4.0"
     val fs2 = "3.4.0"
@@ -30,7 +30,7 @@ object Dependencies {
     val pureconfig = "0.17.2"
     val scalameta = "4.6.0"
     val slf4j = "2.0.5"
-    val sttp = "3.8.3"
+    val sttp = "3.8.5"
     val testInterface = "1.0"
     val weaponRegeX = "1.0.3"
   }

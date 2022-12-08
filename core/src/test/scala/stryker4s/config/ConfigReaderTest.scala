@@ -1,5 +1,6 @@
 package stryker4s.config
 
+import fansi.Color.Yellow
 import fansi.Underlined
 import fs2.io.file.Path
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
@@ -33,6 +34,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           config.scalaDialect shouldBe Scala212
           config.concurrency shouldBe 3
           config.debug shouldBe DebugOptions(true, true)
+          config.staticTmpDir shouldBe true
+          config.cleanTmpDir shouldBe false
       }
     }
 
@@ -65,6 +68,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       )
       result.scalaDialect shouldBe Scala3
       result.debug shouldBe DebugOptions(false, false)
+      result.staticTmpDir shouldBe false
+      result.cleanTmpDir shouldBe true
     }
 
     it("should fail on an empty config file") {
@@ -170,7 +175,9 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
 
       ConfigReader.readConfig(configSource)
 
-      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: 'other-unknown-key, unknown-key'.
+      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: '${Yellow(
+           "other-unknown-key"
+         )}, ${Yellow("unknown-key")}'.
           |Please check the documentation at https://stryker-mutator.io/docs/stryker4s/configuration for available options.""".stripMargin shouldBe loggedAsWarning
     }
   }

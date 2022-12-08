@@ -86,25 +86,23 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
         // Act
         sut
-          .writeMutationTestElementsJsTo(tempFile)
-          // Assert
-          .flatMap { _ =>
-            val atLeastSize: Long = 100 * 1024L // 100KB
-            Files[IO].size(tempFile).asserting(_ should be > atLeastSize)
-          }
-          .flatMap { _ =>
-            val expectedHeader = "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
-            // Read the first line
-            Files[IO]
-              .readRange(tempFile, 256, 0, expectedHeader.getBytes().length.toLong)
-              .through(text.utf8.decode)
-              .head
-              .compile
-              .lastOrError
-              .asserting(
-                _ shouldBe expectedHeader
-              )
-          }
+          .writeMutationTestElementsJsTo(tempFile) >> {
+          // assert
+          val atLeastSize: Long = 100 * 1024L // 100KB
+          Files[IO].size(tempFile).asserting(_ should be > atLeastSize)
+        } >> {
+          val expectedHeader = "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+          // Read the first line
+          Files[IO]
+            .readRange(tempFile, 256, 0, expectedHeader.getBytes().length.toLong)
+            .through(text.utf8.decode)
+            .head
+            .compile
+            .lastOrError
+            .asserting(
+              _ shouldBe expectedHeader
+            )
+        }
       }
     }
   }
