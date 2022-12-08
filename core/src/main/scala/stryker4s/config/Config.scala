@@ -19,7 +19,7 @@ final case class Config(
     timeoutFactor: Double = 1.5,
     maxTestRunnerReuse: Option[Int] = None,
     legacyTestRunner: Boolean = false,
-    scalaDialect: Dialect = dialects.Scala3,
+    scalaDialect: Dialect = dialects.Scala213Source3,
     concurrency: Int = Config.defaultConcurrency,
     debug: DebugOptions = DebugOptions(),
     staticTmpDir: Boolean = false,
