@@ -8,10 +8,9 @@ import stryker4s.config.*
 import stryker4s.files.*
 import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.Mutator
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
-import stryker4s.mutants.applymutants.{MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcher}
+import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
+import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
+import stryker4s.mutants.{Mutator, TraverserImpl}
 import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
@@ -26,15 +25,17 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     implicit val config: Config = ConfigReader.readConfig()
 
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
+    val reporter = new AggregateReporter(resolveReporters())
 
     val stryker4s = new Stryker4s(
       resolveMutatesFileSource,
       new Mutator(
-        new MutantFinder(new MutantMatcher),
-        new StatementTransformer,
-        resolveMatchBuilder
+        new MutantFinder(),
+        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+        new MutantInstrumenter(instrumenterOptions)
       ),
-      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new AggregateReporter(resolveReporters()))
+      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
+      reporter
     )
 
     stryker4s.run()
@@ -72,8 +73,6 @@ abstract class Stryker4sRunner(implicit log: Logger) {
         new DashboardReporter(new DashboardConfigProvider(sys.env))
     }
 
-  def resolveMatchBuilder(implicit config: Config): MatchBuilder = new MatchBuilder(mutationActivation)
-
   def resolveTestRunners(tmpDir: Path)(implicit
       config: Config
   ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]]
@@ -86,5 +85,5 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def resolveFilesFileSource(implicit config: Config): FilesFileResolver = new ConfigFilesResolver(ProcessRunner())
 
-  def mutationActivation(implicit config: Config): ActiveMutationContext
+  def instrumenterOptions(implicit config: Config): InstrumenterOptions
 }

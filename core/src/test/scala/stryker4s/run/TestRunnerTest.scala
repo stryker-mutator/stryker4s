@@ -1,11 +1,12 @@
 package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
-import cats.syntax.all.*
+import cats.syntax.traverse.*
 import fansi.Color.*
+import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.api.testprocess.CoverageReport
 import stryker4s.config.Config
-import stryker4s.model.*
+import stryker4s.model.{InitialTestRunCoverageReport, InitialTestRunResult, MutantWithId, NoCoverageInitialTestRun}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.stubs.TestRunnerStub
 import stryker4s.testutil.{Stryker4sIOSuite, TestData}
@@ -72,7 +73,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         } yield result
 
         op.asserting { result =>
-          result shouldBe TimedOut(mutant)
+          result shouldBe mutant.toMutantResult(MutantStatus.Timeout)
           s"Mutant ${mutant.id} timed out over 1 millisecond" shouldBe loggedAsDebug
         }
       }
@@ -105,7 +106,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         } yield result
 
         op.asserting { result =>
-          result shouldBe Killed(mutant)
+          result shouldBe mutant.toMutantResult(MutantStatus.Killed)
           s"Mutant ${mutant.id} timed out over" should not be loggedAsDebug
         }
       }
@@ -115,7 +116,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
   describe("retryRunner") {
     it("should retry after a first attempt fails") {
       val mutant = createMutant
-      val secondResult = Killed(mutant)
+      val secondResult = mutant.toMutantResult(MutantStatus.Killed)
       val op = for {
         log <- Ref[IO].of(List.empty[String])
         innerTR = recreateLoggingTestRunner(
@@ -148,7 +149,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
       op.asserting { case (result, log) =>
         log shouldBe List("open", "close", "open", "close", "open", "close", "open", "close")
-        result shouldBe Error(mutant)
+        result shouldBe mutant.toMutantResult(MutantStatus.RuntimeError)
         s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 2 more time(s)" shouldBe loggedAsDebug
         s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 1 more time(s)" shouldBe loggedAsDebug
         s"Testrunner crashed for mutant ${mutant.id}. Starting a new one and retrying this mutant 0 more time(s)" shouldBe loggedAsDebug
@@ -157,7 +158,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
     it("should only report as Error after 3 failed attempts") {
       val mutant = createMutant
-      val thirdResult = Killed(mutant)
+      val thirdResult = mutant.toMutantResult(MutantStatus.Killed)
       val op = for {
         log <- Ref[IO].of(List.empty[String])
         stubResults = Seq(
@@ -185,7 +186,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
   describe("maxReuseTestRunner") {
     it("should not recreate if reuse is not reached yet") {
       val mutants = List(createMutant, createMutant)
-      val expectedResults = mutants.map(Killed(_))
+      val expectedResults = mutants.map(_.toMutantResult(MutantStatus.Killed))
       val reuse = 3
       val op = for {
         log <- Ref[IO].of(List.empty[String])
@@ -206,7 +207,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
     it("should recreate when reuse is reached") {
       val mutants = List(createMutant, createMutant, createMutant)
-      val expectedResults = mutants.map(Killed(_))
+      val expectedResults = mutants.map(_.toMutantResult(MutantStatus.Killed))
       val reuse = 2
       val op = for {
         log <- Ref[IO].of(List.empty[String])
@@ -229,14 +230,14 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
   def initialTestRunner(result: InitialTestRunResult = NoCoverageInitialTestRun(true)): Resource[IO, TestRunner] =
     Resource.pure(new TestRunner {
       def initialTestRun(): IO[InitialTestRunResult] = IO.pure(result)
-      def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = ???
+      def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = ???
     })
 
-  def timeoutRunner(sleep: FiniteDuration, result: Mutant): Resource[IO, TestRunner] =
+  def timeoutRunner(sleep: FiniteDuration, result: MutantWithId): Resource[IO, TestRunner] =
     Resource.pure(new TestRunner {
       def initialTestRun(): IO[InitialTestRunResult] = ???
-      def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] =
-        IO.sleep(sleep).as(Killed(result))
+      def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
+        IO.sleep(sleep).as(result.toMutantResult(MutantStatus.Killed))
     })
 
   def recreateLoggingTestRunner(

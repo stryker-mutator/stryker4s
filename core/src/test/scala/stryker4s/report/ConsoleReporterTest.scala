@@ -31,7 +31,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
         "Tested mutant 3/3 (100%)" shouldBe loggedAsInfo
       }
     }
-    def mutantTestedStream(size: Int) = Stream.constant(()).take(size.toLong).map(_ => MutantTestedEvent(size))
+    def mutantTestedStream(size: Int) = Stream.constant(()).take(size.toLong).as(MutantTestedEvent(size))
   }
 
   describe("reportFinishedRun") {

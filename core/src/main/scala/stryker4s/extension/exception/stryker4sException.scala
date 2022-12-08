@@ -2,13 +2,17 @@ package stryker4s.extension.exception
 
 import cats.data.NonEmptyList
 import cats.syntax.foldable.*
+import fs2.io.file.Path
 import stryker4s.model.CompilerErrMsg
 
 import scala.util.control.NoStackTrace
 
 sealed abstract class Stryker4sException(message: String) extends Exception(message)
 
-final case class UnableToBuildPatternMatchException() extends Stryker4sException("Unable to build pattern match")
+final case class UnableToBuildPatternMatchException(file: Path)
+    extends Stryker4sException(
+      s"Failed to instrument mutants in `$file`.\nPlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
+    )
 
 final case class InitialTestRunFailedException(message: String) extends Stryker4sException(message) with NoStackTrace
 

@@ -1,9 +1,13 @@
 package stryker4s.extension.mutationtype
 
+import cats.data.NonEmptyVector
 import cats.syntax.either.*
-import stryker4s.model.RegexParseError
+import mutationtesting.Location
+import stryker4s.extension.TreeExtensions.{PositionExtension, RegexLocationExtension}
+import stryker4s.model.{MutantMetadata, MutatedCode, RegexParseError}
+import stryker4s.mutants.tree.IgnoredMutation
 
-import scala.meta.{Init, Term, *}
+import scala.meta.*
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */
@@ -37,15 +41,26 @@ case object PatternConstructor {
 }
 
 object RegexMutations {
-  def apply(pattern: String): Either[RegexParseError, Seq[RegularExpression]] = {
+  def apply(lit: Lit.String): Either[IgnoredMutation, NonEmptyVector[RegularExpression]] = {
     weaponregex.WeaponRegeX
-      .mutate(pattern, mutationLevels = Seq(1))
-      .leftMap(RegexParseError(pattern, _))
-      .map(_.map(r => RegularExpression(r.pattern)))
+      .mutate(lit.value, mutationLevels = Seq(1))
+      .leftMap(ignoredMutation(lit, _))
+      .map(_.toVector)
+      .map(
+        NonEmptyVector
+          .fromVectorUnsafe(_)
+          .map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation)))
+      )
+  }
+
+  private def ignoredMutation(lit: Lit.String, e: String) = {
+    val metadata =
+      MutatedCode(lit, MutantMetadata(lit.value, "", "RegularExpression", lit.pos))
+    (metadata, RegexParseError(lit.value, e))
   }
 }
 
-final case class RegularExpression(pattern: String) extends SubstitutionMutation[Lit.String] {
+final case class RegularExpression(pattern: String, location: Location) extends SubstitutionMutation[Lit.String] {
 
   def mutationName: String = classOf[RegularExpression].getSimpleName
 

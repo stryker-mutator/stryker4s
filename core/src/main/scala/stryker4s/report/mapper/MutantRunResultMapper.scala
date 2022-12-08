@@ -4,14 +4,15 @@ import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Config, Thresholds as ConfigThresholds}
-import stryker4s.model.*
+import stryker4s.extension.FileExtensions.*
+import stryker4s.model.MutantResultsPerFile
 
 import java.nio.file.Files
 import scala.util.Try
 
 trait MutantRunResultMapper {
-  protected[report] def toReport(
-      results: Map[Path, Seq[MutantRunResult]]
+  protected[stryker4s] def toReport(
+      results: MutantResultsPerFile
   )(implicit config: Config): MutationTestResult[Config] =
     MutationTestResult(
       thresholds = toThresholds(config.thresholds),
@@ -26,52 +27,14 @@ trait MutantRunResultMapper {
     Thresholds(high = thresholds.high, low = thresholds.low)
 
   private def toFileResultMap(
-      results: Map[Path, Seq[MutantRunResult]]
+      results: MutantResultsPerFile
   )(implicit config: Config): Map[String, FileResult] =
     results.map { case (path, runResults) =>
-      path.toString.replace('\\', '/') -> toFileResult(path, runResults)
-    }
-
-  private def toFileResult(path: Path, runResults: Seq[MutantRunResult])(implicit
-      config: Config
-  ): FileResult =
-    FileResult(
-      fileContentAsString(path),
-      runResults.map(toMutantResult)
-    )
-
-  private def toMutantResult(runResult: MutantRunResult): MutantResult = {
-    val mutant = runResult.mutant
-    MutantResult(
-      mutant.id.globalId.toString,
-      mutant.mutationType.mutationName,
-      mutant.mutated.syntax,
-      toLocation(mutant.original.pos),
-      toMutantStatus(runResult),
-      runResult.description,
-      testsCompleted = runResult.testsCompleted
-    )
-  }
-
-  private def toLocation(pos: scala.meta.inputs.Position): Location =
-    Location(
-      start = Position(line = pos.startLine + 1, column = pos.startColumn + 1),
-      end = Position(line = pos.endLine + 1, column = pos.endColumn + 1)
-    )
-
-  private def toMutantStatus(mutant: MutantRunResult): MutantStatus =
-    mutant match {
-      case _: Survived     => MutantStatus.Survived
-      case _: Killed       => MutantStatus.Killed
-      case _: NoCoverage   => MutantStatus.NoCoverage
-      case _: TimedOut     => MutantStatus.Timeout
-      case _: Error        => MutantStatus.RuntimeError
-      case _: Ignored      => MutantStatus.Ignored
-      case _: CompileError => MutantStatus.CompileError
+      path.relativePath.toString.replace('\\', '/') -> FileResult(fileContentAsString(path), runResults)
     }
 
   private def fileContentAsString(path: Path)(implicit config: Config): String =
-    new String(Files.readAllBytes((config.baseDir / path).toNioPath))
+    new String(Files.readAllBytes((if (path.isAbsolute) path else config.baseDir / path).toNioPath))
 
   private def systemInformation: SystemInformation = SystemInformation(
     ci = sys.env.contains("CI"),

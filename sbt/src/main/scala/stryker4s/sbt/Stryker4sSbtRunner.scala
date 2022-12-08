@@ -2,10 +2,11 @@ package stryker4s.sbt
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
+import cats.syntax.either.*
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.*
 import sbt.Keys.*
+import sbt.*
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions.*
@@ -13,8 +14,8 @@ import stryker4s.extension.exception.TestSetupException
 import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
-import stryker4s.mutants.applymutants.{ActiveMutationContext, CoverageMatchBuilder, MatchBuilder}
+import stryker4s.mutants.applymutants.ActiveMutationContext
+import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
@@ -35,12 +36,6 @@ class Stryker4sSbtRunner(
 )(implicit
     log: Logger
 ) extends Stryker4sRunner {
-
-  override def resolveMatchBuilder(implicit config: Config): MatchBuilder =
-    if (config.legacyTestRunner) new MatchBuilder(mutationActivation) else new CoverageMatchBuilder(mutationActivation)
-
-  override def mutationActivation(implicit config: Config): ActiveMutationContext =
-    if (config.legacyTestRunner) ActiveMutationContext.sysProps else ActiveMutationContext.testRunner
 
   def resolveTestRunners(
       tmpDir: Path
@@ -113,7 +108,7 @@ class Stryker4sSbtRunner(
                   pathStr = tmpDir.relativize(Path(path.absolutePath)).toString
                   line <- e.position().line().asScala
                 } yield CompilerErrMsg(e.message(), pathStr, line)
-              }.toSeq
+              }
             }
             .toList
 
@@ -206,7 +201,7 @@ class Stryker4sSbtRunner(
 
     if (config.legacyTestRunner) {
       // No compiler error handling in the legacy runner
-      Right(setupLegacySbtTestRunner(settings, extracted))
+      setupLegacySbtTestRunner(settings, extracted).asRight
     } else
       setupSbtTestRunner(settings, extracted)
   }
@@ -216,5 +211,12 @@ class Stryker4sSbtRunner(
 
   override def resolveFilesFileSource(implicit config: Config): FilesFileResolver =
     if (config.files.isEmpty) new SbtFilesResolver(sources, targetDir) else super.resolveFilesFileSource
+
+  override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
+    if (config.legacyTestRunner) {
+      InstrumenterOptions.sysContext(ActiveMutationContext.sysProps)
+    } else {
+      InstrumenterOptions.testRunner
+    }
 
 }

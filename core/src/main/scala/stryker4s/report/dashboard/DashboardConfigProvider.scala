@@ -1,7 +1,8 @@
 package stryker4s.report.dashboard
 
 import cats.data.ValidatedNec
-import cats.syntax.all.*
+import cats.syntax.apply.*
+import cats.syntax.option.*
 import stryker4s.config.Config
 import stryker4s.env.Environment
 import stryker4s.report.dashboard.Providers.*

@@ -1,63 +1,65 @@
 package stryker4s.mutants.findmutants
 
-import scala.meta.*
-
 import stryker4s.config.Config
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
-import stryker4s.extension.TreeExtensions.IsEqualExtension
+import stryker4s.extension.TreeExtensions.{FindExtension, PositionExtension}
 import stryker4s.extension.mutationtype.*
-import stryker4s.model.Mutant
+import stryker4s.model.{MutationExcluded, PlaceableTree, RegexParseError}
+import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
+import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 import stryker4s.testutil.Stryker4sSuite
-import stryker4s.model.IgnoredMutationReason
+
+import scala.meta.*
 
 class MutantMatcherTest extends Stryker4sSuite {
   implicit private val config: Config = Config.default
-  private val sut = new MutantMatcher()
+  private val sut = new MutantMatcherImpl()
 
   def expectMutations(
-      matchFun: PartialFunction[Tree, Seq[Either[IgnoredMutationReason, Mutant]]],
-      tree: Tree,
+      matchFun: MutationMatcher,
+      tree: Defn.Def,
       original: Term,
       expectedTerms: Term*
   )(implicit expectedName: String): Unit = {
-    val found = tree.collect(matchFun).flatten
+    val found = tree.collect(matchFun).map(_(PlaceableTree(tree.body)))
 
     expectedTerms.foreach(expectedTerm => expectMutations(found, original, expectedTerm))
   }
 
   def expectMutations(
-      actualMutants: Seq[Either[IgnoredMutationReason, Mutant]],
+      actualMutants: List[Either[IgnoredMutations, Mutations]],
       original: Term,
       expectedMutations: Term*
   )(implicit
       expectedName: String
   ): Unit = {
-    expectedMutations.foreach(expectedMutation => {
+
+    expectedMutations.foreach { expectedMutation =>
       val actualMutant = actualMutants
-        .collect { case Right(v) => v }
-        .find(mutant =>
-          mutant.mutated.isEqual(expectedMutation) &&
-            mutant.original.isEqual(original)
-        )
+        .flatMap(_.toSeq)
+        .flatMap(_.toVector)
+        .map(_.metadata)
+        .find(m => m.original == original.syntax && m.replacement == expectedMutation.syntax)
         .getOrElse(fail(s"mutant $expectedMutation not found"))
 
-      assert(actualMutant.original.isEqual(original), actualMutant.original)
-      assert(actualMutant.mutated.isEqual(expectedMutation), actualMutant.mutated)
-      actualMutant.mutationType.mutationName shouldBe expectedName
-    })
+      actualMutant.original shouldBe original.syntax
+      actualMutant.replacement shouldBe expectedMutation.syntax
+      actualMutant.mutatorName shouldBe expectedName
+    }
   }
 
   /** Check if there is a mutant for every expected mutation
     */
   def expectedMutations(
-      matchFun: PartialFunction[Tree, Seq[Either[IgnoredMutationReason, Mutant]]],
-      tree: Tree,
+      matchFun: MutationMatcher,
+      tree: Defn.Def,
       expectedMutations: MethodExpression*
   ): Unit = {
-    val found = tree.collect(matchFun).flatten.collect { case Right(v) => v }
+    val found =
+      tree.collect(matchFun).map(_(PlaceableTree(tree.body))).flatMap(_.toSeq).flatMap(_.toVector)
     expectedMutations foreach { expectedMutation =>
       found
-        .map(_.mutated)
+        .map(_.mutatedStatement)
         .collectFirst { case expectedMutation(_, _) => }
         .getOrElse(fail("mutant not found"))
     }
@@ -66,10 +68,9 @@ class MutantMatcherTest extends Stryker4sSuite {
   describe("All Matchers") {
     it("should match a conditional statement") {
       val tree = q"def foo = 15 > 20 && 20 < 15"
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body)))
 
-      val found = tree.collect(sut.allMatchers).flatten
-
-      found should have length 7
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 7
       expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
       expectMutations(found, q"&&", q"||")("LogicalOperator")
       expectMutations(found, q"<", q"<=", q">", q"==")("EqualityOperator")
@@ -78,7 +79,7 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should match a method") {
       val tree = q"def foo = List(1, 2).filterNot(filterNotFunc).filter(filterFunc)"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body)))
 
       found should have length 2
       expectMutations(found, q"List(1, 2).filterNot(filterNotFunc)", q"List(1, 2).filter(filterNotFunc)")(
@@ -94,9 +95,9 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should match a boolean and a conditional") {
       val tree = q"def foo = false && 15 > 4"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body)))
 
-      found should have length 5
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 5
       expectMutations(found, q"false", q"true")("BooleanLiteral")
       expectMutations(found, q"&&", q"||")("LogicalOperator")
       expectMutations(found, q">", q"<", q"==")("EqualityOperator")
@@ -105,18 +106,18 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should match the default case of a constructor argument") {
       val tree = q"class Person(isOld: Boolean = 18 > 15) { }"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.find(q"18 > 15").value)))
 
-      found should have length 3
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 3
       expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
     }
 
     it("should match on the default case of a function argument") {
       val tree = q"def hasGoodBack(isOld: Boolean = age > 60): Boolean = isOld"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.find(q"age > 60").value)))
 
-      found should have length 3
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 3
       expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
     }
   }
@@ -124,9 +125,10 @@ class MutantMatcherTest extends Stryker4sSuite {
   describe("matchEqualityOperator matcher") {
     implicit val mutatorName = "EqualityOperator"
     it("should match >= sign with >, <, and ==") {
+      val tree = q"def foo = 18 >= 20"
+      val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
-        sut.matchEqualityOperator,
-        q"def foo = 18 >= 20",
+        found,
         GreaterThanEqualTo,
         GreaterThan,
         LesserThan,
@@ -135,9 +137,10 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
 
     it("should match > with >=, < and ==") {
+      val tree = q"def foo = 18 > 20"
+      val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
-        sut.matchEqualityOperator,
-        q"def foo = 18 > 20",
+        found,
         GreaterThan,
         GreaterThanEqualTo,
         LesserThan,
@@ -146,9 +149,10 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
 
     it("should match <= to <, >= and ==") {
+      val tree = q"def foo = 18 <= 20"
+      val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
-        sut.matchEqualityOperator,
-        q"def foo = 18 <= 20",
+        found,
         LesserThanEqualTo,
         LesserThan,
         GreaterThanEqualTo,
@@ -157,9 +161,10 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
 
     it("should match < to <=, > and ==") {
+      val tree = q"def foo = 18 < 20"
+      val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
-        sut.matchEqualityOperator,
-        q"def foo = 18 < 20",
+        found,
         LesserThan,
         LesserThanEqualTo,
         GreaterThan,
@@ -168,9 +173,10 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
 
     it("should match == to !=") {
+      val tree = q"def foo = 18 == 20"
+      val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
-        sut.matchEqualityOperator,
-        q"def foo = 18 == 20",
+        found,
         EqualTo,
         NotEqualTo
       )
@@ -400,11 +406,9 @@ class MutantMatcherTest extends Stryker4sSuite {
 
     it("should match pattern in string") {
       val str = Lit.String("str")
-      val tree = source"""class Foo {
-        def bar = {
+      val tree = q"""def bar = {
           case "str" => 4
-        }
-      }"""
+        }"""
       expectMutations(
         sut.matchStringLiteral,
         tree,
@@ -435,9 +439,7 @@ class MutantMatcherTest extends Stryker4sSuite {
 
     it("should match inside xml literal args") {
       val str = Lit.String("str")
-      val tree = source"""class Foo {
-        def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(str))}
-      }"""
+      val tree = q"""def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(str))}"""
       expectMutations(
         sut.matchStringLiteral,
         tree,
@@ -466,7 +468,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         tree,
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -475,7 +477,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new scala.util.matching.Regex($regex)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -484,7 +486,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new Regex($regex, "any")""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -493,7 +495,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = $regex.r""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -502,7 +504,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -511,7 +513,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = java.util.regex.Pattern.compile($regex)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -520,7 +522,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex, CASE_INSENSITIVE)""",
         regex,
-        RegularExpression(".")
+        RegularExpression(".", regex.pos.toLocation)
       )
     }
 
@@ -532,16 +534,6 @@ class MutantMatcherTest extends Stryker4sSuite {
       )
     }
 
-  }
-
-  describe("Create mutant id's") {
-    it("should register multiple mutants from a found mutant with multiple mutations") {
-      val sut = new MutantMatcher()
-      val mutants =
-        sut.TermExtensions(GreaterThan).~~>(LesserThan, GreaterThanEqualTo, EqualTo).collect { case Right(v) => v }
-
-      mutants.map(_.id.globalId) should contain theSameElementsAs List(0, 1, 2)
-    }
   }
 
   describe("no function name matching") {
@@ -641,20 +633,25 @@ class MutantMatcherTest extends Stryker4sSuite {
       result should be(empty)
     }
 
-    it("should match a function with a single expression") {
+    it("should not match a function with a single expression") {
       val tree = q"def isEmpty = exists"
 
-      val result = tree.collect(sut.allMatchers).flatten.collect { case Right(v) => v }
+      val result = tree
+        .collect(sut.allMatchers)
+        .map(_(PlaceableTree(tree.body)))
+        .flatMap(_.toSeq)
+        .flatMap(_.toVector)
+        .map(_.metadata)
 
-      result.map(_.original) should not contain q"isEmpty"
+      result.map(_.original) should not contain "isEmpty"
     }
 
     it("should mutate if statements with true and false as condition") {
       val tree = q"if(aVariable) { println }"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree)))
 
-      found should have length 2
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 2
       expectMutations(found, q"aVariable", q"true")("ConditionalExpression")
       expectMutations(found, q"aVariable", q"false")("ConditionalExpression")
     }
@@ -662,18 +659,18 @@ class MutantMatcherTest extends Stryker4sSuite {
     it("should mutate while statements with false as condition") {
       val tree = q"while(aVariable) { println }"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree)))
 
-      found should have length 1
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 1
       expectMutations(found, q"aVariable", q"false")("ConditionalExpression")
     }
 
     it("should mutate do while statements with false as condition") {
       val tree = q"do { println } while(aVariable)"
 
-      val found = tree.collect(sut.allMatchers).flatten
+      val found = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree)))
 
-      found should have length 1
+      found.flatMap(_.toSeq).flatMap(_.toVector) should have length 1
       expectMutations(found, q"aVariable", q"false")("ConditionalExpression")
     }
 
@@ -681,13 +678,65 @@ class MutantMatcherTest extends Stryker4sSuite {
       val trueTree = q"if(true) { println }"
       val falseTree = q"if(false) { println }"
 
-      val trueFound = trueTree.collect(sut.allMatchers).flatten
-      val falseFound = falseTree.collect(sut.allMatchers).flatten
+      val trueFound = trueTree.collect(sut.allMatchers).map(_(PlaceableTree(trueTree)))
+      val falseFound = falseTree.collect(sut.allMatchers).map(_(PlaceableTree(falseTree)))
 
       trueFound should have length 1
       falseFound should have length 1
       expectMutations(trueFound, q"true", q"false")("BooleanLiteral")
       expectMutations(falseFound, q"false", q"true")("BooleanLiteral")
+    }
+  }
+
+  describe("filtering") {
+    import stryker4s.extension.TreeExtensions.IsEqualExtension
+    import cats.syntax.all.*
+    it("should filter out config excluded mutants") {
+      implicit val conf: Config = Config.default.copy(excludedMutations = Set("LogicalOperator"))
+      val sut = new MutantMatcherImpl()(conf)
+      val tree = q"def foo = 15 > 20 && 20 < 15"
+
+      val (ignored, found) = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
+
+      found.flatMap(_.toVector) should have length 6
+      val (code, reason) = ignored.flatMap(_.toVector).loneElement
+
+      reason shouldBe MutationExcluded
+      assert(code.mutatedStatement.isEqual(q"15 > 20 || 20 < 15"))
+      code.metadata.original shouldBe "&&"
+      code.metadata.replacement shouldBe "||"
+    }
+
+    it("should filter out string mutants inside annotations") {
+      val tree = q"""@SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
+                      val x = { val l = "s3"; l }"""
+
+      val (ignored, found) =
+        tree
+          .collect(sut.allMatchers)
+          .take(1)
+          .map(_(PlaceableTree(tree.find(Lit.String("stryker4s.mutation.StringLiteral")).value)))
+          .partitionEither(identity)
+
+      found.flatMap(_.toVector) shouldBe empty
+      val (code, reason) = ignored.flatMap(_.toVector).loneElement
+
+      reason shouldBe MutationExcluded
+      code.metadata.original shouldBe "\"stryker4s.mutation.StringLiteral\""
+      code.metadata.replacement shouldBe "\"\""
+    }
+
+    it("should log partition unparsable regular expressions") {
+      val regex = Lit.String("[[]]")
+      val tree = q"""def foobar = new Regex($regex)"""
+
+      val (ignored, found) =
+        tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
+
+      found.flatMap(_.toVector) shouldBe empty
+      val (_, reason) = ignored.flatMap(_.toVector).loneElement
+
+      reason shouldBe RegexParseError("[[]]", "[Error] Parser: Position 1:1, found \"[[]]\"")
     }
   }
 }
