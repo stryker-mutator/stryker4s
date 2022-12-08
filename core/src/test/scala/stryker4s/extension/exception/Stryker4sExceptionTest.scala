@@ -8,8 +8,10 @@ import stryker4s.testutil.Stryker4sSuite
 class Stryker4sExceptionTest extends Stryker4sSuite {
   describe("UnableToBuildPatternMatchException") {
     it("should have the correct message") {
-      val sut = UnableToBuildPatternMatchException(Path("foo/bar.scala"))
-      sut.getMessage shouldBe s"Failed to instrument mutants in `foo/bar.scala`.\nPlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
+      val path = Path("foo/bar.scala")
+      val separator = path.toNioPath.getFileSystem().getSeparator()
+      val sut = UnableToBuildPatternMatchException(path)
+      sut.getMessage shouldBe s"Failed to instrument mutants in `foo${separator}bar.scala`.\nPlease open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new"
     }
   }
 
