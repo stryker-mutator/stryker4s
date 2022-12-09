@@ -14,17 +14,4 @@
         <maven.compiler.target>15</maven.compiler.target>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.stryker-mutator</groupId>
-            <artifactId>mutation-testing-metrics_2.13</artifactId>
-            <version>1.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lihaoyi</groupId>
-            <artifactId>fansi_2.13</artifactId>
-            <version>0.4.0</version>
-        </dependency>
-    </dependencies>
-
 </project>

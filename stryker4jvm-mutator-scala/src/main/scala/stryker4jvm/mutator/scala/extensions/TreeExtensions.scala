@@ -4,6 +4,7 @@ import cats.Eval
 import cats.data.OptionT
 import cats.syntax.option.*
 import mutationtesting.Location
+import stryker4jvm.core.model.elements
 import weaponregex.model.Location as RegexLocation
 
 import scala.annotation.tailrec
@@ -220,6 +221,18 @@ object TreeExtensions {
       buf.toList
     }
 
+  }
+
+  implicit final class StrykerPositionExtension(val pos: mutationtesting.Position) {
+    def asJvmCore: stryker4jvm.core.model.elements.Position = {
+      new elements.Position(pos.line, pos.column)
+    }
+  }
+
+  implicit final class LocationExtension(val location: Location) extends AnyVal {
+    def asJvmCore: stryker4jvm.core.model.elements.Location = {
+      new elements.Location(location.start.asJvmCore, location.end.asJvmCore)
+    }
   }
 
   implicit final class PositionExtension(val pos: Position) extends AnyVal {

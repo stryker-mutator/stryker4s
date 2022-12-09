@@ -1,4 +1,4 @@
-package stryker4jvm.reporting
+package stryker4jvm.reporting.reporters
 
 import cats.effect.IO
 import fansi.{Color, EscapeAttr, Str}
@@ -6,10 +6,10 @@ import fs2.Pipe
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.reporting.events.{FinishedRunEvent, MutantTestedEvent}
 import stryker4jvm.extensions.DurationExtensions.HumanReadableExtension
 import stryker4jvm.extensions.NumberExtensions.RoundDecimalsExtension
-import stryker4jvm.run.threshold.{DangerStatus, ErrorStatus, SuccessStatus, ThresholdChecker, WarningStatus}
+import stryker4jvm.reporting.{IOReporter, *}
+import stryker4jvm.run.threshold.*
 
 import scala.concurrent.duration.*
 
@@ -25,14 +25,14 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends IOReporter
     }.drain
   }
 
-  override def onRunFinished(finishedRunEvent: FinishedRunEvent[Config]): IO[Unit] = IO {
+  override def onRunFinished(finishedRunEvent: FinishedRunEvent): IO[Unit] = IO {
     val report = finishedRunEvent.report
     val metrics = finishedRunEvent.metrics
     val duration = finishedRunEvent.duration
 
     log.info(s"Mutation run finished! Took ${duration.toHumanReadable}")
     log.info(s"Total mutants: ${Color.Cyan(metrics.totalMutants.toString())}, detected: ${Color
-      .Green(metrics.totalDetected.toString())}, undetected: ${Color.Red(metrics.totalUndetected.toString())}")
+        .Green(metrics.totalDetected.toString())}, undetected: ${Color.Red(metrics.totalUndetected.toString())}")
 
     val (detectedMutants, rest) = report.files.toSeq
       .flatMap { case (loc, f) =>

@@ -1,4 +1,4 @@
-package stryker4jvm.reporting
+package stryker4jvm.reporting.reporters
 
 import cats.effect.IO
 import fs2.io.file.Path
@@ -6,7 +6,7 @@ import mutationtesting.MutationTestResult
 import stryker4jvm.config.Config
 import stryker4jvm.core.files.FileIO
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.reporting.events.FinishedRunEvent
+import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
 class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends IOReporter[Config] {
 
@@ -54,7 +54,7 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends IOReporter[Conf
     IO(fileIO.createAndWrite(file.toNioPath, reportContent))
   }
 
-  override def onRunFinished(runReport: FinishedRunEvent[Config]): IO[Unit] = {
+  override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
     val path = fs2.io.file.Path.fromNioPath(runReport.reportsLocation)
     val mutationTestElementsLocation = path / mutationTestElementsName
     val indexLocation = path / "index.html"

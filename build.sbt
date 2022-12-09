@@ -67,8 +67,8 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
   .settings(
     resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
-      "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive (),
-      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0" intransitive ()
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0",
+      "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0"
     )
   )
   .dependsOn(stryker4jvmMutatorScala)
@@ -80,7 +80,7 @@ lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stry
     jvmMutatorScalaSettings,
     resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
-      "io.stryker-mutator" % "stryker4jvm-core" % "1.0" intransitive ()
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0"
     )
   )
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
