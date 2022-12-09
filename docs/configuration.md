@@ -112,13 +112,13 @@ Settings for the dashboard [reporter](#reporters-string). See the [dashboard doc
 ### `scala-dialect` [`string`]
 
 **Config file:** `scala-dialect: "2.13"`  
-**Default value:** `scala3`  
+**Default value:** `scala213source3`  
 **Since:** `v0.10.1`  
 **Description:**
 
-Set the Scala dialect that should be used for parsing Scala files. The default is Scala 3 as most syntax is backwards-compatible with Scala 2. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
+Set the Scala dialect that should be used for parsing Scala files. The default is Scala 2.13 with `-XSource:3` as this has the widest compatibility. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
 
-Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/core/src/main/scala/stryker4s/config/pure/ConfigConfigReader.scala#L80-L84).
+Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/core/src/main/scala/stryker4s/config/pure/ConfigConfigReader.scala#L80-L84).
 
 ### `static-tmp-dir` [`boolean`]
 
