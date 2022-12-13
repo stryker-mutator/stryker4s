@@ -15,7 +15,6 @@ import scala.meta.*
 class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatchers {
 
   val path = Path("foo/bar.scala")
-  val separator = path.toNioPath.getFileSystem().getSeparator()
 
   describe("instrumentFile") {
     it("should transform 2 mutations into a match statement with 2 mutated and 1 original") {
@@ -143,9 +142,9 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       an[UnableToBuildPatternMatchException] shouldBe thrownBy(sut.instrumentFile(context, mutants))
 
       // Assert
-      s"Failed to instrument mutants in `foo${separator}bar.scala`. Original statement: [true]" shouldBe loggedAsError
+      "Failed to instrument mutants in `foo/bar.scala`. Original statement: [true]" shouldBe loggedAsError
       "Failed mutation(s) '0, 1' at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
-      "This is likely an issue on Stryker4s's end, please take a look at the debug logs" shouldBe loggedAsError
+      "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s." shouldBe loggedAsError
     }
 
     it("should rethrow Stryker4sExceptions") {
@@ -154,7 +153,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       val context = SourceContext(source, path)
       val mutants = Map(PlaceableTree(original) -> toMutations(original, True, q"false", q"true"))
 
-      val expectedException = UnableToBuildPatternMatchException(path)
+      val expectedException = UnableToBuildPatternMatchException(path, new Exception("e"))
       val sut = new MutantInstrumenter(InstrumenterOptions.testRunner) {
         override def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]) =
           throw expectedException

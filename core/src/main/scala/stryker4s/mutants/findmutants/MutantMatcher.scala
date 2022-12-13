@@ -153,7 +153,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, location)
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
-          case t if t.isEqual(original) && t.pos == original.pos =>
+          case t if t.isEqual(original) =>
             tree
         }
         .getOrElse(

@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   compile:
-    name: Compile on JDK ${{matrix.java-version}} (${{matrix.os}})
+    name: Test compilation on JDK ${{matrix.java-version}} (${{matrix.os}})
     strategy:
       fail-fast: false
       matrix:

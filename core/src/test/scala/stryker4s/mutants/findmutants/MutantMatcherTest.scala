@@ -4,7 +4,7 @@ import stryker4s.config.Config
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.extension.TreeExtensions.{FindExtension, PositionExtension}
 import stryker4s.extension.mutationtype.*
-import stryker4s.model.{MutationExcluded, PlaceableTree, RegexParseError}
+import stryker4s.model.PlaceableTree
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 import stryker4s.testutil.Stryker4sSuite
@@ -685,58 +685,6 @@ class MutantMatcherTest extends Stryker4sSuite {
       falseFound should have length 1
       expectMutations(trueFound, q"true", q"false")("BooleanLiteral")
       expectMutations(falseFound, q"false", q"true")("BooleanLiteral")
-    }
-  }
-
-  describe("filtering") {
-    import stryker4s.extension.TreeExtensions.IsEqualExtension
-    import cats.syntax.all.*
-    it("should filter out config excluded mutants") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Set("LogicalOperator"))
-      val sut = new MutantMatcherImpl()(conf)
-      val tree = q"def foo = 15 > 20 && 20 < 15"
-
-      val (ignored, found) = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
-
-      found.flatMap(_.toVector) should have length 6
-      val (code, reason) = ignored.flatMap(_.toVector).loneElement
-
-      reason shouldBe MutationExcluded
-      assert(code.mutatedStatement.isEqual(q"15 > 20 || 20 < 15"))
-      code.metadata.original shouldBe "&&"
-      code.metadata.replacement shouldBe "||"
-    }
-
-    it("should filter out string mutants inside annotations") {
-      val tree = q"""@SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
-                      val x = { val l = "s3"; l }"""
-
-      val (ignored, found) =
-        tree
-          .collect(sut.allMatchers)
-          .take(1)
-          .map(_(PlaceableTree(tree.find(Lit.String("stryker4s.mutation.StringLiteral")).value)))
-          .partitionEither(identity)
-
-      found.flatMap(_.toVector) shouldBe empty
-      val (code, reason) = ignored.flatMap(_.toVector).loneElement
-
-      reason shouldBe MutationExcluded
-      code.metadata.original shouldBe "\"stryker4s.mutation.StringLiteral\""
-      code.metadata.replacement shouldBe "\"\""
-    }
-
-    it("should log partition unparsable regular expressions") {
-      val regex = Lit.String("[[]]")
-      val tree = q"""def foobar = new Regex($regex)"""
-
-      val (ignored, found) =
-        tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
-
-      found.flatMap(_.toVector) shouldBe empty
-      val (_, reason) = ignored.flatMap(_.toVector).loneElement
-
-      reason shouldBe RegexParseError("[[]]", "[Error] Parser: Position 1:1, found \"[[]]\"")
     }
   }
 }
