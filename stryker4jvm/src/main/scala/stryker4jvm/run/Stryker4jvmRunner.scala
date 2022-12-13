@@ -10,17 +10,11 @@ import stryker4jvm.core.logging.Logger
 import stryker4jvm.files.{ConfigFilesResolver, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.SttpLogWrapper
 import stryker4jvm.model.CompilerErrMsg
-import stryker4jvm.mutants.Mutator
-import stryker4jvm.mutator.scala.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
-import stryker4jvm.reporting.dashboard.DashboardConfigProvider
+import stryker4jvm.mutants.{Mutator, SupportedLanguageMutators}
+import stryker4jvm.mutator.scala.mutants.tree.InstrumenterOptions
 import stryker4jvm.reporting.*
-import stryker4jvm.reporting.reporters.{
-  AggregateReporter,
-  ConsoleReporter,
-  DashboardReporter,
-  HtmlReporter,
-  JsonReporter
-}
+import stryker4jvm.reporting.dashboard.DashboardConfigProvider
+import stryker4jvm.reporting.reporters.*
 import stryker4jvm.run.process.ProcessRunner
 import stryker4jvm.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
@@ -39,10 +33,7 @@ abstract class Stryker4jvmRunner(implicit log: Logger) {
     val stryker4jvm = new Stryker4jvm(
       resolveMutatesFileSource,
       new Mutator(
-        Map.empty
-//        new MutantFinder(),
-//        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
-//        new MutantInstrumenter(instrumenterOptions)
+        SupportedLanguageMutators.languageRouter
       ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
       reporter
@@ -90,7 +81,7 @@ abstract class Stryker4jvmRunner(implicit log: Logger) {
   def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
     new GlobFileResolver(
       config.baseDir,
-      if (config.mutate.nonEmpty) config.mutate else Seq("**/main/scala/**.scala")
+      if (config.mutate.nonEmpty) config.mutate else SupportedLanguageMutators.mutatesFileSources
     )
 
   def resolveFilesFileSource(implicit config: Config): FilesFileResolver = new ConfigFilesResolver(ProcessRunner())
