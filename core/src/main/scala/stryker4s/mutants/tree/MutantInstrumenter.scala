@@ -42,9 +42,10 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
                   s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
                 )
                 log.error(
-                  "This is likely an issue on Stryker4s's end, please enable debug logging and restart Stryker4s."
+                  "This is likely an issue on Stryker4s's end, please take a look at the debug logs",
+                  e
                 )
-                throw UnableToBuildPatternMatchException(context.path, e)
+                throw UnableToBuildPatternMatchException(context.path)
             }
           }
         }
@@ -52,7 +53,8 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
       case Success(tree)                  => tree
       case Failure(e: Stryker4sException) => throw e
       case Failure(e) =>
-        throw new UnableToBuildPatternMatchException(context.path, e)
+        log.error(s"Failed to instrument mutants in `${context.path}`.", e)
+        throw new UnableToBuildPatternMatchException(context.path)
     }
 
     val mutations: MutantsWithId = mutantMap.map(_._2).toVector.toNev.get.flatten

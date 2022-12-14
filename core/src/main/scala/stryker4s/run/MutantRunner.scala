@@ -41,8 +41,8 @@ class MutantRunner(
         // Retry once with the non-compiling mutants removed
         EitherT(
           rollbackHandler
-            .rollbackFiles(errors, mutatedFiles)
-            // TODO: cleanup
+            .rollbackFiles()
+            // TODO: handle rollbacks in a different place
             .flatTraverse { case RollbackResult(newFiles, rollbackedMutants) =>
               run(newFiles).map { result =>
                 result.map { r =>
@@ -74,9 +74,39 @@ class MutantRunner(
     val targetDir = config.baseDir / "target"
     for {
       _ <- Resource.eval(Files[IO].createDirectories(targetDir))
-      tmpDir <- Files[IO].tempDirectory(targetDir.some, "stryker4s-", None)
+      tmpDir <- prepareTmpDir(targetDir)
       _ <- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq))
     } yield tmpDir
+  }
+
+  private def prepareTmpDir(targetDir: Path): Resource[IO, Path] = {
+    val tmpDirCreated = if (config.staticTmpDir) {
+      val staticTmpDir = targetDir / "stryker4s-tmpDir"
+      Files[IO].createDirectory(staticTmpDir).as(staticTmpDir)
+    } else {
+      Files[IO].createTempDirectory(Some(targetDir), "stryker4s-", None)
+    }
+    Resource.makeCase(tmpDirCreated)(tmpDirFinalizeCase)
+  }
+
+  private def tmpDirFinalizeCase: (Path, Resource.ExitCase) => IO[Unit] = {
+    case (tmpDir, Resource.ExitCase.Succeeded | Resource.ExitCase.Canceled) =>
+      if (config.cleanTmpDir) {
+        Files[IO].deleteRecursively(tmpDir)
+      } else {
+        IO(
+          log.info(
+            s"Not deleting $tmpDir (turn off cleanTmpDir to disable this). Please clean it up manually."
+          )
+        )
+      }
+    case (tmpDir, _: Resource.ExitCase.Errored) =>
+      // Enable the user do some manual actions before she retries.
+      IO(
+        log.warn(
+          s"Not deleting $tmpDir after error. Please clean it up manually."
+        )
+      )
   }
 
   private def setupFiles(tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =

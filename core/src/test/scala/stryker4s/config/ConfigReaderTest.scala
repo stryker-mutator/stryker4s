@@ -3,6 +3,7 @@ package stryker4s.config
 import fansi.Color.Yellow
 import fansi.Underlined
 import fs2.io.file.Path
+import org.scalactic.source.Position
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
 import pureconfig.generic.auto.*
 import pureconfig.{ConfigObjectSource, ConfigSource}
@@ -34,6 +35,8 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           config.scalaDialect shouldBe Scala212
           config.concurrency shouldBe 3
           config.debug shouldBe DebugOptions(true, true)
+          config.staticTmpDir shouldBe true
+          config.cleanTmpDir shouldBe false
       }
     }
 
@@ -64,8 +67,10 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
         version = None,
         module = None
       )
-      result.scalaDialect shouldBe Scala3
+      result.scalaDialect shouldBe Scala213Source3
       result.debug shouldBe DebugOptions(false, false)
+      result.staticTmpDir shouldBe false
+      result.cleanTmpDir shouldBe true
     }
 
     it("should fail on an empty config file") {
@@ -216,22 +221,38 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
     }
 
     describe("ScalaDialect") {
-      val validVersions = List(
+      val validVersions = Map(
         "scala212" -> Scala212,
         "scala2.12" -> Scala212,
         "2.12" -> Scala212,
         "212" -> Scala212,
+        "scala212source3" -> Scala212Source3,
         "scala213" -> Scala213,
         "scala2.13" -> Scala213,
         "2.13" -> Scala213,
         "213" -> Scala213,
-        "scala3" -> Scala3,
-        "dotty" -> Scala3,
-        "3" -> Scala3,
-        "3.0" -> Scala3,
-        "scala212source3" -> Scala212Source3,
+        "2" -> Scala213,
         "scala213source3" -> Scala213Source3,
-        "source3" -> Scala213Source3
+        "source3" -> Scala213Source3,
+        "scala3future" -> Scala3Future,
+        "future" -> Scala3Future,
+        "scala30" -> Scala30,
+        "scala3.0" -> Scala30,
+        "3.0" -> Scala30,
+        "30" -> Scala30,
+        "dotty" -> Scala30,
+        "scala31" -> Scala31,
+        "scala3.1" -> Scala31,
+        "3.1" -> Scala31,
+        "31" -> Scala31,
+        "scala32" -> Scala32,
+        "scala3.2" -> Scala32,
+        "3.2" -> Scala32,
+        "32" -> Scala32,
+        "scala3" -> Scala3,
+        "scala3.0" -> Scala3,
+        "3.0" -> Scala3,
+        "3" -> Scala3
       )
 
       validVersions.foreach { case (input, expected) =>
@@ -250,7 +271,9 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
           CannotConvert(
             "foobar",
             "scala-dialect",
-            "Unsupported dialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala212', 'scala2.12', '2.12', '212', 'scala212source3', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala213source3', 'source3', 'scala3', 'scala3.0', '3.0', '3', 'dotty'"
+            s"Unsupported dialect. Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${validVersions.keys
+                .map("'" + _ + "'")
+                .mkString(", ")}"
           )
         )
       }
@@ -264,16 +287,20 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
             CannotConvert(
               version,
               "scala-dialect",
-              s"Deprecated dialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala212', 'scala2.12', '2.12', '212', 'scala212source3', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala213source3', 'source3', 'scala3', 'scala3.0', '3.0', '3', 'dotty'"
+              s"Deprecated dialect. Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${validVersions.keys
+                  .map("'" + _ + "'")
+                  .mkString(", ")}"
             )
           )
         }
       }
     }
 
-    def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason) =
+    def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason)(implicit pos: Position) =
       config.at("stryker4s").load[Config] match {
-        case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) => reason shouldBe failure
+        case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
+          reason.description shouldBe failure.description
+          reason shouldBe failure
         case value => fail(s"Expected parsing failure but got $value")
       }
   }

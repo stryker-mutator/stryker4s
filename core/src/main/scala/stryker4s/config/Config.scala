@@ -19,16 +19,18 @@ final case class Config(
     timeoutFactor: Double = 1.5,
     maxTestRunnerReuse: Option[Int] = None,
     legacyTestRunner: Boolean = false,
-    scalaDialect: Dialect = dialects.Scala3,
+    scalaDialect: Dialect = dialects.Scala213Source3,
     concurrency: Int = Config.defaultConcurrency,
-    debug: DebugOptions = DebugOptions()
+    debug: DebugOptions = DebugOptions(),
+    staticTmpDir: Boolean = false,
+    cleanTmpDir: Boolean = true
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
 
   private def defaultConcurrency: Int = concurrencyFor(Runtime.getRuntime().availableProcessors())
 
-  def concurrencyFor(cpuCoreCount: Int): Int = {
+  def concurrencyFor(cpuCoreCount: Int) = {
     // Use (n / 4 concurrency, rounded) + 1
     if (cpuCoreCount > 4) cpuCoreCount / 2
     else cpuCoreCount

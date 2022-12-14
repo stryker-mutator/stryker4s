@@ -15,6 +15,11 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
     addCommandAlias(
       "publishM2Local",
       "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; stryker4s-core/publishM2; stryker4s-api/publishM2"
+    ),
+    // Publish to .ivy folder for command runner local testing
+    addCommandAlias(
+      "publishCommandRunnerLocal",
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core/publishLocal; stryker4s-api/publishLocal; stryker4s-command-runner/publishLocal"
     )
   )
   .aggregate(

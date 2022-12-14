@@ -1,7 +1,6 @@
 package stryker4jvm
 
 import cats.effect.IO
-import cats.effect.IO
 import cats.implicits.toAlignOps
 import cats.syntax.align
 import mutationtesting.{Metrics, MetricsResult}
