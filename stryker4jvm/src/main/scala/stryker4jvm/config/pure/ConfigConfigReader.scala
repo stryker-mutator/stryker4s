@@ -72,19 +72,23 @@ trait ConfigConfigReader {
   implicit def dialectReader: ConfigReader[Dialect] = {
     val deprecatedVersions = List("scala211", "scala2.11", "2.11", "211")
 
-    val scalaVersions = List(
+    val scalaVersions = Map(
       List("scala212", "scala2.12", "2.12", "212") -> dialects.Scala212,
       List("scala212source3") -> dialects.Scala212Source3,
       List("scala213", "scala2.13", "2.13", "213", "2") -> dialects.Scala213,
       List("scala213source3", "source3") -> dialects.Scala213Source3,
-      List("scala3", "scala3.0", "3.0", "3", "dotty") -> dialects.Scala3
+      List("scala3future", "future") -> dialects.Scala3Future,
+      List("scala30", "scala3.0", "3.0", "30", "dotty") -> dialects.Scala30,
+      List("scala31", "scala3.1", "3.1", "31") -> dialects.Scala31,
+      List("scala32", "scala3.2", "3.2", "32") -> dialects.Scala32,
+      List("scala3", "scala3.0", "3.0", "3") -> dialects.Scala3
     )
 
     ConfigReader[String].emap { input =>
       def toCannotConvert(msg: String) = {
         val invalidDialectString =
-          s"Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: ${scalaVersions
-              .flatMap(_._1)
+          s"Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: " +
+            s"${scalaVersions.keys.flatten
               .map(d => s"'$d'")
               .mkString(", ")}"
         CannotConvert(input, "scala-dialect", s"$msg. $invalidDialectString")
