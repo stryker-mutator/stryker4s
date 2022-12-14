@@ -80,7 +80,7 @@ class MutantRunner(
     } yield tmpDir
   }
 
-   private def prepareTmpDir(targetDir: Path): Resource[IO, Path] = {
+  private def prepareTmpDir(targetDir: Path): Resource[IO, Path] = {
     val tmpDirCreated = if (config.staticTmpDir) {
       val staticTmpDir = targetDir / "stryker4s-tmpDir"
       Files[IO].createDirectory(staticTmpDir).as(staticTmpDir)

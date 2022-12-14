@@ -89,8 +89,8 @@ trait ConfigConfigReader {
         val invalidDialectString =
           s"Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: " +
             s"${scalaVersions.keys.flatten
-              .map(d => s"'$d'")
-              .mkString(", ")}"
+                .map(d => s"'$d'")
+                .mkString(", ")}"
         CannotConvert(input, "scala-dialect", s"$msg. $invalidDialectString")
       }
 
