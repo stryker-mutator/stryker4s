@@ -3,8 +3,9 @@ package stryker4jvm.config.circe
 import fs2.io.file.Path
 import io.circe.Json.*
 import io.circe.syntax.*
-import stryker4jvm.config.{Config, DashboardOptions, DebugOptions}
+import stryker4jvm.config.*
 import stryker4jvm.testutil.Stryker4jvmSuite
+import org.scalactic.source.Position
 
 class ConfigEncoderTest extends Stryker4jvmSuite {
   val workspaceLocation = Path("workspace").absolute.toString
@@ -16,7 +17,7 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
         s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
+          )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
       )
     }
 
@@ -65,12 +66,12 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
         s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala3","debug":{"log-test-runner-stdout":true,"debug-test-runner":true}}"""
+          )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":true,"debug-test-runner":true}}"""
       )
     }
   }
 
-  def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String) = {
+  def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit pos: Position) = {
     val result = config.asJson
 
     result.noSpaces shouldBe jsonString
@@ -98,7 +99,7 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
     "timeout" -> fromInt(5000),
     "timeout-factor" -> fromDouble(1.5).get,
     "legacy-test-runner" -> False,
-    "scala-dialect" -> fromString("scala3"),
+    "scala-dialect" -> fromString("scala213source3"),
     "debug" -> obj(
       "log-test-runner-stdout" -> False,
       "debug-test-runner" -> False

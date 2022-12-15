@@ -3,6 +3,7 @@ package stryker4jvm.config
 import fansi.Color.Yellow
 import fansi.Underlined
 import fs2.io.file.Path
+import org.scalactic.source.Position
 import pureconfig.error.*
 import pureconfig.generic.auto.*
 import pureconfig.{ConfigObjectSource, ConfigSource}
@@ -13,9 +14,9 @@ import sttp.client3.UriContext
 import scala.concurrent.duration.*
 import scala.meta.dialects.*
 
-// TODO: Make this relevant for jvm instead of 4s
+// TODO: ConfigReaderTest make compiling and make relevant for stryker4jvm
 class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
-  describe("loadConfig") {
+//  describe("loadConfig") {
 //    it("should load stryker4s by type") {
 //      val configSource = ExampleConfigs.filled
 //
@@ -34,6 +35,8 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //          config.scalaDialect shouldBe Scala212
 //          config.concurrency shouldBe 3
 //          config.debug shouldBe DebugOptions(true, true)
+//          config.staticTmpDir shouldBe true
+//          config.cleanTmpDir shouldBe false
 //      }
 //    }
 //
@@ -42,7 +45,7 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //
 //      ConfigReader.readConfigOfType[Config](configSource) match {
 //        case Left(error) => error.toList.map(a => a.description) shouldBe List("Key not found: 'stryker4s'.")
-//        case Right(_)    => fail("Config was read successfully which should not be the case.")
+//        case Right(_) => fail("Config was read successfully which should not be the case.")
 //      }
 //    }
 //
@@ -64,8 +67,10 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //        version = None,
 //        module = None
 //      )
-//      result.scalaDialect shouldBe Scala3
+//      result.scalaDialect shouldBe Scala213Source3
 //      result.debug shouldBe DebugOptions(false, false)
+//      result.staticTmpDir shouldBe false
+//      result.cleanTmpDir shouldBe true
 //    }
 //
 //    it("should fail on an empty config file") {
@@ -171,9 +176,11 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //
 //      ConfigReader.readConfig(configSource)
 //
-//      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: '${Yellow(
-//           "other-unknown-key"
-//         )}, ${Yellow("unknown-key")}'.
+//      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: '${
+//        Yellow(
+//          "other-unknown-key"
+//        )
+//      }, ${Yellow("unknown-key")}'.
 //          |Please check the documentation at https://stryker-mutator.io/docs/stryker4s/configuration for available options.""".stripMargin shouldBe loggedAsWarning
 //    }
 //  }
@@ -216,29 +223,45 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //    }
 //
 //    describe("ScalaDialect") {
-//      val validVersions = List(
+//      val validVersions = Map(
 //        "scala212" -> Scala212,
 //        "scala2.12" -> Scala212,
 //        "2.12" -> Scala212,
 //        "212" -> Scala212,
+//        "scala212source3" -> Scala212Source3,
 //        "scala213" -> Scala213,
 //        "scala2.13" -> Scala213,
 //        "2.13" -> Scala213,
 //        "213" -> Scala213,
-//        "scala3" -> Scala3,
-//        "dotty" -> Scala3,
-//        "3" -> Scala3,
-//        "3.0" -> Scala3,
-//        "scala212source3" -> Scala212Source3,
+//        "2" -> Scala213,
 //        "scala213source3" -> Scala213Source3,
-//        "source3" -> Scala213Source3
+//        "source3" -> Scala213Source3,
+//        "scala3future" -> Scala3Future,
+//        "future" -> Scala3Future,
+//        "scala30" -> Scala30,
+//        "scala3.0" -> Scala30,
+//        "3.0" -> Scala30,
+//        "30" -> Scala30,
+//        "dotty" -> Scala30,
+//        "scala31" -> Scala31,
+//        "scala3.1" -> Scala31,
+//        "3.1" -> Scala31,
+//        "31" -> Scala31,
+//        "scala32" -> Scala32,
+//        "scala3.2" -> Scala32,
+//        "3.2" -> Scala32,
+//        "32" -> Scala32,
+//        "scala3" -> Scala3,
+//        "scala3.0" -> Scala3,
+//        "3.0" -> Scala3,
+//        "3" -> Scala3
 //      )
 //
 //      validVersions.foreach { case (input, expected) =>
 //        it(s"should parse $input to $expected") {
 //          ExampleConfigs.scalaDialect(input).at("stryker4s").load[Config] match {
 //            case Right(value) => value.scalaDialect shouldBe expected
-//            case Left(value)  => fail(s"Expected valid parsing, got $value")
+//            case Left(value) => fail(s"Expected valid parsing, got $value")
 //          }
 //
 //        }
@@ -250,7 +273,11 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //          CannotConvert(
 //            "foobar",
 //            "scala-dialect",
-//            "Unsupported dialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala212', 'scala2.12', '2.12', '212', 'scala212source3', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala213source3', 'source3', 'scala3', 'scala3.0', '3.0', '3', 'dotty'"
+//            s"Unsupported dialect. Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${
+//              validVersions.keys
+//                .map("'" + _ + "'")
+//                .mkString(", ")
+//            }"
 //          )
 //        )
 //      }
@@ -264,17 +291,23 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 //            CannotConvert(
 //              version,
 //              "scala-dialect",
-//              s"Deprecated dialect. Leaving this configuration empty defaults to scala3 which might also work for you. Valid scalaDialects are: 'scala212', 'scala2.12', '2.12', '212', 'scala212source3', 'scala213', 'scala2.13', '2.13', '213', '2', 'scala213source3', 'source3', 'scala3', 'scala3.0', '3.0', '3', 'dotty'"
+//              s"Deprecated dialect. Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${
+//                validVersions.keys
+//                  .map("'" + _ + "'")
+//                  .mkString(", ")
+//              }"
 //            )
 //          )
 //        }
 //      }
 //    }
-
-//    def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason) =
+//
+//    def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason)(implicit pos: Position) =
 //      config.at("stryker4s").load[Config] match {
-//        case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) => reason shouldBe failure
+//        case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>
+//          reason.description shouldBe failure.description
+//          reason shouldBe failure
 //        case value => fail(s"Expected parsing failure but got $value")
 //      }
-  }
+//  }
 }
