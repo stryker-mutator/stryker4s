@@ -25,6 +25,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
   .aggregate(
     (stryker4jvm.projectRefs ++
       stryker4jvmMutatorScala.projectRefs ++
+      stryker4jvmNewMutatorScala.projectRefs ++
       stryker4sCore.projectRefs ++
       stryker4sCommandRunner.projectRefs ++
       sbtStryker4s.projectRefs ++
@@ -76,11 +77,21 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
       "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0"
     )
   )
-  .dependsOn(stryker4jvmMutatorScala)
+  .dependsOn(stryker4jvmNewMutatorScala)
   .dependsOn(stryker4sApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")
+  .settings(
+    jvmMutatorScalaSettings,
+    resolvers += Resolver.mavenLocal,
+    libraryDependencies ++= Seq(
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0"
+    )
+  )
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+
+lazy val stryker4jvmNewMutatorScala = newProject("stryker4jvm-new-mutator-scala", "stryker4jvm-new-mutator-scala")
   .settings(
     jvmMutatorScalaSettings,
     resolvers += Resolver.mavenLocal,
