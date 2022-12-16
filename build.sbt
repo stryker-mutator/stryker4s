@@ -77,7 +77,7 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
       "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0"
     )
   )
-  .dependsOn(stryker4jvmMutatorScala)
+  .dependsOn(stryker4jvmNewMutatorScala)
   .dependsOn(stryker4sApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
