@@ -7,5 +7,4 @@ class ScalaCollector extends Collector[ScalaAST] {
 
   override def collect(x$1: ScalaAST): CollectedMutants[ScalaAST] = ???
 
-  
 }
