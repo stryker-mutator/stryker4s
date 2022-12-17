@@ -5,6 +5,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class that encapsulates the three components of a mutator for a specific (programming) language.
+ * @param <T> The language-specific AST.
+ */
 public class LanguageMutator<T extends AST> {
     private final Parser<T> parser;
     private final Collector<T> collector;
