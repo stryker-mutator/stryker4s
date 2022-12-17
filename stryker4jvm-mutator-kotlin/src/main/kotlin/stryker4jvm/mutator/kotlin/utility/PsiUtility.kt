@@ -31,9 +31,13 @@ import java.io.PrintStream
 
 object PsiUtility {
     val project: MockProject
+    // unsure whether using a common factory for the methods createPsiFile and createPsiElement
+    // changes anything...
+    //val factory: KtPsiFactory
 
     init {
         project = createPsiProject()
+        //factory = KtPsiFactory(project, true)
     }
 
     private fun createPsiProject(): MockProject {

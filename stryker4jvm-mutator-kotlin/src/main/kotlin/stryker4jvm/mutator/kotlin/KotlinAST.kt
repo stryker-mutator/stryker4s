@@ -4,13 +4,14 @@ import org.jetbrains.kotlin.psi.KtElement
 import stryker4jvm.core.model.AST
 
 class KotlinAST(val tree: KtElement) : AST() {
+    private val text: String = tree.text;
 
     override fun syntax(): String {
-        return tree.text
+        return text
     }
 
     override fun hashCode(): Int {
-        return tree.hashCode()
+        return text.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -18,6 +19,6 @@ class KotlinAST(val tree: KtElement) : AST() {
             return false
         if (other !is KotlinAST)
             return false
-        return tree == other.tree
+        return tree == other.tree || text == other.text
     }
 }

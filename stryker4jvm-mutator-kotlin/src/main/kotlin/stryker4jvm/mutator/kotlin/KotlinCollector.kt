@@ -7,14 +7,22 @@ import stryker4jvm.core.model.MutatedCode
 import stryker4jvm.mutator.kotlin.mutators.*;
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
-class KotlinCollector : Collector<KotlinAST> {
-    private val mutators = arrayOf(
-        BooleanLiteralMutator,
-        StringLiteralMutator,
-        EqualityOperatorMutator,
-        ConditionalExpressionMutator,
-        LogicalOperatorMutator
-    )
+class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<KotlinAST> {
+//    private val mutators = arrayOf(
+//        BooleanLiteralMutator,
+//        StringLiteralMutator,
+//        EqualityOperatorMutator,
+//        ConditionalExpressionMutator,
+//        LogicalOperatorMutator
+//    )
+
+    constructor() : this(
+            arrayOf(
+                    BooleanLiteralMutator,
+                    StringLiteralMutator,
+                    EqualityOperatorMutator,
+                    ConditionalExpressionMutator,
+                    LogicalOperatorMutator))
 
     override fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
         if (tree == null)
