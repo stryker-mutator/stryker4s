@@ -2,6 +2,9 @@ package stryker4jvm.core.model;
 
 import stryker4jvm.core.model.elements.Location;
 
+/**
+ * Data class that describes the original and mutated code with strings
+ */
 public final class MutantMetaData {
 
     public final String original;
