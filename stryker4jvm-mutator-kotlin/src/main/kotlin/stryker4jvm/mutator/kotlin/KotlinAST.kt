@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.psi.KtElement
 import stryker4jvm.core.model.AST
 
 class KotlinAST(val tree: KtElement) : AST() {
-    private val text: String = tree.text;
+    private val text: String = tree.text
 
     override fun syntax(): String {
         return text
@@ -19,6 +19,6 @@ class KotlinAST(val tree: KtElement) : AST() {
             return false
         if (other !is KotlinAST)
             return false
-        return tree == other.tree || text == other.text
+        return tree == other.tree// || text == other.text
     }
 }

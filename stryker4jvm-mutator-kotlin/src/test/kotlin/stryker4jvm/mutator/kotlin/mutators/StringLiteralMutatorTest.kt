@@ -4,6 +4,7 @@ import io.mockk.clearAllMocks
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.*
+import org.junit.jupiter.api.Assertions
 import stryker4jvm.mutator.kotlin.mutators.StringLiteralMutator
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 import kotlin.reflect.typeOf
@@ -15,15 +16,26 @@ class StringLiteralMutatorTest {
     fun testStringMutatorMutate() {
         // Arrange
         clearAllMocks()
-        val target = StringLiteralMutator
-        val testFile = PsiUtility.createPsiFile("fun dummy() { print(\"test\" + \"\") }")
+        val target = MutatorTest.newCollector(StringLiteralMutator)
+        val testFile = MutatorTest.parse("fun dummy() { print(\"test\" + \"\") }")
 
         // Act
-        val result = target.mutateFile(testFile)
+        val result = target.collect(testFile)
+        val ignored = result.ignoredMutations
+        val mutations = result.mutations
 
         // Assert
-//        assert(result[0].mutations[0].mutatorName == "StringLiteral")
-//        assert(result[0].mutations[0].element.text == "\"\"")
-//        assert(result[1].mutations[0].element.text == "\"Stryker was here!\"")
+        Assertions.assertTrue(ignored.isEmpty())
+        Assertions.assertEquals(2, mutations.size)
+
+        MutatorTest.testName("StringLiteral", result)
+
+        MutatorTest.testMutations(
+                mapOf(
+                        Pair("\"test\"", mutableListOf("\"\"")),
+                        Pair("\"\"", mutableListOf("\"Stryker was here!\""))
+                ),
+                result
+        )
     }
 }

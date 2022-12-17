@@ -42,7 +42,7 @@ class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<K
 
                 val code = mutations.map { mutation ->
                     val metaData = MutantMetaData(originalText, mutation.text, mutator.name, originalLocation)
-                    MutatedCode(originalAST, metaData)
+                    MutatedCode(KotlinAST(mutation), metaData)
                 }
                 val currentMutations = res.mutations.getOrDefault(originalAST, mutableListOf())
                 currentMutations.addAll(code)

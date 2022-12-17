@@ -1,8 +1,10 @@
 package stryker4jvm.mutator.kotlin.mutators
 
 import io.mockk.clearAllMocks
+import org.junit.jupiter.api.Assertions
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 import org.junit.jupiter.api.Test
+import stryker4jvm.mutator.kotlin.KotlinCollector
 
 class EqualityOperatorMutatorTest {
 
@@ -10,8 +12,8 @@ class EqualityOperatorMutatorTest {
     fun testEqualityOperatorMutatorMutate() {
         // Arrange
         clearAllMocks()
-        val target = EqualityOperatorMutator
-        val testFile = PsiUtility.createPsiFile("""
+        val target = MutatorTest.newCollector(EqualityOperatorMutator)
+        val testFile = MutatorTest.parse("""
             fun dummy() { 
                 if(0 < 1) print("a")
                 if(0 <= 1) print("a")
@@ -25,21 +27,27 @@ class EqualityOperatorMutatorTest {
         """.trimIndent())
 
         // Act
-        val result = target.mutateFile(testFile)
+        val result = target.collect(testFile)
+        val ignored = result.ignoredMutations
+        val mutations = result.mutations
 
         // Assert
-//        assert(result[0].mutations[0].mutatorName == "EqualityOperator")
-//        assert(result[0].mutations[0].element.text == "0 <= 1")
-//        assert(result[0].mutations[1].element.text == "0 >= 1")
-//        assert(result[1].mutations[0].element.text == "0 < 1")
-//        assert(result[1].mutations[1].element.text == "0 > 1")
-//        assert(result[2].mutations[0].element.text == "0 >= 1")
-//        assert(result[2].mutations[1].element.text == "0 <= 1")
-//        assert(result[3].mutations[0].element.text == "0 > 1")
-//        assert(result[3].mutations[1].element.text == "0 < 1")
-//        assert(result[4].mutations[0].element.text == "0 != 1")
-//        assert(result[5].mutations[0].element.text == "0 == 1")
-//        assert(result[6].mutations[0].element.text == "0 !== 1")
-//        assert(result[7].mutations[0].element.text == "0 === 1")
+        Assertions.assertTrue(ignored.isEmpty())
+        Assertions.assertEquals(8, mutations.size)
+
+        MutatorTest.testName("EqualityOperator", result)
+        MutatorTest.testMutations(
+                mapOf(
+                        Pair("0 < 1", mutableListOf("0 <= 1", "0 >= 1")),
+                        Pair("0 <= 1", mutableListOf("0 < 1", "0 > 1")),
+                        Pair("0 > 1", mutableListOf("0 >= 1", "0 <= 1")),
+                        Pair("0 >= 1", mutableListOf("0 > 1", "0 < 1")),
+                        Pair("0 == 1", mutableListOf("0 != 1")),
+                        Pair("0 != 1", mutableListOf("0 == 1")),
+                        Pair("0 === 1", mutableListOf("0 !== 1")),
+                        Pair("0 !== 1", mutableListOf("0 === 1"))
+                ),
+                result
+        )
     }
 }
