@@ -4,7 +4,7 @@ import stryker4jvm.config.Config
 import stryker4jvm.core.config.LanguageMutatorConfig
 import stryker4jvm.core.model.elements.{Location, MutantResult, MutantStatus, Position}
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
 import java.util.Optional
 import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 
@@ -109,7 +109,7 @@ object Stryker4jvmCoreConversions {
   }
 
   implicit final class ConfigExtension(config: Config) {
-    implicit def asLanguageMutatorConfig: LanguageMutatorConfig = 
+    implicit def asLanguageMutatorConfig: LanguageMutatorConfig =
       new LanguageMutatorConfig((config.excludedMutations.asInstanceOf[Set[String]]).asJava)
   }
 }
