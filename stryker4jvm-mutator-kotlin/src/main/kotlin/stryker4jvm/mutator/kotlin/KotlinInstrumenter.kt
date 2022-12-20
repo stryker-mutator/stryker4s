@@ -9,9 +9,9 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
 
     // note that in kotlin we replace the children in the original source
     // unlike scala variant
-    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST {
+    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
         if (source == null || mutations == null)
-            return KotlinAST(PsiUtility.createPsiElement("")) // todo: throw exception
+            return null // or throw exception?
 
         mutations.forEach { (original, mutations) ->
             val whenExpression = whenExpressionGenerator(original, mutations)

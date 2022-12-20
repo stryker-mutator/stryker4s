@@ -1,9 +1,10 @@
-package stryker4jvm.mutator.kotlin
+package stryker4jvm.mutator.kotlin.utility
 
-import org.jetbrains.kotlin.com.intellij.psi.PsiManager
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import stryker4jvm.mutator.kotlin.utility.PsiUtility
+import stryker4jvm.mutator.kotlin.KotlinAST
+import stryker4jvm.mutator.kotlin.mutators.BooleanLiteralMutator
+import stryker4jvm.mutator.kotlin.mutators.MutatorTest
 
 /*
 https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/PsiElement.java
@@ -37,5 +38,34 @@ class PsiTest {
         // tree3 produces runtime exception because true with spaces is not accepted
         //val tree3 = PsiUtility.createPsiElement(" true ")
         //Assertions.assertFalse(tree.textMatches(tree3))
+    }
+
+    @Test
+    fun testPsiLocation() {
+        val input = """
+            object test {
+                fun testFunction() {
+                    return true || false
+                }
+            }""".trimMargin()
+        val ast = MutatorTest.parse(input)
+        // boolean literal will only find the true and false literals
+        val collector = MutatorTest.newCollector(BooleanLiteralMutator)
+        val result = collector.collect(ast)
+        Assertions.assertFalse(result.mutations.isEmpty())
+
+        var k: KotlinAST? = null
+        result.mutations.forEach { (key, _) ->
+            k = key
+        }
+
+        // true and false are at line 2 (0 indexed)
+        val location = PsiUtility.getLocation(k!!.tree)
+        Assertions.assertEquals(2, location.start.line)
+        Assertions.assertEquals(2, location.end.line)
+
+        // columns cannot be determined so they should always be zero
+        Assertions.assertEquals(0, location.start.column)
+        Assertions.assertEquals(0, location.end.column)
     }
 }

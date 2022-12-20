@@ -71,16 +71,12 @@ object PsiUtility {
 
     private class FormatPomModel : UserDataHolderBase(), PomModel {
 
-        override fun runTransaction(
-            transaction: PomTransaction
-        ) {
+        override fun runTransaction(transaction: PomTransaction) {
             (transaction as PomTransactionBase).run()
         }
 
         @Suppress("UNCHECKED_CAST", "SpreadOperator")
-        override fun <T : PomModelAspect> getModelAspect(
-            aspect: Class<T>
-        ): T? {
+        override fun <T : PomModelAspect> getModelAspect(aspect: Class<T>): T? {
             if (aspect == TreeAspect::class.java) {
                 val constructor = ReflectionFactory
                     .getReflectionFactory()
@@ -110,6 +106,7 @@ object PsiUtility {
         val document = psiDocumentManager.getDocument(containingFile) ?: fileViewProvider.document
         ?: return Location(Position(0,0), Position(0,0))
 
+        // there appears to be no way of knowing the start and end column of an element...
         val start = Position(document.getLineNumber(element.startOffset), 0)
         val end = Position(document.getLineNumber(element.endOffset), 0)
         return Location(start, end)

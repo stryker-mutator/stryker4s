@@ -8,13 +8,6 @@ import stryker4jvm.mutator.kotlin.mutators.*;
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
 class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<KotlinAST> {
-//    private val mutators = arrayOf(
-//        BooleanLiteralMutator,
-//        StringLiteralMutator,
-//        EqualityOperatorMutator,
-//        ConditionalExpressionMutator,
-//        LogicalOperatorMutator
-//    )
 
     constructor() : this(
             arrayOf(

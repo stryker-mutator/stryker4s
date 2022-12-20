@@ -5,13 +5,14 @@ import stryker4jvm.core.model.AST
 
 class KotlinAST(val tree: KtElement) : AST() {
     private val text: String = tree.text
+    private val hash: Int = text.hashCode()
 
     override fun syntax(): String {
         return text
     }
 
     override fun hashCode(): Int {
-        return text.hashCode()
+        return hash
     }
 
     override fun equals(other: Any?): Boolean {
@@ -19,6 +20,6 @@ class KotlinAST(val tree: KtElement) : AST() {
             return false
         if (other !is KotlinAST)
             return false
-        return tree == other.tree// || text == other.text
+        return tree == other.tree
     }
 }
