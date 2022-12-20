@@ -38,7 +38,9 @@ object MutatorTest {
      * This function passes without errors iff all actual mutations are equal to found mutations (order does not matter)
      */
     fun testMutations(map: Map<String, MutableList<String>>, result: CollectedMutants<KotlinAST>) {
+        val found: MutableSet<String> = mutableSetOf()
         result.mutations.forEach { entry ->
+            found.add(entry.key.syntax())
             assertTrue(map.containsKey(entry.key.syntax()))
 
             val expectedMutations = map[entry.key.syntax()]!!
@@ -49,5 +51,6 @@ object MutatorTest {
                 assertEquals(expectedMutations[index], s)
             }
         }
+        assertTrue(map.keys.containsAll(found), "Provided map should contain all keys that are found in order to cover all mutants")
     }
 }
