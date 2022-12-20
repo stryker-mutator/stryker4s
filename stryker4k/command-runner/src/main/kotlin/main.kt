@@ -1,1 +1,0 @@
-fun main(args: Array<String>) = Stryker4k.run(args)
