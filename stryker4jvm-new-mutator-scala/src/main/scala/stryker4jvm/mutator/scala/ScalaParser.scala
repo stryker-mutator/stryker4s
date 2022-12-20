@@ -10,9 +10,12 @@ class ScalaParser extends Parser[ScalaAST] {
 
   override def parse(file: nio.file.Path): ScalaAST = {
     val parsed = file.parse[Source];
+
     parsed match {
       case _: Parsed.Error => throw new Exception("Cannot parse")
-      case s               => new ScalaAST(source = s.get)
+      case s =>
+        val ret = new ScalaAST(source = s.get)
+        return ret
     }
   }
 }
