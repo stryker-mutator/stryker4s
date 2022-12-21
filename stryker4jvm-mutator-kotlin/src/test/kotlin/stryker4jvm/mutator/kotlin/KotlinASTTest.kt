@@ -3,7 +3,6 @@ package stryker4jvm.mutator.kotlin
 import kotlin.test.Test
 import kotlin.test.*
 import stryker4jvm.mutator.kotlin.mutators.MutatorTest
-import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
 class KotlinASTTest {
     @Test

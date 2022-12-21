@@ -5,7 +5,6 @@ import stryker4jvm.mutator.kotlin.utility.PsiUtility
 import kotlin.test.Test
 import kotlin.test.*
 import stryker4jvm.mutator.kotlin.KotlinAST
-import stryker4jvm.mutator.kotlin.KotlinCollector
 import stryker4jvm.mutator.kotlin.mutators.MutatorTest.newCollector
 
 class BooleanLiteralMutatorTest {

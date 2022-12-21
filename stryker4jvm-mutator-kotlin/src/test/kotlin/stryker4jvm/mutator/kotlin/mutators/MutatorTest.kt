@@ -2,11 +2,9 @@ package stryker4jvm.mutator.kotlin.mutators
 
 import stryker4jvm.core.model.CollectedMutants
 import stryker4jvm.mutator.kotlin.KotlinAST
-import kotlin.test.Test
 import kotlin.test.*
 import stryker4jvm.mutator.kotlin.KotlinCollector
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
-import java.util.*
 
 object MutatorTest {
     /**

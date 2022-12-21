@@ -1,9 +1,6 @@
 package stryker4jvm.mutator.kotlin.mutators
 
 import io.mockk.clearAllMocks
-import stryker4jvm.mutator.kotlin.utility.PsiUtility
-import stryker4jvm.mutator.kotlin.KotlinAST
-import stryker4jvm.mutator.kotlin.KotlinCollector
 import kotlin.test.Test
 import kotlin.test.*
 

@@ -3,9 +3,6 @@ package stryker4jvm.mutator.kotlin
 import org.jetbrains.kotlin.com.intellij.psi.JavaPsiFacade
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.astReplace
-import stryker4jvm.core.model.MutantWithId
-import stryker4jvm.mutator.kotlin.mutators.BooleanLiteralMutator
-import stryker4jvm.mutator.kotlin.mutators.MutatorTest
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 import kotlin.test.Test
 
