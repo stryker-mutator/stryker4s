@@ -6,7 +6,7 @@ import kotlin.test.*
 import stryker4jvm.mutator.kotlin.KotlinCollector
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
-object MutatorTest {
+object MutatorTestUtil {
     /**
      * Simplified way to create a new collector
      */

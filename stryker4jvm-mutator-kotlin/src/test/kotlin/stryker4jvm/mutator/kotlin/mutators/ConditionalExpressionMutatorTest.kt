@@ -10,8 +10,8 @@ class ConditionalExpressionMutatorTest {
     fun testConditionalExpressionMutatorMutate() {
         // Arrange
         clearAllMocks()
-        val target = MutatorTest.newCollector(ConditionalExpressionMutator)
-        val testFile = MutatorTest.parse("""
+        val target = MutatorTestUtil.newCollector(ConditionalExpressionMutator)
+        val testFile = MutatorTestUtil.parse("""
             fun dummy() { 
                 if(0 < 1) print("a")
                 if(0 <= 1) print("a")
@@ -35,10 +35,10 @@ class ConditionalExpressionMutatorTest {
         assertTrue(ignored.isEmpty())
         assertEquals(10, mutations.size)
 
-        MutatorTest.testName("ConditionalExpression", result)
+        MutatorTestUtil.testName("ConditionalExpression", result)
 
         val expect = mutableListOf("true", "false") // they all mutate to true and false
-        MutatorTest.testMutations(
+        MutatorTestUtil.testMutations(
                 mapOf(
                         Pair("0 < 1", expect),
                         Pair("0 <= 1", expect),

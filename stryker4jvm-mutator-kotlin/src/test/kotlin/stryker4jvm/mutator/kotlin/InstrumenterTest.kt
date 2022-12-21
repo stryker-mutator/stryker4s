@@ -3,7 +3,7 @@ package stryker4jvm.mutator.kotlin
 import org.jetbrains.kotlin.psi.KtConstantExpression
 import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.mutator.kotlin.mutators.BooleanLiteralMutator
-import stryker4jvm.mutator.kotlin.mutators.MutatorTest
+import stryker4jvm.mutator.kotlin.mutators.MutatorTestUtil
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 import kotlin.test.Test
 import kotlin.test.*
@@ -33,8 +33,8 @@ class InstrumenterTest {
     @Test
     fun testInstrumenter() {
         val instrumenter = KotlinInstrumenter()
-        val collector = MutatorTest.newCollector(BooleanLiteralMutator)
-        val ast = MutatorTest.parse("fun dummy() { print(true && false) }")
+        val collector = MutatorTestUtil.newCollector(BooleanLiteralMutator)
+        val ast = MutatorTestUtil.parse("fun dummy() { print(true && false) }")
 
         val collected = collector.collect(ast)
         var id = 0

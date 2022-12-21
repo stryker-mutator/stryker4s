@@ -10,8 +10,8 @@ class StringLiteralMutatorTest {
     fun testStringMutatorMutate() {
         // Arrange
         clearAllMocks()
-        val target = MutatorTest.newCollector(StringLiteralMutator)
-        val testFile = MutatorTest.parse("fun dummy() { print(\"test\" + \"\") }")
+        val target = MutatorTestUtil.newCollector(StringLiteralMutator)
+        val testFile = MutatorTestUtil.parse("fun dummy() { print(\"test\" + \"\") }")
 
         // Act
         val result = target.collect(testFile)
@@ -22,9 +22,9 @@ class StringLiteralMutatorTest {
         assertTrue(ignored.isEmpty())
         assertEquals(2, mutations.size)
 
-        MutatorTest.testName("StringLiteral", result)
+        MutatorTestUtil.testName("StringLiteral", result)
 
-        MutatorTest.testMutations(
+        MutatorTestUtil.testMutations(
                 mapOf(
                         Pair("\"test\"", mutableListOf("\"\"")),
                         Pair("\"\"", mutableListOf("\"Stryker was here!\""))

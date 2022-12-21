@@ -10,8 +10,8 @@ class EqualityOperatorMutatorTest {
     fun testEqualityOperatorMutatorMutate() {
         // Arrange
         clearAllMocks()
-        val target = MutatorTest.newCollector(EqualityOperatorMutator)
-        val testFile = MutatorTest.parse("""
+        val target = MutatorTestUtil.newCollector(EqualityOperatorMutator)
+        val testFile = MutatorTestUtil.parse("""
             fun dummy() { 
                 if(0 < 1) print("a")
                 if(0 <= 1) print("a")
@@ -33,8 +33,8 @@ class EqualityOperatorMutatorTest {
         assertTrue(ignored.isEmpty())
         assertEquals(8, mutations.size)
 
-        MutatorTest.testName("EqualityOperator", result)
-        MutatorTest.testMutations(
+        MutatorTestUtil.testName("EqualityOperator", result)
+        MutatorTestUtil.testMutations(
                 mapOf(
                         Pair("0 < 1", mutableListOf("0 <= 1", "0 >= 1")),
                         Pair("0 <= 1", mutableListOf("0 < 1", "0 > 1")),

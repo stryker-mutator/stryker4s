@@ -10,8 +10,8 @@ class LogicalOperatorMutatorTest {
     fun testLogicalOperatorMutatorMutate() {
         // Arrange
         clearAllMocks()
-        val target = MutatorTest.newCollector(LogicalOperatorMutator)
-        val testFile = MutatorTest.parse("""
+        val target = MutatorTestUtil.newCollector(LogicalOperatorMutator)
+        val testFile = MutatorTestUtil.parse("""
             fun dummy() { 
                 if(0 || 1) print("a")
                 if(0 && 1) print("a")
@@ -27,9 +27,9 @@ class LogicalOperatorMutatorTest {
         assertTrue(ignored.isEmpty())
         assertEquals(2, mutations.size)
 
-        MutatorTest.testName("LogicalOperator", result)
+        MutatorTestUtil.testName("LogicalOperator", result)
 
-        MutatorTest.testMutations(
+        MutatorTestUtil.testMutations(
                 mapOf(
                         Pair("0 || 1", mutableListOf("0 && 1")),
                         Pair("0 && 1", mutableListOf("0 || 1"))

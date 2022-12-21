@@ -5,7 +5,7 @@ import stryker4jvm.mutator.kotlin.utility.PsiUtility
 import kotlin.test.Test
 import kotlin.test.*
 import stryker4jvm.mutator.kotlin.KotlinAST
-import stryker4jvm.mutator.kotlin.mutators.MutatorTest.newCollector
+import stryker4jvm.mutator.kotlin.mutators.MutatorTestUtil.newCollector
 
 class BooleanLiteralMutatorTest {
     @Test
@@ -24,8 +24,8 @@ class BooleanLiteralMutatorTest {
         assertTrue(ignored.isEmpty())
         assertEquals(2, mutations.size) // we have two mutations
 
-        MutatorTest.testName("BooleanLiteral", result)
-        MutatorTest.testMutations(
+        MutatorTestUtil.testName("BooleanLiteral", result)
+        MutatorTestUtil.testMutations(
                 mapOf(
                         Pair("true", mutableListOf("false")),  // all trues map to false
                         Pair("false", mutableListOf("true"))), // all false map to trues

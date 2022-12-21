@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.*
 import stryker4jvm.mutator.kotlin.KotlinAST
 import stryker4jvm.mutator.kotlin.mutators.BooleanLiteralMutator
-import stryker4jvm.mutator.kotlin.mutators.MutatorTest
+import stryker4jvm.mutator.kotlin.mutators.MutatorTestUtil
 
 /*
 https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/PsiElement.java
@@ -48,9 +48,9 @@ class PsiTest {
                     return true || false
                 }
             }""".trimMargin()
-        val ast = MutatorTest.parse(input)
+        val ast = MutatorTestUtil.parse(input)
         // boolean literal will only find the true and false literals
-        val collector = MutatorTest.newCollector(BooleanLiteralMutator)
+        val collector = MutatorTestUtil.newCollector(BooleanLiteralMutator)
         val result = collector.collect(ast)
         assertFalse(result.mutations.isEmpty())
 
