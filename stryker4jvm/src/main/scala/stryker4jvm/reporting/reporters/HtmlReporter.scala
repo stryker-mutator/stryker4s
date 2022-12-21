@@ -4,8 +4,8 @@ import cats.effect.IO
 import fs2.io.file.Path
 import mutationtesting.MutationTestResult
 import stryker4jvm.config.Config
-import stryker4jvm.core.files.FileIO
 import stryker4jvm.core.logging.Logger
+import stryker4jvm.files.FileIO
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
 class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends IOReporter[Config] {
@@ -41,17 +41,17 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends IOReporter[Conf
        |</html>""".stripMargin
 
   def writeMutationTestElementsJsTo(file: Path): IO[Unit] =
-    IO(fileIO.createAndWriteFromResource(file.toNioPath, htmlReportResource))
+    fileIO.createAndWriteFromResource(file, htmlReportResource)
 
   def writeIndexHtmlTo(file: Path): IO[Unit] =
-    IO(fileIO.createAndWrite(file.toNioPath, indexHtml))
+    fileIO.createAndWrite(file, indexHtml)
 
   def writeReportJsTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax.*
     import mutationtesting.circe.*
     val json = report.asJson.noSpaces
     val reportContent = s"document.querySelector('mutation-test-report-app').report = $json"
-    IO(fileIO.createAndWrite(file.toNioPath, reportContent))
+    fileIO.createAndWrite(file, reportContent)
   }
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
