@@ -1,12 +1,6 @@
 package stryker4jvm.mutator.kotlin.mutators
 
 import io.mockk.clearAllMocks
-import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.psi.*
-import stryker4jvm.mutator.kotlin.mutators.StringLiteralMutator
-import stryker4jvm.mutator.kotlin.utility.PsiUtility
-import kotlin.reflect.typeOf
 import kotlin.test.Test
 import kotlin.test.*
 
