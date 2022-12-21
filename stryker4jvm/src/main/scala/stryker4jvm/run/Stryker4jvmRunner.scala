@@ -5,9 +5,9 @@ import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
-import stryker4jvm.core.files.DiskFileIO
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.files.{ConfigFilesResolver, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
+import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
+import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.SttpLogWrapper
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.mutants.{Mutator, SupportedLanguageMutators}
@@ -26,6 +26,9 @@ abstract class Stryker4jvmRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
     // todo: scala mutator still uses their own config object so this implicit won't work
     implicit val config: Config = ConfigReader.readConfig()
+    SupportedLanguageMutators.languageRouter.values.foreach(mutator =>
+      mutator.setLanguageConfig(config.asLanguageMutatorConfig)
+    )
 
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
     val reporter = new AggregateReporter(resolveReporters())

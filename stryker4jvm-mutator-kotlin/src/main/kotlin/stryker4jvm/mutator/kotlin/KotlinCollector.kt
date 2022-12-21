@@ -1,5 +1,6 @@
 package stryker4jvm.mutator.kotlin
 
+import stryker4jvm.core.config.LanguageMutatorConfig
 import stryker4jvm.core.model.CollectedMutants
 import stryker4jvm.core.model.Collector
 import stryker4jvm.core.model.MutantMetaData
@@ -17,7 +18,7 @@ class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<K
                     ConditionalExpressionMutator,
                     LogicalOperatorMutator))
 
-    override fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
+    override fun collect(tree: KotlinAST?, config: LanguageMutatorConfig): CollectedMutants<KotlinAST> {
         if (tree == null)
             return CollectedMutants()
 
