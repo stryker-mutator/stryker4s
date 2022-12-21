@@ -6,7 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 public class CollectedMutants<T extends AST> {
+    /**
+     * List containing only those mutations that were ignored, either by configuration constraints or
+     * other issues.
+     */
     public final List<IgnoredMutation<T>> ignoredMutations;
+    /**
+     * The actual mutations found.
+     * This is a map which maps the original non-mutated AST to a list of acceptable mutations.
+     */
     public final Map<T, List<MutatedCode<T>>> mutations;
 
     public CollectedMutants(List<IgnoredMutation<T>> ignoredMutations, Map<T, List<MutatedCode<T>>> mutations) {
@@ -20,7 +28,13 @@ public class CollectedMutants<T extends AST> {
     }
 
     public static final class IgnoredMutation<T> {
+        /**
+         * Mutated code that was ignored
+         */
         public final MutatedCode<T> mutatedCode;
+        /**
+         * The reason why this mutation was ignored
+         */
         public final IgnoredMutationReason reason;
 
         public IgnoredMutation(MutatedCode<T> mutatedCode, IgnoredMutationReason reason) {

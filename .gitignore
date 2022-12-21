@@ -75,6 +75,8 @@ project/project/
 
 !bin/scalafmt
 
+stryker4k/**/bin
+
 !.vscode/extensions.json
 !.vscode/settings.json
 
