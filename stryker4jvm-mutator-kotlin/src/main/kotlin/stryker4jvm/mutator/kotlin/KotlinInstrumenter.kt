@@ -22,6 +22,10 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
         return source
     }
 
+    fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
+        return instrument(source, mutations, LanguageMutatorConfig(mutableSetOf()))
+    }
+
     private fun whenExpressionGenerator(original: KotlinAST, mutations : List<MutantWithId<KotlinAST>>): KtElement {
         var whenExpressionString = "when(System.getenv(\"ACTIVE_MUTATION\") ?: null) {"
         mutations.forEach { mutation ->

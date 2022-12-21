@@ -46,4 +46,8 @@ class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<K
 
         return res
     }
+
+    fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
+        return collect(tree, LanguageMutatorConfig(mutableSetOf()))
+    }
 }

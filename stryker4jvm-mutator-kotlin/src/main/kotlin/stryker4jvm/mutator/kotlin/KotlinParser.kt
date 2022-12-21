@@ -10,4 +10,8 @@ class KotlinParser : Parser<KotlinAST> {
     override fun parse(path: Path?, config: LanguageMutatorConfig): KotlinAST {
         return KotlinAST(PsiUtility.createPsiFile(java.nio.file.Files.readString(path)))
     }
+
+    fun parse(path: Path?): KotlinAST {
+        return parse(path, LanguageMutatorConfig(mutableSetOf()))
+    }
 }

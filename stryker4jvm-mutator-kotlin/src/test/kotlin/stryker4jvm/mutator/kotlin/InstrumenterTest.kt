@@ -1,6 +1,7 @@
 package stryker4jvm.mutator.kotlin
 
 import org.jetbrains.kotlin.psi.KtConstantExpression
+import stryker4jvm.core.config.LanguageMutatorConfig
 import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.mutator.kotlin.mutators.BooleanLiteralMutator
 import stryker4jvm.mutator.kotlin.mutators.MutatorTestUtil
