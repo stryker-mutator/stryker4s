@@ -10,7 +10,7 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
 
     // note that in kotlin we replace the children in the original source
     // unlike scala variant
-    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?, config: LanguageMutatorConfig): KotlinAST? {
+    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?, config: LanguageMutatorConfig?): KotlinAST? {
         if (source == null || mutations == null)
             return null // or throw exception?
 
@@ -23,7 +23,7 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
     }
 
     fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
-        return instrument(source, mutations, LanguageMutatorConfig(mutableSetOf()))
+        return instrument(source, mutations, null)
     }
 
     private fun whenExpressionGenerator(original: KotlinAST, mutations : List<MutantWithId<KotlinAST>>): KtElement {

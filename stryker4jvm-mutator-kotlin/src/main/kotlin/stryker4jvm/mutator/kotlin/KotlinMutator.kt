@@ -8,11 +8,7 @@ class KotlinMutator(parser : KotlinParser,
                     instrumenter : KotlinInstrumenter)
     : LanguageMutator<KotlinAST>(parser, collector, instrumenter) {
 
-    constructor(collector: KotlinCollector) : this(KotlinParser(), collector, KotlinInstrumenter()) {
-        setLanguageConfig(LanguageMutatorConfig(mutableSetOf()))
-    }
+    constructor(collector: KotlinCollector) : this(KotlinParser(), collector, KotlinInstrumenter())
 
-    constructor() : this(KotlinParser(), KotlinCollector(), KotlinInstrumenter()) {
-        setLanguageConfig(LanguageMutatorConfig(mutableSetOf()))
-    }
+    constructor() : this(KotlinParser(), KotlinCollector(), KotlinInstrumenter())
 }

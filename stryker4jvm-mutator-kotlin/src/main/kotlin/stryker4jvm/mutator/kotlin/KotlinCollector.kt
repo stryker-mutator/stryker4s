@@ -18,7 +18,7 @@ class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<K
                     ConditionalExpressionMutator,
                     LogicalOperatorMutator))
 
-    override fun collect(tree: KotlinAST?, config: LanguageMutatorConfig): CollectedMutants<KotlinAST> {
+    override fun collect(tree: KotlinAST?, config: LanguageMutatorConfig?): CollectedMutants<KotlinAST> {
         if (tree == null)
             return CollectedMutants()
 
@@ -48,6 +48,6 @@ class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<K
     }
 
     fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
-        return collect(tree, LanguageMutatorConfig(mutableSetOf()))
+        return collect(tree, null)
     }
 }
