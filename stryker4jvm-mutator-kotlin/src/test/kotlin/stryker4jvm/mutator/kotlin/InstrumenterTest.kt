@@ -45,7 +45,7 @@ class InstrumenterTest {
             }
         }
         val mutatedAst = instrumenter.instrument(ast, mutantsWithId.toMutableMap())
-        val mutatedText = mutatedAst!!.tree.text
+        val mutatedText = mutatedAst!!.syntax()
         assertTrue(mutatedText.contains("\"0\" -> false"))
         assertTrue(mutatedText.contains("else -> true"))
         assertFalse(mutatedText.contains("\"0\" -> true"))

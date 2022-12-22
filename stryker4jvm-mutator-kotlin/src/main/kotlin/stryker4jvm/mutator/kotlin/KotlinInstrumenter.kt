@@ -19,7 +19,8 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
             PsiUtility.replacePsiElement(original.tree, whenExpression)
         }
 
-        return source
+        // wrap in new AST instance because of how KotlinAST is defined (immutable)
+        return KotlinAST(source.tree)
     }
 
     fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
