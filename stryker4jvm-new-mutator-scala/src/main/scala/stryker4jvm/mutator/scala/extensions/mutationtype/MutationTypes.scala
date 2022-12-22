@@ -18,8 +18,8 @@ object Mutation {
     classOf[ConditionalExpression].getSimpleName,
     classOf[LogicalOperator].getSimpleName,
     classOf[StringLiteral[?]].getSimpleName,
-    classOf[MethodExpression].getSimpleName
-    // classOf[RegularExpression].getSimpleName()
+    classOf[MethodExpression].getSimpleName,
+    classOf[RegularExpression].getSimpleName()
   )
 }
 
