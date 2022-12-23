@@ -76,3 +76,26 @@ See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) f
 ## Contributing
 
 Want to contribute? That's great! Please have a look at our [contributing guide](https://stryker-mutator.io/docs/stryker4s/contributing).
+
+Developing on stryker4jvm:
+Currently, stryker4jvm is using 3 build tools for all its modules. Stryker4jvm-core is managed by maven,
+stryker4jvm-mutator-kotlin is managed by gradle and all other modules are managed by sbt. In order to build/test locally
+you need to take the following steps:
+1) Building stryker4jvm-core:
+   1) cd to stryker4jvm-core root
+   2) mvn clean
+   3) mvn install
+2) Building stryker4jvm-mutator-kotlin:
+   1) Verify version of gradle daemon by running ./gradlew --version in the root of mutator kotlin module.
+   The JVM version should be 15 (theoretically, 11 should also work but has not been tested). Furthermore, it should say
+   kotlin version 1.4.20. Build has only been confirmed to work with gradle 6.9.1, kotlin 1.4.20, groovy 2.5.12 and jvm 15.0.2.
+   In order to change the JVM version to use, either change your JAVA_HOME environment variable or specify the version to use
+   for gradle for commands like so: "./gradlew \<command> -Dorg.gradle.java.home=/JDK_PATH".
+   2) Delete the .gradle folder and build folder in module root if there were version issues or gradle build errors. Note that
+   if you changed versions, you may need to restart your computer entirely.
+   3) ./gradlew build
+   4) ./gradlew publishToMavenLocal
+3) Building all other sbt modules:
+    1) cd to project root (should contain build.sbt file)
+    2) sbt compile (if you wish to only compile a specific module, use sbt <module-name>/compile)
+    3) sbt test (optional)
