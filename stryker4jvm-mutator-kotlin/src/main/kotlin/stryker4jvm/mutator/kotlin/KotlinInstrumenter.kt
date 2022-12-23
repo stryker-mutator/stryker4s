@@ -10,16 +10,21 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
 
     // note that in kotlin we replace the children in the original source
     // unlike scala variant
-    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?, config: LanguageMutatorConfig): KotlinAST {
+    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?, config: LanguageMutatorConfig?): KotlinAST? {
         if (source == null || mutations == null)
-            return KotlinAST(PsiUtility.createPsiElement("")) // todo: throw exception
+            return null // or throw exception?
 
         mutations.forEach { (original, mutations) ->
             val whenExpression = whenExpressionGenerator(original, mutations)
             PsiUtility.replacePsiElement(original.tree, whenExpression)
         }
 
-        return source
+        // wrap in new AST instance because of how KotlinAST is defined (immutable)
+        return KotlinAST(source.tree)
+    }
+
+    fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
+        return instrument(source, mutations, null)
     }
 
     private fun whenExpressionGenerator(original: KotlinAST, mutations : List<MutantWithId<KotlinAST>>): KtElement {

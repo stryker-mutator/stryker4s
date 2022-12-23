@@ -8,16 +8,17 @@ import stryker4jvm.core.model.MutatedCode
 import stryker4jvm.mutator.kotlin.mutators.*;
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
-class KotlinCollector : Collector<KotlinAST> {
-    private val mutators = arrayOf(
-        BooleanLiteralMutator,
-        StringLiteralMutator,
-        EqualityOperatorMutator,
-        ConditionalExpressionMutator,
-        LogicalOperatorMutator
-    )
+class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<KotlinAST> {
 
-    override fun collect(tree: KotlinAST?, config: LanguageMutatorConfig): CollectedMutants<KotlinAST> {
+    constructor() : this(
+            arrayOf(
+                    BooleanLiteralMutator,
+                    StringLiteralMutator,
+                    EqualityOperatorMutator,
+                    ConditionalExpressionMutator,
+                    LogicalOperatorMutator))
+
+    override fun collect(tree: KotlinAST?, config: LanguageMutatorConfig?): CollectedMutants<KotlinAST> {
         if (tree == null)
             return CollectedMutants()
 
@@ -35,7 +36,7 @@ class KotlinCollector : Collector<KotlinAST> {
 
                 val code = mutations.map { mutation ->
                     val metaData = MutantMetaData(originalText, mutation.text, mutator.name, originalLocation)
-                    MutatedCode(originalAST, metaData)
+                    MutatedCode(KotlinAST(mutation), metaData)
                 }
                 val currentMutations = res.mutations.getOrDefault(originalAST, mutableListOf())
                 currentMutations.addAll(code)
@@ -44,5 +45,9 @@ class KotlinCollector : Collector<KotlinAST> {
         }
 
         return res
+    }
+
+    fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
+        return collect(tree, null)
     }
 }

@@ -1,4 +1,0 @@
-{
-  "command": "mvn clean test",
-  "reporters": ["console"]
-}
