@@ -93,7 +93,7 @@ you need to take the following steps:
    for gradle for commands like so: "./gradlew \<command> -Dorg.gradle.java.home=/JDK_PATH".
    2) Delete the .gradle folder and build folder in module root if there were version issues or gradle build errors. Note that
    if you changed versions, you may need to restart your computer entirely.
-   3) ./gradlew build
+   3) ./gradlew clean build
    4) ./gradlew publishToMavenLocal
 3) Building all other sbt modules:
     1) cd to project root (should contain build.sbt file)
