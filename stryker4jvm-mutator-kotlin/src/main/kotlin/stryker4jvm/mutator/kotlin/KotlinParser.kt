@@ -7,11 +7,7 @@ import java.nio.file.Path
 
 class KotlinParser : Parser<KotlinAST> {
 
-    override fun parse(path: Path?, config: LanguageMutatorConfig?): KotlinAST {
+    override fun parse(path: Path?): KotlinAST {
         return KotlinAST(PsiUtility.createPsiFile(java.nio.file.Files.readString(path)))
-    }
-
-    fun parse(path: Path?): KotlinAST {
-        return parse(path, null)
     }
 }

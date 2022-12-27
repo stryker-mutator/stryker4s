@@ -1,16 +1,20 @@
 package stryker4jvm.mutator.kotlin
 
 import org.jetbrains.kotlin.psi.KtElement
-import stryker4jvm.core.config.LanguageMutatorConfig
 import stryker4jvm.core.model.Instrumenter
+import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
-class KotlinInstrumenter : Instrumenter<KotlinAST> {
+class KotlinInstrumenter(private val options: KotlinInstrumenterOptions) : Instrumenter<KotlinAST> {
+
+    constructor(options: InstrumenterOptions) : this(KotlinInstrumenterOptions(options))
+
+    constructor() : this(InstrumenterOptions.EnvVar)
 
     // note that in kotlin we replace the children in the original source
     // unlike scala variant
-    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?, config: LanguageMutatorConfig?): KotlinAST? {
+    override fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
         if (source == null || mutations == null)
             return null // or throw exception?
 
@@ -23,12 +27,8 @@ class KotlinInstrumenter : Instrumenter<KotlinAST> {
         return KotlinAST(source.tree)
     }
 
-    fun instrument(source: KotlinAST?, mutations: MutableMap<KotlinAST, List<MutantWithId<KotlinAST>>>?): KotlinAST? {
-        return instrument(source, mutations, null)
-    }
-
     private fun whenExpressionGenerator(original: KotlinAST, mutations : List<MutantWithId<KotlinAST>>): KtElement {
-        var whenExpressionString = "when(System.getenv(\"ACTIVE_MUTATION\") ?: null) {"
+        var whenExpressionString = "${options.whenExpression} {"
         mutations.forEach { mutation ->
             whenExpressionString += "\n\"${mutation.id}\" -> ${mutation.mutatedCode.mutatedStatement.tree.text}"
         }
