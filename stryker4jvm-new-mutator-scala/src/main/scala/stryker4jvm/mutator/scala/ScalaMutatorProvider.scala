@@ -5,6 +5,8 @@ import stryker4jvm.core.model.{InstrumenterOptions, LanguageMutator}
 import stryker4jvm.core.model.languagemutator.LanguageMutatorProvider
 
 class ScalaMutatorProvider extends LanguageMutatorProvider {
-  override def provideMutator(languageMutatorConfig: LanguageMutatorConfig,
-                              instrumenterOptions: InstrumenterOptions): LanguageMutator[ScalaAST] = ???
+  override def provideMutator(
+      languageMutatorConfig: LanguageMutatorConfig,
+      instrumenterOptions: InstrumenterOptions
+  ): LanguageMutator[ScalaAST] = ???
 }
