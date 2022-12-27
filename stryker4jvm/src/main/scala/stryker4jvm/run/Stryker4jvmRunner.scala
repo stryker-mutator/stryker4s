@@ -6,7 +6,7 @@ import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.core.logging.Logger
-import stryker4jvm.core.model.Instrumenter.InstrumenterOptions
+import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.SttpLogWrapper

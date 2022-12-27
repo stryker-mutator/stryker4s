@@ -110,6 +110,6 @@ object Stryker4jvmCoreConversions {
 
   implicit final class ConfigExtension(config: Config) {
     implicit def asLanguageMutatorConfig: LanguageMutatorConfig =
-      new LanguageMutatorConfig((config.excludedMutations.asInstanceOf[Set[String]]).asJava)
+      new LanguageMutatorConfig(config.excludedMutations.asJava)
   }
 }
