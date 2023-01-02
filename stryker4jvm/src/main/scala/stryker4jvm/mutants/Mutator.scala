@@ -11,16 +11,10 @@ import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 
 import scala.collection.JavaConverters.*
 import stryker4jvm.config.Config
+import stryker4jvm.core.exception.Stryker4jvmException
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
-import stryker4jvm.core.model.{
-  AST,
-  CollectedMutants,
-  CollectedMutantsWithId,
-  LanguageMutator,
-  MutantWithId,
-  MutatedCode
-}
+import stryker4jvm.core.model.{AST, CollectedMutants, CollectedMutantsWithId, LanguageMutator, MutantWithId, MutatedCode}
 import stryker4jvm.extensions.Stryker4jvmCoreConversions
 import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
@@ -45,7 +39,7 @@ class Mutator(
 
           IO((SourceContext(source, path), foundMutations))
         } catch {
-          case e: IOException => IO.raiseError(e)
+          case e: Stryker4jvmException => IO.raiseError(e)
         }
       }
       // Give each mutation a unique id
