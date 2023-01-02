@@ -10,15 +10,9 @@ import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
 class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<KotlinAST> {
 
-    constructor() : this(
-            arrayOf(
-                    BooleanLiteralMutator,
-                    StringLiteralMutator,
-                    EqualityOperatorMutator,
-                    ConditionalExpressionMutator,
-                    LogicalOperatorMutator))
+    constructor() : this(listAllMutators())
 
-    override fun collect(tree: KotlinAST?, config: LanguageMutatorConfig?): CollectedMutants<KotlinAST> {
+    override fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
         if (tree == null)
             return CollectedMutants()
 
@@ -47,7 +41,21 @@ class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<K
         return res
     }
 
-    fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
-        return collect(tree, null)
+    companion object {
+        fun listAllMutators() : Array<out Mutator<*>> {
+            return arrayOf(
+                    BooleanLiteralMutator,
+                    StringLiteralMutator,
+                    EqualityOperatorMutator,
+                    ConditionalExpressionMutator,
+                    LogicalOperatorMutator)
+        }
+
+        fun apply(config: LanguageMutatorConfig) : KotlinCollector {
+            val mutators = listAllMutators().toSet().filter { mutator ->
+                !config.excludedMutations.contains(mutator.name)
+            }
+            return KotlinCollector(mutators.toTypedArray())
+        }
     }
 }

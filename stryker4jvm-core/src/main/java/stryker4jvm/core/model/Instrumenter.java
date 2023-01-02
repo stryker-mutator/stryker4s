@@ -12,6 +12,5 @@ public interface Instrumenter<T extends AST> {
      * @param mutations The mutations to instrument into the source.
      * @return A new AST instance which has the mutations included in its structure.
      */
-    T instrument(T source, Map<T, List<MutantWithId<T>>> mutations,
-        LanguageMutatorConfig config);
+    T instrument(T source, Map<T, List<MutantWithId<T>>> mutations);
 }

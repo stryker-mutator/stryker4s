@@ -11,7 +11,7 @@ import kotlin.test.*
 
 class InstrumenterTest {
 
-        @Test
+    @Test
     fun shouldReplace() {
         val file = PsiUtility.createPsiFile("val x = true")
         val `true` = PsiUtility.findElementsInFile(file, KtConstantExpression::class.java)
@@ -53,6 +53,5 @@ class InstrumenterTest {
         assertTrue(mutatedText.contains("\"1\" -> true"))
         assertTrue(mutatedText.contains("else -> false"))
         assertFalse(mutatedText.contains("\"1\" -> false"))
-
     }
 }

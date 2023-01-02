@@ -8,5 +8,5 @@ public interface Collector<T extends AST> {
      * @param tree The source
      * @return A {@link CollectedMutants collection} of mutants.
      */
-    CollectedMutants<T> collect(T tree, LanguageMutatorConfig config);
+    CollectedMutants<T> collect(T tree);
 }

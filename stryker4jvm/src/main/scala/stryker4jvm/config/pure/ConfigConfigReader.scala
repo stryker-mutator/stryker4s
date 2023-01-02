@@ -5,8 +5,7 @@ import fs2.io.file.Path
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
-import stryker4jvm.mutator.scala.config.*
-import stryker4jvm.mutator.scala.extensions.mutationtype.Mutation
+import stryker4jvm.config.*
 import sttp.model.Uri
 
 import java.nio.file.Path as JPath
@@ -30,15 +29,17 @@ trait ConfigConfigReader {
 
   implicit def exclusionsReader: ConfigReader[Config.ExcludedMutations] =
     ConfigReader[List[String]] emap { exclusions =>
-      val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
-      if (invalid.nonEmpty)
-        CannotConvert(
-          exclusions.mkString(", "),
-          s"excluded-mutations",
-          s"invalid option(s) '${invalid.mkString(", ")}'. Valid exclusions are '${Mutation.mutations.mkString(", ")}'"
-        ).asLeft
-      else
-        valid.toSet.asRight
+      exclusions.toSet.asRight
+    // todo: This validation should be done by the language specific implementations!
+    //      val (valid, invalid) = exclusions.partition(Mutation.mutations.contains)
+    //      if (invalid.nonEmpty)
+    //        CannotConvert(
+    //          exclusions.mkString(", "),
+    //          s"excluded-mutations",
+    //          s"invalid option(s) '${invalid.mkString(", ")}'. Valid exclusions are '${Mutation.mutations.mkString(", ")}'"
+    //        ).asLeft
+    //      else
+    //        valid.toSet.asRight
     }
 
   implicit def uriReader: ConfigReader[Uri] = _root_.pureconfig.module.sttp.reader

@@ -5,6 +5,6 @@ import stryker4jvm.core.model.CollectedMutants
 
 class ScalaCollector extends Collector[ScalaAST] {
 
-  override def collect(x$1: ScalaAST): CollectedMutants[ScalaAST] = ???
+  override def collect(ast: ScalaAST): CollectedMutants[ScalaAST] = ???
 
 }

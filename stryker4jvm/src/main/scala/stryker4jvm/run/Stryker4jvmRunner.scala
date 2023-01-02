@@ -6,12 +6,12 @@ import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
 import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
 import stryker4jvm.logging.SttpLogWrapper
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.mutants.{Mutator, SupportedLanguageMutators}
-import stryker4jvm.mutator.scala.mutants.tree.InstrumenterOptions
 import stryker4jvm.reporting.*
 import stryker4jvm.reporting.dashboard.DashboardConfigProvider
 import stryker4jvm.reporting.reporters.*
@@ -24,11 +24,10 @@ import sttp.model.HeaderNames
 
 abstract class Stryker4jvmRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
-    // todo: scala mutator still uses their own config object so this implicit won't work
     implicit val config: Config = ConfigReader.readConfig()
-    SupportedLanguageMutators.languageRouter.values.foreach(mutator =>
-      mutator.setLanguageConfig(config.asLanguageMutatorConfig)
-    )
+    // no definition for kotlin configs yet! todo
+    val scalaConfig = config.asLanguageMutatorConfig
+    val languageMutatorConfigs = Map("scala" -> scalaConfig)
 
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
     val reporter = new AggregateReporter(resolveReporters())
@@ -36,7 +35,7 @@ abstract class Stryker4jvmRunner(implicit log: Logger) {
     val stryker4jvm = new Stryker4jvm(
       resolveMutatesFileSource,
       new Mutator(
-        SupportedLanguageMutators.languageRouter
+        SupportedLanguageMutators.supportedMutators(languageMutatorConfigs, instrumenterOptions)
       ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
       reporter

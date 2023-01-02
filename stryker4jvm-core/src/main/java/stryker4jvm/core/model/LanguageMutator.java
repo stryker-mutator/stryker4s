@@ -14,7 +14,6 @@ public class LanguageMutator<T extends AST> {
     private final Parser<T> parser;
     private final Collector<T> collector;
     private final Instrumenter<T> instrumenter;
-    private LanguageMutatorConfig languageConfig;
 
     public LanguageMutator(Parser<T> parser, Collector<T> collector, Instrumenter<T> instrumenter) {
         this.parser = parser;
@@ -22,22 +21,15 @@ public class LanguageMutator<T extends AST> {
         this.instrumenter = instrumenter;
     }
 
-    public void setLanguageConfig(LanguageMutatorConfig config) {
-        this.languageConfig = config;
-    }
-
     public T parse(Path p) throws IOException {
-        return parser.parse(p, languageConfig);
+        return parser.parse(p);
     }
 
     public CollectedMutants<T> collect(AST tree) {
-        return collector.collect((T) tree, languageConfig);
+        return collector.collect((T) tree);
     }
 
     public T instrument(AST source, Map<AST, List<MutantWithId<AST>>> mutations) {
-        return instrumenter.instrument((T) source,
-            (Map<T, List<MutantWithId<T>>>) (Map<T, ?>) mutations,
-            languageConfig
-        );
+        return instrumenter.instrument((T) source, (Map<T, List<MutantWithId<T>>>) (Map<T, ?>) mutations);
     }
 }
