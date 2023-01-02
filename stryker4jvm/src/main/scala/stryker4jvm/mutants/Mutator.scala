@@ -33,14 +33,15 @@ class Mutator(
       // Parse and mutate files
       .parEvalMap(config.concurrency) { path =>
         val mutator = mutantRouter(path.extName)
-        try {
-          val source = mutator.parse(path.toNioPath)
-          val foundMutations = mutator.collect(source).asInstanceOf[CollectedMutants[AST]]
-
-          IO((SourceContext(source, path), foundMutations))
+        val source = try {
+          IO(mutator.parse(path.toNioPath))
         } catch {
           case e: Stryker4jvmException => IO.raiseError(e)
         }
+        source.map(tree => {
+          val foundMutations = mutator.collect(tree).asInstanceOf[CollectedMutants[AST]]
+          (SourceContext(tree, path), foundMutations)
+        })
       }
       // Give each mutation a unique id
       .through(updateWithId())
