@@ -14,7 +14,14 @@ import stryker4jvm.config.Config
 import stryker4jvm.core.exception.Stryker4jvmException
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
-import stryker4jvm.core.model.{AST, CollectedMutants, CollectedMutantsWithId, LanguageMutator, MutantWithId, MutatedCode}
+import stryker4jvm.core.model.{
+  AST,
+  CollectedMutants,
+  CollectedMutantsWithId,
+  LanguageMutator,
+  MutantWithId,
+  MutatedCode
+}
 import stryker4jvm.extensions.Stryker4jvmCoreConversions
 import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
@@ -33,11 +40,12 @@ class Mutator(
       // Parse and mutate files
       .parEvalMap(config.concurrency) { path =>
         val mutator = mutantRouter(path.extName)
-        val source = try {
-          IO(mutator.parse(path.toNioPath))
-        } catch {
-          case e: Stryker4jvmException => IO.raiseError(e)
-        }
+        val source =
+          try
+            IO(mutator.parse(path.toNioPath))
+          catch {
+            case e: Stryker4jvmException => IO.raiseError(e)
+          }
         source.map(tree => {
           val foundMutations = mutator.collect(tree).asInstanceOf[CollectedMutants[AST]]
           (SourceContext(tree, path), foundMutations)
