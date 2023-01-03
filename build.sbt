@@ -38,7 +38,9 @@ lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .dependsOn(stryker4sApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
+// todo! Convert command runner to work with stryker4jvm
+//  at the moment we cannot convert it as it also depends on some tests that are not present yet in stryker4jvm
+lazy val stryker4sCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
   .settings(
     commandRunnerSettings
   )
