@@ -69,7 +69,7 @@ class Stryker4sSbtRunner(
 
       val fullSettings = settings ++ Seq(
         libraryDependencies +=
-          "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % stryker4sVersion
+          "io.stryker-mutator" %% "stryker4jvm-plugin-sbt-testrunner" % stryker4sVersion
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
