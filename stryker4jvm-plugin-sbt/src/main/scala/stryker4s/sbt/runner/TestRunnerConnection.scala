@@ -7,7 +7,7 @@ import fs2.Chunk
 import fs2.io.net.Socket
 import scodec.bits.BitVector
 import stryker4s.api.testprocess.{Request, RequestMessage, Response, ResponseMessage}
-import stryker4s.log.Logger
+import stryker4jvm.core.logging.Logger
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]

@@ -9,12 +9,15 @@ import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.api.testprocess.*
-import stryker4s.config.Config
-import stryker4s.extension.DurationExtensions.*
-import stryker4s.log.Logger
 import stryker4s.model.*
-import stryker4s.run.TestRunner
-import stryker4s.run.process.ProcessResource
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.{AST, MutantWithId}
+import stryker4jvm.run.TestRunner
+import stryker4jvm.run.process.ProcessResource
+import stryker4jvm.extensions.DurationExtensions.*
+import stryker4jvm.config.Config
+import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
+import stryker4jvm.model.{InitialTestRunCoverageReport, InitialTestRunResult}
 
 import java.net.ConnectException
 import java.util.concurrent.TimeUnit
@@ -23,8 +26,8 @@ import scala.sys.process.Process
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
-  override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
-    val message = StartTestRun(mutant.id.value, testNames)
+  override def runMutant(mutant: MutantWithId[AST], testNames: Seq[String]): IO[MutantResult] = {
+    val message = StartTestRun(mutant.id, testNames)
     testProcess.sendMessage(message).map {
       case TestsSuccessful(testsCompleted) =>
         mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some)

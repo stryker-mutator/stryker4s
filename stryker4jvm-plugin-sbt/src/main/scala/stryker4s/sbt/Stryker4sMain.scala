@@ -5,8 +5,9 @@ import cats.effect.{Deferred, IO}
 import sbt.Keys.*
 import sbt.*
 import sbt.plugins.*
-import stryker4s.log.{Logger, SbtLogger}
-import stryker4s.run.threshold.ErrorStatus
+import stryker4jvm.core.logging.Logger
+import stryker4s.log.SbtLogger
+import stryker4jvm.run.threshold.ErrorStatus
 import scala.concurrent.duration.FiniteDuration
 import fs2.io.file
 

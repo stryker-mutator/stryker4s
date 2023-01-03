@@ -14,5 +14,3 @@ final case class UnableToFixCompilerErrorsException(errs: NonEmptyList[CompilerE
           .map(err => s"${err.path}: '${err.msg}'")
           .mkString_("\n")
     )
-
-final case class InitialTestRunFailedException(message: String) extends Stryker4jvmException(message) with NoStackTrace

@@ -5,10 +5,12 @@ import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Keys.*
 import sbt.Tests.Output
 import sbt.*
-import stryker4s.extension.exception.InitialTestRunFailedException
-import stryker4s.log.Logger
-import stryker4s.model.*
-import stryker4s.run.TestRunner
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.{AST, MutantWithId}
+import stryker4jvm.exception.InitialTestRunFailedException
+import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
+import stryker4jvm.model.*
+import stryker4jvm.run.TestRunner
 
 class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], extracted: Extracted)(implicit
     log: Logger
@@ -22,9 +24,9 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
     onFailed = NoCoverageInitialTestRun(false)
   )
 
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+  def runMutant(mutant: MutantWithId[AST], testNames: Seq[String]): IO[MutantResult] = {
     val mutationState =
-      extracted.appendWithSession(settings :+ mutationSetting(mutant.id.value), initialState)
+      extracted.appendWithSession(settings :+ mutationSetting(mutant.id), initialState)
     runTests(
       mutationState,
       onError = {

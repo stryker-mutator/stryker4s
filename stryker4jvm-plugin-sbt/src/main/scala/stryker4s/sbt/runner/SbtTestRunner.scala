@@ -4,9 +4,9 @@ import cats.effect.{Deferred, IO, Resource}
 import com.comcast.ip4s.Port
 import sbt.Tests
 import sbt.testing.Framework
-import stryker4s.config.Config
-import stryker4s.log.Logger
-import stryker4s.run.TestRunner
+import stryker4jvm.config.Config
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.run.TestRunner
 
 import scala.concurrent.duration.FiniteDuration
 

@@ -8,15 +8,15 @@ import fs2.io.file.Path
 import sbt.Keys.*
 import sbt.*
 import sbt.internal.LogManager
-import stryker4s.config.{Config, TestFilter}
-import stryker4s.extension.FileExtensions.*
-import stryker4s.extension.exception.TestSetupException
-import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
-import stryker4s.log.Logger
-import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.ActiveMutationContext
-import stryker4s.mutants.tree.InstrumenterOptions
-import stryker4s.run.{Stryker4sRunner, TestRunner}
+import stryker4jvm.config.{Config, TestFilter}
+import stryker4jvm.extensions.FileExtensions.*
+import stryker4jvm.exception.TestSetupException
+import stryker4s.files.{SbtFilesResolver, SbtMutatesResolver}
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.InstrumenterOptions
+import stryker4jvm.files.{FilesFileResolver, MutatesFileResolver}
+import stryker4jvm.model.CompilerErrMsg
+import stryker4jvm.run.{Stryker4jvmRunner, TestRunner}
 import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
@@ -35,7 +35,7 @@ class Stryker4sSbtRunner(
     targetDir: Path
 )(implicit
     log: Logger
-) extends Stryker4sRunner {
+) extends Stryker4jvmRunner {
 
   def resolveTestRunners(
       tmpDir: Path
@@ -214,9 +214,9 @@ class Stryker4sSbtRunner(
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
     if (config.legacyTestRunner) {
-      InstrumenterOptions.sysContext(ActiveMutationContext.sysProps)
+      InstrumenterOptions.SysProp
     } else {
-      InstrumenterOptions.testRunner
+      InstrumenterOptions.TestRunner
     }
 
 }
