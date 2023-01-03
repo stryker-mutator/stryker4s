@@ -6,12 +6,12 @@ import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.*
 import org.mockito.scalatest.MockitoSugar
-import stryker4s.config.Config
-import stryker4s.testutil.Stryker4sSuite
+import stryker4jvm.config.Config
+import stryker4s.testutil.Stryker4jvmSuite
 
 import java.io.File as JFile
 
-class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
+class Stryker4jvmMavenRunnerTest extends Stryker4jvmSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")

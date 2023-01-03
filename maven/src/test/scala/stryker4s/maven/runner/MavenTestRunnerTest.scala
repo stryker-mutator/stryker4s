@@ -8,19 +8,20 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
-import stryker4s.config.Config
-import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode, NoCoverageInitialTestRun}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4jvm.config.Config
+import stryker4jvm.model.NoCoverageInitialTestRun
+import stryker4jvm.core.model.*
+import stryker4jvm.extensions.Stryker4jvmCoreConversions.LocationExtension
+import stryker4s.testutil.{Stryker4jvmSuite, TestAST}
 
 import java.util as ju
 import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
-class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
+class MavenTestRunnerTest extends Stryker4jvmSuite with MockitoSugar {
   implicit val config: Config = Config.default
 
-  val tmpDir = Path("/home/user/tmpDir")
+  val tmpDir: Path = Path("/home/user/tmpDir")
   val coverageTestNames = Seq.empty[String]
   def properties = new ju.Properties()
   def goals = Seq("test")
@@ -142,8 +143,8 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
     }
   }
 
-  def createMutant =
-    MutantWithId(MutantId(1), MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation)))
+  def createMutant: MutantWithId[AST] =
+    new MutantWithId(1, new MutatedCode(new TestAST(q"<"), new MutantMetaData(">", "<", "TODO", createLocation)))
 
-  def createLocation = Location(Position(0, 0), Position(0, 0))
+  def createLocation: elements.Location = Location(Position(0, 0), Position(0, 0)).asCoreElement
 }

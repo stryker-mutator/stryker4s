@@ -67,8 +67,13 @@
         </dependency>
         <dependency>
             <groupId>io.stryker-mutator</groupId>
-            <artifactId>stryker4s-core_${scala.compat.version}</artifactId>
+            <artifactId>stryker4jvm_${scala.compat.version}</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.stryker-mutator</groupId>
+            <artifactId>stryker4jvm-core</artifactId>
+            <version>1.0</version>
         </dependency>
         <!-- Maven plugin -->
         <dependency>

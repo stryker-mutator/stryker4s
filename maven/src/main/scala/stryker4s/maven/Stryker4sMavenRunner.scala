@@ -6,20 +6,19 @@ import cats.syntax.either.*
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
-import stryker4s.config.Config
-import stryker4s.log.Logger
+import stryker4jvm.config.Config
+import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.model.InstrumenterOptions
+import stryker4jvm.model.CompilerErrMsg
+import stryker4jvm.run.Stryker4jvmRunner
 import stryker4s.maven.runner.MavenTestRunner
-import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.applymutants.ActiveMutationContext
-import stryker4s.mutants.tree.InstrumenterOptions
-import stryker4s.run.Stryker4sRunner
 
 import java.util.Properties
 
-class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4sRunner {
+class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4jvmRunner {
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
-    InstrumenterOptions.sysContext(ActiveMutationContext.envVar)
+    InstrumenterOptions.EnvVar
 
   override def resolveTestRunners(
       tmpDir: Path
