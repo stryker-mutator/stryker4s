@@ -1,6 +1,7 @@
 package stryker4jvm.mutator.scala
 
 import stryker4jvm.core.model.Instrumenter
+
 import java.util as ju
 import stryker4jvm.core.model.MutantWithId
 
@@ -12,6 +13,7 @@ import cats.syntax.all.*
 import stryker4jvm.mutator.scala.extensions.TreeExtensions.TransformOnceExtension
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.MutantWithId
+import stryker4jvm.core.model.InstrumenterOptions
 
 import scala.meta.*
 import scala.util.control.NonFatal
@@ -19,7 +21,7 @@ import scala.util.{Failure, Success}
 import fs2.io.file.Path
 import scala.util.control
 
-class ScalaInstrumenter extends Instrumenter[ScalaAST] {
+class ScalaInstrumenter(instrumenterOptions: InstrumenterOptions = null) extends Instrumenter[ScalaAST] {
   override def instrument(source: ScalaAST, mutations: ju.Map[ScalaAST, ju.List[MutantWithId[ScalaAST]]]): ScalaAST = {
 
     val muts = mutations.asScala

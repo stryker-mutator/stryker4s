@@ -8,12 +8,13 @@ import stryker4jvm.mutator.scala.TraverserImpl
 import scala.meta.{Term, Tree}
 
 import stryker4jvm.core.model.MutatedCode
+import stryker4jvm.core.config.LanguageMutatorConfig
 import scala.collection.mutable.Map
 
 import scala.collection.JavaConverters.*
 import java.util as ju
 
-class ScalaCollector extends Collector[ScalaAST] {
+class ScalaCollector(var mutatorConfig: LanguageMutatorConfig = null) extends Collector[ScalaAST] {
 
   override def collect(ast: ScalaAST): CollectedMutants[ScalaAST] = {
     val tree = ast.tree;
@@ -23,17 +24,27 @@ class ScalaCollector extends Collector[ScalaAST] {
     }
 
     val traverser = new TraverserImpl()
-    val matcher = new MutantMatcherImpl()
+    val matcher = new MutantMatcherImpl(config = mutatorConfig)
 
-    val map = Map[ScalaAST, ju.List[MutatedCode[ScalaAST]]]()
+    var ignoredMutations: Vector[IgnoredMutation[ScalaAST]] = Vector()
+    val mutations = Map[ScalaAST, ju.List[MutatedCode[ScalaAST]]]()
 
     def traverse(tree: Tree): Unit = {
       traverser.canPlace(tree) match {
         case Some(value) =>
-          println(s"\nValue: $value")
-          val mutants = matcher.allMatchers(value)
-          println(s"Mutants: $mutants")
-          map.addOne((new ScalaAST(term = value), mutants.asJava))
+          val res = matcher.allMatchers(value)
+
+          if (res != null) {
+            val (ignored, mutants) = res.partitionMap(identity)
+
+            if (ignored.length > 0) {
+              ignoredMutations = ignoredMutations ++ ignored
+            }
+
+            if (mutants.length > 0) {
+              mutations.addOne((new ScalaAST(term = value), mutants.asJava))
+            }
+          }
         case None => // Do nothing
       }
 
@@ -42,14 +53,7 @@ class ScalaCollector extends Collector[ScalaAST] {
 
     traverse(tree)
 
-    println()
-    println("Results:")
-    println(map)
-
-    // Doesn't work yet, TODO: make it work
-    val ignoredMutations: ju.List[IgnoredMutation[ScalaAST]] = Vector().asJava
-
-    new CollectedMutants[ScalaAST](ignoredMutations, map.asJava)
+    new CollectedMutants[ScalaAST](ignoredMutations.asJava, mutations.asJava)
   }
 
 }

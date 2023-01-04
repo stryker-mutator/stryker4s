@@ -1,19 +1,39 @@
 package stryker4jvm.mutants
 
-import stryker4jvm.core.model.LanguageMutator
-import stryker4jvm.core.model.AST
-import stryker4jvm.mutator.kotlin.KotlinMutator
+import stryker4jvm.core.config.LanguageMutatorConfig
+import stryker4jvm.core.model.{AST, InstrumenterOptions, LanguageMutator}
+import stryker4jvm.core.model.languagemutator.LanguageMutatorProvider
+import stryker4jvm.mutator.kotlin.KotlinMutatorProvider
+import stryker4jvm.mutator.scala.ScalaMutatorProvider
 
-case class SupportedMutator(directory: String, extension: String, languageMutator: LanguageMutator[? <: AST])
+case class SupportedProvider(
+    name: String,
+    directory: String,
+    extension: String,
+    languageProvider: LanguageMutatorProvider
+) {
+  def provideMutator(config: LanguageMutatorConfig, options: InstrumenterOptions): LanguageMutator[? <: AST] =
+    languageProvider.provideMutator(config, options).asInstanceOf[LanguageMutator[? <: AST]]
+}
 
 object SupportedLanguageMutators {
-  val supportedMutators: Array[SupportedMutator] = Array(
-    SupportedMutator("kotlin", "kt", new KotlinMutator())
+  val supportedProviders: Seq[SupportedProvider] = Seq(
+    SupportedProvider("kotlin", "kotlin", "kt", new KotlinMutatorProvider),
+    SupportedProvider("scala", "scala", "scala", new ScalaMutatorProvider)
   )
 
-  def languageRouter: Map[String, LanguageMutator[? <: AST]] =
-    supportedMutators.map(mutator => mutator.extension -> mutator.languageMutator).toMap
+  def supportedMutators(
+      configs: Map[String, LanguageMutatorConfig],
+      options: InstrumenterOptions
+  ): Map[String, LanguageMutator[? <: AST]] = {
+    val default = new LanguageMutatorConfig(new java.util.HashSet())
+    supportedProviders
+      .map(provider =>
+        provider.extension -> provider.provideMutator(configs.getOrElse(provider.name, default), options)
+      )
+      .toMap
+  }
 
   def mutatesFileSources: Seq[String] =
-    supportedMutators.map(mutator => s"**/main/${mutator.directory}/**.${mutator.extension}")
+    supportedProviders.map(mutator => s"**/main/${mutator.directory}/**.${mutator.extension}")
 }

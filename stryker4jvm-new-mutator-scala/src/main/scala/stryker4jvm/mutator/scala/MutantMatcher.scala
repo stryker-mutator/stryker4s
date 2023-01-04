@@ -12,23 +12,25 @@ import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
 import stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion.*
 
 import stryker4jvm.mutator.scala.extensions.TreeExtensions.{LocationExtension, PositionExtension}
+import stryker4jvm.core.config.LanguageMutatorConfig
 
 import MutantMatcher.MatcherResult
+import stryker4jvm.core.model.IgnoredMutationReason
 
 ////
 //// TODO: IGNORED MUTATIONS
 ////
 
 trait MutantMatcher {
-  def allMatchers: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]]
+  def allMatchers: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]]
 }
 
 object MutantMatcher {
   type MatcherResult = PartialFunction[Tree, Either[IgnoredMutation[Tree], MutatedCode[Term]]]
 }
 
-class MutantMatcherImpl extends MutantMatcher {
-  override def allMatchers: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] =
+class MutantMatcherImpl(var config: LanguageMutatorConfig = null) extends MutantMatcher {
+  override def allMatchers: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] =
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
       matchLogicalOperator orElse
@@ -38,17 +40,18 @@ class MutantMatcherImpl extends MutantMatcher {
       test
 
   // Test method (temporary)
-  def test: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = { case _ =>
+  // TODO: It does something, no clue why it gets here
+  def test: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = { case _ =>
     println("Found no mutations");
     null
   }
 
-  def matchBooleanLiteral: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchBooleanLiteral: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case True(orig)  => createMutations(orig)(False)
     case False(orig) => createMutations(orig)(True)
   }
 
-  def matchEqualityOperator: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchEqualityOperator: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case GreaterThanEqualTo(orig) => createMutations(orig)(GreaterThan, LesserThan, EqualTo)
     case GreaterThan(orig)        => createMutations(orig)(GreaterThanEqualTo, LesserThan, EqualTo)
     case LesserThanEqualTo(orig)  => createMutations(orig)(LesserThan, GreaterThanEqualTo, EqualTo)
@@ -59,18 +62,19 @@ class MutantMatcherImpl extends MutantMatcher {
     case TypedNotEqualTo(orig)    => createMutations(orig)(TypedEqualTo)
   }
 
-  def matchLogicalOperator: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchLogicalOperator: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case And(orig) => createMutations(orig)(Or)
     case Or(orig)  => createMutations(orig)(And)
   }
 
-  def matchConditionalExpression: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchConditionalExpression
+      : PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case If(orig)      => createMutations(orig)(ConditionalTrue, ConditionalFalse)
     case While(orig)   => createMutations(orig)(ConditionalFalse)
     case DoWhile(orig) => createMutations(orig)(ConditionalFalse)
   }
 
-  def matchMethodExpression: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchMethodExpression: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case Filter(orig, f)      => createMutations(orig, f, FilterNot)
     case FilterNot(orig, f)   => createMutations(orig, f, Filter)
     case Exists(orig, f)      => createMutations(orig, f, Forall)
@@ -93,15 +97,16 @@ class MutantMatcherImpl extends MutantMatcher {
 
   /** Match both strings and regexes instead of stopping when one of them gives a match
     */
-  def matchStringsAndRegex: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = matchStringLiteral combine matchRegex
+  def matchStringsAndRegex: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] =
+    matchStringLiteral combine matchRegex
 
-  def matchStringLiteral: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchStringLiteral: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case EmptyString(orig)         => createMutations(orig)(StrykerWasHereString)
     case NonEmptyString(orig)      => createMutations(orig)(EmptyString)
     case StringInterpolation(orig) => createMutations(orig)(EmptyString)
   }
 
-  def matchRegex: PartialFunction[Tree, Vector[MutatedCode[ScalaAST]]] = {
+  def matchRegex: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
     case RegexConstructor(orig)   => createMutations(orig, RegexMutations(orig))
     case RegexStringOps(orig)     => createMutations(orig, RegexMutations(orig))
     case PatternConstructor(orig) => createMutations(orig, RegexMutations(orig))
@@ -112,7 +117,7 @@ class MutantMatcherImpl extends MutantMatcher {
       original: Term,
       f: String => Term,
       mutated: MethodExpression
-  ): Vector[MutatedCode[ScalaAST]] = {
+  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
     val replacements = Vector(mutated)
     buildMutations[MethodExpression](original, replacements, _(f))
   }
@@ -122,7 +127,7 @@ class MutantMatcherImpl extends MutantMatcher {
       original: Term,
       mutated: Any
       //   mutated: Either[IgnoredMutation, NonEmptyVector[RegularExpression]]
-  ): Vector[MutatedCode[ScalaAST]] = {
+  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
     // placeableTree =>
     // mutated
     //   .leftMap(NonEmptyVector.one(_))
@@ -139,20 +144,17 @@ class MutantMatcherImpl extends MutantMatcher {
   )(
       firstReplacement: SubstitutionMutation[T],
       restReplacements: SubstitutionMutation[T]*
-  ): Vector[MutatedCode[ScalaAST]] = {
+  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
     val replacements = Vector(firstReplacement) ++ restReplacements.toVector
     buildMutations[SubstitutionMutation[T]](original, replacements, _.tree)
   }
 
-  // TODO: DO IGNORED MUTATIONS SOMEHOW
   private def buildMutations[T <: Mutation[? <: Tree]](
       original: Term,
       replacements: Vector[T],
       mutationToTerm: T => Term
-  ) = {
-    println(s"Building mutations for $original")
-
-    val mutations = replacements.map { replacement =>
+  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
+    replacements.map { replacement =>
       val location = replacement match {
         case r: RegularExpression => r.location
         case _                    => original.pos.toLocation
@@ -160,12 +162,20 @@ class MutantMatcherImpl extends MutantMatcher {
 
       val tree: Tree = mutationToTerm(replacement)
       val metadata = new MutantMetaData(original.syntax, tree.syntax, replacement.mutationName, location.asJvmCore)
+      val mutatedCode = new MutatedCode(new ScalaAST(term = original), metadata)
 
-      // Return mutated code
-      new MutatedCode(new ScalaAST(term = original), metadata)
+      if (config != null && config.getExcludedMutations().contains(replacement.mutationName)) {
+        Left(new IgnoredMutation(mutatedCode, new ScalaReason))
+      } else {
+        Right(mutatedCode)
+      }
     }
-
-    mutations
   }
+
+}
+
+class ScalaReason extends IgnoredMutationReason {
+
+  override def explanation(): String = "test"
 
 }
