@@ -3,9 +3,9 @@ package stryker4s.log
 import org.apache.maven.plugin.logging.Log
 import org.apache.maven.shared.utils.logging.MessageUtils
 import stryker4jvm.core.logging.LogLevel
-import stryker4jvm.logging.CoreLogWrapper
+import stryker4jvm.logging.FansiLogger
 
-class MavenMojoLogger(mavenLogger: Log) extends CoreLogWrapper(new MavenCoreLogger(mavenLogger)) {}
+class MavenMojoLogger(mavenLogger: Log) extends FansiLogger(new MavenCoreLogger(mavenLogger)) {}
 
 private class MavenCoreLogger(val mavenLogger: Log) extends stryker4jvm.core.logging.Logger {
   override def log(level: LogLevel, msg: String): Unit = doLog(level)(

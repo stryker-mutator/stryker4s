@@ -2,7 +2,7 @@ package stryker4jvm.logging
 import fansi.Str
 import stryker4jvm.core.logging.{LogLevel, Logger}
 
-class CoreLogWrapper(val logger: Logger) {
+class FansiLogger(val logger: Logger) {
 
   final def log(level: LogLevel, msg: => String): Unit = logger.log(level, msg)
   final def log(level: LogLevel, msg: => String, e: => Throwable): Unit = logger.log(level, msg, e)
