@@ -9,7 +9,12 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4jvm2_12/publishLocal; stryker4jvm/publishLocal; stryker4jvm-api2_12/publishLocal; stryker4jvm-plugin-sbt2_12/publishLocal; stryker4jvm-api/publishLocal; stryker4jvm-plugin-sbt-testrunner/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; " +
+        "stryker4jvm2_12/publishLocal; stryker4jvm/publishLocal; " +
+        "stryker4jvm-api2_12/publishLocal; stryker4jvm-api/publishLocal;" +
+        "stryker4jvm-new-mutator-scala2_12/publishLocal;" +
+        "stryker4jvm-plugin-sbt2_12/publishLocal; " +
+        "stryker4jvm-plugin-sbt-testrunner/publishLocal"
     ),
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
