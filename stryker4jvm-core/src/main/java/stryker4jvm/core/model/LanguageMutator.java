@@ -1,10 +1,12 @@
 package stryker4jvm.core.model;
 
-import java.io.IOException;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+
 import stryker4jvm.core.config.LanguageMutatorConfig;
+import stryker4jvm.core.exception.Stryker4jvmException;
 
 /**
  * Class that encapsulates the three components of a mutator for a specific (programming) language.
@@ -21,7 +23,7 @@ public class LanguageMutator<T extends AST> {
         this.instrumenter = instrumenter;
     }
 
-    public T parse(Path p) throws IOException {
+    public T parse(Path p) throws Stryker4jvmException {
         return parser.parse(p);
     }
 
