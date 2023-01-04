@@ -1,26 +1,26 @@
-package stryker4s.sbt
+package stryker4jvm.plugin.sbt
 
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.either.*
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
 import sbt.internal.LogManager
 import stryker4jvm.config.{Config, TestFilter}
-import stryker4jvm.extensions.FileExtensions.*
-import stryker4jvm.exception.TestSetupException
-import stryker4s.files.{SbtFilesResolver, SbtMutatesResolver}
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.InstrumenterOptions
+import stryker4jvm.exception.TestSetupException
+import stryker4jvm.extensions.FileExtensions.*
 import stryker4jvm.files.{FilesFileResolver, MutatesFileResolver}
 import stryker4jvm.model.CompilerErrMsg
+import stryker4jvm.plugin.sbt.Stryker4jvmMain.autoImport.stryker
+import stryker4jvm.plugin.sbt.files.{SbtFilesResolver, SbtMutatesResolver}
+import stryker4jvm.plugin.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 import stryker4jvm.run.{Stryker4jvmRunner, TestRunner}
-import stryker4s.sbt.Stryker4sMain.autoImport.stryker
-import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
-import java.io.{File as JFile, PrintStream}
+import java.io.{PrintStream, File as JFile}
 import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
@@ -28,7 +28,7 @@ import scala.concurrent.duration.FiniteDuration
   * @param state
   *   SBT project state (contains all the settings about the project)
   */
-class Stryker4sSbtRunner(
+class Stryker4jvmSbtRunner(
     state: State,
     sharedTimeout: Deferred[IO, FiniteDuration],
     sources: Seq[Path],

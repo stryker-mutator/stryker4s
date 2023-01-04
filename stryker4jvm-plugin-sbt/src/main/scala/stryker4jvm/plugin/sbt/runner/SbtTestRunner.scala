@@ -1,4 +1,4 @@
-package stryker4s.sbt.runner
+package stryker4jvm.plugin.sbt.runner
 
 import cats.effect.{Deferred, IO, Resource}
 import com.comcast.ip4s.Port

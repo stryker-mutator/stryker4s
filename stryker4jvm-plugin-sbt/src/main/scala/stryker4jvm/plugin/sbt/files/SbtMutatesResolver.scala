@@ -1,4 +1,4 @@
-package stryker4s.files
+package stryker4jvm.plugin.sbt.files
 
 import cats.effect.IO
 import fs2.Stream

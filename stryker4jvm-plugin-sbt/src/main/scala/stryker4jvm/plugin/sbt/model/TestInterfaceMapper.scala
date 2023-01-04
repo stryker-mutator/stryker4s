@@ -1,4 +1,4 @@
-package stryker4s.model
+package stryker4jvm.plugin.sbt.model
 
 import cats.syntax.option.*
 import sbt.testing.Framework as SbtFramework

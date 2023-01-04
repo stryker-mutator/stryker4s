@@ -1,10 +1,10 @@
-package stryker4s.sbt.runner
+package stryker4jvm.plugin.sbt.runner
 
 import cats.effect.IO
 import mutationtesting.{MutantResult, MutantStatus}
+import sbt.*
 import sbt.Keys.*
 import sbt.Tests.Output
-import sbt.*
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.exception.InitialTestRunFailedException

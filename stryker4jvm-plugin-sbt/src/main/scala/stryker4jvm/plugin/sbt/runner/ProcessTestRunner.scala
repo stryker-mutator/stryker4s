@@ -1,4 +1,4 @@
-package stryker4s.sbt.runner
+package stryker4jvm.plugin.sbt.runner
 
 import cats.effect.{IO, Resource}
 import cats.syntax.apply.*
@@ -9,7 +9,7 @@ import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.api.testprocess.*
-import stryker4s.model.*
+import stryker4jvm.model.*
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.run.TestRunner
@@ -18,6 +18,8 @@ import stryker4jvm.extensions.DurationExtensions.*
 import stryker4jvm.config.Config
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.model.{InitialTestRunCoverageReport, InitialTestRunResult}
+import stryker4jvm.plugin.sbt.model.TestInterfaceMapper
+import stryker4jvm.plugin.sbt.runner.{SocketTestRunnerConnection, TestRunnerConnection}
 
 import java.net.ConnectException
 import java.util.concurrent.TimeUnit
