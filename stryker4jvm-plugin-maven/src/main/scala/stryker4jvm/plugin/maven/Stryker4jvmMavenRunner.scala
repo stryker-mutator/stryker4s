@@ -1,4 +1,4 @@
-package stryker4s.maven
+package stryker4jvm.plugin.maven
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
@@ -10,12 +10,12 @@ import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.model.CompilerErrMsg
+import stryker4jvm.plugin.maven.runner.MavenTestRunner
 import stryker4jvm.run.Stryker4jvmRunner
-import stryker4s.maven.runner.MavenTestRunner
 
 import java.util.Properties
 
-class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4jvmRunner {
+class Stryker4jvmMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4jvmRunner {
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
     InstrumenterOptions.EnvVar

@@ -1,18 +1,17 @@
-package stryker4s.maven.runner
+package stryker4jvm.plugin.maven.runner
 
 import cats.effect.IO
+import mutationtesting.{MutantResult, MutantStatus}
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequest, Invoker}
+import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.*
+import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
+import stryker4jvm.model.*
 import stryker4jvm.run.TestRunner
 
 import java.util.Properties
 import scala.jdk.CollectionConverters.*
-import mutationtesting.MutantResult
-import mutationtesting.MutantStatus
-import stryker4jvm.core.logging.Logger
-import stryker4jvm.model.*
-import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 
 class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: Properties, val goals: Seq[String])(
     implicit log: Logger

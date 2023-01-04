@@ -7,6 +7,7 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.*
 import org.mockito.scalatest.MockitoSugar
 import stryker4jvm.config.Config
+import stryker4jvm.plugin.maven.Stryker4jvmMavenRunner
 import stryker4s.testutil.Stryker4jvmSuite
 
 import java.io.File as JFile
@@ -20,7 +21,7 @@ class Stryker4jvmMavenRunnerTest extends Stryker4jvmSuite with MockitoSugar {
     it("should set the working directory") {
       val invokerMock = mock[Invoker]
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
-      val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
+      val sut = new Stryker4jvmMavenRunner(new MavenProject(), invokerMock)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -40,7 +41,7 @@ class Stryker4jvmMavenRunnerTest extends Stryker4jvmSuite with MockitoSugar {
       implicit val config: Config = Config.default.copy(testFilter = expectedTestFilter)
       val invokerMock = mock[Invoker]
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
-      val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
+      val sut = new Stryker4jvmMavenRunner(new MavenProject(), invokerMock)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -62,7 +63,7 @@ class Stryker4jvmMavenRunnerTest extends Stryker4jvmSuite with MockitoSugar {
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
       val mavenProject = new MavenProject()
       mavenProject.getProperties().setProperty("test", "*OtherTest")
-      val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
+      val sut = new Stryker4jvmMavenRunner(mavenProject, invokerMock)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -80,7 +81,7 @@ class Stryker4jvmMavenRunnerTest extends Stryker4jvmSuite with MockitoSugar {
       when(invokerMock.setWorkingDirectory(any[JFile])).thenReturn(null)
       val mavenProject = new MavenProject()
       mavenProject.getProperties().setProperty("wildcardSuites", "*OtherTest")
-      val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
+      val sut = new Stryker4jvmMavenRunner(mavenProject, invokerMock)
 
       sut
         .resolveTestRunners(tmpDir)

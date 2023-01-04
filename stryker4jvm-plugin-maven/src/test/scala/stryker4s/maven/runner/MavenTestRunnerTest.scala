@@ -12,6 +12,7 @@ import stryker4jvm.config.Config
 import stryker4jvm.model.NoCoverageInitialTestRun
 import stryker4jvm.core.model.*
 import stryker4jvm.extensions.Stryker4jvmCoreConversions.LocationExtension
+import stryker4jvm.plugin.maven.runner.MavenTestRunner
 import stryker4s.testutil.{Stryker4jvmSuite, TestAST}
 
 import java.util as ju

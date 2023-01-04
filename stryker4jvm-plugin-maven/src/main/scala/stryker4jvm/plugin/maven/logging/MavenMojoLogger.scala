@@ -1,4 +1,4 @@
-package stryker4s.log
+package stryker4jvm.plugin.maven.logging
 
 import org.apache.maven.plugin.logging.Log
 import org.apache.maven.shared.utils.logging.MessageUtils
