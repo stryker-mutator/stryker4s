@@ -5,9 +5,9 @@ import org.apache.maven.shared.utils.logging.MessageUtils
 import stryker4jvm.core.logging.LogLevel
 import stryker4jvm.logging.FansiLogger
 
-class MavenMojoLogger(mavenLogger: Log) extends FansiLogger(new MavenCoreLogger(mavenLogger)) {}
+class FansiMavenMojoLogger(mavenLogger: Log) extends FansiLogger(new MavenMojoLogger(mavenLogger)) {}
 
-private class MavenCoreLogger(val mavenLogger: Log) extends stryker4jvm.core.logging.Logger {
+private class MavenMojoLogger(val mavenLogger: Log) extends stryker4jvm.core.logging.Logger {
   override def log(level: LogLevel, msg: String): Unit = doLog(level)(
     mavenLogger.debug(msg),
     mavenLogger.info(msg),

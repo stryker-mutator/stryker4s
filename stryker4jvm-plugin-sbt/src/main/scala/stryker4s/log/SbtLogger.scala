@@ -2,6 +2,9 @@ package stryker4s.log
 
 import sbt.{Level as SbtLevel, Logger as SbtInternalLogger}
 import stryker4jvm.core.logging.{LogLevel, Logger}
+import stryker4jvm.logging.FansiLogger
+
+class FansiSbtLogger(sbtLogger: SbtInternalLogger) extends FansiLogger(new SbtLogger(sbtLogger)) {}
 
 class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
 

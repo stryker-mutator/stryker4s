@@ -7,7 +7,7 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.DefaultInvoker
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.run.threshold.ErrorStatus
-import stryker4s.log.MavenMojoLogger
+import stryker4s.log.FansiMavenMojoLogger
 
 import javax.inject.Inject
 
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class Stryker4sMain @Inject() (@Parameter(defaultValue = "${project}") project: MavenProject) extends AbstractMojo {
   override def execute(): Unit = {
     implicit val runtime: IORuntime = IORuntime.global
-    implicit val logger: Logger = new MavenMojoLogger(getLog).logger
+    implicit val logger: Logger = new FansiMavenMojoLogger(getLog).logger
     new Stryker4sMavenRunner(project, new DefaultInvoker())
       .run()
       .map {
