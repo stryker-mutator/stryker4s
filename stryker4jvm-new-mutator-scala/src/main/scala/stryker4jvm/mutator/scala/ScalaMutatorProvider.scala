@@ -8,5 +8,17 @@ class ScalaMutatorProvider extends LanguageMutatorProvider {
   override def provideMutator(
       languageMutatorConfig: LanguageMutatorConfig,
       instrumenterOptions: InstrumenterOptions
-  ): LanguageMutator[ScalaAST] = ???
+  ): LanguageMutator[ScalaAST] = {
+    new ScalaMutator(
+      new ScalaParser(),
+      new ScalaCollector(mutatorConfig = languageMutatorConfig),
+      new ScalaInstrumenter(instrumenterOptions = instrumenterOptions)
+    )
+  }
 }
+
+// return KotlinMutator(
+//         KotlinParser(),
+//         KotlinCollector.apply(config),
+//         KotlinInstrumenter(options)
+// );
