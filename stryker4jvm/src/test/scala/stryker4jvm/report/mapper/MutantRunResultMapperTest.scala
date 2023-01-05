@@ -4,7 +4,14 @@ import fs2.io.file.Path
 import mutationtesting.*
 import org.scalatest.Inside
 import stryker4jvm.config.Config
-import stryker4jvm.mutator.scala.extensions.mutationtype.{EmptyString, EqualTo, GreaterThan, LesserThan, NotEqualTo, SubstitutionMutation}
+import stryker4jvm.mutator.scala.extensions.mutationtype.{
+  EmptyString,
+  EqualTo,
+  GreaterThan,
+  LesserThan,
+  NotEqualTo,
+  SubstitutionMutation
+}
 import stryker4jvm.reporting.mapper.MutantRunResultMapper
 import stryker4jvm.scalatest.FileUtil
 import stryker4jvm.testutil.Stryker4jvmSuite

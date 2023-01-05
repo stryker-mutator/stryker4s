@@ -135,7 +135,9 @@ class ConsoleReporterTest extends Stryker4jvmIOSuite with LogMatchers {
         )
       )
       sut
-        .onRunFinished(FinishedRunEvent(results, Metrics.calculateMetrics(results), 15.seconds, config.baseDir.toNioPath))
+        .onRunFinished(
+          FinishedRunEvent(results, Metrics.calculateMetrics(results), 15.seconds, config.baseDir.toNioPath)
+        )
         .asserting { _ =>
           s"Total mutants: ${Cyan("3")}, detected: ${Green("0")}, undetected: ${Red("3")}" shouldBe loggedAsInfo
           s"""Undetected mutants:
