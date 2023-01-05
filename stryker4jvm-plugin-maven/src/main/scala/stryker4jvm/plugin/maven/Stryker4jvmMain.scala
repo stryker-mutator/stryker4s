@@ -14,7 +14,7 @@ import javax.inject.Inject
 /** The main goal for this plugin. Starts Stryker4s.
   */
 @Mojo(name = "run")
-class Stryker4jvmMain @Inject()(@Parameter(defaultValue = "${project}") project: MavenProject) extends AbstractMojo {
+class Stryker4jvmMain @Inject() (@Parameter(defaultValue = "${project}") project: MavenProject) extends AbstractMojo {
   override def execute(): Unit = {
     implicit val runtime: IORuntime = IORuntime.global
     implicit val logger: Logger = new FansiMavenMojoLogger(getLog).logger

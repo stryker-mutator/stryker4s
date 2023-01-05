@@ -1,4 +1,4 @@
-package stryker4s.sbt.testrunner
+package stryker4jvm.plugin.sbt.testrunner
 
 import stryker4s.api.testprocess.TestProcessProperties
 

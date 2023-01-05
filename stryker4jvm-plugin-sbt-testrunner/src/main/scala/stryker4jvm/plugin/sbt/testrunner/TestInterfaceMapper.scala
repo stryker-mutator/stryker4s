@@ -1,6 +1,7 @@
-package stryker4s.sbt.testrunner
+package stryker4jvm.plugin.sbt.testrunner
 
 import sbt.testing.{Status, TaskDef}
+import stryker4jvm.plugin.sbt.testrunner.model.{AnnotatedFingerprintImpl, SubclassFingerprintImpl}
 import stryker4s.api.testprocess.*
 
 /** Maps stryker4s-api test-interface models to sbt-testinterface models
@@ -33,9 +34,9 @@ trait TestInterfaceMapper {
 
   def toSbtFingerprint(f: Fingerprint): sbt.testing.Fingerprint =
     f match {
-      case AnnotatedFingerprint(fIsModule, annotation) => interface.AnnotatedFingerprintImpl(fIsModule, annotation)
+      case AnnotatedFingerprint(fIsModule, annotation) => AnnotatedFingerprintImpl(fIsModule, annotation)
       case SubclassFingerprint(fIsModule, superclass, noArgs) =>
-        interface.SubclassFingerprintImpl(fIsModule, superclass, noArgs)
+        SubclassFingerprintImpl(fIsModule, superclass, noArgs)
       case Fingerprint.Empty => throw new MatchError(f)
     }
 

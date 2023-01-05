@@ -20,7 +20,7 @@ import stryker4jvm.plugin.sbt.files.{SbtFilesResolver, SbtMutatesResolver}
 import stryker4jvm.plugin.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 import stryker4jvm.run.{Stryker4jvmRunner, TestRunner}
 
-import java.io.{PrintStream, File as JFile}
+import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session

@@ -1,4 +1,4 @@
-package stryker4s.sbt.testrunner
+package stryker4jvm.plugin.sbt.testrunner
 
 import com.google.protobuf.CodedInputStream
 import stryker4s.api.testprocess.RequestMessage

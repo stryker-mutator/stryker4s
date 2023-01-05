@@ -1,4 +1,6 @@
-package stryker4s.sbt.testrunner
+package stryker4jvm.plugin.sbt.testrunner
+
+import sbt.testing.*
 
 import sbt.testing.{Event, EventHandler, Framework, Status, Task}
 import stryker4s.api.testprocess.*
@@ -13,7 +15,7 @@ sealed trait TestRunner {
   def initialTestRun(): TestRunResult
 }
 
-private[stryker4s] case class TestRunResult(status: Status, testsCompleted: Int)
+private[stryker4jvm] case class TestRunResult(status: Status, testsCompleted: Int)
 
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
@@ -36,7 +38,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
       val testsCompleted = new AtomicInteger(0)
       val statusRef = new AtomicReference[Status](Status.Success)
       val eventHandler = new StatusEventHandler(statusRef, testsCompleted)
-      mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId }
+      mutation.foreach { case (mutantId, _) => stryker4jvm.activeMutation = mutantId }
       val status = runTests(tasksToRun, statusRef, eventHandler)
 
       TestRunResult(status, testsCompleted.get())
@@ -64,7 +66,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
         case Status.Failure => Array.empty[Task]
         case Status.Error   => Array.empty[Task]
         case _ =>
-          stryker4s.coverage.setActiveTest(task.taskDef().fullyQualifiedName())
+          stryker4jvm.coverage.setActiveTest(task.taskDef().fullyQualifiedName())
           task.execute(eventHandler, Array.empty)
       }
     )

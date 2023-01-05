@@ -1,4 +1,4 @@
-package stryker4s.sbt.testrunner.interface
+package stryker4jvm.plugin.sbt.testrunner.model
 
 final case class AnnotatedFingerprintImpl(isModule: Boolean, annotationName: String)
     extends sbt.testing.AnnotatedFingerprint

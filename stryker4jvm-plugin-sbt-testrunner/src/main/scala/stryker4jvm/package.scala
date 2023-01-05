@@ -1,12 +1,12 @@
+import stryker4jvm.plugin.sbt.testrunner.TestInterfaceMapper
 import stryker4s.api.testprocess.CoverageTestNameMap
-import stryker4s.sbt.testrunner.TestInterfaceMapper
 
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
 import java.util.concurrent.{ConcurrentLinkedQueue, TimeUnit}
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.duration.FiniteDuration
 
-package object stryker4s {
+package object stryker4jvm {
 
   /** object to collect coverage analysis on the mutated code
     */
@@ -42,12 +42,12 @@ package object stryker4s {
       *
       * This is to map the covered mutants with the test that was running at that time
       */
-    protected[stryker4s] def setActiveTest(testName: String) =
+    protected[stryker4jvm] def setActiveTest(testName: String) =
       if (collectCoverage.get()) activeTest.set(testName)
 
     /** Collect coverage analysis during the provided function and return it in a tuple
       */
-    protected[stryker4s] def collectCoverage[A](f: => A): (A, CoverageTestNameMap) = try {
+    protected[stryker4jvm] def collectCoverage[A](f: => A): (A, CoverageTestNameMap) = try {
       collectCoverage.set(true)
 
       val result = f
@@ -60,7 +60,7 @@ package object stryker4s {
 
     /** Time a given function and return the result and the duration of that function as a tuple
       */
-    protected[stryker4s] def timed[A](f: => A): (FiniteDuration, A) = {
+    protected[stryker4jvm] def timed[A](f: => A): (FiniteDuration, A) = {
       val start = System.nanoTime()
       val result = f
       val duration = FiniteDuration(System.nanoTime() - start, TimeUnit.NANOSECONDS)
@@ -80,6 +80,6 @@ package object stryker4s {
 
   def activeMutation: Int = activeMutationRef.get()
 
-  protected[stryker4s] def activeMutation_=(mutation: Int): Unit = activeMutationRef.set(mutation)
+  protected[stryker4jvm] def activeMutation_=(mutation: Int): Unit = activeMutationRef.set(mutation)
 
 }
