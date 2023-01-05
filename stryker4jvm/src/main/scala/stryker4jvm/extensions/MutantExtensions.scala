@@ -5,7 +5,7 @@ import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.extensions.Stryker4jvmCoreConversions.CoreLocationExtension
 
 object MutantExtensions {
-  implicit final class ToMutantResultExtension(val mutantWithId: MutantWithId[AST]) {
+  implicit final class ToMutantResultExtension(val mutantWithId: MutantWithId[?]) {
     def toMutantResult(
         status: MutantStatus,
         testsCompleted: Option[Int] = None,
