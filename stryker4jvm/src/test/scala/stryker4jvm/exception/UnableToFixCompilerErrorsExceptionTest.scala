@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.testutil.Stryker4jvmSuite
 
-class UnableToFixCompilerErrorsExceptionTest extends Stryker4jvmSuite{
+class UnableToFixCompilerErrorsExceptionTest extends Stryker4jvmSuite {
   describe("UnableToFixCompilerErrorsException") {
     it("should have a nicely formatted message") {
       val errs = NonEmptyList.of(

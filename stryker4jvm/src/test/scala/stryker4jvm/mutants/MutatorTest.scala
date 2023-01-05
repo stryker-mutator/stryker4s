@@ -15,6 +15,7 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
     val sut = new Mutator(
       SupportedLanguageMutators.languageRouter
     )
+    // TODO MutatorTest tests
 
     it("should return a single AST with changed pattern match") {
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
@@ -132,7 +133,6 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
       }
     }
   }
-
 
 }
 

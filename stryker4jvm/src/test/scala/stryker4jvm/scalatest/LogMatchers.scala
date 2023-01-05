@@ -5,7 +5,7 @@ import fansi.Color.*
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import stryker4jvm.core.logging.LogLevel
-import stryker4jvm.core.logging.LogLevel.{Debug, Info, Warn, Error}
+import stryker4jvm.core.logging.LogLevel.{Debug, Error, Info, Warn}
 import stryker4jvm.testutil.TestLogger
 
 trait LogMatchers extends BeforeAndAfterEach {
