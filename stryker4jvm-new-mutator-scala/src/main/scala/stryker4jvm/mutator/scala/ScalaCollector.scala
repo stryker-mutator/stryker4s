@@ -35,14 +35,28 @@ class ScalaCollector(var mutatorConfig: LanguageMutatorConfig = null) extends Co
           val res = matcher.allMatchers(value)
 
           if (res != null) {
-            val (ignored, mutants) = res.partitionMap(identity)
+
+            val ignored: Vector[IgnoredMutation[ScalaAST]] = Vector();
+            val mutants: Vector[MutatedCode[ScalaAST]] = Vector();
+
+            // val (ignored, mutants) = res.partitionMap(identity(_))
+            // Doesn't exist in Scala 2.12 :(, so we get this ugly piece of code
+            for (r <- res) {
+              if (r.isLeft) {
+                ignored :+ r.left.get;
+              };
+
+              if (r.isRight) {
+                mutants :+ r.right.get;
+              }
+            }
 
             if (ignored.length > 0) {
               ignoredMutations = ignoredMutations ++ ignored
             }
 
             if (mutants.length > 0) {
-              mutations.addOne((new ScalaAST(term = value), mutants.asJava))
+              mutations + (new ScalaAST(term = value) -> mutants.asJava)
             }
           }
         case None => // Do nothing
