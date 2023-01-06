@@ -60,7 +60,6 @@ class TestRunnerTest extends Stryker4jvmIOSuite with LogMatchers with TestData {
 //      }
 //    }
 
-
 //    describe("runMutant") {
 //      it("should timeout slow mutant runs") {
 //        val mutant = createMutant
