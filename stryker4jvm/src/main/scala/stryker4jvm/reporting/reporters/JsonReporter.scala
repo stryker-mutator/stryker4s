@@ -4,11 +4,11 @@ import cats.effect.IO
 import fs2.io.file.Path
 import mutationtesting.MutationTestResult
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.files.FileIO
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
-class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends IOReporter[Config] {
+class JsonReporter(fileIO: FileIO)(implicit log: FansiLogger) extends IOReporter[Config] {
 
   def writeReportJsonTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax.*

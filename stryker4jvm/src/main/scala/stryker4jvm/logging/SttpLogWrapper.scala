@@ -1,12 +1,12 @@
 package stryker4jvm.logging
 
 import cats.effect.IO
-import stryker4jvm.core.logging.{LogLevel, Logger}
+import stryker4jvm.core.logging.LogLevel
 import sttp.client3.logging as sttp
 
-/** Wraps a [[stryker4jvm.core.logging.Logger]] to a sttp Logger
+/** Wraps a [[FansiLogger]] into an sttp Logger
   */
-class SttpLogWrapper(implicit log: Logger) extends sttp.Logger[IO] {
+class SttpLogWrapper(implicit log: FansiLogger) extends sttp.Logger[IO] {
 
   override def apply(level: sttp.LogLevel, message: => String): IO[Unit] = IO.delay(log.log(toLevel(level), message))
 

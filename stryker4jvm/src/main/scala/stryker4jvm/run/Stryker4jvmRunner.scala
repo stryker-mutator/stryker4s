@@ -5,11 +5,10 @@ import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import stryker4jvm.Stryker4jvm
 import stryker4jvm.config.{Config, ConfigReader, Console, Dashboard, Html, Json}
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 import stryker4jvm.files.{ConfigFilesResolver, DiskFileIO, FilesFileResolver, GlobFileResolver, MutatesFileResolver}
-import stryker4jvm.logging.SttpLogWrapper
+import stryker4jvm.logging.{FansiLogger, SttpLogWrapper}
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.mutants.{Mutator, SupportedLanguageMutators}
 import stryker4jvm.reporting.*
@@ -22,7 +21,7 @@ import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 import sttp.client3.logging.LoggingBackend
 import sttp.model.HeaderNames
 
-abstract class Stryker4jvmRunner(implicit log: Logger) {
+abstract class Stryker4jvmRunner(implicit log: FansiLogger) {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
     // no definition for kotlin configs yet! todo

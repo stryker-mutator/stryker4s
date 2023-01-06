@@ -8,7 +8,7 @@ import fansi.{Bold, Str}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
 import stryker4jvm.config.{Config, Full, MutationScoreOnly}
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 import stryker4jvm.reporting.dashboard.DashboardConfigProvider
 import stryker4jvm.reporting.model.*
@@ -17,7 +17,7 @@ import sttp.client3.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
-    log: Logger,
+    log: FansiLogger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
 ) extends IOReporter[Config] {
 
