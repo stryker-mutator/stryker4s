@@ -6,14 +6,14 @@ import com.google.protobuf.UInt32Value
 import fs2.Chunk
 import fs2.io.net.Socket
 import scodec.bits.BitVector
+import stryker4jvm.logging.FansiLogger
 import stryker4s.api.testprocess.{Request, RequestMessage, Response, ResponseMessage}
-import stryker4jvm.core.logging.Logger
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
 }
 
-final class SocketTestRunnerConnection(socket: Socket[IO])(implicit log: Logger) extends TestRunnerConnection {
+final class SocketTestRunnerConnection(socket: Socket[IO])(implicit log: FansiLogger) extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] =
     IO(log.debug(s"Sending message $request")) *>

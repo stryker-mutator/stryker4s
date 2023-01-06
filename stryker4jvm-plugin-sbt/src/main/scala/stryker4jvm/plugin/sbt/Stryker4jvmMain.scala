@@ -5,11 +5,11 @@ import cats.effect.{Deferred, IO}
 import sbt.Keys.*
 import sbt.*
 import sbt.plugins.*
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.run.threshold.ErrorStatus
 
 import scala.concurrent.duration.FiniteDuration
 import fs2.io.file
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.plugin.sbt.logging.FansiSbtLogger
 
 /** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
@@ -44,7 +44,7 @@ object Stryker4jvmMain extends AutoPlugin {
     val _ = (stryker / logLevel).value
 
     implicit val runtime: IORuntime = IORuntime.global
-    implicit val logger: Logger = new FansiSbtLogger(streams.value.log).logger
+    implicit val logger: FansiLogger = new FansiSbtLogger(streams.value.log)
 
     val sources =
       Seq((Compile / scalaSource).value, (Compile / javaSource).value).map(_.toPath()).map(file.Path.fromNioPath)

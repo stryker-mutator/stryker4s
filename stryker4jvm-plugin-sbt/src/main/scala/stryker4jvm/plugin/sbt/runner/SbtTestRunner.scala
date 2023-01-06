@@ -5,7 +5,7 @@ import com.comcast.ip4s.Port
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.run.TestRunner
 
 import scala.concurrent.duration.FiniteDuration
@@ -20,7 +20,7 @@ object SbtTestRunner {
       timeout: Deferred[IO, FiniteDuration]
   )(implicit
       config: Config,
-      log: Logger
+      log: FansiLogger
   ): Resource[IO, TestRunner] = {
     // Timeout will be set by timeoutRunner after initialTestRun
     val innerTestRunner = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups, port)
