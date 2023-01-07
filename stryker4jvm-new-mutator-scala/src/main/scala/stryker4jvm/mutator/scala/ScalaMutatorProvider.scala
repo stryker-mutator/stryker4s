@@ -12,7 +12,7 @@ class ScalaMutatorProvider extends LanguageMutatorProvider {
     new ScalaMutator(
       new ScalaParser(),
       new ScalaCollector(mutatorConfig = languageMutatorConfig),
-      new ScalaInstrumenter(instrumenterOptions = instrumenterOptions)
+      new ScalaInstrumenter(options = ScalaInstrumenterOptions.sysContext(ActiveMutationContext.envVar))
     )
   }
 }

@@ -21,7 +21,7 @@ import scala.util.{Failure, Success}
 import fs2.io.file.Path
 import scala.util.control
 
-class ScalaInstrumenter(instrumenterOptions: InstrumenterOptions = null) extends Instrumenter[ScalaAST] {
+class ScalaInstrumenter(options: ScalaInstrumenterOptions = null) extends Instrumenter[ScalaAST] {
   override def instrument(source: ScalaAST, mutations: ju.Map[ScalaAST, ju.List[MutantWithId[ScalaAST]]]): ScalaAST = {
 
     val muts = mutations.asScala
@@ -41,7 +41,18 @@ class ScalaInstrumenter(instrumenterOptions: InstrumenterOptions = null) extends
             val mut: Vector[MutantWithId[ScalaAST]] = mutGet.asScala.toVector
 
             val mutableCases = mut.map(mutantToCase)
-            val default = defaultCase(p, NonEmptyList.one(0))
+            // mutations.map(_.id).toNonEmptyList
+            // mut.map(_.id).
+
+            val maybeNonemptyList = NonEmptyList.fromList(mut.map(_.id).toList);
+
+            var nonEmptylist: NonEmptyList[Int] = NonEmptyList.one(0);
+            maybeNonemptyList match {
+              case Some(value) => nonEmptylist = value
+              case None        => //
+            };
+
+            val default = defaultCase(p, nonEmptylist)
 
             val cases = mutableCases :+ default
 
@@ -59,10 +70,6 @@ class ScalaInstrumenter(instrumenterOptions: InstrumenterOptions = null) extends
       case Failure(e)    => throw e
     }
 
-    println(s"Original:\n${source.source}\n")
-
-    println(s"New:\n$newTree\n")
-
     new ScalaAST(tree = newTree)
   }
 
@@ -75,20 +82,15 @@ class ScalaInstrumenter(instrumenterOptions: InstrumenterOptions = null) extends
   def mutantToCase(mutant: MutantWithId[ScalaAST]): Case = {
     val newTree = mutant.mutatedCode.mutatedStatement.term
 
-    // buildCase(newTree, options.pattern(mutant.id))
-    buildCase(newTree, p"0") // TODO: Do mutant IDs correctly, instead of having 0 for everything
+    buildCase(newTree, options.pattern(mutant.id))
   }
 
   def defaultCase(scalaAST: ScalaAST, mutantIds: NonEmptyList[Int]): Case =
-    // p"case _ if ${options.condition.mapApply(mutantIds)} => ${placeableTree.tree.asInstanceOf[Term]}"
-    // TODO
-    p"case _ if test => ${scalaAST.tree.asInstanceOf[Term]}"
+    p"case _ if ${options.condition.mapApply(mutantIds)} => ${scalaAST.tree.asInstanceOf[Term]}"
 
   def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 
   def buildMatch(cases: NonEmptyVector[Case]): Term.Match =
-    // q"(${options.mutationContext} match { ..case ${cases.toList} })"
-    // TODO
-    q"(test match { ..case ${cases.toList} })"
+    q"(${options.mutationContext} match { ..case ${cases.toList} })"
 
 }

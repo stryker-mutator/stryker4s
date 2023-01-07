@@ -36,19 +36,86 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
           toMutations(originalStatement, GreaterThan, q"x > 15", q"x <= 15")
       ).asJava
 
-      val sut = new ScalaInstrumenter()
+      val sut = new ScalaInstrumenter(ScalaInstrumenterOptions.testRunner)
 
       //   // Act
       val mutatedSource = sut.instrument(src, mutants).tree
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
-      println(result.expr)
-      // assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
-
-      println(originalStatement)
-
+      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
+      result.cases.map(_.syntax) should (
+        contain
+          .inOrderOnly(
+            p"case 0 => x > 15".syntax,
+            p"case 1 => x <= 15".syntax,
+            p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15".syntax
+          )
+      )
+      val expected = source"""class Foo {
+                   def foo = _root_.stryker4s.activeMutation match {
+                     case 0 =>
+                       x > 15
+                     case 1 =>
+                       x <= 15
+                     case _ if _root_.stryker4s.coverage.coverMutant(0, 1) =>
+                       x >= 15
+                   }
+                 }"""
+      assert(mutatedSource.isEqual(expected), mutatedSource)
     }
+
+    it("should place mutants on the correct statement even if the name appears twice") {
+      val source = source"""class Foo {
+        def foo = {
+          val bar = true
+          if (bar) 1 else 2
+        }
+      }"""
+      val bars = source.collect { case f @ Term.Name("bar") => f }
+      // bars should have length 2
+      val originalStatement = bars.last
+
+      // val context = SourceContext(source, path)
+      val context = new ScalaAST(source = source)
+      val mutants = Map(
+        new ScalaAST(tree = originalStatement) -> toMutations(originalStatement, ConditionalTrue, q"true", q"false")
+      ).asJava
+      val sut = new ScalaInstrumenter(ScalaInstrumenterOptions.testRunner)
+
+      //   // Act
+      val mutatedSource = sut.instrument(context, mutants).tree
+      val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
+
+      //   // Assert
+      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
+      result.cases.map(_.syntax) should (
+        contain
+          .inOrderOnly(
+            p"case 0 => true".syntax,
+            p"case 1 => false".syntax,
+            p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar".syntax
+          )
+      )
+      val expected = source"""class Foo {
+          def foo = {
+            val bar = true
+            if (
+              _root_.stryker4s.activeMutation match {
+                case 0 =>
+                  true
+                case 1 =>
+                  false
+                case _ if _root_.stryker4s.coverage.coverMutant(0, 1) =>
+                  bar
+              }
+            ) 1
+            else 2
+          }
+        }"""
+      assert(mutatedSource.isEqual(expected), mutatedSource)
+    }
+
   }
 
   def toMutations[T <: Tree](
@@ -57,8 +124,7 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
       firstReplacement: Term,
       replacements: Term*
   ): ju.List[MutantWithId[ScalaAST]] = {
-
-    val vec = Vector(firstReplacement) ++ Vector.from(replacements)
+    val vec = Vector(firstReplacement) ++ replacements.toVector
 
     vec.zipWithIndex.map { case (replacement, id) =>
       new MutantWithId(
