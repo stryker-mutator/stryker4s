@@ -1,6 +1,7 @@
 package stryker4jvm.run.process
 
-import stryker4jvm.mutator.scala.scalatest.LogMatchers
+import stryker4jvm.scalatest.LogMatchers
+import stryker4jvm.testutil.Stryker4jvmIOSuite
 
 class ProcessRunnerTest extends Stryker4jvmIOSuite with LogMatchers {
   describe("resolveRunner") {

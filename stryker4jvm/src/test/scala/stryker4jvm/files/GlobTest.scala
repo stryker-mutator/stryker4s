@@ -1,6 +1,7 @@
 package stryker4jvm.files
 
 import fs2.io.file.Path
+import stryker4jvm.testutil.Stryker4jvmSuite
 
 class GlobTest extends Stryker4jvmSuite {
   describe("matcher") {

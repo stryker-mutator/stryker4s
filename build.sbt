@@ -73,6 +73,7 @@ lazy val stryker4sApi = newProject("stryker4jvm-api", "stryker4jvm-api")
 
 lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
   .settings(
+    jvmSettings,
     resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
       "io.stryker-mutator" % "stryker4jvm-core" % "1.0",

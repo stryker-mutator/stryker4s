@@ -1,5 +1,7 @@
 package stryker4jvm.model
 
+import stryker4jvm.testutil.Stryker4jvmSuite
+
 class CompilerErrMsgTest extends Stryker4jvmSuite {
   describe("CompilerErrMsgTest") {
     it("should have a nicely formatted toString") {

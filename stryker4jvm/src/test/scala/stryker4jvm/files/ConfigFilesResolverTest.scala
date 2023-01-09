@@ -2,9 +2,9 @@ package stryker4jvm.files
 
 import fs2.io.file.Path
 import stryker4jvm.config.Config
-import stryker4jvm.mutator.scala.scalatest.{FileUtil, LogMatchers}
-import stryker4jvm.mutator.scala.testutil.MockitoIOSuite
 import stryker4jvm.run.process.{Command, ProcessRunner}
+import stryker4jvm.scalatest.{FileUtil, LogMatchers}
+import stryker4jvm.testutil.{MockitoIOSuite, Stryker4jvmIOSuite}
 
 import scala.util.{Failure, Try}
 

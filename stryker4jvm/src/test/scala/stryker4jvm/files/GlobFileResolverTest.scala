@@ -1,7 +1,8 @@
 package stryker4jvm.files
 
 import fs2.io.file.Path
-import stryker4jvm.mutator.scala.scalatest.FileUtil
+import stryker4jvm.scalatest.FileUtil
+import stryker4jvm.testutil.Stryker4jvmIOSuite
 
 class GlobFileResolverTest extends Stryker4jvmIOSuite {
 
