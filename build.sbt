@@ -50,9 +50,13 @@ lazy val stryker4sCore = newProject("stryker4s-core", "core")
 //  at the moment we cannot convert it as it also depends on some tests that are not present yet in stryker4jvm
 lazy val stryker4sCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
   .settings(
-    commandRunnerSettings
+    commandRunnerSettings,
+    resolvers += Resolver.mavenLocal,
+    libraryDependencies ++= Seq(
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0"
+    )
   )
-  .dependsOn(stryker4sCore, stryker4sCore % "test->test")
+  .dependsOn(stryker4jvm, stryker4jvm % "test->test")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12

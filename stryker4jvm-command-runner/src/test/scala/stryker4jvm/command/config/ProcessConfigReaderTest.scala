@@ -1,14 +1,14 @@
-package stryker4s.config
+package stryker4jvm.command.config
 
 import org.scalatest.EitherValues
 import pureconfig.error.{ConfigReaderFailures, ConvertFailure, KeyNotFound}
 import pureconfig.generic.auto.*
-import stryker4s.command.config.ProcessRunnerConfig
-import stryker4s.run.process.Command
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
+import stryker4jvm.config.ConfigReader
+import stryker4jvm.run.process.Command
+import stryker4jvm.scalatest.LogMatchers
+import stryker4jvm.testutil.{ExampleConfigs, Stryker4jvmSuite}
 
-class ProcessConfigReaderTest extends Stryker4sSuite with LogMatchers with EitherValues {
+class ProcessConfigReaderTest extends Stryker4jvmSuite with LogMatchers with EitherValues {
   describe("ProcessConfig") {
     it("should read a process config") {
       val confPath = ExampleConfigs.filledProcess

@@ -1,10 +1,11 @@
-package stryker4s.command
+package stryker4jvm.command
 
 import cats.effect.IO
 import org.slf4j.event.Level
-import stryker4s.log.{Logger, Slf4jLogger}
+import stryker4jvm.command.logging.FansiSlf4jLogger
+import stryker4jvm.logging.FansiLogger
 
-object Stryker4sArgumentHandler {
+object Stryker4jvmArgumentHandler {
   private lazy val logLevels: Map[String, Level] = Level
     .values()
     .map(level => (level.toString.toLowerCase, level))
@@ -28,10 +29,10 @@ object Stryker4sArgumentHandler {
     s"Set logging level to $logLevel"
   }
 
-  def configureLogger(args: Seq[String]): IO[Logger] =
+  def configureLogger(args: Seq[String]): IO[FansiLogger] =
     for {
       logString <- IO(handleArgs(args))
-      logger <- IO(new Slf4jLogger())
+      logger <- IO(new FansiSlf4jLogger())
       _ <- IO(logger.info(logString))
     } yield logger
 
