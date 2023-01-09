@@ -12,7 +12,6 @@ import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 import scala.collection.JavaConverters.*
 import stryker4jvm.config.Config
 import stryker4jvm.core.exception.Stryker4jvmException
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
 import stryker4jvm.core.model.{
   AST,
@@ -23,6 +22,7 @@ import stryker4jvm.core.model.{
   MutatedCode
 }
 import stryker4jvm.extensions.Stryker4jvmCoreConversions
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -33,7 +33,7 @@ class Mutator(
     mutantRouter: Map[String, LanguageMutator[? <: AST]]
 )(implicit
     config: Config,
-    log: Logger
+    log: FansiLogger
 ) {
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
     files

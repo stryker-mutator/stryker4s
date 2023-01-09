@@ -5,15 +5,15 @@ import mutationtesting.{MutantResult, MutantStatus}
 import sbt.*
 import sbt.Keys.*
 import sbt.Tests.Output
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.exception.InitialTestRunFailedException
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.*
 import stryker4jvm.run.TestRunner
 
 class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], extracted: Extracted)(implicit
-    log: Logger
+    log: FansiLogger
 ) extends TestRunner {
   def initialTestRun(): IO[InitialTestRunResult] = runTests(
     initialState,

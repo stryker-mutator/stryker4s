@@ -6,8 +6,8 @@ import pureconfig.error.*
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto.*
 import pureconfig.{ConfigReader as PureConfigReader, ConfigSource}
-import stryker4jvm.config.Config.* // <- for implicit conversion, intellij may mark this as unused import!
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.config.Config.*
+import stryker4jvm.logging.FansiLogger
 
 import java.io.FileNotFoundException
 
@@ -17,7 +17,7 @@ object ConfigReader {
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4s.conf"))(implicit log: Logger): Config = {
+  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4s.conf"))(implicit log: FansiLogger): Config = {
     Reader
       .withoutRecovery[Config](confSource)
       .recoverWithReader(Failure.onUnknownKey)
@@ -27,7 +27,7 @@ object ConfigReader {
 
   def readConfigOfType[T](
       confSource: ConfigSource = ConfigSource.file("stryker4s.conf")
-  )(implicit log: Logger, pureconfig: PureConfigReader[T]): Either[ConfigReaderFailures, T] =
+  )(implicit log: FansiLogger, pureconfig: PureConfigReader[T]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
   /** A configuration on how to attempt to read a config. The reason for its existence is to provide a convenient way to
@@ -47,7 +47,7 @@ object ConfigReader {
       configSource: ConfigSource,
       onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]]
   )(implicit
-      log: Logger,
+      log: FansiLogger,
       pureconfig: PureConfigReader[T]
   ) {
 
@@ -89,7 +89,7 @@ object ConfigReader {
 
     def withoutRecovery[T](
         configSource: ConfigSource
-    )(implicit log: Logger, d: PureConfigReader[T]): Reader[T] =
+    )(implicit log: FansiLogger, d: PureConfigReader[T]): Reader[T] =
       new Reader[T](configSource, PartialFunction.empty)
   }
 
@@ -101,7 +101,7 @@ object ConfigReader {
       * that does not fail when unknown keys are present. The names of the unknown keys are logged.
       */
     def onUnknownKey(implicit
-        log: Logger
+        log: FansiLogger
     ): PartialFunction[ConfigReaderFailures, PureConfigReader[Config]] = {
       case ConfigReaderFailures(ConvertFailure(UnknownKey(key), _, _), failures*) =>
         val unknownKeys = key +: failures.collect { case ConvertFailure(UnknownKey(k), _, _) => k }
@@ -116,7 +116,7 @@ object ConfigReader {
 
     /** When the config-parsing fails because no file is found at the specified location, a default config is provided.
       */
-    def onFileNotFound(implicit log: Logger): PartialFunction[ConfigReaderFailures, Config] = {
+    def onFileNotFound(implicit log: FansiLogger): PartialFunction[ConfigReaderFailures, Config] = {
       case ConfigReaderFailures(CannotReadFile(fileName, Some(_: FileNotFoundException)), _*) =>
         log.warn(s"Could not find config file $fileName")
         log.warn("Using default config instead...")
@@ -127,7 +127,7 @@ object ConfigReader {
 
     /** Throw a [[ConfigReaderException]] and log the encountered failures.
       */
-    def throwException[T](failures: ConfigReaderFailures)(implicit log: Logger): Nothing = {
+    def throwException[T](failures: ConfigReaderFailures)(implicit log: FansiLogger): Nothing = {
       log.error("Failures in reading config:")
       log.error(failures.toList.map(_.description).mkString(System.lineSeparator))
 

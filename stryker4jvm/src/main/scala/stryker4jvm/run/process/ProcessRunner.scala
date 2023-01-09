@@ -3,12 +3,12 @@ package stryker4jvm.run.process
 import cats.effect.IO
 import fs2.io.file.Path
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
-abstract class ProcessRunner(implicit log: Logger) {
+abstract class ProcessRunner(implicit log: FansiLogger) {
   def apply(command: Command, workingDir: Path): Try[Seq[String]] = {
     Try {
       Process(s"${command.command} ${command.args}", workingDir.toNioPath.toFile())
@@ -36,7 +36,7 @@ abstract class ProcessRunner(implicit log: Logger) {
 object ProcessRunner {
   private def isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
 
-  def apply()(implicit log: Logger): ProcessRunner = {
+  def apply()(implicit log: FansiLogger): ProcessRunner = {
     if (isWindows) new WindowsProcessRunner
     else new UnixProcessRunner
   }

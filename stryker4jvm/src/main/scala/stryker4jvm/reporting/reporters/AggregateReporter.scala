@@ -4,10 +4,10 @@ import cats.effect.IO
 import cats.syntax.parallel.*
 import fs2.Pipe
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
-class AggregateReporter(reporters: List[IOReporter[Config]])(implicit log: Logger) extends IOReporter[Config] {
+class AggregateReporter(reporters: List[IOReporter[Config]])(implicit log: FansiLogger) extends IOReporter[Config] {
 
   override def mutantTested =
     reportAll(_.mutantTested)

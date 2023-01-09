@@ -7,15 +7,16 @@ import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.InstrumenterOptions
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.plugin.maven.runner.MavenTestRunner
 import stryker4jvm.run.Stryker4jvmRunner
 
 import java.util.Properties
 
-class Stryker4jvmMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: Logger) extends Stryker4jvmRunner {
+class Stryker4jvmMavenRunner(project: MavenProject, invoker: Invoker)(implicit log: FansiLogger)
+    extends Stryker4jvmRunner {
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
     InstrumenterOptions.EnvVar

@@ -9,11 +9,11 @@ import sbt.*
 import sbt.Keys.*
 import sbt.internal.LogManager
 import stryker4jvm.config.{Config, TestFilter}
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.exception.TestSetupException
 import stryker4jvm.extensions.FileExtensions.*
 import stryker4jvm.files.{FilesFileResolver, MutatesFileResolver}
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.CompilerErrMsg
 import stryker4jvm.plugin.sbt.Stryker4jvmMain.autoImport.stryker
 import stryker4jvm.plugin.sbt.files.{SbtFilesResolver, SbtMutatesResolver}
@@ -34,7 +34,7 @@ class Stryker4jvmSbtRunner(
     sources: Seq[Path],
     targetDir: Path
 )(implicit
-    log: Logger
+    log: FansiLogger
 ) extends Stryker4jvmRunner {
 
   def resolveTestRunners(

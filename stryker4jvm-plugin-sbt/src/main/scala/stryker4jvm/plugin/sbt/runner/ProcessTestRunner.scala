@@ -10,13 +10,13 @@ import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.api.testprocess.*
 import stryker4jvm.model.*
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.run.TestRunner
 import stryker4jvm.run.process.ProcessResource
 import stryker4jvm.extensions.DurationExtensions.*
 import stryker4jvm.config.Config
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.{InitialTestRunCoverageReport, InitialTestRunResult}
 import stryker4jvm.plugin.sbt.model.TestInterfaceMapper
 import stryker4jvm.plugin.sbt.runner.{SocketTestRunnerConnection, TestRunnerConnection}
@@ -78,7 +78,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
       port: Port
-  )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
+  )(implicit config: Config, log: FansiLogger): Resource[IO, ProcessTestRunner] =
     (createProcess(classpath, javaOpts, port) *> connectToProcess(port))
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
@@ -87,7 +87,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
       classpath: Seq[String],
       javaOpts: Seq[String],
       port: Port
-  )(implicit log: Logger, config: Config): Resource[IO, Process] = {
+  )(implicit log: FansiLogger, config: Config): Resource[IO, Process] = {
     val classpathString = classpath.mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
 
@@ -113,7 +113,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     debugArgs ++ Seq(sysProps, mainClass)
   }
 
-  private def connectToProcess(port: Port)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
+  private def connectToProcess(port: Port)(implicit log: FansiLogger): Resource[IO, TestRunnerConnection] = {
     val socketAddress = SocketAddress(host"127.0.0.1", port)
 
     Network[IO]
