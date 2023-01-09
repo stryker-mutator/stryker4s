@@ -41,13 +41,12 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       sbtTestRunner.projectRefs)*
   )
 
+// todo: delete stryker4s-core
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(coreSettings)
   .dependsOn(stryker4sApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-// todo! Convert command runner to work with stryker4jvm
-//  at the moment we cannot convert it as it also depends on some tests that are not present yet in stryker4jvm
 lazy val stryker4sCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
   .settings(
     commandRunnerSettings,
