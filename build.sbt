@@ -92,3 +92,21 @@ lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stry
     )
   )
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+
+lazy val stryker4jvmNewMutatorScala = newProject("stryker4jvm-new-mutator-scala", "stryker4jvm-new-mutator-scala")
+  .settings(
+    jvmMutatorScalaSettings,
+    resolvers += Resolver.mavenLocal,
+    libraryDependencies ++= Seq(
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0"
+    )
+  )
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+
+def newProject(projectName: String, dir: String) =
+  sbt.internal
+    .ProjectMatrix(projectName, file(dir))
+    .settings(commonSettings)
+
+lazy val writeHooks = taskKey[Unit]("Write git hooks")
+Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
