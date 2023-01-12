@@ -4,17 +4,18 @@ import cats.effect.IO
 import fs2.io.file.Path
 import stryker4jvm.config.Config
 import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.run.process.{Command, ProcessRunner}
 
 import scala.util.{Success, Try}
 
 object TestProcessRunner {
-  def apply(testRunExitCode: Try[Int]*)(implicit log: Logger): TestProcessRunner =
+  def apply(testRunExitCode: Try[Int]*)(implicit log: FansiLogger): TestProcessRunner =
     new TestProcessRunner(true, testRunExitCode*)
-  def failInitialTestRun()(implicit log: Logger): TestProcessRunner = new TestProcessRunner(false)
+  def failInitialTestRun()(implicit log: FansiLogger): TestProcessRunner = new TestProcessRunner(false)
 }
 
-class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int]*)(implicit log: Logger)
+class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int]*)(implicit log: FansiLogger)
     extends ProcessRunner {
   val timesCalled: Iterator[Int] = Iterator.from(0)
 
