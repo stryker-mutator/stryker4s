@@ -1,15 +1,14 @@
-package stryker4s.run
+package stryker4jvm.command
 
 import org.slf4j.event.Level
 import org.slf4j.simple.SimpleLogger
-import stryker4s.command.Stryker4sArgumentHandler
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4jvm.scalatest.LogMatchers
+import stryker4jvm.testutil.Stryker4jvmSuite
 
-class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
+class Stryker4JvmArgumentHandlerTest extends Stryker4jvmSuite with LogMatchers {
   describe("parseArgs") {
     it("should set the default logLevel to INFO") {
-      val logString = Stryker4sArgumentHandler.handleArgs(Seq.empty)
+      val logString = Stryker4jvmArgumentHandler.handleArgs(Seq.empty)
 
       logString shouldBe "Set logging level to INFO"
       sys.props(SimpleLogger.DEFAULT_LOG_LEVEL_KEY) shouldEqual Level.INFO.toString()
@@ -24,7 +23,7 @@ class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
 
     levels.foreach { level =>
       it(s"should parse $level to ${level.toUpperCase()}") {
-        val logString = Stryker4sArgumentHandler.handleArgs(Seq(s"--$level"))
+        val logString = Stryker4jvmArgumentHandler.handleArgs(Seq(s"--$level"))
 
         logString shouldBe s"Set logging level to ${level.toUpperCase}"
         sys.props(SimpleLogger.DEFAULT_LOG_LEVEL_KEY) shouldEqual level.toUpperCase
@@ -32,7 +31,7 @@ class Stryker4sArgumentHandlerTest extends Stryker4sSuite with LogMatchers {
     }
 
     it("should parse regardless of casing") {
-      val logString = Stryker4sArgumentHandler.handleArgs(Seq("--DeBUg"))
+      val logString = Stryker4jvmArgumentHandler.handleArgs(Seq("--DeBUg"))
 
       logString shouldBe "Set logging level to DEBUG"
       sys.props(SimpleLogger.DEFAULT_LOG_LEVEL_KEY) shouldEqual Level.DEBUG.toString()

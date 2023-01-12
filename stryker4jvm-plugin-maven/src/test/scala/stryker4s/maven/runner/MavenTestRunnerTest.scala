@@ -145,7 +145,10 @@ class MavenTestRunnerTest extends Stryker4jvmSuite with MockitoSugar {
   }
 
   def createMutant: MutantWithId[AST] =
-    new MutantWithId(1, new MutatedCode(new TestAST(q"<"), new MutantMetaData(">", "<", "TODO", createLocation)))
+    new MutantWithId(
+      1,
+      new MutatedCode(new TestAST(q"<"), new MutantMetaData(">", "<", "EqualityOperator", createLocation))
+    )
 
   def createLocation: elements.Location = Location(Position(0, 0), Position(0, 0)).asCoreElement
 }
