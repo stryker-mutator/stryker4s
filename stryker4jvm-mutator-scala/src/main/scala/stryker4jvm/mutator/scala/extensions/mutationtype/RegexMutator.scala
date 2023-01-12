@@ -15,6 +15,7 @@ import stryker4jvm.mutator.scala.extensions.RegexParseError
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
 
 import scala.meta.*
+import stryker4jvm.mutator.scala.ScalaAST
 
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */
@@ -48,7 +49,7 @@ case object PatternConstructor {
 }
 
 object RegexMutations {
-  def apply(lit: Lit.String): Either[IgnoredMutation[Term], NonEmptyVector[RegularExpression]] = {
+  def apply(lit: Lit.String): Either[IgnoredMutation[ScalaAST], Vector[RegularExpression]] = {
     weaponregex.WeaponRegeX
       .mutate(lit.value, mutationLevels = Seq(1))
       .leftMap(ignoredMutation(lit, _))
@@ -57,17 +58,18 @@ object RegexMutations {
         NonEmptyVector
           .fromVectorUnsafe(_)
           .map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation)))
+          .toVector
       )
   }
 
   private def ignoredMutation(lit: Lit.String, e: String) = {
     val mutatedCode =
       new MutatedCode(
-        lit.asInstanceOf[Term],
+        new ScalaAST(value = lit.asInstanceOf[Term]),
         new MutantMetaData(lit.value, "", "RegularExpression", lit.pos.toLocation.asJvmCore)
       )
 
-    new IgnoredMutation[Term](mutatedCode, RegexParseError(lit.value, e))
+    new IgnoredMutation[ScalaAST](mutatedCode, RegexParseError(lit.value, e))
   }
 
 }

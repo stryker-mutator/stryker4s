@@ -16,12 +16,12 @@ import scala.meta.Source
 object ImplicitMutationConversion {
   implicit def mutationToTree[T <: Tree](mutation: SubstitutionMutation[T]): T = mutation.tree
 
-  implicit def ASTToTerm(ast: ScalaAST): Term = ast.term
-  implicit def TermToAST(term: Term): ScalaAST = new ScalaAST(term = term)
+  implicit def ASTToTerm(ast: ScalaAST): Term = ast.value.asInstanceOf[Term]
+  implicit def TermToAST(term: Term): ScalaAST = new ScalaAST(value = term)
 
-  implicit def ASTToSource(ast: ScalaAST): Source = ast.source
-  implicit def SourceToAST(source: Source): ScalaAST = new ScalaAST(source = source)
+  implicit def ASTToSource(ast: ScalaAST): Source = ast.value.asInstanceOf[Source]
+  implicit def SourceToAST(source: Source): ScalaAST = new ScalaAST(value = source)
 
-  implicit def ASTToTree(ast: ScalaAST): Tree = ast.tree
-  implicit def TreeToAST(tree: Tree): ScalaAST = new ScalaAST(tree = tree)
+  implicit def ASTToTree(ast: ScalaAST): Tree = ast.value
+  implicit def TreeToAST(tree: Tree): ScalaAST = new ScalaAST(value = tree)
 }

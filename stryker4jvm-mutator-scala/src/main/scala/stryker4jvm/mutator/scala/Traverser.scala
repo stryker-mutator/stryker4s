@@ -24,18 +24,13 @@ final class TraverserImpl(implicit log: Logger) extends Traverser {
       case t: Term.Match                                            => t.some
       case t: Case if t.cond.flatMap(_.find(currentTree)).isDefined => none
       case t: Term.Apply                                            => t.some
-      case t: Term.ApplyInfix =>
-        println("Apply infix");
-        println("TWEE");
-        println(t);
-        println(t.some);
-        t.some
-      case t: Term.Block       => t.some
-      case t: Term.If          => t.some
-      case t: Term.ForYield    => t.some
-      case t: Term.Interpolate => t.some
-      case t: Lit              => t.some
-      case _                   => none
+      case t: Term.ApplyInfix                                       => t.some
+      case t: Term.Block                                            => t.some
+      case t: Term.If                                               => t.some
+      case t: Term.ForYield                                         => t.some
+      case t: Term.Interpolate                                      => t.some
+      case t: Lit                                                   => t.some
+      case _                                                        => none
     }
 
     toPlace
@@ -47,10 +42,8 @@ final class TraverserImpl(implicit log: Logger) extends Traverser {
             if p.findParent[Case].exists(c => c.pat.contains(currentTree) || c.cond.exists(_.contains(currentTree))) =>
           false
         case t if t.parent.exists(_.is[Init]) =>
-          println("parent init");
           false
         case t if t.parent.exists(p => p.is[Term] && p.isNot[Term.Select]) =>
-          println("Parent term");
           false
         case ParentIsTypeLiteral() => false
         case _                     => true

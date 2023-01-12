@@ -14,7 +14,7 @@ class ScalaParser extends Parser[ScalaAST] {
     parsed match {
       case _: Parsed.Error => throw new Exception("Cannot parse")
       case s =>
-        val ret = new ScalaAST(source = s.get)
+        val ret = new ScalaAST(value = s.get)
         return ret
     }
   }

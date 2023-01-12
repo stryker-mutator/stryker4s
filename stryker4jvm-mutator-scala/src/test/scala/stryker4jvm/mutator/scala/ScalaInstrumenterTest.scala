@@ -30,16 +30,16 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
       val source = source"""class Foo { def foo = x >= 15 }"""
       val originalStatement = source.find(q"x >= 15").value
 
-      val src = new ScalaAST(source = source)
+      val src = new ScalaAST(value = source)
       val mutants = Map(
-        new ScalaAST(tree = originalStatement) ->
+        new ScalaAST(value = originalStatement) ->
           toMutations(originalStatement, GreaterThan, q"x > 15", q"x <= 15")
       ).asJava
 
       val sut = new ScalaInstrumenter(ScalaInstrumenterOptions.testRunner)
 
       //   // Act
-      val mutatedSource = sut.instrument(src, mutants).tree
+      val mutatedSource = sut.instrument(src, mutants).value
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
@@ -77,14 +77,14 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
       val originalStatement = bars.last
 
       // val context = SourceContext(source, path)
-      val context = new ScalaAST(source = source)
+      val context = new ScalaAST(value = source)
       val mutants = Map(
-        new ScalaAST(tree = originalStatement) -> toMutations(originalStatement, ConditionalTrue, q"true", q"false")
+        new ScalaAST(value = originalStatement) -> toMutations(originalStatement, ConditionalTrue, q"true", q"false")
       ).asJava
       val sut = new ScalaInstrumenter(ScalaInstrumenterOptions.testRunner)
 
       //   // Act
-      val mutatedSource = sut.instrument(context, mutants).tree
+      val mutatedSource = sut.instrument(context, mutants).value
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
@@ -130,7 +130,7 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
       new MutantWithId(
         id,
         new MutatedCode(
-          new ScalaAST(term = replacement),
+          new ScalaAST(value = replacement),
           new MutantMetaData(
             original.toString(),
             replacement.toString,

@@ -23,17 +23,14 @@ import scala.util.control
 
 class ScalaInstrumenter(options: ScalaInstrumenterOptions) extends Instrumenter[ScalaAST] {
   override def instrument(source: ScalaAST, mutations: ju.Map[ScalaAST, ju.List[MutantWithId[ScalaAST]]]): ScalaAST = {
-
-    val muts = mutations.asScala
-
-    if (source.source == null) {
+    if (source.value == null) {
       return new ScalaAST // TODO
     }
 
-    val newTree = source.source
+    val newTree = source.value
       .transformOnce {
         Function.unlift { originalTree =>
-          val p = new ScalaAST(tree = originalTree)
+          val p = new ScalaAST(value = originalTree)
 
           val mutGet = mutations.get(p)
 
@@ -70,23 +67,17 @@ class ScalaInstrumenter(options: ScalaInstrumenterOptions) extends Instrumenter[
       case Failure(e)    => throw e
     }
 
-    new ScalaAST(tree = newTree)
+    new ScalaAST(value = newTree)
   }
 
-  //
-  //
-  //
-  //
-  //
-
   def mutantToCase(mutant: MutantWithId[ScalaAST]): Case = {
-    val newTree = mutant.mutatedCode.mutatedStatement.term
+    val newTree = mutant.mutatedCode.mutatedStatement.value.asInstanceOf[Term]
 
     buildCase(newTree, options.pattern(mutant.id))
   }
 
   def defaultCase(scalaAST: ScalaAST, mutantIds: NonEmptyList[Int]): Case =
-    p"case _ if ${options.condition.mapApply(mutantIds)} => ${scalaAST.tree.asInstanceOf[Term]}"
+    p"case _ if ${options.condition.mapApply(mutantIds)} => ${scalaAST.value.asInstanceOf[Term]}"
 
   def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
 

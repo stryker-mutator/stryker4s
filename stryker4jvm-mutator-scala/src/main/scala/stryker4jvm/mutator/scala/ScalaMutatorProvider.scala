@@ -15,7 +15,10 @@ class ScalaMutatorProvider extends LanguageMutatorProvider {
 
     new ScalaMutator(
       new ScalaParser(),
-      new ScalaCollector(mutatorConfig = languageMutatorConfig),
+      new ScalaCollector(
+        traverser = new TraverserImpl(),
+        matcher = new MutantMatcherImpl(config = languageMutatorConfig)
+      ),
       new ScalaInstrumenter(options = ScalaInstrumenterOptions.sysContext(ActiveMutationContext.envVar))
     )
   }

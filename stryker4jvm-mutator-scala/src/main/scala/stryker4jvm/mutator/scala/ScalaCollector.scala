@@ -14,71 +14,46 @@ import scala.collection.mutable.Map
 import scala.collection.JavaConverters.*
 import java.util as ju
 import stryker4jvm.core.logging.Logger
+import cats.syntax.align.*
 
-class ScalaCollector(var mutatorConfig: LanguageMutatorConfig)(implicit log: Logger) extends Collector[ScalaAST] {
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.*
+
+class ScalaCollector(
+    val traverser: Traverser,
+    val matcher: MutantMatcher
+)(implicit log: Logger)
+    extends Collector[ScalaAST] {
 
   override def collect(ast: ScalaAST): CollectedMutants[ScalaAST] = {
-    val tree = ast.tree;
+    val tree = ast.value;
 
     if (tree == null) {
       return null;
     }
 
-    val traverser = new TraverserImpl()
-    val matcher = new MutantMatcherImpl(config = mutatorConfig)
+    // PartialFunction to check if the currently-visiting tree node is a node where we can place mutants
+    val canPlaceF: PartialFunction[Tree, PlaceableTree] = Function.unlift(traverser.canPlace).andThen(PlaceableTree(_))
 
+    // PartialFunction that _sometimes_ matches and returns the mutations at a PlaceableTree `NonEmptyList[Mutant]`
+    val onEnterF = matcher.allMatchers.andThen(f => (p: PlaceableTree) => p -> f(p))
+
+    // Walk through the tree and create a Map of PlaceableTree and Mutants
+    val collected: List[(PlaceableTree, Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]])] =
+      tree.collectWithContext(canPlaceF)(onEnterF)
+
+    // Get mutations and ignoredmutations in correct format to return
     var ignoredMutations: Vector[IgnoredMutation[ScalaAST]] = Vector()
     var mutations = Map[ScalaAST, ju.List[MutatedCode[ScalaAST]]]()
 
-    def traverse(tree: Tree): Unit = {
-
-      println(tree);
-      println(tree.getClass());
-      println(s"Can place: ${traverser.canPlace(tree)}");
-      println();
-
-      traverser.canPlace(tree) match {
-        case Some(value: Term) =>
-          println(value.getClass())
-          println(tree)
-
-          val res = matcher.allMatchers(value)
-          println(s"RES: $res")
-
-          if (res != null) {
-
-            var ignored: Vector[IgnoredMutation[ScalaAST]] = Vector();
-            var mutants: Vector[MutatedCode[ScalaAST]] = Vector();
-
-            // val (ignored, mutants) = res.partitionMap(identity(_))
-            // Doesn't exist in Scala 2.12 :(, so we get this ugly piece of code
-            for (r <- res) {
-              if (r.isLeft) {
-                ignored = ignored :+ r.left.get;
-              };
-
-              if (r.isRight) {
-                mutants = mutants :+ r.right.get;
-              }
-            }
-
-            if (ignored.length > 0) {
-              ignoredMutations = ignoredMutations ++ ignored
-            }
-
-            if (mutants.length > 0) {
-              mutations = mutations + (new ScalaAST(term = value) -> mutants.asJava)
-            }
-          }
-        case None => // Do nothing
+    for (col <- collected) {
+      val placeableTree = col._1
+      col._2 match {
+        case Left(value) => ignoredMutations = ignoredMutations ++ value
+        case Right(mutants) =>
+          val ast = new ScalaAST(value = placeableTree.tree);
+          mutations = mutations + (ast -> mutants.asJava)
       }
-
-      tree.children.foreach(child => traverse(child))
     }
-
-    traverse(tree)
-
-    // println(mutations)
 
     new CollectedMutants[ScalaAST](ignoredMutations.asJava, mutations.asJava)
   }

@@ -1,79 +1,83 @@
 package stryker4jvm.mutator.scala
 
+import scala.meta.*
+
+import MutantMatcher.MutationMatcher
+import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
+import stryker4jvm.core.model.MutatedCode
+import stryker4jvm.mutator.scala.PlaceableTree
+import stryker4jvm.core.model.MutantMetaData
+
 import cats.syntax.semigroup.*
 
 import stryker4jvm.mutator.scala.extensions.PartialFunctionOps.*
-import scala.meta.{Term, Tree}
-import extensions.mutationtype.*
+import stryker4jvm.mutator.scala.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
 
-import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
-
-import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
-import stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion.*
-
-import stryker4jvm.mutator.scala.extensions.TreeExtensions.{LocationExtension, PositionExtension}
+import stryker4jvm.mutator.scala.extensions.mutationtype.*
+import mutationtesting.Location
+import stryker4jvm.core.model
 import stryker4jvm.core.config.LanguageMutatorConfig
 
-import MutantMatcher.MatcherResult
-import stryker4jvm.core.model.IgnoredMutationReason
+import scala.annotation.tailrec
 
 trait MutantMatcher {
-  def allMatchers: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]]
+
+  /** Matches on all types of mutations and returns a list of all the mutations that were found.
+    */
+  def allMatchers: MutationMatcher
 }
 
 object MutantMatcher {
-  type MatcherResult = PartialFunction[Tree, Either[IgnoredMutation[Tree], MutatedCode[Term]]]
+
+  /** A PartialFunction that can match on a ScalaMeta tree and return a `Either[IgnoredMutations, Mutations]`.
+    *
+    * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
+    * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
+    */
+  type MutationMatcher =
+    PartialFunction[Tree, PlaceableTree => Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]]]
+
 }
 
 class MutantMatcherImpl(var config: LanguageMutatorConfig) extends MutantMatcher {
-  override def allMatchers: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] =
+
+  override def allMatchers: MutationMatcher = {
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
       matchLogicalOperator orElse
       matchConditionalExpression orElse
       matchMethodExpression orElse
-      matchStringsAndRegex orElse
-      test
-
-  // Test method (temporary)
-  // TODO: It does something, no clue why it gets here
-  def test: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = { case orig =>
-    println(orig.getClass());
-    println("Found no mutations");
-    null
+      matchStringsAndRegex
   }
 
-  def matchBooleanLiteral: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
+  def matchBooleanLiteral: MutationMatcher = {
     case True(orig)  => createMutations(orig)(False)
     case False(orig) => createMutations(orig)(True)
   }
 
-  def matchEqualityOperator: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
-    case GreaterThanEqualTo(orig) =>
-      println("Komt hij hier?");
-      createMutations(orig)(GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig)       => createMutations(orig)(GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig) => createMutations(orig)(LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig)        => createMutations(orig)(LesserThanEqualTo, GreaterThan, EqualTo)
-    case EqualTo(orig)           => createMutations(orig)(NotEqualTo)
-    case NotEqualTo(orig)        => createMutations(orig)(EqualTo)
-    case TypedEqualTo(orig)      => createMutations(orig)(TypedNotEqualTo)
-    case TypedNotEqualTo(orig)   => createMutations(orig)(TypedEqualTo)
+  def matchEqualityOperator: MutationMatcher = {
+    case GreaterThanEqualTo(orig) => createMutations(orig)(GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)        => createMutations(orig)(GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig)  => createMutations(orig)(LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)         => createMutations(orig)(LesserThanEqualTo, GreaterThan, EqualTo)
+    case EqualTo(orig)            => createMutations(orig)(NotEqualTo)
+    case NotEqualTo(orig)         => createMutations(orig)(EqualTo)
+    case TypedEqualTo(orig)       => createMutations(orig)(TypedNotEqualTo)
+    case TypedNotEqualTo(orig)    => createMutations(orig)(TypedEqualTo)
   }
 
-  def matchLogicalOperator: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
+  def matchLogicalOperator: MutationMatcher = {
     case And(orig) => createMutations(orig)(Or)
     case Or(orig)  => createMutations(orig)(And)
   }
 
-  def matchConditionalExpression
-      : PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
+  def matchConditionalExpression: MutationMatcher = {
     case If(orig)      => createMutations(orig)(ConditionalTrue, ConditionalFalse)
     case While(orig)   => createMutations(orig)(ConditionalFalse)
     case DoWhile(orig) => createMutations(orig)(ConditionalFalse)
   }
 
-  def matchMethodExpression: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
+  def matchMethodExpression: MutationMatcher = {
     case Filter(orig, f)      => createMutations(orig, f, FilterNot)
     case FilterNot(orig, f)   => createMutations(orig, f, Filter)
     case Exists(orig, f)      => createMutations(orig, f, Forall)
@@ -94,87 +98,143 @@ class MutantMatcherImpl(var config: LanguageMutatorConfig) extends MutantMatcher
     case MinBy(orig, f)       => createMutations(orig, f, MaxBy)
   }
 
-  /** Match both strings and regexes instead of stopping when one of them gives a match
-    */
-  def matchStringsAndRegex: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] =
-    matchStringLiteral combine matchRegex
-
-  def matchStringLiteral: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
+  def matchStringLiteral: MutationMatcher = {
     case EmptyString(orig)         => createMutations(orig)(StrykerWasHereString)
     case NonEmptyString(orig)      => createMutations(orig)(EmptyString)
     case StringInterpolation(orig) => createMutations(orig)(EmptyString)
   }
 
-  def matchRegex: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
+  def matchRegex: MutationMatcher = {
     case RegexConstructor(orig)   => createMutations(orig, RegexMutations(orig))
     case RegexStringOps(orig)     => createMutations(orig, RegexMutations(orig))
     case PatternConstructor(orig) => createMutations(orig, RegexMutations(orig))
   }
 
-  // Match statements
-  private def createMutations[T <: Tree](
-      original: Term,
-      f: String => Term,
-      mutated: MethodExpression
-  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
-    val replacements = Vector(mutated)
-    buildMutations[MethodExpression](original, replacements, _(f))
-  }
+  /** Match both strings and regexes instead of stopping when one of them gives a match
+    */
+  def matchStringsAndRegex: MutationMatcher = matchStringLiteral combine matchRegex
 
-  // Regex
-  private def createMutations[T <: Term](
-      original: Term,
-      mutated: Any
-      //   mutated: Either[IgnoredMutation, NonEmptyVector[RegularExpression]]
-  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
-    // placeableTree =>
-    // mutated
-    //   .leftMap(NonEmptyVector.one(_))
-    //   .flatMap(muts => buildMutations[RegularExpression](original, muts, _.tree)(placeableTree))
-    println("B")
-    println(mutated)
-
-    null
-  }
-
-  // Other mutations
   private def createMutations[T <: Term](
       original: Term
   )(
       firstReplacement: SubstitutionMutation[T],
       restReplacements: SubstitutionMutation[T]*
-  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
-    val replacements = Vector(firstReplacement) ++ restReplacements.toVector
+  ): PlaceableTree => Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]] = {
+    val replacements: Vector[SubstitutionMutation[T]] =
+      Vector(firstReplacement) ++ restReplacements.toVector
     buildMutations[SubstitutionMutation[T]](original, replacements, _.tree)
+  }
+
+  private def createMutations[T <: Tree](
+      original: Term,
+      f: String => Term,
+      mutated: MethodExpression
+  ): PlaceableTree => Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]] = {
+    val replacements: Vector[MethodExpression] = Vector(mutated)
+    buildMutations[MethodExpression](original, replacements, _(f))
+  }
+
+  private def createMutations[T <: Term](
+      original: Term,
+      mutated: Either[IgnoredMutation[ScalaAST], Vector[RegularExpression]]
+  ): PlaceableTree => Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]] = { placeableTree =>
+    import cats.syntax.either.*
+
+    mutated
+      .leftMap(Vector(_))
+      .flatMap(muts => buildMutations[RegularExpression](original, muts, _.tree)(placeableTree))
   }
 
   private def buildMutations[T <: Mutation[? <: Tree]](
       original: Term,
       replacements: Vector[T],
       mutationToTerm: T => Term
-  ): Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]] = {
-    replacements.map { replacement =>
-      val location = replacement match {
-        case r: RegularExpression => r.location
-        case _                    => original.pos.toLocation
+  ): PlaceableTree => Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]] = placeableTree => {
+    val mutations = replacements.map { replacement =>
+      val location: model.elements.Location = replacement match {
+        case r: RegularExpression =>
+          val loc = r.location
+          val start = loc.start
+          val end = loc.end
+
+          new model.elements.Location(
+            new model.elements.Position(start.line, start.column),
+            new model.elements.Position(end.line, end.column)
+          )
+        case _ =>
+          val loc = original.pos.toLocation
+          val start = loc.start
+          val end = loc.end
+
+          new model.elements.Location(
+            new model.elements.Position(start.line, start.column),
+            new model.elements.Position(end.line, end.column)
+          )
+
       }
 
       val tree: Tree = mutationToTerm(replacement)
-      val metadata = new MutantMetaData(original.syntax, tree.syntax, replacement.mutationName, location.asJvmCore)
-      val mutatedCode = new MutatedCode(new ScalaAST(term = original), metadata)
+      val metadata = new MutantMetaData(original.syntax, tree.syntax, replacement.mutationName, location)
+      val mutatedTopStatement = placeableTree.tree
+        .transformExactlyOnce {
+          case t if t.isEqual(original) && t.pos == original.pos =>
+            tree
+        }
+        .getOrElse(
+          throw new RuntimeException(
+            s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation})"
+          )
+        )
 
-      if (config != null && config.getExcludedMutations().contains(replacement.mutationName)) {
-        Left(new IgnoredMutation(mutatedCode, new ScalaReason))
-      } else {
-        Right(mutatedCode)
+      mutatedTopStatement match {
+        case t: Term => new MutatedCode(new ScalaAST(value = t), metadata)
+        case t =>
+          throw new RuntimeException(
+            s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation}). Expected a Term, but was a ${t.getClass().getSimpleName}"
+          )
       }
+
+    }
+
+    filterExclusions(mutations, replacements.head, original)
+  }
+
+  private def filterExclusions(
+      mutations: Vector[MutatedCode[ScalaAST]],
+      mutationType: Mutation[?],
+      original: Tree
+  ): Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]] = {
+    val mutationName = "stryker4s.mutation." + mutationType.mutationName
+
+    if (excludedByConfig(mutationType.mutationName) || excludedByAnnotation(original, mutationName))
+      Left(mutations.map(new IgnoredMutation[ScalaAST](_, new model.IgnoredMutationReason.MutationExcluded)))
+    else
+      Right(mutations)
+  }
+
+  private def excludedByConfig(mutation: String): Boolean = config.getExcludedMutations().contains(mutation)
+
+  @tailrec
+  private def excludedByAnnotation(original: Tree, mutationName: String): Boolean = {
+    import stryker4jvm.mutator.scala.extensions.TreeExtensions.*
+    original.parent match {
+      case Some(value) =>
+        value.getMods.exists(isSupressWarningsAnnotation(_, mutationName)) || excludedByAnnotation(
+          value,
+          mutationName
+        )
+      case None => false
     }
   }
 
-}
-
-class ScalaReason extends IgnoredMutationReason {
-
-  override def explanation(): String = "test"
-
+  private def isSupressWarningsAnnotation(mod: Mod, mutationName: String): Boolean = {
+    mod match {
+      case Mod.Annot(Init(Type.Name("SuppressWarnings"), _, List(List(Term.Apply(Name("Array"), params))))) =>
+        params.exists {
+          case Lit.String(`mutationName`) => true
+          case _                          => false
+        }
+      case _ => false
+    }
+  }
 }

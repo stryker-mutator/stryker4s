@@ -1,29 +1,19 @@
 package stryker4jvm.mutator.scala
 
 import stryker4jvm.core.model.AST
-import scala.meta.Source
 import scala.meta.Tree
-import scala.meta.Term
 
-class ScalaAST(val source: Source = null, val tree: Tree = null, val term: Term = null) extends AST {
+class ScalaAST(val value: Tree = null) extends AST {
   override def syntax(): String = {
-    if (source != null) {
-      return source.syntax
-    }
-
-    if (tree != null) {
-      return tree.syntax
+    if (value != null) {
+      return value.syntax
     }
 
     "Undefined"
   }
   override def hashCode(): Int = {
-    if (source != null) {
-      return source.hashCode()
-    }
-
-    if (tree != null) {
-      return tree.hashCode()
+    if (value != null) {
+      return value.hashCode()
     }
 
     -1
@@ -35,17 +25,11 @@ class ScalaAST(val source: Source = null, val tree: Tree = null, val term: Term 
     }
 
     obj match {
-      case _: Source =>
-        obj == source
       case _: Tree =>
-        obj == tree
+        obj == value
       case ast: ScalaAST =>
-        if (ast.tree != null) {
-          ast.tree == tree
-        } else if (ast.source != null) {
-          ast.source == source
-        } else if (ast.term != null) {
-          ast.term == term
+        if (ast.value != null) {
+          ast.value == value
         } else {
           false
         }
