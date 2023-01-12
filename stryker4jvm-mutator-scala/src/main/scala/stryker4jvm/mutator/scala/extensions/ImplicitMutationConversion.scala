@@ -3,7 +3,7 @@ package stryker4jvm.mutator.scala.extensions
 import scala.meta.{Term, Tree}
 
 import stryker4jvm.mutator.scala.extensions.mutationtype.SubstitutionMutation
-import stryker4jvm.mutator.scala.mutants.language.ScalaAST
+import stryker4jvm.mutator.scala.ScalaAST
 import scala.meta.Source
 
 /** Converts [[stryker4jvm.mutator.scala.extensions.mutationtype.SubstitutionMutation]] to a `scala.meta.Tree`
@@ -21,4 +21,7 @@ object ImplicitMutationConversion {
 
   implicit def ASTToSource(ast: ScalaAST): Source = ast.source
   implicit def SourceToAST(source: Source): ScalaAST = new ScalaAST(source = source)
+
+  implicit def ASTToTree(ast: ScalaAST): Tree = ast.tree
+  implicit def TreeToAST(tree: Tree): ScalaAST = new ScalaAST(tree = tree)
 }

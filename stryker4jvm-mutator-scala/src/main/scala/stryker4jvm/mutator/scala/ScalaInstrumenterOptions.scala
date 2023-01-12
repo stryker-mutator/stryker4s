@@ -33,9 +33,3 @@ object ScalaInstrumenterOptions {
     condition = Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
   )
 }
-
-// type DefaultMutationCondition = (NonEmptyList[Int]) => Term
-
-// class ScalaInstrumenterOptions {
-//   val
-// }

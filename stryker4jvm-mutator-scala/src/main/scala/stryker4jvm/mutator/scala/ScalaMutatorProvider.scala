@@ -16,9 +16,3 @@ class ScalaMutatorProvider extends LanguageMutatorProvider {
     )
   }
 }
-
-// return KotlinMutator(
-//         KotlinParser(),
-//         KotlinCollector.apply(config),
-//         KotlinInstrumenter(options)
-// );

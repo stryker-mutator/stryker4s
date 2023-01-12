@@ -17,10 +17,6 @@ import stryker4jvm.core.config.LanguageMutatorConfig
 import MutantMatcher.MatcherResult
 import stryker4jvm.core.model.IgnoredMutationReason
 
-////
-//// TODO: IGNORED MUTATIONS
-////
-
 trait MutantMatcher {
   def allMatchers: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]]
 }
