@@ -14,7 +14,7 @@ import scala.collection.mutable.Map
 import scala.collection.JavaConverters.*
 import java.util as ju
 
-class ScalaCollector(var mutatorConfig: LanguageMutatorConfig = null) extends Collector[ScalaAST] {
+class ScalaCollector(var mutatorConfig: LanguageMutatorConfig) extends Collector[ScalaAST] {
 
   override def collect(ast: ScalaAST): CollectedMutants[ScalaAST] = {
     val tree = ast.tree;

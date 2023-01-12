@@ -21,7 +21,7 @@ import scala.util.{Failure, Success}
 import fs2.io.file.Path
 import scala.util.control
 
-class ScalaInstrumenter(options: ScalaInstrumenterOptions = null) extends Instrumenter[ScalaAST] {
+class ScalaInstrumenter(options: ScalaInstrumenterOptions) extends Instrumenter[ScalaAST] {
   override def instrument(source: ScalaAST, mutations: ju.Map[ScalaAST, ju.List[MutantWithId[ScalaAST]]]): ScalaAST = {
 
     val muts = mutations.asScala

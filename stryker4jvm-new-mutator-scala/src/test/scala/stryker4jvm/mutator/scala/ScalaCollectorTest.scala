@@ -7,17 +7,18 @@ import java.nio.file.NoSuchFileException
 import stryker4jvm.core.config.LanguageMutatorConfig
 import scala.meta.*
 import scala.collection.JavaConverters.*
+import java.util as ju
 
 class ScalaCollectorTest extends AnyFunSpec {
 
   describe("test") {
     it("test") {
-      val col = new ScalaCollector()
+      val col = new ScalaCollector(new LanguageMutatorConfig(scala.collection.Set().asJava))
       col.collect(new ScalaAST(tree = q"if (3 > 2) {}"))
     }
 
     it("test2") {
-      val col = new ScalaCollector()
+      val col = new ScalaCollector(new LanguageMutatorConfig(scala.collection.Set().asJava))
       col.collect(new ScalaAST(tree = q"class Foo { def foo = x >= 15; if (x == 15) {} }"))
     }
 
