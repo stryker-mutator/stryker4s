@@ -1,5 +1,5 @@
 package stryker4jvm.run.process
 
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 
-class UnixProcessRunner(implicit log: Logger) extends ProcessRunner {}
+class UnixProcessRunner(implicit log: FansiLogger) extends ProcessRunner {}

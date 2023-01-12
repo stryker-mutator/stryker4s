@@ -74,6 +74,14 @@ object Settings {
     )
   )
 
+  lazy val jvmSettings: Seq[Setting[?]] = Seq(
+    libraryDependencies ++= Seq(
+      Dependencies.test.catsEffectScalaTest,
+      Dependencies.test.mockitoScala,
+      Dependencies.test.mockitoScalaCats,
+      Dependencies.test.scalatest
+    )
+  )
   lazy val jvmMutatorScalaSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.catsCore,

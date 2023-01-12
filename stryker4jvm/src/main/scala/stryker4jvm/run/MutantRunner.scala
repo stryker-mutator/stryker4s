@@ -7,12 +7,12 @@ import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4jvm.extensions.FileExtensions.PathExtensions
 import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
 import stryker4jvm.files.FilesFileResolver
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.*
 import stryker4jvm.reporting.{IOReporter, MutantTestedEvent}
 
@@ -25,7 +25,7 @@ class MutantRunner(
     fileResolver: FilesFileResolver,
     rollbackHandler: RollbackHandler,
     reporter: IOReporter[Config]
-)(implicit config: Config, log: Logger) {
+)(implicit config: Config, log: FansiLogger) {
 
   def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
 

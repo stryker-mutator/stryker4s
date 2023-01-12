@@ -5,15 +5,15 @@ import fansi.{Color, EscapeAttr, Str}
 import fs2.Pipe
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
 import stryker4jvm.extensions.DurationExtensions.HumanReadableExtension
 import stryker4jvm.extensions.NumberExtensions.RoundDecimalsExtension
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{IOReporter, *}
 import stryker4jvm.run.threshold.*
 
 import scala.concurrent.duration.*
 
-class ConsoleReporter()(implicit config: Config, log: Logger) extends IOReporter[Config] {
+class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IOReporter[Config] {
 
   override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in => {
     val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }

@@ -5,10 +5,10 @@ import fs2.Stream
 import fs2.io.file.{Files, Path}
 import stryker4jvm.config.Config
 import stryker4jvm.files.Glob.glob
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.run.process.{Command, ProcessRunner}
 
-class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config, log: Logger)
+class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config, log: FansiLogger)
     extends FilesFileResolver {
 
   /** Collect all files that are needed to be copied over to the Stryker4s-tmp folder.

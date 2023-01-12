@@ -29,7 +29,7 @@ object SupportedLanguageMutators {
     val default = new LanguageMutatorConfig(new java.util.HashSet())
     supportedProviders
       .map(provider =>
-        provider.extension -> provider.provideMutator(configs.getOrElse(provider.name, default), options)
+        "." + provider.extension -> provider.provideMutator(configs.getOrElse(provider.name, default), options)
       )
       .toMap
   }

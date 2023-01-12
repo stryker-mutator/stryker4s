@@ -11,7 +11,7 @@ import stryker4jvm.extensions.Stryker4jvmCoreConversions.*
 
 import scala.collection.JavaConverters.*
 import stryker4jvm.config.Config
-import stryker4jvm.core.logging.Logger
+import stryker4jvm.core.exception.Stryker4jvmException
 import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
 import stryker4jvm.core.model.{
   AST,
@@ -22,6 +22,7 @@ import stryker4jvm.core.model.{
   MutatedCode
 }
 import stryker4jvm.extensions.Stryker4jvmCoreConversions
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -32,21 +33,23 @@ class Mutator(
     mutantRouter: Map[String, LanguageMutator[? <: AST]]
 )(implicit
     config: Config,
-    log: Logger
+    log: FansiLogger
 ) {
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
     files
       // Parse and mutate files
       .parEvalMap(config.concurrency) { path =>
         val mutator = mutantRouter(path.extName)
-        try {
-          val source = mutator.parse(path.toNioPath)
-          val foundMutations = mutator.collect(source).asInstanceOf[CollectedMutants[AST]]
-
-          IO((SourceContext(source, path), foundMutations))
-        } catch {
-          case e: IOException => IO.raiseError(e)
-        }
+        val source =
+          try
+            IO(mutator.parse(path.toNioPath))
+          catch {
+            case e: Stryker4jvmException => IO.raiseError(e)
+          }
+        source.map(tree => {
+          val foundMutations = mutator.collect(tree).asInstanceOf[CollectedMutants[AST]]
+          (SourceContext(tree, path), foundMutations)
+        })
       }
       // Give each mutation a unique id
       .through(updateWithId())

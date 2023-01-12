@@ -83,7 +83,7 @@ public abstract class Logger {
         return colorEnabled;
     }
 
-    private boolean determineColorEnabled() {
+    protected boolean determineColorEnabled() {
         // Explicitly disable color https://no-color.org/
         boolean notNoColor = System.getenv().containsKey("NO_COLOR");
         // If there is a TERM on Linux (or Windows Git Bash), assume we support color
