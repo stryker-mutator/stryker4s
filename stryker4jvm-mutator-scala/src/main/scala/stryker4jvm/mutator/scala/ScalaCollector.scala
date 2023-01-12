@@ -13,8 +13,9 @@ import scala.collection.mutable.Map
 
 import scala.collection.JavaConverters.*
 import java.util as ju
+import stryker4jvm.core.logging.Logger
 
-class ScalaCollector(var mutatorConfig: LanguageMutatorConfig) extends Collector[ScalaAST] {
+class ScalaCollector(var mutatorConfig: LanguageMutatorConfig)(implicit log: Logger) extends Collector[ScalaAST] {
 
   override def collect(ast: ScalaAST): CollectedMutants[ScalaAST] = {
     val tree = ast.tree;
@@ -27,27 +28,37 @@ class ScalaCollector(var mutatorConfig: LanguageMutatorConfig) extends Collector
     val matcher = new MutantMatcherImpl(config = mutatorConfig)
 
     var ignoredMutations: Vector[IgnoredMutation[ScalaAST]] = Vector()
-    val mutations = Map[ScalaAST, ju.List[MutatedCode[ScalaAST]]]()
+    var mutations = Map[ScalaAST, ju.List[MutatedCode[ScalaAST]]]()
 
     def traverse(tree: Tree): Unit = {
+
+      println(tree);
+      println(tree.getClass());
+      println(s"Can place: ${traverser.canPlace(tree)}");
+      println();
+
       traverser.canPlace(tree) match {
-        case Some(value) =>
+        case Some(value: Term) =>
+          println(value.getClass())
+          println(tree)
+
           val res = matcher.allMatchers(value)
+          println(s"RES: $res")
 
           if (res != null) {
 
-            val ignored: Vector[IgnoredMutation[ScalaAST]] = Vector();
-            val mutants: Vector[MutatedCode[ScalaAST]] = Vector();
+            var ignored: Vector[IgnoredMutation[ScalaAST]] = Vector();
+            var mutants: Vector[MutatedCode[ScalaAST]] = Vector();
 
             // val (ignored, mutants) = res.partitionMap(identity(_))
             // Doesn't exist in Scala 2.12 :(, so we get this ugly piece of code
             for (r <- res) {
               if (r.isLeft) {
-                ignored :+ r.left.get;
+                ignored = ignored :+ r.left.get;
               };
 
               if (r.isRight) {
-                mutants :+ r.right.get;
+                mutants = mutants :+ r.right.get;
               }
             }
 
@@ -56,7 +67,7 @@ class ScalaCollector(var mutatorConfig: LanguageMutatorConfig) extends Collector
             }
 
             if (mutants.length > 0) {
-              mutations + (new ScalaAST(term = value) -> mutants.asJava)
+              mutations = mutations + (new ScalaAST(term = value) -> mutants.asJava)
             }
           }
         case None => // Do nothing
@@ -66,6 +77,8 @@ class ScalaCollector(var mutatorConfig: LanguageMutatorConfig) extends Collector
     }
 
     traverse(tree)
+
+    // println(mutations)
 
     new CollectedMutants[ScalaAST](ignoredMutations.asJava, mutations.asJava)
   }

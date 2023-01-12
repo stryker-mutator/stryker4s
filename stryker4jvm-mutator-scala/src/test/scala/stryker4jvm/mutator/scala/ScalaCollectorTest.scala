@@ -11,22 +11,58 @@ import java.util as ju
 
 class ScalaCollectorTest extends AnyFunSpec {
 
+  implicit val log = new ScalaLogger()
+  val col = new ScalaCollector(new LanguageMutatorConfig(scala.collection.Set().asJava))
+
   describe("test") {
     it("test") {
-      val col = new ScalaCollector(new LanguageMutatorConfig(scala.collection.Set().asJava))
-      col.collect(new ScalaAST(tree = q"if (3 > 2) {}"))
+      val tree = new ScalaAST(tree = q"def foo = 18 >= 20")
+      val found = col.collect(tree);
+
+      for (mutation <- found.mutations.asScala) {
+        println(mutation._1.term)
+
+        println(mutation._2)
+        for (x <- mutation._2.asScala) {
+          println(x)
+          println(x.metaData.replacement)
+        }
+      }
     }
 
-    it("test2") {
-      val col = new ScalaCollector(new LanguageMutatorConfig(scala.collection.Set().asJava))
-      col.collect(new ScalaAST(tree = q"class Foo { def foo = x >= 15; if (x == 15) {} }"))
-    }
+    // it("test2") {
+    //   val found = col.collect(new ScalaAST(tree = q"class Foo { def foo = x >= 15; if (x == 15) {} }"));
+    //   println("b")
+    //   for (mutation <- found.mutations.asScala)
+    //     println(mutation)
+    // }
 
-    it("testExcluded") {
-      val config = new LanguageMutatorConfig(Set("ConditionalExpression").asJava)
-      val col = new ScalaCollector(config)
+    // it("testExcluded") {
+    //   val config = new LanguageMutatorConfig(Set("ConditionalExpression").asJava);
+    //   val col = new ScalaCollector(config);
 
-      col.collect(new ScalaAST(tree = q"class Foo { def foo = x >= 15; if (x == 15) {} }"))
-    }
+    //   val found = col.collect(new ScalaAST(tree = q"class Foo { def foo = x >= 15; if (x == 15) {} }"));
+    //   println("c")
+    //   for (mutation <- found.mutations.asScala)
+    //     println(mutation)
+    // }
   }
+
+  // describe("allMatchers") {
+  //   it("should match a conditional statement") {
+  //     val tree = new ScalaAST(tree = q"def foo = 15 > 20 && 20 < 15");
+  //     val found = col.collect(tree);
+
+  //     // found.mutations.forEach()
+
+  //     println("d")
+  //     for (mutation <- found.mutations.asScala)
+  //       println(mutation)
+
+  //     // found.flatMap(_.toSeq).flatMap(_.toVector) should have length 7
+  //     // expectMutations(found, q">", q">=", q"<", q"==")("EqualityOperator")
+  //     // expectMutations(found, q"&&", q"||")("LogicalOperator")
+  //     // expectMutations(found, q"<", q"<=", q">", q"==")("EqualityOperator")
+  //   }
+  // }
 }

@@ -9,6 +9,7 @@ import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
 
 class TraverserTest extends Stryker4sSuite {
 
+  implicit val log = new ScalaLogger();
   val traverser = new TraverserImpl()
 
   describe("canPlace") {

@@ -25,7 +25,7 @@ object MutantMatcher {
   type MatcherResult = PartialFunction[Tree, Either[IgnoredMutation[Tree], MutatedCode[Term]]]
 }
 
-class MutantMatcherImpl(var config: LanguageMutatorConfig = null) extends MutantMatcher {
+class MutantMatcherImpl(var config: LanguageMutatorConfig) extends MutantMatcher {
   override def allMatchers: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] =
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
@@ -37,7 +37,8 @@ class MutantMatcherImpl(var config: LanguageMutatorConfig = null) extends Mutant
 
   // Test method (temporary)
   // TODO: It does something, no clue why it gets here
-  def test: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = { case _ =>
+  def test: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = { case orig =>
+    println(orig.getClass());
     println("Found no mutations");
     null
   }
@@ -48,14 +49,16 @@ class MutantMatcherImpl(var config: LanguageMutatorConfig = null) extends Mutant
   }
 
   def matchEqualityOperator: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
-    case GreaterThanEqualTo(orig) => createMutations(orig)(GreaterThan, LesserThan, EqualTo)
-    case GreaterThan(orig)        => createMutations(orig)(GreaterThanEqualTo, LesserThan, EqualTo)
-    case LesserThanEqualTo(orig)  => createMutations(orig)(LesserThan, GreaterThanEqualTo, EqualTo)
-    case LesserThan(orig)         => createMutations(orig)(LesserThanEqualTo, GreaterThan, EqualTo)
-    case EqualTo(orig)            => createMutations(orig)(NotEqualTo)
-    case NotEqualTo(orig)         => createMutations(orig)(EqualTo)
-    case TypedEqualTo(orig)       => createMutations(orig)(TypedNotEqualTo)
-    case TypedNotEqualTo(orig)    => createMutations(orig)(TypedEqualTo)
+    case GreaterThanEqualTo(orig) =>
+      println("Komt hij hier?");
+      createMutations(orig)(GreaterThan, LesserThan, EqualTo)
+    case GreaterThan(orig)       => createMutations(orig)(GreaterThanEqualTo, LesserThan, EqualTo)
+    case LesserThanEqualTo(orig) => createMutations(orig)(LesserThan, GreaterThanEqualTo, EqualTo)
+    case LesserThan(orig)        => createMutations(orig)(LesserThanEqualTo, GreaterThan, EqualTo)
+    case EqualTo(orig)           => createMutations(orig)(NotEqualTo)
+    case NotEqualTo(orig)        => createMutations(orig)(EqualTo)
+    case TypedEqualTo(orig)      => createMutations(orig)(TypedNotEqualTo)
+    case TypedNotEqualTo(orig)   => createMutations(orig)(TypedEqualTo)
   }
 
   def matchLogicalOperator: PartialFunction[Tree, Vector[Either[IgnoredMutation[ScalaAST], MutatedCode[ScalaAST]]]] = {
