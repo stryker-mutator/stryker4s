@@ -43,22 +43,22 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
-      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
+      assert(result.expr.isEqual(q"_root_.stryker4jvm.activeMutation"), result.expr)
       result.cases.map(_.syntax) should (
         contain
           .inOrderOnly(
             p"case 0 => x > 15".syntax,
             p"case 1 => x <= 15".syntax,
-            p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15".syntax
+            p"case _ if _root_.stryker4jvm.coverage.coverMutant(0, 1) => x >= 15".syntax
           )
       )
       val expected = source"""class Foo {
-                   def foo = _root_.stryker4s.activeMutation match {
+                   def foo = _root_.stryker4jvm.activeMutation match {
                      case 0 =>
                        x > 15
                      case 1 =>
                        x <= 15
-                     case _ if _root_.stryker4s.coverage.coverMutant(0, 1) =>
+                     case _ if _root_.stryker4jvm.coverage.coverMutant(0, 1) =>
                        x >= 15
                    }
                  }"""
@@ -88,25 +88,25 @@ class ScalaInstrumenterTest extends Stryker4sSuite {
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
-      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
+      assert(result.expr.isEqual(q"_root_.stryker4jvm.activeMutation"), result.expr)
       result.cases.map(_.syntax) should (
         contain
           .inOrderOnly(
             p"case 0 => true".syntax,
             p"case 1 => false".syntax,
-            p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar".syntax
+            p"case _ if _root_.stryker4jvm.coverage.coverMutant(0, 1) => bar".syntax
           )
       )
       val expected = source"""class Foo {
           def foo = {
             val bar = true
             if (
-              _root_.stryker4s.activeMutation match {
+              _root_.stryker4jvm.activeMutation match {
                 case 0 =>
                   true
                 case 1 =>
                   false
-                case _ if _root_.stryker4s.coverage.coverMutant(0, 1) =>
+                case _ if _root_.stryker4jvm.coverage.coverMutant(0, 1) =>
                   bar
               }
             ) 1
