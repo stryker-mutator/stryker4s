@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [11, 15, 17]
+        java-version: [15]
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
 
