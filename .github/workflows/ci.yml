@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-java@v3
         name: Setup java
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
           cache: 'sbt'
       - name: Setup Gradle
