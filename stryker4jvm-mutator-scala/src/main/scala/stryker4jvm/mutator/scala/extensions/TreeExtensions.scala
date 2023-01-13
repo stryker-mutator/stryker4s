@@ -121,10 +121,6 @@ object TreeExtensions {
         isTransformed = true
         t
       }
-      // TODO check me
-      // val checkFn: PartialFunction[Tree, Tree] = fn
-      //   .compose[Tree] { case t if !isTransformed => t }
-      //   .andThen { case t => isTransformed = true; t }
       val onceTransformer = new OnceTransformer(checkFn)
       val result = onceTransformer(thisTree)
 
