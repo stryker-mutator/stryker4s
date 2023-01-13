@@ -26,7 +26,7 @@ object SupportedLanguageMutators {
       configs: Map[String, LanguageMutatorConfig],
       options: InstrumenterOptions
   ): Map[String, LanguageMutator[? <: AST]] = {
-    val default = new LanguageMutatorConfig(new java.util.HashSet())
+    val default = new LanguageMutatorConfig(null, new java.util.HashSet())
     supportedProviders
       .map(provider =>
         "." + provider.extension -> provider.provideMutator(configs.getOrElse(provider.name, default), options)

@@ -1,6 +1,7 @@
 package stryker4jvm.config
 
 import fs2.io.file.Path
+import stryker4jvm.core.config.LanguageMutatorConfig
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
@@ -23,7 +24,8 @@ final case class Config(
     concurrency: Int = Config.defaultConcurrency,
     debug: DebugOptions = DebugOptions(),
     staticTmpDir: Boolean = false,
-    cleanTmpDir: Boolean = true
+    cleanTmpDir: Boolean = true,
+    mutatorConfigs: Map[String, LanguageMutatorConfig] = Map.empty
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
