@@ -12,7 +12,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; " +
         "stryker4jvm2_12/publishLocal; stryker4jvm/publishLocal; " +
         "stryker4jvm-api2_12/publishLocal; stryker4jvm-api/publishLocal;" +
-        "stryker4jvm-new-mutator-scala2_12/publishLocal;" +
+        "stryker4jvm-mutator-scala2_12/publishLocal;" +
         "stryker4jvm-plugin-sbt2_12/publishLocal; " +
         "stryker4jvm-plugin-sbt-testrunner/publishLocal"
     ),
@@ -21,7 +21,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       "publishM2Local",
       "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; " +
         "stryker4jvm/publishM2; " +
-        "stryker4jvm-new-mutator-scala/publishM2; " +
+        "stryker4jvm-mutator-scala/publishM2; " +
         "stryker4jvm-api/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
