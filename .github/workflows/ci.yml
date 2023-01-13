@@ -21,19 +21,25 @@ jobs:
           distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
           cache: 'sbt'
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Build core with Maven
         working-directory: ./stryker4jvm-core
         run: mvn clean install
-      - name: Building Kotlin Mutator
-        working-directory: ./stryker4jvm-mutator-kotlin
-        shell: /bin/bash -e {0}
-        run: ./gradlew clean build
-      - name: Publish Kotlin mutator
-        shell: /bin/bash -e {0}
-        working-directory: ./stryker4jvm-mutator-kotlin
-        run: ./gradlew publishToMavenLocal
+      - name: Setup Gradle and build Kotlin Mutator
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.9
+          build-root-directory: ./stryker4jvm-mutator-kotlin
+          arguments: |
+              clean build
+              publishToMavenLocal
+#      - name: Building Kotlin Mutator
+#        working-directory: ./stryker4jvm-mutator-kotlin
+#        shell: /bin/bash -e {0}
+#        run: ./gradlew clean build
+#      - name: Publish Kotlin mutator
+#        shell: /bin/bash -e {0}
+#        working-directory: ./stryker4jvm-mutator-kotlin
+#        run: ./gradlew publishToMavenLocal
       - name: Compile project
         run: sbt compile
 #  sbt-scripted:
