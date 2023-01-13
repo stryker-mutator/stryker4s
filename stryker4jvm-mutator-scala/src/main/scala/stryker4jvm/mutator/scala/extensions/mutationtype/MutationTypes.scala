@@ -35,10 +35,11 @@ object Mutation {
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] with NoInvalidPlacement[T] {
   def tree: T
 
-  override def unapply(arg: T): Option[T] =
+  override def unapply(arg: T): Option[T] = {
     Some(arg)
       .filter(_.isEqual(tree))
       .flatMap(super.unapply)
+  }
 }
 
 trait EqualityOperator extends SubstitutionMutation[Term.Name] {
@@ -81,21 +82,24 @@ trait MethodExpression extends Mutation[Term] {
 /** Helper extractor to filter out mutants that syntactically can not be placed
   */
 protected trait NoInvalidPlacement[T <: Tree] {
-  def unapply(arg: T): Option[T] =
+  def unapply(arg: T): Option[T] = {
     Some(arg)
       .filterNot {
         case name: Term.Name       => name.isDefinition
         case ParentIsTypeLiteral() => true
         case _                     => false
       }
+  }
 }
 
 private[stryker4jvm] case object ParentIsTypeLiteral {
-  def unapply(t: Tree): Boolean = t.parent.exists {
-    case Defn.Val(_, _, Some(`t`), _)       => true
-    case Defn.Var(_, _, Some(`t`), _)       => true
-    case Defn.Def(_, _, _, _, Some(`t`), _) => true
-    case Defn.Type(_, _, _, `t`)            => true
-    case p                                  => p.is[Type] || p.is[Term.ApplyType]
+  def unapply(t: Tree): Boolean = {
+    t.parent.exists {
+      case Defn.Val(_, _, Some(`t`), _)       => true
+      case Defn.Var(_, _, Some(`t`), _)       => true
+      case Defn.Def(_, _, _, _, Some(`t`), _) => true
+      case Defn.Type(_, _, _, `t`)            => true
+      case p                                  => p.is[Type] || p.is[Term.ApplyType]
+    }
   }
 }
