@@ -14,20 +14,18 @@ import scala.meta.Dialect
   */
 trait ConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder
-    .forProduct15(
+    .forProduct13(
       "mutate",
       "test-filter",
       "base-dir",
       "reporters",
       "files",
-      "excluded-mutations",
       "thresholds",
       "dashboard",
       "timeout",
       "timeout-factor",
       "max-test-runner-reuse",
       "legacy-test-runner",
-      "scala-dialect",
       "debug",
       "mutator-configs"
     )((c: Config) =>
@@ -37,14 +35,12 @@ trait ConfigEncoder {
         c.baseDir,
         c.reporters,
         c.files,
-        c.excludedMutations,
         c.thresholds,
         c.dashboard,
         c.timeout,
         c.timeoutFactor,
         c.maxTestRunnerReuse,
         c.legacyTestRunner,
-        c.scalaDialect,
         c.debug,
         c.mutatorConfigs
       )
