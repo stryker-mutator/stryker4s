@@ -28,8 +28,10 @@ jobs:
         run: mvn clean install
       - name: Building Kotlin Mutator
         working-directory: ./stryker4jvm-mutator-kotlin
+        shell: /bin/bash -e {0}
         run: ./gradlew clean build
       - name: Publish Kotlin mutator
+        shell: /bin/bash -e {0}
         working-directory: ./stryker4jvm-mutator-kotlin
         run: ./gradlew publishToMavenLocal
       - name: Compile project
