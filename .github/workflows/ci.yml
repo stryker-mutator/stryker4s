@@ -24,11 +24,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Build core with Maven
-        run: cd stryker4jvm-core; mvn clean install
+        working-directory: ./stryker4jvm-core
+        run: mvn clean install
       - name: Building Kotlin Mutator
-        run: cd stryker4jvm-kotlin-mutator; ./gradlew clean build
+        working-directory: ./stryker4jvm-mutator-kotlin
+        run: ./gradlew clean build
       - name: Publish Kotlin mutator
-        run: cd stryker4jvm-kotlin-mutator; ./gradlew publishToMavenLocal
+        working-directory: ./stryker4jvm-mutator-kotlin
+        run: ./gradlew publishToMavenLocal
       - name: Compile project
         run: sbt compile
 #  sbt-scripted:
