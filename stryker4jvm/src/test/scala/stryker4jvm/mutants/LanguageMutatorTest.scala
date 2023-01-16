@@ -28,9 +28,8 @@ class LanguageMutatorTest extends Stryker4jvmSuite {
       val lines = bufferedSource.getLines().toArray
       bufferedSource.close()
       assert(ast.contents == "")
-      for ((exp, act) <- lines.zip(ast.children)) {
+      for ((exp, act) <- lines.zip(ast.children))
         assert(exp.equals(act.contents) && act.children.isEmpty)
-      }
     }
   }
 
@@ -58,11 +57,12 @@ class LanguageMutatorTest extends Stryker4jvmSuite {
       val lines = bufferedSource.getLines().toArray
       bufferedSource.close()
       val collected = mutator.collect(ast)
-      val mutantsWithId = collected.mutations.asScala.map{case (tree, mutations) => {
+      val mutantsWithId = collected.mutations.asScala.map { case (tree, mutations) =>
         val mutantWithId = mutations.asScala
-          .map(mutatedCode => new MutantWithId(0, mutatedCode.asInstanceOf[MutatedCode[AST]])).asJava
+          .map(mutatedCode => new MutantWithId(0, mutatedCode.asInstanceOf[MutatedCode[AST]]))
+          .asJava
         (tree.asInstanceOf[AST], mutantWithId)
-      }}.asJava
+      }.asJava
       val instrumented = mutator.instrument(ast, mutantsWithId)
       assert(ast != instrumented)
       for (i <- lines.indices) {
