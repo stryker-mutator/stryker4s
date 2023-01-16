@@ -2,11 +2,11 @@ package stryker4jvm.logging
 import fansi.Str
 import stryker4jvm.core.logging.{LogLevel, Logger}
 
-class FansiLogger(val logger: Logger) {
+class FansiLogger(val coreLogger: Logger) {
 
-  final def log(level: LogLevel, msg: => String): Unit = logger.log(level, msg)
-  final def log(level: LogLevel, msg: => String, e: => Throwable): Unit = logger.log(level, msg, e)
-  final def log(level: LogLevel, throwable: Throwable): Unit = logger.log(level, throwable)
+  final def log(level: LogLevel, msg: => String): Unit = coreLogger.log(level, msg)
+  final def log(level: LogLevel, msg: => String, e: => Throwable): Unit = coreLogger.log(level, msg, e)
+  final def log(level: LogLevel, throwable: Throwable): Unit = coreLogger.log(level, throwable)
 
   final def debug(msg: => Str): Unit = logImpl(LogLevel.Debug, msg)
   final def debug(msg: => Str, e: Throwable): Unit = logImpl(LogLevel.Debug, msg, e)
@@ -29,5 +29,5 @@ class FansiLogger(val logger: Logger) {
 
   /** Process a colored fansi.Str to a String, or plain text if colors are disabled */
   @inline private def processMsgStr(msg: fansi.Str): String =
-    if (logger.isColorEnabled) msg.render else msg.plainText
+    if (coreLogger.isColorEnabled) msg.render else msg.plainText
 }

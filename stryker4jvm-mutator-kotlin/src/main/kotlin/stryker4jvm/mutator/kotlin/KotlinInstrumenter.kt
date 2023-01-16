@@ -1,13 +1,17 @@
 package stryker4jvm.mutator.kotlin
 
 import org.jetbrains.kotlin.psi.KtElement
+import stryker4jvm.core.exception.LanguageMutatorProviderException
+import stryker4jvm.core.exception.UnsupportedInstrumenterOptionsException
 import stryker4jvm.core.model.Instrumenter
 import stryker4jvm.core.model.InstrumenterOptions
 import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
+import kotlin.jvm.Throws
 
 class KotlinInstrumenter(private val options: KotlinInstrumenterOptions) : Instrumenter<KotlinAST> {
 
+    @Throws(UnsupportedInstrumenterOptionsException::class)
     constructor(options: InstrumenterOptions) : this(KotlinInstrumenterOptions(options))
 
     constructor() : this(InstrumenterOptions.EnvVar)

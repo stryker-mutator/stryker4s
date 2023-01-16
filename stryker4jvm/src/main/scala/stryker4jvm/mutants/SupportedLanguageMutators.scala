@@ -5,6 +5,7 @@ import stryker4jvm.core.model.{AST, InstrumenterOptions, LanguageMutator}
 import stryker4jvm.core.model.languagemutator.LanguageMutatorProvider
 import stryker4jvm.mutator.kotlin.KotlinMutatorProvider
 import stryker4jvm.mutator.scala.ScalaMutatorProvider
+import stryker4jvm.logging.FansiLogger
 
 case class SupportedProvider(
     name: String,
@@ -12,8 +13,12 @@ case class SupportedProvider(
     extension: String,
     languageProvider: LanguageMutatorProvider
 ) {
-  def provideMutator(config: LanguageMutatorConfig, options: InstrumenterOptions): LanguageMutator[? <: AST] =
-    languageProvider.provideMutator(config, options).asInstanceOf[LanguageMutator[? <: AST]]
+  def provideMutator(
+      config: LanguageMutatorConfig,
+      logger: FansiLogger,
+      options: InstrumenterOptions
+  ): LanguageMutator[? <: AST] =
+    languageProvider.provideMutator(config, logger.coreLogger, options).asInstanceOf[LanguageMutator[? <: AST]]
 }
 
 object SupportedLanguageMutators {
@@ -24,13 +29,27 @@ object SupportedLanguageMutators {
 
   def supportedMutators(
       configs: Map[String, LanguageMutatorConfig],
+      logger: FansiLogger,
       options: InstrumenterOptions
   ): Map[String, LanguageMutator[? <: AST]] = {
     val default = new LanguageMutatorConfig(null, new java.util.HashSet())
     supportedProviders
       .map(provider =>
-        "." + provider.extension -> provider.provideMutator(configs.getOrElse(provider.name, default), options)
+        try
+          Some(
+            "." + provider.extension -> provider
+              .provideMutator(configs.getOrElse(provider.name, default), logger, options)
+          )
+        catch {
+          case e: Throwable =>
+            logger.warn(
+              s"Language mutator provider '${provider.getClass.getName}' threw an exception with message ${e.getMessage}; this mutator will be ignored."
+            )
+            None
+        }
       )
+      .filter(_.isDefined)
+      .map(_.get)
       .toMap
   }
 
