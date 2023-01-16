@@ -34,7 +34,7 @@ abstract class Stryker4jvmRunner(implicit log: FansiLogger) {
     val stryker4jvm = new Stryker4jvm(
       resolveMutatesFileSource,
       new Mutator(
-        SupportedLanguageMutators.supportedMutators(languageMutatorConfigs, instrumenterOptions)
+        SupportedLanguageMutators.supportedMutators(languageMutatorConfigs, log, instrumenterOptions)
       ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
       reporter
