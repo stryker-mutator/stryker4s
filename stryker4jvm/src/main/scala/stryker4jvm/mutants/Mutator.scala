@@ -21,6 +21,7 @@ import stryker4jvm.core.model.{
   MutantWithId,
   MutatedCode
 }
+import stryker4jvm.exception.InvalidFileTypeException
 import stryker4jvm.extensions.Stryker4jvmCoreConversions
 import stryker4jvm.logging.FansiLogger
 import stryker4jvm.model.{MutantResultsPerFile, MutatedFile, SourceContext}
@@ -39,17 +40,24 @@ class Mutator(
     files
       // Parse and mutate files
       .parEvalMap(config.concurrency) { path =>
-        val mutator = mutantRouter(path.extName)
-        val source =
-          try
-            IO(mutator.parse(path.toNioPath))
-          catch {
-            case e: Stryker4jvmException => IO.raiseError(e)
-          }
-        source.map(tree => {
-          val foundMutations = mutator.collect(tree).asInstanceOf[CollectedMutants[AST]]
-          (SourceContext(tree, path), foundMutations)
-        })
+        val mutatorOption = mutantRouter.get(path.extName)
+        println(path)
+        println(path.extName)
+        println(mutantRouter.keys.toArray.mkString("Array(", ", ", ")"))
+        mutatorOption match {
+          case Some(mutator) =>
+            val source =
+              try
+                IO(mutator.parse(path.toNioPath))
+              catch {
+                case e: Stryker4jvmException => IO.raiseError(e)
+              }
+            source.map(tree => {
+              val foundMutations = mutator.collect(tree).asInstanceOf[CollectedMutants[AST]]
+              (SourceContext(tree, path), foundMutations)
+            })
+          case None => IO.raiseError(InvalidFileTypeException(path))
+        }
       }
       // Give each mutation a unique id
       .through(updateWithId())
