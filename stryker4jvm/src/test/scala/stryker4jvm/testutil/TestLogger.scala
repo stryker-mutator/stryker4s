@@ -33,6 +33,5 @@ class TestLogger(printLogs: Boolean) extends Logger {
     events.enqueue((level, msg))
   }
 
-  // Always log with colors so we can test for color codes
-//  override val colorEnabled: Boolean = true TODO override colorEnabled
+  override def isColorEnabled: Boolean = true
 }
