@@ -5,7 +5,7 @@ import fs2.Stream
 import stryker4jvm.config.Config
 import stryker4jvm.exception.InvalidFileTypeException
 import stryker4jvm.scalatest.{FileUtil, LogMatchers}
-import stryker4jvm.testutil.{Stryker4jvmIOSuite, TestLanguageMutator, MockAST}
+import stryker4jvm.testutil.{MockAST, Stryker4jvmIOSuite, TestLanguageMutator}
 
 import scala.meta.*
 
@@ -14,8 +14,6 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
   implicit val conf: Config = Config.default
   val files = Stream(FileUtil.getResource("mockFiles/simple.test"))
   val mutator = new Mutator(Map(".test" -> testLanguageMutator))
-
-
 
   describe("go") {
     it("Should not give an error for correct files") {
@@ -28,15 +26,18 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
     }
 
     it("Should return the correctly mutated file") {
-      val expected = new MockAST("", Array(
-        new MockAST("Mutated: Hello world"),
-        new MockAST("not a mutator"),
-        new MockAST(""),
-        new MockAST("1 does not get mutated"),
-        new MockAST("Mutated: Another mutator"),
-        new MockAST("Mutated: Mut4t0r")
-      ))
-      mutator.go(files).asserting{case (_, result) =>
+      val expected = new MockAST(
+        "",
+        Array(
+          new MockAST("Mutated: Hello world"),
+          new MockAST("not a mutator"),
+          new MockAST(""),
+          new MockAST("1 does not get mutated"),
+          new MockAST("Mutated: Another mutator"),
+          new MockAST("Mutated: Mut4t0r")
+        )
+      )
+      mutator.go(files).asserting { case (_, result) =>
         assert(result.loneElement.mutatedSource.equals(expected))
       }
     }
