@@ -32,7 +32,7 @@ object SupportedLanguageMutators {
       logger: FansiLogger,
       options: InstrumenterOptions
   ): Map[String, LanguageMutator[? <: AST]] = {
-    val default = new LanguageMutatorConfig(new java.util.HashSet())
+    val default = new LanguageMutatorConfig(null, new java.util.HashSet())
     supportedProviders
       .map(provider =>
         try

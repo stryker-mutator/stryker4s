@@ -6,10 +6,12 @@ import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
 import stryker4jvm.config.*
+import stryker4jvm.core.config.LanguageMutatorConfig
 import sttp.model.Uri
 
 import java.nio.file.Path as JPath
-import scala.meta.{dialects, Dialect}
+import scala.collection.JavaConverters.{asScalaSet, setAsJavaSet}
+import scala.meta.{Dialect, dialects}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *
@@ -41,6 +43,16 @@ trait ConfigConfigReader {
     //      else
     //        valid.toSet.asRight
     }
+
+  implicit def languageMutatorConfigReader: ConfigReader[LanguageMutatorConfig] = {
+    ConfigReader[ConfigLanguageMutatorConfig].map { config =>
+      new LanguageMutatorConfig(config.dialect.orNull, setAsJavaSet(config.excludedMutations.getOrElse(Set.empty)))
+    }
+  }
+
+  implicit def configLanguageMutatorConfigReader: ConfigReader[ConfigLanguageMutatorConfig] = {
+    deriveReader[ConfigLanguageMutatorConfig]
+  }
 
   implicit def uriReader: ConfigReader[Uri] = _root_.pureconfig.module.sttp.reader
 

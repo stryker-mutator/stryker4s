@@ -1,6 +1,7 @@
 package stryker4jvm.config
 
 import fs2.io.file.Path
+import stryker4jvm.core.config.LanguageMutatorConfig
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
@@ -12,18 +13,17 @@ final case class Config(
     baseDir: Path = Path("").absolute,
     reporters: Set[ReporterType] = Set(Console, Html),
     files: Seq[String] = Seq.empty,
-    excludedMutations: Config.ExcludedMutations = Set.empty,
     thresholds: Thresholds = Thresholds(),
     dashboard: DashboardOptions = DashboardOptions(),
     timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
     timeoutFactor: Double = 1.5,
     maxTestRunnerReuse: Option[Int] = None,
     legacyTestRunner: Boolean = false,
-    scalaDialect: Dialect = dialects.Scala213Source3,
     concurrency: Int = Config.defaultConcurrency,
     debug: DebugOptions = DebugOptions(),
     staticTmpDir: Boolean = false,
-    cleanTmpDir: Boolean = true
+    cleanTmpDir: Boolean = true,
+    mutatorConfigs: Map[String, LanguageMutatorConfig] = Map.empty
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {

@@ -9,16 +9,41 @@ import pureconfig.generic.auto.*
 import pureconfig.{ConfigObjectSource, ConfigSource}
 import stryker4jvm.scalatest.LogMatchers
 import stryker4jvm.testutil.{ExampleConfigs, Stryker4jvmSuite}
+import pure.*
+import stryker4jvm.core.config.LanguageMutatorConfig
 import sttp.client3.UriContext
 
 import scala.concurrent.duration.*
 import scala.meta.dialects.*
 
 // TODO: ConfigReaderTest make compiling and make relevant for stryker4jvm
+// note: ConfigReader#readConfigOfType does not work because it is apparently missing an implicit
 class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
+  describe("loadConfig") {
+    it("Should read language mutator configurations") {
+      val configSource = ExampleConfigs.withLanguageMutatorConfigs
+      val config = ConfigReader.readConfig(configSource)
+      // ConfigReader.readConfigOfType[Config](configSource) // <-- this does not compile...
+
+      config.mutatorConfigs should have size 2
+
+      config.mutatorConfigs.contains("scala") shouldBe true
+      val scalaConfig: LanguageMutatorConfig = config.mutatorConfigs.getOrElse("scala", null)
+      scalaConfig.getDialect shouldBe "2_13"
+      scalaConfig.getExcludedMutations should have size 1
+      scalaConfig.getExcludedMutations.contains("BooleanLiteral") shouldBe true
+
+      config.mutatorConfigs.contains("kotlin") shouldBe true
+      val kotlinConfig: LanguageMutatorConfig = config.mutatorConfigs.getOrElse("kotlin", null)
+      kotlinConfig.getDialect shouldBe null
+      kotlinConfig.getExcludedMutations should have size 2
+      kotlinConfig.getExcludedMutations.contains("EqualityOperator") shouldBe true
+      kotlinConfig.getExcludedMutations.contains("AnotherMutatorType") shouldBe true
+    }
+  }
 //  describe("loadConfig") {
 //    it("should load stryker4s by type") {
-//      val configSource = ExampleConfigs.filled
+//      val configSource = ExampleConfigs.empty
 //
 //      ConfigReader.readConfigOfType[Config](configSource) match {
 //        case Left(errors) => fail(errors.toList.mkString(","))

@@ -24,9 +24,6 @@ import sttp.model.HeaderNames
 abstract class Stryker4jvmRunner(implicit log: FansiLogger) {
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
-    // no definition for kotlin configs yet! todo
-    val scalaConfig = config.asLanguageMutatorConfig
-    val languageMutatorConfigs = Map("scala" -> scalaConfig)
 
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
     val reporter = new AggregateReporter(resolveReporters())
@@ -34,7 +31,7 @@ abstract class Stryker4jvmRunner(implicit log: FansiLogger) {
     val stryker4jvm = new Stryker4jvm(
       resolveMutatesFileSource,
       new Mutator(
-        SupportedLanguageMutators.supportedMutators(languageMutatorConfigs, log, instrumenterOptions)
+        SupportedLanguageMutators.supportedMutators(config.mutatorConfigs, log, instrumenterOptions)
       ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
       reporter

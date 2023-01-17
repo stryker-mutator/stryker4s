@@ -46,6 +46,14 @@ object ExampleConfigs {
 
   def empty = ConfigSource.empty
 
+  def withLanguageMutatorConfigs =
+    ConfigSource.string("""stryker4s {
+              | mutator-configs: {
+              |   scala: {dialect: 2_13, excluded-mutations: ["BooleanLiteral"]},
+              |   kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
+              | }
+              |}""".stripMargin)
+
   def emptyStryker4s = ConfigSource.string("stryker4s {}")
 
   def nonExistentFile = ConfigSource.file(Paths.get("nonExistentFile.conf").toAbsolutePath())
