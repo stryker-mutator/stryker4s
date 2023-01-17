@@ -36,8 +36,8 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       stryker4jvmNewMutatorScala.projectRefs ++
       stryker4sCore.projectRefs ++
       stryker4sCommandRunner.projectRefs ++
-      sbtStryker4s.projectRefs ++
-      stryker4sApi.projectRefs ++
+      sbtStryker4jvm.projectRefs ++
+      stryker4jvmApi.projectRefs ++
       sbtTestRunner.projectRefs)*
   )
 
@@ -56,7 +56,7 @@ lazy val stryker4sCommandRunner = newProject("stryker4jvm-command-runner", "stry
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
-lazy val sbtStryker4s = newProject("stryker4jvm-plugin-sbt", "stryker4jvm-plugin-sbt")
+lazy val sbtStryker4jvm = newProject("stryker4jvm-plugin-sbt", "stryker4jvm-plugin-sbt")
   .enablePlugins(SbtPlugin)
   .settings(sbtPluginSettings)
   .dependsOn(stryker4jvm)
@@ -64,10 +64,10 @@ lazy val sbtStryker4s = newProject("stryker4jvm-plugin-sbt", "stryker4jvm-plugin
 
 lazy val sbtTestRunner = newProject("stryker4jvm-plugin-sbt-testrunner", "stryker4jvm-plugin-sbt-testrunner")
   .settings(sbtTestrunnerSettings)
-  .dependsOn(stryker4sApi)
+  .dependsOn(stryker4jvmApi)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-lazy val stryker4sApi = newProject("stryker4jvm-api", "stryker4jvm-api")
+lazy val stryker4jvmApi = newProject("stryker4jvm-api", "stryker4jvm-api")
   .settings(apiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
@@ -81,7 +81,7 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
     )
   )
   .dependsOn(stryker4jvmNewMutatorScala)
-  .dependsOn(stryker4sApi)
+  .dependsOn(stryker4jvmApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")

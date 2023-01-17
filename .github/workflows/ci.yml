@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-java@v3
         name: Setup java
         with:
-          distribution: 'zulu'
+          distribution: 'corretto'
           java-version: ${{ matrix.java-version }}
 #          cache: 'sbt'
       - name: Build core with Maven
