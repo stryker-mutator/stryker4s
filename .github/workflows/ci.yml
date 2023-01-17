@@ -32,7 +32,7 @@ jobs:
               clean build
               publishToMavenLocal
       - name: Compile Stryker4JVM
-        run: sbt -v +compile
+        run: sbt compile --error
 
 #  test:
 #    name: Test tests on JDK ${{matrix.java-version}} (${{matrix.os}})
