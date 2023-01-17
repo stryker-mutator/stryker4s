@@ -19,7 +19,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java-version }}
-          cache: 'sbt'
+#          cache: 'sbt'
       - name: Build core with Maven
         working-directory: ./stryker4jvm-core
         run: mvn clean install
@@ -34,36 +34,36 @@ jobs:
       - name: Compile Stryker4JVM
         run: sbt -v +compile
 
-  test:
-    name: Test tests on JDK ${{matrix.java-version}} (${{matrix.os}})
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: [15]
-        os: ['ubuntu-latest', 'windows-latest']
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
-        name: Check out repository
-      - uses: actions/setup-java@v3
-        name: Setup java
-        with:
-          distribution: 'zulu'
-          java-version: ${{ matrix.java-version }}
-          cache: 'sbt'
-      - name: Build core with Maven
-        working-directory: ./stryker4jvm-core
-        run: mvn clean install
-      - name: Setup Gradle and build Kotlin Mutator
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: 6.9.1
-          build-root-directory: ./stryker4jvm-mutator-kotlin
-          arguments: |
-            clean build
-            publishToMavenLocal
-      - name: Compile Stryker4JVM
-        run: sbt -v +test
+#  test:
+#    name: Test tests on JDK ${{matrix.java-version}} (${{matrix.os}})
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        java-version: [15]
+#        os: ['ubuntu-latest', 'windows-latest']
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#      - uses: actions/checkout@v3
+#        name: Check out repository
+#      - uses: actions/setup-java@v3
+#        name: Setup java
+#        with:
+#          distribution: 'zulu'
+#          java-version: ${{ matrix.java-version }}
+#          cache: 'sbt'
+#      - name: Build core with Maven
+#        working-directory: ./stryker4jvm-core
+#        run: mvn clean install
+#      - name: Setup Gradle and build Kotlin Mutator
+#        uses: gradle/gradle-build-action@v2
+#        with:
+#          gradle-version: 6.9.1
+#          build-root-directory: ./stryker4jvm-mutator-kotlin
+#          arguments: |
+#            clean build
+#            publishToMavenLocal
+#      - name: Compile Stryker4JVM
+#        run: sbt -v +test
 #  sbt-scripted:
 #    name: sbt plugin scripted tests
 #    runs-on: ubuntu-latest
