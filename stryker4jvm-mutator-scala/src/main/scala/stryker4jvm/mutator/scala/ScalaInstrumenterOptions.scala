@@ -30,6 +30,6 @@ object ScalaInstrumenterOptions {
   def testRunner = ScalaInstrumenterOptions(
     ActiveMutationContext.testRunner,
     pattern = i => p"$i",
-    condition = Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
+    condition = Some(ids => q"_root_.stryker4jvm.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
   )
 }
