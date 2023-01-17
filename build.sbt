@@ -43,7 +43,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
 
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(coreSettings)
-  .dependsOn(stryker4sApi)
+  .dependsOn(stryker4jvmApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // todo! Convert command runner to work with stryker4jvm
