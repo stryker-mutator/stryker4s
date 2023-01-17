@@ -41,9 +41,6 @@ class Mutator(
       // Parse and mutate files
       .parEvalMap(config.concurrency) { path =>
         val mutatorOption = mutantRouter.get(path.extName)
-        println(path)
-        println(path.extName)
-        println(mutantRouter.keys.toArray.mkString("Array(", ", ", ")"))
         mutatorOption match {
           case Some(mutator) =>
             val source =
