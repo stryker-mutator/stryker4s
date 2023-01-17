@@ -18,7 +18,7 @@ import java.util
 import scala.collection.JavaConverters.*
 import scala.io.Source
 
-class MockAST(val contents: String, val children: Array[MockAST]) extends AST {
+class MockAST(val contents: String, val children: Array[MockAST] = Array.empty) extends AST {
   override def syntax(): String = s"$contents, ${children.mkString("{", ", ", "}")}"
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[MockAST]
@@ -27,7 +27,7 @@ class MockAST(val contents: String, val children: Array[MockAST]) extends AST {
     case that: MockAST =>
       (that canEqual this) &&
       contents == that.contents &&
-      children == that.children
+      (children sameElements that.children)
     case _ => false
   }
 

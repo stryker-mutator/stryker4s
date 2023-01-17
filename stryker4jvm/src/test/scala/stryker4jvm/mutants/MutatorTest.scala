@@ -5,89 +5,43 @@ import fs2.Stream
 import stryker4jvm.config.Config
 import stryker4jvm.exception.InvalidFileTypeException
 import stryker4jvm.scalatest.{FileUtil, LogMatchers}
-import stryker4jvm.testutil.{Stryker4jvmIOSuite, TestLanguageMutator}
+import stryker4jvm.testutil.{Stryker4jvmIOSuite, TestLanguageMutator, MockAST}
 
 import scala.meta.*
 
 class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
   val testLanguageMutator = new TestLanguageMutator()
+  implicit val conf: Config = Config.default
+  val files = Stream(FileUtil.getResource("mockFiles/simple.test"))
+  val mutator = new Mutator(Map(".test" -> testLanguageMutator))
+
+
 
   describe("go") {
     it("Should not give an error for correct files") {
-      implicit val conf: Config = Config.default
-      val mutator = new Mutator(Map(".test" -> testLanguageMutator))
-      val files = Stream(FileUtil.getResource("mockFiles/simple.test"))
       mutator.go(files).assertNoException
     }
 
     it("Should give an exception for invalid file extensions") {
-      implicit val conf: Config = Config.default
       val mutator = new Mutator(Map(".notTest" -> testLanguageMutator))
-      val files = Stream(FileUtil.getResource("mockFiles/simple.test"))
       mutator.go(files).assertThrows[InvalidFileTypeException]
+    }
+
+    it("Should return the correctly mutated file") {
+      val expected = new MockAST("", Array(
+        new MockAST("Mutated: Hello world"),
+        new MockAST("not a mutator"),
+        new MockAST(""),
+        new MockAST("1 does not get mutated"),
+        new MockAST("Mutated: Another mutator"),
+        new MockAST("Mutated: Mut4t0r")
+      ))
+      mutator.go(files).asserting{case (_, result) =>
+        assert(result.loneElement.mutatedSource.equals(expected))
+      }
     }
   }
 
-//    describe("run") {
-//      implicit val conf: Config = Config.default
-//      val sut = new Mutator(
-//        SupportedLanguageMutators.languageRouter
-//      )
-//      // TODO MutatorTest tests
-//
-//      it("should return a single AST with changed pattern match") {
-//        val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
-//
-//        sut.go(files).asserting { case (_, result) =>
-//          val expected = """object Foo {
-//                           |  def bar = _root_.stryker4s.activeMutation match {
-//                           |    case 0 =>
-//                           |      15 >= 14
-//                           |    case 1 =>
-//                           |      15 < 14
-//                           |    case 2 =>
-//                           |      15 == 14
-//                           |    case _ if _root_.stryker4s.coverage.coverMutant(0, 1, 2) =>
-//                           |      15 > 14
-//                           |  }
-//                           |  def foobar = _root_.stryker4s.activeMutation match {
-//                           |    case 3 =>
-//                           |      ""
-//                           |    case _ if _root_.stryker4s.coverage.coverMutant(3) =>
-//                           |      s"${bar}foo"
-//                           |  }
-//                           |}""".stripMargin.parse[Source].get
-//
-//          assert(result.loneElement.mutatedSource.equals(expected), result.loneElement.mutatedSource)
-//        }
-//      }
-//
-//      it("should run go") {
-//        val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
-//
-//        sut.go(files).asserting { case (_, result) =>
-//          val expected = """object Foo {
-//                           |  def bar = _root_.stryker4s.activeMutation match {
-//                           |    case 0 =>
-//                           |      15 >= 14
-//                           |    case 1 =>
-//                           |      15 < 14
-//                           |    case 2 =>
-//                           |      15 == 14
-//                           |    case _ if _root_.stryker4s.coverage.coverMutant(0, 1, 2) =>
-//                           |      15 > 14
-//                           |  }
-//                           |  def foobar = _root_.stryker4s.activeMutation match {
-//                           |    case 3 =>
-//                           |      ""
-//                           |    case _ if _root_.stryker4s.coverage.coverMutant(3) =>
-//                           |      s"${bar}foo"
-//                           |  }
-//                           |}""".stripMargin.parse[Source].get
-//          assert(result.loneElement.mutatedSource.equals(expected), result.loneElement.mutatedSource)
-//        }
-//      }
-//    }
 //    describe("logs") {
 //
 //      it("should log the amount of mutants found") {
