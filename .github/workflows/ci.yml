@@ -40,8 +40,8 @@ jobs:
 #        shell: /bin/bash -e {0}
 #        working-directory: ./stryker4jvm-mutator-kotlin
 #        run: ./gradlew publishToMavenLocal
-      - name: Compile project
-        run: sbt compile
+      - name: Compile Stryker4JVM
+        run: sbt stryker4jvm/compile
 #  sbt-scripted:
 #    name: sbt plugin scripted tests
 #    runs-on: ubuntu-latest
