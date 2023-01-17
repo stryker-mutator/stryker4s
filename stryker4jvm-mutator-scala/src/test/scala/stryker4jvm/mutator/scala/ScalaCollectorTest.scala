@@ -28,7 +28,7 @@ class ScalaCollectorTest extends Stryker4sSuite {
   implicit val log = new ScalaLogger()
   val col = new ScalaCollector(
     traverser = new TraverserImpl(),
-    matcher = new MutantMatcherImpl(config = new LanguageMutatorConfig(scala.collection.Set().asJava))
+    matcher = new MutantMatcherImpl(config = new LanguageMutatorConfig("Scala", scala.collection.Set().asJava))
   )
 
   describe("onEnter") {

@@ -19,7 +19,7 @@ import stryker4jvm.mutator.scala.extensions.RegexParseError
 
 class MutantMatcherTest extends Stryker4sSuite {
 
-  val sut = new MutantMatcherImpl(new LanguageMutatorConfig(Set().asJava))
+  val sut = new MutantMatcherImpl(new LanguageMutatorConfig("Scala", Set().asJava))
 
   /** Check if there is a mutant for every expected mutation
     */
@@ -699,7 +699,7 @@ class MutantMatcherTest extends Stryker4sSuite {
     import cats.syntax.all.*
     it("should filter out config excluded mutants") {
 
-      val sut = new MutantMatcherImpl(config = new LanguageMutatorConfig(Set("LogicalOperator").asJava))
+      val sut = new MutantMatcherImpl(config = new LanguageMutatorConfig("Scala", Set("LogicalOperator").asJava))
       val tree = q"def foo = 15 > 20 && 20 < 15"
 
       val (ignored, found) = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
