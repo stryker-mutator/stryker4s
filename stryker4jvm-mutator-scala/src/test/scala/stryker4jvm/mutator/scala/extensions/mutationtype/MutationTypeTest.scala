@@ -3,9 +3,9 @@ package stryker4jvm.mutator.scala.extensions.mutationtype
 import scala.meta.*
 import stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion.mutationToTree
 import stryker4jvm.mutator.scala.extensions.TreeExtensions.IsEqualExtension
-import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
+import stryker4jvm.mutator.scala.testutil.Stryker4jvmSuite
 
-class MutationTypeTest extends Stryker4sSuite {
+class MutationTypeTest extends Stryker4jvmSuite {
   describe("EqualityOperator") {
     it("> to GreaterThan") {
       q">" should matchPattern { case GreaterThan(_) => }

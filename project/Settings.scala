@@ -25,6 +25,7 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
+    scalacOptions ++= Seq("-unchecked"),
     tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
   )
 

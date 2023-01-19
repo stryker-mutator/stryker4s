@@ -1,6 +1,6 @@
 package stryker4jvm.mutator.scala
 
-import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
+import stryker4jvm.mutator.scala.testutil.Stryker4jvmSuite
 import fs2.io.file.Path
 import scala.meta.*
 
@@ -14,14 +14,13 @@ import stryker4jvm.mutator.scala.extensions.Stryker4jvmCoreConversions.LocationE
 import scala.collection.JavaConverters.*
 
 import stryker4jvm.mutator.scala.extensions.mutationtype.*
-import cats.data.{NonEmptyList, NonEmptyVector}
 
 import stryker4jvm.core.model.MutantWithId
 import stryker4jvm.core.model.MutatedCode
 import stryker4jvm.core.model.MutantMetaData
 import java.util as ju
 
-class ScalaInstrumenterTest extends Stryker4sSuite {
+class ScalaInstrumenterTest extends Stryker4jvmSuite {
   val path = Path("foo/bar.scala")
 
   describe("instrumentFile") {

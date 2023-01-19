@@ -12,6 +12,8 @@ import scala.meta.Source
   * import stryker4jvm.extension.ImplicitMutationConversion._
   * val gt: Tree = GreaterThan
   * }}}
+  *
+  * Also converts ScalaASTs to a `scala.meta.Term`, a `scala.meta.Tree` or a `scala.meta.Source`
   */
 object ImplicitMutationConversion {
   implicit def mutationToTree[T <: Tree](mutation: SubstitutionMutation[T]): T = mutation.tree

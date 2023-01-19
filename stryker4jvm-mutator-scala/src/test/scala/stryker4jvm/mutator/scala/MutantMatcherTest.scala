@@ -1,6 +1,5 @@
 package stryker4jvm.mutator.scala
 
-import org.scalatest.funspec.AnyFunSpec
 import scala.meta.*
 import stryker4jvm.core.config.LanguageMutatorConfig
 import scala.collection.JavaConverters.*
@@ -11,13 +10,12 @@ import stryker4jvm.mutator.scala.extensions.mutationtype.*
 import stryker4jvm.mutator.scala.extensions.TreeExtensions.{FindExtension, PositionExtension}
 
 import stryker4jvm.mutator.scala.MutantMatcher.MutationMatcher
-import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
+import stryker4jvm.mutator.scala.testutil.Stryker4jvmSuite
 
 import stryker4jvm.mutator.scala.extensions.ImplicitMutationConversion.mutationToTree
-import stryker4jvm.core.model.IgnoredMutationReason.MutationExcluded
 import stryker4jvm.mutator.scala.extensions.RegexParseError
 
-class MutantMatcherTest extends Stryker4sSuite {
+class MutantMatcherTest extends Stryker4jvmSuite {
 
   val sut = new MutantMatcherImpl(new LanguageMutatorConfig("Scala", Set().asJava))
 
@@ -704,10 +702,7 @@ class MutantMatcherTest extends Stryker4sSuite {
 
       val (ignored, found) = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
 
-      // val (ignored, found) = tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
-
       found.flatMap(_.toVector) should have length 6
-      // val (code, reason) = ignored.flatMap(_.toVector).loneElement
 
       // ignored is a list of vectors of ignored mutants
       val one_ignored: IgnoredMutation[ScalaAST] = ignored.head.head;
@@ -722,14 +717,14 @@ class MutantMatcherTest extends Stryker4sSuite {
     }
 
     it("should filter out string mutants inside annotations") {
-      val tree = q"""@SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
+      val tree = q"""@SuppressWarnings(Array("stryker4jvm.mutation.StringLiteral"))
                       val x = { val l = "s3"; l }"""
 
       val (ignored, found) =
         tree
           .collect(sut.allMatchers)
           .take(1)
-          .map(_(PlaceableTree(tree.find(Lit.String("stryker4s.mutation.StringLiteral")).value)))
+          .map(_(PlaceableTree(tree.find(Lit.String("stryker4jvm.mutation.StringLiteral")).value)))
           .partitionEither(identity)
 
       found.flatMap(_.toVector) shouldBe empty
@@ -742,7 +737,7 @@ class MutantMatcherTest extends Stryker4sSuite {
       val reason = one_ignored.reason;
 
       reason.explanation shouldBe "Mutation was excluded by user configuration"
-      code.metaData.original shouldBe "\"stryker4s.mutation.StringLiteral\""
+      code.metaData.original shouldBe "\"stryker4jvm.mutation.StringLiteral\""
       code.metaData.replacement shouldBe "\"\""
     }
 
