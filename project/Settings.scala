@@ -140,7 +140,7 @@ object Settings {
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
     // Fatal warnings only in CI
-    tpolecatCiModeEnvVar := "CI",
+//    tpolecatCiModeEnvVar := "CI",
     tpolecatReleaseModeEnvVar := "CI_RELEASE",
     tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
