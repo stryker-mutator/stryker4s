@@ -42,11 +42,11 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'corretto'
-          # Sbt version that is tested (1.1.1) doesn't work on Java 17
           java-version: 15
           cache: 'sbt'
       - name: Run tests
-        run: sbt 'publishLocal; scripted sbt-stryker4jvm/test-1'
+        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
+        run: sbt 'stryker4jvm2-12/publishLocal; stryker4jvm-api2_12/publishLocal; sbt-stryker4jvm-testrunner2_12/publishLocal; scripted sbt-stryker4jvm/test-1'
 
   maven-plugin:
     name: Test Maven plugin
