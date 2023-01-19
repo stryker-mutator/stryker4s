@@ -86,9 +86,11 @@ jobs:
           arguments: |
             clean build
             publishToMavenLocal
-      - name: Run tests
+      - name: Publish needed modules
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: sbt 'stryker4jvm2_12/publishLocal; stryker4jvm-api2_12/publishLocal; stryker4jvm-plugin-sbt-testrunner2_12/publishLocal; scripted sbt-stryker4jvm/test-1'
+        run: sbt 'stryker4jvm2_12/publishLocal; stryker4jvm-api2_12/publishLocal; stryker4jvm-plugin-sbt-testrunner2_12/publishLocal'
+      - name: Run scripted test
+        run: sbt 'scripted sbt-stryker4jvm/test-1'
 
   maven-plugin:
     name: Test Maven plugin
