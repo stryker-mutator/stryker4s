@@ -1,6 +1,6 @@
 import io.github.davidgregory084.*
 import Release.*
-import io.github.davidgregory084.TpolecatPlugin.autoImport.{ScalacOptions, tpolecatDevModeOptions}
+import io.github.davidgregory084.TpolecatPlugin.autoImport.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.*
@@ -142,7 +142,7 @@ object Settings {
     // Fatal warnings only in CI turned off
     tpolecatCiModeEnvVar := "CI",
     tpolecatReleaseModeEnvVar := "CI_RELEASE",
-    tpolecatCiModeoptions -= tpolecatDevModeOptions
+    tpolecatCiModeoptions := tpolecatDevModeOptions,
     tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
