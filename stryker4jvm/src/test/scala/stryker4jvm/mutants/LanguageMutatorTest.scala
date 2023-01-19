@@ -1,5 +1,6 @@
 package stryker4jvm.mutants
 
+import stryker4jvm.config.Config
 import stryker4jvm.core.model.{AST, MutantWithId, MutatedCode}
 import stryker4jvm.scalatest.FileUtil
 import stryker4jvm.testutil.{MockAST, Stryker4jvmSuite, TestLanguageMutator}
@@ -46,6 +47,34 @@ class LanguageMutatorTest extends Stryker4jvmSuite {
       val ast = mutator.parse(path)
       val collected = mutator.collect(ast)
       collected.mutations.keySet().forEach(tree => assert(tree.contents.charAt(0).isUpper))
+    }
+
+    it("Should not exclude mutants without reason") {
+      val mutator = new TestLanguageMutator()
+      val ast = mutator.parse(path)
+      val collected = mutator.collect(ast)
+      assert(collected.ignoredMutations.isEmpty)
+    }
+
+    it("Should have a config that doesn't parse numbers") {
+      val mutator = new TestLanguageMutator()
+      mutator.collector.config = Config.default.copy(excludedMutations = Set("noNumber"))
+      val ast = mutator.parse(path)
+      val collected = mutator.collect(ast)
+      collected.mutations.keySet().forEach(tree => assert(!tree.contents.exists(_.isDigit), tree.contents))
+    }
+
+    it("Should include ignored mutations") {
+      val mutator = new TestLanguageMutator()
+      mutator.collector.config = Config.default.copy(excludedMutations = Set("noNumber"))
+      val ast = mutator.parse(path)
+      val collected = mutator.collect(ast)
+      assert(!collected.ignoredMutations.isEmpty)
+      assert(collected.ignoredMutations.size() == 1)
+      collected.ignoredMutations.forEach(ignored => {
+        val tree = ignored.mutatedCode.mutatedStatement
+        assert(tree.contents.exists(_.isDigit), tree.contents)
+      })
     }
   }
 

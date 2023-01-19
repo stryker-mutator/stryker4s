@@ -33,11 +33,11 @@ public class MutantResult {
         this.replacement = replacement;
         this.location = location;
         this.mutantStatus = mutantStatus;
-        this.statusReason = Optional.of(statusReason);
-        this.description = Optional.of(description);
-        this.coveredBy = Optional.of(coveredBy);
-        this.killedBy = Optional.of(killedBy);
-        this.testsCompleted = Optional.of(testsCompleted);
-        this.isStatic = Optional.of(isStatic);
+        this.statusReason = Optional.ofNullable(statusReason);
+        this.description = Optional.ofNullable(description);
+        this.coveredBy = Optional.ofNullable(coveredBy);
+        this.killedBy = Optional.ofNullable(killedBy);
+        this.testsCompleted = Optional.ofNullable(testsCompleted);
+        this.isStatic = Optional.ofNullable(isStatic);
     }
 }
