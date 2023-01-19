@@ -11,7 +11,7 @@ import sttp.model.Uri
 
 import java.nio.file.Path as JPath
 import scala.collection.JavaConverters.{asScalaSet, setAsJavaSet}
-import scala.meta.{Dialect, dialects}
+import scala.meta.{dialects, Dialect}
 
 /** Conversions of custom case classes or enums so PureConfig can read it.
   *

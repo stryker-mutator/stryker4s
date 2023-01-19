@@ -48,11 +48,11 @@ object ExampleConfigs {
 
   def withLanguageMutatorConfigs =
     ConfigSource.string("""stryker4s {
-              | mutator-configs: {
-              |   scala: {dialect: 2_13, excluded-mutations: ["BooleanLiteral"]},
-              |   kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
-              | }
-              |}""".stripMargin)
+                          | mutator-configs: {
+                          |   scala: {dialect: 2_13, excluded-mutations: ["BooleanLiteral"]},
+                          |   kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
+                          | }
+                          |}""".stripMargin)
 
   def emptyStryker4s = ConfigSource.string("stryker4s {}")
 

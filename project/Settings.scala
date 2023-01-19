@@ -51,29 +51,6 @@ object Settings {
     )
   )
 
-  lazy val jvmCoreSettings: Seq[Setting[?]] = Seq(
-    libraryDependencies ++= Seq(
-      Dependencies.catsCore,
-      Dependencies.catsEffect,
-      Dependencies.circeCore,
-      Dependencies.fansi,
-      Dependencies.fs2Core,
-      Dependencies.fs2IO,
-      Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics,
-      Dependencies.pureconfig,
-      Dependencies.pureconfigSttp,
-      Dependencies.scalameta,
-      Dependencies.sttpCirce,
-      Dependencies.sttpFs2Backend,
-      Dependencies.weaponRegeX,
-      Dependencies.test.catsEffectScalaTest,
-      Dependencies.test.mockitoScala,
-      Dependencies.test.mockitoScalaCats,
-      Dependencies.test.scalatest
-    )
-  )
-
   lazy val jvmSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.test.catsEffectScalaTest,
@@ -145,8 +122,9 @@ object Settings {
     tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
-      "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,
-      "io.stryker-mutator" %% "stryker4s-api" % VersionScheme.Always,
+      "io.stryker-mutator" %% "stryker4jvm-api" % VersionScheme.Always,
+      "io.stryker-mutator" %% "stryker4jvm" % VersionScheme.Always,
+      "io.stryker-mutator" %% "stryker4jvm-mutator-scala" % VersionScheme.Always,
       "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % VersionScheme.Always
     ),
     description := "Stryker4s, the mutation testing framework for Scala.",
