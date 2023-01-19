@@ -81,3 +81,4 @@ stryker4k/**/bin
 !.vscode/settings.json
 
 pom.xml.versionsBackup
+*/.gradle/
