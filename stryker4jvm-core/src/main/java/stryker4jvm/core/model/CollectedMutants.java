@@ -5,6 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Container that indicates the collected mutants by a {@link Collector}.
+ * @param <T> The AST structure used by the collector.
+ */
 public class CollectedMutants<T extends AST> {
     /**
      * List containing only those mutations that were ignored, either by configuration constraints or

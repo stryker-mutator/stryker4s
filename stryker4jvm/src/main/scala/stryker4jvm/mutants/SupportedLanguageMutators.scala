@@ -43,7 +43,7 @@ object SupportedLanguageMutators {
         catch {
           case e: Throwable =>
             logger.warn(
-              s"Language mutator provider '${provider.getClass.getName}' threw an exception with message ${e.getMessage}; this mutator will be ignored."
+              s"Language mutator provider '${provider.languageProvider.getClass.getName}' threw an exception with message ${e.getMessage}; this mutator will be ignored."
             )
             None
         }
