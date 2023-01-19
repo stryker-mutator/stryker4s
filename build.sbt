@@ -111,5 +111,3 @@ def newProject(projectName: String, dir: String) =
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
-
-scalacOptions --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
