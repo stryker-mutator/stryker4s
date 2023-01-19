@@ -27,16 +27,16 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(
       "publishCommandRunnerLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4jvm-api/publishLocal; stryker4s-command-runner/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4jvm-api/publishLocal; stryker4jvm-command-runner/publishLocal"
     )
   )
   .aggregate(
     (stryker4jvm.projectRefs ++
       stryker4jvmMutatorScala.projectRefs ++
       stryker4sCore.projectRefs ++
-      stryker4sCommandRunner.projectRefs ++
-      sbtStryker4s.projectRefs ++
-      stryker4sApi.projectRefs ++
+      stryker4jvmCommandRunner.projectRefs ++
+      sbtStryker4jvm.projectRefs ++
+      stryker4jvmApi.projectRefs ++
       sbtTestRunner.projectRefs)*
   )
 
@@ -46,7 +46,7 @@ lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .dependsOn(stryker4jvmApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-lazy val stryker4sCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
+lazy val stryker4jvmCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
   .settings(
     commandRunnerSettings,
     resolvers += Resolver.mavenLocal,
