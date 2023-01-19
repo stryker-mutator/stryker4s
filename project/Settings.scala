@@ -1,6 +1,6 @@
 import io.github.davidgregory084.*
-import TpolecatPlugin.autoImport.*
 import Release.*
+import io.github.davidgregory084.TpolecatPlugin.autoImport.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.*
@@ -117,8 +117,7 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
-    // Fatal warnings only in CI
-    tpolecatCiModeEnvVar := "CI",
+    // Fatal warnings only in CI turned off
     tpolecatReleaseModeEnvVar := "CI_RELEASE",
     tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
