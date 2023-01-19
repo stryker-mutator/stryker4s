@@ -44,9 +44,20 @@ jobs:
           distribution: 'corretto'
           java-version: 15
           cache: 'sbt'
+      - name: Build core with Maven
+        working-directory: ./stryker4jvm-core
+        run: mvn clean install
+      - name: Setup Gradle and build Kotlin Mutator
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.9.1
+          build-root-directory: ./stryker4jvm-mutator-kotlin
+          arguments: |
+            clean build
+            publishToMavenLocal
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: sbt 'stryker4jvm2-12/publishLocal; stryker4jvm-api2_12/publishLocal; sbt-stryker4jvm-testrunner2_12/publishLocal; scripted sbt-stryker4jvm/test-1'
+        run: sbt 'stryker4jvm2_12/publishLocal; stryker4jvm-api2_12/publishLocal; sbt-stryker4jvm-testrunner2_12/publishLocal; scripted sbt-stryker4jvm/test-1'
 
   maven-plugin:
     name: Test Maven plugin
@@ -61,6 +72,17 @@ jobs:
           cache: 'maven'
       - name: Cleanup M2
         run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
+      - name: Build core with Maven
+        working-directory: ./stryker4jvm-core
+        run: mvn clean install
+      - name: Setup Gradle and build Kotlin Mutator
+        uses: gradle/gradle-build-action@v2
+        with:
+         gradle-version: 6.9.1
+         build-root-directory: ./stryker4jvm-mutator-kotlin
+         arguments: |
+           clean build
+           publishToMavenLocal
       - name: Publish stryker4jvm
         run: sbt 'publishM2Local'
       - name: Run Maven tests
