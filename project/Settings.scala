@@ -142,7 +142,7 @@ object Settings {
     // Fatal warnings only in CI turned off
     tpolecatCiModeEnvVar := "CI",
     tpolecatReleaseModeEnvVar := "CI_RELEASE",
-    tpolecatCiModeoptions := tpolecatDevModeOptions,
+    tpolecatCiModeOptions := tpolecatDevModeOptions.value,
     tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
