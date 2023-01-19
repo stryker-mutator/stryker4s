@@ -17,7 +17,7 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
         s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
+          )}","reporters":["console","html"],"files":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"debug":{"log-test-runner-stdout":false,"debug-test-runner":false},"mutator-configs":{}}"""
       )
     }
 
@@ -27,7 +27,6 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
           mutate = Seq("**/main/scala/**.scala"),
           testFilter = Seq("foo.scala"),
           files = Seq("file.scala"),
-          excludedMutations = Set("bar.scala"),
           maxTestRunnerReuse = Some(2),
           dashboard = DashboardOptions(
             project = Some("myProject"),
@@ -43,7 +42,6 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
           _.add("mutate", arr(fromString("**/main/scala/**.scala")))
             .add("test-filter", arr(fromString("foo.scala")))
             .add("files", arr(fromString("file.scala")))
-            .add("excluded-mutations", arr(fromString("bar.scala")))
             .add("max-test-runner-reuse", fromInt(2))
             .add(
               "dashboard",
@@ -66,7 +64,7 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
         s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":true,"debug-test-runner":true}}"""
+          )}","reporters":["console","html"],"files":["file.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"debug":{"log-test-runner-stdout":true,"debug-test-runner":true},"mutator-configs":{}}"""
       )
     }
   }
@@ -74,6 +72,8 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
   def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit pos: Position) = {
     val result = config.asJson
 
+    println(s"result: \n${result.noSpaces}")
+    println(s"jsonString: \n$jsonString")
     result.noSpaces shouldBe jsonString
     result shouldBe json
   }
@@ -86,7 +86,6 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
     "test-filter" -> arr(),
     "base-dir" -> fromString(workspaceLocation),
     "reporters" -> arr(fromString("console"), fromString("html")),
-    "excluded-mutations" -> arr(),
     "thresholds" -> obj(
       "high" -> fromInt(80),
       "low" -> fromInt(60),
@@ -99,10 +98,10 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
     "timeout" -> fromInt(5000),
     "timeout-factor" -> fromDouble(1.5).get,
     "legacy-test-runner" -> False,
-    "scala-dialect" -> fromString("scala213source3"),
     "debug" -> obj(
       "log-test-runner-stdout" -> False,
       "debug-test-runner" -> False
-    )
+    ),
+    "mutator-configs" -> obj()
   )
 }

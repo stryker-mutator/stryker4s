@@ -6,6 +6,7 @@ import org.scalatest.matchers.{BeMatcher, MatchResult}
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import stryker4jvm.core.logging.LogLevel
 import stryker4jvm.core.logging.LogLevel.{Debug, Error, Info, Warn}
+import stryker4jvm.logging.FansiLogger
 import stryker4jvm.testutil.TestLogger
 
 trait LogMatchers extends BeforeAndAfterEach {
@@ -19,7 +20,8 @@ trait LogMatchers extends BeforeAndAfterEach {
     */
   def printLogs: Boolean = false
 
-  implicit val testLogger = new TestLogger(printLogs)
+  val testLogger = new TestLogger(printLogs)
+  implicit val log: FansiLogger = new FansiLogger(testLogger)
 
   override protected def afterEach(): Unit = {
     try super.afterEach()

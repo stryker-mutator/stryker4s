@@ -3,10 +3,9 @@ package stryker4jvm.report
 import cats.effect.IO
 import fs2.*
 import fs2.io.file.{Files, Path}
-import java.nio.file.Path as JavaPath
 import mutationtesting.{Metrics, MutationTestResult, Thresholds}
 import org.mockito.captor.ArgCaptor
-import stryker4jvm.core.files.{DiskFileIO, FileIO}
+import stryker4jvm.files.{DiskFileIO, FileIO}
 import stryker4jvm.reporting.FinishedRunEvent
 import stryker4jvm.reporting.reporters.HtmlReporter
 import stryker4jvm.scalatest.LogMatchers
@@ -27,7 +26,7 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
       |  <script src="mutation-test-elements.js"></script>
       |</head>
       |<body>
-      |  <mutation-test-report-app title-postfix="Stryker4s report">
+      |  <mutation-test-report-app title-postfix="Stryker4jvm report">
       |    Your browser doesn't support <a href="https://caniuse.com/#search=custom%20elements">custom elements</a>.
       |    Please use a latest version of an evergreen browser (Firefox, Chrome, Safari, Opera, etc).
       |  </mutation-test-report-app>
@@ -46,14 +45,14 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
   describe("indexHtml") {
     it("should contain title") {
       val mockFileIO = mock[FileIO]
-      doNothing.when(mockFileIO).createAndWrite(any[JavaPath], any[String])
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val testFile = Path("foo.bar")
 
       sut
         .writeIndexHtmlTo(testFile)
         .map { _ =>
-          verify(mockFileIO).createAndWrite(testFile.toNioPath, expectedHtml)
+          verify(mockFileIO).createAndWrite(testFile, expectedHtml)
         }
         .assertNoException
     }
@@ -62,7 +61,7 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
   describe("reportJs") {
     it("should contain the report") {
       val mockFileIO = mock[FileIO]
-      doNothing.when(mockFileIO).createAndWrite(any[JavaPath], any[String])
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val testFile = Path("foo.bar")
       val runResults = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
@@ -72,7 +71,7 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
         .map { _ =>
           val expectedJs =
             """document.querySelector('mutation-test-report-app').report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"1","thresholds":{"high":100,"low":0},"files":{}}"""
-          verify(mockFileIO).createAndWrite(testFile.toNioPath, expectedJs)
+          verify(mockFileIO).createAndWrite(testFile, expectedJs)
         }
         .assertNoException
     }
@@ -115,8 +114,8 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
 
     it("should write the report files to the report directory") {
       val mockFileIO = mock[FileIO]
-      doNothing.when(mockFileIO).createAndWrite(any[JavaPath], any[String])
-      doNothing.when(mockFileIO).createAndWriteFromResource(any[JavaPath], any[String])
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
+      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
 //      when(mockFileIO.createAndWriteFromResource(any[Path].toNioPath, any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
@@ -125,19 +124,19 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, fileLocation.toNioPath))
         .asserting { _ =>
-          val writtenFilesCaptor = ArgCaptor[JavaPath]
+          val writtenFilesCaptor = ArgCaptor[Path]
           verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor.capture, any[String])
-          verify(mockFileIO).createAndWriteFromResource(any[JavaPath], eqTo(elementsLocation))
+          verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
           val paths = writtenFilesCaptor.values.map(_.toString)
           all(paths) should include(fileLocation.toString)
-          writtenFilesCaptor.values.map(_.getFileName.toString) should contain.only("index.html", "report.js")
+          writtenFilesCaptor.values.map(_.fileName.toString) should contain.only("index.html", "report.js")
         }
     }
 
     it("should write the mutation-test-elements.js file to the report directory") {
       val mockFileIO = mock[FileIO]
-      doNothing.when(mockFileIO).createAndWrite(any[JavaPath], any[String])
-      doNothing.when(mockFileIO).createAndWriteFromResource(any[JavaPath], any[String])
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
+      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
@@ -145,8 +144,8 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation.toNioPath))
         .asserting { _ =>
-          val elementsCaptor = ArgCaptor[JavaPath]
-          verify(mockFileIO, times(2)).createAndWrite(any[JavaPath], any[String])
+          val elementsCaptor = ArgCaptor[Path]
+          verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
           verify(mockFileIO).createAndWriteFromResource(elementsCaptor.capture, eqTo(elementsLocation))
 
           val expectedFileLocation = fileLocation / "mutation-test-elements.js"
@@ -156,8 +155,8 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
 
     it("should info log a message") {
       val mockFileIO = mock[FileIO]
-      doNothing.when(mockFileIO).createAndWrite(any[JavaPath], any[String])
-      doNothing.when(mockFileIO).createAndWriteFromResource(any[JavaPath], any[String])
+      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
+      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
       val sut = new HtmlReporter(mockFileIO)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
@@ -165,10 +164,10 @@ class HtmlReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMa
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation.toNioPath))
         .asserting { _ =>
-          val captor = ArgCaptor[JavaPath]
+          val captor = ArgCaptor[Path]
           verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
-          verify(mockFileIO, times(2)).createAndWrite(any[Path].toNioPath, any[String])
-          verify(mockFileIO).createAndWriteFromResource(any[Path].toNioPath, any[String])
+          verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
+          verify(mockFileIO).createAndWriteFromResource(any[Path], any[String])
           s"Written HTML report to ${(fileLocation / "index.html").toString}" shouldBe loggedAsInfo
         }
     }

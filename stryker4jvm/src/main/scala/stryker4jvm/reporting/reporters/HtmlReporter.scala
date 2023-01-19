@@ -10,7 +10,7 @@ import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
 class HtmlReporter(fileIO: FileIO)(implicit log: FansiLogger) extends IOReporter[Config] {
 
-  private val title = "stryker4jvm report"
+  private val title = "Stryker4jvm report"
   private val mutationTestElementsName = "mutation-test-elements.js"
   private val htmlReportResource = s"/elements/$mutationTestElementsName"
   private val reportFilename = "report.js"

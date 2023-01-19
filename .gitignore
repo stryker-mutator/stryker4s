@@ -76,6 +76,9 @@ project/project/
 !bin/scalafmt
 
 stryker4k/**/bin
+stryker4jvm-mutator-kotlin/.gradle
+stryker4jvm-mutator-kotlin/bin
+stryker4jvm-mutator-kotlin/build
 
 !.vscode/extensions.json
 !.vscode/settings.json

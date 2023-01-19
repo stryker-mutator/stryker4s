@@ -1,19 +1,23 @@
 package stryker4jvm.testutil
 
 import fs2.io.file.Path
-
 import mutationtesting.*
 import stryker4jvm.config.Config
+import stryker4jvm.core.model.{AST, MutantMetaData, MutantWithId, MutatedCode}
+import stryker4jvm.extensions.Stryker4jvmCoreConversions.LocationExtension
 import stryker4jvm.reporting.FinishedRunEvent
 
 import scala.concurrent.duration.*
 import scala.meta.quasiquotes.*
 
 trait TestData {
-//  def createMutant =
-//    MutantWithId(MutantId(0), MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation)))
+  def createMutant: MutantWithId[AST] =
+    new MutantWithId(
+      1,
+      new MutatedCode(new TestAST(q"<"), new MutantMetaData(">", "<", "EqualityOperator", createLocation))
+    )
 
-  def createLocation = Location(Position(0, 0), Position(0, 0))
+  def createLocation = Location(Position(0, 0), Position(0, 0)).asCoreElement
 
   def createMutationTestResult = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 

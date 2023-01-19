@@ -3,30 +3,31 @@ package stryker4jvm.config.circe
 import fs2.io.file.Path
 import io.circe.Encoder
 import stryker4jvm.config.{Config, *}
+import stryker4jvm.core.config.LanguageMutatorConfig
 import sttp.model.Uri
 
 import scala.concurrent.duration.FiniteDuration
+import scala.collection.JavaConverters.asScalaSet
 import scala.meta.Dialect
 
 /** Circe Encoder for encoding a [[stryker4jvm.config.Config]] to JSON
   */
 trait ConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder
-    .forProduct14(
+    .forProduct13(
       "mutate",
       "test-filter",
       "base-dir",
       "reporters",
       "files",
-      "excluded-mutations",
       "thresholds",
       "dashboard",
       "timeout",
       "timeout-factor",
       "max-test-runner-reuse",
       "legacy-test-runner",
-      "scala-dialect",
-      "debug"
+      "debug",
+      "mutator-configs"
     )((c: Config) =>
       (
         c.mutate,
@@ -34,15 +35,14 @@ trait ConfigEncoder {
         c.baseDir,
         c.reporters,
         c.files,
-        c.excludedMutations,
         c.thresholds,
         c.dashboard,
         c.timeout,
         c.timeoutFactor,
         c.maxTestRunnerReuse,
         c.legacyTestRunner,
-        c.scalaDialect,
-        c.debug
+        c.debug,
+        c.mutatorConfigs
       )
     )
     .mapJson(_.deepDropNullValues)
@@ -65,6 +65,16 @@ trait ConfigEncoder {
       d.project,
       d.version,
       d.module
+    )
+  )
+
+  implicit def languageMutatorConfigEncoder: Encoder[LanguageMutatorConfig] = Encoder.forProduct2(
+    "dialect",
+    "excluded-mutations"
+  )(c =>
+    (
+      c.getDialect,
+      asScalaSet(c.getExcludedMutations)
     )
   )
 

@@ -12,7 +12,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; " +
         "stryker4jvm2_12/publishLocal; stryker4jvm/publishLocal; " +
         "stryker4jvm-api2_12/publishLocal; stryker4jvm-api/publishLocal;" +
-        "stryker4jvm-new-mutator-scala2_12/publishLocal;" +
+        "stryker4jvm-mutator-scala2_12/publishLocal;" +
         "stryker4jvm-plugin-sbt2_12/publishLocal; " +
         "stryker4jvm-plugin-sbt-testrunner/publishLocal"
     ),
@@ -21,7 +21,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
       "publishM2Local",
       "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; " +
         "stryker4jvm/publishM2; " +
-        "stryker4jvm-new-mutator-scala/publishM2; " +
+        "stryker4jvm-mutator-scala/publishM2; " +
         "stryker4jvm-api/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
@@ -33,26 +33,28 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
   .aggregate(
     (stryker4jvm.projectRefs ++
       stryker4jvmMutatorScala.projectRefs ++
-      stryker4jvmNewMutatorScala.projectRefs ++
       stryker4sCore.projectRefs ++
       stryker4sCommandRunner.projectRefs ++
-      sbtStryker4jvm.projectRefs ++
-      stryker4jvmApi.projectRefs ++
+      sbtStryker4s.projectRefs ++
+      stryker4sApi.projectRefs ++
       sbtTestRunner.projectRefs)*
   )
 
+// todo: delete stryker4s-core
 lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .settings(coreSettings)
   .dependsOn(stryker4jvmApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-// todo! Convert command runner to work with stryker4jvm
-//  at the moment we cannot convert it as it also depends on some tests that are not present yet in stryker4jvm
 lazy val stryker4sCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
   .settings(
-    commandRunnerSettings
+    commandRunnerSettings,
+    resolvers += Resolver.mavenLocal,
+    libraryDependencies ++= Seq(
+      "io.stryker-mutator" % "stryker4jvm-core" % "1.0"
+    )
   )
-  .dependsOn(stryker4sCore, stryker4sCore % "test->test")
+  .dependsOn(stryker4jvm, stryker4jvm % "test->test")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
@@ -80,21 +82,11 @@ lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
       "io.stryker-mutator" % "stryker4jvm-mutator-kotlin" % "1.0"
     )
   )
-  .dependsOn(stryker4jvmNewMutatorScala)
+  .dependsOn(stryker4jvmMutatorScala)
   .dependsOn(stryker4jvmApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmMutatorScala = newProject("stryker4jvm-mutator-scala", "stryker4jvm-mutator-scala")
-  .settings(
-    jvmMutatorScalaSettings,
-    resolvers += Resolver.mavenLocal,
-    libraryDependencies ++= Seq(
-      "io.stryker-mutator" % "stryker4jvm-core" % "1.0"
-    )
-  )
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
-
-lazy val stryker4jvmNewMutatorScala = newProject("stryker4jvm-new-mutator-scala", "stryker4jvm-new-mutator-scala")
   .settings(
     jvmMutatorScalaSettings,
     resolvers += Resolver.mavenLocal,
