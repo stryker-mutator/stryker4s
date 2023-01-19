@@ -32,7 +32,9 @@ jobs:
               clean build
               publishToMavenLocal
       - name: Compile Stryker4JVM
-        run: sbt compile; test
+        run: sbt compile
+      - name: Run tests
+        run: sbt test
 
   sbt-scripted:
     name: sbt plugin scripted tests
