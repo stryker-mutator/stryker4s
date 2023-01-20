@@ -28,14 +28,16 @@ final case class ScalaInstrumenterOptions private (
 
 object ScalaInstrumenterOptions {
 
-  def sysContext(instrumenterOptions: InstrumenterOptions) = {
-    val context = instrumenterOptions match {
-      case SysProp    => ActiveMutationContext.sysProps
-      case EnvVar     => ActiveMutationContext.envVar
-      case TestRunner => ActiveMutationContext.testRunner
+  def fromJavaOptions(instrumenterOptions: InstrumenterOptions) = {
+    instrumenterOptions match {
+      case SysProp    => sysContext(ActiveMutationContext.sysProps)
+      case EnvVar     => sysContext(ActiveMutationContext.envVar)
+      case TestRunner => testRunner
     }
-    ScalaInstrumenterOptions(context, pattern = i => p"Some(${Lit.String(i.toString())})", None)
   }
+
+  def sysContext(context: ActiveMutationContext) =
+    ScalaInstrumenterOptions(context, pattern = i => p"Some(${Lit.String(i.toString())})", None)
 
   def testRunner = ScalaInstrumenterOptions(
     ActiveMutationContext.testRunner,

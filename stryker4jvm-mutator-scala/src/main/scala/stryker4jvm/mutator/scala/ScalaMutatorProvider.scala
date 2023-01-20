@@ -19,7 +19,9 @@ class ScalaMutatorProvider extends LanguageMutatorProvider {
         traverser = new TraverserImpl()(log),
         matcher = new MutantMatcherImpl(config = languageMutatorConfig)
       )(log),
-      new ScalaInstrumenter(options = ScalaInstrumenterOptions.sysContext(instrumenterOptions = instrumenterOptions))
+      new ScalaInstrumenter(
+        options = ScalaInstrumenterOptions.fromJavaOptions(instrumenterOptions = instrumenterOptions)
+      )
     )
   }
 }
