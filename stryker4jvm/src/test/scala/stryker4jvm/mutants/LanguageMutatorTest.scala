@@ -1,10 +1,12 @@
 package stryker4jvm.mutants
 
 import stryker4jvm.config.Config
+import stryker4jvm.core.config.LanguageMutatorConfig
 import stryker4jvm.core.model.{AST, MutantWithId, MutatedCode}
 import stryker4jvm.scalatest.FileUtil
 import stryker4jvm.testutil.{MockAST, Stryker4jvmSuite, TestLanguageMutator}
 
+import java.util
 import scala.collection.JavaConverters.*
 import scala.io.Source
 
@@ -58,7 +60,10 @@ class LanguageMutatorTest extends Stryker4jvmSuite {
 
     it("Should have a config that doesn't parse numbers") {
       val mutator = new TestLanguageMutator()
-      mutator.collector.config = Config.default.copy(excludedMutations = Set("noNumber"))
+      val excludedMutants: util.HashSet[String] = new util.HashSet()
+      excludedMutants.add("noNumber")
+      val testLanguageConfig = new LanguageMutatorConfig("test", excludedMutants)
+      mutator.collector.config = Config.default.copy(mutatorConfigs = Map("test" -> testLanguageConfig))
       val ast = mutator.parse(path)
       val collected = mutator.collect(ast)
       collected.mutations.keySet().forEach(tree => assert(!tree.contents.exists(_.isDigit), tree.contents))
@@ -66,7 +71,10 @@ class LanguageMutatorTest extends Stryker4jvmSuite {
 
     it("Should include ignored mutations") {
       val mutator = new TestLanguageMutator()
-      mutator.collector.config = Config.default.copy(excludedMutations = Set("noNumber"))
+      val excludedMutants: util.HashSet[String] = new util.HashSet()
+      excludedMutants.add("noNumber")
+      val testLanguageConfig = new LanguageMutatorConfig("test", excludedMutants)
+      mutator.collector.config = Config.default.copy(mutatorConfigs = Map("test" -> testLanguageConfig))
       val ast = mutator.parse(path)
       val collected = mutator.collect(ast)
       assert(!collected.ignoredMutations.isEmpty)

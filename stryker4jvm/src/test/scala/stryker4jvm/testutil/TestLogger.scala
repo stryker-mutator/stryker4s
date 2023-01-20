@@ -33,5 +33,5 @@ class TestLogger(printLogs: Boolean) extends Logger {
     events.enqueue((level, msg))
   }
 
-  override def isColorEnabled: Boolean = true
+//  override def isColorEnabled: Boolean = true
 }

@@ -3,11 +3,12 @@ package stryker4jvm.mutants
 import fansi.Color.*
 import fs2.Stream
 import stryker4jvm.config.Config
+import stryker4jvm.core.config.LanguageMutatorConfig
 import stryker4jvm.exception.InvalidFileTypeException
 import stryker4jvm.scalatest.{FileUtil, LogMatchers}
 import stryker4jvm.testutil.{MockAST, Stryker4jvmIOSuite, TestLanguageMutator}
 
-import scala.meta.*
+import java.util
 
 class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
   val testLanguageMutator = new TestLanguageMutator()
@@ -58,7 +59,10 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
 
     it("should log the amount of excluded mutants") {
       val testLanguageMutator = new TestLanguageMutator()
-      testLanguageMutator.collector.config = Config.default.copy(excludedMutations = Set("noNumber"))
+      val excludedMutants: util.HashSet[String] = new util.HashSet()
+      excludedMutants.add("noNumber")
+      val testLanguageConfig = new LanguageMutatorConfig("test", excludedMutants)
+      testLanguageMutator.collector.config = Config.default.copy(mutatorConfigs = Map("test" -> testLanguageConfig))
       val files = Stream(FileUtil.getResource("mockFiles/simple.test"))
       val sut = new Mutator(Map(".test" -> testLanguageMutator))
 
@@ -85,7 +89,10 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
 
     it("should log if all mutations are excluded") {
       val testLanguageMutator = new TestLanguageMutator()
-      testLanguageMutator.collector.config = Config.default.copy(excludedMutations = Set("noNumber"))
+      val excludedMutants: util.HashSet[String] = new util.HashSet()
+      excludedMutants.add("noNumber")
+      val testLanguageConfig = new LanguageMutatorConfig("test", excludedMutants)
+      testLanguageMutator.collector.config = Config.default.copy(mutatorConfigs = Map("test" -> testLanguageConfig))
       val files = Stream(FileUtil.getResource("mockFiles/allExcluded.test"))
       val sut = new Mutator(Map(".test" -> testLanguageMutator))
 
@@ -99,12 +106,4 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
       }
     }
   }
-
-}
-
-final class IsEqualExtension(val thisTree: Tree) extends AnyVal {
-
-  /** Structural equality for Trees
-    */
-  final def isEqual(other: Tree): Boolean = thisTree == other || thisTree.structure == other.structure
 }

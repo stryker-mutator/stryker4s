@@ -76,7 +76,8 @@ class TestCollector() extends Collector[MockAST] {
         }
         .toMap
     val (ignored, actual) = mutations.partition { case (ast, _) =>
-      config.excludedMutations.contains("noNumber") && ast.contents.exists(_.isDigit)
+      config.mutatorConfigs.get("test").exists(_.getExcludedMutations.contains("noNumber")) &&
+      ast.contents.exists(_.isDigit)
     }
     val excludedMutations = ignored.values
       .flatMap(ls => ls.asScala)

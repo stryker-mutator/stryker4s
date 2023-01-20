@@ -72,8 +72,6 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
   def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit pos: Position) = {
     val result = config.asJson
 
-    println(s"result: \n${result.noSpaces}")
-    println(s"jsonString: \n$jsonString")
     result.noSpaces shouldBe jsonString
     result shouldBe json
   }
