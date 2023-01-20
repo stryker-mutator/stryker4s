@@ -102,7 +102,8 @@ object ProcessTestRunner extends TestInterfaceMapper {
   }
 
   private def args(port: Port)(implicit config: Config): Seq[String] = {
-    val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
+//    val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
+    val mainClass = "stryker4jvm.plugin.sbt.testrunner.SbtTestRunnerMain"
     val sysProps = s"-D${TestProcessProperties.port}=$port"
     val debugArgs =
       if (config.debug.debugTestRunner)

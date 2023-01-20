@@ -41,7 +41,7 @@ class Stryker4jvm(
       report = mapper.toReport(merged)
       metrics = Metrics.calculateMetrics(report)
       reportsLocation = config.baseDir / "target/stryker4jvm-report" / time.toMillis.toString
-      _ <- IO(reporter.onRunFinished(FinishedRunEvent(report, metrics, results.duration, reportsLocation.toNioPath)))
+      _ <- reporter.onRunFinished(FinishedRunEvent(report, metrics, results.duration, reportsLocation.toNioPath))
     } yield metrics
   }
 }
