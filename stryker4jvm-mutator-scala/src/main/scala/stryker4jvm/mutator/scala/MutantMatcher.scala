@@ -14,7 +14,6 @@ import stryker4jvm.mutator.scala.extensions.PartialFunctionOps.*
 import stryker4jvm.mutator.scala.extensions.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
 
 import stryker4jvm.mutator.scala.extensions.mutationtype.*
-import mutationtesting.Location
 import stryker4jvm.core.model
 import stryker4jvm.core.config.LanguageMutatorConfig
 
@@ -32,7 +31,7 @@ object MutantMatcher {
   /** A PartialFunction that can match on a ScalaMeta tree and return a `Either[IgnoredMutations, Mutations]`.
     *
     * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
-    * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
+    * [[stryker4jvm.core.model.IgnoredMutationReason]] shows the possible reasons.
     */
   type MutationMatcher =
     PartialFunction[Tree, PlaceableTree => Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]]]
@@ -204,7 +203,7 @@ class MutantMatcherImpl(var config: LanguageMutatorConfig) extends MutantMatcher
       mutationType: Mutation[?],
       original: Tree
   ): Either[Vector[IgnoredMutation[ScalaAST]], Vector[MutatedCode[ScalaAST]]] = {
-    val mutationName = "stryker4s.mutation." + mutationType.mutationName
+    val mutationName = "stryker4jvm.mutation." + mutationType.mutationName
 
     if (excludedByConfig(mutationType.mutationName) || excludedByAnnotation(original, mutationName))
       Left(mutations.map(new IgnoredMutation[ScalaAST](_, new model.IgnoredMutationReason.MutationExcluded)))

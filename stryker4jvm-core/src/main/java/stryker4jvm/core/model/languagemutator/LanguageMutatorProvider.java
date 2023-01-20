@@ -12,8 +12,9 @@ import stryker4jvm.core.model.LanguageMutator;
 public interface LanguageMutatorProvider {
     /**
      * Factory method that should return a mutator that is constrained by the config and instrumenter options.
-     * @param config The configuration.
-     * @param logger The logger to use
+     *
+     * @param config              The configuration.
+     * @param logger              The logger to use
      * @param instrumenterOptions The instrumenter options.
      * @return A LanguageMutator abiding to the provided configuration and options.
      */

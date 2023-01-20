@@ -3,6 +3,10 @@ package stryker4jvm.mutator.scala
 import scala.meta.*
 import cats.data.NonEmptyList
 import ActiveMutationContext.ActiveMutationContext
+import stryker4jvm.core.model.InstrumenterOptions
+import stryker4jvm.core.model.InstrumenterOptions.SysProp
+import stryker4jvm.core.model.InstrumenterOptions.EnvVar
+import stryker4jvm.core.model.InstrumenterOptions.TestRunner
 
 object ActiveMutationContext {
   type ActiveMutationContext = Term
@@ -24,8 +28,14 @@ final case class ScalaInstrumenterOptions private (
 
 object ScalaInstrumenterOptions {
 
-  def sysContext(context: ActiveMutationContext) =
+  def sysContext(instrumenterOptions: InstrumenterOptions) = {
+    val context = instrumenterOptions match {
+      case SysProp    => ActiveMutationContext.sysProps
+      case EnvVar     => ActiveMutationContext.envVar
+      case TestRunner => ActiveMutationContext.testRunner
+    }
     ScalaInstrumenterOptions(context, pattern = i => p"Some(${Lit.String(i.toString())})", None)
+  }
 
   def testRunner = ScalaInstrumenterOptions(
     ActiveMutationContext.testRunner,

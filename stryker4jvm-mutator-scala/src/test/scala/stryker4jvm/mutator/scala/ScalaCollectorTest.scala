@@ -1,29 +1,19 @@
 package stryker4jvm.mutator.scala
 
-import org.scalatest.funspec.AnyFunSpec
-import stryker4jvm.mutator.scala.scalatest.FileUtil
-import fs2.io.file.Path
-import java.nio.file.NoSuchFileException
 import stryker4jvm.core.config.LanguageMutatorConfig
 import scala.meta.*
-import cats.syntax.either.*
 import cats.syntax.option.*
 import scala.collection.JavaConverters.*
-import java.util as ju
-import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
-
 import java.util.concurrent.atomic.AtomicInteger
-import cats.data.NonEmptyVector
+
+import stryker4jvm.mutator.scala.testutil.Stryker4jvmSuite
 import stryker4jvm.core.model.MutatedCode
 import stryker4jvm.core.model.MutantMetaData
 import stryker4jvm.core.model.elements.Location
 import stryker4jvm.core.model
-
 import stryker4jvm.mutator.scala.Traverser
 
-import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
-
-class ScalaCollectorTest extends Stryker4sSuite {
+class ScalaCollectorTest extends Stryker4jvmSuite {
 
   implicit val log = new ScalaLogger()
   val col = new ScalaCollector(

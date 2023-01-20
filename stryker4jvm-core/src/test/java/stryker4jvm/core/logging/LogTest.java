@@ -111,11 +111,9 @@ public class LogTest {
     public void testColorEnabled() {
         BufferedLogger logger = new BufferedLogger(false);
         assertFalse(logger.isColorEnabled());
-        assertFalse(logger.colorEnabled);
 
         logger = new BufferedLogger(true);
         assertTrue(logger.isColorEnabled());
-        assertTrue(logger.colorEnabled);
     }
 
     private Throwable generateException(String message) {

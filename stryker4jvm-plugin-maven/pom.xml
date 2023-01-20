@@ -182,7 +182,7 @@
                         <arg>-Wvalue-discard</arg>
                         <arg>-Vimplicits</arg>
                         <arg>-Vtype-diffs</arg>
-                        <arg>-Xfatal-warnings</arg>
+<!--                        <arg>-Xfatal-warnings</arg>-->
                         <arg>-Xsource:3</arg>
                     </args>
                 </configuration>

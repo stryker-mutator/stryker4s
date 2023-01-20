@@ -35,7 +35,3 @@ class TestLogger(printLogs: Boolean) extends Logger {
 
   override def determineColorEnabled = true
 }
-
-//class FansiTestLogger(printLogs: Boolean) {
-//
-//}

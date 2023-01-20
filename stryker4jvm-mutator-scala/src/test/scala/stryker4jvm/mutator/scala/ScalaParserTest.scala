@@ -1,11 +1,11 @@
 package stryker4jvm.mutator.scala
 
-import org.scalatest.funspec.AnyFunSpec
+import stryker4jvm.mutator.scala.testutil.Stryker4jvmSuite
 import stryker4jvm.mutator.scala.scalatest.FileUtil
 import fs2.io.file.Path
 import java.nio.file.NoSuchFileException
 
-class ScalaParserTest extends AnyFunSpec {
+class ScalaParserTest extends Stryker4jvmSuite {
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")
 
   describe("parseFile") {

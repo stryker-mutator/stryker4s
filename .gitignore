@@ -84,3 +84,4 @@ stryker4jvm-mutator-kotlin/build
 !.vscode/settings.json
 
 pom.xml.versionsBackup
+*/.gradle/

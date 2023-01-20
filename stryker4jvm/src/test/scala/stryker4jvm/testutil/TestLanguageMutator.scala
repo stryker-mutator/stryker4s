@@ -1,10 +1,14 @@
 package stryker4jvm.testutil
 
+import stryker4jvm.config.Config
+import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
+import stryker4jvm.core.model.IgnoredMutationReason.MutationExcluded
 import stryker4jvm.core.model.elements.{Location, Position}
 import stryker4jvm.core.model.{
   AST,
   CollectedMutants,
   Collector,
+  IgnoredMutationReason,
   Instrumenter,
   LanguageMutator,
   MutantMetaData,
@@ -18,7 +22,7 @@ import java.util
 import scala.collection.JavaConverters.*
 import scala.io.Source
 
-class MockAST(val contents: String, val children: Array[MockAST]) extends AST {
+class MockAST(val contents: String, val children: Array[MockAST] = Array.empty) extends AST {
   override def syntax(): String = s"$contents, ${children.mkString("{", ", ", "}")}"
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[MockAST]
@@ -27,7 +31,7 @@ class MockAST(val contents: String, val children: Array[MockAST]) extends AST {
     case that: MockAST =>
       (that canEqual this) &&
       contents == that.contents &&
-      children == that.children
+      (children sameElements that.children)
     case _ => false
   }
 
@@ -46,7 +50,9 @@ class TestParser extends Parser[MockAST] {
   }
 }
 
-class TestCollector extends Collector[MockAST] {
+class TestCollector() extends Collector[MockAST] {
+  var config: Config = Config.default
+
   override def collect(t: MockAST): CollectedMutants[MockAST] = {
     val mutations =
       t.children.zipWithIndex
@@ -69,7 +75,16 @@ class TestCollector extends Collector[MockAST] {
           ast -> List(mutatedCode).asJava
         }
         .toMap
-    new CollectedMutants[MockAST](List.empty.asJava, mutations.asJava)
+    val (ignored, actual) = mutations.partition { case (ast, _) =>
+      config.mutatorConfigs.get("test").exists(_.getExcludedMutations.contains("noNumber")) &&
+      ast.contents.exists(_.isDigit)
+    }
+    val excludedMutations = ignored.values
+      .flatMap(ls => ls.asScala)
+      .map(mut => new IgnoredMutation(mut, new MutationExcluded()))
+      .toList
+      .asJava
+    new CollectedMutants[MockAST](excludedMutations, actual.asJava)
   }
 }
 
@@ -87,6 +102,6 @@ class TestInstrumenter extends Instrumenter[MockAST] {
 
 class TestLanguageMutator(
     parser: TestParser = new TestParser(),
-    collector: TestCollector = new TestCollector(),
+    val collector: TestCollector = new TestCollector(),
     instrumenter: TestInstrumenter = new TestInstrumenter()
 ) extends LanguageMutator[MockAST](parser, collector, instrumenter)

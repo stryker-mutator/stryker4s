@@ -13,7 +13,7 @@ import scala.meta.quasiquotes.*
 trait TestData {
   def createMutant: MutantWithId[AST] =
     new MutantWithId(
-      1,
+      0,
       new MutatedCode(new TestAST(q"<"), new MutantMetaData(">", "<", "EqualityOperator", createLocation))
     )
 

@@ -5,9 +5,9 @@ import stryker4jvm.mutator.scala.extensions.TreeExtensions.FindExtension
 import scala.meta.Lit
 import scala.meta.quasiquotes.*
 
-import stryker4jvm.mutator.scala.testutil.Stryker4sSuite
+import stryker4jvm.mutator.scala.testutil.Stryker4jvmSuite
 
-class TraverserTest extends Stryker4sSuite {
+class TraverserTest extends Stryker4jvmSuite {
 
   implicit val log = new ScalaLogger();
   val traverser = new TraverserImpl()
@@ -34,11 +34,11 @@ class TraverserTest extends Stryker4sSuite {
 
     it("can not place inside annotations") {
       val code = q"""
-      @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
+      @SuppressWarnings(Array("stryker4jvm.mutation.MethodExpression"))
       val x = foo()
         """
 
-      val annotation = code.find(Lit.String("stryker4s.mutation.MethodExpression")).value
+      val annotation = code.find(Lit.String("stryker4jvm.mutation.MethodExpression")).value
       val result = traverser.canPlace(annotation)
       result shouldBe None
     }

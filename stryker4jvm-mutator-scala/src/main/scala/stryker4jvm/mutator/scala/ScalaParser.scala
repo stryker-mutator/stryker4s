@@ -6,8 +6,17 @@ import scala.meta.parsers.XtensionParseInputLike
 import stryker4jvm.core.model.Parser
 import java.nio
 
+/** Class used to parse (scala) files into a ScalaAST
+  */
 class ScalaParser extends Parser[ScalaAST] {
 
+  /** Method used to parse a file (via a path) to a ScalaAST
+    *
+    * @param file
+    *   The path to a scala file, which we want to parse
+    * @return
+    *   A ScalaAST if the file was successfully parsed, otherwise we throw an Exception
+    */
   override def parse(file: nio.file.Path): ScalaAST = {
     val parsed = file.parse[Source];
 
