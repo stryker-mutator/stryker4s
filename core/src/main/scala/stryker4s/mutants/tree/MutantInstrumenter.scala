@@ -25,7 +25,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
       .transformOnce {
         Function.unlift { originalTree =>
           val p = PlaceableTree(originalTree)
-          mutantMap.get(p).map { case (mutations) =>
+          mutantMap.get(p).map { case mutations =>
             val mutableCases = mutations.map(mutantToCase)
             val default = defaultCase(p, mutations.map(_.id).toNonEmptyList)
 
