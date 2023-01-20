@@ -67,7 +67,7 @@ class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IORep
     }
   }
 
-  private def resultToString(name: String, mutants: Seq[(String, MutantResult, String)]): String = {
+  private def resultToString(name: String, mutants: Seq[(String, MutantResult, String)]): Str = {
     val mutantsStr =
       if (mutants.nonEmpty)
         Str.join(
@@ -78,7 +78,7 @@ class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IORep
         )
       else Str("")
 
-    Str(s"$name mutants:\n", mutantsStr).plainText
+    Str(s"$name mutants:\n", mutantsStr)
   }
 
   private def mutantDiff(filePath: String, mutant: MutantResult, source: String): Str = {
