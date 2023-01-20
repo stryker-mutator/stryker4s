@@ -13,16 +13,13 @@ class ScalaMutatorProvider extends LanguageMutatorProvider {
       log: Logger,
       instrumenterOptions: InstrumenterOptions
   ): LanguageMutator[ScalaAST] = {
-
-    implicit val log = new ScalaLogger();
-
     new ScalaMutator(
       new ScalaParser(),
       new ScalaCollector(
-        traverser = new TraverserImpl(),
+        traverser = new TraverserImpl()(log),
         matcher = new MutantMatcherImpl(config = languageMutatorConfig)
-      ),
-      new ScalaInstrumenter(options = ScalaInstrumenterOptions.sysContext(ActiveMutationContext.envVar))
+      )(log),
+      new ScalaInstrumenter(options = ScalaInstrumenterOptions.sysContext(instrumenterOptions = instrumenterOptions))
     )
   }
 }
