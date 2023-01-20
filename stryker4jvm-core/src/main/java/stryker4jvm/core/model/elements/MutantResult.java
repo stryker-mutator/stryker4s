@@ -4,6 +4,9 @@ package stryker4jvm.core.model.elements;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Data container summarising the results of a mutant during a test run.
+ */
 public class MutantResult {
     public String id;
     public String mutatorName;

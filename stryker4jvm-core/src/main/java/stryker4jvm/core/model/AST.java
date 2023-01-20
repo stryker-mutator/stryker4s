@@ -3,6 +3,9 @@ package stryker4jvm.core.model;
 /**
  * Base class for a tree-like structure.
  * It is required to override hashCode and equals in order for the object to be usable in maps.
+ * This is enforced because not overriding these may lead to bugs that are hard to debug. Ideally if the tree
+ * structure in the programming language you are using were of type 'scala.meta.Tree' bound to the variable 'tree', then
+ * 2 separate instances of AST with this tree as field should be considered equal to each other.
  * Note that this implicitly means that you should not modify the internal structure of an AST instance
  * once it is initialized as that would possibly lead to an incorrect contract between hashCode and equals.
  * Instead, it is highly suggested that you modify a copy of the AST.
@@ -10,12 +13,12 @@ package stryker4jvm.core.model;
 public abstract class AST {
     /**
      * Creates a string from an AST which can be parsed by an associated {@link Parser} to produce
-     * an equal instance of AST.
+     * an equal instance of AST internally. Note that this does NOT necessarily mean that some AST 'a' should lead to
+     * a.equals(parse(a.syntax())).
      */
     public abstract String syntax();
 
     /**
-     *
      * Inherited from {@link Object#hashCode()}:
      * Returns a hash code value for the object. This method is
      * supported for the benefit of hash tables such as those provided by
@@ -41,15 +44,14 @@ public abstract class AST {
      *     unequal objects may improve the performance of hash tables.
      * </ul>
      *
-     * @implSpec
-     * As far as is reasonably practical, the {@code hashCode} method defined
+     * @return a hash code value for this object.
+     * @implSpec As far as is reasonably practical, the {@code hashCode} method defined
      * by class {@code Object} returns distinct integers for distinct objects.
-     *
-     * @return  a hash code value for this object.
-     * @see     java.lang.Object#equals(java.lang.Object)
-     * @see     java.lang.System#identityHashCode
+     * @see java.lang.Object#equals(java.lang.Object)
+     * @see java.lang.System#identityHashCode
      */
     public abstract int hashCode();
+
     /**
      * Inherited from {@link Object#equals(Object)}:
      * Indicates whether some other object is "equal to" this one.
@@ -86,28 +88,24 @@ public abstract class AST {
      * equivalence class are substitutable for each other, at least
      * for some purposes.
      *
-     * @implSpec
-     * The {@code equals} method for class {@code Object} implements
+     * @param obj the reference object with which to compare.
+     * @return {@code true} if this object is the same as the obj
+     * argument; {@code false} otherwise.
+     * @implSpec The {@code equals} method for class {@code Object} implements
      * the most discriminating possible equivalence relation on objects;
      * that is, for any non-null reference values {@code x} and
      * {@code y}, this method returns {@code true} if and only
      * if {@code x} and {@code y} refer to the same object
      * ({@code x == y} has the value {@code true}).
-     *
+     * <p>
      * In other words, under the reference equality equivalence
      * relation, each equivalence class only has a single element.
-     *
-     * @apiNote
-     * It is generally necessary to override the {@link Object#hashCode hashCode}
+     * @apiNote It is generally necessary to override the {@link Object#hashCode hashCode}
      * method whenever this method is overridden, so as to maintain the
      * general contract for the {@code hashCode} method, which states
      * that equal objects must have equal hash codes.
-     *
-     * @param   obj   the reference object with which to compare.
-     * @return  {@code true} if this object is the same as the obj
-     *          argument; {@code false} otherwise.
-     * @see     #hashCode()
-     * @see     java.util.HashMap
+     * @see #hashCode()
+     * @see java.util.HashMap
      */
     public abstract boolean equals(Object obj);
 }

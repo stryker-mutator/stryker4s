@@ -12,9 +12,8 @@ public enum InstrumenterOptions {
      */
     EnvVar,
     /**
-     * Unclear what this does exactly. I believe that this allows the instrumenter to refer to a static
-     * field of a certain class that is dynamically being updated between runs. Additionally, it has some kind
-     * of conditional filter which is unclear why it has that.
+     * The active mutation can be found in scala class injected at runtime. At the moment only available
+     * for scala-mutator. Other mutators should throw a {@link stryker4jvm.core.exception.UnsupportedInstrumenterOptionsException}.
      */
     TestRunner;
     /**
