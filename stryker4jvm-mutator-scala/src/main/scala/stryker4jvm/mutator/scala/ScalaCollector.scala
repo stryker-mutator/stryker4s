@@ -64,7 +64,15 @@ class ScalaCollector(
         case Left(value) => ignoredMutations = ignoredMutations ++ value
         case Right(mutants) =>
           val ast = new ScalaAST(value = placeableTree.tree);
-          mutations = mutations + (ast -> mutants.asJava)
+
+          if (mutations.contains(ast)) {
+            var muts = mutations.get(ast).get.asScala.toVector;
+            muts ++= mutants;
+
+            mutations = mutations + (ast -> muts.asJava)
+          } else {
+            mutations = mutations + (ast -> mutants.asJava)
+          }
       }
     }
 
