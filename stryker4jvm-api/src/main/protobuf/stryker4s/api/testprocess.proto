@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package stryker4s.api;
+package stryker4jvm.api;
 
 import "scalapb/scalapb.proto";
 option (scalapb.options) = {

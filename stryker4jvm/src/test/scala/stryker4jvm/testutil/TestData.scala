@@ -14,7 +14,10 @@ trait TestData {
   def createMutant: MutantWithId[AST] =
     new MutantWithId(
       0,
-      new MutatedCode(new TestAST(q"<"), new MutantMetaData(">", "<", "EqualityOperator", createLocation))
+      new MutatedCode(
+        new MockAST("", Array(new MockAST("Mutated: Hello World!"))),
+        new MutantMetaData("Hello World!", "Mutated: Hello World!", "mock", createLocation)
+      )
     )
 
   def createLocation = Location(Position(0, 0), Position(0, 0)).asCoreElement

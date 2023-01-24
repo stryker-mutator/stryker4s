@@ -1,6 +1,6 @@
 package stryker4jvm.plugin.sbt.testrunner
 
-import stryker4s.api.testprocess.TestProcessProperties
+import stryker4jvm.api.testprocess.TestProcessProperties
 
 object Context {
   def resolveSocketConfig(): Int = {

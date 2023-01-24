@@ -17,7 +17,7 @@ class Stryker4jvm(
     fileSource: MutatesFileResolver,
     mutator: Mutator,
     runner: MutantRunner,
-    reporter: IOReporter[Config]
+    reporter: IOReporter
 )(implicit
     config: Config
 ) {

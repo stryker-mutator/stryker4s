@@ -8,7 +8,7 @@ import fs2.io.net.Network
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
-import stryker4s.api.testprocess.*
+import stryker4jvm.api.testprocess.*
 import stryker4jvm.model.*
 import stryker4jvm.core.model.{AST, MutantWithId}
 import stryker4jvm.run.TestRunner
