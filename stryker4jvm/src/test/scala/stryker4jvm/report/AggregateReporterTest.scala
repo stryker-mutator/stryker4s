@@ -39,7 +39,7 @@ class AggregateReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with 
 
     it("should report to all reporters even if a first reporter fails") {
       createMutantTestedReporter.flatMap { case (completed1, reporter1) =>
-        val failingReporter = new IOReporter[Config] {
+        val failingReporter = new IOReporter {
           override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
             _ *> (Stream.raiseError[IO](new RuntimeException("Something happened")))
         }
@@ -55,10 +55,10 @@ class AggregateReporterTest extends Stryker4jvmIOSuite with MockitoIOSuite with 
       }
     }
 
-    def createMutantTestedReporter: IO[(Ref[IO, Boolean], IOReporter[Config])] = Ref[IO].of(false).map { completed =>
+    def createMutantTestedReporter: IO[(Ref[IO, Boolean], IOReporter)] = Ref[IO].of(false).map { completed =>
       (
         completed,
-        new IOReporter[Config] {
+        new IOReporter {
           override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
             in => in.evalMap(_ => completed.set(true)).drain
         }

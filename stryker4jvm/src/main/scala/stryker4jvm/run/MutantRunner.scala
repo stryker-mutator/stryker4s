@@ -24,7 +24,7 @@ class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
     fileResolver: FilesFileResolver,
     rollbackHandler: RollbackHandler,
-    reporter: IOReporter[Config]
+    reporter: IOReporter
 )(implicit config: Config, log: FansiLogger) {
 
   def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
@@ -82,10 +82,10 @@ class MutantRunner(
 
   private def prepareTmpDir(targetDir: Path): Resource[IO, Path] = {
     val tmpDirCreated = if (config.staticTmpDir) {
-      val staticTmpDir = targetDir / "stryker4s-tmpDir"
+      val staticTmpDir = targetDir / "stryker4jvm-tmpDir"
       Files[IO].createDirectory(staticTmpDir).as(staticTmpDir)
     } else {
-      Files[IO].createTempDirectory(Some(targetDir), "stryker4s-", None)
+      Files[IO].createTempDirectory(Some(targetDir), "stryker4jvm-", None)
     }
     Resource.makeCase(tmpDirCreated)(tmpDirFinalizeCase)
   }

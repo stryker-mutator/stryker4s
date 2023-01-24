@@ -19,7 +19,7 @@ import sttp.model.{MediaType, StatusCode}
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     log: FansiLogger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
-) extends IOReporter[Config] {
+) extends IOReporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     dashboardConfigProvider.resolveConfig() match {

@@ -8,7 +8,7 @@ import stryker4jvm.files.FileIO
 import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
-class HtmlReporter(fileIO: FileIO)(implicit log: FansiLogger) extends IOReporter[Config] {
+class HtmlReporter(fileIO: FileIO)(implicit log: FansiLogger) extends IOReporter {
 
   private val title = "Stryker4jvm report"
   private val mutationTestElementsName = "mutation-test-elements.js"

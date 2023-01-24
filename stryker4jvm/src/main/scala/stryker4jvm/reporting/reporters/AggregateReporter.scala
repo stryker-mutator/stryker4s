@@ -7,7 +7,7 @@ import stryker4jvm.config.Config
 import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
-class AggregateReporter(reporters: List[IOReporter[Config]])(implicit log: FansiLogger) extends IOReporter[Config] {
+class AggregateReporter(reporters: List[IOReporter])(implicit log: FansiLogger) extends IOReporter {
 
   override def mutantTested =
     reportAll(_.mutantTested)
@@ -17,7 +17,7 @@ class AggregateReporter(reporters: List[IOReporter[Config]])(implicit log: Fansi
 
   /** Broadcast to all reporters in parallel
     */
-  private def reportAll[T](toReporterPipe: IOReporter[Config] => Pipe[IO, T, Nothing]): Pipe[IO, T, Nothing] = {
+  private def reportAll[T](toReporterPipe: IOReporter => Pipe[IO, T, Nothing]): Pipe[IO, T, Nothing] = {
     val pipes = reporters.map(toReporterPipe)
     if (pipes.isEmpty) _.drain
     else

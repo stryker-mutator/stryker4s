@@ -40,7 +40,7 @@ abstract class Stryker4jvmRunner(implicit log: FansiLogger) {
     stryker4jvm.run()
   }
 
-  def resolveReporters()(implicit config: Config): List[IOReporter[Config]] =
+  def resolveReporters()(implicit config: Config): List[IOReporter] =
     config.reporters.toList.map {
       case Console => new ConsoleReporter()
       case Html    => new HtmlReporter(new DiskFileIO())
