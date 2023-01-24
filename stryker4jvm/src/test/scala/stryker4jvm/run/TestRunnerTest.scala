@@ -16,7 +16,6 @@ import stryker4jvm.testutil.{Stryker4jvmIOSuite, TestData}
 import scala.concurrent.duration.*
 
 class TestRunnerTest extends Stryker4jvmIOSuite with LogMatchers with TestData {
-// TODO: test TestRunner without mutator-scala
 
   val coverageTestNames = Seq.empty[String]
   describe("timeoutRunner") {

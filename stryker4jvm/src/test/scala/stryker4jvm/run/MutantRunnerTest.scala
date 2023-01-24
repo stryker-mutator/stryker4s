@@ -17,7 +17,6 @@ import stryker4jvm.testutil.stubs.{TestFileResolver, TestRunnerStub}
 import scala.meta.*
 
 class MutantRunnerTest extends Stryker4jvmIOSuite with MockitoIOSuite with LogMatchers with TestData {
-//    TODO: test MutantRunner without scala-mutator
 
   describe("apply") {
     val baseDir = FileUtil.getResource("mockFiles")
