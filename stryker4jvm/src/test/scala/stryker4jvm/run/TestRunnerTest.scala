@@ -8,7 +8,6 @@ import stryker4jvm.config.Config
 import stryker4jvm.model.{InitialTestRunCoverageReport, InitialTestRunResult, NoCoverageInitialTestRun}
 import stryker4jvm.scalatest.LogMatchers
 import stryker4jvm.testutil.{Stryker4jvmIOSuite, TestData}
-import stryker4s.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.*
 

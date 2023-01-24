@@ -3,7 +3,7 @@ package stryker4jvm.plugin.sbt.testrunner
 import sbt.testing.*
 
 import sbt.testing.{Event, EventHandler, Framework, Status, Task}
-import stryker4s.api.testprocess.*
+import stryker4jvm.api.testprocess.*
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator

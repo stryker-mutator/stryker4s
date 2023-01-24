@@ -2,7 +2,7 @@ package stryker4jvm.plugin.sbt.testrunner
 
 import sbt.testing.{Status, TaskDef}
 import stryker4jvm.plugin.sbt.testrunner.model.{AnnotatedFingerprintImpl, SubclassFingerprintImpl}
-import stryker4s.api.testprocess.*
+import stryker4jvm.api.testprocess.*
 
 /** Maps stryker4s-api test-interface models to sbt-testinterface models
   */
