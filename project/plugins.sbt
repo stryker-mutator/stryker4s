@@ -6,3 +6,6 @@ addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.9.0")
 // Protobuf plugin and its dependencies
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6")
 libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.11"
+
+// Coverage
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.6")
