@@ -42,7 +42,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     0%
   </span>
   <span class="absValue">
-    (0/7)
+    (0/10)
   </span>
 </td>
 <td class="coverageStat">
@@ -99,7 +99,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     0%
   </span>
   <span class="absValue">
-    (0/7)
+    (0/6)
   </span>
 </td>
 <td class="coverageStat">
@@ -251,7 +251,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     0%
   </span>
   <span class="absValue">
-    (0/39)
+    (0/41)
   </span>
 </td>
 <td class="coverageStat">
@@ -283,7 +283,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">11</i>&nbsp;
 <i class="no-highlight">12</i>&nbsp;import java.io.FileNotFoundException
 <i class="no-highlight">13</i>&nbsp;
-<i class="no-highlight">14</i>&nbsp;object ConfigReader {
+<b class="nc"><i class="no-highlight">14</i>&nbsp;object ConfigReader {</b>
 <i class="no-highlight">15</i>&nbsp;  private val configDocUrl: String =
 <b class="nc"><i class="no-highlight">16</i>&nbsp;    &quot;https://stryker-mutator.io/docs/stryker4s/configuration&quot;</b>
 <b class="nc"><i class="no-highlight">17</i>&nbsp;</b>
@@ -316,7 +316,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">44</i>&nbsp;    *   the type of the config that is to be read.
 <i class="no-highlight">45</i>&nbsp;    */
 <i class="no-highlight">46</i>&nbsp;  private class Reader[T] private (
-<i class="no-highlight">47</i>&nbsp;      configSource: ConfigSource,
+<b class="nc"><i class="no-highlight">47</i>&nbsp;      configSource: ConfigSource,</b>
 <b class="nc"><i class="no-highlight">48</i>&nbsp;      onFailure: PartialFunction[ConfigReaderFailures, Reader.Result[T]]</b>
 <b class="nc"><i class="no-highlight">49</i>&nbsp;  )(implicit</b>
 <i class="no-highlight">50</i>&nbsp;      log: FansiLogger,
@@ -357,7 +357,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">85</i>&nbsp;  }
 <i class="no-highlight">86</i>&nbsp;
 <i class="no-highlight">87</i>&nbsp;  private object Reader {
-<b class="nc"><i class="no-highlight">88</i>&nbsp;    type Result[T] = Either[ConfigReaderFailures, T]</b>
+<i class="no-highlight">88</i>&nbsp;    type Result[T] = Either[ConfigReaderFailures, T]
 <i class="no-highlight">89</i>&nbsp;
 <i class="no-highlight">90</i>&nbsp;    def withoutRecovery[T](
 <i class="no-highlight">91</i>&nbsp;        configSource: ConfigSource
@@ -433,7 +433,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

@@ -61,7 +61,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     0%
   </span>
   <span class="absValue">
-    (0/11)
+    (0/14)
   </span>
 </td>
 </tr>
@@ -104,14 +104,14 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">29</i>&nbsp;  }
 <i class="no-highlight">30</i>&nbsp;}
 <i class="no-highlight">31</i>&nbsp;
-<i class="no-highlight">32</i>&nbsp;final class TestProcessServer(messageHandler: MessageHandler, socket: Socket) {
+<b class="nc"><i class="no-highlight">32</i>&nbsp;final class TestProcessServer(messageHandler: MessageHandler, socket: Socket) {</b>
 <i class="no-highlight">33</i>&nbsp;
-<i class="no-highlight">34</i>&nbsp;  def start() = {
+<b class="nc"><i class="no-highlight">34</i>&nbsp;  def start() = {</b>
 <b class="nc"><i class="no-highlight">35</i>&nbsp;    val inputStream = socket.getInputStream()</b>
 <b class="nc"><i class="no-highlight">36</i>&nbsp;    val input = CodedInputStream.newInstance(inputStream)</b>
-<i class="no-highlight">37</i>&nbsp;    try {
+<b class="nc"><i class="no-highlight">37</i>&nbsp;    try {</b>
 <b class="nc"><i class="no-highlight">38</i>&nbsp;      val outputStream = socket.getOutputStream()</b>
-<i class="no-highlight">39</i>&nbsp;      try
+<b class="nc"><i class="no-highlight">39</i>&nbsp;      try</b>
 <b class="nc"><i class="no-highlight">40</i>&nbsp;        while (true) {</b>
 <b class="nc"><i class="no-highlight">41</i>&nbsp;          val request = RequestMessage.parseDelimitedFrom(input).get.toRequest</b>
 <b class="nc"><i class="no-highlight">42</i>&nbsp;          println(s&quot;Received message $request&quot;)</b>
@@ -121,7 +121,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc"><i class="no-highlight">46</i>&nbsp;      finally outputStream.close()</b>
 <b class="nc"><i class="no-highlight">47</i>&nbsp;    } finally inputStream.close()</b>
 <i class="no-highlight">48</i>&nbsp;  }
-<b class="nc"><i class="no-highlight">49</i>&nbsp;}</b>
+<i class="no-highlight">49</i>&nbsp;}
 </div>
 </pre>
 </div>
@@ -148,7 +148,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

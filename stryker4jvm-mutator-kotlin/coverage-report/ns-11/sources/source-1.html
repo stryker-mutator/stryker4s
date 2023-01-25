@@ -77,7 +77,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">2</i>&nbsp;import fansi.Str
 <i class="no-highlight">3</i>&nbsp;import stryker4jvm.core.logging.{LogLevel, Logger}
 <i class="no-highlight">4</i>&nbsp;
-<i class="no-highlight">5</i>&nbsp;class FansiLogger(val coreLogger: Logger) {
+<b class="nc"><i class="no-highlight">5</i>&nbsp;class FansiLogger(val coreLogger: Logger) {</b>
 <i class="no-highlight">6</i>&nbsp;
 <b class="nc"><i class="no-highlight">7</i>&nbsp;  final def log(level: LogLevel, msg: =&gt; String): Unit = coreLogger.log(level, msg)</b>
 <b class="nc"><i class="no-highlight">8</i>&nbsp;  final def log(level: LogLevel, msg: =&gt; String, e: =&gt; Throwable): Unit = coreLogger.log(level, msg, e)</b>
@@ -105,7 +105,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">30</i>&nbsp;  /** Process a colored fansi.Str to a String, or plain text if colors are disabled */
 <i class="no-highlight">31</i>&nbsp;  @inline private def processMsgStr(msg: fansi.Str): String =
 <b class="nc"><i class="no-highlight">32</i>&nbsp;    if (coreLogger.isColorEnabled) msg.render else msg.plainText</b>
-<b class="nc"><i class="no-highlight">33</i>&nbsp;}</b>
+<i class="no-highlight">33</i>&nbsp;}
 </div>
 </pre>
 </div>
@@ -132,7 +132,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

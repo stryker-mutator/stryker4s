@@ -128,7 +128,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">46</i>&nbsp;    }
 <i class="no-highlight">47</i>&nbsp;}
 <i class="no-highlight">48</i>&nbsp;
-<b class="nc"><i class="no-highlight">49</i>&nbsp;private object IsXmlLiteral {</b>
+<i class="no-highlight">49</i>&nbsp;private object IsXmlLiteral {
 <i class="no-highlight">50</i>&nbsp;  def apply(arg: Lit.String): Boolean =
 <b class="nc"><i class="no-highlight">51</i>&nbsp;    arg.parent match {</b>
 <i class="no-highlight">52</i>&nbsp;      // Do not mutate XML literal strings
@@ -136,7 +136,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <b class="nc"><i class="no-highlight">54</i>&nbsp;      case Some(Pat.Xml(parts, _)) if parts.contains(arg)  =&gt; true</b>
 <b class="nc"><i class="no-highlight">55</i>&nbsp;      case _                                               =&gt; false</b>
 <i class="no-highlight">56</i>&nbsp;    }
-<i class="no-highlight">57</i>&nbsp;}
+<b class="nc"><i class="no-highlight">57</i>&nbsp;}</b>
 </div>
 </pre>
 </div>
@@ -163,7 +163,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

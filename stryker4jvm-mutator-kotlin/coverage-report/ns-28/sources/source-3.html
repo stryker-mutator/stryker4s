@@ -109,7 +109,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">8</i>&nbsp;import scala.sys.process.{Process, ProcessLogger}
 <i class="no-highlight">9</i>&nbsp;import scala.util.Try
 <i class="no-highlight">10</i>&nbsp;
-<i class="no-highlight">11</i>&nbsp;abstract class ProcessRunner(implicit log: FansiLogger) {
+<b class="nc"><i class="no-highlight">11</i>&nbsp;abstract class ProcessRunner(implicit log: FansiLogger) {</b>
 <i class="no-highlight">12</i>&nbsp;  def apply(command: Command, workingDir: Path): Try[Seq[String]] = {
 <b class="nc"><i class="no-highlight">13</i>&nbsp;    Try {</b>
 <b class="nc"><i class="no-highlight">14</i>&nbsp;      Process(s&quot;${command.command} ${command.args}&quot;, workingDir.toNioPath.toFile())</b>
@@ -134,14 +134,14 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">33</i>&nbsp;  }
 <i class="no-highlight">34</i>&nbsp;}
 <i class="no-highlight">35</i>&nbsp;
-<b class="nc"><i class="no-highlight">36</i>&nbsp;object ProcessRunner {</b>
+<i class="no-highlight">36</i>&nbsp;object ProcessRunner {
 <b class="nc"><i class="no-highlight">37</i>&nbsp;  private def isWindows: Boolean = sys.props(&quot;os.name&quot;).toLowerCase.contains(&quot;windows&quot;)</b>
 <i class="no-highlight">38</i>&nbsp;
 <i class="no-highlight">39</i>&nbsp;  def apply()(implicit log: FansiLogger): ProcessRunner = {
 <b class="nc"><i class="no-highlight">40</i>&nbsp;    if (isWindows) new WindowsProcessRunner</b>
 <b class="nc"><i class="no-highlight">41</i>&nbsp;    else new UnixProcessRunner</b>
 <i class="no-highlight">42</i>&nbsp;  }
-<i class="no-highlight">43</i>&nbsp;}
+<b class="nc"><i class="no-highlight">43</i>&nbsp;}</b>
 </div>
 </pre>
 </div>
@@ -168,7 +168,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

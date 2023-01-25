@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html id="htmlId">
 <head>
-  <title>Coverage Report > Parser</title>
+  <title>Coverage Report > Collector</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/highlight-idea.css";
@@ -20,14 +20,14 @@ Current scope:     <a href="../../index.html">all classes</a>
     <a href="../index.html">stryker4jvm.core.model</a>
 </div>
 
-<h1>Coverage Summary for Class: Parser (stryker4jvm.core.model)</h1>
+<h1>Coverage Summary for Class: Collector (stryker4jvm.core.model)</h1>
 
 <table class="coverageStats">
 <tr>
   <th class="name">Class</th>
 </tr>
 <tr>
-  <td class="name">Parser</td>
+  <td class="name">Collector</td>
 </tr>
 
 </table>
@@ -39,20 +39,14 @@ Current scope:     <a href="../../index.html">all classes</a>
 <pre>
 <div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.core.model;
 <i class="no-highlight">2</i>&nbsp;
-<i class="no-highlight">3</i>&nbsp;import java.nio.file.Path;
-<i class="no-highlight">4</i>&nbsp;
-<i class="no-highlight">5</i>&nbsp;import stryker4jvm.core.config.LanguageMutatorConfig;
-<i class="no-highlight">6</i>&nbsp;import stryker4jvm.core.exception.Stryker4jvmException;
-<i class="no-highlight">7</i>&nbsp;
-<i class="no-highlight">8</i>&nbsp;public interface Parser&lt;T extends AST&gt; {
-<i class="no-highlight">9</i>&nbsp;    /**
-<i class="no-highlight">10</i>&nbsp;     * Parses the file found at provided path to an appropriate AST.
-<i class="no-highlight">11</i>&nbsp;     * @param p The path to the file
-<i class="no-highlight">12</i>&nbsp;     * @return An appropriate AST
-<i class="no-highlight">13</i>&nbsp;     * @throws Stryker4jvmException when the file could not be parsed into an AST.
-<i class="no-highlight">14</i>&nbsp;     */
-<i class="no-highlight">15</i>&nbsp;    T parse(Path p) throws Stryker4jvmException;
-<i class="no-highlight">16</i>&nbsp;}
+<i class="no-highlight">3</i>&nbsp;public interface Collector&lt;T extends AST&gt; {
+<i class="no-highlight">4</i>&nbsp;    /**
+<i class="no-highlight">5</i>&nbsp;     * Collects all possible mutations from the provided source tree.
+<i class="no-highlight">6</i>&nbsp;     * @param tree The source
+<i class="no-highlight">7</i>&nbsp;     * @return A {@link CollectedMutants collection} of mutants.
+<i class="no-highlight">8</i>&nbsp;     */
+<i class="no-highlight">9</i>&nbsp;    CollectedMutants&lt;T&gt; collect(T tree);
+<i class="no-highlight">10</i>&nbsp;}
 </div>
 </pre>
 </div>
@@ -79,7 +73,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

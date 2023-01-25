@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html id="htmlId">
 <head>
-  <title>Coverage Report > KotlinParser</title>
+  <title>Coverage Report > KotlinMutatorProvider</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/highlight-idea.css";
@@ -20,7 +20,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     <a href="../index.html">stryker4jvm.mutator.kotlin</a>
 </div>
 
-<h1>Coverage Summary for Class: KotlinParser (stryker4jvm.mutator.kotlin)</h1>
+<h1>Coverage Summary for Class: KotlinMutatorProvider (stryker4jvm.mutator.kotlin)</h1>
 
 <table class="coverageStats">
 <tr>
@@ -39,7 +39,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 </th>
 </tr>
 <tr>
-  <td class="name">KotlinParser</td>
+  <td class="name">KotlinMutatorProvider</td>
 <td class="coverageStat">
   <span class="percent">
     100%
@@ -61,7 +61,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     100%
   </span>
   <span class="absValue">
-    (2/2)
+    (5/5)
   </span>
 </td>
 </tr>
@@ -75,17 +75,24 @@ Current scope:     <a href="../../index.html">all classes</a>
 <pre>
 <div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.mutator.kotlin
 <i class="no-highlight">2</i>&nbsp;
-<i class="no-highlight">3</i>&nbsp;import stryker4jvm.core.model.Parser
-<i class="no-highlight">4</i>&nbsp;import stryker4jvm.core.config.LanguageMutatorConfig
-<i class="no-highlight">5</i>&nbsp;import stryker4jvm.mutator.kotlin.utility.PsiUtility
-<i class="no-highlight">6</i>&nbsp;import java.nio.file.Path
-<i class="no-highlight">7</i>&nbsp;
-<b class="fc"><i class="no-highlight">8</i>&nbsp;class KotlinParser : Parser&lt;KotlinAST&gt; {</b>
+<i class="no-highlight">3</i>&nbsp;import stryker4jvm.core.config.LanguageMutatorConfig
+<i class="no-highlight">4</i>&nbsp;import stryker4jvm.core.exception.LanguageMutatorProviderException
+<i class="no-highlight">5</i>&nbsp;import stryker4jvm.core.logging.Logger
+<i class="no-highlight">6</i>&nbsp;import stryker4jvm.core.model.InstrumenterOptions
+<i class="no-highlight">7</i>&nbsp;import stryker4jvm.core.model.LanguageMutator
+<i class="no-highlight">8</i>&nbsp;import stryker4jvm.core.model.languagemutator.LanguageMutatorProvider
 <i class="no-highlight">9</i>&nbsp;
-<i class="no-highlight">10</i>&nbsp;    override fun parse(path: Path?): KotlinAST {
-<b class="fc"><i class="no-highlight">11</i>&nbsp;        return KotlinAST(PsiUtility.createPsiFile(java.nio.file.Files.readString(path)))</b>
-<i class="no-highlight">12</i>&nbsp;    }
-<i class="no-highlight">13</i>&nbsp;}
+<b class="fc"><i class="no-highlight">10</i>&nbsp;class KotlinMutatorProvider : LanguageMutatorProvider {</b>
+<i class="no-highlight">11</i>&nbsp;    @Throws(LanguageMutatorProviderException::class)
+<i class="no-highlight">12</i>&nbsp;    override fun provideMutator(config: LanguageMutatorConfig, logger: Logger, options: InstrumenterOptions): LanguageMutator&lt;*&gt; {
+<i class="no-highlight">13</i>&nbsp;
+<b class="fc"><i class="no-highlight">14</i>&nbsp;        return KotlinMutator(</b>
+<b class="fc"><i class="no-highlight">15</i>&nbsp;                KotlinParser(),</b>
+<b class="fc"><i class="no-highlight">16</i>&nbsp;                KotlinCollector.apply(config),</b>
+<b class="fc"><i class="no-highlight">17</i>&nbsp;                KotlinInstrumenter(options)</b>
+<i class="no-highlight">18</i>&nbsp;        )
+<i class="no-highlight">19</i>&nbsp;    }
+<i class="no-highlight">20</i>&nbsp;}
 </div>
 </pre>
 </div>
@@ -112,7 +119,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>

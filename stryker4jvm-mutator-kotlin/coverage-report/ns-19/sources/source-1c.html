@@ -42,7 +42,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     0%
   </span>
   <span class="absValue">
-    (0/1)
+    (0/3)
   </span>
 </td>
 <td class="coverageStat">
@@ -61,7 +61,7 @@ Current scope:     <a href="../../index.html">all classes</a>
     0%
   </span>
   <span class="absValue">
-    (0/1)
+    (0/3)
   </span>
 </td>
 <td class="coverageStat">
@@ -92,7 +92,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">10</i>&nbsp;  def mutationName: String
 <i class="no-highlight">11</i>&nbsp;}
 <i class="no-highlight">12</i>&nbsp;
-<i class="no-highlight">13</i>&nbsp;object Mutation {
+<b class="nc"><i class="no-highlight">13</i>&nbsp;object Mutation {</b>
 <i class="no-highlight">14</i>&nbsp;  // List of mutations
 <b class="nc"><i class="no-highlight">15</i>&nbsp;  val mutations: List[String] = List[String](</b>
 <b class="nc"><i class="no-highlight">16</i>&nbsp;    classOf[EqualityOperator].getSimpleName,</b>
@@ -114,7 +114,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 <i class="no-highlight">32</i>&nbsp;  *   Has to be a subtype of Tree. This is so that the tree value and unapply methods return the appropriate type. E.G.
 <i class="no-highlight">33</i>&nbsp;  *   a False is of type `scala.meta.Lit.Boolean` instead of a standard `scala.meta.Term`
 <i class="no-highlight">34</i>&nbsp;  */
-<b class="nc"><i class="no-highlight">35</i>&nbsp;trait SubstitutionMutation[T &lt;: Tree] extends Mutation[T] with NoInvalidPlacement[T] {</b>
+<i class="no-highlight">35</i>&nbsp;trait SubstitutionMutation[T &lt;: Tree] extends Mutation[T] with NoInvalidPlacement[T] {
 <i class="no-highlight">36</i>&nbsp;  def tree: T
 <i class="no-highlight">37</i>&nbsp;
 <i class="no-highlight">38</i>&nbsp;  override def unapply(arg: T): Option[T] = {
@@ -211,7 +211,7 @@ Current scope:     <a href="../../index.html">all classes</a>
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2023-01-25 12:29</div>
+    <div style="float:right;">generated on 2023-01-25 13:10</div>
 </div>
 </body>
 </html>
