@@ -1,0 +1,160 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > TraverserImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.mutator.scala</a>
+</div>
+
+<h1>Coverage Summary for Class: TraverserImpl (stryker4jvm.mutator.scala)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TraverserImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/26)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.mutator.scala
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import cats.syntax.flatMap.*
+<i class="no-highlight">4</i>&nbsp;import cats.syntax.option.*
+<i class="no-highlight">5</i>&nbsp;import stryker4jvm.mutator.scala.extensions.TreeExtensions.{FindExtension, TreeIsInExtension}
+<i class="no-highlight">6</i>&nbsp;import stryker4jvm.mutator.scala.extensions.mutationtype.ParentIsTypeLiteral
+<i class="no-highlight">7</i>&nbsp;import stryker4jvm.core.logging.Logger
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import scala.meta.*
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;trait Traverser {
+<i class="no-highlight">12</i>&nbsp;
+<i class="no-highlight">13</i>&nbsp;  /** If the currently visiting node is a node where mutations can be placed, that node is returned, otherwise None
+<i class="no-highlight">14</i>&nbsp;    */
+<i class="no-highlight">15</i>&nbsp;  def canPlace(currentTree: Tree): Option[Term]
+<i class="no-highlight">16</i>&nbsp;
+<i class="no-highlight">17</i>&nbsp;}
+<i class="no-highlight">18</i>&nbsp;
+<b class="nc"><i class="no-highlight">19</i>&nbsp;final class TraverserImpl(implicit log: Logger) extends Traverser {</b>
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;  def canPlace(currentTree: Tree): Option[Term] = {
+<b class="nc"><i class="no-highlight">22</i>&nbsp;    val toPlace = currentTree match {</b>
+<b class="nc"><i class="no-highlight">23</i>&nbsp;      case _: Term.Name                                             =&gt; none</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;      case t: Term.Match                                            =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">25</i>&nbsp;      case t: Case if t.cond.flatMap(_.find(currentTree)).isDefined =&gt; none</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;      case t: Term.Apply                                            =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">27</i>&nbsp;      case t: Term.ApplyInfix                                       =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">28</i>&nbsp;      case t: Term.Block                                            =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">29</i>&nbsp;      case t: Term.If                                               =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">30</i>&nbsp;      case t: Term.ForYield                                         =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">31</i>&nbsp;      case t: Term.Interpolate                                      =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">32</i>&nbsp;      case t: Lit                                                   =&gt; t.some</b>
+<b class="nc"><i class="no-highlight">33</i>&nbsp;      case _                                                        =&gt; none</b>
+<i class="no-highlight">34</i>&nbsp;    }
+<i class="no-highlight">35</i>&nbsp;
+<b class="nc"><i class="no-highlight">36</i>&nbsp;    toPlace</b>
+<i class="no-highlight">37</i>&nbsp;      // Filter out all the node places that are invalid
+<b class="nc"><i class="no-highlight">38</i>&nbsp;      .filter {</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;        case name: Name =&gt; !name.isDefinition</b>
+<i class="no-highlight">40</i>&nbsp;        // Don&#39;t place inside `case` patterns or conditions
+<i class="no-highlight">41</i>&nbsp;        case p
+<b class="nc"><i class="no-highlight">42</i>&nbsp;            if p.findParent[Case].exists(c =&gt; c.pat.contains(currentTree) || c.cond.exists(_.contains(currentTree))) =&gt;</b>
+<b class="nc"><i class="no-highlight">43</i>&nbsp;          false</b>
+<b class="nc"><i class="no-highlight">44</i>&nbsp;        case t if t.parent.exists(_.is[Init]) =&gt;</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;          false</b>
+<b class="nc"><i class="no-highlight">46</i>&nbsp;        case t if t.parent.exists(p =&gt; p.is[Term] &amp;&amp; p.isNot[Term.Select]) =&gt;</b>
+<b class="nc"><i class="no-highlight">47</i>&nbsp;          false</b>
+<b class="nc"><i class="no-highlight">48</i>&nbsp;        case ParentIsTypeLiteral() =&gt; false</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;        case _                     =&gt; true</b>
+<i class="no-highlight">50</i>&nbsp;      }
+<b class="nc"><i class="no-highlight">51</i>&nbsp;      .filterNot(_.isIn[Mod.Annot])</b>
+<b class="nc"><i class="no-highlight">52</i>&nbsp;      .flatTap(t =&gt; log.debug(s&quot;Found tree to place mutations: ${fansi.Color.Green(t.syntax)}&quot;).some)</b>
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;  }
+<i class="no-highlight">55</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

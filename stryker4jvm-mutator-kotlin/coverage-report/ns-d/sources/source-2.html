@@ -1,0 +1,150 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > MutantResult</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.core.model.elements</a>
+</div>
+
+<h1>Coverage Summary for Class: MutantResult (stryker4jvm.core.model.elements)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MutantResult</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/24)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;//
+<i class="no-highlight">2</i>&nbsp;// Source code recreated from a .class file by IntelliJ IDEA
+<i class="no-highlight">3</i>&nbsp;// (powered by FernFlower decompiler)
+<i class="no-highlight">4</i>&nbsp;//
+<i class="no-highlight">5</i>&nbsp;
+<i class="no-highlight">6</i>&nbsp;package stryker4jvm.core.model.elements;
+<i class="no-highlight">7</i>&nbsp;
+<i class="no-highlight">8</i>&nbsp;import java.util.List;
+<i class="no-highlight">9</i>&nbsp;import java.util.Optional;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;public class MutantResult {
+<i class="no-highlight">12</i>&nbsp;    public String id;
+<i class="no-highlight">13</i>&nbsp;    public String mutatorName;
+<i class="no-highlight">14</i>&nbsp;    public String replacement;
+<i class="no-highlight">15</i>&nbsp;    public Location location;
+<b class="nc"><i class="no-highlight">16</i>&nbsp;    public MutantStatus mutantStatus;</b>
+<b class="nc"><i class="no-highlight">17</i>&nbsp;    public Optional&lt;String&gt; statusReason = Optional.empty();</b>
+<b class="nc"><i class="no-highlight">18</i>&nbsp;    public Optional&lt;String&gt; description = Optional.empty();</b>
+<b class="nc"><i class="no-highlight">19</i>&nbsp;    public Optional&lt;List&lt;String&gt;&gt; coveredBy = Optional.empty();</b>
+<b class="nc"><i class="no-highlight">20</i>&nbsp;    public Optional&lt;List&lt;String&gt;&gt; killedBy = Optional.empty();</b>
+<b class="nc"><i class="no-highlight">21</i>&nbsp;    public Optional&lt;Integer&gt; testsCompleted = Optional.empty();</b>
+<i class="no-highlight">22</i>&nbsp;    public Optional&lt;Boolean&gt; isStatic = Optional.empty();
+<b class="nc"><i class="no-highlight">23</i>&nbsp;</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;    public MutantResult(String id, String mutatorName, String replacement, Location location, MutantStatus mutantStatus) {</b>
+<b class="nc"><i class="no-highlight">25</i>&nbsp;        this.id = id;</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;        this.mutatorName = mutatorName;</b>
+<b class="nc"><i class="no-highlight">27</i>&nbsp;        this.replacement = replacement;</b>
+<b class="nc"><i class="no-highlight">28</i>&nbsp;        this.location = location;</b>
+<i class="no-highlight">29</i>&nbsp;        this.mutantStatus = mutantStatus;
+<i class="no-highlight">30</i>&nbsp;    }
+<i class="no-highlight">31</i>&nbsp;
+<i class="no-highlight">32</i>&nbsp;    public MutantResult(String id, String mutatorName, String replacement, Location location, MutantStatus mutantStatus, String statusReason, String description, List&lt;String&gt; coveredBy, List&lt;String&gt; killedBy, Integer testsCompleted, Boolean isStatic) {
+<b class="nc"><i class="no-highlight">33</i>&nbsp;        this.id = id;</b>
+<b class="nc"><i class="no-highlight">34</i>&nbsp;        this.mutatorName = mutatorName;</b>
+<b class="nc"><i class="no-highlight">35</i>&nbsp;        this.replacement = replacement;</b>
+<b class="nc"><i class="no-highlight">36</i>&nbsp;        this.location = location;</b>
+<b class="nc"><i class="no-highlight">37</i>&nbsp;        this.mutantStatus = mutantStatus;</b>
+<b class="nc"><i class="no-highlight">38</i>&nbsp;        this.statusReason = Optional.ofNullable(statusReason);</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;        this.description = Optional.ofNullable(description);</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;        this.coveredBy = Optional.ofNullable(coveredBy);</b>
+<b class="nc"><i class="no-highlight">41</i>&nbsp;        this.killedBy = Optional.ofNullable(killedBy);</b>
+<b class="nc"><i class="no-highlight">42</i>&nbsp;        this.testsCompleted = Optional.ofNullable(testsCompleted);</b>
+<b class="nc"><i class="no-highlight">43</i>&nbsp;        this.isStatic = Optional.ofNullable(isStatic);</b>
+<b class="nc"><i class="no-highlight">44</i>&nbsp;    }</b>
+<i class="no-highlight">45</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

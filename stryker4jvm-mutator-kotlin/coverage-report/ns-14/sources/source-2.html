@@ -1,0 +1,192 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > KotlinCollector</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.mutator.kotlin</a>
+</div>
+
+<h1>Coverage Summary for Class: KotlinCollector (stryker4jvm.mutator.kotlin)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">KotlinCollector</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    95.5%
+  </span>
+  <span class="absValue">
+    (21/22)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">KotlinCollector$Companion</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (1/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    80%
+  </span>
+  <span class="absValue">
+    (4/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    87.1%
+  </span>
+  <span class="absValue">
+    (27/31)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.mutator.kotlin
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import stryker4jvm.core.config.LanguageMutatorConfig
+<i class="no-highlight">4</i>&nbsp;import stryker4jvm.core.model.CollectedMutants
+<i class="no-highlight">5</i>&nbsp;import stryker4jvm.core.model.Collector
+<i class="no-highlight">6</i>&nbsp;import stryker4jvm.core.model.MutantMetaData
+<i class="no-highlight">7</i>&nbsp;import stryker4jvm.core.model.MutatedCode
+<i class="no-highlight">8</i>&nbsp;import stryker4jvm.mutator.kotlin.mutators.*;
+<i class="no-highlight">9</i>&nbsp;import stryker4jvm.mutator.kotlin.utility.PsiUtility
+<i class="no-highlight">10</i>&nbsp;
+<b class="fc"><i class="no-highlight">11</i>&nbsp;class KotlinCollector(private val mutators: Array&lt;out Mutator&lt;*&gt;&gt;) : Collector&lt;KotlinAST&gt; {</b>
+<i class="no-highlight">12</i>&nbsp;
+<b class="fc"><i class="no-highlight">13</i>&nbsp;    constructor() : this(listAllMutators())</b>
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;    override fun collect(tree: KotlinAST?): CollectedMutants&lt;KotlinAST&gt; {
+<b class="fc"><i class="no-highlight">16</i>&nbsp;        if (tree == null)</b>
+<b class="nc"><i class="no-highlight">17</i>&nbsp;            return CollectedMutants()</b>
+<i class="no-highlight">18</i>&nbsp;
+<b class="fc"><i class="no-highlight">19</i>&nbsp;        val res = CollectedMutants&lt;KotlinAST&gt;()</b>
+<i class="no-highlight">20</i>&nbsp;
+<b class="fc"><i class="no-highlight">21</i>&nbsp;        mutators.forEach { mutator -&gt;</b>
+<b class="fc"><i class="no-highlight">22</i>&nbsp;            val originalToMutations = mutator.mutateFile(tree.tree)</b>
+<b class="fc"><i class="no-highlight">23</i>&nbsp;            originalToMutations.map { originalToMutation -&gt;</b>
+<b class="fc"><i class="no-highlight">24</i>&nbsp;                val original = originalToMutation.key</b>
+<b class="fc"><i class="no-highlight">25</i>&nbsp;                val mutations = originalToMutation.value</b>
+<i class="no-highlight">26</i>&nbsp;
+<b class="fc"><i class="no-highlight">27</i>&nbsp;                val originalLocation = PsiUtility.getLocation(original)</b>
+<b class="fc"><i class="no-highlight">28</i>&nbsp;                val originalAST = KotlinAST(original)</b>
+<b class="fc"><i class="no-highlight">29</i>&nbsp;                val originalText = original.text</b>
+<i class="no-highlight">30</i>&nbsp;
+<b class="fc"><i class="no-highlight">31</i>&nbsp;                val code = mutations.map { mutation -&gt;</b>
+<b class="fc"><i class="no-highlight">32</i>&nbsp;                    val metaData = MutantMetaData(originalText, mutation.text, mutator.name, originalLocation)</b>
+<b class="fc"><i class="no-highlight">33</i>&nbsp;                    MutatedCode(KotlinAST(mutation), metaData)</b>
+<i class="no-highlight">34</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">35</i>&nbsp;                val currentMutations = res.mutations.getOrDefault(originalAST, mutableListOf())</b>
+<b class="fc"><i class="no-highlight">36</i>&nbsp;                currentMutations.addAll(code)</b>
+<b class="fc"><i class="no-highlight">37</i>&nbsp;                res.mutations[originalAST] = currentMutations</b>
+<b class="fc"><i class="no-highlight">38</i>&nbsp;            }</b>
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        }</b>
+<i class="no-highlight">40</i>&nbsp;
+<b class="fc"><i class="no-highlight">41</i>&nbsp;        return res</b>
+<i class="no-highlight">42</i>&nbsp;    }
+<i class="no-highlight">43</i>&nbsp;
+<i class="no-highlight">44</i>&nbsp;    companion object {
+<i class="no-highlight">45</i>&nbsp;        fun listAllMutators() : Array&lt;out Mutator&lt;*&gt;&gt; {
+<b class="fc"><i class="no-highlight">46</i>&nbsp;            return arrayOf(</b>
+<b class="fc"><i class="no-highlight">47</i>&nbsp;                    BooleanLiteralMutator,</b>
+<b class="fc"><i class="no-highlight">48</i>&nbsp;                    StringLiteralMutator,</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;                    EqualityOperatorMutator,</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;                    ConditionalExpressionMutator,</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;                    LogicalOperatorMutator)</b>
+<i class="no-highlight">52</i>&nbsp;        }
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;        fun apply(config: LanguageMutatorConfig) : KotlinCollector {
+<b class="nc"><i class="no-highlight">55</i>&nbsp;            val mutators = listAllMutators().toSet().filter { mutator -&gt;</b>
+<b class="nc"><i class="no-highlight">56</i>&nbsp;                !config.excludedMutations.contains(mutator.name)</b>
+<i class="no-highlight">57</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">58</i>&nbsp;            return KotlinCollector(mutators.toTypedArray())</b>
+<i class="no-highlight">59</i>&nbsp;        }
+<i class="no-highlight">60</i>&nbsp;    }
+<i class="no-highlight">61</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Instrumenter</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.core.model</a>
+</div>
+
+<h1>Coverage Summary for Class: Instrumenter (stryker4jvm.core.model)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">Instrumenter</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.core.model;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import java.util.List;
+<i class="no-highlight">4</i>&nbsp;import java.util.Map;
+<i class="no-highlight">5</i>&nbsp;
+<i class="no-highlight">6</i>&nbsp;public interface Instrumenter&lt;T extends AST&gt; {
+<i class="no-highlight">7</i>&nbsp;    /**
+<i class="no-highlight">8</i>&nbsp;     * Instruments the mutations into the source.
+<i class="no-highlight">9</i>&nbsp;     *
+<i class="no-highlight">10</i>&nbsp;     * @param source    The original source without mutations.
+<i class="no-highlight">11</i>&nbsp;     * @param mutations The mutations to instrument into the source.
+<i class="no-highlight">12</i>&nbsp;     * @return A new AST instance which has the mutations included in its structure.
+<i class="no-highlight">13</i>&nbsp;     */
+<i class="no-highlight">14</i>&nbsp;    T instrument(T source, Map&lt;T, List&lt;MutantWithId&lt;T&gt;&gt;&gt; mutations);
+<i class="no-highlight">15</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

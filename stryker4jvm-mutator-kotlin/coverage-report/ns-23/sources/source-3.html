@@ -1,0 +1,161 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > MutantTestedEvent</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.reporting</a>
+</div>
+
+<h1>Coverage Summary for Class: MutantTestedEvent (stryker4jvm.reporting)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MutantTestedEvent</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MutantTestedEvent$</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.reporting
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import cats.effect.IO
+<i class="no-highlight">4</i>&nbsp;import fs2.Pipe
+<i class="no-highlight">5</i>&nbsp;import cats.syntax.applicative.*
+<i class="no-highlight">6</i>&nbsp;import mutationtesting.{MetricsResult, MutationTestResult}
+<i class="no-highlight">7</i>&nbsp;import stryker4jvm.config.Config
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import java.nio.file.Path
+<i class="no-highlight">10</i>&nbsp;import scala.concurrent.duration.FiniteDuration
+<i class="no-highlight">11</i>&nbsp;import scala.language.implicitConversions
+<i class="no-highlight">12</i>&nbsp;
+<i class="no-highlight">13</i>&nbsp;class IOReporter {
+<i class="no-highlight">14</i>&nbsp;  def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in =&gt; in.drain
+<i class="no-highlight">15</i>&nbsp;  def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = runReport.pure[IO].void
+<i class="no-highlight">16</i>&nbsp;}
+<i class="no-highlight">17</i>&nbsp;
+<b class="nc"><i class="no-highlight">18</i>&nbsp;final case class MutantTestedEvent(totalMutants: Int) extends AnyVal</b>
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;final case class FinishedRunEvent(
+<i class="no-highlight">21</i>&nbsp;    report: MutationTestResult[Config],
+<i class="no-highlight">22</i>&nbsp;    metrics: MetricsResult,
+<i class="no-highlight">23</i>&nbsp;    duration: FiniteDuration,
+<i class="no-highlight">24</i>&nbsp;    reportsLocation: Path
+<i class="no-highlight">25</i>&nbsp;)
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;//class ReporterWrapper[C](val reporter: Reporter[C]) extends IOReporter[C] {
+<i class="no-highlight">28</i>&nbsp;//  override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in =&gt; in.map(reporter.mutantTested).drain
+<i class="no-highlight">29</i>&nbsp;//  override def onRunFinished(runReport: FinishedRunEvent[C]): IO[Unit] = IO(reporter.onRunFinished(runReport))
+<i class="no-highlight">30</i>&nbsp;//}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > KotlinMutator</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.mutator.kotlin</a>
+</div>
+
+<h1>Coverage Summary for Class: KotlinMutator (stryker4jvm.mutator.kotlin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">KotlinMutator</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (3/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.mutator.kotlin
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import stryker4jvm.core.config.LanguageMutatorConfig
+<i class="no-highlight">4</i>&nbsp;import stryker4jvm.core.model.LanguageMutator
+<i class="no-highlight">5</i>&nbsp;
+<b class="fc"><i class="no-highlight">6</i>&nbsp;class KotlinMutator(parser : KotlinParser,</b>
+<i class="no-highlight">7</i>&nbsp;                    collector : KotlinCollector,
+<i class="no-highlight">8</i>&nbsp;                    instrumenter : KotlinInstrumenter)
+<b class="fc"><i class="no-highlight">9</i>&nbsp;    : LanguageMutator&lt;KotlinAST&gt;(parser, collector, instrumenter) {</b>
+<i class="no-highlight">10</i>&nbsp;
+<b class="fc"><i class="no-highlight">11</i>&nbsp;    constructor(collector: KotlinCollector) : this(KotlinParser(), collector, KotlinInstrumenter())</b>
+<i class="no-highlight">12</i>&nbsp;
+<b class="fc"><i class="no-highlight">13</i>&nbsp;    constructor() : this(KotlinParser(), KotlinCollector(), KotlinInstrumenter())</b>
+<i class="no-highlight">14</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,233 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ConsoleReporter</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.reporting.reporters</a>
+</div>
+
+<h1>Coverage Summary for Class: ConsoleReporter (stryker4jvm.reporting.reporters)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ConsoleReporter</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/68)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.reporting.reporters
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import cats.effect.IO
+<i class="no-highlight">4</i>&nbsp;import fansi.{Color, EscapeAttr, Str}
+<i class="no-highlight">5</i>&nbsp;import fs2.Pipe
+<i class="no-highlight">6</i>&nbsp;import mutationtesting.{MutantResult, MutantStatus, Position}
+<i class="no-highlight">7</i>&nbsp;import stryker4jvm.config.Config
+<i class="no-highlight">8</i>&nbsp;import stryker4jvm.extensions.DurationExtensions.HumanReadableExtension
+<i class="no-highlight">9</i>&nbsp;import stryker4jvm.extensions.NumberExtensions.RoundDecimalsExtension
+<i class="no-highlight">10</i>&nbsp;import stryker4jvm.logging.FansiLogger
+<i class="no-highlight">11</i>&nbsp;import stryker4jvm.reporting.{IOReporter, *}
+<i class="no-highlight">12</i>&nbsp;import stryker4jvm.run.threshold.*
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;import scala.concurrent.duration.*
+<i class="no-highlight">15</i>&nbsp;
+<b class="nc"><i class="no-highlight">16</i>&nbsp;class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IOReporter {</b>
+<i class="no-highlight">17</i>&nbsp;
+<b class="nc"><i class="no-highlight">18</i>&nbsp;  override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in =&gt; {</b>
+<b class="nc"><i class="no-highlight">19</i>&nbsp;    val stream = in.zipWithIndex.map { case (l, r) =&gt; (l, r + 1) }</b>
+<i class="no-highlight">20</i>&nbsp;    // Log the first status right away, and then the latest every 0.5 seconds
+<i class="no-highlight">21</i>&nbsp;    // 0.5 seconds is a good middle-ground between not printing too much and still feeling snappy
+<b class="nc"><i class="no-highlight">22</i>&nbsp;    (stream.head ++ stream.tail.debounce(0.5.seconds)).evalMap { case (event, progress) =&gt;</b>
+<b class="nc"><i class="no-highlight">23</i>&nbsp;      val total = event.totalMutants</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;      IO(log.info(s&quot;Tested mutant $progress/$total (${((progress / total.toDouble) * 100).round}%)&quot;))</b>
+<i class="no-highlight">25</i>&nbsp;    }.drain
+<i class="no-highlight">26</i>&nbsp;  }
+<i class="no-highlight">27</i>&nbsp;
+<b class="nc"><i class="no-highlight">28</i>&nbsp;  override def onRunFinished(finishedRunEvent: FinishedRunEvent): IO[Unit] = IO {</b>
+<b class="nc"><i class="no-highlight">29</i>&nbsp;    val report = finishedRunEvent.report</b>
+<b class="nc"><i class="no-highlight">30</i>&nbsp;    val metrics = finishedRunEvent.metrics</b>
+<b class="nc"><i class="no-highlight">31</i>&nbsp;    val duration = finishedRunEvent.duration</b>
+<i class="no-highlight">32</i>&nbsp;
+<b class="nc"><i class="no-highlight">33</i>&nbsp;    log.info(s&quot;Mutation run finished! Took ${duration.toHumanReadable}&quot;)</b>
+<b class="nc"><i class="no-highlight">34</i>&nbsp;    log.info(s&quot;Total mutants: ${Color.Cyan(metrics.totalMutants.toString())}, detected: ${Color</b>
+<b class="nc"><i class="no-highlight">35</i>&nbsp;        .Green(metrics.totalDetected.toString())}, undetected: ${Color.Red(metrics.totalUndetected.toString())}&quot;)</b>
+<i class="no-highlight">36</i>&nbsp;
+<b class="nc"><i class="no-highlight">37</i>&nbsp;    val (detectedMutants, rest) = report.files.toSeq</b>
+<b class="nc"><i class="no-highlight">38</i>&nbsp;      .flatMap { case (loc, f) =&gt;</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;        f.mutants.map(m =&gt; (loc, m, f.source))</b>
+<i class="no-highlight">40</i>&nbsp;      }
+<b class="nc"><i class="no-highlight">41</i>&nbsp;      .partition(m =&gt; isDetected(m._2))</b>
+<b class="nc"><i class="no-highlight">42</i>&nbsp;    val (undetectedMutants, _) = rest partition (m =&gt; isUndetected(m._2))</b>
+<i class="no-highlight">43</i>&nbsp;
+<b class="nc"><i class="no-highlight">44</i>&nbsp;    if (detectedMutants.nonEmpty) log.debug(resultToString(&quot;Detected&quot;, detectedMutants))</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;    if (undetectedMutants.nonEmpty) log.info(resultToString(&quot;Undetected&quot;, undetectedMutants))</b>
+<i class="no-highlight">46</i>&nbsp;
+<b class="nc"><i class="no-highlight">47</i>&nbsp;    val mutationScoreRounded = metrics.mutationScore.roundDecimals(2) match {</b>
+<b class="nc"><i class="no-highlight">48</i>&nbsp;      case score if score.isNaN() =&gt; &quot;n/a&quot;</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;      case score                  =&gt; score.toString</b>
+<i class="no-highlight">50</i>&nbsp;    }
+<i class="no-highlight">51</i>&nbsp;
+<b class="nc"><i class="no-highlight">52</i>&nbsp;    def scoreString(color: EscapeAttr) = s&quot;Mutation score: ${color(mutationScoreRounded)}%&quot;</b>
+<i class="no-highlight">53</i>&nbsp;
+<b class="nc"><i class="no-highlight">54</i>&nbsp;    val scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)</b>
+<b class="nc"><i class="no-highlight">55</i>&nbsp;    scoreStatus match {</b>
+<b class="nc"><i class="no-highlight">56</i>&nbsp;      case _ if metrics.mutationScore.isNaN() =&gt;</b>
+<b class="nc"><i class="no-highlight">57</i>&nbsp;        log.info(scoreString(Color.LightGray))</b>
+<b class="nc"><i class="no-highlight">58</i>&nbsp;      case SuccessStatus =&gt; log.info(scoreString(Color.Green))</b>
+<b class="nc"><i class="no-highlight">59</i>&nbsp;      case WarningStatus =&gt; log.warn(scoreString(Color.Yellow))</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;      case DangerStatus =&gt;</b>
+<b class="nc"><i class="no-highlight">61</i>&nbsp;        log.error(s&quot;Mutation score dangerously low!&quot;)</b>
+<b class="nc"><i class="no-highlight">62</i>&nbsp;        log.error(scoreString(Color.Red))</b>
+<b class="nc"><i class="no-highlight">63</i>&nbsp;      case ErrorStatus =&gt;</b>
+<b class="nc"><i class="no-highlight">64</i>&nbsp;        log.error(</b>
+<b class="nc"><i class="no-highlight">65</i>&nbsp;          s&quot;Mutation score below threshold! ${scoreString(Color.Red)}. Threshold: ${config.thresholds.break}%&quot;</b>
+<i class="no-highlight">66</i>&nbsp;        )
+<i class="no-highlight">67</i>&nbsp;    }
+<i class="no-highlight">68</i>&nbsp;  }
+<i class="no-highlight">69</i>&nbsp;
+<i class="no-highlight">70</i>&nbsp;  private def resultToString(name: String, mutants: Seq[(String, MutantResult, String)]): Str = {
+<i class="no-highlight">71</i>&nbsp;    val mutantsStr =
+<b class="nc"><i class="no-highlight">72</i>&nbsp;      if (mutants.nonEmpty)</b>
+<b class="nc"><i class="no-highlight">73</i>&nbsp;        Str.join(</b>
+<b class="nc"><i class="no-highlight">74</i>&nbsp;          mutants</b>
+<b class="nc"><i class="no-highlight">75</i>&nbsp;            .sortBy(m =&gt; m._2.id)</b>
+<b class="nc"><i class="no-highlight">76</i>&nbsp;            .map { case (filePath, mutant, testResult) =&gt; mutantDiff(filePath, mutant, testResult) },</b>
+<b class="nc"><i class="no-highlight">77</i>&nbsp;          &quot;\n&quot;</b>
+<i class="no-highlight">78</i>&nbsp;        )
+<b class="nc"><i class="no-highlight">79</i>&nbsp;      else Str(&quot;&quot;)</b>
+<i class="no-highlight">80</i>&nbsp;
+<b class="nc"><i class="no-highlight">81</i>&nbsp;    Str(s&quot;$name mutants:\n&quot;, mutantsStr)</b>
+<i class="no-highlight">82</i>&nbsp;  }
+<i class="no-highlight">83</i>&nbsp;
+<i class="no-highlight">84</i>&nbsp;  private def mutantDiff(filePath: String, mutant: MutantResult, source: String): Str = {
+<b class="nc"><i class="no-highlight">85</i>&nbsp;    val line = mutant.location.start.line</b>
+<b class="nc"><i class="no-highlight">86</i>&nbsp;    val col = mutant.location.start.column</b>
+<i class="no-highlight">87</i>&nbsp;
+<b class="nc"><i class="no-highlight">88</i>&nbsp;    Str.join(</b>
+<b class="nc"><i class="no-highlight">89</i>&nbsp;      Seq(</b>
+<b class="nc"><i class="no-highlight">90</i>&nbsp;        s&quot;${mutant.id}. [${Color.Magenta(mutant.status.toString())}] [${Color.LightGray(mutant.mutatorName)}]&quot;,</b>
+<b class="nc"><i class="no-highlight">91</i>&nbsp;        Str.join(Seq(Color.Blue(filePath), Color.Yellow(line.toString()), Color.Yellow(col.toString())), &quot;:&quot;),</b>
+<b class="nc"><i class="no-highlight">92</i>&nbsp;        Color.Red(s&quot;-${tabbed(findOriginal(source, mutant))}&quot;),</b>
+<b class="nc"><i class="no-highlight">93</i>&nbsp;        Color.Green(s&quot;+${tabbed(mutant.replacement)}&quot;),</b>
+<b class="nc"><i class="no-highlight">94</i>&nbsp;        &quot;&quot;</b>
+<i class="no-highlight">95</i>&nbsp;      ),
+<b class="nc"><i class="no-highlight">96</i>&nbsp;      &quot;\n&quot;</b>
+<i class="no-highlight">97</i>&nbsp;    )
+<i class="no-highlight">98</i>&nbsp;  }
+<i class="no-highlight">99</i>&nbsp;
+<b class="nc"><i class="no-highlight">100</i>&nbsp;  private def tabbed(string: String) = string.linesIterator.map(&quot;\t&quot; + _).mkString(&quot;\n&quot;)</b>
+<i class="no-highlight">101</i>&nbsp;
+<i class="no-highlight">102</i>&nbsp;  private def findOriginal(source: String, mutant: MutantResult): String = {
+<b class="nc"><i class="no-highlight">103</i>&nbsp;    val Position(startLinePos, startColumnPos) = mutant.location.start</b>
+<b class="nc"><i class="no-highlight">104</i>&nbsp;    val Position(endLinePos, endColumnPos) = mutant.location.end</b>
+<b class="nc"><i class="no-highlight">105</i>&nbsp;    val lines = source.linesIterator.toSeq</b>
+<b class="nc"><i class="no-highlight">106</i>&nbsp;    val startLine = lines(startLinePos - 1).substring(startColumnPos - 1)</b>
+<b class="nc"><i class="no-highlight">107</i>&nbsp;    endLinePos - startLinePos match {</b>
+<i class="no-highlight">108</i>&nbsp;      // Mutation is 1 line
+<b class="nc"><i class="no-highlight">109</i>&nbsp;      case 0 =&gt; startLine.substring(0, endColumnPos - startColumnPos)</b>
+<i class="no-highlight">110</i>&nbsp;      // Mutation is two lines
+<i class="no-highlight">111</i>&nbsp;      case 1 =&gt;
+<b class="nc"><i class="no-highlight">112</i>&nbsp;        val endLine = lines(endLinePos - 1).substring(0, endColumnPos - 1)</b>
+<b class="nc"><i class="no-highlight">113</i>&nbsp;        s&quot;$startLine\n$endLine&quot;</b>
+<i class="no-highlight">114</i>&nbsp;      // Mutation is multiple lines
+<i class="no-highlight">115</i>&nbsp;      case _ =&gt;
+<b class="nc"><i class="no-highlight">116</i>&nbsp;        val linesBetween = lines.slice(startLinePos, endLinePos - 1)</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;        val endLine = lines(endLinePos - 1).substring(0, endColumnPos - 1)</b>
+<b class="nc"><i class="no-highlight">118</i>&nbsp;        (startLine +: linesBetween :+ endLine).mkString(&quot;\n&quot;)</b>
+<i class="no-highlight">119</i>&nbsp;    }
+<i class="no-highlight">120</i>&nbsp;  }
+<i class="no-highlight">121</i>&nbsp;
+<i class="no-highlight">122</i>&nbsp;  private def isDetected(mutant: MutantResult): Boolean =
+<b class="nc"><i class="no-highlight">123</i>&nbsp;    mutant.status == MutantStatus.Killed || mutant.status == MutantStatus.Timeout</b>
+<i class="no-highlight">124</i>&nbsp;
+<i class="no-highlight">125</i>&nbsp;  private def isUndetected(mutant: MutantResult): Boolean =
+<b class="nc"><i class="no-highlight">126</i>&nbsp;    mutant.status == MutantStatus.Survived || mutant.status == MutantStatus.NoCoverage</b>
+<i class="no-highlight">127</i>&nbsp;
+<i class="no-highlight">128</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

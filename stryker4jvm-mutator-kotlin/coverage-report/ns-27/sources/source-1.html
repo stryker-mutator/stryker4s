@@ -1,0 +1,422 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > MutantRunner</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.run</a>
+</div>
+
+<h1>Coverage Summary for Class: MutantRunner (stryker4jvm.run)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">MutantRunner</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/55)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/134)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">MutantRunner$CoverageExclusions</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">MutantRunner$CoverageExclusions$</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/57)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/139)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.run
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import cats.data.{EitherT, NonEmptyList}
+<i class="no-highlight">4</i>&nbsp;import cats.effect.{IO, Resource}
+<i class="no-highlight">5</i>&nbsp;import cats.syntax.all.*
+<i class="no-highlight">6</i>&nbsp;import fs2.io.file.{Files, Path}
+<i class="no-highlight">7</i>&nbsp;import fs2.{text, Pipe, Stream}
+<i class="no-highlight">8</i>&nbsp;import mutationtesting.{MutantResult, MutantStatus}
+<i class="no-highlight">9</i>&nbsp;import stryker4jvm.config.Config
+<i class="no-highlight">10</i>&nbsp;import stryker4jvm.core.model.{AST, MutantWithId}
+<i class="no-highlight">11</i>&nbsp;import stryker4jvm.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
+<i class="no-highlight">12</i>&nbsp;import stryker4jvm.extensions.FileExtensions.PathExtensions
+<i class="no-highlight">13</i>&nbsp;import stryker4jvm.extensions.MutantExtensions.ToMutantResultExtension
+<i class="no-highlight">14</i>&nbsp;import stryker4jvm.files.FilesFileResolver
+<i class="no-highlight">15</i>&nbsp;import stryker4jvm.logging.FansiLogger
+<i class="no-highlight">16</i>&nbsp;import stryker4jvm.model.*
+<i class="no-highlight">17</i>&nbsp;import stryker4jvm.reporting.{IOReporter, MutantTestedEvent}
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;import java.nio
+<i class="no-highlight">20</i>&nbsp;import scala.collection.immutable.SortedMap
+<i class="no-highlight">21</i>&nbsp;import scala.collection.mutable
+<i class="no-highlight">22</i>&nbsp;
+<b class="nc"><i class="no-highlight">23</i>&nbsp;class MutantRunner(</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;    createTestRunnerPool: Path =&gt; Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],</b>
+<b class="nc"><i class="no-highlight">25</i>&nbsp;    fileResolver: FilesFileResolver,</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;    rollbackHandler: RollbackHandler,</b>
+<b class="nc"><i class="no-highlight">27</i>&nbsp;    reporter: IOReporter</b>
+<b class="nc"><i class="no-highlight">28</i>&nbsp;)(implicit config: Config, log: FansiLogger) {</b>
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;  def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
+<i class="no-highlight">31</i>&nbsp;
+<b class="nc"><i class="no-highlight">32</i>&nbsp;    val withRollback = handleRollback(mutatedFiles)</b>
+<i class="no-highlight">33</i>&nbsp;
+<b class="nc"><i class="no-highlight">34</i>&nbsp;    withRollback</b>
+<i class="no-highlight">35</i>&nbsp;
+<i class="no-highlight">36</i>&nbsp;  }
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;  def handleRollback(mutatedFiles: Seq[MutatedFile]): IO[RunResult] =
+<b class="nc"><i class="no-highlight">39</i>&nbsp;    EitherT(run(mutatedFiles))</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;      .leftFlatMap { errors =&gt;</b>
+<b class="nc"><i class="no-highlight">41</i>&nbsp;        log.info(s&quot;Attempting to remove ${errors.size} mutants that gave a compile error...&quot;)</b>
+<i class="no-highlight">42</i>&nbsp;        // Retry once with the non-compiling mutants removed
+<b class="nc"><i class="no-highlight">43</i>&nbsp;        EitherT(</b>
+<b class="nc"><i class="no-highlight">44</i>&nbsp;          rollbackHandler</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;            .rollbackFiles()</b>
+<i class="no-highlight">46</i>&nbsp;            // TODO: handle rollbacks in a different place
+<b class="nc"><i class="no-highlight">47</i>&nbsp;            .flatTraverse { case RollbackResult(newFiles, rollbackedMutants) =&gt;</b>
+<b class="nc"><i class="no-highlight">48</i>&nbsp;              run(newFiles).map { result =&gt;</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;                result.map { r =&gt;</b>
+<b class="nc"><i class="no-highlight">50</i>&nbsp;                  r.copy(results = r.results.alignCombine(rollbackedMutants))</b>
+<i class="no-highlight">51</i>&nbsp;                }
+<i class="no-highlight">52</i>&nbsp;              }
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;            }
+<i class="no-highlight">55</i>&nbsp;        )
+<i class="no-highlight">56</i>&nbsp;      }
+<i class="no-highlight">57</i>&nbsp;      // Failed at removing the non-compiling mutants
+<b class="nc"><i class="no-highlight">58</i>&nbsp;      .leftMap(UnableToFixCompilerErrorsException(_))</b>
+<b class="nc"><i class="no-highlight">59</i>&nbsp;      .rethrowT</b>
+<i class="no-highlight">60</i>&nbsp;
+<i class="no-highlight">61</i>&nbsp;  def run(mutatedFiles: Seq[MutatedFile]): IO[Either[NonEmptyList[CompilerErrMsg], RunResult]] = {
+<b class="nc"><i class="no-highlight">62</i>&nbsp;    prepareEnv(mutatedFiles).use { path =&gt;</b>
+<b class="nc"><i class="no-highlight">63</i>&nbsp;      createTestRunnerPool(path).traverse {</b>
+<b class="nc"><i class="no-highlight">64</i>&nbsp;        _.use { testRunnerPool =&gt;</b>
+<b class="nc"><i class="no-highlight">65</i>&nbsp;          testRunnerPool.loan</b>
+<b class="nc"><i class="no-highlight">66</i>&nbsp;            .use(testrunner =&gt; initialTestRun(testrunner))</b>
+<b class="nc"><i class="no-highlight">67</i>&nbsp;            .flatMap(coverageExclusions =&gt; runMutants(mutatedFiles, testRunnerPool, coverageExclusions).timed)</b>
+<b class="nc"><i class="no-highlight">68</i>&nbsp;            .map(t =&gt; RunResult(t._2, t._1))</b>
+<i class="no-highlight">69</i>&nbsp;        }
+<i class="no-highlight">70</i>&nbsp;      }
+<i class="no-highlight">71</i>&nbsp;    }
+<i class="no-highlight">72</i>&nbsp;  }
+<i class="no-highlight">73</i>&nbsp;
+<i class="no-highlight">74</i>&nbsp;  def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Path] = {
+<b class="nc"><i class="no-highlight">75</i>&nbsp;    val targetDir = config.baseDir / &quot;target&quot;</b>
+<i class="no-highlight">76</i>&nbsp;    for {
+<b class="nc"><i class="no-highlight">77</i>&nbsp;      _ &lt;- Resource.eval(Files[IO].createDirectories(targetDir))</b>
+<b class="nc"><i class="no-highlight">78</i>&nbsp;      tmpDir &lt;- prepareTmpDir(targetDir)</b>
+<b class="nc"><i class="no-highlight">79</i>&nbsp;      _ &lt;- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq))</b>
+<b class="nc"><i class="no-highlight">80</i>&nbsp;    } yield tmpDir</b>
+<i class="no-highlight">81</i>&nbsp;  }
+<i class="no-highlight">82</i>&nbsp;
+<i class="no-highlight">83</i>&nbsp;  private def prepareTmpDir(targetDir: Path): Resource[IO, Path] = {
+<b class="nc"><i class="no-highlight">84</i>&nbsp;    val tmpDirCreated = if (config.staticTmpDir) {</b>
+<b class="nc"><i class="no-highlight">85</i>&nbsp;      val staticTmpDir = targetDir / &quot;stryker4jvm-tmpDir&quot;</b>
+<b class="nc"><i class="no-highlight">86</i>&nbsp;      Files[IO].createDirectory(staticTmpDir).as(staticTmpDir)</b>
+<i class="no-highlight">87</i>&nbsp;    } else {
+<b class="nc"><i class="no-highlight">88</i>&nbsp;      Files[IO].createTempDirectory(Some(targetDir), &quot;stryker4jvm-&quot;, None)</b>
+<i class="no-highlight">89</i>&nbsp;    }
+<b class="nc"><i class="no-highlight">90</i>&nbsp;    Resource.makeCase(tmpDirCreated)(tmpDirFinalizeCase)</b>
+<i class="no-highlight">91</i>&nbsp;  }
+<i class="no-highlight">92</i>&nbsp;
+<b class="nc"><i class="no-highlight">93</i>&nbsp;  private def tmpDirFinalizeCase: (Path, Resource.ExitCase) =&gt; IO[Unit] = {</b>
+<b class="nc"><i class="no-highlight">94</i>&nbsp;    case (tmpDir, Resource.ExitCase.Succeeded | Resource.ExitCase.Canceled) =&gt;</b>
+<b class="nc"><i class="no-highlight">95</i>&nbsp;      if (config.cleanTmpDir) {</b>
+<b class="nc"><i class="no-highlight">96</i>&nbsp;        Files[IO].deleteRecursively(tmpDir)</b>
+<i class="no-highlight">97</i>&nbsp;      } else {
+<b class="nc"><i class="no-highlight">98</i>&nbsp;        IO(</b>
+<b class="nc"><i class="no-highlight">99</i>&nbsp;          log.info(</b>
+<b class="nc"><i class="no-highlight">100</i>&nbsp;            s&quot;Not deleting $tmpDir (turn off cleanTmpDir to disable this). Please clean it up manually.&quot;</b>
+<i class="no-highlight">101</i>&nbsp;          )
+<i class="no-highlight">102</i>&nbsp;        )
+<i class="no-highlight">103</i>&nbsp;      }
+<b class="nc"><i class="no-highlight">104</i>&nbsp;    case (tmpDir, _: Resource.ExitCase.Errored) =&gt;</b>
+<i class="no-highlight">105</i>&nbsp;      // Enable the user do some manual actions before she retries.
+<b class="nc"><i class="no-highlight">106</i>&nbsp;      IO(</b>
+<b class="nc"><i class="no-highlight">107</i>&nbsp;        log.warn(</b>
+<b class="nc"><i class="no-highlight">108</i>&nbsp;          s&quot;Not deleting $tmpDir after error. Please clean it up manually.&quot;</b>
+<i class="no-highlight">109</i>&nbsp;        )
+<i class="no-highlight">110</i>&nbsp;      )
+<i class="no-highlight">111</i>&nbsp;  }
+<i class="no-highlight">112</i>&nbsp;
+<i class="no-highlight">113</i>&nbsp;  private def setupFiles(tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
+<b class="nc"><i class="no-highlight">114</i>&nbsp;    IO(log.info(&quot;Setting up mutated environment...&quot;)) *&gt;</b>
+<b class="nc"><i class="no-highlight">115</i>&nbsp;      IO(log.debug(&quot;Using temp directory: &quot; + tmpDir)) *&gt; {</b>
+<b class="nc"><i class="no-highlight">116</i>&nbsp;        val mutatedPaths = mutatedFiles.map(_.fileOrigin)</b>
+<i class="no-highlight">117</i>&nbsp;        val unmutatedFilesStream =
+<b class="nc"><i class="no-highlight">118</i>&nbsp;          fileResolver.files</b>
+<b class="nc"><i class="no-highlight">119</i>&nbsp;            .filterNot(mutatedPaths.contains)</b>
+<b class="nc"><i class="no-highlight">120</i>&nbsp;            .through(writeOriginalFile(tmpDir))</b>
+<i class="no-highlight">121</i>&nbsp;
+<b class="nc"><i class="no-highlight">122</i>&nbsp;        val mutatedFilesStream = Stream</b>
+<b class="nc"><i class="no-highlight">123</i>&nbsp;          .emits(mutatedFiles)</b>
+<b class="nc"><i class="no-highlight">124</i>&nbsp;          .through(writeMutatedFile(tmpDir))</b>
+<b class="nc"><i class="no-highlight">125</i>&nbsp;        (unmutatedFilesStream merge mutatedFilesStream).compile.drain</b>
+<i class="no-highlight">126</i>&nbsp;      }
+<i class="no-highlight">127</i>&nbsp;
+<i class="no-highlight">128</i>&nbsp;  def writeOriginalFile(tmpDir: Path): Pipe[IO, Path, Unit] =
+<b class="nc"><i class="no-highlight">129</i>&nbsp;    in =&gt;</b>
+<b class="nc"><i class="no-highlight">130</i>&nbsp;      in.parEvalMapUnordered(config.concurrency) { file =&gt;</b>
+<b class="nc"><i class="no-highlight">131</i>&nbsp;        val newSubPath = file.inSubDir(tmpDir)</b>
+<i class="no-highlight">132</i>&nbsp;
+<b class="nc"><i class="no-highlight">133</i>&nbsp;        IO(log.debug(s&quot;Copying $file to $newSubPath&quot;)) *&gt;</b>
+<b class="nc"><i class="no-highlight">134</i>&nbsp;          Files[IO].createDirectories(newSubPath.parent.get) *&gt;</b>
+<b class="nc"><i class="no-highlight">135</i>&nbsp;          Files[IO].copy(file, newSubPath).void</b>
+<i class="no-highlight">136</i>&nbsp;      }
+<i class="no-highlight">137</i>&nbsp;
+<i class="no-highlight">138</i>&nbsp;  def writeMutatedFile(tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
+<b class="nc"><i class="no-highlight">139</i>&nbsp;    _.parEvalMap(config.concurrency) { mutatedFile =&gt;</b>
+<b class="nc"><i class="no-highlight">140</i>&nbsp;      val targetPath = mutatedFile.fileOrigin.inSubDir(tmpDir)</b>
+<b class="nc"><i class="no-highlight">141</i>&nbsp;      IO(log.debug(s&quot;Writing ${mutatedFile.fileOrigin} file to $targetPath&quot;)) *&gt;</b>
+<b class="nc"><i class="no-highlight">142</i>&nbsp;        Files[IO]</b>
+<b class="nc"><i class="no-highlight">143</i>&nbsp;          .createDirectories(targetPath.parent.get)</b>
+<b class="nc"><i class="no-highlight">144</i>&nbsp;          .as((mutatedFile, targetPath))</b>
+<b class="nc"><i class="no-highlight">145</i>&nbsp;    }.map { case (mutatedFile, targetPath) =&gt;</b>
+<b class="nc"><i class="no-highlight">146</i>&nbsp;      Stream(mutatedFile.mutatedSource.syntax)</b>
+<i class="no-highlight">147</i>&nbsp;        .covary[IO]
+<b class="nc"><i class="no-highlight">148</i>&nbsp;        .through(text.utf8.encode)</b>
+<b class="nc"><i class="no-highlight">149</i>&nbsp;        .through(Files[IO].writeAll(targetPath))</b>
+<b class="nc"><i class="no-highlight">150</i>&nbsp;    }.parJoin(config.concurrency)</b>
+<i class="no-highlight">151</i>&nbsp;
+<i class="no-highlight">152</i>&nbsp;  private def runMutants(
+<i class="no-highlight">153</i>&nbsp;      mutatedFiles: Seq[MutatedFile],
+<i class="no-highlight">154</i>&nbsp;      testRunnerPool: TestRunnerPool,
+<i class="no-highlight">155</i>&nbsp;      coverageExclusions: CoverageExclusions
+<i class="no-highlight">156</i>&nbsp;  ): IO[MutantResultsPerFile] = {
+<b class="nc"><i class="no-highlight">157</i>&nbsp;    val allMutants = mutatedFiles.flatMap(m =&gt; m.mutants.toVector.map(m.fileOrigin -&gt; _))</b>
+<i class="no-highlight">158</i>&nbsp;
+<b class="nc"><i class="no-highlight">159</i>&nbsp;    val (staticMutants, rest) = allMutants.partition(m =&gt; coverageExclusions.staticMutants.contains(m._2.id))</b>
+<i class="no-highlight">160</i>&nbsp;
+<b class="nc"><i class="no-highlight">161</i>&nbsp;    val (noCoverageMutants, testableMutants) =</b>
+<b class="nc"><i class="no-highlight">162</i>&nbsp;      rest.partition(m =&gt; coverageExclusions.hasCoverage &amp;&amp; !coverageExclusions.coveredMutants.contains(m._2.id))</b>
+<i class="no-highlight">163</i>&nbsp;
+<i class="no-highlight">164</i>&nbsp;    // val compilerErrorMutants =
+<i class="no-highlight">165</i>&nbsp;    //   mutatedFiles.flatMap(m =&gt; m.nonCompilingMutants.toList.map(m.fileOrigin.relativePath -&gt; _))
+<i class="no-highlight">166</i>&nbsp;
+<b class="nc"><i class="no-highlight">167</i>&nbsp;    if (noCoverageMutants.nonEmpty) {</b>
+<b class="nc"><i class="no-highlight">168</i>&nbsp;      log.info(</b>
+<b class="nc"><i class="no-highlight">169</i>&nbsp;        s&quot;${noCoverageMutants.size} mutants detected as having no code coverage. They will be skipped and marked as NoCoverage&quot;</b>
+<i class="no-highlight">170</i>&nbsp;      )
+<b class="nc"><i class="no-highlight">171</i>&nbsp;      log.debug(s&quot;NoCoverage mutant ids are: ${noCoverageMutants.map(_._2.id).mkString(&quot;, &quot;)}&quot;)</b>
+<i class="no-highlight">172</i>&nbsp;    }
+<i class="no-highlight">173</i>&nbsp;
+<b class="nc"><i class="no-highlight">174</i>&nbsp;    if (staticMutants.nonEmpty) {</b>
+<b class="nc"><i class="no-highlight">175</i>&nbsp;      log.info(</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;        s&quot;${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored&quot;</b>
+<i class="no-highlight">177</i>&nbsp;      )
+<b class="nc"><i class="no-highlight">178</i>&nbsp;      log.debug(s&quot;Static mutant ids are: ${staticMutants.map(_._2.id).mkString(&quot;, &quot;)}&quot;)</b>
+<i class="no-highlight">179</i>&nbsp;    }
+<i class="no-highlight">180</i>&nbsp;
+<i class="no-highlight">181</i>&nbsp;    // TODO: move logging of compile-errors
+<i class="no-highlight">182</i>&nbsp;    // if (compilerErrorMutants.nonEmpty) {
+<i class="no-highlight">183</i>&nbsp;    //   log.info(
+<i class="no-highlight">184</i>&nbsp;    //     s&quot;${compilerErrorMutants.size} mutants gave a compiler error. They will be marked as such in the report.&quot;
+<i class="no-highlight">185</i>&nbsp;    //   )
+<i class="no-highlight">186</i>&nbsp;    //   log.debug(s&quot;Non-compiling mutant ids are: ${compilerErrorMutants.map(_._2.id.value).mkString(&quot;, &quot;)}&quot;)
+<i class="no-highlight">187</i>&nbsp;    // }
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;    def mapPureMutants[K, V, VV](l: Seq[(K, V)], f: V =&gt; VV) =
+<b class="nc"><i class="no-highlight">190</i>&nbsp;      Stream.emits(l).map { case (k, v) =&gt; k -&gt; f(v) }</b>
+<i class="no-highlight">191</i>&nbsp;
+<i class="no-highlight">192</i>&nbsp;    // Map all static mutants
+<b class="nc"><i class="no-highlight">193</i>&nbsp;    val static = mapPureMutants(staticMutants, staticMutant)</b>
+<i class="no-highlight">194</i>&nbsp;    // Map all no-coverage mutants
+<b class="nc"><i class="no-highlight">195</i>&nbsp;    val noCoverage = mapPureMutants(noCoverageMutants, noCoverageMutant(_))</b>
+<i class="no-highlight">196</i>&nbsp;
+<i class="no-highlight">197</i>&nbsp;    // Run all testable mutants
+<b class="nc"><i class="no-highlight">198</i>&nbsp;    val totalTestableMutants = testableMutants.size</b>
+<b class="nc"><i class="no-highlight">199</i>&nbsp;    val testedMutants = Stream</b>
+<b class="nc"><i class="no-highlight">200</i>&nbsp;      .emits(testableMutants)</b>
+<b class="nc"><i class="no-highlight">201</i>&nbsp;      .through(testRunnerPool.run { case (testRunner, (path, mutant)) =&gt;</b>
+<b class="nc"><i class="no-highlight">202</i>&nbsp;        val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id, Seq.empty)</b>
+<b class="nc"><i class="no-highlight">203</i>&nbsp;        IO(log.debug(s&quot;Running mutant $mutant&quot;)) *&gt;</b>
+<b class="nc"><i class="no-highlight">204</i>&nbsp;          testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)</b>
+<i class="no-highlight">205</i>&nbsp;      })
+<b class="nc"><i class="no-highlight">206</i>&nbsp;      .observe(in =&gt; in.as(MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))</b>
+<i class="no-highlight">207</i>&nbsp;
+<i class="no-highlight">208</i>&nbsp;    // Back to per-file structure
+<b class="nc"><i class="no-highlight">209</i>&nbsp;    implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)</b>
+<b class="nc"><i class="no-highlight">210</i>&nbsp;    implicit val mutantResultOrdering: Ordering[MutantResult] = Ordering.String.on[MutantResult](_.id)</b>
+<i class="no-highlight">211</i>&nbsp;    type MutantResultBuilder = mutable.Builder[MutantResult, Vector[MutantResult]]
+<i class="no-highlight">212</i>&nbsp;
+<b class="nc"><i class="no-highlight">213</i>&nbsp;    (static ++ noCoverage ++ testedMutants)</b>
+<b class="nc"><i class="no-highlight">214</i>&nbsp;      .fold(SortedMap.empty[Path, MutantResultBuilder]) { case (resultsMap, (path, result)) =&gt;</b>
+<b class="nc"><i class="no-highlight">215</i>&nbsp;        val results: MutantResultBuilder = resultsMap.getOrElse(path, Vector.newBuilder) += result</b>
+<b class="nc"><i class="no-highlight">216</i>&nbsp;        resultsMap + (path -&gt; results)</b>
+<i class="no-highlight">217</i>&nbsp;      }
+<b class="nc"><i class="no-highlight">218</i>&nbsp;      .compile</b>
+<b class="nc"><i class="no-highlight">219</i>&nbsp;      .lastOrError</b>
+<b class="nc"><i class="no-highlight">220</i>&nbsp;      .map(_.map { case (k, v) =&gt; k -&gt; v.result().sorted })</b>
+<i class="no-highlight">221</i>&nbsp;  }
+<i class="no-highlight">222</i>&nbsp;
+<i class="no-highlight">223</i>&nbsp;  def initialTestRun(testRunner: TestRunner): IO[CoverageExclusions] = {
+<b class="nc"><i class="no-highlight">224</i>&nbsp;    IO(log.info(&quot;Starting initial test run...&quot;)) *&gt;</b>
+<b class="nc"><i class="no-highlight">225</i>&nbsp;      testRunner.initialTestRun().flatMap { result =&gt;</b>
+<b class="nc"><i class="no-highlight">226</i>&nbsp;        if (!result.isSuccessful)</b>
+<b class="nc"><i class="no-highlight">227</i>&nbsp;          IO.raiseError(</b>
+<b class="nc"><i class="no-highlight">228</i>&nbsp;            InitialTestRunFailedException(</b>
+<b class="nc"><i class="no-highlight">229</i>&nbsp;              &quot;Initial test run failed. Please make sure your tests pass before running Stryker4s.&quot;</b>
+<i class="no-highlight">230</i>&nbsp;            )
+<i class="no-highlight">231</i>&nbsp;          )
+<i class="no-highlight">232</i>&nbsp;        else
+<b class="nc"><i class="no-highlight">233</i>&nbsp;          IO(log.info(&quot;Initial test run succeeded! Testing mutants...&quot;)).as {</b>
+<b class="nc"><i class="no-highlight">234</i>&nbsp;            result match {</b>
+<b class="nc"><i class="no-highlight">235</i>&nbsp;              case _: NoCoverageInitialTestRun =&gt; CoverageExclusions(hasCoverage = false, Map.empty, List.empty)</b>
+<b class="nc"><i class="no-highlight">236</i>&nbsp;              case InitialTestRunCoverageReport(_, firstRun, secondRun, _) =&gt;</b>
+<b class="nc"><i class="no-highlight">237</i>&nbsp;                val firstRunMap = firstRun.report</b>
+<b class="nc"><i class="no-highlight">238</i>&nbsp;                val secondRunMap = secondRun.report</b>
+<b class="nc"><i class="no-highlight">239</i>&nbsp;                val staticMutants = (firstRunMap -- (secondRunMap.keys)).keys.toSeq</b>
+<i class="no-highlight">240</i>&nbsp;
+<b class="nc"><i class="no-highlight">241</i>&nbsp;                val coveredMutants = firstRunMap.filterNot { case (id, _) =&gt; staticMutants.contains(id) }</b>
+<i class="no-highlight">242</i>&nbsp;
+<b class="nc"><i class="no-highlight">243</i>&nbsp;                CoverageExclusions(hasCoverage = true, staticMutants = staticMutants, coveredMutants = coveredMutants)</b>
+<i class="no-highlight">244</i>&nbsp;            }
+<i class="no-highlight">245</i>&nbsp;          }
+<i class="no-highlight">246</i>&nbsp;      }
+<i class="no-highlight">247</i>&nbsp;  }
+<i class="no-highlight">248</i>&nbsp;
+<b class="nc"><i class="no-highlight">249</i>&nbsp;  private def staticMutant(mutant: MutantWithId[AST]): MutantResult = mutant</b>
+<b class="nc"><i class="no-highlight">250</i>&nbsp;    .toMutantResult(MutantStatus.Ignored)</b>
+<b class="nc"><i class="no-highlight">251</i>&nbsp;    .copy(</b>
+<b class="nc"><i class="no-highlight">252</i>&nbsp;      description = Some(</b>
+<b class="nc"><i class="no-highlight">253</i>&nbsp;        &quot;This is a &#39;static&#39; mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.&quot;</b>
+<i class="no-highlight">254</i>&nbsp;      ),
+<b class="nc"><i class="no-highlight">255</i>&nbsp;      static = true.some</b>
+<i class="no-highlight">256</i>&nbsp;    )
+<i class="no-highlight">257</i>&nbsp;
+<b class="nc"><i class="no-highlight">258</i>&nbsp;  private def noCoverageMutant(mutant: MutantWithId[AST]): MutantResult = mutant</b>
+<b class="nc"><i class="no-highlight">259</i>&nbsp;    .toMutantResult(MutantStatus.Ignored)</b>
+<b class="nc"><i class="no-highlight">260</i>&nbsp;    .copy(</b>
+<i class="no-highlight">261</i>&nbsp;      description =
+<b class="nc"><i class="no-highlight">262</i>&nbsp;        &quot;This is a &#39;static&#39; mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.&quot;.some,</b>
+<b class="nc"><i class="no-highlight">263</i>&nbsp;      static = true.some</b>
+<i class="no-highlight">264</i>&nbsp;    )
+<i class="no-highlight">265</i>&nbsp;
+<b class="nc"><i class="no-highlight">266</i>&nbsp;  case class CoverageExclusions(</b>
+<b class="nc"><i class="no-highlight">267</i>&nbsp;      hasCoverage: Boolean,</b>
+<b class="nc"><i class="no-highlight">268</i>&nbsp;      coveredMutants: Map[Int, Seq[String]],</b>
+<b class="nc"><i class="no-highlight">269</i>&nbsp;      staticMutants: Seq[Int]</b>
+<i class="no-highlight">270</i>&nbsp;  )
+<i class="no-highlight">271</i>&nbsp;
+<i class="no-highlight">272</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,290 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > PatternConstructor</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.mutator.scala.extensions.mutationtype</a>
+</div>
+
+<h1>Coverage Summary for Class: PatternConstructor (stryker4jvm.mutator.scala.extensions.mutationtype)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+  <tr>
+    <td class="name">PatternConstructor$</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PatternConstructor$$anonfun$unapply$5</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PatternConstructor$$anonfun$unapply$5$$anon$3</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PatternConstructor$$anonfun$unapply$5$$anon$4</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PatternConstructor$$anonfun$unapply$5$$anon$5</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PatternConstructor$$anonfun$unapply$5$$anon$6</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.mutator.scala.extensions.mutationtype
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import cats.data.NonEmptyVector
+<i class="no-highlight">4</i>&nbsp;import cats.syntax.either.*
+<i class="no-highlight">5</i>&nbsp;import mutationtesting.Location
+<i class="no-highlight">6</i>&nbsp;import stryker4jvm.mutator.scala.extensions.TreeExtensions.{
+<i class="no-highlight">7</i>&nbsp;  LocationExtension,
+<i class="no-highlight">8</i>&nbsp;  PositionExtension,
+<i class="no-highlight">9</i>&nbsp;  RegexLocationExtension
+<i class="no-highlight">10</i>&nbsp;}
+<i class="no-highlight">11</i>&nbsp;import stryker4jvm.core.model.{MutantMetaData, MutatedCode}
+<i class="no-highlight">12</i>&nbsp;import stryker4jvm.mutator.scala.extensions.RegexParseError
+<i class="no-highlight">13</i>&nbsp;// import stryker4jvm.mutator.scala.mutants.IgnoredMutation
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;import stryker4jvm.core.model.CollectedMutants.IgnoredMutation
+<i class="no-highlight">16</i>&nbsp;
+<i class="no-highlight">17</i>&nbsp;import scala.meta.*
+<i class="no-highlight">18</i>&nbsp;import stryker4jvm.mutator.scala.ScalaAST
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;/** Matches on `new scala.util.matching.Regex(&quot;[a-z]&quot;, _*)`
+<i class="no-highlight">21</i>&nbsp;  */
+<i class="no-highlight">22</i>&nbsp;case object RegexConstructor {
+<i class="no-highlight">23</i>&nbsp;  // Two parents up is the full constructor
+<i class="no-highlight">24</i>&nbsp;  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent
+<i class="no-highlight">25</i>&nbsp;    .flatMap(_.parent)
+<i class="no-highlight">26</i>&nbsp;    .collect {
+<i class="no-highlight">27</i>&nbsp;      case Term.New(Init(Type.Name(&quot;Regex&quot;), _, exprss))           =&gt; exprss
+<i class="no-highlight">28</i>&nbsp;      case Term.New(Init(t&quot;scala.util.matching.Regex&quot;, _, exprss)) =&gt; exprss
+<i class="no-highlight">29</i>&nbsp;    }
+<i class="no-highlight">30</i>&nbsp;    .collect { case (`arg` :: _) :: _ =&gt; arg }
+<i class="no-highlight">31</i>&nbsp;}
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;/** Matches on `&quot;[a-z]&quot;.r`
+<i class="no-highlight">34</i>&nbsp;  */
+<i class="no-highlight">35</i>&nbsp;case object RegexStringOps {
+<i class="no-highlight">36</i>&nbsp;
+<i class="no-highlight">37</i>&nbsp;  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent
+<i class="no-highlight">38</i>&nbsp;    .collect { case Term.Select(`arg`, Term.Name(&quot;r&quot;)) =&gt; arg }
+<i class="no-highlight">39</i>&nbsp;
+<i class="no-highlight">40</i>&nbsp;}
+<i class="no-highlight">41</i>&nbsp;
+<i class="no-highlight">42</i>&nbsp;/** Matches on `Pattern.compile(&quot;[a-z]&quot;, _*)`
+<i class="no-highlight">43</i>&nbsp;  */
+<b class="nc"><i class="no-highlight">44</i>&nbsp;case object PatternConstructor {</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent.collect {</b>
+<b class="nc"><i class="no-highlight">46</i>&nbsp;    case Term.Apply(q&quot;Pattern.compile&quot;, `arg` :: _)                 =&gt; arg</b>
+<b class="nc"><i class="no-highlight">47</i>&nbsp;    case Term.Apply(q&quot;java.util.regex.Pattern.compile&quot;, `arg` :: _) =&gt; arg</b>
+<i class="no-highlight">48</i>&nbsp;  }
+<i class="no-highlight">49</i>&nbsp;}
+<i class="no-highlight">50</i>&nbsp;
+<i class="no-highlight">51</i>&nbsp;object RegexMutations {
+<i class="no-highlight">52</i>&nbsp;  def apply(lit: Lit.String): Either[IgnoredMutation[ScalaAST], Vector[RegularExpression]] = {
+<i class="no-highlight">53</i>&nbsp;    weaponregex.WeaponRegeX
+<i class="no-highlight">54</i>&nbsp;      .mutate(lit.value, mutationLevels = Seq(1))
+<i class="no-highlight">55</i>&nbsp;      .leftMap(ignoredMutation(lit, _))
+<i class="no-highlight">56</i>&nbsp;      .map(_.toVector)
+<i class="no-highlight">57</i>&nbsp;      .map(
+<i class="no-highlight">58</i>&nbsp;        NonEmptyVector
+<i class="no-highlight">59</i>&nbsp;          .fromVectorUnsafe(_)
+<i class="no-highlight">60</i>&nbsp;          .map(r =&gt; RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation)))
+<i class="no-highlight">61</i>&nbsp;          .toVector
+<i class="no-highlight">62</i>&nbsp;      )
+<i class="no-highlight">63</i>&nbsp;  }
+<i class="no-highlight">64</i>&nbsp;
+<i class="no-highlight">65</i>&nbsp;  private def ignoredMutation(lit: Lit.String, e: String) = {
+<i class="no-highlight">66</i>&nbsp;    val mutatedCode =
+<i class="no-highlight">67</i>&nbsp;      new MutatedCode(
+<i class="no-highlight">68</i>&nbsp;        new ScalaAST(value = lit.asInstanceOf[Term]),
+<i class="no-highlight">69</i>&nbsp;        new MutantMetaData(lit.value, &quot;&quot;, &quot;RegularExpression&quot;, lit.pos.toLocation.asJvmCore)
+<i class="no-highlight">70</i>&nbsp;      )
+<i class="no-highlight">71</i>&nbsp;
+<i class="no-highlight">72</i>&nbsp;    new IgnoredMutation[ScalaAST](mutatedCode, RegexParseError(lit.value, e))
+<i class="no-highlight">73</i>&nbsp;  }
+<i class="no-highlight">74</i>&nbsp;
+<i class="no-highlight">75</i>&nbsp;}
+<i class="no-highlight">76</i>&nbsp;
+<i class="no-highlight">77</i>&nbsp;final case class RegularExpression(pattern: String, location: Location) extends SubstitutionMutation[Lit.String] {
+<i class="no-highlight">78</i>&nbsp;
+<i class="no-highlight">79</i>&nbsp;  def mutationName: String = classOf[RegularExpression].getSimpleName
+<i class="no-highlight">80</i>&nbsp;
+<i class="no-highlight">81</i>&nbsp;  override def tree: Lit.String = Lit.String(pattern)
+<i class="no-highlight">82</i>&nbsp;
+<i class="no-highlight">83</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>

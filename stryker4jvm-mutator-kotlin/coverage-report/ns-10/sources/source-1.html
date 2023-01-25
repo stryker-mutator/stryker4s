@@ -1,0 +1,154 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ConfigFilesResolver</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">stryker4jvm.files</a>
+</div>
+
+<h1>Coverage Summary for Class: ConfigFilesResolver (stryker4jvm.files)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ConfigFilesResolver</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/13)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package stryker4jvm.files
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import cats.effect.IO
+<i class="no-highlight">4</i>&nbsp;import fs2.Stream
+<i class="no-highlight">5</i>&nbsp;import fs2.io.file.{Files, Path}
+<i class="no-highlight">6</i>&nbsp;import stryker4jvm.config.Config
+<i class="no-highlight">7</i>&nbsp;import stryker4jvm.files.Glob.glob
+<i class="no-highlight">8</i>&nbsp;import stryker4jvm.logging.FansiLogger
+<i class="no-highlight">9</i>&nbsp;import stryker4jvm.run.process.{Command, ProcessRunner}
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config, log: FansiLogger)
+<b class="nc"><i class="no-highlight">12</i>&nbsp;    extends FilesFileResolver {</b>
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;  /** Collect all files that are needed to be copied over to the Stryker4s-tmp folder.
+<i class="no-highlight">15</i>&nbsp;    *
+<i class="no-highlight">16</i>&nbsp;    *   - Option 1: Copy every file that is listed by the &#39;files&#39; config setting.
+<i class="no-highlight">17</i>&nbsp;    *   - Option 2: Copy every file that is listed by git.
+<i class="no-highlight">18</i>&nbsp;    *   - Option 3: Copy every file in the &#39;baseDir&#39; excluding target folders.
+<i class="no-highlight">19</i>&nbsp;    */
+<i class="no-highlight">20</i>&nbsp;  override def files: Stream[IO, Path] =
+<b class="nc"><i class="no-highlight">21</i>&nbsp;    (listFilesBasedOnConfiguration() orElse listFilesBasedOnGit() getOrElse listAllFiles())</b>
+<b class="nc"><i class="no-highlight">22</i>&nbsp;      .evalFilterNot(Files[IO].isDirectory)</b>
+<b class="nc"><i class="no-highlight">23</i>&nbsp;      .evalFilter(Files[IO].exists)</b>
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;  /** List all files based on `git ls-files` command.
+<i class="no-highlight">26</i>&nbsp;    */
+<i class="no-highlight">27</i>&nbsp;  private def listFilesBasedOnGit(): Option[Stream[IO, Path]] =
+<b class="nc"><i class="no-highlight">28</i>&nbsp;    processRunner(</b>
+<b class="nc"><i class="no-highlight">29</i>&nbsp;      Command(&quot;git ls-files&quot;, &quot;--others --exclude-standard --cached&quot;),</b>
+<b class="nc"><i class="no-highlight">30</i>&nbsp;      config.baseDir</b>
+<i class="no-highlight">31</i>&nbsp;    ).toOption
+<b class="nc"><i class="no-highlight">32</i>&nbsp;      .map(_.map(config.baseDir / _).distinct)</b>
+<b class="nc"><i class="no-highlight">33</i>&nbsp;      .map(Stream.emits)</b>
+<i class="no-highlight">34</i>&nbsp;
+<i class="no-highlight">35</i>&nbsp;  /** List all files from the base directory specified in the Stryker4s basedir config key.
+<i class="no-highlight">36</i>&nbsp;    */
+<i class="no-highlight">37</i>&nbsp;  private def listAllFiles(): Stream[IO, Path] = {
+<b class="nc"><i class="no-highlight">38</i>&nbsp;    log.warn(&quot;No &#39;files&#39; specified and not a git repository.&quot;)</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;    log.warn(&quot;Falling back to copying everything except the &#39;target/&#39; folder(s)&quot;)</b>
+<i class="no-highlight">40</i>&nbsp;
+<b class="nc"><i class="no-highlight">41</i>&nbsp;    Files[IO].walk(config.baseDir)</b>
+<i class="no-highlight">42</i>&nbsp;  }
+<i class="no-highlight">43</i>&nbsp;
+<i class="no-highlight">44</i>&nbsp;  /** List all files based on the &#39;files&#39; configuration key from stryker4s.conf.
+<i class="no-highlight">45</i>&nbsp;    */
+<i class="no-highlight">46</i>&nbsp;  private def listFilesBasedOnConfiguration(): Option[Stream[IO, Path]] =
+<b class="nc"><i class="no-highlight">47</i>&nbsp;    if (config.files.isEmpty) None else Some(glob(config.baseDir, config.files))</b>
+<i class="no-highlight">48</i>&nbsp;
+<i class="no-highlight">49</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-25 12:29</div>
+</div>
+</body>
+</html>
