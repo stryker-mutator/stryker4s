@@ -94,9 +94,9 @@ jobs:
             publishToMavenLocal
       - name: Publish Stryker4jvm maven deps locally
         run: sbt 'publishM2Local'
-      - name: Run Stryker4jvm
+      - name: Run Stryker4s maven plugin on Stryker4jvm-plugin-maven
         run: |
-          cd maven
-          mvn -B --no-transfer-progress stryker4jvm:run
+          cd sryker4jvm-plugin-maven
+          mvn -B --no-transfer-progress stryker4s:run
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

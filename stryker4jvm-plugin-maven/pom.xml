@@ -117,6 +117,7 @@
         <sourceDirectory>src/main/scala</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
         <plugins>
+        <!-- TODO: currently depends on stryker4s because stryker4jvm has no published plugins yet -->
             <plugin>
                 <groupId>io.stryker-mutator</groupId>
                 <artifactId>stryker4s-maven-plugin</artifactId>
