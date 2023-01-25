@@ -26,7 +26,7 @@ object ConfigReader {
   }
 
   def readConfigOfType[T](
-      confSource: ConfigSource = ConfigSource.file("stryker4s.conf")
+      confSource: ConfigSource = ConfigSource.file("stryker4jvm.conf")
   )(implicit log: FansiLogger, pureconfig: PureConfigReader[T]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
@@ -76,9 +76,9 @@ object ConfigReader {
     /** Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
-      log.info(s"Attempting to read config from ${Underlined.On("stryker4s.conf")}")
+      log.info(s"Attempting to read config from ${Underlined.On("stryker4jvm.conf")}")
       configSource
-        .at("stryker4s")
+        .at("stryker4jvm")
         .load[T]
         .recoverWith(onFailure)
     }
