@@ -18,7 +18,9 @@ object ConfigReader {
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4jvm.conf"))(implicit log: FansiLogger): Config = {
+  def readConfig(
+      confSource: ConfigSource = ConfigSource.file("stryker4jvm.conf")
+  )(implicit log: FansiLogger): Config = {
     Reader
       .withoutRecovery[Config](confSource)
       .recoverWithReader(Failure.onUnknownKey)
