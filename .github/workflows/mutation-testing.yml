@@ -21,16 +21,16 @@ jobs:
           java-version: 15
           cache: 'sbt'
       - name: Build core with Maven
-          working-directory: ./stryker4jvm-core
-          run: mvn clean install
+        working-directory: ./stryker4jvm-core
+        run: mvn clean install
       - name: Setup Gradle and build Kotlin Mutator
-          uses: gradle/gradle-build-action@v2
-          with:
-            gradle-version: 6.9.1
-            build-root-directory: ./stryker4jvm-mutator-kotlin
-            arguments: |
-              clean build
-              publishToMavenLocal
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.9.1
+          build-root-directory: ./stryker4jvm-mutator-kotlin
+          arguments: |
+            clean build
+            publishToMavenLocal
       - name: Create Stryker4jvm config
         run: echo 'stryker4jvm{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4jvm.conf
       - name: Run Stryker4jvm
@@ -51,16 +51,16 @@ jobs:
           java-version: 15
           cache: 'sbt'
       - name: Build core with Maven
-          working-directory: ./stryker4jvm-core
-          run: mvn clean install
+        working-directory: ./stryker4jvm-core
+        run: mvn clean install
       - name: Setup Gradle and build Kotlin Mutator
-          uses: gradle/gradle-build-action@v2
-          with:
-            gradle-version: 6.9.1
-            build-root-directory: ./stryker4jvm-mutator-kotlin
-            arguments: |
-              clean build
-              publishToMavenLocal
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.9.1
+          build-root-directory: ./stryker4jvm-mutator-kotlin
+          arguments: |
+            clean build
+            publishToMavenLocal
       - name: Create Stryker4jvm config
         run: echo 'stryker4jvm{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4jvm.conf
       - name: Run Stryker4jvm
@@ -82,16 +82,16 @@ jobs:
           java-version: 15
           cache: 'maven'
       - name: Build core with Maven
-          working-directory: ./stryker4jvm-core
-          run: mvn clean install
+        working-directory: ./stryker4jvm-core
+        run: mvn clean install
       - name: Setup Gradle and build Kotlin Mutator
-          uses: gradle/gradle-build-action@v2
-          with:
-            gradle-version: 6.9.1
-            build-root-directory: ./stryker4jvm-mutator-kotlin
-            arguments: |
-              clean build
-              publishToMavenLocal
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 6.9.1
+          build-root-directory: ./stryker4jvm-mutator-kotlin
+          arguments: |
+            clean build
+            publishToMavenLocal
       - name: Publish Stryker4jvm maven deps locally
         run: sbt 'publishM2Local'
       - name: Run Stryker4jvm
