@@ -12,12 +12,13 @@ import stryker4jvm.logging.FansiLogger
 import java.io.FileNotFoundException
 
 object ConfigReader {
+  // todo: point to stryker4jvm docs when website is adapted
   private val configDocUrl: String =
     "https://stryker-mutator.io/docs/stryker4s/configuration"
 
   implicit val hint: ProductHint[Config] = ProductHint[Config](allowUnknownKeys = false)
 
-  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4s.conf"))(implicit log: FansiLogger): Config = {
+  def readConfig(confSource: ConfigSource = ConfigSource.file("stryker4jvm.conf"))(implicit log: FansiLogger): Config = {
     Reader
       .withoutRecovery[Config](confSource)
       .recoverWithReader(Failure.onUnknownKey)
@@ -26,7 +27,7 @@ object ConfigReader {
   }
 
   def readConfigOfType[T](
-      confSource: ConfigSource = ConfigSource.file("stryker4s.conf")
+      confSource: ConfigSource = ConfigSource.file("stryker4jvm.conf")
   )(implicit log: FansiLogger, pureconfig: PureConfigReader[T]): Either[ConfigReaderFailures, T] =
     Reader.withoutRecovery[T](confSource).tryRead
 
@@ -76,9 +77,9 @@ object ConfigReader {
     /** Attempt to read a config
       */
     def tryRead: Reader.Result[T] = {
-      log.info(s"Attempting to read config from ${Underlined.On("stryker4s.conf")}")
+      log.info(s"Attempting to read config from ${Underlined.On("stryker4jvm.conf")}")
       configSource
-        .at("stryker4s")
+        .at("stryker4jvm")
         .load[T]
         .recoverWith(onFailure)
     }
@@ -107,7 +108,7 @@ object ConfigReader {
         val unknownKeys = key +: failures.collect { case ConvertFailure(UnknownKey(k), _, _) => k }
 
         log.warn(
-          s"""The following configuration key(s) are not used, they could stem from an older stryker4s version: '${fansi.Str
+          s"""The following configuration key(s) are not used, they could stem from an older stryker4jvm version: '${fansi.Str
               .join(unknownKeys.map(Color.Yellow(_)), ", ")}'.
              |Please check the documentation at $configDocUrl for available options.""".stripMargin
         )
