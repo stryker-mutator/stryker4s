@@ -10,7 +10,7 @@ import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 import scala.language.implicitConversions
 
-class IOReporter[C] {
+class IOReporter {
   def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in => in.drain
   def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = runReport.pure[IO].void
 }

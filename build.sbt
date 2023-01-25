@@ -33,18 +33,11 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
   .aggregate(
     (stryker4jvm.projectRefs ++
       stryker4jvmMutatorScala.projectRefs ++
-      stryker4sCore.projectRefs ++
       stryker4jvmCommandRunner.projectRefs ++
       sbtStryker4jvm.projectRefs ++
       stryker4jvmApi.projectRefs ++
       sbtTestRunner.projectRefs)*
   )
-
-// todo: delete stryker4s-core
-lazy val stryker4sCore = newProject("stryker4s-core", "core")
-  .settings(coreSettings)
-  .dependsOn(stryker4jvmApi)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmCommandRunner = newProject("stryker4jvm-command-runner", "stryker4jvm-command-runner")
   .settings(

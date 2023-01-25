@@ -4,7 +4,7 @@ run.package -> run.run
 extension.exception.stryker4sException.UnableToFixCompilerErrorsException -> exception.UnableToFixCompilerErrorsException
 
 TODO: Missing (?) sbtrunner/commandrunner/?runner
-TODO: Depends on api[api-sources] stryker4s.api.testprocess.CoverageReport
+TODO: Depends on api[api-sources] stryker4jvm.api.testprocess.CoverageReport
 TODO: move tests
 TODO: Depends on mutator-scala:
 - mutants.{

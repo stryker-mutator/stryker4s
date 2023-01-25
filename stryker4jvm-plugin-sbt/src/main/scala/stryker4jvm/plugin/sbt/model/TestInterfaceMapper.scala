@@ -3,7 +3,7 @@ package stryker4jvm.plugin.sbt.model
 import cats.syntax.option.*
 import sbt.testing.Framework as SbtFramework
 import sbt.{TestDefinition as SbtTestDefinition, TestFramework as SbtTestFramework, Tests}
-import stryker4s.api.testprocess.*
+import stryker4jvm.api.testprocess.*
 
 trait TestInterfaceMapper {
   def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Array[TestGroup] = {

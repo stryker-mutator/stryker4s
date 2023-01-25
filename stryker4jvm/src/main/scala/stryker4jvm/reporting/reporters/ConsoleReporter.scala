@@ -13,7 +13,7 @@ import stryker4jvm.run.threshold.*
 
 import scala.concurrent.duration.*
 
-class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IOReporter[Config] {
+class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IOReporter {
 
   override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in => {
     val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }

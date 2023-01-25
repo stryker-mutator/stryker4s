@@ -8,7 +8,7 @@ import stryker4jvm.files.FileIO
 import stryker4jvm.logging.FansiLogger
 import stryker4jvm.reporting.{FinishedRunEvent, IOReporter}
 
-class JsonReporter(fileIO: FileIO)(implicit log: FansiLogger) extends IOReporter[Config] {
+class JsonReporter(fileIO: FileIO)(implicit log: FansiLogger) extends IOReporter {
 
   def writeReportJsonTo(file: Path, report: MutationTestResult[Config]): IO[Unit] = {
     import io.circe.syntax.*

@@ -1,7 +1,7 @@
 package stryker4jvm.plugin.sbt.testrunner
 
 import sbt.testing.Status
-import stryker4s.api.testprocess.*
+import stryker4jvm.api.testprocess.*
 import stryker4jvm.coverage.{collectCoverage, timed}
 
 import scala.concurrent.duration.FiniteDuration
