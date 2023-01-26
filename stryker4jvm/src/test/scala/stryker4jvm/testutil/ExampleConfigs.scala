@@ -4,12 +4,11 @@ import pureconfig.ConfigSource
 
 import java.nio.file.Paths
 
-// TODO : fix example configuration
-/** Example stryker4s configurations for testing purposes
+/** Example stryker4jvm configurations for testing purposes
   */
 object ExampleConfigs {
 
-  def filled = ConfigSource.string("""stryker4s {
+  def filled = ConfigSource.string("""stryker4jvm {
                                      |  mutate: [
                                      |    "bar/src/main/**/*.scala",
                                      |    "foo/src/main/**/*.scala",
@@ -47,22 +46,22 @@ object ExampleConfigs {
   def empty = ConfigSource.empty
 
   def withLanguageMutatorConfigs =
-    ConfigSource.string("""stryker4s {
+    ConfigSource.string("""stryker4jvm {
                           | mutator-configs: {
                           |   scala: {dialect: 2_13, excluded-mutations: ["BooleanLiteral"]},
                           |   kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
                           | }
                           |}""".stripMargin)
 
-  def emptyStryker4s = ConfigSource.string("stryker4s {}")
+  def emptystryker4jvm = ConfigSource.string("stryker4jvm {}")
 
   def nonExistentFile = ConfigSource.file(Paths.get("nonExistentFile.conf").toAbsolutePath())
 
-  def wrongReporter = ConfigSource.string("""stryker4s {
+  def wrongReporter = ConfigSource.string("""stryker4jvm {
                                             |  reporters: ["dsadsa"]
                                             |}""".stripMargin)
 
-  def overfilled = ConfigSource.string("""stryker4s {
+  def overfilled = ConfigSource.string("""stryker4jvm {
                                          |  mutate: [
                                          |    "bar/src/main/**/*.scala",
                                          |    "foo/src/main/**/*.scala",
@@ -79,24 +78,24 @@ object ExampleConfigs {
                                          |  other-unknown-key: "bar"
                                          |}""".stripMargin)
 
-  def duplicateKeys = ConfigSource.string("stryker4s.reporters = [html, html]")
+  def duplicateKeys = ConfigSource.string("stryker4jvm.reporters = [html, html]")
 
   def invalidExcludedMutation =
-    ConfigSource.string("stryker4s.excluded-mutations: [Invalid, StillInvalid, BooleanLiteral]")
+    ConfigSource.string("stryker4jvm.excluded-mutations: [Invalid, StillInvalid, BooleanLiteral]")
 
-  def filledProcess = ConfigSource.string("""stryker4s {
+  def filledProcess = ConfigSource.string("""stryker4jvm {
                                             |  test-runner {
                                             |    command = "gradle"
                                             |    args="test"
                                             |  }
                                             |}""".stripMargin)
 
-  def timeoutDuration = ConfigSource.string("""|stryker4s {
+  def timeoutDuration = ConfigSource.string("""|stryker4jvm {
                                                | timeout = 6s
                                                |}
                                                |""".stripMargin)
 
-  def scalaDialect(dialect: String) = ConfigSource.string(s"""|stryker4s {
+  def scalaDialect(dialect: String) = ConfigSource.string(s"""|stryker4jvm {
                                                               | scala-dialect="$dialect"
                                                               |}
                                                               |""".stripMargin)

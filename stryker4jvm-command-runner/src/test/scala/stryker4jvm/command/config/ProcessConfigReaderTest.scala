@@ -19,7 +19,7 @@ class ProcessConfigReaderTest extends Stryker4jvmSuite with LogMatchers with Eit
     }
 
     it("should read an empty config to errors") {
-      val confPath = ExampleConfigs.emptyStryker4s
+      val confPath = ExampleConfigs.emptystryker4jvm
 
       val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath)
 
