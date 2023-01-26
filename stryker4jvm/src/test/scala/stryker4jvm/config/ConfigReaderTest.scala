@@ -221,7 +221,7 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 
       ConfigReader.readConfig(configSource)
 
-      s"""|The following configuration key(s) are not used, they could stem from an older stryker4s version: '${Yellow(
+      s"""|The following configuration key(s) are not used, they could stem from an older stryker4jvm version: '${Yellow(
            "other-unknown-key"
          )}, ${Yellow("unknown-key")}'.
           |Please check the documentation at https://stryker-mutator.io/docs/stryker4s/configuration for available options.""".stripMargin shouldBe loggedAsWarning
