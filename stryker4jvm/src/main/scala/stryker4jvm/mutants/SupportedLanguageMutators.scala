@@ -1,6 +1,7 @@
 package stryker4jvm.mutants
 
 import stryker4jvm.core.config.LanguageMutatorConfig
+import stryker4jvm.core.exception.LanguageMutatorProviderException
 import stryker4jvm.core.model.{AST, InstrumenterOptions, LanguageMutator}
 import stryker4jvm.core.model.languagemutator.LanguageMutatorProvider
 import stryker4jvm.mutator.kotlin.KotlinMutatorProvider
@@ -41,9 +42,15 @@ object SupportedLanguageMutators {
               .provideMutator(configs.getOrElse(provider.name, default), logger, options)
           )
         catch {
-          case e: Throwable =>
+          case e: LanguageMutatorProviderException =>
             logger.warn(
               s"Language mutator provider '${provider.languageProvider.getClass.getName}' threw an exception with message ${e.getMessage}; this mutator will be ignored."
+            )
+            None
+          case e: Throwable =>
+            logger.error(
+              s"Language mutator provider '${provider.languageProvider.getClass.getName}' threw an unexpected exception with message ${e.getMessage}; this mutator will be ignored.",
+              e
             )
             None
         }
