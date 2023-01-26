@@ -22,6 +22,7 @@ object ExampleConfigs {
                                      |
                                      |  reporters: ["html"]
                                      |
+                                     |  excluded-mutations: ["BooleanLiteral"]
                                      |  dashboard: {
                                      |    base-url: "https://fakeurl.com"
                                      |    report-type: "mutation-score-only"
@@ -56,7 +57,7 @@ object ExampleConfigs {
                           | }
                           |}""".stripMargin)
 
-  def emptyStryker4s = ConfigSource.string("stryker4jvm {}")
+  def emptystryker4jvm = ConfigSource.string("stryker4jvm {}")
 
   def nonExistentFile = ConfigSource.file(Paths.get("nonExistentFile.conf").toAbsolutePath())
 

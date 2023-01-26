@@ -95,10 +95,16 @@
           </executions>
         </plugin>
 
-        <plugin>
+        <!-- <plugin>
             <groupId>io.stryker-mutator</groupId>
             <artifactId>stryker4s-maven-plugin</artifactId>
             <version>0.14.3</version>
+        </plugin> -->
+        
+        <plugin>
+          <groupId>io.stryker-mutator</groupId>
+          <artifactId>stryker4jvm-maven-plugin</artifactId>
+          <version>SET-BY-SBT-SNAPSHOT</version>
         </plugin>
         
       </plugins>
