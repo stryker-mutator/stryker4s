@@ -17,7 +17,7 @@ class TestLogger(printLogs: Boolean) extends Logger {
   }
 
   def clear(): Unit = events.clear()
-  // TODO: Difference between msg: => String and msg: String in log
+
   def log(level: LogLevel, msg: => String): Unit = addToLogs(level, msg)
 
   override def log(logLevel: LogLevel, msg: String): Unit = addToLogs(logLevel, msg)

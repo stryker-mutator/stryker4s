@@ -12,7 +12,8 @@ object ExampleConfigs {
                                      |  mutate: [
                                      |    "bar/src/main/**/*.scala",
                                      |    "foo/src/main/**/*.scala",
-                                     |    "!excluded/file.scala"
+                                     |    "!excluded/file.scala",
+                                     |    "koo/src/main/**/*.kt"
                                      |  ]
                                      | 
                                      |  thresholds { high=85, low=65, break=10 }
@@ -33,11 +34,14 @@ object ExampleConfigs {
                                      |  max-test-runner-reuse=15
                                      |  legacy-test-runner=true
                                      |  timeout=5500
-                                     |  scala-dialect="scala212"
                                      |  concurrency = 3
                                      |  debug {
                                      |    log-test-runner-stdout=true
                                      |    debug-test-runner=true
+                                     |  }
+                                     |  mutator-configs: {
+                                     |    scala: {dialect: "2_13", excluded-mutations: ["BooleanLiteral"]},
+                                     |    kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
                                      |  }
                                      |  static-tmp-dir = true
                                      |  clean-tmp-dir = false
@@ -48,7 +52,7 @@ object ExampleConfigs {
   def withLanguageMutatorConfigs =
     ConfigSource.string("""stryker4jvm {
                           | mutator-configs: {
-                          |   scala: {dialect: 2_13, excluded-mutations: ["BooleanLiteral"]},
+                          |   scala: {dialect: "2_13", excluded-mutations: ["BooleanLiteral"]},
                           |   kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
                           | }
                           |}""".stripMargin)
@@ -65,14 +69,18 @@ object ExampleConfigs {
                                          |  mutate: [
                                          |    "bar/src/main/**/*.scala",
                                          |    "foo/src/main/**/*.scala",
-                                         |    "!excluded/file.scala"
+                                         |    "!excluded/file.scala",
+                                         |    "koo/src/main/**/*.kt"
                                          |  ]
                                          |
                                          |  base-dir: "/tmp/project"
                                          |
                                          |  reporters: ["html"]
                                          |
-                                         |  excluded-mutations: ["BooleanLiteral"]
+                                         |  mutator-configs: {
+                                         |    scala: {dialect: "2_13", excluded-mutations: ["BooleanLiteral"]},
+                                         |    kotlin: {excluded-mutations: ["EqualityOperator", "AnotherMutatorType"]}
+                                         |  }
                                          |
                                          |  unknown-key: "foo"
                                          |  other-unknown-key: "bar"
@@ -81,7 +89,12 @@ object ExampleConfigs {
   def duplicateKeys = ConfigSource.string("stryker4jvm.reporters = [html, html]")
 
   def invalidExcludedMutation =
-    ConfigSource.string("stryker4jvm.excluded-mutations: [Invalid, StillInvalid, BooleanLiteral]")
+    ConfigSource.string("""stryker4jvm {
+                          |  mutator-configs: {
+                          |    scala: {dialect: "2_13", excluded-mutations: ["Invalid"]},
+                          |    kotlin: {excluded-mutations: ["Also Invalid"]}
+                          |  }
+                          |}""".stripMargin)
 
   def filledProcess = ConfigSource.string("""stryker4jvm {
                                             |  test-runner {
@@ -96,7 +109,9 @@ object ExampleConfigs {
                                                |""".stripMargin)
 
   def scalaDialect(dialect: String) = ConfigSource.string(s"""|stryker4jvm {
-                                                              | scala-dialect="$dialect"
-                                                              |}
+                                                              |   mutator-configs: {
+                                                              |     scala: {dialect: "$dialect}"
+                                                              |   }
+                                                              | }
                                                               |""".stripMargin)
 }
