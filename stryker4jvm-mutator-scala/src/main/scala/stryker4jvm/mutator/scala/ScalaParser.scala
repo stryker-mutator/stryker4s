@@ -1,14 +1,14 @@
 package stryker4jvm.mutator.scala
 
-import scala.meta.{Parsed, Source}
-
+import scala.meta.{Dialect, Parsed, Source, dialects}
 import scala.meta.parsers.XtensionParseInputLike
 import stryker4jvm.core.model.Parser
+
 import java.nio
 
 /** Class used to parse (scala) files into a ScalaAST
   */
-class ScalaParser extends Parser[ScalaAST] {
+class ScalaParser(scalaDialect: Dialect) extends Parser[ScalaAST] {
 
   /** Method used to parse a file (via a path) to a ScalaAST
     *
@@ -18,7 +18,9 @@ class ScalaParser extends Parser[ScalaAST] {
     *   A ScalaAST if the file was successfully parsed, otherwise we throw an Exception
     */
   override def parse(file: nio.file.Path): ScalaAST = {
-    val parsed = file.parse[Source];
+    implicit val dialect: Dialect = scalaDialect
+
+    val parsed = file.parse[Source]
 
     parsed match {
       case _: Parsed.Error => throw new Exception("Cannot parse")

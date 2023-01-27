@@ -3,6 +3,7 @@ package stryker4jvm.config
 import fs2.io.file.Path
 import stryker4jvm.core.config.LanguageMutatorConfig
 
+import java.util
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
@@ -23,7 +24,9 @@ final case class Config(
     debug: DebugOptions = DebugOptions(),
     staticTmpDir: Boolean = false,
     cleanTmpDir: Boolean = true,
-    mutatorConfigs: Map[String, LanguageMutatorConfig] = Map.empty
+    mutatorConfigs: Map[String, LanguageMutatorConfig] = Map(
+      ".scala" -> new LanguageMutatorConfig("2_13", new util.HashSet[String]())
+    )
 )
 
 object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
