@@ -6,7 +6,7 @@ import stryker4jvm.core.model.languagemutator.LanguageMutatorProvider
 import stryker4jvm.core.logging.Logger
 import stryker4jvm.mutator.scala.ScalaMutatorProvider.parseDialect
 
-import scala.meta.{Dialect, dialects};
+import scala.meta.{dialects, Dialect};
 
 /** Class used to actually create and provide the scala mutator to stryker4jvm
   */
@@ -49,15 +49,14 @@ object ScalaMutatorProvider {
       List("scala32", "scala3.2", "3.2", "32") -> dialects.Scala32,
       List("scala3", "scala3.0", "3.0", "3") -> dialects.Scala3
     )
-    val dialectMap = scalaVersions.flatMap{case (versions, dialect) => {
+    val dialectMap = scalaVersions.flatMap { case (versions, dialect) =>
       versions.map(v => v -> dialect)
-    }}
+    }
     dialectMap.get(configDialect) match {
       case Some(dialect) => dialect
-      case None => {
+      case None =>
         log.warn(s"Unknown Scala dialect $configDialect, using default dialect $defaultVersion")
         defaultVersion
-      }
     }
   }
 }

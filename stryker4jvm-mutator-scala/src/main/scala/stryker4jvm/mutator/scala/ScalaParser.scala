@@ -1,6 +1,6 @@
 package stryker4jvm.mutator.scala
 
-import scala.meta.{Dialect, Parsed, Source, dialects}
+import scala.meta.{dialects, Dialect, Parsed, Source}
 import scala.meta.parsers.XtensionParseInputLike
 import stryker4jvm.core.model.Parser
 

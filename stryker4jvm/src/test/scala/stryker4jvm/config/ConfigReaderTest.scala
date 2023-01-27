@@ -267,9 +267,6 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
       }
     }
 
-
-
-
     def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason)(implicit pos: Position) =
       config.at("stryker4s").load[Config] match {
         case Left(ConfigReaderFailures(ConvertFailure(reason, _, _), _*)) =>

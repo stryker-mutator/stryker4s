@@ -6,7 +6,7 @@ import fs2.io.file.Path
 import stryker4jvm.mutator.scala.extensions.TreeExtensions.IsEqualExtension
 
 import java.nio.file.NoSuchFileException
-import scala.meta.{Dialect, Source, XtensionParseInputLike, dialects}
+import scala.meta.{dialects, Dialect, Source, XtensionParseInputLike}
 
 class ScalaParserTest extends Stryker4jvmSuite {
   private val exampleClassFile = FileUtil.getResource("scalaFiles/ExampleClass.scala")

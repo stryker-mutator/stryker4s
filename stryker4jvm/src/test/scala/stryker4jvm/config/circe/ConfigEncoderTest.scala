@@ -6,13 +6,16 @@ import io.circe.syntax.*
 import stryker4jvm.config.*
 import stryker4jvm.testutil.Stryker4jvmSuite
 import org.scalactic.source.Position
+import stryker4jvm.core.config.LanguageMutatorConfig
+import java.util
 
 class ConfigEncoderTest extends Stryker4jvmSuite {
   val workspaceLocation = Path("workspace").absolute.toString
   describe("configEncoder") {
+    // Config updated such that adding more language mutator configs does not require changing this test
     it("should be able to encode a minimal config") {
       expectJsonConfig(
-        defaultConfig,
+        defaultConfig.copy(mutatorConfigs = Map(".scala" -> new LanguageMutatorConfig("2_13", new util.HashSet()))),
         defaultConfigJson,
         s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
@@ -36,7 +39,8 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
           debug = DebugOptions(
             logTestRunnerStdout = true,
             debugTestRunner = true
-          )
+          ),
+          mutatorConfigs = Map(".scala" -> new LanguageMutatorConfig("2_13", new util.HashSet()))
         ),
         defaultConfigJson.mapObject(
           _.add("mutate", arr(fromString("**/main/scala/**.scala")))
