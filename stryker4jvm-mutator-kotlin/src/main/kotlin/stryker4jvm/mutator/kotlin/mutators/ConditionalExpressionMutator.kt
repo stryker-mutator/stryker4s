@@ -8,22 +8,19 @@ import org.jetbrains.kotlin.psi.KtElement
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
 object ConditionalExpressionMutator : Mutator<KtBinaryExpression>() {
-    override val name = "ConditionalExpression"
-    override val type: Class<KtBinaryExpression> =
-        KtBinaryExpression::class.java
-    override val finderCondition: (KtBinaryExpression) -> Boolean = { element ->
-        PsiTreeUtil.getParentOfType(element, KtAnnotationEntry::class.java) == null &&
-        element.parent::class == KtContainerNode::class && element.operationReference.text in listOf(
-            "<", "<=", ">", ">=", "==", "!=", "===", "!==", "||", "&&"
-        ) &&
+  override val name = "ConditionalExpression"
+  override val type: Class<KtBinaryExpression> = KtBinaryExpression::class.java
+  override val finderCondition: (KtBinaryExpression) -> Boolean = { element ->
+    PsiTreeUtil.getParentOfType(element, KtAnnotationEntry::class.java) == null &&
+        element.parent::class == KtContainerNode::class &&
+        element.operationReference.text in
+            listOf("<", "<=", ">", ">=", "==", "!=", "===", "!==", "||", "&&") &&
         !element.left!!.text.contains("null") &&
         !element.right!!.text.contains("null")
-    }
+  }
 
-    override fun mutateElement(original: KtElement): List<KtElement> {
-        val mutationTextList = arrayOf("true", "false")
-        return mutationTextList.map {
-            PsiUtility.createPsiElement(it)
-        }
-    }
+  override fun mutateElement(original: KtElement): List<KtElement> {
+    val mutationTextList = arrayOf("true", "false")
+    return mutationTextList.map { PsiUtility.createPsiElement(it) }
+  }
 }

@@ -12,6 +12,7 @@ plugins {
     jacoco
 //    id("io.gitlab.arturbosch.detekt") version "1.17.1"
     id("org.sonarqube") version "3.3"
+    id("com.diffplug.gradle.spotless") version "4.5.1"
 }
 
 repositories {
@@ -55,10 +56,12 @@ tasks.withType<KotlinCompile> {
 
 tasks.jar {
     manifest {
-        attributes(mapOf(
+        attributes(
+            mapOf(
                 "Implementation-Title" to project.name,
                 "Implementation-Version" to project.version
-        ))
+            )
+        )
     }
 }
 
@@ -114,11 +117,11 @@ publishing {
     }
 }
 // todo: enable this when the module is finished and should be published
-//signing {
+// signing {
 //    useGpgCmd()
 //
 //    sign(publishing.publications["stryker4k-core"])
-//}
+// }
 
 tasks.withType(Javadoc::class) {
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
@@ -128,5 +131,23 @@ sonarqube {
     properties {
         property("sonar.kotlin.detekt.reportPaths", "build/reports/detekt/detekt.xml")
         property("sonar.jacoco.reportPaths", "build/reports/jacoco")
+    }
+}
+
+// https://github.com/diffplug/spotless/tree/main/plugin-gradle#kotlin
+// spotless { // if you are using build.gradle.kts, instead of 'spotless {' use:
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        // by default the target is every '.kt' and '.kts` file in the java sourcesets
+        ktfmt("0.24") // has its own section below
+        // ktlint()   // has its own section below
+        // diktat()   // has its own section below
+        // prettier() // has its own section below
+        // licenseHeader '/* (C)$YEAR */' // or licenseHeaderFile
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts") // default target for kotlinGradle
+        ktlint() // or ktfmt() or prettier()
     }
 }

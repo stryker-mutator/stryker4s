@@ -5,57 +5,59 @@ import stryker4jvm.core.model.CollectedMutants
 import stryker4jvm.core.model.Collector
 import stryker4jvm.core.model.MutantMetaData
 import stryker4jvm.core.model.MutatedCode
-import stryker4jvm.mutator.kotlin.mutators.*;
+import stryker4jvm.mutator.kotlin.mutators.*
 import stryker4jvm.mutator.kotlin.utility.PsiUtility
 
 class KotlinCollector(private val mutators: Array<out Mutator<*>>) : Collector<KotlinAST> {
 
-    constructor() : this(listAllMutators())
+  constructor() : this(listAllMutators())
 
-    override fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
-        if (tree == null)
-            return CollectedMutants()
+  override fun collect(tree: KotlinAST?): CollectedMutants<KotlinAST> {
+    if (tree == null) return CollectedMutants()
 
-        val res = CollectedMutants<KotlinAST>()
+    val res = CollectedMutants<KotlinAST>()
 
-        mutators.forEach { mutator ->
-            val originalToMutations = mutator.mutateFile(tree.tree)
-            originalToMutations.map { originalToMutation ->
-                val original = originalToMutation.key
-                val mutations = originalToMutation.value
+    mutators.forEach { mutator ->
+      val originalToMutations = mutator.mutateFile(tree.tree)
+      originalToMutations.map { originalToMutation ->
+        val original = originalToMutation.key
+        val mutations = originalToMutation.value
 
-                val originalLocation = PsiUtility.getLocation(original)
-                val originalAST = KotlinAST(original)
-                val originalText = original.text
+        val originalLocation = PsiUtility.getLocation(original)
+        val originalAST = KotlinAST(original)
+        val originalText = original.text
 
-                val code = mutations.map { mutation ->
-                    val metaData = MutantMetaData(originalText, mutation.text, mutator.name, originalLocation)
-                    MutatedCode(KotlinAST(mutation), metaData)
-                }
-                val currentMutations = res.mutations.getOrDefault(originalAST, mutableListOf())
-                currentMutations.addAll(code)
-                res.mutations[originalAST] = currentMutations
+        val code =
+            mutations.map { mutation ->
+              val metaData =
+                  MutantMetaData(originalText, mutation.text, mutator.name, originalLocation)
+              MutatedCode(KotlinAST(mutation), metaData)
             }
-        }
-
-        return res
+        val currentMutations = res.mutations.getOrDefault(originalAST, mutableListOf())
+        currentMutations.addAll(code)
+        res.mutations[originalAST] = currentMutations
+      }
     }
 
-    companion object {
-        fun listAllMutators() : Array<out Mutator<*>> {
-            return arrayOf(
-                    BooleanLiteralMutator,
-                    StringLiteralMutator,
-                    EqualityOperatorMutator,
-                    ConditionalExpressionMutator,
-                    LogicalOperatorMutator)
-        }
+    return res
+  }
 
-        fun apply(config: LanguageMutatorConfig) : KotlinCollector {
-            val mutators = listAllMutators().toSet().filter { mutator ->
-                !config.excludedMutations.contains(mutator.name)
-            }
-            return KotlinCollector(mutators.toTypedArray())
-        }
+  companion object {
+    fun listAllMutators(): Array<out Mutator<*>> {
+      return arrayOf(
+          BooleanLiteralMutator,
+          StringLiteralMutator,
+          EqualityOperatorMutator,
+          ConditionalExpressionMutator,
+          LogicalOperatorMutator)
     }
+
+    fun apply(config: LanguageMutatorConfig): KotlinCollector {
+      val mutators =
+          listAllMutators().toSet().filter { mutator ->
+            !config.excludedMutations.contains(mutator.name)
+          }
+      return KotlinCollector(mutators.toTypedArray())
+    }
+  }
 }
