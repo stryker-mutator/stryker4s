@@ -36,6 +36,37 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.0</version>
             </plugin>
+
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.31.0</version>
+                <configuration>
+                    <java>
+                      <!-- These are the defaults, you can override if you want -->
+                      <includes>
+                        <include>src/main/java/**/*.java</include>
+                        <include>src/test/java/**/*.java</include>
+                      </includes>
+                  
+                      <googleJavaFormat /> <!-- has its own section below -->
+                      <!-- <eclipse />          has its own section below -->
+                      <!-- <prettier />         has its own section below -->
+                  
+                      <importOrder /> <!-- standard import order -->
+                      <importOrder>  <!-- or a custom ordering -->
+                        <wildcardsLast>false</wildcardsLast> <!-- Optional, default false. Sort wildcard import after specific imports -->
+                        <order>java|javax,org,com,com.diffplug,,\#com.diffplug,\#</order>  <!-- or use <file>${project.basedir}/eclipse.importorder</file> -->
+                        <!-- you can use an empty string for all the imports you didn't specify explicitly, '|' to join group without blank line, and '\#` prefix for static imports. -->
+                      </importOrder>
+                  
+                      <removeUnusedImports /> <!-- self-explanatory -->
+                      <formatAnnotations />  <!-- fixes formatting of type annotations, see below -->
+                  
+                    </java>
+                  </configuration>
+              </plugin>
+
         </plugins>
     </build>
 </project>
