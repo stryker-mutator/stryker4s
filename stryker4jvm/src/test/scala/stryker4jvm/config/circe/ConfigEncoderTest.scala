@@ -6,18 +6,21 @@ import io.circe.syntax.*
 import stryker4jvm.config.*
 import stryker4jvm.testutil.Stryker4jvmSuite
 import org.scalactic.source.Position
+import stryker4jvm.core.config.LanguageMutatorConfig
+import java.util
 
 class ConfigEncoderTest extends Stryker4jvmSuite {
   val workspaceLocation = Path("workspace").absolute.toString
   describe("configEncoder") {
+    // Config updated such that adding more language mutator configs does not require changing this test
     it("should be able to encode a minimal config") {
       expectJsonConfig(
-        defaultConfig,
+        defaultConfig.copy(mutatorConfigs = Map(".scala" -> new LanguageMutatorConfig("2_13", new util.HashSet()))),
         defaultConfigJson,
         s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"debug":{"log-test-runner-stdout":false,"debug-test-runner":false},"mutator-configs":{}}"""
+          )}","reporters":["console","html"],"files":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"debug":{"log-test-runner-stdout":false,"debug-test-runner":false},"mutator-configs":{".scala":{"dialect":"2_13","excluded-mutations":[]}}}"""
       )
     }
 
@@ -36,7 +39,8 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
           debug = DebugOptions(
             logTestRunnerStdout = true,
             debugTestRunner = true
-          )
+          ),
+          mutatorConfigs = Map(".scala" -> new LanguageMutatorConfig("2_13", new util.HashSet()))
         ),
         defaultConfigJson.mapObject(
           _.add("mutate", arr(fromString("**/main/scala/**.scala")))
@@ -64,7 +68,7 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
         s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":["file.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"debug":{"log-test-runner-stdout":true,"debug-test-runner":true},"mutator-configs":{}}"""
+          )}","reporters":["console","html"],"files":["file.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"debug":{"log-test-runner-stdout":true,"debug-test-runner":true},"mutator-configs":{".scala":{"dialect":"2_13","excluded-mutations":[]}}}"""
       )
     }
   }
@@ -100,6 +104,11 @@ class ConfigEncoderTest extends Stryker4jvmSuite {
       "log-test-runner-stdout" -> False,
       "debug-test-runner" -> False
     ),
-    "mutator-configs" -> obj()
+    "mutator-configs" -> obj(
+      ".scala" -> obj(
+        "dialect" -> fromString("2_13"),
+        "excluded-mutations" -> arr()
+      )
+    )
   )
 }

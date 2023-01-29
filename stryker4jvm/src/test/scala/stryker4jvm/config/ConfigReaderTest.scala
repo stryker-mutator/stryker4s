@@ -84,6 +84,8 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
 
       val result = ConfigReader.readConfig(configSource)
 
+      result shouldBe Config.default
+
       result.baseDir shouldBe Path("").absolute
       result.mutate shouldBe empty
       result.files shouldBe empty
@@ -97,7 +99,7 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
         version = None,
         module = None
       )
-      result.mutatorConfigs.size shouldBe 0
+      result.mutatorConfigs.size shouldBe 1
       result.debug shouldBe DebugOptions(false, false)
       result.staticTmpDir shouldBe false
       result.cleanTmpDir shouldBe true
@@ -264,91 +266,6 @@ class ConfigReaderTest extends Stryker4jvmSuite with LogMatchers {
         }
       }
     }
-
-    // Scala is not parsed anymore in Stryker4jvm
-
-//    describe("ScalaDialect") {
-//      val validVersions = Map(
-//        "scala212" -> Scala212,
-//        "scala2.12" -> Scala212,
-//        "2.12" -> Scala212,
-//        "212" -> Scala212,
-//        "scala212source3" -> Scala212Source3,
-//        "scala213" -> Scala213,
-//        "scala2.13" -> Scala213,
-//        "2.13" -> Scala213,
-//        "213" -> Scala213,
-//        "2" -> Scala213,
-//        "scala213source3" -> Scala213Source3,
-//        "source3" -> Scala213Source3,
-//        "scala3future" -> Scala3Future,
-//        "future" -> Scala3Future,
-//        "scala30" -> Scala30,
-//        "scala3.0" -> Scala30,
-//        "3.0" -> Scala30,
-//        "30" -> Scala30,
-//        "dotty" -> Scala30,
-//        "scala31" -> Scala31,
-//        "scala3.1" -> Scala31,
-//        "3.1" -> Scala31,
-//        "31" -> Scala31,
-//        "scala32" -> Scala32,
-//        "scala3.2" -> Scala32,
-//        "3.2" -> Scala32,
-//        "32" -> Scala32,
-//        "scala3" -> Scala3,
-//        "scala3.0" -> Scala3,
-//        "3.0" -> Scala3,
-//        "3" -> Scala3
-//      )
-//
-//      validVersions.foreach { case (input, expected) =>
-//        it(s"should parse $input to $expected") {
-//          ExampleConfigs.scalaDialect(input).at("stryker4jvm").load[Config] match {
-//            case Right(value) => {
-//              value.mutatorConfigs.contains("scala") shouldBe true
-//              value.mutatorConfigs("scala").getDialect shouldBe expected
-//            }
-//            case Left(value) => fail(s"Expected valid parsing, got $value")
-//          }
-//
-//        }
-//      }
-//
-//      it("should not parse invalid scala-dialects") {
-//        expectConfigFailure(
-//          ExampleConfigs.scalaDialect("foobar"),
-//          CannotConvert(
-//            "foobar",
-//            "scala-dialect",
-//            s"Unsupported dialect. Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${
-//              validVersions.keys
-//                .map("'" + _ + "'")
-//                .mkString(", ")
-//            }"
-//          )
-//        )
-//      }
-//
-//      val deprecatedVersions = List("scala211", "scala2.11", "2.11", "211")
-//
-//      deprecatedVersions.foreach { version =>
-//        it(s"should error deprecated scala-dialect $version") {
-//          expectConfigFailure(
-//            ExampleConfigs.scalaDialect(version),
-//            CannotConvert(
-//              version,
-//              "scala-dialect",
-//              s"Deprecated dialect. Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${
-//                validVersions.keys
-//                  .map("'" + _ + "'")
-//                  .mkString(", ")
-//              }"
-//            )
-//          )
-//        }
-//      }
-//    }
 
     def expectConfigFailure(config: ConfigObjectSource, failure: FailureReason)(implicit pos: Position) =
       config.at("stryker4s").load[Config] match {
