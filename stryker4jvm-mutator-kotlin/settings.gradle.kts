@@ -1,8 +1,4 @@
 rootProject.name = "stryker4jvm-mutator-kotlin"
-//include("core")
+// include("core")
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-    }
-}
+pluginManagement { repositories { gradlePluginPortal() } }

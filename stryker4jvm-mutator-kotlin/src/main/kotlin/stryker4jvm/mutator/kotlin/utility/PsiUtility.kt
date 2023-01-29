@@ -1,5 +1,7 @@
 package stryker4jvm.mutator.kotlin.utility
 
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -26,95 +28,92 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import stryker4jvm.core.model.elements.Location
 import stryker4jvm.core.model.elements.Position
 import sun.reflect.ReflectionFactory
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 
 object PsiUtility {
-    val project: MockProject
-    // unsure whether using a common factory for the methods createPsiFile and createPsiElement
-    // changes anything...
-    //val factory: KtPsiFactory
+  val project: MockProject
+  // unsure whether using a common factory for the methods createPsiFile and createPsiElement
+  // changes anything...
+  // val factory: KtPsiFactory
 
-    init {
-        project = createPsiProject()
-        //factory = KtPsiFactory(project, true)
+  init {
+    project = createPsiProject()
+    // factory = KtPsiFactory(project, true)
+  }
+
+  private fun createPsiProject(): MockProject {
+    val compilerConfiguration = CompilerConfiguration()
+    compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+
+    System.setErr(PrintStream(ByteArrayOutputStream()))
+    val project =
+        KotlinCoreEnvironment.createForProduction(
+                {}, compilerConfiguration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
+            .project as
+            MockProject
+    System.setErr(System.out)
+
+    project.enableASTMutations()
+
+    return project
+  }
+
+  private fun MockProject.enableASTMutations() {
+    val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
+    val extensionClassName = TreeCopyHandler::class.java.name
+    for (area in arrayOf(extensionArea, Extensions.getRootArea())) {
+      if (!area.hasExtensionPoint(extensionPoint)) {
+        area.registerExtensionPoint(
+            extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
+      }
     }
 
-    private fun createPsiProject(): MockProject {
-        val compilerConfiguration = CompilerConfiguration()
-        compilerConfiguration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+    registerService(PomModel::class.java, FormatPomModel())
+  }
 
-        System.setErr(PrintStream(ByteArrayOutputStream()))
-        val project = KotlinCoreEnvironment.createForProduction(
-            {},
-            compilerConfiguration,
-            EnvironmentConfigFiles.JVM_CONFIG_FILES
-        ).project as MockProject
-        System.setErr(System.out)
+  private class FormatPomModel : UserDataHolderBase(), PomModel {
 
-        project.enableASTMutations()
-
-        return project
+    override fun runTransaction(transaction: PomTransaction) {
+      (transaction as PomTransactionBase).run()
     }
 
-    private fun MockProject.enableASTMutations() {
-        val extensionPoint = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
-        val extensionClassName = TreeCopyHandler::class.java.name
-        for (area in arrayOf(extensionArea, Extensions.getRootArea())) {
-            if (!area.hasExtensionPoint(extensionPoint)) {
-                area.registerExtensionPoint(extensionPoint, extensionClassName, ExtensionPoint.Kind.INTERFACE)
-            }
-        }
+    @Suppress("UNCHECKED_CAST", "SpreadOperator")
+    override fun <T : PomModelAspect> getModelAspect(aspect: Class<T>): T? {
+      if (aspect == TreeAspect::class.java) {
+        val constructor =
+            ReflectionFactory.getReflectionFactory()
+                .newConstructorForSerialization(
+                    aspect, Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0)))
 
-        registerService(PomModel::class.java, FormatPomModel())
+        return constructor.newInstance() as T
+      }
+
+      return null
     }
+  }
 
-    private class FormatPomModel : UserDataHolderBase(), PomModel {
+  fun createPsiFile(text: String): KtFile = KtPsiFactory(project).createFile(text)
 
-        override fun runTransaction(transaction: PomTransaction) {
-            (transaction as PomTransactionBase).run()
-        }
+  fun createPsiElement(code: String): KtElement = KtPsiFactory(project).createExpression(code)
 
-        @Suppress("UNCHECKED_CAST", "SpreadOperator")
-        override fun <T : PomModelAspect> getModelAspect(aspect: Class<T>): T? {
-            if (aspect == TreeAspect::class.java) {
-                val constructor = ReflectionFactory
-                    .getReflectionFactory()
-                    .newConstructorForSerialization(
-                        aspect,
-                        Any::class.java.getDeclaredConstructor(*arrayOfNulls<Class<*>>(0))
-                    )
+  fun getLocation(element: KtElement): Location {
+    val containingFile = element.containingFile
 
-                return constructor.newInstance() as T
-            }
+    val project = containingFile.project
+    val psiDocumentManager = PsiDocumentManager.getInstance(project)
+    val fileViewProvider = containingFile.viewProvider
 
-            return null
-        }
-    }
+    val document =
+        psiDocumentManager.getDocument(containingFile)
+            ?: fileViewProvider.document ?: return Location(Position(0, 0), Position(0, 0))
 
-    fun createPsiFile(text: String): KtFile = KtPsiFactory(project).createFile(text)
+    // there appears to be no way of knowing the start and end column of an element...
+    val start = Position(document.getLineNumber(element.startOffset), 0)
+    val end = Position(document.getLineNumber(element.endOffset), 0)
+    return Location(start, end)
+  }
 
-    fun createPsiElement(code: String): KtElement = KtPsiFactory(project).createExpression(code)
+  fun <T : KtElement> findElementsInFile(file: PsiElement, type: Class<T>): MutableCollection<T> =
+      PsiTreeUtil.collectElementsOfType(file, type)
 
-    fun getLocation(element: KtElement): Location {
-        val containingFile = element.containingFile
-
-        val project = containingFile.project
-        val psiDocumentManager = PsiDocumentManager.getInstance(project)
-        val fileViewProvider = containingFile.viewProvider
-
-        val document = psiDocumentManager.getDocument(containingFile) ?: fileViewProvider.document
-        ?: return Location(Position(0,0), Position(0,0))
-
-        // there appears to be no way of knowing the start and end column of an element...
-        val start = Position(document.getLineNumber(element.startOffset), 0)
-        val end = Position(document.getLineNumber(element.endOffset), 0)
-        return Location(start, end)
-    }
-
-    fun <T : KtElement> findElementsInFile(
-        file: PsiElement, type: Class<T>
-    ): MutableCollection<T> = PsiTreeUtil.collectElementsOfType(file, type)
-
-    fun replacePsiElement(original: KtElement, new: KtElement) = original.replace(new)
+  fun replacePsiElement(original: KtElement, new: KtElement) = original.replace(new)
 }
