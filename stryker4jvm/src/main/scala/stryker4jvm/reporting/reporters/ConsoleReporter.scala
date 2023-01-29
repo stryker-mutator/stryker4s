@@ -103,7 +103,7 @@ class ConsoleReporter()(implicit config: Config, log: FansiLogger) extends IORep
     val Position(startLinePos, startColumnPos) = mutant.location.start
     val Position(endLinePos, endColumnPos) = mutant.location.end
     val lines = source.linesIterator.toSeq
-    val startLine = lines(startLinePos - 1).substring(startColumnPos - 1)
+    val startLine = lines(Math.max(0, startLinePos - 1)).substring(Math.max(0, startColumnPos - 1))
     endLinePos - startLinePos match {
       // Mutation is 1 line
       case 0 => startLine.substring(0, endColumnPos - startColumnPos)
