@@ -37,7 +37,7 @@ object ScalaMutatorProvider {
       return dialects.Scala211
     }
 
-    val defaultVersion = dialects.Scala213
+    val defaultVersion = dialects.Scala213Source3
     val scalaVersions = Map(
       List("scala212", "scala2.12", "2.12", "212") -> dialects.Scala212,
       List("scala212source3") -> dialects.Scala212Source3,

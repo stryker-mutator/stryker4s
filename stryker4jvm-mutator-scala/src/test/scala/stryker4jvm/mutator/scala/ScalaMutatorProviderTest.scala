@@ -65,7 +65,7 @@ class ScalaMutatorProviderTest extends Stryker4jvmSuite with BeforeAndAfterEach 
       val dialect = parseDialect(invalidDialect, logger)
       logger.logs.isEmpty shouldBe false
       logger.logs.head.contains("Unknown") shouldBe true
-      dialect shouldBe Scala213
+      dialect shouldBe Scala213Source3
     }
 
     val deprecatedVersions = List("scala211", "scala2.11", "2.11", "211")
