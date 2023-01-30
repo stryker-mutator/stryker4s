@@ -5,6 +5,7 @@ import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.*
 import sbtprotoc.ProtocPlugin.autoImport.PB
+import scoverage.ScoverageKeys.*
 
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
@@ -117,7 +118,6 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
-    // Fatal warnings only in CI turned off
     tpolecatReleaseModeEnvVar := "CI_RELEASE",
     tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
@@ -142,6 +142,12 @@ object Settings {
     developers := List(
       Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
     ),
-    versionScheme := Some("semver-spec")
+    versionScheme := Some("semver-spec"),
+
+    // scoverage settings
+    coverageExcludedPackages := ".*stryker4jvm\\.api.*;.*stryker4jvm\\.plugin.*;.*stryker4jvm\\.coverage.*;.*stryker4jvm\\.command.*",
+    coverageExcludedFiles := "stryker4jvm\\.package",
+    coverageFailOnMinimum := true,
+    coverageMinimumStmtTotal := 70
   )
 }

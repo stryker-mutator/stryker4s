@@ -60,11 +60,11 @@ lazy val sbtStryker4jvm = newProject("stryker4jvm-plugin-sbt", "stryker4jvm-plug
 lazy val sbtTestRunner = newProject("stryker4jvm-plugin-sbt-testrunner", "stryker4jvm-plugin-sbt-testrunner")
   .settings(sbtTestrunnerSettings)
   .dependsOn(stryker4jvmApi)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvmApi = newProject("stryker4jvm-api", "stryker4jvm-api")
   .settings(apiSettings)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
   .settings(
