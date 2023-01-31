@@ -103,7 +103,7 @@
         
         <plugin>
           <groupId>io.stryker-mutator</groupId>
-          <artifactId>stryker4jvm-maven-plugin</artifactId>
+          <artifactId>stryker4jvm-plugin-maven</artifactId>
           <version>SET-BY-SBT-SNAPSHOT</version>
         </plugin>
         
