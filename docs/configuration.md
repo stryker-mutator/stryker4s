@@ -4,10 +4,10 @@ custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/c
 sidebar_position: 2
 ---
 
-All configuration options can be set from the `stryker4s.conf` file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in kebab-case.
+All configuration options can be set from the `stryker4jvm.conf` file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4jvm" namespace and in kebab-case.
 
 ```conf
-stryker4s {
+stryker4jvm {
   # Your configuration here
 }
 ```
@@ -56,17 +56,17 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  
 **Default value:** The directory from which the process is started  
 **Description:**  
-With `base-dir` you specify the directory from which stryker4s starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases. This value can also be relative to the current working directory, E.G.: `base-dir: submodule1` to set the base-dir to a submodule of your project.
+With `base-dir` you specify the directory from which stryker4jvm starts and searches for mutations. The default for this is the directory from which the project is being run, which should be fine in most cases. This value can also be relative to the current working directory, E.G.: `base-dir: submodule1` to set the base-dir to a submodule of your project.
 
 ### `reporters` [`string[]`]
 
 **Config file:** `reporters: ["console", "html", "json", "dashboard"]`  
 **Default value:** The `console` and `html` reporters  
 **Description:**  
-With `reporters` you can specify reporters for stryker4s to use. The following reporters are supported:
+With `reporters` you can specify reporters for stryker4jvm to use. The following reporters are supported:
 
 - `console` will output progress and the final result to the console.
-- `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
+- `html` outputs a nice HTML report to `target/stryker4jvm-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
 - `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
 - `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.\*](#dashboard-object) configuration options. See the [dashboard docs](../General/dashboard.md) for more info. The dashboard reporter only works on JDK 11 or higher.
 
@@ -103,7 +103,7 @@ Setting `break=0` (default value) ensures that the build will never fail.
 **Config file:** `dashboard { module="core" }`  
 **Default values:** `dashboard { base-url="https://dashboard.stryker-mutator.io", project="github.com/$USER/$PROJECT_NAME", report-type=full, version=$BRANCH }` if filled by CI environment  
 **Description:**  
-Settings for the dashboard [reporter](#reporters-string). See the [dashboard docs](../General/dashboard.md). Note that the values should be kebab-case, not camelCase. If nothing is configured, Stryker4s will try to retrieve the values from one of the supported CI environments:
+Settings for the dashboard [reporter](#reporters-string). See the [dashboard docs](../General/dashboard.md). Note that the values should be kebab-case, not camelCase. If nothing is configured, stryker4jvm will try to retrieve the values from one of the supported CI environments:
 
 - Travis
 - CircleCI
@@ -118,7 +118,7 @@ Settings for the dashboard [reporter](#reporters-string). See the [dashboard doc
 
 Set the Scala dialect that should be used for parsing Scala files. The default is Scala 2.13 with `-XSource:3` as this has the widest compatibility. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
 
-Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/core/src/main/scala/stryker4s/config/pure/ConfigConfigReader.scala#L74-L84).
+Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](./stryker4jvm-mutator-scala/src/main/scala/stryker4jvm/mutator/scala/ScalaMutatorProvider.scala).
 
 ### `static-tmp-dir` [`boolean`]
 
@@ -127,9 +127,9 @@ Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.
 **Since:** `v0.15.0`
 **Description:**
 
-This will force the temporary dir to be created at a static path (`target/stryker4s-tmpDir`).
+This will force the temporary dir to be created at a static path (`target/stryker4jvm-tmpDir`).
 
-Recommended when using stryker4s with Bazel (Bazel uses the path to the workspace to determine where to store the
+Recommended when using stryker4jvm with Bazel (Bazel uses the path to the workspace to determine where to store the
 local cache - hashes the path to create the sandbox's name) as it speeds up mutation testing greatly.
 
 ### `clean-tmp-dir` [`boolean`]
@@ -140,7 +140,7 @@ local cache - hashes the path to create the sandbox's name) as it speeds up muta
 **Description:**
 
 Temporary dir will be autodeleted at exit if this option is set. Turning it off is useful for debugging purposes.
-If cleaning the temporary dir is disabled, you need to clean the temporary dir manually before restarting stryker4s.
+If cleaning the temporary dir is disabled, you need to clean the temporary dir manually before restarting stryker4jvm.
 
 On error the temporary dir is never deleted (even if this option is set).
 
@@ -162,7 +162,7 @@ See [timeout](#timeout-duration)
 **Since:** `v0.10.0`  
 **Description:**
 
-When Stryker4s is mutating code, it cannot determine indefinitely whether a code mutation results in an infinite loop (see [Halting problem](https://en.wikipedia.org/wiki/Halting_problem)).
+When stryker4jvm is mutating code, it cannot determine indefinitely whether a code mutation results in an infinite loop (see [Halting problem](https://en.wikipedia.org/wiki/Halting_problem)).
 In order to battle infinite loops, a test run gets killed after a certain period of time. This period is configurable with two settings: `timeout` and `timeoutFactor`.
 To calculate the actual timeout in milliseconds the following formula is used:
 
@@ -199,7 +199,7 @@ Cases where you might want to use this:
 - You are running into a bug with the new testrunner.
 - Your testframework does not work with the testrunner.
 
-For the last two cases, please [let us know by creating an issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
+For the last two cases, please [let us know by creating an issue](https://github.com/stryker-mutator/stryker4jvm/issues/new)!
 
 ### `concurrency` [`number`]
 
@@ -208,7 +208,7 @@ For the last two cases, please [let us know by creating an issue](https://github
 **Since:** `v0.12.0`  
 **Description:**
 
-Set the concurrency of testrunners. Stryker4s will create this many testrunners to run mutants in parallel. This defaults to `(cpuCoreCount / 4).rounded + 1`. `cpuCoreCount` includes virtual processors such as from hyperthreading. This is a sane default for most use cases as most test frameworks already have some form of concurrency built in. But as always with concurrency, test it yourself to be sure of the best performance.
+Set the concurrency of testrunners. stryker4jvm will create this many testrunners to run mutants in parallel. This defaults to `(cpuCoreCount / 4).rounded + 1`. `cpuCoreCount` includes virtual processors such as from hyperthreading. This is a sane default for most use cases as most test frameworks already have some form of concurrency built in. But as always with concurrency, test it yourself to be sure of the best performance.
 
 ### `debug` [`object`]
 
@@ -238,7 +238,7 @@ To debug in VS Code, you can use (and edit) this `launch.json`:
       "request": "attach",
       "hostName": "127.0.0.1",
       "port": 8000,
-      "buildTarget": "sbt-stryker4s-testrunner"
+      "buildTarget": "stryker4jvm-plugin-sbt-testrunner"
     }
   ]
 }
@@ -261,7 +261,7 @@ By default, stdout from testrunners is not logged. With this option, stdout is s
 **Config file:** `test-runner: { command: "sbt", args: "test" }`  
 **Mandatory:** Yes  
 **Description:**  
-With `test-runner` you specify how stryker4s can invoke the test runner.  
+With `test-runner` you specify how stryker4jvm can invoke the test runner.  
 Examples would be `sbt test`, `mvn test` or any other command to run your tests, including any parameters your tests might need.
 
 **warning** The process runner should only be used when your specific test framework is not supported. Due to performance and predictability reasons.
@@ -272,7 +272,7 @@ Examples would be `sbt test`, `mvn test` or any other command to run your tests,
 
 **Default value:** `INFO`  
 **Description:**  
-How to adjust the loglevel depends on how you run stryker4s:
+How to adjust the loglevel depends on how you run stryker4jvm:
 
 - sbt plugin
   - Add `stryker / logLevel := Level.Debug` to your build.sbt. Or use `set stryker / logLevel := Level.Debug` if you are in a sbt session.
@@ -281,23 +281,23 @@ How to adjust the loglevel depends on how you run stryker4s:
   - Pass the loglevel as a parameter when running, like so: `--debug`
   - Options: `--debug`, `--info`, `--warn`, `--error` (not case sensitive)
 - Maven plugin
-  - As a command-line property, like so: `mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=warn stryker4s:run`
+  - As a command-line property, like so: `mvn -Dorg.slf4j.simpleLogger.defaultLogLevel=warn stryker4jvm:run`
     - Options: `trace`, `debug`, `info`, `warn`, or `error`
-  - Debug logging with `-X` or `-debug`: `mvn -debug stryker4s:run`
+  - Debug logging with `-X` or `-debug`: `mvn -debug stryker4jvm:run`
 
-**warning** This option cannot be set from stryker4s.conf.
+**warning** This option cannot be set from stryker4jvm.conf.
 
 ## Excluding specific mutations
 
 **Since:** `v0.9.0`
 
-Using the `@SuppressWarnings` annotation, you can tell Stryker4s to ignore mutations in a code block. Annotate a code block with a `@SuppressWarnings` annotation, passing an array of mutation names you would like to ignore.
+Using the `@SuppressWarnings` annotation, you can tell stryker4jvm to ignore mutations in a code block. Annotate a code block with a `@SuppressWarnings` annotation, passing an array of mutation names you would like to ignore.
 
 ```scala
 /** No booleans will be mutated
  */
-@SuppressWarnings(Array("stryker4s.mutation.BooleanLiteral"))
+@SuppressWarnings(Array("stryker4jvm.mutation.BooleanLiteral"))
 RequestLogger(logHeaders = false, logBody = false)(ResponseLogger(logHeaders = false, logBody = true)(httpClient))
 ```
 
-All mutation names are the same as for [Excluded mutations](#excluded-mutations-string) and should be prefixed with `"stryker4s.mutation."`.
+All mutation names are the same as for [Excluded mutations](#excluded-mutations-string) and should be prefixed with `"stryker4jvm.mutation."`.

@@ -1,18 +1,18 @@
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster%3Fmodule%3Dmaven-plugin)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master?module=maven-plugin)
 
-# Stryker4s Maven plugin
+# Stryker4jvm Maven plugin
 
-This is the project for the Stryker4s Maven plugin. As you cannot build a Maven plugin from a sbt project, it is a separate project.
+This is the project for the stryker4jvm Maven plugin. As you cannot build a Maven plugin from a sbt project, it is a separate project.
 
 ## Overriding compiler flags
 
-Stryker4s can generate mutated code that produces warnings.
+Stryker4jvm can generate mutated code that produces warnings.
 This will not work well with `-Xfatal-warnings` and/or `-Werror` Scala compiler options.
 To mitigate this, you can specify a profile where the scala maven plugin uses different set of compiler flags.
 
 ```xml
     <profile>
-        <id>stryker4s</id>
+        <id>stryker4jvm</id>
         <build>
             <plugins>
                 <plugin>
@@ -22,7 +22,7 @@ To mitigate this, you can specify a profile where the scala maven plugin uses di
                         <args combine.children="override">
                             <arg>-language:postfixOps</arg>
                             <arg>-language:higherKinds</arg>
-                            <!-- <arg>-Xfatal-warnings</arg> disabling for stryker4s -->
+                            <!-- <arg>-Xfatal-warnings</arg> disabling for stryker4jvm -->
                         </args>
                     </configuration>
                 </plugin>
@@ -31,17 +31,17 @@ To mitigate this, you can specify a profile where the scala maven plugin uses di
     </profile>
 ```
 
-Then you can activate this profile in `stryker4s-maven-plugin`'s `configuration` section. Or activate a profile from the command-line `mvn stryker4s:run -P stryker4s`.
+Then you can activate this profile in `stryker4jvm-plugin-maven`'s `configuration` section. Or activate a profile from the command-line `mvn stryker4jvm:run -P stryker4jvm`.
 
 ```xml
     <plugin>
         <groupId>io.stryker-mutator</groupId>
-        <artifactId>stryker4s-maven-plugin</artifactId>
+        <artifactId>stryker4jvm-plugin-maven</artifactId>
         <configuration>
             <project>
                 <activeProfiles>
                     <profile>
-                        <id>stryker4s</id>
+                        <id>stryker4jvm</id>
                     </profile>
                 </activeProfiles>
             </project>
@@ -51,4 +51,6 @@ Then you can activate this profile in `stryker4s-maven-plugin`'s `configuration`
 
 ## Developing
 
-The maven plugin depends on the `stryker4s-core` dependency. To install it locally, you can execute the following command in the root of this repository: `sbt 'publishM2Local`. This will install `stryker4s-core_2.13` into your local Maven repository so you can start local development.
+The maven plugin depends on `stryker4jvm`. 
+To install it locally, you should follow the first two steps in [contributing guide](../docs/contributing.md), afterwards you can execute the following command in the root of this repository: `sbt 'publishM2Local'`. 
+This will install `stryker4jvm` into your local Maven repository so you can start local development.

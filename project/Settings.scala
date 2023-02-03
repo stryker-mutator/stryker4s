@@ -120,14 +120,14 @@ object Settings {
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
     tpolecatReleaseModeEnvVar := "CI_RELEASE",
     tpolecatDefaultOptionsMode := DevMode,
-    // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
+    // Prevent version clash warnings when running Stryker4jvm on a locally-published Stryker4jvm
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4jvm-api" % VersionScheme.Always,
       "io.stryker-mutator" %% "stryker4jvm" % VersionScheme.Always,
       "io.stryker-mutator" %% "stryker4jvm-mutator-scala" % VersionScheme.Always,
-      "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % VersionScheme.Always
+      "io.stryker-mutator" %% "stryker4jvm-plugin-sbt-testrunner" % VersionScheme.Always
     ),
-    description := "Stryker4s, the mutation testing framework for Scala.",
+    description := "Stryker4jvm, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
     organizationHomepage := Some(url("https://stryker-mutator.io/")),
     homepage := Some(url("https://stryker-mutator.io/")),

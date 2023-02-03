@@ -64,12 +64,12 @@ class Stryker4jvmSbtRunner(
         settings: Seq[Def.Setting[?]],
         extracted: Extracted
     ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
-      val stryker4sVersion = this.getClass().getPackage().getImplementationVersion()
-      log.debug(s"Resolved stryker4s version $stryker4sVersion")
+      val stryker4jvmVersion = this.getClass().getPackage().getImplementationVersion()
+      log.debug(s"Resolved stryker4jvm version $stryker4jvmVersion")
 
       val fullSettings = settings ++ Seq(
         libraryDependencies +=
-          "io.stryker-mutator" %% "stryker4jvm-plugin-sbt-testrunner" % stryker4sVersion
+          "io.stryker-mutator" %% "stryker4jvm-plugin-sbt-testrunner" % stryker4jvmVersion
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 

@@ -99,7 +99,7 @@ class MutatorTest extends Stryker4jvmIOSuite with LogMatchers {
       sut.go(files).asserting { _ =>
         s"Found ${Cyan("1")} file(s) to be mutated." shouldBe loggedAsInfo
         s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("4")} mutant(s) are excluded." shouldBe loggedAsInfo
-        s"""All found mutations are excluded. Stryker4s will perform a dry-run without actually mutating anything.
+        s"""All found mutations are excluded. Stryker4jvm will perform a dry-run without actually mutating anything.
            |You can configure the `mutate` or `excluded-mutations` property in your configuration""".stripMargin shouldBe loggedAsWarning
         "Files to be mutated are found, but no mutations were found in those files." should not be loggedAsInfo
         "If this is not intended, please check your configuration and try again." should not be loggedAsInfo

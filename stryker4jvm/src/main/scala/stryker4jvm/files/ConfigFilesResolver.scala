@@ -11,7 +11,7 @@ import stryker4jvm.run.process.{Command, ProcessRunner}
 class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config, log: FansiLogger)
     extends FilesFileResolver {
 
-  /** Collect all files that are needed to be copied over to the Stryker4s-tmp folder.
+  /** Collect all files that are needed to be copied over to the Stryker4jvm-tmp folder.
     *
     *   - Option 1: Copy every file that is listed by the 'files' config setting.
     *   - Option 2: Copy every file that is listed by git.
@@ -32,7 +32,7 @@ class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config,
       .map(_.map(config.baseDir / _).distinct)
       .map(Stream.emits)
 
-  /** List all files from the base directory specified in the Stryker4s basedir config key.
+  /** List all files from the base directory specified in the Stryker4jvm basedir config key.
     */
   private def listAllFiles(): Stream[IO, Path] = {
     log.warn("No 'files' specified and not a git repository.")
@@ -41,7 +41,7 @@ class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config,
     Files[IO].walk(config.baseDir)
   }
 
-  /** List all files based on the 'files' configuration key from stryker4s.conf.
+  /** List all files based on the 'files' configuration key from stryker4jvm.conf.
     */
   private def listFilesBasedOnConfiguration(): Option[Stream[IO, Path]] =
     if (config.files.isEmpty) None else Some(glob(config.baseDir, config.files))

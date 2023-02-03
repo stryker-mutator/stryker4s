@@ -20,9 +20,9 @@ object Stryker4jvmMain extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    val stryker = taskKey[Unit]("Run Stryker4s mutation testing")
-    val strykerMinimumSbtVersion = settingKey[String]("Lowest supported sbt version by Stryker4s")
-    val strykerIsSupported = settingKey[Boolean]("If running Stryker4s is supported on this sbt version")
+    val stryker = taskKey[Unit]("Run Stryker4jvm mutation testing")
+    val strykerMinimumSbtVersion = settingKey[String]("Lowest supported sbt version by Stryker4jvm")
+    val strykerIsSupported = settingKey[Boolean]("If running Stryker4jvm is supported on this sbt version")
   }
   import autoImport.*
 
@@ -37,7 +37,7 @@ object Stryker4jvmMain extends AutoPlugin {
   lazy val strykerTask = Def.task {
     if (!strykerIsSupported.value) {
       throw new UnsupportedSbtVersionException(
-        s"Sbt version ${sbtVersion.value} is not supported by Stryker4s. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
+        s"Sbt version ${sbtVersion.value} is not supported by Stryker4jvm. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
       )
     }
     // Call logLevel so it shows up as a used setting when set

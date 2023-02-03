@@ -135,7 +135,7 @@ class Mutator(
     val totalMutants = includedMutants + excludedMutants
 
     def dryRunText(configProperties: String*): String =
-      s"""Stryker4s will perform a dry-run without actually mutating anything.
+      s"""Stryker4jvm will perform a dry-run without actually mutating anything.
          |You can configure the `${configProperties.mkString("` or `")}` property in your configuration""".stripMargin
 
     IO(log.info(s"Found ${Color.Cyan(totalFiles.toString())} file(s) to be mutated.")) *>

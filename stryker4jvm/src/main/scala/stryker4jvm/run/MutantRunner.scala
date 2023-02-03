@@ -226,7 +226,7 @@ class MutantRunner(
         if (!result.isSuccessful)
           IO.raiseError(
             InitialTestRunFailedException(
-              "Initial test run failed. Please make sure your tests pass before running Stryker4s."
+              "Initial test run failed. Please make sure your tests pass before running Stryker4jvm."
             )
           )
         else

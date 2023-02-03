@@ -5,7 +5,7 @@
 
 ![stryker-80x80](https://user-images.githubusercontent.com/10114577/59962899-d26b8d00-94eb-11e9-8e31-18b3d8d96fd3.png)
 
-# Stryker4s
+# Stryker4jvm
 
 _Professor X: For someone who hates mutants... you certainly keep some strange company._  
 _William Stryker: Oh, they serve their purpose... as long as they can be controlled._
@@ -16,86 +16,75 @@ For an introduction to mutation testing and Stryker's features, see [stryker-mut
 
 ## Getting Started
 
-For the quickstart, see [our website's quickstart](https://stryker-mutator.io/stryker4s/quickstart).
+For the quickstart, see [our  quickstart](docs/getting-started.md).
+See our [sample projects](sample-projects) for examples on how to add stryker to your project.
 
-Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs. Depending on your project setup, there are multiple ways to get started with Stryker4s.
+Stryker4jvm is a mutation testing framework for jvm-languages, currently supporting Scala and Kotlin. It allows you to test your tests by temporarily inserting bugs. 
+
+Depending on your project setup, there are multiple ways to get started with Stryker4jvm.
 
 ## Sbt plugin
 
-Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/sbt-stryker4s):
+Stryker4jvm provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/sbt-stryker4s):
 
 ```scala
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % stryker4sVersion)
+addSbtPlugin("io.stryker-mutator" % "stryker4jvm-plugin-sbt" % stryker4jvmVersion)
 ```
 
-After adding the plugin, Stryker4s can be used by running `sbt stryker` in the root of your project.
+After adding the plugin, Stryker4jvm can be used by running `sbt stryker` in the root of your project.
 
 ### Multi-module projects
 
-Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
+Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/configuration#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4jvm.
 
 ## Maven plugin
 
-The Maven plugin can be added as follows in `pom.xml` under `<plugins>` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/stryker4s-maven-plugin):
+The Maven plugin can be added as follows in `pom.xml` under `<plugins>` 
+
+[//]: # ([![Maven Central]&#40;https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen&#41;]&#40;https://search.maven.org/artifact/io.stryker-mutator/stryker4s-maven-plugin&#41;:)
 
 ```xml
 <plugin>
     <groupId>io.stryker-mutator</groupId>
-    <artifactId>stryker4s-maven-plugin</artifactId>
-    <version>${stryker4s.version}</version>
+    <artifactId>stryker4jvm-plugin-maven</artifactId>
+    <version>${stryker4jvm.version}</version>
 </plugin>
 ```
 
-You can then run Stryker4s with the command `mvn stryker4s:run`. Note that this is different than the command for the sbt plugin.
+You can then run Stryker4jvm with the command `mvn stryker4jvm:run`. Note that this is different than the command for the sbt plugin.
 
-## Pre-release versions
+[//]: # (## Pre-release versions)
 
-We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:
+[//]: # ()
+[//]: # (We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:)
 
-```scala
-resolvers += Resolver.sonatypeRepo("snapshots")
-```
+[//]: # ()
+[//]: # (```scala)
 
-Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/).
+[//]: # (resolvers += Resolver.sonatypeRepo&#40;"snapshots"&#41;)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (Then replace the Stryker4s version with this version: [![Sonatype Nexus &#40;Snapshots&#41;]&#40;https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg&#41;]&#40;https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/&#41;.)
 
 ## Configuration
 
-See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configuration) for setting up your `stryker4s.conf` file (optional).
+See the [configuration page](docs/configuration.md) for setting up your `stryker4jvm.conf` file (optional).
 
 ## Supported mutators
 
-Stryker4s supports a variety of mutators, which can be found [here](https://stryker-mutator.io/docs/mutation-testing-elements/supported-mutators/).
+Stryker4jvm supports different mutators depending on the language it is being run on. 
+
+For Scala the mutators can be found  [here](https://stryker-mutator.io/docs/mutation-testing-elements/supported-mutators/).
 Do you have a suggestion for a (new) mutator? Feel free to create an [issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
 
-An always up-to-date reference is also available in the [MutantMatcher source](core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
+An always up-to-date reference is also available in the [MutantMatcher source](stryker4jvm-mutator-scala/src/main/scala/stryker4jvm/mutator/scala/MutantMatcher.scala).
 
 ## Changelog
 
-See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) for all the latest changes made.
+See the [releases page](https://github.com/stryker-mutator/stryker4jvm/releases) for all the latest changes made.
 
 ## Contributing
 
-Want to contribute? That's great! Please have a look at our [contributing guide](https://stryker-mutator.io/docs/stryker4s/contributing).
-
-Developing on stryker4jvm:
-Currently, stryker4jvm is using 3 build tools for all its modules. Stryker4jvm-core is managed by maven,
-stryker4jvm-mutator-kotlin is managed by gradle and all other modules are managed by sbt. In order to build/test locally
-you need to take the following steps:
-1) Building stryker4jvm-core:
-   1) cd to stryker4jvm-core root
-   2) mvn clean
-   3) mvn install
-2) Building stryker4jvm-mutator-kotlin (for Windows './gradlew', for linux you should use 'bash gradlew'):
-   1) Verify version of gradle daemon by running ./gradlew --version in the root of mutator kotlin module.
-   The JVM version should be 15 (theoretically, 11 should also work but has not been tested). Furthermore, it should say
-   kotlin version 1.4.20. Build has only been confirmed to work with gradle 6.9.1, kotlin 1.4.20, groovy 2.5.12 and jvm 15.0.2.
-   In order to change the JVM version to use, either change your JAVA_HOME environment variable or specify the version to use
-   for gradle for commands like so: "./gradlew \<command> -Dorg.gradle.java.home=/JDK_PATH".
-   2) Delete the .gradle folder and build folder in module root if there were version issues or gradle build errors. Note that
-   if you changed versions, you may need to restart your computer entirely.
-   3) ./gradlew clean build
-   4) ./gradlew publishToMavenLocal
-3) Building all other sbt modules:
-    1) cd to project root (should contain build.sbt file)
-    2) sbt compile (if you wish to only compile a specific module, use sbt \<module-name\>/compile)
-    3) sbt test (optional)
+Want to contribute? That's great! Please have a look at our [contributing guide](docs/contributing.md).

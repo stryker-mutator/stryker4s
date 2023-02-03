@@ -57,7 +57,6 @@ lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
-!core/src/test/resources/fileTests/target/IgnoredFile.scala
 .bsp/
 
 # dotty
@@ -72,10 +71,10 @@ project/project/
 
 # stryker specific
 /stryker4s.conf
+/styker4jvm.conf
 
 !bin/scalafmt
 
-stryker4k/**/bin
 stryker4jvm-mutator-kotlin/.gradle
 stryker4jvm-mutator-kotlin/bin
 stryker4jvm-mutator-kotlin/build

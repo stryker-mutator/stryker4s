@@ -4,7 +4,7 @@ import sbt.testing.{Status, TaskDef}
 import stryker4jvm.plugin.sbt.testrunner.model.{AnnotatedFingerprintImpl, SubclassFingerprintImpl}
 import stryker4jvm.api.testprocess.*
 
-/** Maps stryker4s-api test-interface models to sbt-testinterface models
+/** Maps stryker4jvm-api test-interface models to sbt-testinterface models
   */
 trait TestInterfaceMapper {
   def combineStatus(current: Status, newStatus: Status) =
