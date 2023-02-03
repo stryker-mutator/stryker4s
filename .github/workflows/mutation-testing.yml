@@ -31,8 +31,8 @@ jobs:
           arguments: |
             clean build
             publishToMavenLocal
-      - name: Create Stryker4jvm config
-        run: echo 'stryker4jvm{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4jvm.conf
+      - name: Create Stryker4s config
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
       - name: Run stryker on Stryker4jvm
         run: sbt 'project stryker4jvm; stryker'
         env:
@@ -61,8 +61,8 @@ jobs:
           arguments: |
             clean build
             publishToMavenLocal
-      - name: Create Stryker4jvm config
-        run: echo 'stryker4jvm{reporters=["console","dashboard"],base-dir="stryker4jvm-mutator-scala",dashboard.module="stryker4jvm-mutator-scala"}' > stryker4jvm.conf
+      - name: Create Stryker4s config
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="stryker4jvm-mutator-scala",dashboard.module="stryker4jvm-mutator-scala"}' > stryker4s.conf
       - name: Run stryker on Stryker4jvm
         run: sbt 'project stryker4jvm-mutator-scala; stryker'
         env:
@@ -91,8 +91,8 @@ jobs:
           arguments: |
             clean build
             publishToMavenLocal
-      - name: Create Stryker4jvm config
-        run: echo 'stryker4jvm{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4jvm.conf
+      - name: Create Stryker4s config
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
       - name: Run stryker on the command runner
         run: sbt 'project stryker4jvm-command-runner; stryker'
         env:
@@ -124,6 +124,8 @@ jobs:
             publishToMavenLocal
       - name: Publish Stryker4jvm maven deps locally
         run: sbt publishM2Local
+      - name: Create Stryker4s config
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="stryker4jvm-plugin-maven",dashboard.module="stryker4jvm-plugin-maven"}' > stryker4s.conf
       - name: Run Stryker4s maven plugin on Stryker4jvm-plugin-maven
         working-directory: ./stryker4jvm-plugin-maven
         run: mvn -B --no-transfer-progress stryker4s:run
