@@ -28,7 +28,7 @@ Depending on your project setup, there are multiple ways to get started with Str
 Stryker4jvm provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/sbt-stryker4s):
 
 ```scala
-addSbtPlugin("io.stryker-mutator" % "stryker4jvm-plugin-sbt" % stryker4jvmVersion)
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4jvm" % stryker4jvmVersion)
 ```
 
 After adding the plugin, Stryker4jvm can be used by running `sbt stryker` in the root of your project.

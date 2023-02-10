@@ -14,7 +14,7 @@ This guide is for the sbt plugin for Stryker4jvm. For other ways to run Stryker4
 To install Stryker4jvm on your project, add the following line to `project/plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/search?q=g:io.stryker-mutator):
 
 ```scala
-addSbtPlugin("io.stryker-mutator" % "stryker4jvm-plugin-sbt" % stryker4jvmVersion)
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4jvm" % stryker4jvmVersion)
 ```
 
 ## 2 Configure
