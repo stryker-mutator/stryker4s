@@ -118,7 +118,7 @@ Settings for the dashboard [reporter](#reporters-string). See the [dashboard doc
 
 Set the Scala dialect that should be used for parsing Scala files. The default is Scala 2.13 with `-XSource:3` as this has the widest compatibility. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
 
-Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](./stryker4jvm-mutator-scala/src/main/scala/stryker4jvm/mutator/scala/ScalaMutatorProvider.scala).
+Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/ISEP-Stryker/stryker4jvm/blob/master/stryker4jvm-mutator-scala/src/main/scala/stryker4jvm/mutator/scala/ScalaMutatorProvider.scala).
 
 ### `static-tmp-dir` [`boolean`]
 

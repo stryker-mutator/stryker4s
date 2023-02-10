@@ -35,13 +35,14 @@ After adding the plugin, Stryker4jvm can be used by running `sbt stryker` in the
 
 ### Multi-module projects
 
-Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](docs/configuration#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4jvm.
+Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker.
 
 ## Maven plugin
 
 The Maven plugin can be added as follows in `pom.xml` under `<plugins>` 
 
-[//]: # ([![Maven Central]&#40;https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen&#41;]&#40;https://search.maven.org/artifact/io.stryker-mutator/stryker4s-maven-plugin&#41;:)
+[comment]: <> (todo: update link)
+[comment]: <> ([![Maven Central]&#40;https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen&#41;]&#40;https://search.maven.org/artifact/io.stryker-mutator/stryker4s-maven-plugin&#41;:)
 
 ```xml
 <plugin>
@@ -53,20 +54,16 @@ The Maven plugin can be added as follows in `pom.xml` under `<plugins>`
 
 You can then run Stryker4jvm with the command `mvn stryker4jvm:run`. Note that this is different than the command for the sbt plugin.
 
-[//]: # (## Pre-release versions)
+## Pre-release versions
 
-[//]: # ()
-[//]: # (We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:)
+We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:
 
-[//]: # ()
-[//]: # (```scala)
+```scala
+resolvers += Resolver.sonatypeRepo("snapshots")
+```
 
-[//]: # (resolvers += Resolver.sonatypeRepo&#40;"snapshots"&#41;)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (Then replace the Stryker4s version with this version: [![Sonatype Nexus &#40;Snapshots&#41;]&#40;https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg&#41;]&#40;https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/&#41;.)
+[comment]: <> (todo: update the link from stryker4s-core to stryker4jvm)
+[comment]: <> (Then replace the Stryker4s version with this version: [![Sonatype Nexus &#40;Snapshots&#41;]&#40;https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg&#41;]&#40;https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/&#41;.)
 
 ## Configuration
 
