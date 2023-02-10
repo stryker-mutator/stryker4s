@@ -7,8 +7,12 @@ sidebar_position: 3
 
 ## Developing on stryker4jvm:
 Currently, stryker4jvm is using 3 build tools for all its modules. Stryker4jvm-core is managed by maven,
-stryker4jvm-mutator-kotlin is managed by gradle and all other modules are managed by sbt. In order to build/test locally
-you need to take the following steps:
+stryker4jvm-mutator-kotlin is managed by gradle and all other modules are managed by sbt. Below you will find the 
+dependency diagram of stryker4jvm's modules.
+
+![Alt text](module_dependencies-stryker4jvm.png?raw=true "Module dependency diagram for stryker4jvm")
+
+In order to build/test locally you need to take the following steps:
 
 Build has only been confirmed to work with:
 * Jvm 15.0.2,
@@ -34,8 +38,6 @@ Build has only been confirmed to work with:
     1) cd to project root (should contain build.sbt file)
     2) `sbt compile` (if you wish to only compile a specific module, use sbt \<module-name\>/compile)
     3) `sbt test` (optional)
-
-![Alt text](module_dependencies-stryker4jvm.png?raw=true "Module dependency diagram for stryker4jvm")
 
  This is the contribution guide for Stryker4s. Great to have you here! Here are a few ways you can help to make this project better.
 ## Getting started
