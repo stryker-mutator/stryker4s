@@ -30,29 +30,6 @@ object Settings {
     tpolecatScalacOptions += ScalacOption("-Xsource:3", _.major == 2)
   )
 
-  lazy val coreSettings: Seq[Setting[?]] = Seq(
-    libraryDependencies ++= Seq(
-      Dependencies.catsCore,
-      Dependencies.catsEffect,
-      Dependencies.circeCore,
-      Dependencies.fansi,
-      Dependencies.fs2Core,
-      Dependencies.fs2IO,
-      Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics,
-      Dependencies.pureconfig,
-      Dependencies.pureconfigSttp,
-      Dependencies.scalameta,
-      Dependencies.sttpCirce,
-      Dependencies.sttpFs2Backend,
-      Dependencies.weaponRegeX,
-      Dependencies.test.catsEffectScalaTest,
-      Dependencies.test.mockitoScala,
-      Dependencies.test.mockitoScalaCats,
-      Dependencies.test.scalatest
-    )
-  )
-
   lazy val jvmSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.test.catsEffectScalaTest,
