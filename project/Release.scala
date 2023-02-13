@@ -14,6 +14,7 @@ object Release {
   private val sonatypeReleaseAll = "sonatypeReleaseAll"
   private val sonatypeBundleUpload = "sonatypeBundleUpload"
 
+  // todo: verify release process
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= Seq(
     // Called by sbt-ci-release
     Command.command(stryker4jvmPublishSigned)(

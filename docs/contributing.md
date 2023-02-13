@@ -4,36 +4,38 @@ title: Contribute to Stryker4s
 custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/contributing.md
 sidebar_position: 3
 ---
+
 ## Developing on stryker4jvm:
 Currently, stryker4jvm is using 3 build tools for all its modules. Stryker4jvm-core is managed by maven,
-stryker4jvm-mutator-kotlin is managed by gradle and all other modules are managed by sbt. In order to build/test locally
-you need to take the following steps:
+stryker4jvm-mutator-kotlin is managed by gradle and all other modules are managed by sbt. Below you will find the 
+dependency diagram of stryker4jvm's modules.
 
-Build has only been confirmed to work with:
-* Jvm 15.0.2,
-* Maven 3.6.3,
-* Kotlin 1.4.20,
-* Gradle 6.9.1,
-* Groovy 2.5.12.
+[comment]: <> (todo: update image link to stryker4s repository)
+![Stryker4jvm's module dependency diagram](https://github.com/ISEP-Stryker/stryker4jvm/blob/master/docs/module_dependencies-stryker4jvm.png "Module dependency diagram for stryker4jvm")
 
-1) Building stryker4jvm-core:
+In order to build/test stryker4jvm locally you need to take the following steps:
+
+Note: stryker4jvm-mutator-kotlin only works with java versions that are 15 or less due to illegal reflections. This
+limitation was transferred from the original stryker4k project.
+
+1) Installing stryker4jvm-core locally:
     1) cd to stryker4jvm-core root
-    2) mvn clean
-    3) mvn install
-2) Building stryker4jvm-mutator-kotlin (for Windows `./gradlew`, for linux you should use `bash gradlew`):
-    1) Verify version of gradle daemon by running `./gradlew --version` in the root of mutator kotlin module.
+    2) Perform a clean install: `mvn clean install`.
+2) Installing stryker4jvm-mutator-kotlin locally:
+    1) Verify version of gradle daemon by running `gradlew --version` in the root of mutator kotlin module.
+    
+       In order to change the JVM version that gradle uses, either change your JAVA_HOME environment variable or specify the version to use
+       for all gradle commands like so: `gradlew <command> -Dorg.gradle.java.home=<path-to-jdk>`.
        
-       In order to change the JVM version to use, either change your JAVA_HOME environment variable or specify the version to use
-       for gradle for commands like so: "./gradlew \<command> -Dorg.gradle.java.home=/JDK_PATH".
-    2) Delete the .gradle folder and build folder in module root if there were version issues or gradle build errors. Note that
-       if you changed versions, you may need to restart your computer entirely.
-    3) `./gradlew clean build`
-    4) `./gradlew publishToMavenLocal`
+    2) If there were version issues or gradle build errors you should delete the .gradle folder and build folder. Note that
+       if you changed your JAVA_HOME you may need to restart your computer. Additionally, make sure that no instance of
+       a gradle daemon is running with the wrong java version. This can be done by terminating all daemons: `gradlew --stop`.
+    3) `gradlew clean build`
+    4) `gradlew publishToMavenLocal`
 3) Building all other sbt modules:
     1) cd to project root (should contain build.sbt file)
-    2) `sbt compile` (if you wish to only compile a specific module, use sbt \<module-name\>/compile)
-    3) `sbt test` (optional)
-
+    2) Compilation: `sbt compile` (if you wish to only compile a specific module, use `sbt <module-name>/compile`)
+    3) Testing: `sbt test`
 
  This is the contribution guide for Stryker4s. Great to have you here! Here are a few ways you can help to make this project better.
 ## Getting started

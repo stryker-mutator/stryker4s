@@ -13,7 +13,7 @@ lazy val root = (project withId "stryker4jvm-root" in file("."))
         "stryker4jvm2_12/publishLocal; stryker4jvm/publishLocal; " +
         "stryker4jvm-api2_12/publishLocal; stryker4jvm-api/publishLocal;" +
         "stryker4jvm-mutator-scala2_12/publishLocal;" +
-        "stryker4jvm-plugin-sbt2_12/publishLocal; " +
+        "sbt-stryker4jvm2_12/publishLocal; " +
         "stryker4jvm-plugin-sbt-testrunner/publishLocal"
     ),
     // Publish to .m2 folder for Maven plugin testing
@@ -51,7 +51,7 @@ lazy val stryker4jvmCommandRunner = newProject("stryker4jvm-command-runner", "st
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
-lazy val sbtStryker4jvm = newProject("stryker4jvm-plugin-sbt", "stryker4jvm-plugin-sbt")
+lazy val sbtStryker4jvm = newProject("sbt-stryker4jvm", "stryker4jvm-plugin-sbt")
   .enablePlugins(SbtPlugin)
   .settings(sbtPluginSettings)
   .dependsOn(stryker4jvm)
@@ -60,11 +60,11 @@ lazy val sbtStryker4jvm = newProject("stryker4jvm-plugin-sbt", "stryker4jvm-plug
 lazy val sbtTestRunner = newProject("stryker4jvm-plugin-sbt-testrunner", "stryker4jvm-plugin-sbt-testrunner")
   .settings(sbtTestrunnerSettings)
   .dependsOn(stryker4jvmApi)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val stryker4jvmApi = newProject("stryker4jvm-api", "stryker4jvm-api")
   .settings(apiSettings)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val stryker4jvm = newProject("stryker4jvm", "stryker4jvm")
   .settings(
