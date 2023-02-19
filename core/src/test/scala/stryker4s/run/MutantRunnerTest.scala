@@ -47,7 +47,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
-      sut(Seq(mutatedFile)).asserting { case RunResult(results, _) =>
+      sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
         "Setting up mutated environment..." shouldBe loggedAsInfo
         "Starting initial test run..." shouldBe loggedAsInfo
         "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
@@ -121,7 +121,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Seq(mutatedFile)).asserting { _ =>
+      sut(Vector(mutatedFile)).asserting { _ =>
         // Cleaned up after run
         staticTmpDir.toNioPath.toFile shouldNot exist
       }
@@ -141,7 +141,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Seq(mutatedFile)).attempt
+      sut(Vector(mutatedFile)).attempt
         .asserting { result =>
           staticTmpDir.toNioPath.toFile should exist
 
@@ -170,7 +170,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Seq(mutatedFile))
+      sut(Vector(mutatedFile))
         .asserting { _ =>
           staticTmpDir.toNioPath.toFile should exist
         }

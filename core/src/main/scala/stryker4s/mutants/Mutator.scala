@@ -29,7 +29,7 @@ class Mutator(
   type FoundMutations = Found[(MutatedCode, IgnoredMutationReason), Mutations]
   type FoundMutationsWithId = Found[MutantResult, MutantsWithId]
 
-  def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Seq[MutatedFile])] = {
+  def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Vector[MutatedFile])] = {
     files
       // Parse and mutate files
       .parEvalMap(config.concurrency)(path =>

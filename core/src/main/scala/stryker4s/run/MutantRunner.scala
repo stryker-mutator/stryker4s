@@ -26,7 +26,7 @@ class MutantRunner(
     reporter: Reporter
 )(implicit config: Config, log: Logger) {
 
-  def apply(mutatedFiles: Seq[MutatedFile]): IO[RunResult] = {
+  def apply(mutatedFiles: Vector[MutatedFile]): IO[RunResult] = {
 
     val withRollback = handleRollback(mutatedFiles)
 
@@ -34,14 +34,14 @@ class MutantRunner(
 
   }
 
-  def handleRollback(mutatedFiles: Seq[MutatedFile]) =
+  def handleRollback(mutatedFiles: Vector[MutatedFile]) =
     EitherT(run(mutatedFiles))
       .leftFlatMap { errors =>
         log.info(s"Attempting to remove ${errors.size} mutants that gave a compile error...")
         // Retry once with the non-compiling mutants removed
         EitherT(
           rollbackHandler
-            .rollbackFiles()
+            .rollbackFiles(errors, mutatedFiles)
             // TODO: handle rollbacks in a different place
             .flatTraverse { case RollbackResult(newFiles, rollbackedMutants) =>
               run(newFiles).map { result =>
