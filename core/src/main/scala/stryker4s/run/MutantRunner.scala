@@ -42,14 +42,13 @@ class MutantRunner(
         EitherT(
           rollbackHandler
             .rollbackFiles(errors, mutatedFiles)
-            // TODO: handle rollbacks in a different place
             .flatTraverse { case RollbackResult(newFiles, rollbackedMutants) =>
               run(newFiles).map { result =>
                 result.map { r =>
+                  // Combine the results of the run with the results of the rollbacked mutants
                   r.copy(results = r.results.alignCombine(rollbackedMutants))
                 }
               }
-
             }
         )
       }
@@ -94,19 +93,11 @@ class MutantRunner(
       if (config.cleanTmpDir) {
         Files[IO].deleteRecursively(tmpDir)
       } else {
-        IO(
-          log.info(
-            s"Not deleting $tmpDir (turn off cleanTmpDir to disable this). Please clean it up manually."
-          )
-        )
+        IO(log.info(s"Not deleting $tmpDir (turn off cleanTmpDir to disable this). Please clean it up manually."))
       }
     case (tmpDir, _: Resource.ExitCase.Errored) =>
       // Enable the user do some manual actions before she retries.
-      IO(
-        log.warn(
-          s"Not deleting $tmpDir after error. Please clean it up manually."
-        )
-      )
+      IO(log.warn(s"Not deleting $tmpDir after error. Please clean it up manually."))
   }
 
   private def setupFiles(tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
@@ -160,9 +151,6 @@ class MutantRunner(
     val (noCoverageMutants, testableMutants) =
       rest.partition(m => coverageExclusions.hasCoverage && !coverageExclusions.coveredMutants.contains(m._2.id.value))
 
-    // val compilerErrorMutants =
-    //   mutatedFiles.flatMap(m => m.nonCompilingMutants.toList.map(m.fileOrigin.relativePath -> _))
-
     if (noCoverageMutants.nonEmpty) {
       log.info(
         s"${noCoverageMutants.size} mutants detected as having no code coverage. They will be skipped and marked as NoCoverage"
@@ -176,14 +164,6 @@ class MutantRunner(
       )
       log.debug(s"Static mutant ids are: ${staticMutants.map(_._2.id).mkString(", ")}")
     }
-
-    // TODO: move logging of compile-errors
-    // if (compilerErrorMutants.nonEmpty) {
-    //   log.info(
-    //     s"${compilerErrorMutants.size} mutants gave a compiler error. They will be marked as such in the report."
-    //   )
-    //   log.debug(s"Non-compiling mutant ids are: ${compilerErrorMutants.map(_._2.id.value).mkString(", ")}")
-    // }
 
     def mapPureMutants[K, V, VV](l: Seq[(K, V)], f: V => VV) =
       Stream.emits(l).map { case (k, v) => k -> f(v) }

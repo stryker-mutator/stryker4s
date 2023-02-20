@@ -7,6 +7,7 @@ import mutationtesting.Location
 import weaponregex.model.Location as RegexLocation
 
 import scala.annotation.tailrec
+import scala.collection.immutable.VectorBuilder
 import scala.meta.*
 import scala.meta.transversers.SimpleTraverser
 import scala.reflect.ClassTag
@@ -193,8 +194,9 @@ object TreeExtensions {
       */
     final def collectWithContext[T, C](
         buildContext: PartialFunction[Tree, C]
-    )(collectFn: PartialFunction[Tree, C => T]): List[T] = {
-      val buf = scala.collection.mutable.ListBuffer[T]()
+    )(collectFn: PartialFunction[Tree, C => T]): Vector[T] = {
+      val buf = new VectorBuilder[T]()
+
       val collectFnLifted = collectFn.lift
       val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
 
@@ -213,7 +215,7 @@ object TreeExtensions {
 
       // Traverse the tree, starting with an empty context
       traverse(tree, Eval.now(None))
-      buf.toList
+      buf.result()
     }
 
   }

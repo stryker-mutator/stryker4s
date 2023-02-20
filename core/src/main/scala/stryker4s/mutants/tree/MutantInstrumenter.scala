@@ -1,16 +1,16 @@
 package stryker4s.mutants.tree
 
-import cats.data.{NonEmptyList, NonEmptyVector}
+import cats.data.Ior.Both
+import cats.data.{Ior, NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
 import stryker4s.extension.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4s.log.Logger
-import stryker4s.model.{MutantId, MutantWithId, MutatedFile, PlaceableTree, SourceContext}
+import stryker4s.model.*
 
 import scala.meta.*
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
-import stryker4s.model.CompilerErrMsg
 
 /** Instrument (place) mutants in a tree
   *
@@ -88,9 +88,39 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
       tree.copy(cases = newCases)
   }
 
+  def mutantIdsForCompileErrors(tree: Tree, errors: NonEmptyList[CompilerErrMsg]) = {
+    val mutationSwitchingCases = tree.collect {
+      // Match on mutation switching trees
+      case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
+        // Filter out default case as it's not mutated
+        tree.cases.filterNot(c => c.pat.isEqual(p"_"))
+    }.flatten
+
+    errors
+      .nonEmptyPartition(err =>
+        mutationSwitchingCases
+          .find(compileErrorIsInCaseStatement(_, err))
+          .map(caze => extractMutantId(caze.pat) -> err)
+          .toRight(err)
+      ) match {
+      case Both(a, b)   => (a.some, b.toList.toMap)
+      case Ior.Left(a)  => (a.some, Map.empty[MutantId, CompilerErrMsg])
+      case Ior.Right(b) => (None, b.toList.toMap)
+    }
+  }
+
+  /** Extracts the mutant id from a case statement
+    */
+  private def extractMutantId(pat: Pat) = pat match {
+    case Lit.Int(value) => MutantId(value)
+    case Pat.Extract(Term.Name("Some"), List(Lit.String(value))) =>
+      MutantId(value.toInt)
+    case _ => throw new IllegalArgumentException(s"Could not extract mutant id from '${pat.syntax}'")
+  }
+
   /** Checks if the compile error is inside the mutant case statement
     */
-  def compileErrorIsInCaseStatement(caze: Case, error: CompilerErrMsg): Boolean = {
-    caze.pos.startLine <= error.line && caze.pos.endLine >= error.line
+  private def compileErrorIsInCaseStatement(caze: Case, error: CompilerErrMsg): Boolean = {
+    (caze.pos.startLine + 1) <= error.line && (caze.pos.endLine + 1) >= error.line
   }
 }

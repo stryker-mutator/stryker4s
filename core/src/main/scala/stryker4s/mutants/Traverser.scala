@@ -47,7 +47,5 @@ final class TraverserImpl(implicit log: Logger) extends Traverser {
         case _                                                             => true
       }
       .filterNot(_.isIn[Mod.Annot])
-      .flatTap(t => log.debug(s"Found tree to place mutations: ${fansi.Color.Green(t.syntax)}").some)
-
   }
 }
