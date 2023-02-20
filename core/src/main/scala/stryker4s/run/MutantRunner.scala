@@ -37,7 +37,7 @@ class MutantRunner(
   def handleRollback(mutatedFiles: Vector[MutatedFile]) =
     EitherT(run(mutatedFiles))
       .leftFlatMap { errors =>
-        log.info(s"Attempting to remove ${errors.size} mutants that gave a compile error...")
+        log.info(s"Attempting to remove ${errors.size} mutant(s) that gave a compile error...")
         // Retry once with the non-compiling mutants removed
         EitherT(
           rollbackHandler
