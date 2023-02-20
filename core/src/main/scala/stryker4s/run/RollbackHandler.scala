@@ -3,12 +3,10 @@ package stryker4s.run
 import cats.data.Ior.Both
 import cats.data.{Ior, NonEmptyList}
 import cats.syntax.all.*
-import fs2.io.file.Path
 import mutationtesting.MutantStatus
-import stryker4s.extension.TreeExtensions.*
 import stryker4s.log.Logger
-import stryker4s.model.{CompilerErrMsg, MutantId, MutantResultsPerFile, MutantWithId, MutatedFile}
-import stryker4s.mutants.tree.{MutantInstrumenter, MutantsWithId}
+import stryker4s.model.{CompilerErrMsg, MutantResultsPerFile, MutatedFile}
+import stryker4s.mutants.tree.MutantInstrumenter
 
 import scala.meta.*
 
