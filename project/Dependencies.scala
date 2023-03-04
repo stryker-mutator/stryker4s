@@ -22,7 +22,7 @@ object Dependencies {
     // Direct dependencies
     val catsCore = "2.9.0"
     val catsEffect = "3.4.8"
-    val circe = "0.14.4"
+    val circe = "0.14.5"
     val fansi = "0.4.0"
     val fs2 = "3.6.1"
     val mutationTestingElements = "1.7.14"
