@@ -3,6 +3,8 @@ package stryker4s.extension
 import cats.Eval
 import cats.data.OptionT
 import cats.syntax.option.*
+import cats.syntax.semigroup.*
+import cats.syntax.traverse.*
 import mutationtesting.Location
 import weaponregex.model.Location as RegexLocation
 
@@ -143,26 +145,24 @@ object TreeExtensions {
     final def collectWithContext[T, C](
         buildContext: PartialFunction[Tree, C]
     )(collectFn: PartialFunction[Tree, C => T]): List[T] = {
-      val buf = scala.collection.mutable.ListBuffer[T]()
       val collectFnLifted = collectFn.lift
       val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
 
-      def traverse(tree: Tree, context: Eval[Option[C]]): Unit = {
+      def traverse(tree: Tree, context: Eval[Option[C]]): Eval[List[T]] = {
         // Either match on the context of the currently-visiting tree, or go looking upwards for one (that's what the context param does)
         val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
 
         val findAndCollect = for {
           collectTreeFn <- OptionT.fromOption[Eval](collectFnLifted(tree))
           contextForTree <- OptionT(newContext)
-        } yield buf += collectTreeFn(contextForTree)
-        findAndCollect.value.value
+        } yield collectTreeFn(contextForTree)
 
-        tree.children.foreach(child => traverse(child, newContext))
+        findAndCollect.value.map(_.toList) |+|
+          tree.children.flatTraverse(child => traverse(child, newContext))
       }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, Eval.now(None))
-      buf.toList
+      traverse(tree, Eval.now(None)).value
     }
 
   }
