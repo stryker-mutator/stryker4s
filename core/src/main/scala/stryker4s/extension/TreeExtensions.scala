@@ -21,57 +21,6 @@ object TreeExtensions {
       case _                => notFound
     }
 
-  implicit final class TopStatementExtension(val thisTerm: Term) extends AnyVal {
-
-    /** Returns the statement this tree is part of. Recursively going up the tree until a full statement is found.
-      */
-    @tailrec
-    final def topStatement(): Term =
-      thisTerm match {
-        case ParentIsPatternMatch(parent) => parent.topStatement()
-        case ParentIsFullStatement()      => thisTerm
-        case ParentIsTerm(parent)         => parent.topStatement()
-        case _                            => thisTerm
-      }
-  }
-
-  /** Extractor object to check if the [[scala.meta.Term]] part of a pattern match (but not in the body of the pattern
-    * match)
-    */
-  private object ParentIsPatternMatch {
-
-    /** Go up the tree, until a Case is found (except for try-catches), then go up until a `Term` is found
-      */
-    final def unapply(term: Term): Option[Term] =
-      term
-        .findParent[Case]
-        .filterNot(caze => caze.parent.collect { case t: Term.Try => t }.exists(_.catchp.contains(caze)))
-        .flatMap(_.findParent[Term])
-
-  }
-
-  /** Extractor object to check if the direct parent of the [[scala.meta.Term]] is a 'full statement'
-    */
-  private object ParentIsFullStatement {
-    final def unapply(term: Term): Boolean =
-      term.parent exists {
-        case _: Term.Assign                                   => true
-        case _: Defn                                          => true
-        case p if p.parent.exists(_.isInstanceOf[Term.Apply]) => false
-        case _: Term.Block                                    => true
-        case _: Term.If                                       => true
-        case _: Term.ForYield                                 => true
-        case _                                                => false
-      }
-  }
-
-  private object ParentIsTerm {
-    final def unapply(term: Term): Option[Term] =
-      term.parent collect { case parent: Term =>
-        parent
-      }
-  }
-
   implicit final class FindExtension(val thisTree: Tree) extends AnyVal {
 
     /** Searches for the given statement in the tree
