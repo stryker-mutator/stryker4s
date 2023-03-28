@@ -249,9 +249,11 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
         "scala3.2" -> Scala32,
         "3.2" -> Scala32,
         "32" -> Scala32,
+        "scala33" -> Scala33,
+        "scala3.3" -> Scala33,
+        "3.3" -> Scala33,
+        "33" -> Scala33,
         "scala3" -> Scala3,
-        "scala3.0" -> Scala3,
-        "3.0" -> Scala3,
         "3" -> Scala3
       )
 

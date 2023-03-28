@@ -80,7 +80,8 @@ trait ConfigConfigReader {
       List("scala30", "scala3.0", "3.0", "30", "dotty") -> dialects.Scala30,
       List("scala31", "scala3.1", "3.1", "31") -> dialects.Scala31,
       List("scala32", "scala3.2", "3.2", "32") -> dialects.Scala32,
-      List("scala3", "scala3.0", "3.0", "3") -> dialects.Scala3
+      List("scala33", "scala3.3", "3.3", "33") -> dialects.Scala33,
+      List("scala3", "3") -> dialects.Scala3
     )
 
     ConfigReader[String].emap { input =>
