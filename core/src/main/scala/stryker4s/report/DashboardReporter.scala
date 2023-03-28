@@ -11,13 +11,13 @@ import stryker4s.config.{Config, Full, MutationScoreOnly}
 import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.*
-import sttp.client3.*
-import sttp.client3.circe.{asJson, circeBodySerializer}
+import sttp.client4.*
+import sttp.client4.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
 
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
     log: Logger,
-    httpBackend: Resource[IO, SttpBackend[IO, Any]]
+    httpBackend: Resource[IO, Backend[IO]]
 ) extends Reporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =

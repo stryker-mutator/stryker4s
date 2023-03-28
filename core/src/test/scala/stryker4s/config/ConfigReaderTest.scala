@@ -10,7 +10,7 @@ import pureconfig.{ConfigObjectSource, ConfigSource}
 import stryker4s.config.Config.*
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{ExampleConfigs, Stryker4sSuite}
-import sttp.client3.UriContext
+import sttp.client4.UriContext
 
 import scala.concurrent.duration.*
 import scala.meta.dialects.*

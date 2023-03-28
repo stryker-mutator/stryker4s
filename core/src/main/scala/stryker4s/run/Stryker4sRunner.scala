@@ -15,9 +15,9 @@ import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
-import sttp.client3.SttpBackend
-import sttp.client3.httpclient.fs2.HttpClientFs2Backend
-import sttp.client3.logging.LoggingBackend
+import sttp.client4.Backend
+import sttp.client4.httpclient.fs2.HttpClientFs2Backend
+import sttp.client4.logging.{LogConfig, LoggingBackend}
 import sttp.model.HeaderNames
 
 abstract class Stryker4sRunner(implicit log: Logger) {
@@ -47,7 +47,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       case Html    => new HtmlReporter(new DiskFileIO())
       case Json    => new JsonReporter(new DiskFileIO())
       case Dashboard =>
-        implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
+        implicit val httpBackend: Resource[IO, Backend[IO]] =
           // Catch if the user runs the dashboard on Java <11
           try
             HttpClientFs2Backend
@@ -56,8 +56,10 @@ abstract class Stryker4sRunner(implicit log: Logger) {
                 LoggingBackend(
                   _,
                   new SttpLogWrapper(),
-                  logResponseBody = true,
-                  sensitiveHeaders = HeaderNames.SensitiveHeaders + "X-Api-Key"
+                  LogConfig(
+                    logResponseBody = true,
+                    sensitiveHeaders = HeaderNames.SensitiveHeaders + "X-Api-Key"
+                  )
                 )
               )
           catch {

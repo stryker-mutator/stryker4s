@@ -12,8 +12,10 @@ import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
-import sttp.client3.*
-import sttp.client3.testing.SttpBackendStub
+import sttp.capabilities.fs2.Fs2Streams
+import sttp.client4.*
+import sttp.client4.httpclient.fs2.HttpClientFs2Backend
+import sttp.client4.testing.WebSocketStreamBackendStub
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
 import scala.concurrent.duration.*
@@ -152,8 +154,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     }
   }
 
-  def backendStub =
-    Resource.pure[IO, SttpBackendStub[IO, Any]](sttp.client3.httpclient.fs2.HttpClientFs2Backend.stub[IO])
+  def backendStub: Resource[IO, WebSocketStreamBackendStub[IO, Fs2Streams[IO]]] =
+    Resource.pure(HttpClientFs2Backend.stub)
 
   def baseResults = {
     val files =
