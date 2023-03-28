@@ -1,7 +1,7 @@
 package stryker4s.extension.mutationtype
 
 import cats.data.NonEmptyVector
-import cats.syntax.either.*
+import cats.syntax.all.*
 import mutationtesting.Location
 import stryker4s.extension.TreeExtensions.{PositionExtension, RegexLocationExtension}
 import stryker4s.model.{MutantMetadata, MutatedCode, RegexParseError}
@@ -15,11 +15,12 @@ case object RegexConstructor {
   // Two parents up is the full constructor
   def unapply(arg: Lit.String): Option[Lit.String] = arg.parent
     .flatMap(_.parent)
+    .flatMap(_.parent)
     .collect {
-      case Term.New(Init(Type.Name("Regex"), _, exprss))           => exprss
-      case Term.New(Init(t"scala.util.matching.Regex", _, exprss)) => exprss
+      case Term.New(Init.After_4_6_0(Type.Name("Regex"), _, exprss))           => exprss
+      case Term.New(Init.After_4_6_0(t"scala.util.matching.Regex", _, exprss)) => exprss
     }
-    .collect { case (`arg` :: _) :: _ => arg }
+    .collect { case Term.ArgClause(`arg` :: _, _) :: _ => arg }
 }
 
 /** Matches on `"[a-z]".r`
@@ -34,9 +35,9 @@ case object RegexStringOps {
 /** Matches on `Pattern.compile("[a-z]", _*)`
   */
 case object PatternConstructor {
-  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent.collect {
-    case Term.Apply(q"Pattern.compile", `arg` :: _)                 => arg
-    case Term.Apply(q"java.util.regex.Pattern.compile", `arg` :: _) => arg
+  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent.flatMap(_.parent).collect {
+    case Term.Apply.After_4_6_0(q"Pattern.compile", Term.ArgClause(`arg` :: _, _))                 => arg
+    case Term.Apply.After_4_6_0(q"java.util.regex.Pattern.compile", Term.ArgClause(`arg` :: _, _)) => arg
   }
 }
 
