@@ -1,7 +1,7 @@
 package stryker4s.extension
 
 import cats.Eval
-import cats.data.OptionT
+import cats.data.{Chain, OptionT}
 import cats.syntax.option.*
 import cats.syntax.semigroup.*
 import cats.syntax.traverse.*
@@ -148,7 +148,7 @@ object TreeExtensions {
       val collectFnLifted = collectFn.lift
       val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
 
-      def traverse(tree: Tree, context: Eval[Option[C]]): Eval[List[T]] = {
+      def traverse(tree: Tree, context: Eval[Option[C]]): Eval[Chain[T]] = {
         // Either match on the context of the currently-visiting tree, or go looking upwards for one (that's what the context param does)
         val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
 
@@ -157,12 +157,12 @@ object TreeExtensions {
           contextForTree <- OptionT(newContext)
         } yield collectTreeFn(contextForTree)
 
-        findAndCollect.value.map(_.toList) |+|
-          tree.children.flatTraverse(child => traverse(child, newContext))
+        findAndCollect.value.map(Chain.fromOption) |+|
+          Chain.fromSeq(tree.children).flatTraverse(child => traverse(child, newContext))
       }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, Eval.now(None)).value
+      traverse(tree, Eval.now(None)).value.toList
     }
 
   }
