@@ -1,5 +1,7 @@
 package stryker4s.mutants
+
 import java.nio.file.{Files, Paths}
+
 object TestObj1 {
   def test2(a: String): Boolean = {
     Files.exists(Paths.get(a))
