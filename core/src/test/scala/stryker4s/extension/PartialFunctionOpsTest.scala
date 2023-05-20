@@ -1,11 +1,12 @@
 package stryker4s.extension
 
+import cats.kernel.Monoid
+import cats.syntax.monoid.*
 import stryker4s.testutil.Stryker4sSuite
 
-import PartialFunctionOps.*
-import cats.syntax.monoid.*
-import cats.kernel.Monoid
 import scala.meta.Lit
+
+import PartialFunctionOps.*
 
 class PartialFunctionOpsTest extends Stryker4sSuite {
 

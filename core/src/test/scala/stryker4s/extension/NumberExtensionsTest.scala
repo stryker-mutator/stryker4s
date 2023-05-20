@@ -1,7 +1,7 @@
 package stryker4s.extension
 
-import stryker4s.testutil.Stryker4sSuite
 import stryker4s.extension.NumberExtensions.*
+import stryker4s.testutil.Stryker4sSuite
 
 class NumberExtensionsTest extends Stryker4sSuite {
 

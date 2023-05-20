@@ -1,8 +1,8 @@
 package stryker4s.extension
 
-import scala.meta.Tree
-
 import stryker4s.extension.mutationtype.SubstitutionMutation
+
+import scala.meta.Tree
 
 /** Converts [[stryker4s.extension.mutationtype.SubstitutionMutation]] to a `scala.meta.Tree`
   *
