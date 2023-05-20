@@ -50,7 +50,7 @@ You can then run Stryker4s with the command `mvn stryker4s:run`. Note that this 
 
 ## Pre-release versions
 
-We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `plugins.sbt`:
+We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `build.sbt`:
 
 ```scala
 resolvers += Resolver.sonatypeRepo("snapshots")
