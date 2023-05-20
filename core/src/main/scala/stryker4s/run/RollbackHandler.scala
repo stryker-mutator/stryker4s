@@ -3,12 +3,15 @@ package stryker4s.run
 import cats.data.Ior.Both
 import cats.data.{Ior, NonEmptyList}
 import cats.syntax.all.*
+import fansi.Color
 import mutationtesting.MutantStatus
 import stryker4s.log.Logger
+import stryker4s.model.CompilerErrMsg.*
 import stryker4s.model.{CompilerErrMsg, MutantResultsPerFile, MutatedFile}
 import stryker4s.mutants.tree.MutantInstrumenter
 
-import scala.meta.*
+import scala.meta.Source
+import scala.meta.parsers.*
 
 class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
 
@@ -18,7 +21,7 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
   ): Either[NonEmptyList[CompilerErrMsg], RollbackResult] = {
 
     log.info(
-      s"${errors.size} mutants gave a compiler error. They will be marked as such in the report."
+      s"${Color.Red(errors.size.toString())} mutant(s) gave a compiler error. They will be marked as such in the report."
     )
 
     // Find all files that have a compile error
@@ -36,7 +39,7 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
           .get // Should always pass as we already parsed it once
 
         log.debug(
-          s"Removing ${errors.size} mutants with compile errors from ${mutatedFile.fileOrigin}: ${errors.map(_.toString).mkString_("'", "', '", "'")}"
+          s"Removing ${errors.size} mutants with compile errors from ${mutatedFile.fileOrigin}: ${errors.map(_.show).mkString_("'", "', '", "'")}"
         )
         val treeWithoutErrors = parsed.transform(instrumenter.attemptRemoveMutant(errors))
         val (errorsWithoutIds, compileErrorMutantIds) = instrumenter.mutantIdsForCompileErrors(parsed, errors)
@@ -46,7 +49,7 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
           .nonEmptyPartition { mutant =>
             compileErrorMutantIds
               .get(mutant.id)
-              .map(error => mutant.toMutantResult(MutantStatus.CompileError, description = error.toString.some))
+              .map(error => mutant.toMutantResult(MutantStatus.CompileError, description = error.show.some))
               .toRight(mutant)
           }
           .map(mutatedFile.fileOrigin -> _.toList.toVector)
@@ -62,7 +65,7 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
           case Ior.Right(results) => (mutatedFile.fileOrigin.asLeft, results).asRight
           // No mutants were removed. Something probably went wrong
           case Ior.Left(_) =>
-            log.warn(
+            log.error(
               s"No mutants were removed in ${mutatedFile.fileOrigin} even though there were ${errors.size} compile errors."
             )
             errors.asLeft
@@ -74,7 +77,6 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
         val allNewFiles =
           fixedFiles ++ allFiles
             .filterNot(f => fixedFiles.exists(_.fileOrigin == f.fileOrigin) || pathsToFilterOut.contains(f.fileOrigin))
-
         RollbackResult(allNewFiles, compileErrors)
       }
 

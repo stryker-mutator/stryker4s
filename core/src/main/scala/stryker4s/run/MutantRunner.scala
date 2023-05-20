@@ -3,6 +3,7 @@ package stryker4s.run
 import cats.data.{EitherT, NonEmptyList}
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
+import fansi.Color
 import fs2.io.file.{Files, Path}
 import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
@@ -153,7 +154,8 @@ class MutantRunner(
 
     if (noCoverageMutants.nonEmpty) {
       log.info(
-        s"${noCoverageMutants.size} mutants detected as having no code coverage. They will be skipped and marked as NoCoverage"
+        s"${noCoverageMutants.size} mutant(s) detected as having no code coverage. They will be skipped and marked as ${Color
+            .Magenta("NoCoverage")}"
       )
       log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.map(_._2.id).mkString(", ")}")
     }
