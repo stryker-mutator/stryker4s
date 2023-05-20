@@ -113,7 +113,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     */
   private def extractMutantId(pat: Pat) = pat match {
     case Lit.Int(value) => MutantId(value)
-    case Pat.Extract(Term.Name("Some"), List(Lit.String(value))) =>
+    case Pat.Extract.After_4_6_0(Term.Name("Some"), Pat.ArgClause(List(Lit.String(value)))) =>
       MutantId(value.toInt)
     case _ => throw new IllegalArgumentException(s"Could not extract mutant id from '${pat.syntax}'")
   }
