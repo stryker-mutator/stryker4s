@@ -1,7 +1,7 @@
 package stryker4s.extension
 
-import cats.{Monoid, Semigroup}
 import cats.syntax.semigroup.*
+import cats.{Monoid, Semigroup}
 
 object PartialFunctionOps {
 

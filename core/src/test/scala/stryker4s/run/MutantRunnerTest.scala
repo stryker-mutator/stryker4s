@@ -1,6 +1,6 @@
 package stryker4s.run
 
-import cats.data.NonEmptyVector
+import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.effect.IO
 import fs2.io.file.{Files, Path}
 import mutationtesting.MutantStatus
@@ -47,7 +47,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
-      sut(Seq(mutatedFile)).asserting { case RunResult(results, _) =>
+      sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
         "Setting up mutated environment..." shouldBe loggedAsInfo
         "Starting initial test run..." shouldBe loggedAsInfo
         "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
@@ -57,50 +57,42 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       }
     }
 
-    // it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed and 1 doesn't compile.") {
-    //   val fileCollectorMock = new TestFileResolver(Seq.empty)
-    //   val reporterMock = mock[Reporter]
-    //   val rollbackHandler = mock[RollbackHandler]
-    //   when(reporterMock.mutantTested).thenReturn(_.drain)
+    it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed and 1 doesn't compile.") {
+      val fileCollectorMock = new TestFileResolver(Seq.empty)
+      val reporterMock = mock[Reporter]
+      val rollbackHandler = mock[RollbackHandler]
+      when(reporterMock.mutantTested).thenReturn(_.drain)
+      val mutant = createMutant.copy(id = MutantId(3))
+      val secondMutant = createMutant.copy(id = MutantId(1))
+      val thirdMutant = createMutant.copy(id = MutantId(2))
+      val compileErrorResult = thirdMutant.toMutantResult(MutantStatus.CompileError)
 
-    //   val mutant = createMutant.copy(id = MutantId(3))
-    //   val secondMutant = createMutant.copy(id = MutantId(1))
-    //   val thirdMutant = createMutant.copy(id = MutantId(2))
-    //   val nonCompilingMutant = createMutant.copy(id = MutantId(4))
+      val testRunner =
+        TestRunnerStub.withInitialCompilerError(
+          NonEmptyList.one(CompilerErrMsg("blah", "scalaFiles/simpleFile.scala", 123)),
+          mutant.toMutantResult(MutantStatus.Killed),
+          secondMutant.toMutantResult(MutantStatus.Killed)
+        )
 
-    //   val errs = NonEmptyList.one(CompilerErrMsg("blah", "xyz", 123))
-    //   val testRunner =
-    //     TestRunnerStub.withInitialCompilerError(
-    //       errs,
-    //       mutant.toMutantResult(MutantStatus.Killed),
-    //       secondMutant.toMutantResult(MutantStatus.Killed),
-    //       thirdMutant.toMutantResult(MutantStatus.Survived),
-    //       nonCompilingMutant.toMutantResult(MutantStatus.CompileError)
-    //     )
-
-    //   val sut = new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)
-    //   val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-    //   val mutants = Seq(mutant, secondMutant, thirdMutant)
-    //   // val mutatedFile = MutatedFile(file, q"def foo = 4", mutants, Seq(nonCompilingMutant), 0)
-    //   fail()
-    // sut(_ => IO(List(mutatedFile))).asserting { result =>
-    //   val captor = ArgCaptor[FinishedRunEvent]
-    //   val runReport = captor.value.report.files.loneElement
-
-    //   "Setting up mutated environment..." shouldBe loggedAsInfo
-    //   "Starting initial test run..." shouldBe loggedAsInfo
-    //   "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
-    //   "Attempting to remove mutants that gave a compile error..." shouldBe loggedAsInfo
-
-    //   runReport._1 shouldBe "simpleFile.scala"
-    //   runReport._2.mutants.map(_.id) shouldBe List("1", "2", "3", "4")
-    //   result.mutationScore shouldBe ((2d / 3d) * 100)
-    //   result.totalMutants shouldBe 4
-    //   result.totalInvalid shouldBe 1
-    //   result.killed shouldBe 2
-    //   result.survived shouldBe 1
-    //   result.compileErrors shouldBe 1
-    // }
+      val sut = new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+      when(rollbackHandler.rollbackFiles(any[NonEmptyList[CompilerErrMsg]], any[Vector[MutatedFile]])).thenReturn(
+        Right(
+          RollbackResult(
+            Vector(mutatedFile.copy(mutants = NonEmptyVector.of(mutant, secondMutant))),
+            Map(file -> Vector(compileErrorResult))
+          )
+        )
+      )
+      sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
+        val (path, resultForFile) = results.loneElement
+        path shouldBe file
+        "Attempting to remove 1 mutant(s) that gave a compile error..." shouldBe loggedAsInfo
+        resultForFile.map(_.status) shouldBe List(MutantStatus.Killed, MutantStatus.Killed, MutantStatus.CompileError)
+      }
+    }
 
     it("should use static temp dir if it was requested") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
@@ -121,7 +113,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Seq(mutatedFile)).asserting { _ =>
+      sut(Vector(mutatedFile)).asserting { _ =>
         // Cleaned up after run
         staticTmpDir.toNioPath.toFile shouldNot exist
       }
@@ -141,7 +133,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Seq(mutatedFile)).attempt
+      sut(Vector(mutatedFile)).attempt
         .asserting { result =>
           staticTmpDir.toNioPath.toFile should exist
 
@@ -170,7 +162,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Seq(mutatedFile))
+      sut(Vector(mutatedFile))
         .asserting { _ =>
           staticTmpDir.toNioPath.toFile should exist
         }

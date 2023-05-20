@@ -2,8 +2,8 @@ package stryker4s.report
 
 import cats.effect.IO
 import cats.syntax.applicative.*
-import fs2.io.file.Path
 import fs2.Pipe
+import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.Config
 

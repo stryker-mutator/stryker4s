@@ -1,10 +1,10 @@
 package stryker4s.files
 
-import fs2.io.file.Path
 import cats.effect.IO
-import fs2.io.file.Files
-import java.nio.file
+import fs2.io.file.{Files, Path}
 import stryker4s.extension.StreamExtensions.*
+
+import java.nio.file
 
 object Glob {
 

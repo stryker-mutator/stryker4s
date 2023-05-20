@@ -2,13 +2,14 @@ package stryker4s.sbt
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{Deferred, IO}
+import fs2.io.file
 import sbt.Keys.*
 import sbt.*
 import sbt.plugins.*
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
+
 import scala.concurrent.duration.FiniteDuration
-import fs2.io.file
 
 /** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
   */

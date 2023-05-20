@@ -39,7 +39,7 @@ object TestRunnerStub extends TestData {
     (_: Path) =>
       if (firstRun) {
         firstRun = false
-        Left(errs)
+        errs.asLeft
       } else {
         makeResults(mutants)
       }

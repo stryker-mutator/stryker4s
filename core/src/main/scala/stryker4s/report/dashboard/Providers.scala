@@ -1,4 +1,5 @@
 package stryker4s.report.dashboard
+
 import stryker4s.env.Environment
 
 object Providers {

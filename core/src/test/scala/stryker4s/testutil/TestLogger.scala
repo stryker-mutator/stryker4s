@@ -25,7 +25,7 @@ class TestLogger(printLogs: Boolean) extends Logger {
   def log(level: Level, e: Throwable): Unit = addToLogs(level, e.toString())
 
   private def addToLogs(level: Level, msg: => String): Unit = {
-    if (printLogs) { println(s"[${level.toString().toUpperCase()}]: $msg") }
+    if (printLogs) { println(s"[${level.toString().toUpperCase().padTo(5, ' ')}]: $msg") }
     events.enqueue((level, msg))
   }
 

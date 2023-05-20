@@ -27,14 +27,15 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
     val reporter = new AggregateReporter(resolveReporters())
 
+    val instrumenter = new MutantInstrumenter(instrumenterOptions)
     val stryker4s = new Stryker4s(
       resolveMutatesFileSource,
       new Mutator(
         new MutantFinder(),
         new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
-        new MutantInstrumenter(instrumenterOptions)
+        instrumenter
       ),
-      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(), reporter),
+      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(instrumenter), reporter),
       reporter
     )
 
