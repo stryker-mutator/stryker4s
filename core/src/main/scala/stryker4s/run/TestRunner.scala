@@ -39,7 +39,7 @@ object TestRunner {
                   IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toHumanReadable}")) *>
                     releaseAndSwap
                       .as(mutant.toMutantResult(MutantStatus.Timeout))
-                )
+                ) <* IO.cede
             } yield result
 
           override def initialTestRun(): IO[InitialTestRunResult] =

@@ -1,13 +1,14 @@
 package stryker4s.extension
 
 import cats.Eval
-import cats.data.OptionT
+import cats.data.{Chain, OptionT}
 import cats.syntax.option.*
+import cats.syntax.semigroup.*
+import cats.syntax.traverse.*
 import mutationtesting.Location
 import weaponregex.model.Location as RegexLocation
 
 import scala.annotation.tailrec
-import scala.collection.immutable.VectorBuilder
 import scala.meta.*
 import scala.meta.transversers.SimpleTraverser
 import scala.reflect.ClassTag
@@ -21,57 +22,6 @@ object TreeExtensions {
       case Some(otherValue) => mapParent(otherValue, ifFound, notFound)
       case _                => notFound
     }
-
-  implicit final class TopStatementExtension(val thisTerm: Term) extends AnyVal {
-
-    /** Returns the statement this tree is part of. Recursively going up the tree until a full statement is found.
-      */
-    @tailrec
-    final def topStatement(): Term =
-      thisTerm match {
-        case ParentIsPatternMatch(parent) => parent.topStatement()
-        case ParentIsFullStatement()      => thisTerm
-        case ParentIsTerm(parent)         => parent.topStatement()
-        case _                            => thisTerm
-      }
-  }
-
-  /** Extractor object to check if the [[scala.meta.Term]] part of a pattern match (but not in the body of the pattern
-    * match)
-    */
-  private object ParentIsPatternMatch {
-
-    /** Go up the tree, until a Case is found (except for try-catches), then go up until a `Term` is found
-      */
-    final def unapply(term: Term): Option[Term] =
-      term
-        .findParent[Case]
-        .filterNot(caze => caze.parent.collect { case t: Term.Try => t }.exists(_.catchp.contains(caze)))
-        .flatMap(_.findParent[Term])
-
-  }
-
-  /** Extractor object to check if the direct parent of the [[scala.meta.Term]] is a 'full statement'
-    */
-  private object ParentIsFullStatement {
-    final def unapply(term: Term): Boolean =
-      term.parent exists {
-        case _: Term.Assign                                   => true
-        case _: Defn                                          => true
-        case p if p.parent.exists(_.isInstanceOf[Term.Apply]) => false
-        case _: Term.Block                                    => true
-        case _: Term.If                                       => true
-        case _: Term.ForYield                                 => true
-        case _                                                => false
-      }
-  }
-
-  private object ParentIsTerm {
-    final def unapply(term: Term): Option[Term] =
-      term.parent collect { case parent: Term =>
-        parent
-      }
-  }
 
   implicit final class FindExtension(val thisTree: Tree) extends AnyVal {
 
@@ -194,28 +144,25 @@ object TreeExtensions {
       */
     final def collectWithContext[T, C](
         buildContext: PartialFunction[Tree, C]
-    )(collectFn: PartialFunction[Tree, C => T]): Vector[T] = {
-      val buf = new VectorBuilder[T]()
-
+    )(collectFn: PartialFunction[Tree, C => T]): Seq[T] = {
       val collectFnLifted = collectFn.lift
       val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
 
-      def traverse(tree: Tree, context: Eval[Option[C]]): Unit = {
+      def traverse(tree: Tree, context: Eval[Option[C]]): Eval[Chain[T]] = {
         // Either match on the context of the currently-visiting tree, or go looking upwards for one (that's what the context param does)
         val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
 
         val findAndCollect = for {
           collectTreeFn <- OptionT.fromOption[Eval](collectFnLifted(tree))
           contextForTree <- OptionT(newContext)
-        } yield buf += collectTreeFn(contextForTree)
-        findAndCollect.value.value
+        } yield collectTreeFn(contextForTree)
 
-        tree.children.foreach(child => traverse(child, newContext))
+        findAndCollect.value.map(Chain.fromOption) |+|
+          Chain.fromSeq(tree.children).flatTraverse(child => traverse(child, newContext))
       }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, Eval.now(None))
-      buf.result()
+      traverse(tree, Eval.now(None)).value.toVector
     }
 
   }

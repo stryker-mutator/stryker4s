@@ -69,7 +69,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
             )
         } finally if (as.parCmds.isEmpty) finalize
       """,
-        2
+        5
       )
     }
 
@@ -95,7 +95,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
           } finally {
             logger.info("Done")
           }""",
-        1
+        3
       )
     }
 
