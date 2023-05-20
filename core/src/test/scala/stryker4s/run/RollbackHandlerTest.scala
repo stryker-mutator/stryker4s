@@ -51,7 +51,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers with EitherV
           .toVector)
         result.newFiles shouldBe empty
         s"${Color.Red("2")} mutant(s) gave a compiler error. They will be marked as such in the report." shouldBe loggedAsInfo
-        "Removing 2 mutants with compile errors from bar/baz.scala: 'L7: error', 'L7: error2'" shouldBe loggedAsDebug
+        s"Removing 2 mutants with compile errors from $path: 'L7: error', 'L7: error2'" shouldBe loggedAsDebug
       }
     }
 
@@ -79,7 +79,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers with EitherV
         val result = sut.rollbackFiles(errors, allFiles).left.value
 
         result shouldBe errors
-        "No mutants were removed in bar/baz.scala even though there were 1 compile errors" shouldBe loggedAsError
+        s"No mutants were removed in $path even though there were 1 compile errors" shouldBe loggedAsError
       }
     }
 
