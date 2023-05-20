@@ -14,7 +14,7 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
 
   def rollbackFiles(
       errors: NonEmptyList[CompilerErrMsg],
-      allFiles: Vector[MutatedFile]
+      allFiles: Seq[MutatedFile]
   ): Either[NonEmptyList[CompilerErrMsg], RollbackResult] = {
 
     log.info(
@@ -83,4 +83,4 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
 
 }
 
-final case class RollbackResult(newFiles: Vector[MutatedFile], compileErrors: MutantResultsPerFile)
+final case class RollbackResult(newFiles: Seq[MutatedFile], compileErrors: MutantResultsPerFile)
