@@ -7,9 +7,9 @@ import stryker4s.testutil.Stryker4sSuite
 import scala.meta.Lit
 import scala.meta.quasiquotes.*
 
-class TraverserTest extends Stryker4sSuite with LogMatchers {
+class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
 
-  val traverser = new TraverserImpl()
+  val traverser = new TreeTraverserImpl()
 
   describe("canPlace") {
     it("can not place inside case guards") {
@@ -40,6 +40,22 @@ class TraverserTest extends Stryker4sSuite with LogMatchers {
       val annotation = code.find(Lit.String("stryker4s.mutation.MethodExpression")).value
       val result = traverser.canPlace(annotation)
       result shouldBe None
+    }
+
+    it("can not place inside deep term Term") {
+      val code = q"def bar = P(CharIn(${Lit.String("0-9")}).rep(1).!) map (_.toInt)"
+      val foo = code.find(Lit.String("0-9")).value
+
+      val placeAtFoo = traverser.canPlace(foo)
+      placeAtFoo shouldBe None
+    }
+
+    it("can place outside part of a Term") {
+      val code = q"def bar = P(CharIn(${Lit.String("0-9")}).rep(1).!) map (_.toInt)"
+      val foo = code.find(q"P(CharIn(${Lit.String("0-9")}).rep(1).!)").value
+
+      val placeAtFoo = traverser.canPlace(foo).value
+      placeAtFoo shouldBe foo
     }
   }
 }

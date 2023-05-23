@@ -6,7 +6,7 @@ import stryker4s.extension.mutationtype.ParentIsTypeLiteral
 
 import scala.meta.*
 
-trait Traverser {
+trait TreeTraverser {
 
   /** If the currently visiting node is a node where mutations can be placed, that node is returned, otherwise None
     */
@@ -14,7 +14,7 @@ trait Traverser {
 
 }
 
-final class TraverserImpl() extends Traverser {
+final class TreeTraverserImpl() extends TreeTraverser {
 
   def canPlace(currentTree: Tree): Option[Term] = {
     val toPlace = currentTree match {
@@ -31,19 +31,23 @@ final class TraverserImpl() extends Traverser {
       case _                                                        => none
     }
 
-    toPlace
+    def filterParent(toPlace: Option[Term]) = toPlace
       // Filter out all the node places that are invalid
       .filter {
-        case name: Name => !name.isDefinition
+        case t if t.parent.exists(_.is[Term.ArgClause]) => false
+        case name: Name                                 => !name.isDefinition
         // Don't place inside `case` patterns or conditions
         case p
             if p.findParent[Case].exists(c => c.pat.contains(currentTree) || c.cond.exists(_.contains(currentTree))) =>
           false
-        case t if t.parent.exists(_.is[Init])                              => false
-        case t if t.parent.exists(p => p.is[Term] && p.isNot[Term.Select]) => false
-        case ParentIsTypeLiteral()                                         => false
-        case _                                                             => true
+        case t if t.parent.exists(_.is[Init]) => false
+        // case t if t.parent.exists(_.is[Term.ApplyInfix])                   => true
+        // case t if t.parent.exists(p => p.is[Term] && p.isNot[Term.Select]) => false
+        case ParentIsTypeLiteral() => false
+        case _                     => true
       }
       .filterNot(_.isIn[Mod.Annot])
+    filterParent(toPlace)
   }
+
 }

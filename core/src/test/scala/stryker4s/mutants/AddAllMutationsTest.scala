@@ -104,7 +104,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
 
       val mutator = new Mutator(
         new MutantFinderStub(source),
-        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
         new MutantInstrumenter(InstrumenterOptions.testRunner)
       )
 
