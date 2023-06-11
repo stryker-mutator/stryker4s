@@ -1,4 +1,4 @@
-scalaVersion := "2.12.17"
+scalaVersion := "2.12.18"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.13" % Test // scala-steward:off
 
