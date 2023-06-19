@@ -5,6 +5,7 @@ import fansi.{Color, Underlined}
 import pureconfig.error.*
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto.*
+import pureconfig.module.sttp.reader
 import pureconfig.{ConfigReader as PureConfigReader, ConfigSource}
 import stryker4s.config.Config.*
 import stryker4s.log.Logger
