@@ -1,67 +1,67 @@
 package stryker4s.report.dashboard
 
-import stryker4s.env.Environment
+import cats.data.OptionT
+import cats.effect.std.Env
+import cats.syntax.functor.*
+import cats.{Functor, Monad}
 
 object Providers {
-  def determineCiProvider(env: Environment): Option[CiProvider] =
-    if (readEnvironmentVariable("TRAVIS", env).isDefined) {
-      Some(new TravisProvider(env))
-    } else if (readEnvironmentVariable("CIRCLECI", env).isDefined) {
-      Some(new CircleProvider(env))
-    } else if (readEnvironmentVariable("GITHUB_ACTION", env).isDefined) {
-      Some(new GithubActionsProvider(env))
-    } else {
-      None
-    }
+  def determineCiProvider[F[_]: Monad: Env](): OptionT[F, CiProvider[F]] =
+    readEnvironmentVariable("TRAVIS")
+      .as[CiProvider[F]](new TravisProvider[F]())
+      .orElse(readEnvironmentVariable("CIRCLECI").as(new CircleProvider()))
+      .orElse(readEnvironmentVariable("GITHUB_ACTION").as(new GithubActionsProvider()))
 
-  sealed trait CiProvider {
-    def determineProject(): Option[String]
-    def determineVersion(): Option[String]
+  sealed trait CiProvider[+F[_]] {
+    def determineProject(): F[Option[String]]
+    def determineVersion(): F[Option[String]]
   }
 
-  private def readEnvironmentVariable(name: String, env: Environment): Option[String] =
-    env.get(name).filter(_.nonEmpty)
+  private def readEnvironmentVariable[F[_]: Functor: Env](name: String): OptionT[F, String] =
+    OptionT(Env[F].get(name)).filter(_.nonEmpty)
 
   /** TODO: Only github projects are supported for now
     */
   private val githubCom = "github.com"
 
-  class TravisProvider(env: Environment) extends CiProvider {
-    override def determineProject(): Option[String] =
-      readEnvironmentVariable("TRAVIS_REPO_SLUG", env)
+  private class TravisProvider[F[_]: Functor: Env]() extends CiProvider[F] {
+    override def determineProject(): F[Option[String]] =
+      readEnvironmentVariable("TRAVIS_REPO_SLUG")
         .map(project => s"$githubCom/$project")
+        .value
 
-    override def determineVersion(): Option[String] =
-      readEnvironmentVariable("TRAVIS_BRANCH", env)
+    override def determineVersion(): F[Option[String]] =
+      readEnvironmentVariable("TRAVIS_BRANCH").value
   }
 
-  class CircleProvider(env: Environment) extends CiProvider {
-    override def determineProject(): Option[String] =
-      for {
-        username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME", env)
-        repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME", env)
-      } yield s"$githubCom/$username/$repoName"
+  private class CircleProvider[F[_]: Monad: Env]() extends CiProvider[F] {
+    override def determineProject(): F[Option[String]] =
+      (for {
+        username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME")
+        repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME")
+      } yield s"$githubCom/$username/$repoName").value
 
-    override def determineVersion(): Option[String] =
-      readEnvironmentVariable("CIRCLE_BRANCH", env)
+    override def determineVersion(): F[Option[String]] =
+      readEnvironmentVariable("CIRCLE_BRANCH").value
   }
 
-  class GithubActionsProvider(env: Environment) extends CiProvider {
-    override def determineProject(): Option[String] =
-      readEnvironmentVariable("GITHUB_REPOSITORY", env)
+  private class GithubActionsProvider[F[_]: Monad: Env]() extends CiProvider[F] {
+    override def determineProject(): F[Option[String]] =
+      readEnvironmentVariable("GITHUB_REPOSITORY")
         .map(project => s"$githubCom/$project")
+        .value
 
-    override def determineVersion(): Option[String] =
-      for {
-        ref <- readEnvironmentVariable("GITHUB_REF", env)
+    override def determineVersion(): F[Option[String]] =
+      (for {
+        ref <- readEnvironmentVariable("GITHUB_REF")
         refs = ref.split('/')
         version <- refs match {
-          case Array(_, "pull", prNumber, _*) => Some(s"PR-$prNumber")
-          case Array(_, _, tail*)             => Some(tail.mkString("/"))
-          case _                              => None
+          case Array(_, "pull", prNumber, _*) => OptionT.some(s"PR-$prNumber")
+          case Array(_, _, tail*)             => OptionT.some(tail.mkString("/"))
+          case _                              => OptionT.none[F, String]
         }
         if version.nonEmpty
-      } yield version
+      } yield version).value
   }
 
   // TODO: Support VSTS, GitLab CI

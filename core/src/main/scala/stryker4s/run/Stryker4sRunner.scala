@@ -71,7 +71,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
                 )
               )
           }
-        new DashboardReporter(new DashboardConfigProvider(sys.env))
+        new DashboardReporter(new DashboardConfigProvider[IO]())
     }
 
   def resolveTestRunners(tmpDir: Path)(implicit

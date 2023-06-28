@@ -15,13 +15,13 @@ import sttp.client3.*
 import sttp.client3.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
 
-class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
+class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider[IO])(implicit
     log: Logger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
 ) extends Reporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
-    dashboardConfigProvider.resolveConfig() match {
+    dashboardConfigProvider.resolveConfig().flatMap {
       case Invalid(configKeys) =>
         val configKeysStr = Str.join(configKeys.map(c => Str("'", Bold.On(c), "'")).toList, ", ")
         IO(log.warn(s"Could not resolve dashboard configuration key(s) $configKeysStr. Not sending report."))
