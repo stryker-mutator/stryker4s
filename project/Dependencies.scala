@@ -21,7 +21,7 @@ object Dependencies {
 
     // Direct dependencies
     val catsCore = "2.9.0"
-    val catsEffect = "3.5.0"
+    val catsEffect = "3.5.1"
     val circe = "0.14.5"
     val fansi = "0.4.0"
     val fs2 = "3.7.0"
