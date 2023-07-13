@@ -77,7 +77,9 @@ object Settings {
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime
+    libraryDependencies += Dependencies.scalapbRuntime,
+    // Disable warnings for discarded non-Unit value results, as they are used in the generated code
+    Compile / scalacOptions -= "-Wvalue-discard"
   )
 
   lazy val buildLevelSettings: Seq[Setting[?]] = inThisBuild(
