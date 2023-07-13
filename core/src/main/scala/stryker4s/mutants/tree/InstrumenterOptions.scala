@@ -1,9 +1,10 @@
 package stryker4s.mutants.tree
 
-import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext
-import scala.meta.{Lit, Pat}
+import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
+
 import scala.meta.quasiquotes.*
+import scala.meta.{Lit, Pat}
 
 final case class InstrumenterOptions private (
     mutationContext: ActiveMutationContext,

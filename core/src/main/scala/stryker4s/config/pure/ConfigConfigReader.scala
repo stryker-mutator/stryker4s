@@ -40,8 +40,6 @@ trait ConfigConfigReader {
         valid.toSet.asRight
     }
 
-  implicit def uriReader = _root_.pureconfig.module.sttp.reader
-
   implicit def thresholdsReader: ConfigReader[Thresholds] = {
     def isNotPercentage(n: Int) = n < 0 || n > 100
 

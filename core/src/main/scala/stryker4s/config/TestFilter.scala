@@ -1,10 +1,9 @@
 package stryker4s.config
 
-import java.util.regex.Pattern
-
-import scala.util.Try
-
 import stryker4s.config.TestFilter.wildcardToRegex
+
+import java.util.regex.Pattern
+import scala.util.Try
 
 class TestFilter()(implicit config: Config) {
 

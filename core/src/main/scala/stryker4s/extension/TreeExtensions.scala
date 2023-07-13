@@ -144,7 +144,7 @@ object TreeExtensions {
       */
     final def collectWithContext[T, C](
         buildContext: PartialFunction[Tree, C]
-    )(collectFn: PartialFunction[Tree, C => T]): List[T] = {
+    )(collectFn: PartialFunction[Tree, C => T]): Seq[T] = {
       val collectFnLifted = collectFn.lift
       val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
 
@@ -162,7 +162,7 @@ object TreeExtensions {
       }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, Eval.now(None)).value.toList
+      traverse(tree, Eval.now(None)).value.toVector
     }
 
   }

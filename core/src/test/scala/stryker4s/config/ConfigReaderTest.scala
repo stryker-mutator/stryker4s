@@ -6,6 +6,7 @@ import fs2.io.file.Path
 import org.scalactic.source.Position
 import pureconfig.error.{CannotConvert, ConfigReaderException, ConfigReaderFailures, ConvertFailure, FailureReason}
 import pureconfig.generic.auto.*
+import pureconfig.module.sttp.reader
 import pureconfig.{ConfigObjectSource, ConfigSource}
 import stryker4s.config.Config.*
 import stryker4s.scalatest.LogMatchers
