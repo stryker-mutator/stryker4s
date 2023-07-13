@@ -79,7 +79,7 @@ object Settings {
     ),
     libraryDependencies += Dependencies.scalapbRuntime,
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
-    Compile / scalacOptions -= "-Wvalue-discard"
+    Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
 
   lazy val buildLevelSettings: Seq[Setting[?]] = inThisBuild(
