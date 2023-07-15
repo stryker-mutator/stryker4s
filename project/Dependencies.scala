@@ -32,7 +32,7 @@ object Dependencies {
     val slf4j = "2.0.7"
     val sttp = "3.8.16"
     val testInterface = "1.0"
-    val weaponRegeX = "1.1.0"
+    val weaponRegeX = "1.1.1"
   }
 
   object test {
