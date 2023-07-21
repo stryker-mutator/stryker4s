@@ -73,9 +73,9 @@ class MutantRunner(
   def prepareEnv(mutatedFiles: Seq[MutatedFile]): Resource[IO, Path] = {
     val targetDir = config.baseDir / "target"
     for {
-      _ <- Resource.eval(Files[IO].createDirectories(targetDir))
+      _ <- Files[IO].createDirectories(targetDir).toResource
       tmpDir <- prepareTmpDir(targetDir)
-      _ <- Resource.eval(setupFiles(tmpDir, mutatedFiles.toSeq))
+      _ <- setupFiles(tmpDir, mutatedFiles.toSeq).toResource
     } yield tmpDir
   }
 

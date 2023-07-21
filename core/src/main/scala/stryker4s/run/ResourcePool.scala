@@ -26,7 +26,7 @@ object ResourcePool {
   /** Create a Resource pool that can use and put resources back in the pool after use,
     */
   def apply[T](resources: NonEmptyList[Resource[IO, T]]): Resource[IO, ResourcePool[T]] =
-    Resource.eval(Queue.unbounded[IO, T]).flatMap { queue =>
+    Queue.unbounded[IO, T].toResource.flatMap { queue =>
       // Publish all resources in a re-filling queue
       val publish = resources.parTraverse_(_.evalMap(queue.offer(_)))
 

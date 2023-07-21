@@ -146,7 +146,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     ): Resource[IO, A] = {
       resource.handleErrorWith[A, Throwable] {
         case _: ConnectException if maxAttempts != 0 =>
-          Resource.eval(onError(delay) *> IO.sleep(delay)) *>
+          (onError(delay) *> IO.sleep(delay)).toResource *>
             retryWithBackoff(maxAttempts - 1, delay * 2, onError)
         case _ => Resource.raiseError[IO, A, Throwable](new RuntimeException("Could not connect to testprocess"))
       }
