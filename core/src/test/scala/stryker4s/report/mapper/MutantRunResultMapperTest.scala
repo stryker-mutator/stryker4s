@@ -12,6 +12,7 @@ import stryker4s.testutil.Stryker4sSuite
 
 import java.nio.file.Files
 import scala.meta.{Lit, Term}
+import scala.util.Properties
 
 class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
   describe("mapper") {
@@ -56,7 +57,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
 
         val system = result.system.value
         system.ci shouldBe sys.env.contains("CI")
-        system.os.value shouldBe OSInformation(platform = sys.props("os.name"), version = Some(sys.props("os.version")))
+        system.os.value shouldBe OSInformation(platform = Properties.osName, version = Some(sys.props("os.version")))
         system.cpu.value shouldBe CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors())
         system.ram.value shouldBe RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024)
       }

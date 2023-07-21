@@ -6,7 +6,7 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 
 import scala.sys.process.{Process, ProcessLogger}
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 abstract class ProcessRunner(implicit log: Logger) {
   def apply(command: Command, workingDir: Path): Try[Seq[String]] = {
@@ -34,10 +34,9 @@ abstract class ProcessRunner(implicit log: Logger) {
 }
 
 object ProcessRunner {
-  private def isWindows: Boolean = sys.props("os.name").toLowerCase.contains("windows")
 
   def apply()(implicit log: Logger): ProcessRunner = {
-    if (isWindows) new WindowsProcessRunner
+    if (Properties.isWin) new WindowsProcessRunner
     else new UnixProcessRunner
   }
 }

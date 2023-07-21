@@ -8,7 +8,7 @@ import stryker4s.extension.FileExtensions.*
 import stryker4s.model.MutantResultsPerFile
 
 import java.nio.file.Files
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 trait MutantRunResultMapper {
   protected[stryker4s] def toReport(
@@ -38,7 +38,7 @@ trait MutantRunResultMapper {
 
   private def systemInformation: SystemInformation = SystemInformation(
     ci = sys.env.contains("CI"),
-    os = OSInformation(platform = sys.props("os.name"), version = sys.props("os.version").some).some,
+    os = OSInformation(platform = Properties.osName, version = sys.props("os.version").some).some,
     cpu = CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors()).some,
     // Should be in MB
     ram = RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024).some

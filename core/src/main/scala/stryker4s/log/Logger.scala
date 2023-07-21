@@ -39,7 +39,7 @@ trait Logger {
     // If there is a TERM on Linux (or Windows Git Bash), assume we support color
     lazy val unixEnabled = sys.env.contains("TERM")
     // On Windows there's no easy way. But if we're in Windows Terminal or ConEmu, we can assume we support color
-    lazy val windowsEnabled = sys.env.contains("WT_SESSION") || sys.env.exists(_ == ("ConEmuANSI" -> "ON"))
+    lazy val windowsEnabled = sys.env.contains("WT_SESSION") || sys.env.get("ConEmuANSI").contains("ON")
 
     notNoColor && (unixEnabled || windowsEnabled)
   }
