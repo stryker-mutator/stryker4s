@@ -1,4 +1,5 @@
-import io.github.davidgregory084.*
+import org.typelevel.sbt.tpolecat.*
+import org.typelevel.scalacoptions.*
 import TpolecatPlugin.autoImport.*
 import Release.*
 import sbt.Keys.*
