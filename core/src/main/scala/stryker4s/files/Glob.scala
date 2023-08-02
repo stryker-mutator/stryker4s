@@ -2,7 +2,6 @@ package stryker4s.files
 
 import cats.effect.IO
 import fs2.io.file.{Files, Path}
-import stryker4s.extension.StreamExtensions.*
 
 import java.nio.file
 

@@ -5,7 +5,6 @@ import fs2.Stream
 import fs2.io.file.Path
 import sbt.Keys.sources
 import sbt.{Compile, Project, State, Value}
-import stryker4s.extension.StreamExtensions.*
 import stryker4s.extension.exception.TestSetupException
 
 class SbtMutatesResolver(state: State, target: Path) extends MutatesFileResolver {
