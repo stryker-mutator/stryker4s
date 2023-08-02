@@ -9,7 +9,6 @@ import fs2.{text, Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions.*
-import stryker4s.extension.StreamExtensions.*
 import stryker4s.extension.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4s.files.FilesFileResolver
 import stryker4s.log.Logger

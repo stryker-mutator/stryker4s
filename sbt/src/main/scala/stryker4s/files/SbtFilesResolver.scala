@@ -3,7 +3,6 @@ package stryker4s.files
 import cats.effect.IO
 import fs2.Stream
 import fs2.io.file.{Files, Path}
-import stryker4s.extension.StreamExtensions.*
 
 class SbtFilesResolver(sources: Seq[Path], target: Path) extends FilesFileResolver {
 
