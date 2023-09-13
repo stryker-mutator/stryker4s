@@ -3,7 +3,7 @@ import sbt.*
 object Dependencies {
   object versions {
     val scala212 = "2.12.18"
-    val scala213 = "2.13.11"
+    val scala213 = "2.13.12"
     val scala3 = "3.3.1"
 
     /** Cross-versions for main projects

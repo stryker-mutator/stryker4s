@@ -6,7 +6,7 @@ import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContex
 import scala.meta.quasiquotes.*
 import scala.meta.{Lit, Pat}
 
-final case class InstrumenterOptions private (
+final case class InstrumenterOptions(
     mutationContext: ActiveMutationContext,
     pattern: Int => Pat,
     condition: Option[DefaultMutationCondition]

@@ -17,7 +17,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
   def makeEnv(entr: (String, String)*): Env[Id] = new Env[Id] {
     val env = entr.toMap
 
-    override def entries = env
+    override def entries: Map[String, String] = env
     override def get(name: String): Option[String] = env.get(name)
   }
 
