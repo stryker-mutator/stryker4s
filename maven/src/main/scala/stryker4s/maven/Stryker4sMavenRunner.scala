@@ -28,10 +28,9 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
 
     val properties = new Properties(project.getProperties)
     setTestProperties(properties, config.testFilter)
-    invoker.setWorkingDirectory(tmpDir.toNioPath.toFile())
 
     NonEmptyList
-      .one(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals)))
+      .one(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals, tmpDir)))
       .asRight
   }
 
