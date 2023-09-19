@@ -1,18 +1,8 @@
 package stryker4s.model
 
 import fs2.io.file.Path
+import stryker4s.mutants.tree.MutantsWithId
 
-import scala.meta.*
+import scala.meta.Tree
 
-final case class MutatedFile(
-    fileOrigin: Path,
-    tree: Tree,
-    mutants: Seq[Mutant],
-    nonCompilingMutants: Seq[Mutant],
-    excludedMutants: Int
-) {
-
-  def mutatedSource: String = {
-    tree.syntax
-  }
-}
+final case class MutatedFile(fileOrigin: Path, mutatedSource: Tree, mutants: MutantsWithId)

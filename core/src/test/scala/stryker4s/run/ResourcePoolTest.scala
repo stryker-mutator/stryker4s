@@ -21,11 +21,10 @@ class ResourcePoolTest extends Stryker4sIOSuite {
               Stream(1, 2, 3).covary[IO].through(pool.run { case (tr, mutant) => tr(mutant) }).compile.drain *>
               // After loan use
               isClosed.get.asserting(_ shouldBe false)
-          }
-          .flatMap { _ =>
-            // After pool `Resource` is closed
-            isClosed.get.asserting(_ shouldBe true)
-          }
+          } >> {
+          // After pool `Resource` is closed
+          isClosed.get.asserting(_ shouldBe true)
+        }
       }
     }
   }

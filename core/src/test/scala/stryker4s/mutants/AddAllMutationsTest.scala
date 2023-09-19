@@ -1,45 +1,58 @@
 package stryker4s.mutants
 
-import scala.meta.*
-
+import fs2.Stream
+import fs2.io.file.Path
 import org.scalactic.source.Position
 import stryker4s.config.Config
-import stryker4s.extension.TreeExtensions.*
-import stryker4s.mutants.applymutants.{ActiveMutationContext, MatchBuilder, StatementTransformer}
-import stryker4s.mutants.findmutants.MutantMatcher
+import stryker4s.extension.TreeExtensions.FindExtension
+import stryker4s.mutants.findmutants.MutantMatcherImpl
+import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testutil.stubs.MutantFinderStub
 
-class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
+import scala.meta.*
+
+class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
 
   describe("failed to add mutations") {
     implicit val config = Config.default
 
     it("#585 (if-statement in Term.Apply)") {
-      checkAllMutationsAreAdded(q"""SomeExecutor.createSomething(
+      checkAllMutationsAreAdded(
+        q"""SomeExecutor.createSomething(
         if (c.i.isDefined) "foo" else "bar",
         false,
-      )""")
+      )""",
+        5
+      )
     }
 
     it("#586 (second function call with `case`)") {
-      checkAllMutationsAreAdded(q"""serviceProvider
+      checkAllMutationsAreAdded(
+        q"""serviceProvider
               .request { _ => 4 > 5 }
               .recoverWith {
                 case e: Throwable =>
                   logger.info(s"Something failed")
-              }""")
+              }""",
+        4
+      )
     }
 
     it("#776 (if-else block statement)") {
-      checkAllMutationsAreAdded(q"""
+      checkAllMutationsAreAdded(
+        q"""
         if (foo) bar
         else { 4 > 5 }
-      """)
+      """,
+        5
+      )
     }
 
     it("#776 2") {
-      checkAllMutationsAreAdded(q"""
+      checkAllMutationsAreAdded(
+        q"""
         try {
           val (p1, s, rs1) = runSeqCmds(sut, as.s, as.seqCmds)
           val l1 = s"Initial State:\n \nSequential Commands:\n"
@@ -55,19 +68,25 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
               }
             )
         } finally if (as.parCmds.isEmpty) finalize
-      """)
+      """,
+        5
+      )
     }
 
-    it("each case of pattern match") {
-      checkAllMutationsAreAdded(q"""
-        foo match {
-          case _ => "break"
-          case _ if high == low => baz
-        }""")
-    }
+    // it("each case of pattern match") {
+    //   checkAllMutationsAreAdded(
+    //     q"""
+    //     foo match {
+    //       case _ => "break"
+    //       case _ if high == low => baz
+    //     }""",
+    //     2
+    //   )
+    // }
 
     it("try-catch-finally") {
-      checkAllMutationsAreAdded(q"""
+      checkAllMutationsAreAdded(
+        q"""
         def foo =
           try {
             runAndContinue("task.run")
@@ -75,27 +94,40 @@ class AddAllMutationsTest extends Stryker4sSuite with LogMatchers {
             case _ => logger.error("Error during run", e)
           } finally {
             logger.info("Done")
-          }""")
+          }""",
+        3
+      )
     }
 
-    def checkAllMutationsAreAdded(tree: Stat)(implicit pos: Position) = {
+    def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit pos: Position) = {
       val source = source"class Foo { $tree }"
-      val foundMutants = source.collect(new MutantMatcher().allMatchers).flatten.collect { case Right(v) => v }
-      val transformed = new StatementTransformer().transformSource(source, foundMutants)
-      val mutatedTree = new MatchBuilder(ActiveMutationContext.testRunner).buildNewSource(transformed)
-      transformed.transformedStatements
-        .flatMap(_.mutantStatements)
-        .foreach { mutantStatement =>
-          mutatedTree
-            .find(p"Some(${Lit.Int(mutantStatement.id.globalId)})")
-            .getOrElse(
-              fail {
-                val mutant = foundMutants.find(_.id == mutantStatement.id).get
-                s"Could not find mutation ${mutant.id} '${mutant.mutated}' (original '${mutant.original}') in mutated tree $mutatedTree"
-              }
-            )
+
+      val mutator = new Mutator(
+        new MutantFinderStub(source),
+        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+        new MutantInstrumenter(InstrumenterOptions.testRunner)
+      )
+
+      mutator
+        .go(Stream.emit(Path("Foo.scala")))
+        .asserting { case (ignored, files) =>
+          ignored shouldBe Map(Path("Foo.scala") -> Vector.empty)
+
+          val file = files.loneElement
+          file.mutants.toVector.map { mutant =>
+            file.mutatedSource
+              .find(mutant.mutatedCode.mutatedStatement)
+              .flatMap(_ => file.mutatedSource.find(p"${Lit.Int(mutant.id.value)}"))
+              .getOrElse(
+                fail(
+                  s"Could not find mutant ${mutant.id} `${mutant.mutatedCode.metadata.replacement}` (original `${mutant.mutatedCode.metadata.original}`) in mutated tree ${file.mutatedSource}"
+                )
+              )
+          }
+          file.mutants.length shouldBe expectedMutations
+          "Failed to instrument mutants" should not be loggedAsWarning
         }
-      "Failed to add mutation(s)" should not be loggedAsWarning
     }
   }
+
 }

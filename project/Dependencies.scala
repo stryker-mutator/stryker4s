@@ -2,9 +2,9 @@ import sbt.*
 
 object Dependencies {
   object versions {
-    val scala212 = "2.12.15"
-    val scala213 = "2.13.8"
-    val scala3 = "3.1.1"
+    val scala212 = "2.12.18"
+    val scala213 = "2.13.12"
+    val scala3 = "3.3.1"
 
     /** Cross-versions for main projects
       */
@@ -15,24 +15,24 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
 
     // Test dependencies
-    val catsEffectScalaTest = "1.4.0"
-    val mockitoScala = "1.17.5"
-    val scalatest = "3.2.11"
+    val catsEffectScalaTest = "1.5.0"
+    val mockitoScala = "1.17.22"
+    val scalatest = "3.2.17"
 
     // Direct dependencies
-    val catsCore = "2.7.0"
-    val catsEffect = "3.3.11"
-    val circe = "0.14.1"
-    val fansi = "0.3.1"
-    val fs2 = "3.2.7"
-    val mutationTestingElements = "1.7.10"
-    val mutationTestingMetrics = "1.7.10"
-    val pureconfig = "0.17.1"
-    val scalameta = "4.5.3"
-    val slf4j = "1.7.36"
-    val sttp = "3.5.1"
+    val catsCore = "2.10.0"
+    val catsEffect = "3.5.1"
+    val circe = "0.14.6"
+    val fansi = "0.4.0"
+    val fs2 = "3.9.2"
+    val mutationTestingElements = "2.0.3"
+    val mutationTestingMetrics = "2.0.3"
+    val pureconfig = "0.17.4"
+    val scalameta = "4.8.10"
+    val slf4j = "2.0.9"
+    val sttp = "3.9.0"
     val testInterface = "1.0"
-    val weaponRegeX = "0.6.0"
+    val weaponRegeX = "1.1.1"
   }
 
   object test {
@@ -58,7 +58,7 @@ object Dependencies {
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
-  val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "httpclient-backend-fs2" % versions.sttp
+  val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "fs2" % versions.sttp
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
 

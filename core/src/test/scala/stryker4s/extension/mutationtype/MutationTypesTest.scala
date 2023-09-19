@@ -1,10 +1,10 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta.*
-
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.testutil.Stryker4sSuite
+
+import scala.meta.*
 
 class MutationTypesTest extends Stryker4sSuite {
   describe("EqualityOperator") {

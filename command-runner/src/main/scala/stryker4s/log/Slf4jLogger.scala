@@ -1,6 +1,6 @@
 package stryker4s.log
 
-import org.slf4j.impl.SimpleLoggerFactory
+import org.slf4j.simple.SimpleLoggerFactory
 import org.slf4j.Logger as Slf4jInternalLogger
 
 class Slf4jLogger() extends Logger {

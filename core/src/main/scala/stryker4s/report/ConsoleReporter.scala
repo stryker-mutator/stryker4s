@@ -2,10 +2,11 @@ package stryker4s.report
 
 import cats.effect.IO
 import fansi.{Color, EscapeAttr, Str}
-import fs2.{INothing, Pipe}
+import fs2.Pipe
 import mutationtesting.{MutantResult, MutantStatus, Position}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.*
+import stryker4s.extension.NumberExtensions.*
 import stryker4s.log.Logger
 import stryker4s.run.threshold.*
 
@@ -13,7 +14,7 @@ import scala.concurrent.duration.*
 
 class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
 
-  override def mutantTested: Pipe[IO, MutantTestedEvent, INothing] = in => {
+  override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = in => {
     val stream = in.zipWithIndex.map { case (l, r) => (l, r + 1) }
     // Log the first status right away, and then the latest every 0.5 seconds
     // 0.5 seconds is a good middle-ground between not printing too much and still feeling snappy
@@ -122,11 +123,4 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
   private def isUndetected(mutant: MutantResult): Boolean =
     mutant.status == MutantStatus.Survived || mutant.status == MutantStatus.NoCoverage
 
-  implicit class DoubleRoundTwoDecimals(score: Double) {
-    def roundDecimals(decimals: Int): Double =
-      if (!score.isNaN())
-        BigDecimal(score).setScale(decimals, BigDecimal.RoundingMode.HALF_UP).toDouble
-      else
-        score
-  }
 }

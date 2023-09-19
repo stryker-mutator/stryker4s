@@ -3,6 +3,7 @@ package stryker4s.report
 import cats.data.Validated.{Invalid, Valid}
 import cats.effect.{IO, Resource}
 import cats.syntax.foldable.*
+import fansi.Color.Red
 import fansi.{Bold, Str}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
@@ -14,13 +15,13 @@ import sttp.client3.*
 import sttp.client3.circe.{asJson, circeBodySerializer}
 import sttp.model.{MediaType, StatusCode}
 
-class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implicit
+class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider[IO])(implicit
     log: Logger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
 ) extends Reporter {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
-    dashboardConfigProvider.resolveConfig() match {
+    dashboardConfigProvider.resolveConfig().flatMap {
       case Invalid(configKeys) =>
         val configKeysStr = Str.join(configKeys.map(c => Str("'", Bold.On(c), "'")).toList, ", ")
         IO(log.warn(s"Could not resolve dashboard configuration key(s) $configKeysStr. Not sending report."))
@@ -58,11 +59,12 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider)(implic
     response.body match {
       case Left(HttpError(errorBody, StatusCode.Unauthorized)) =>
         log.error(
-          s"Error HTTP PUT '$errorBody'. Status code 401 Unauthorized. Did you provide the correct api key in the 'STRYKER_DASHBOARD_API_KEY' environment variable?"
+          s"Error HTTP PUT '$errorBody'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+              .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
         )
       case Left(HttpError(errorBody, statusCode)) =>
         log.error(
-          s"Failed to PUT report to dashboard. Response status code: ${statusCode.code}. Response body: '$errorBody'"
+          s"Failed to PUT report to dashboard. Response status code: ${Red(statusCode.code.toString())}. Response body: '$errorBody'"
         )
       case Left(DeserializationException(original, error)) =>
         log.warn(

@@ -2,11 +2,11 @@ package stryker4s.extension.mutationtype
 
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 
-import scala.meta.{Defn, Lit, Term, Tree, Type}
+import scala.meta.*
 
 /** Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */
-sealed trait Mutation[T <: Tree] {
+sealed trait Mutation[+T <: Tree] {
   def mutationName: String
 }
 
@@ -90,12 +90,13 @@ protected trait NoInvalidPlacement[T <: Tree] {
       }
 }
 
-private case object ParentIsTypeLiteral {
+private[stryker4s] case object ParentIsTypeLiteral {
   def unapply(t: Tree): Boolean = t.parent.exists {
-    case Defn.Val(_, _, Some(`t`), _)       => true
-    case Defn.Var(_, _, Some(`t`), _)       => true
-    case Defn.Def(_, _, _, _, Some(`t`), _) => true
-    case Defn.Type(_, _, _, `t`)            => true
-    case p                                  => p.is[Type] || p.is[Term.ApplyType]
+    case Type.ArgClause(expprs) if expprs.contains(t) => true
+    case Defn.Val(_, _, Some(`t`), _)                 => true
+    case Defn.Var.Initial(_, _, Some(`t`), _)         => true
+    case Defn.Def.Initial(_, _, _, _, Some(`t`), _)   => true
+    case Defn.Type.Initial(_, _, _, `t`)              => true
+    case p                                            => p.is[Type] || p.is[Term.ApplyType]
   }
 }

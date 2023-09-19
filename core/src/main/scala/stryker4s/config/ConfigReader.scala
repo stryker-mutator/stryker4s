@@ -1,10 +1,11 @@
 package stryker4s.config
 
 import cats.syntax.either.*
-import fansi.Underlined
+import fansi.{Color, Underlined}
 import pureconfig.error.*
 import pureconfig.generic.ProductHint
 import pureconfig.generic.auto.*
+import pureconfig.module.sttp.reader
 import pureconfig.{ConfigReader as PureConfigReader, ConfigSource}
 import stryker4s.config.Config.*
 import stryker4s.log.Logger
@@ -107,9 +108,9 @@ object ConfigReader {
         val unknownKeys = key +: failures.collect { case ConvertFailure(UnknownKey(k), _, _) => k }
 
         log.warn(
-          s"The following configuration key(s) are not used, they could stem from an older " +
-            s"stryker4s version: '${unknownKeys.mkString(", ")}'.\n" +
-            s"Please check the documentation at $configDocUrl for available options."
+          s"""The following configuration key(s) are not used, they could stem from an older stryker4s version: '${fansi.Str
+              .join(unknownKeys.map(Color.Yellow(_)), ", ")}'.
+             |Please check the documentation at $configDocUrl for available options.""".stripMargin
         )
         implicitly[PureConfigReader[Config]]
     }

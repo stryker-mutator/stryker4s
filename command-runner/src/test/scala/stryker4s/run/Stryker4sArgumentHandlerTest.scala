@@ -1,7 +1,7 @@
 package stryker4s.run
 
 import org.slf4j.event.Level
-import org.slf4j.impl.SimpleLogger
+import org.slf4j.simple.SimpleLogger
 import stryker4s.command.Stryker4sArgumentHandler
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite

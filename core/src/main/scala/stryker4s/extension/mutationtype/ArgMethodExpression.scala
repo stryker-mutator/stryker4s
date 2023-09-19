@@ -1,7 +1,7 @@
 package stryker4s.extension.mutationtype
 
-import scala.meta.Term
 import scala.meta.Term.*
+import scala.meta.{Term, Type}
 
 /** Base trait for method calls with one or multiple argument(s)
   */
@@ -9,28 +9,43 @@ sealed trait ArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] =
     term match {
       // foo.filter { (a,b) => a > b }
-      case Apply(Select(_, Name(`methodName`)), Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
+      case Apply.After_4_6_0(
+            Select(_, Name(`methodName`)),
+            ArgClause(Block(Function.Initial(_ :: _ :: _, _) :: Nil) :: Nil, _)
+          ) =>
         None
 
       // foo.filter((a,b) => a > b)
-      case Apply(Select(_, Name(`methodName`)), Function(_ :: _ :: _, _) :: Nil) =>
+      case Apply.After_4_6_0(Select(_, Name(`methodName`)), ArgClause(Function.Initial(_ :: _ :: _, _) :: Nil, _)) =>
         None
 
       // foo filter { (a,b) => a > b }
-      case ApplyInfix(_, Name(`methodName`), Nil, Block(Function(_ :: _ :: _, _) :: Nil) :: Nil) =>
+      case ApplyInfix.After_4_6_0(
+            _,
+            Name(`methodName`),
+            Type.ArgClause(Nil),
+            ArgClause(List(Block(Function.Initial(_ :: _ :: _, _) :: Nil)), None)
+          ) =>
         None
 
       // foo filter((a,b) => a > b)
-      case ApplyInfix(_, Name(`methodName`), Nil, Function(_ :: _ :: _, _) :: Nil) =>
+      case ApplyInfix.After_4_6_0(
+            _,
+            Name(`methodName`),
+            Type.ArgClause(Nil),
+            ArgClause(Function.Initial(_ :: _ :: _, _) :: Nil, _)
+          ) =>
         None
 
       // foo.filter( a => a > 0 )
-      case Apply(Select(q, Name(`methodName`)), arg :: Nil) =>
-        Option((term, name => Apply(Term.Select(q, Name(name)), arg :: Nil)))
+      case Apply.After_4_6_0(Select(q, Name(`methodName`)), ArgClause(arg :: Nil, clause)) =>
+        Option((term, name => Apply.After_4_6_0(Term.Select(q, Name(name)), ArgClause(arg :: Nil, clause))))
 
       // foo filter( a => a > 0 )
-      case ApplyInfix(q, Name(`methodName`), Nil, arg :: Nil) =>
-        Option((term, name => ApplyInfix(q, Name(name), Nil, arg :: Nil)))
+      case ApplyInfix.After_4_6_0(q, Name(`methodName`), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause)) =>
+        Option(
+          (term, name => ApplyInfix.After_4_6_0(q, Name(name), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause)))
+        )
 
       case _ => None
     }

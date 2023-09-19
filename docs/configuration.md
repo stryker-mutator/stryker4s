@@ -4,7 +4,7 @@ custom_edit_url: https://github.com/stryker-mutator/stryker4s/edit/master/docs/c
 sidebar_position: 2
 ---
 
-All configuration options can be set from the `stryker4s.conf` file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in camel-case.
+All configuration options can be set from the `stryker4s.conf` file in the root of the project. This file is read in the HOCON-format. All configuration should be in the "stryker4s" namespace and in kebab-case.
 
 ```conf
 stryker4s {
@@ -31,7 +31,7 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 **Default value:** `[]`  
 **Since:** `v0.8.0`  
 **Description:**  
-With `test-filter` you configure the subset of tests to use for mutation testing. By default all tests are included.
+With `test-filter` you configure the subset of tests to use for mutation testing. By default, all tests are included.
 You can use wildcard pattern: `com.mypackage.*`.
 
 - With sbt [`Tests.Filter`](https://www.scala-sbt.org/1.x/docs/Testing.html#Filter+classes) is used.
@@ -66,8 +66,8 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 With `reporters` you can specify reporters for stryker4s to use. The following reporters are supported:
 
 - `console` will output progress and the final result to the console.
-- `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-elements#mutation-testing-elements) for more information.
-- `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/mutation-testing-report-schema) format.
+- `html` outputs a nice HTML report to `target/stryker4s-report-$timestamp/index.html`. See the [mutation-testing-elements repo](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/elements#readme) for more information.
+- `json` writes a json of the mutation result to the same folder as the HTML reporter. The JSON is in the [mutation-testing-report-schema](https://github.com/stryker-mutator/mutation-testing-elements/tree/master/packages/report-schema#readme) format.
 - `dashboard` reporter sends a report to https://dashboard.stryker-mutator.io, enabling you to add a fancy mutation score badge to your readme, as well as hosting your HTML report on the dashboard! It uses the [dashboard.\*](#dashboard-object) configuration options. See the [dashboard docs](../General/dashboard.md) for more info. The dashboard reporter only works on JDK 11 or higher.
 
 ### `excluded-mutations` [`string[]`]
@@ -112,13 +112,37 @@ Settings for the dashboard [reporter](#reporters-string). See the [dashboard doc
 ### `scala-dialect` [`string`]
 
 **Config file:** `scala-dialect: "2.13"`  
-**Default value:** `scala3`  
+**Default value:** `scala213source3`  
 **Since:** `v0.10.1`  
 **Description:**
 
-Set the Scala dialect that should be used for parsing Scala files. The default is Scala 3 as most syntax is backwards-compatible with Scala 2. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
+Set the Scala dialect that should be used for parsing Scala files. The default is Scala 2.13 with `-XSource:3` as this has the widest compatibility. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
 
-Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/core/src/main/scala/stryker4s/config/pure/ConfigConfigReader.scala#L80-L84).
+Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/core/src/main/scala/stryker4s/config/pure/ConfigConfigReader.scala#L74-L84).
+
+### `static-tmp-dir` [`boolean`]
+
+**Config file:** `static-tmp-dir: true`
+**Default value:** `false`
+**Since:** `v0.15.0`
+**Description:**
+
+This will force the temporary dir to be created at a static path (`target/stryker4s-tmpDir`).
+
+Recommended when using stryker4s with Bazel (Bazel uses the path to the workspace to determine where to store the
+local cache - hashes the path to create the sandbox's name) as it speeds up mutation testing greatly.
+
+### `clean-tmp-dir` [`boolean`]
+
+**Config file:** `clean-tmp-dir: false`
+**Default value:** `true`
+**Since:** `v0.15.0`
+**Description:**
+
+Temporary dir will be autodeleted at exit if this option is set. Turning it off is useful for debugging purposes.
+If cleaning the temporary dir is disabled, you need to clean the temporary dir manually before restarting stryker4s.
+
+On error the temporary dir is never deleted (even if this option is set).
 
 ## Sbt plugin config
 

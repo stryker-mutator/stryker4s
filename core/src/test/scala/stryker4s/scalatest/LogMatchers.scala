@@ -18,7 +18,7 @@ trait LogMatchers extends BeforeAndAfterEach {
     */
   def printLogs: Boolean = false
 
-  implicit val testLogger = new TestLogger(printLogs)
+  implicit val testLogger: TestLogger = new TestLogger(printLogs)
 
   override protected def afterEach(): Unit = {
     try super.afterEach()
@@ -58,8 +58,7 @@ trait LogMatchers extends BeforeAndAfterEach {
 
           MatchResult(
             sameLogLevel,
-            s"Log message '$expectedLogMessage' was logged but not on correct log level, " +
-              s"expected [$expectedLogLevel] actual [$level].",
+            s"Log message '$expectedLogMessage' was logged but not on correct log level, expected [$expectedLogLevel] actual [$level].",
             s"Log message '$expectedLogMessage' was logged as $expectedLogLevel."
           )
       }

@@ -2,6 +2,7 @@ package stryker4s.maven.runner
 
 import cats.effect.unsafe.implicits.global
 import fs2.io.file.Path
+import mutationtesting.{Location, MutantStatus, Position}
 import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
@@ -9,7 +10,7 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
-import stryker4s.model.{Killed, Mutant, MutantId, NoCoverageInitialTestRun, Survived}
+import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode, NoCoverageInitialTestRun}
 import stryker4s.testutil.Stryker4sSuite
 
 import java.util as ju
@@ -82,9 +83,9 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
 
-      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
+      val result = sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
 
-      result shouldBe a[Killed]
+      result.status shouldBe MutantStatus.Killed
     }
 
     it("should have a Survived mutant on a exit-code 0") {
@@ -94,9 +95,9 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals)
 
-      val result = sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
+      val result = sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
 
-      result shouldBe a[Survived]
+      result.status shouldBe MutantStatus.Survived
     }
 
     it("should add the environment variable to the request") {
@@ -110,7 +111,7 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val sut = new MavenTestRunner(project, invokerMock, project.getProperties(), goals)
 
-      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
+      sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
@@ -133,11 +134,16 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals)
 
-      sut.runMutant(Mutant(MutantId(1), q">", q"<", LesserThan), coverageTestNames).unsafeRunSync()
+      sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
 
       verify(invokerMock).execute(captor)
       val invokedRequest = captor.value
       invokedRequest.getProfiles.asScala should contain("best-profile-ever")
     }
   }
+
+  def createMutant =
+    MutantWithId(MutantId(1), MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation)))
+
+  def createLocation = Location(Position(0, 0), Position(0, 0))
 }

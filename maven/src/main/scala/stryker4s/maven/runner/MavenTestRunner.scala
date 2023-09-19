@@ -9,6 +9,8 @@ import stryker4s.run.TestRunner
 
 import java.util.Properties
 import scala.jdk.CollectionConverters.*
+import mutationtesting.MutantResult
+import mutationtesting.MutantStatus
 
 class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: Properties, val goals: Seq[String])(
     implicit log: Logger
@@ -20,13 +22,13 @@ class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: P
     IO(invoker.execute(request)).map(_.getExitCode() == 0).map(NoCoverageInitialTestRun(_))
   }
 
-  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
-    val request = createRequestWithMutation(mutant)
+  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+    val request = createRequestWithMutation(mutant.id)
 
     IO(invoker.execute(request)).map { result =>
       result.getExitCode match {
-        case 0 => Survived(mutant)
-        case _ => Killed(mutant)
+        case 0 => mutant.toMutantResult(MutantStatus.Survived)
+        case _ => mutant.toMutantResult(MutantStatus.Killed)
       }
     }
   }
@@ -39,8 +41,8 @@ class MavenTestRunner(project: MavenProject, invoker: Invoker, val properties: P
       .setProperties(properties)
       .setProfiles(project.getActiveProfiles.asScala.map(_.getId).asJava)
 
-  private def createRequestWithMutation(mutant: Mutant): InvocationRequest =
+  private def createRequestWithMutation(mutant: MutantId): InvocationRequest =
     createRequest()
-      .addShellEnvironment("ACTIVE_MUTATION", String.valueOf(mutant.id))
+      .addShellEnvironment("ACTIVE_MUTATION", mutant.value.toString())
 
 }

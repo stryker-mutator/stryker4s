@@ -1,3 +1,6 @@
+import org.typelevel.sbt.tpolecat.*
+import org.typelevel.scalacoptions.*
+import TpolecatPlugin.autoImport.*
 import Release.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
@@ -8,7 +11,10 @@ object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
-        Seq(compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"))
+        Seq(
+          compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
+          compilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
+        )
       case _ =>
         Nil
     }),
@@ -20,13 +26,8 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
-    // Fatal warnings only in CI
-    scalacOptions --= (if (sys.env.exists { case (k, v) => k == "CI" && v == "true" }) Nil
-                       else Seq("-Xfatal-warnings")),
-    scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) => Seq("-Xsource:3")
-      case _            => Seq.empty
-    })
+    tpolecatScalacOptions += ScalacOptions.source3,
+    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
@@ -77,7 +78,9 @@ object Settings {
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime
+    libraryDependencies += Dependencies.scalapbRuntime,
+    // Disable warnings for discarded non-Unit value results, as they are used in the generated code
+    Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
 
   lazy val buildLevelSettings: Seq[Setting[?]] = inThisBuild(
@@ -86,6 +89,9 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
+    // Fatal warnings only in CI
+    tpolecatCiModeEnvVar := "CI",
+    tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,

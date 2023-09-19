@@ -1,8 +1,8 @@
 package stryker4s.extension
 
-import scala.concurrent.duration.*
-
 import stryker4s.testutil.Stryker4sSuite
+
+import scala.concurrent.duration.*
 
 import DurationExtensions.*
 

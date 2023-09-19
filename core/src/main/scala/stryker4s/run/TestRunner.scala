@@ -2,18 +2,19 @@ package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
 import fansi.Color
+import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.HumanReadableExtension
 import stryker4s.extension.ResourceExtensions.*
 import stryker4s.log.Logger
-import stryker4s.model.{Error, InitialTestRunResult, Mutant, MutantRunResult, TimedOut}
+import stryker4s.model.{InitialTestRunResult, MutantWithId}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]
-  def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult]
+  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult]
 }
 
 /** Wrapping testrunners to add functionality to existing testrunners
@@ -27,7 +28,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner {
-          override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] =
+          override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
             for {
               runner <- testRunnerRef.get
               time <- timeout.get
@@ -37,8 +38,8 @@ object TestRunner {
                   time,
                   IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toHumanReadable}")) *>
                     releaseAndSwap
-                      .as(TimedOut(mutant))
-                )
+                      .as(mutant.toMutantResult(MutantStatus.Timeout))
+                ) <* IO.cede
             } yield result
 
           override def initialTestRun(): IO[InitialTestRunResult] =
@@ -70,14 +71,14 @@ object TestRunner {
       IO {
         new TestRunner {
 
-          override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] =
+          override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
             retryRunMutation(mutant, testNames)
 
           def retryRunMutation(
-              mutant: Mutant,
+              mutant: MutantWithId,
               testNames: Seq[String],
               retriesLeft: Long = 2
-          ): IO[MutantRunResult] = {
+          ): IO[MutantResult] = {
             testRunnerRef.get.flatMap(_.runMutant(mutant, testNames)).handleErrorWith { _ =>
               // On error, get a new testRunner and set it
               IO(
@@ -88,7 +89,7 @@ object TestRunner {
                 // Release old resource and make a new one, then retry the mutation
                 releaseAndSwap *>
                 (if (retriesLeft > 0) retryRunMutation(mutant, testNames, retriesLeft - 1)
-                 else IO.pure(Error(mutant)))
+                 else IO.pure(mutant.toMutantResult(MutantStatus.RuntimeError)))
             }
           }
           override def initialTestRun(): IO[InitialTestRunResult] =
@@ -103,7 +104,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner {
-          def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = for {
+          def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = for {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner

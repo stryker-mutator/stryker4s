@@ -2,8 +2,10 @@ package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
 import cats.syntax.apply.*
+import cats.syntax.option.*
 import com.comcast.ip4s.{IpLiteralSyntax, Port, SocketAddress}
 import fs2.io.net.Network
+import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.api.testprocess.*
@@ -21,13 +23,15 @@ import scala.sys.process.Process
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
-  override def runMutant(mutant: Mutant, testNames: Seq[String]): IO[MutantRunResult] = {
-    val message = StartTestRun(mutant.id.globalId, testNames)
+  override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+    val message = StartTestRun(mutant.id.value, testNames)
     testProcess.sendMessage(message).map {
-      case TestsSuccessful(testsCompleted)   => Survived(mutant, testsCompleted = Some(testsCompleted))
-      case TestsUnsuccessful(testsCompleted) => Killed(mutant, testsCompleted = Some(testsCompleted))
-      case ErrorDuringTestRun(msg)           => Killed(mutant, Some(msg))
-      case _                                 => Error(mutant)
+      case TestsSuccessful(testsCompleted) =>
+        mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some)
+      case TestsUnsuccessful(testsCompleted) =>
+        mutant.toMutantResult(MutantStatus.Killed, testsCompleted = testsCompleted.some)
+      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, description = msg.some)
+      case _                       => mutant.toMutantResult(MutantStatus.RuntimeError)
     }
   }
 
@@ -129,20 +133,20 @@ object ProcessTestRunner extends TestInterfaceMapper {
     testProcess.sendMessage(apiTestGroups).void
   }
 
-  implicit class ResourceOps[A](resource: Resource[IO, A]) {
+  implicit final class ResourceOps[A](val resource: Resource[IO, A]) extends AnyVal {
 
     /** Retry creating the resource, with an increasing (doubling) backoff until the resource is created, or fails
       * @param maxRetries
       *   times.
       */
-    def retryWithBackoff(
+    final def retryWithBackoff(
         maxAttempts: Int,
         delay: FiniteDuration,
         onError: FiniteDuration => IO[Unit]
     ): Resource[IO, A] = {
       resource.handleErrorWith[A, Throwable] {
         case _: ConnectException if maxAttempts != 0 =>
-          Resource.eval(onError(delay) *> IO.sleep(delay)) *>
+          (onError(delay) *> IO.sleep(delay)).toResource *>
             retryWithBackoff(maxAttempts - 1, delay * 2, onError)
         case _ => Resource.raiseError[IO, A, Throwable](new RuntimeException("Could not connect to testprocess"))
       }

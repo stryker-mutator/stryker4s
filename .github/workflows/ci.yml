@@ -13,25 +13,25 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
+          cache: 'sbt'
       - name: Run tests
-        run: sbt 'compile; ++2.13.8 test'
+        run: sbt 'compile; ++2.13 test'
   sbt-scripted:
     name: sbt plugin scripted tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           # Sbt version that is tested (1.1.1) doesn't work on Java 17
           java-version: 11
+          cache: 'sbt'
       - name: Run tests
         # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
         run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
@@ -39,9 +39,9 @@ jobs:
     name: Test Maven plugin
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
@@ -58,12 +58,12 @@ jobs:
     name: Test formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: coursier/cache-action@v6
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
           extraKey: 'scalafmt'
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 17
@@ -74,18 +74,17 @@ jobs:
     if: "github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: 11
-          # cache: 'maven'
+          cache: 'sbt'
       - name: Publish
         run: sbt ci-release
         env:

@@ -18,3 +18,13 @@ pull_request_rules:
     actions:
       merge:
         method: squash
+  - name: Automatic merge for Dependabot pull requests
+    conditions:
+      - author=dependabot[bot]
+      - status-success~=^Test on JDK .*
+      - status-success=sbt plugin scripted tests
+      - status-success=Test Maven plugin
+      - status-success=Test formatting
+    actions:
+      merge:
+        method: squash
