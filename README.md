@@ -18,7 +18,7 @@ For an introduction to mutation testing and Stryker's features, see [stryker-mut
 
 For the quickstart, see [our website's quickstart](https://stryker-mutator.io/stryker4s/quickstart).
 
-Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs. Depending on your project setup, there are multiple ways to get started with Stryker4s.
+Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs and verifying if a test actually detects that bug. Depending on your project setup, there are multiple ways to get started with Stryker4s.
 
 ## Sbt plugin
 
