@@ -123,6 +123,11 @@ class Stryker4sSbtRunner(
         val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
 
         val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
+        if (frameworks.isEmpty)
+          log.warn(
+            "No test frameworks found via loadedTestFrameworks. " +
+              "Will likely result in no tests being run and a NoCoverage result for all mutants."
+          )
 
         val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
           if (config.testFilter.isEmpty) group
