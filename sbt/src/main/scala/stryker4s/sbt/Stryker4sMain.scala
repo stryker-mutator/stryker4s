@@ -33,7 +33,7 @@ object Stryker4sMain extends AutoPlugin {
     strykerIsSupported := sbtVersion.value >= strykerMinimumSbtVersion.value
   )
 
-  lazy val strykerTask = Def.task {
+  private lazy val strykerTask = Def.task {
     if (!strykerIsSupported.value) {
       throw new UnsupportedSbtVersionException(
         s"Sbt version ${sbtVersion.value} is not supported by Stryker4s. Please upgrade to a later version. The lowest supported version is ${strykerMinimumSbtVersion.value}. If you know what you are doing you can override this with the 'strykerIsSupported' sbt setting."
@@ -42,12 +42,13 @@ object Stryker4sMain extends AutoPlugin {
     // Call logLevel so it shows up as a used setting when set
     val _ = (stryker / logLevel).value
 
+
     implicit val runtime: IORuntime = IORuntime.global
     implicit val logger: Logger = new SbtLogger(streams.value.log)
 
     val sources =
       Seq((Compile / scalaSource).value, (Compile / javaSource).value).map(_.toPath()).map(file.Path.fromNioPath)
-    val targetPath = file.Path.fromNioPath(target.value.toPath())
+    val targetPath = file.Path.fromNioPath(target.value.toPath)
 
     Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
       .map(new Stryker4sSbtRunner(state.value, _, sources, targetPath))
