@@ -42,7 +42,6 @@ object Stryker4sMain extends AutoPlugin {
     // Call logLevel so it shows up as a used setting when set
     val _ = (stryker / logLevel).value
 
-
     implicit val runtime: IORuntime = IORuntime.global
     implicit val logger: Logger = new SbtLogger(streams.value.log)
 
