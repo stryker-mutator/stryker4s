@@ -9,7 +9,7 @@ import stryker4s.model.{MutantResultsPerFile, RunResult}
 import stryker4s.mutants.Mutator
 import stryker4s.report.mapper.MutantRunResultMapper
 import stryker4s.report.{FinishedRunEvent, Reporter}
-import stryker4s.run.MutantRunner
+import stryker4s.run.{MutantRunner, RealtimeServer}
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
 class Stryker4s(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(implicit
@@ -21,7 +21,9 @@ class Stryker4s(fileSource: MutatesFileResolver, mutator: Mutator, runner: Mutan
 
     for {
       (ignored, files) <- mutator.go(filesToMutate)
+      _ <- RealtimeServer.run
       result <- runner(files)
+      _ <- RealtimeServer.stop
       metrics <- createAndReportResults(result, ignored)
       scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
     } yield scoreStatus

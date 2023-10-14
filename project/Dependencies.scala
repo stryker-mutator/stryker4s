@@ -33,6 +33,7 @@ object Dependencies {
     val sttp = "3.9.0"
     val testInterface = "1.0"
     val weaponRegeX = "1.1.1"
+    val http4s = "0.23.23"
   }
 
   object test {
@@ -61,5 +62,10 @@ object Dependencies {
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "fs2" % versions.sttp
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
+
+  val http4sEmberServer = "org.http4s" %% "http4s-ember-server" % versions.http4s
+  val http4sCore = "org.http4s" %% "http4s-core" % versions.http4s
+  val http4sDsl = "org.http4s" %% "http4s-dsl" % versions.http4s
+  val http4sCirce = "org.http4s" %% "http4s-circe" % versions.http4s
 
 }
