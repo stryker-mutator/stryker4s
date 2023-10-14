@@ -32,7 +32,11 @@ class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider[IO])(im
           .map(logResponse)
     }
 
-  def buildRequest(dashConfig: DashboardConfig, report: MutationTestResult[Config], metrics: MetricsResult): RequestT[Identity, Either[ResponseException[String, Error], DashboardPutResult], Any] = {
+  def buildRequest(
+      dashConfig: DashboardConfig,
+      report: MutationTestResult[Config],
+      metrics: MetricsResult
+  ): RequestT[Identity, Either[ResponseException[String, Error], DashboardPutResult], Any] = {
     import io.circe.{Decoder, Encoder}
     implicit val decoder: Decoder[DashboardPutResult] = Decoder.forProduct1("href")(DashboardPutResult.apply)
     // Separate so any slashes won't be escaped in project or version

@@ -44,9 +44,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
-      case Console => new ConsoleReporter()
-      case Html    => new HtmlReporter(new DiskFileIO())
-      case Json    => new JsonReporter(new DiskFileIO())
+      case Console  => new ConsoleReporter()
+      case Html     => new HtmlReporter(new DiskFileIO())
+      case Json     => new JsonReporter(new DiskFileIO())
       case Realtime => new RealtimeReporter(new DiskFileIO())
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
