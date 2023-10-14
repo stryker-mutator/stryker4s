@@ -2,6 +2,7 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import cats.syntax.all.*
 import fs2.io.file.Path
 import stryker4s.Stryker4s
 import stryker4s.config.*
@@ -25,29 +26,37 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     implicit val config: Config = ConfigReader.readConfig()
 
     val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
-    val reporter = new AggregateReporter(resolveReporters())
 
-    val instrumenter = new MutantInstrumenter(instrumenterOptions)
-    val stryker4s = new Stryker4s(
-      resolveMutatesFileSource,
-      new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
-        instrumenter
-      ),
-      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(instrumenter), reporter),
-      reporter
-    )
+    val reportersResource = resolveReporters().map(new AggregateReporter(_))
 
-    stryker4s.run()
+    reportersResource.use { reporter =>
+      val instrumenter = new MutantInstrumenter(instrumenterOptions)
+      val stryker4s = new Stryker4s(
+        resolveMutatesFileSource,
+        new Mutator(
+          new MutantFinder(),
+          new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+          instrumenter
+        ),
+        new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(instrumenter), reporter),
+        reporter
+      )
+
+      stryker4s.run()
+    }
   }
 
-  private def resolveReporters()(implicit config: Config): List[Reporter] =
-    config.reporters.toList.map {
-      case Console  => new ConsoleReporter()
-      case Html     => new HtmlReporter(new DiskFileIO())
-      case Json     => new JsonReporter(new DiskFileIO())
-      case Realtime => new RealtimeReporter(new DiskFileIO())
+  private def resolveReporters()(implicit config: Config): Resource[IO, List[Reporter]] =
+    config.reporters.toList.traverse {
+      case Console => Resource.pure(new ConsoleReporter())
+      case Html    => Resource.pure(new HtmlReporter(new DiskFileIO()))
+      case Json    => Resource.pure(new JsonReporter(new DiskFileIO()))
+      case Realtime =>
+        val serverResource: Resource[IO, RealtimeServer] = ???
+
+        ???
+      // serverResource.map(server => new RealtimeReporter(server))
+      // new RealtimeReporter(new DiskFileIO())
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =
           // Catch if the user runs the dashboard on Java <11
@@ -72,7 +81,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
                 )
               )
           }
-        new DashboardReporter(new DashboardConfigProvider[IO]())
+        Resource.pure(new DashboardReporter(new DashboardConfigProvider[IO]()))
     }
 
   def resolveTestRunners(tmpDir: Path)(implicit
