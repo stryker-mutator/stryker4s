@@ -10,7 +10,7 @@ import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
-import stryker4s.mutants.{Mutator, TraverserImpl}
+import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.process.ProcessRunner
@@ -32,7 +32,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       resolveMutatesFileSource,
       new Mutator(
         new MutantFinder(),
-        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
         instrumenter
       ),
       new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(instrumenter), reporter),

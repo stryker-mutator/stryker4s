@@ -4,15 +4,12 @@ import cats.syntax.align.*
 import cats.syntax.bifunctor.*
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.model.{IgnoredMutationReason, MutatedCode, PlaceableTree}
-import stryker4s.mutants.Traverser
+import stryker4s.mutants.TreeTraverser
 import stryker4s.mutants.findmutants.MutantMatcher
 
 import scala.meta.Tree
 
-class MutantCollector(
-    traverser: Traverser,
-    matcher: MutantMatcher
-) {
+class MutantCollector(traverser: TreeTraverser, matcher: MutantMatcher) {
 
   def apply(tree: Tree): (Vector[(MutatedCode, IgnoredMutationReason)], Map[PlaceableTree, Mutations]) = {
 

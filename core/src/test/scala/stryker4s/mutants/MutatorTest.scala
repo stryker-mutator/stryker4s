@@ -17,7 +17,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
     implicit val conf: Config = Config.default
     val sut = new Mutator(
       new MutantFinder(),
-      new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+      new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
       new MutantInstrumenter(InstrumenterOptions.testRunner)
     )
 
@@ -80,7 +80,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       implicit val conf: Config = Config.default
       val sut = new Mutator(
         new MutantFinder(),
-        new MutantCollector(new TraverserImpl, new MutantMatcherImpl),
+        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
         new MutantInstrumenter(InstrumenterOptions.testRunner)
       )
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
@@ -96,7 +96,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       implicit val conf: Config = Config.default.copy(excludedMutations = Set("EqualityOperator"))
       val sut = new Mutator(
         new MutantFinder(),
-        new MutantCollector(new TraverserImpl, new MutantMatcherImpl),
+        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
         new MutantInstrumenter(InstrumenterOptions.testRunner)
       )
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
@@ -113,7 +113,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       implicit val conf: Config = Config.default.copy(excludedMutations = Set("EqualityOperator"))
       val sut = new Mutator(
         new MutantFinder(),
-        new MutantCollector(new TraverserImpl, new MutantMatcherImpl),
+        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
         new MutantInstrumenter(InstrumenterOptions.testRunner)
       )
       val files = Stream(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala"))
@@ -130,7 +130,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       implicit val conf: Config = Config.default.copy(excludedMutations = Set("EqualityOperator", "StringLiteral"))
       val sut = new Mutator(
         new MutantFinder(),
-        new MutantCollector(new TraverserImpl, new MutantMatcherImpl),
+        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
         new MutantInstrumenter(InstrumenterOptions.testRunner)
       )
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))

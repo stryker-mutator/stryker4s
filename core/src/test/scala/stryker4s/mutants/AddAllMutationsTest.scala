@@ -69,20 +69,20 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
             )
         } finally if (as.parCmds.isEmpty) finalize
       """,
-        5
+        11
       )
     }
 
-    // it("each case of pattern match") {
-    //   checkAllMutationsAreAdded(
-    //     q"""
-    //     foo match {
-    //       case _ => "break"
-    //       case _ if high == low => baz
-    //     }""",
-    //     2
-    //   )
-    // }
+    it("each case of pattern match") {
+      checkAllMutationsAreAdded(
+        q"""
+        foo match {
+          case _ => "break"
+          case _ if high == low => baz
+        }""",
+        2
+      )
+    }
 
     it("try-catch-finally") {
       checkAllMutationsAreAdded(
@@ -104,7 +104,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
 
       val mutator = new Mutator(
         new MutantFinderStub(source),
-        new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
         new MutantInstrumenter(InstrumenterOptions.testRunner)
       )
 

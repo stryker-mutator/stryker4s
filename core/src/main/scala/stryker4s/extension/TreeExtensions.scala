@@ -12,7 +12,6 @@ import scala.annotation.tailrec
 import scala.meta.*
 import scala.meta.transversers.SimpleTraverser
 import scala.reflect.ClassTag
-import scala.util.Try
 
 object TreeExtensions {
   @tailrec
@@ -56,11 +55,9 @@ object TreeExtensions {
       *
       * This function does not recursively go into the transformed tree
       */
-    final def transformOnce(fn: PartialFunction[Tree, Tree]): Try[Tree] = {
-      Try {
-        val onceTransformer = new OnceTransformer(fn)
-        onceTransformer(thisTree)
-      }
+    final def transformOnce(fn: PartialFunction[Tree, Tree]): Tree = {
+      val onceTransformer = new OnceTransformer(fn)
+      onceTransformer(thisTree)
     }
 
     /** Tries to transform a tree exactly once, returning None if the transformation was never applied
@@ -81,8 +78,7 @@ object TreeExtensions {
 
   private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
     override def apply(tree: Tree): Tree = {
-      val supered = super.apply(tree)
-      fn.applyOrElse(supered, identity[Tree])
+      fn.applyOrElse(tree, super.apply)
     }
   }
 
