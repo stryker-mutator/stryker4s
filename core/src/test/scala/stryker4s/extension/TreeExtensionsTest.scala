@@ -69,7 +69,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
     it("should transform does not recursively transform new subtree") {
       val sut = q"def foo = 5"
 
-      val result = sut.transformOnce { case q"5" => q"5 + 1" }.get
+      val result = sut.transformOnce { case q"5" => q"5 + 1" }
 
       assert(result.isEqual(q"def foo = 5 + 1"), result)
     }
@@ -77,7 +77,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
     it("should transform both appearances in the tree only once") {
       val sut = q"def foo = 5 + 5"
 
-      val result = sut.transformOnce { case q"5" => q"(5 * 2)" }.get
+      val result = sut.transformOnce { case q"5" => q"(5 * 2)" }
 
       assert(result.isEqual(q"def foo = (5 * 2) + (5 * 2)"), result)
     }
@@ -85,7 +85,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
     it("should return the same tree if no transformation is applied") {
       val sut = q"def foo = 5"
 
-      val result = sut.transformOnce { case q"6" => q"6 + 1" }.get
+      val result = sut.transformOnce { case q"6" => q"6 + 1" }
 
       result should be theSameInstanceAs sut
     }
@@ -93,7 +93,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
     it("should transform a parsed string and have changed syntax") {
       val sut = "val x: Int = 5".parse[Stat].get
 
-      val result = sut.transformOnce { case q"5" => q"6" }.get
+      val result = sut.transformOnce { case q"5" => q"6" }
 
       val expected = q"val x: Int = 6"
       assert(result.isEqual(expected), result)

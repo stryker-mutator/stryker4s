@@ -10,7 +10,7 @@ import stryker4s.model.*
 
 import scala.meta.*
 import scala.util.control.NonFatal
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /** Instrument (place) mutants in a tree
   *
@@ -22,35 +22,40 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
   def instrumentFile(context: SourceContext, mutantMap: Map[PlaceableTree, MutantsWithId]): MutatedFile = {
 
-    val newTree = context.source
-      .transformOnce {
-        Function.unlift { originalTree =>
-          val p = PlaceableTree(originalTree)
-          mutantMap.get(p).map { case mutations =>
-            val mutableCases = mutations.map(mutantToCase)
-            val default = defaultCase(p, mutations.map(_.id).toNonEmptyList)
+    def instrumentWithMutants(mutantMap: Map[PlaceableTree, MutantsWithId]): PartialFunction[Tree, Tree] = {
 
-            val cases = mutableCases :+ default
+      Function.unlift { originalTree =>
+        val p = PlaceableTree(originalTree)
+        mutantMap.get(p).map { case mutations =>
+          val mutableCases = mutations.map(mutantToCase)
 
-            try
-              buildMatch(cases)
-            catch {
-              case NonFatal(e) =>
-                log.error(
-                  s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.syntax}]"
-                )
-                log.error(
-                  s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
-                )
-                log.error(
-                  "This is likely an issue on Stryker4s's end, please take a look at the debug logs",
-                  e
-                )
-                throw UnableToBuildPatternMatchException(context.path)
-            }
+          // Continue deeper into the tree (without the currently placed mutants)
+          val withDefaultsTransformed = PlaceableTree(p.tree.transformOnce(instrumentWithMutants(mutantMap - p)))
+          val default = defaultCase(withDefaultsTransformed, mutations.map(_.id).toNonEmptyList)
+
+          val cases = mutableCases :+ default
+
+          try
+            buildMatch(cases)
+          catch {
+            case NonFatal(e) =>
+              log.error(
+                s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.syntax}]"
+              )
+              log.error(
+                s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
+              )
+              log.error(
+                "This is likely an issue on Stryker4s's end, please take a look at the debug logs",
+                e
+              )
+              throw UnableToBuildPatternMatchException(context.path)
           }
         }
-      } match {
+      }
+    }
+
+    val newTree = Try(context.source.transformOnce(instrumentWithMutants(mutantMap))) match {
       case Success(tree)                  => tree
       case Failure(e: Stryker4sException) => throw e
       case Failure(e) =>

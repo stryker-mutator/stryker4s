@@ -7,7 +7,7 @@ import stryker4s.files.ConfigFilesResolver
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
-import stryker4s.mutants.{Mutator, TraverserImpl}
+import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.report.{AggregateReporter, FinishedRunEvent}
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.run.{MutantRunner, RollbackHandler}
@@ -45,7 +45,7 @@ class Stryker4sTest extends Stryker4sIOSuite with MockitoIOSuite with Inside wit
         testSourceCollector,
         new Mutator(
           new MutantFinder(),
-          new MutantCollector(new TraverserImpl(), new MutantMatcherImpl()),
+          new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
           new MutantInstrumenter(InstrumenterOptions.sysContext(ActiveMutationContext.sysProps))
         ),
         testMutantRunner,
