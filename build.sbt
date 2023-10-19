@@ -55,6 +55,7 @@ lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner"
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val stryker4sApi = newProject("stryker4s-api", "api")
+  .enablePlugins(ShadingPlugin)
   .settings(apiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 

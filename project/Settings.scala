@@ -6,6 +6,7 @@ import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.*
 import sbtprotoc.ProtocPlugin.autoImport.PB
+import coursier.ShadingPlugin.autoImport.*
 
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
@@ -79,6 +80,14 @@ object Settings {
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies += Dependencies.scalapbRuntime,
+    shadedDependencies += Dependencies.scalapbRuntime,
+    shadingRules ++= Seq(
+      ShadingRule.moveUnder("scalapb", "stryker4s.shaded"),
+      ShadingRule.moveUnder("com.google.protobuf", "stryker4s.shaded"),
+      ShadingRule.moveUnder("google.protobuf", "stryker4s.shaded")
+    ),
+    validNamespaces ++= Set("scala", "stryker4s"),
+    validEntries += "scala-collection-compat.properties",
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
     Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
