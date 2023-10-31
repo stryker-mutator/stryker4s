@@ -1,17 +1,22 @@
 package stryker4s.extension.mutationtype
 
+import cats.syntax.option.*
+
 import scala.meta.*
 
 case object If {
-  def unapply(ifStatement: Term.If): Option[Term] = Some(ifStatement.cond).filterNot(_.is[Lit.Boolean])
+  def unapply(ifStatement: Term.If): Option[Term] =
+    ifStatement.cond.some.filterNot(_.is[Lit.Boolean])
 }
 
 case object While {
-  def unapply(whileStatement: Term.While): Option[Term] = Some(whileStatement.expr).filterNot(_.is[Lit.Boolean])
+  def unapply(whileStatement: Term.While): Option[Term] =
+    whileStatement.expr.some.filterNot(_.is[Lit.Boolean])
 }
 
 case object DoWhile {
-  def unapply(doStatement: Term.Do): Option[Term] = Some(doStatement.expr).filterNot(_.is[Lit.Boolean])
+  def unapply(doStatement: Term.Do): Option[Term] =
+    doStatement.expr.some.filterNot(_.is[Lit.Boolean])
 }
 
 case object ConditionalTrue extends ConditionalExpression {

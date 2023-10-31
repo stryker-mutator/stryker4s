@@ -1,7 +1,7 @@
 package stryker4s.report
 
 import cats.effect.IO
-import cats.syntax.parallel.*
+import cats.syntax.all.*
 import fs2.Pipe
 import stryker4s.log.Logger
 

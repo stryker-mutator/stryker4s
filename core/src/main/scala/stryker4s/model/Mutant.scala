@@ -1,7 +1,7 @@
 package stryker4s.model
 
 import cats.Show
-import cats.syntax.show.*
+import cats.syntax.all.*
 import mutationtesting.{Location, MutantResult, MutantStatus}
 import stryker4s.extension.TreeExtensions.PositionExtension
 
@@ -12,7 +12,7 @@ final case class MutantId(value: Int) extends AnyVal {
 }
 
 final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {
-  def toMutantResult(status: MutantStatus, testsCompleted: Option[Int] = None, description: Option[String] = None) =
+  def toMutantResult(status: MutantStatus, testsCompleted: Option[Int] = none, description: Option[String] = none) =
     MutantResult(
       id = id.toString(),
       mutatorName = mutatedCode.metadata.mutatorName,

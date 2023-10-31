@@ -1,5 +1,6 @@
 package stryker4s.testutil
 
+import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.Config
@@ -20,7 +21,7 @@ trait TestData {
 
   def createFinishedRunEvent(
       testResult: MutationTestResult[Config] = createMutationTestResult,
-      metrics: Option[MetricsResult] = None
+      metrics: Option[MetricsResult] = none
   ) =
     FinishedRunEvent(
       testResult,

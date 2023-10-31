@@ -2,6 +2,7 @@ package stryker4s.run
 
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.effect.IO
+import cats.syntax.either.*
 import fs2.io.file.{Files, Path}
 import mutationtesting.MutantStatus
 import stryker4s.config.Config
@@ -79,12 +80,10 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
       when(rollbackHandler.rollbackFiles(any[NonEmptyList[CompilerErrMsg]], any[Vector[MutatedFile]])).thenReturn(
-        Right(
-          RollbackResult(
-            Vector(mutatedFile.copy(mutants = NonEmptyVector.of(mutant, secondMutant))),
-            Map(file -> Vector(compileErrorResult))
-          )
-        )
+        RollbackResult(
+          Vector(mutatedFile.copy(mutants = NonEmptyVector.of(mutant, secondMutant))),
+          Map(file -> Vector(compileErrorResult))
+        ).asRight
       )
       sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
         val (path, resultForFile) = results.loneElement

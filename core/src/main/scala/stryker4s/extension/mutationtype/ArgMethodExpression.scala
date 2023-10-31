@@ -1,5 +1,7 @@
 package stryker4s.extension.mutationtype
 
+import cats.syntax.option.*
+
 import scala.meta.Term.*
 import scala.meta.{Term, Type}
 
@@ -13,11 +15,11 @@ sealed trait ArgMethodExpression extends MethodExpression {
             Select(_, Name(`methodName`)),
             ArgClause(Block(Function.Initial(_ :: _ :: _, _) :: Nil) :: Nil, _)
           ) =>
-        None
+        none
 
       // foo.filter((a,b) => a > b)
       case Apply.After_4_6_0(Select(_, Name(`methodName`)), ArgClause(Function.Initial(_ :: _ :: _, _) :: Nil, _)) =>
-        None
+        none
 
       // foo filter { (a,b) => a > b }
       case ApplyInfix.After_4_6_0(
@@ -26,7 +28,7 @@ sealed trait ArgMethodExpression extends MethodExpression {
             Type.ArgClause(Nil),
             ArgClause(List(Block(Function.Initial(_ :: _ :: _, _) :: Nil)), None)
           ) =>
-        None
+        none
 
       // foo filter((a,b) => a > b)
       case ApplyInfix.After_4_6_0(
@@ -35,7 +37,7 @@ sealed trait ArgMethodExpression extends MethodExpression {
             Type.ArgClause(Nil),
             ArgClause(Function.Initial(_ :: _ :: _, _) :: Nil, _)
           ) =>
-        None
+        none
 
       // foo.filter( a => a > 0 )
       case Apply.After_4_6_0(Select(q, Name(`methodName`)), ArgClause(arg :: Nil, clause)) =>
@@ -47,7 +49,7 @@ sealed trait ArgMethodExpression extends MethodExpression {
           (term, name => ApplyInfix.After_4_6_0(q, Name(name), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause)))
         )
 
-      case _ => None
+      case _ => none
     }
 }
 

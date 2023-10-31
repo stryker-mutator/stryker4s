@@ -1,9 +1,7 @@
 package stryker4s.mutants.findmutants
 
 import cats.data.NonEmptyVector
-import cats.syntax.either.*
-import cats.syntax.functor.*
-import cats.syntax.semigroup.*
+import cats.syntax.all.*
 import stryker4s.config.Config
 import stryker4s.extension.PartialFunctionOps.*
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}

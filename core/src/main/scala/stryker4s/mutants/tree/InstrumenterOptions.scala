@@ -1,5 +1,6 @@
 package stryker4s.mutants.tree
 
+import cats.syntax.option.*
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 
@@ -15,7 +16,7 @@ final case class InstrumenterOptions(
 object InstrumenterOptions {
 
   def sysContext(context: ActiveMutationContext) =
-    InstrumenterOptions(context, pattern = i => p"Some(${Lit.String(i.toString())})", None)
+    InstrumenterOptions(context, pattern = i => p"Some(${Lit.String(i.toString())})", none)
 
   def testRunner = InstrumenterOptions(
     ActiveMutationContext.testRunner,

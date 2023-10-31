@@ -1,5 +1,6 @@
 package stryker4s.extension
 
+import cats.syntax.option.*
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.testutil.Stryker4sSuite
 
@@ -52,7 +53,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
       val result = tree.find(q"x >= 5")
 
-      result should be(None)
+      result should be(none)
     }
 
     it("should still have parents when statement is found") {

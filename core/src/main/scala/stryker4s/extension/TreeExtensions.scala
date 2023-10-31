@@ -2,9 +2,7 @@ package stryker4s.extension
 
 import cats.Eval
 import cats.data.{Chain, OptionT}
-import cats.syntax.option.*
-import cats.syntax.semigroup.*
-import cats.syntax.traverse.*
+import cats.syntax.all.*
 import mutationtesting.Location
 import weaponregex.model.Location as RegexLocation
 
@@ -44,7 +42,7 @@ object TreeExtensions {
         .getOrElse(false)
 
     final def findParent[T <: Tree](implicit classTag: ClassTag[T]): Option[T] =
-      mapParent[T, Option[T]](thisTree, Some(_), None)
+      mapParent[T, Option[T]](thisTree, _.some, none)
   }
 
   implicit final class TransformOnceExtension(val thisTree: Tree) extends AnyVal {
@@ -71,8 +69,7 @@ object TreeExtensions {
       val onceTransformer = new OnceTransformer(checkFn)
       val result = onceTransformer(thisTree)
 
-      if (isTransformed) result.some
-      else None
+      isTransformed.guard[Option].as(result)
     }
   }
 
@@ -142,23 +139,23 @@ object TreeExtensions {
         buildContext: PartialFunction[Tree, C]
     )(collectFn: PartialFunction[Tree, C => T]): Seq[T] = {
       val collectFnLifted = collectFn.lift
-      val buildContextLifted = buildContext.andThen(c => Eval.now(c.some))
+      val buildContextLifted = buildContext.andThen(_.some.pure[Eval])
 
       def traverse(tree: Tree, context: Eval[Option[C]]): Eval[Chain[T]] = {
         // Either match on the context of the currently-visiting tree, or go looking upwards for one (that's what the context param does)
         val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
 
         val findAndCollect = for {
-          collectTreeFn <- OptionT.fromOption[Eval](collectFnLifted(tree))
+          collectTreeFn <- collectFnLifted(tree).toOptionT[Eval]
           contextForTree <- OptionT(newContext)
         } yield collectTreeFn(contextForTree)
 
         findAndCollect.value.map(Chain.fromOption) |+|
-          Chain.fromSeq(tree.children).flatTraverse(child => traverse(child, newContext))
+          Chain.fromSeq(tree.children).flatTraverse(traverse(_, newContext))
       }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, Eval.now(None)).value.toVector
+      traverse(tree, none.pure[Eval]).value.toVector
     }
 
   }

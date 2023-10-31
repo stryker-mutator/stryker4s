@@ -1,5 +1,6 @@
 package stryker4s.extension.mutationtype
 
+import cats.syntax.option.*
 import stryker4s.extension.TreeExtensions.IsEqualExtension
 
 import scala.meta.*
@@ -36,7 +37,7 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] with NoInvalidPlacemen
   def tree: T
 
   override def unapply(arg: T): Option[T] =
-    Some(arg)
+    arg.some
       .filter(_.isEqual(tree))
       .flatMap(super.unapply)
 }
@@ -82,7 +83,7 @@ trait MethodExpression extends Mutation[Term] {
   */
 protected trait NoInvalidPlacement[T <: Tree] {
   def unapply(arg: T): Option[T] =
-    Some(arg)
+    arg.some
       .filterNot {
         case name: Term.Name       => name.isDefinition
         case ParentIsTypeLiteral() => true

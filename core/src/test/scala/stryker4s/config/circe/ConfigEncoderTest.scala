@@ -1,5 +1,6 @@
 package stryker4s.config.circe
 
+import cats.syntax.option.*
 import fs2.io.file.Path
 import io.circe.Json.*
 import io.circe.syntax.*
@@ -28,11 +29,11 @@ class ConfigEncoderTest extends Stryker4sSuite {
           testFilter = Seq("foo.scala"),
           files = Seq("file.scala"),
           excludedMutations = Set("bar.scala"),
-          maxTestRunnerReuse = Some(2),
+          maxTestRunnerReuse = 2.some,
           dashboard = DashboardOptions(
-            project = Some("myProject"),
-            version = Some("1.3.3.7"),
-            module = Some("myModule")
+            project = "myProject".some,
+            version = "1.3.3.7".some,
+            module = "myModule".some
           ),
           debug = DebugOptions(
             logTestRunnerStdout = true,

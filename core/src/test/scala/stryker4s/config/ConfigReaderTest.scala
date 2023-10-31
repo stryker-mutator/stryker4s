@@ -1,5 +1,6 @@
 package stryker4s.config
 
+import cats.syntax.all.*
 import fansi.Color.Yellow
 import fansi.Underlined
 import fs2.io.file.Path
@@ -60,13 +61,13 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.files shouldBe empty
       result.reporters should (contain.only(Html, Console))
       result.thresholds shouldBe Thresholds()
-      result.maxTestRunnerReuse shouldBe None
+      result.maxTestRunnerReuse shouldBe none
       result.dashboard shouldBe DashboardOptions(
         baseUrl = uri"https://dashboard.stryker-mutator.io",
         reportType = Full,
-        project = None,
-        version = None,
-        module = None
+        project = none,
+        version = none,
+        module = none
       )
       result.scalaDialect shouldBe Scala213Source3
       result.debug shouldBe DebugOptions(false, false)
@@ -116,9 +117,9 @@ class ConfigReaderTest extends Stryker4sSuite with LogMatchers {
       result.dashboard shouldBe DashboardOptions(
         baseUrl = uri"https://fakeurl.com",
         reportType = MutationScoreOnly,
-        project = Some("someProject"),
-        version = Some("someVersion"),
-        module = Some("someModule")
+        project = "someProject".some,
+        version = "someVersion".some,
+        module = "someModule".some
       )
     }
 

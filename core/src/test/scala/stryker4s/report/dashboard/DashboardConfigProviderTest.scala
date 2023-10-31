@@ -3,7 +3,7 @@ package stryker4s.report.dashboard
 import cats.Id
 import cats.data.NonEmptyChain
 import cats.effect.std.Env
-import cats.syntax.validated.*
+import cats.syntax.all.*
 import org.scalatest.EitherValues
 import stryker4s.config.{Config, DashboardOptions, Full, MutationScoreOnly}
 import stryker4s.report.model.DashboardConfig
@@ -40,7 +40,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         Full,
         "github.com/travisRepo/slug",
         "travisBranch",
-        None
+        none
       ).valid
 
     }
@@ -64,7 +64,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         Full,
         "github.com/circleUsername/circleRepoName",
         "circleBranch",
-        None
+        none
       ).valid
 
     }
@@ -87,7 +87,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         Full,
         "github.com/github/repo",
         "feat/branch-1",
-        None
+        none
       ).valid
     }
 
@@ -109,7 +109,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         Full,
         "github.com/github/repo",
         "PR-10",
-        None
+        none
       ).valid
     }
 
@@ -118,9 +118,9 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         dashboard = DashboardOptions(
           baseUrl = uri"https://baseUrl.com",
           reportType = MutationScoreOnly,
-          project = Some("projectHere"),
-          version = Some("versionHere"),
-          module = Some("moduleHere")
+          project = "projectHere".some,
+          version = "versionHere".some,
+          module = "moduleHere".some
         )
       )
       implicit val env = makeEnv(
@@ -136,16 +136,16 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         MutationScoreOnly,
         "projectHere",
         "versionHere",
-        Some("moduleHere")
+        "moduleHere".some
       ).valid
     }
 
     it("should resolve without a module") {
       implicit val config = Config.default.copy(
         dashboard = DashboardOptions(
-          project = Some("projectHere"),
-          version = Some("versionHere"),
-          module = None
+          project = "projectHere".some,
+          version = "versionHere".some,
+          module = none
         )
       )
       implicit val env = makeEnv("STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere")
@@ -159,7 +159,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
         Full,
         "projectHere",
         "versionHere",
-        None
+        none
       ).valid
     }
 
@@ -197,9 +197,9 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
     it("should not resolve when there is no STRYKER_DASHBOARD_API_KEY environment") {
       implicit val config = Config.default.copy(
         dashboard = DashboardOptions(
-          project = Some("projectHere"),
-          version = Some("versionHere"),
-          module = Some("moduleHere")
+          project = "projectHere".some,
+          version = "versionHere".some,
+          module = "moduleHere".some
         )
       )
       implicit val env = makeEnv()
@@ -213,9 +213,9 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
     it("should not resolve when there is no project") {
       implicit val config = Config.default.copy(
         dashboard = DashboardOptions(
-          project = None,
-          version = Some("versionHere"),
-          module = Some("moduleHere")
+          project = none,
+          version = "versionHere".some,
+          module = "moduleHere".some
         )
       )
       implicit val env = makeEnv("STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere")
@@ -229,9 +229,9 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
     it("should not resolve when there is no version") {
       implicit val config = Config.default.copy(
         dashboard = DashboardOptions(
-          project = Some("projectHere"),
-          version = None,
-          module = Some("moduleHere")
+          project = "projectHere".some,
+          version = none,
+          module = "moduleHere".some
         )
       )
       implicit val env = makeEnv("STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere")
@@ -245,9 +245,9 @@ class DashboardConfigProviderTest extends Stryker4sSuite with EitherValues {
     it("should return all unresolved") {
       implicit val config = Config.default.copy(
         dashboard = DashboardOptions(
-          project = None,
-          version = None,
-          module = Some("moduleHere")
+          project = none,
+          version = none,
+          module = "moduleHere".some
         )
       )
       implicit val env = makeEnv()

@@ -1,6 +1,7 @@
 package stryker4s.files
 
 import cats.effect.IO
+import cats.syntax.all.*
 import fs2.Stream
 import fs2.io.file.{Files, Path}
 import stryker4s.config.Config
@@ -44,6 +45,6 @@ class ConfigFilesResolver(processRunner: ProcessRunner)(implicit config: Config,
   /** List all files based on the 'files' configuration key from stryker4s.conf.
     */
   private def listFilesBasedOnConfiguration(): Option[Stream[IO, Path]] =
-    if (config.files.isEmpty) None else Some(glob(config.baseDir, config.files))
+    config.files.nonEmpty.guard[Option].as(glob(config.baseDir, config.files))
 
 }

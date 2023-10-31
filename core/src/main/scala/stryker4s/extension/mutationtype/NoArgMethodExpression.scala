@@ -1,5 +1,7 @@
 package stryker4s.extension.mutationtype
 
+import cats.syntax.option.*
+
 import scala.meta.Term
 import scala.meta.Term.{Name, Select}
 
@@ -10,7 +12,7 @@ sealed trait NoArgMethodExpression extends MethodExpression {
     term match {
       // foo.filter or foo filter
       case Select(q, Name(`methodName`)) => Option((term, name => Select(q, Name(name))))
-      case _                             => None
+      case _                             => none
     }
 }
 

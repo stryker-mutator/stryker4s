@@ -2,7 +2,7 @@ package stryker4s.report
 
 import cats.data.NonEmptyChain
 import cats.effect.{IO, Resource}
-import cats.syntax.validated.*
+import cats.syntax.all.*
 import fansi.Bold
 import fansi.Color.Red
 import fs2.io.file.Path
@@ -59,7 +59,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       implicit val backend = backendStub
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       val sut = new DashboardReporter(mockDashConfig)
-      val dashConfig = baseDashConfig.copy(module = Some("myModule"))
+      val dashConfig = baseDashConfig.copy(module = "myModule".some)
       val FinishedRunEvent(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
@@ -72,7 +72,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     it("should send the request") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
-          .thenRespond(Right(DashboardPutResult("https://hrefHere.com")))
+          .thenRespond(DashboardPutResult("https://hrefHere.com").asRight)
       )
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
@@ -117,7 +117,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
     it("should log when a 401 is returned by the API") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
-          .thenRespond(Response(Left(HttpError("auth required", StatusCode.Unauthorized)), StatusCode.Unauthorized))
+          .thenRespond(Response(HttpError("auth required", StatusCode.Unauthorized).asLeft, StatusCode.Unauthorized))
       )
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
@@ -136,7 +136,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       implicit val backend =
         backendStub.map(
           _.whenAnyRequest.thenRespond(
-            Response(Left(HttpError("internal error", StatusCode.InternalServerError)), StatusCode.InternalServerError)
+            Response(HttpError("internal error", StatusCode.InternalServerError).asLeft, StatusCode.InternalServerError)
           )
         )
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
@@ -176,6 +176,6 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       baseUrl = uri"https://baseurl.com",
       project = "project/foo",
       version = "version/bar",
-      module = None
+      module = none
     )
 }

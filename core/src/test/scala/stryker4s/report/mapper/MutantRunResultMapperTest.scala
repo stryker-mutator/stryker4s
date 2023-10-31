@@ -1,5 +1,6 @@
 package stryker4s.report.mapper
 
+import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
 import org.scalatest.Inside
@@ -57,7 +58,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite with Inside {
 
         val system = result.system.value
         system.ci shouldBe sys.env.contains("CI")
-        system.os.value shouldBe OSInformation(platform = Properties.osName, version = Some(sys.props("os.version")))
+        system.os.value shouldBe OSInformation(platform = Properties.osName, version = sys.props("os.version").some)
         system.cpu.value shouldBe CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors())
         system.ram.value shouldBe RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024)
       }

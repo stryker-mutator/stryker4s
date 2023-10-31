@@ -3,8 +3,7 @@ package stryker4s.run
 import cats.data.NonEmptyList
 import cats.effect.*
 import cats.effect.std.*
-import cats.syntax.functor.*
-import cats.syntax.parallel.*
+import cats.syntax.all.*
 import fs2.Pipe
 
 trait ResourcePool[T] {
