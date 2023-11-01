@@ -110,7 +110,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
       ) match {
       case Both(a, b)   => (a.some, b.toList.toMap)
       case Ior.Left(a)  => (a.some, Map.empty[MutantId, CompilerErrMsg])
-      case Ior.Right(b) => (None, b.toList.toMap)
+      case Ior.Right(b) => (none, b.toList.toMap)
     }
   }
 

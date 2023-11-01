@@ -65,7 +65,7 @@ class Mutator(
           mutated.metadata.replacement,
           mutated.metadata.location,
           MutantStatus.Ignored,
-          statusReason = Some(reason.explanation)
+          statusReason = reason.explanation.some
         )
       }
 

@@ -84,7 +84,7 @@ class MutantRunner(
       val staticTmpDir = targetDir / "stryker4s-tmpDir"
       Files[IO].createDirectory(staticTmpDir).as(staticTmpDir)
     } else {
-      Files[IO].createTempDirectory(Some(targetDir), "stryker4s-", None)
+      Files[IO].createTempDirectory(targetDir.some, "stryker4s-", none)
     }
     Resource.makeCase(tmpDirCreated)(tmpDirFinalizeCase)
   }
@@ -234,9 +234,8 @@ class MutantRunner(
   private def staticMutant(mutant: MutantWithId): MutantResult = mutant
     .toMutantResult(MutantStatus.Ignored)
     .copy(
-      description = Some(
-        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called."
-      ),
+      description =
+        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some,
       static = true.some
     )
 

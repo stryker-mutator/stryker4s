@@ -1,5 +1,6 @@
 package stryker4s.model
 
+import cats.syntax.option.*
 import stryker4s.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.FiniteDuration
@@ -9,7 +10,7 @@ sealed trait InitialTestRunResult {
 
   /** Initial testruns can report their own taken duration, or a timed one will be taken as a backup if this is `
     */
-  def reportedDuration: Option[FiniteDuration] = None
+  def reportedDuration: Option[FiniteDuration] = none
 }
 
 final case class InitialTestRunCoverageReport(
@@ -18,7 +19,7 @@ final case class InitialTestRunCoverageReport(
     secondRun: CoverageReport,
     duration: FiniteDuration
 ) extends InitialTestRunResult {
-  override def reportedDuration: Option[FiniteDuration] = Some(duration)
+  override def reportedDuration: Option[FiniteDuration] = duration.some
 }
 
 final case class NoCoverageInitialTestRun(isSuccessful: Boolean) extends InitialTestRunResult

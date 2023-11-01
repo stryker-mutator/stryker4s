@@ -1,11 +1,9 @@
 package stryker4s.report.dashboard
 
 import cats.Monad
-import cats.data.{OptionT, ValidatedNec}
+import cats.data.ValidatedNec
 import cats.effect.std.Env
-import cats.syntax.apply.*
-import cats.syntax.functor.*
-import cats.syntax.option.*
+import cats.syntax.all.*
 import stryker4s.config.Config
 import stryker4s.report.dashboard.Providers.*
 import stryker4s.report.model.DashboardConfig
@@ -33,15 +31,13 @@ class DashboardConfigProvider[F[_]: Monad: Env]()(implicit config: Config) {
       .map(_.toValidNec(apiKeyName))
 
   private def resolveproject() =
-    OptionT
-      .fromOption(config.dashboard.project)
+    config.dashboard.project.toOptionT
       .orElse(byCiProvider(_.determineProject()))
       .value
       .map(_.toValidNec("dashboard.project"))
 
   private def resolveversion() =
-    OptionT
-      .fromOption(config.dashboard.version)
+    config.dashboard.version.toOptionT
       .orElse(byCiProvider(_.determineVersion()))
       .value
       .map(_.toValidNec("dashboard.version"))

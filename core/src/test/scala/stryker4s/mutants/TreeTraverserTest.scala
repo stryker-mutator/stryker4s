@@ -1,13 +1,12 @@
 package stryker4s.mutants
 
+import cats.syntax.option.*
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.Stryker4sSuite
 
-import scala.meta.Lit
 import scala.meta.quasiquotes.*
-import scala.meta.Mod
-import scala.meta.Tree
+import scala.meta.{Lit, Mod, Tree}
 
 class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
 
@@ -47,7 +46,7 @@ class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
       val foo = code.find(Lit.String("0-9")).value
 
       val placeAtFoo = traverser.canPlace(foo)
-      placeAtFoo shouldBe None
+      placeAtFoo shouldBe none
     }
 
     it("can place outside part of a Term") {
@@ -68,7 +67,7 @@ class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
     */
   def assertCannotPlaceInside(t: Tree): Unit =
     t.traverse { t =>
-      val _ = traverser.canPlace(t) shouldBe None
+      val _ = traverser.canPlace(t) shouldBe none
     }
 
 }

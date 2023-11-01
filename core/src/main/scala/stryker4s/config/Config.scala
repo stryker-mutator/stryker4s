@@ -1,5 +1,6 @@
 package stryker4s.config
 
+import cats.syntax.option.*
 import fs2.io.file.Path
 
 import java.util.concurrent.TimeUnit
@@ -17,7 +18,7 @@ final case class Config(
     dashboard: DashboardOptions = DashboardOptions(),
     timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
     timeoutFactor: Double = 1.5,
-    maxTestRunnerReuse: Option[Int] = None,
+    maxTestRunnerReuse: Option[Int] = none,
     legacyTestRunner: Boolean = false,
     scalaDialect: Dialect = dialects.Scala213Source3,
     concurrency: Int = Config.defaultConcurrency,
