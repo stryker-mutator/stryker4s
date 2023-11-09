@@ -8,7 +8,6 @@ import org.mockito.captor.ArgCaptor
 import stryker4s.files.{DiskFileIO, FileIO}
 import stryker4s.scalatest.LogMatchers
 import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
-
 import scala.concurrent.duration.*
 
 class HtmlReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {

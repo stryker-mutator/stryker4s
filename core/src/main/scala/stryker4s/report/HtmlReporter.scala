@@ -6,6 +6,7 @@ import mutationtesting.*
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
+import java.awt.Desktop
 
 class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
 
@@ -62,7 +63,18 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
       writeReportJsTo(reportLocation, runReport.report) &>
       writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
+    val openFileIO = IO {
+      // Verify that Desktop is supported and the file exists before attempting to open it
+      if (Desktop.isDesktopSupported && indexLocation.toNioPath.toFile.exists()) {
+        Desktop.getDesktop.open(indexLocation.toNioPath.toFile)
+      } else {
+        log.warn("Desktop operations not supported or file does not exist.")
+      }
+    }
+
     reportsWriting *>
-      IO(log.info(s"Written HTML report to $indexLocation"))
+      IO(log.info(s"Written HTML report to $indexLocation")) *>
+      openFileIO
+
   }
 }
