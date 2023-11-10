@@ -68,13 +68,13 @@ object Settings {
     scriptedBufferLog := false
   )
 
-  lazy val sbtTestrunnerSettings: Seq[Setting[?]] = Seq(
+  lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     )
   )
 
-  lazy val apiSettings: Seq[Setting[?]] = Seq(
+  lazy val testRunnerApiSettings: Seq[Setting[?]] = Seq(
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
@@ -95,8 +95,8 @@ object Settings {
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,
-      "io.stryker-mutator" %% "stryker4s-api" % VersionScheme.Always,
-      "io.stryker-mutator" %% "sbt-stryker4s-testrunner" % VersionScheme.Always
+      "io.stryker-mutator" %% "stryker4s-testrunner-api" % VersionScheme.Always,
+      "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % VersionScheme.Always
     ),
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",

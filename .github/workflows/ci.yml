@@ -33,8 +33,8 @@ jobs:
           java-version: 11
           cache: 'sbt'
       - name: Run tests
-        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
+        # Only publish core, api and, sbtTestRunner, sbtPlugin is published by scripted tests
+        run: sbt 'core2_12/publishLocal; testRunnerApi2_12/publishLocal; sbtTestRunner2_12/publishLocal; scripted sbtPlugin/test-1'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
           cache: 'maven'
       - name: Cleanup M2
         run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
-      - name: Publish stryker4s-core
+      - name: Publish core
         run: sbt 'publishM2Local'
       - name: Run Maven tests
         run: |

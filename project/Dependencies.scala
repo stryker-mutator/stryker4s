@@ -10,7 +10,7 @@ object Dependencies {
       */
     val crossScalaVersions = Seq(scala213, scala212)
 
-    /** Fuller cross-versions (used for injected packages like stryker4s-api and sbt-stryker4s-testrunner)
+    /** Fuller cross-versions (used for injected packages like testRunnerApi and sbtTestRunner)
       */
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
 

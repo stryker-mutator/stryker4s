@@ -16,6 +16,7 @@ object GitHooks {
       IO.listFiles(hooksSourceDir)
         .map(hook => (hook, hooksTargetDir / hook.name))
         .filterNot(_._2.exists()) // Don't write if hook already exists
+        .filterNot(_ => sys.env.contains("CI")) // Don't write hooks in CI
         .foreach { case (originalHook, targetHook) =>
           log.info(s"Copying ${originalHook.name} hook to $targetHook")
           Files.copy(originalHook.asPath, targetHook.asPath)

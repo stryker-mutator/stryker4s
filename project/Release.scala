@@ -9,9 +9,8 @@ object Release {
   private val stryker4sReleaseAll = "stryker4sReleaseAll"
   // Helper command names
   private val stryker4sMvnDeploy = "stryker4sMvnDeploy"
-  private val publishM2Core = "stryker4s-core/publishM2"
-  private val publishM2Api = "stryker4s-api/publishM2"
-  private val crossPublish = "publish"
+  private val publishM2Core = "core/publishM2"
+  private val publishM2Api = "testRunnerApi/publishM2"
   private val crossPublishSigned = "publishSigned"
   private val sonatypePrepare = "sonatypePrepare"
   private val sonatypeReleaseAll = "sonatypeReleaseAll"
