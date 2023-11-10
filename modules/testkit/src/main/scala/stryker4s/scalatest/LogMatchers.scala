@@ -4,7 +4,7 @@ import fansi.Attr
 import fansi.Color.*
 import org.scalatest.matchers.{BeMatcher, MatchResult}
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import stryker4s.log.*
+import stryker4s.log.Level
 import stryker4s.testutil.TestLogger
 
 trait LogMatchers extends BeforeAndAfterEach {
@@ -25,10 +25,10 @@ trait LogMatchers extends BeforeAndAfterEach {
     finally testLogger.clear()
   }
 
-  def loggedAsDebug = new LogMatcherWithLevel(Debug)
-  def loggedAsInfo = new LogMatcherWithLevel(Info)
-  def loggedAsWarning = new LogMatcherWithLevel(Warn)
-  def loggedAsError = new LogMatcherWithLevel(Error)
+  def loggedAsDebug = new LogMatcherWithLevel(Level.Debug)
+  def loggedAsInfo = new LogMatcherWithLevel(Level.Info)
+  def loggedAsWarning = new LogMatcherWithLevel(Level.Warn)
+  def loggedAsError = new LogMatcherWithLevel(Level.Error)
 
   private[scalatest] class LogMatcherWithLevel(expectedLogLevel: Level) extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {

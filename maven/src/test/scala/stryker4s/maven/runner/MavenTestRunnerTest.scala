@@ -1,23 +1,22 @@
 package stryker4s.maven.runner
 
-import cats.effect.unsafe.implicits.global
 import fs2.io.file.Path
 import mutationtesting.{Location, MutantStatus, Position}
 import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
 import org.mockito.captor.ArgCaptor
-import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
 import stryker4s.extension.mutationtype.LesserThan
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode, NoCoverageInitialTestRun}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.scalatest.LogMatchers
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
 import java.util as ju
 import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
-class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
+class MavenTestRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")
@@ -34,9 +33,9 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
 
-      val result = sut.initialTestRun().unsafeRunSync()
-
-      result shouldBe NoCoverageInitialTestRun(false)
+      sut.initialTestRun().asserting {
+        _ shouldBe NoCoverageInitialTestRun(false)
+      }
     }
 
     it("should not add the environment variable") {
@@ -47,12 +46,12 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       val captor = ArgCaptor[InvocationRequest]
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
 
-      val result = sut.initialTestRun().unsafeRunSync()
-
-      result shouldBe NoCoverageInitialTestRun(true)
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getShellEnvironments should be(empty)
+      sut.initialTestRun().asserting { result =>
+        result shouldBe NoCoverageInitialTestRun(true)
+        verify(invokerMock).execute(captor)
+        val invokedRequest = captor.value
+        invokedRequest.getShellEnvironments should be(empty)
+      }
     }
 
     it("should propagate active profiles") {
@@ -67,11 +66,11 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals, tmpDir)
 
-      sut.initialTestRun().unsafeRunSync()
-
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+      sut.initialTestRun().asserting { _ =>
+        verify(invokerMock).execute(captor)
+        val invokedRequest = captor.value
+        invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+      }
     }
   }
 
@@ -83,9 +82,9 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
 
-      val result = sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      result.status shouldBe MutantStatus.Killed
+      sut.runMutant(createMutant, coverageTestNames).asserting {
+        _.status shouldBe MutantStatus.Killed
+      }
     }
 
     it("should have a Survived mutant on a exit-code 0") {
@@ -95,9 +94,9 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
       val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
 
-      val result = sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      result.status shouldBe MutantStatus.Survived
+      sut.runMutant(createMutant, coverageTestNames).asserting {
+        _.status shouldBe MutantStatus.Survived
+      }
     }
 
     it("should add the environment variable to the request") {
@@ -111,16 +110,16 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
 
       val sut = new MavenTestRunner(project, invokerMock, project.getProperties(), goals, tmpDir)
 
-      sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getShellEnvironments.asScala should equal(Map("ACTIVE_MUTATION" -> "1"))
-      invokedRequest.getGoals should contain only "test"
-      invokedRequest.isBatchMode should be(true)
-      invokedRequest.getProperties.getProperty("surefire.skipAfterFailureCount") should equal("1")
-      invokedRequest.getProperties.getProperty("test") shouldBe null
-      invokedRequest.getBaseDirectory() should equal(tmpDir.toNioPath.toFile())
+      sut.runMutant(createMutant, coverageTestNames).asserting { _ =>
+        verify(invokerMock).execute(captor)
+        val invokedRequest = captor.value
+        invokedRequest.getShellEnvironments.asScala should equal(Map("ACTIVE_MUTATION" -> "1"))
+        invokedRequest.getGoals should contain only "test"
+        invokedRequest.isBatchMode should be(true)
+        invokedRequest.getProperties.getProperty("surefire.skipAfterFailureCount") should equal("1")
+        invokedRequest.getProperties.getProperty("test") shouldBe null
+        invokedRequest.getBaseDirectory() should equal(tmpDir.toNioPath.toFile())
+      }
     }
 
     it("should propagate active profiles") {
@@ -135,11 +134,11 @@ class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
       mavenProject.getActiveProfiles.add(profile)
       val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals, tmpDir)
 
-      sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+      sut.runMutant(createMutant, coverageTestNames).asserting { _ =>
+        verify(invokerMock).execute(captor)
+        val invokedRequest = captor.value
+        invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+      }
     }
   }
 

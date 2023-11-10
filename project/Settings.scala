@@ -1,11 +1,12 @@
+import Release.*
 import org.typelevel.sbt.tpolecat.*
 import org.typelevel.scalacoptions.*
-import TpolecatPlugin.autoImport.*
-import Release.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbt.*
 import sbtprotoc.ProtocPlugin.autoImport.PB
+
+import TpolecatPlugin.autoImport.*
 
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
@@ -31,6 +32,7 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
+    name := "stryker4s-core",
     libraryDependencies ++= Seq(
       Dependencies.catsCore,
       Dependencies.catsEffect,
@@ -45,22 +47,19 @@ object Settings {
       Dependencies.scalameta,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
-      Dependencies.weaponRegeX,
-      Dependencies.test.catsEffectScalaTest,
-      Dependencies.test.mockitoScala,
-      Dependencies.test.mockitoScalaCats,
-      Dependencies.test.scalatest
+      Dependencies.weaponRegeX
     )
   )
 
   lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
+    name := "stryker4s-command-runner",
     libraryDependencies ++= Seq(
-      Dependencies.slf4j,
-      Dependencies.test.scalatest
+      Dependencies.slf4j
     )
   )
 
   lazy val sbtPluginSettings: Seq[Setting[?]] = Seq(
+    name := "sbt-stryker4s",
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
@@ -69,18 +68,38 @@ object Settings {
   )
 
   lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
+    name := "stryker4s-sbt-testrunner",
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     )
   )
 
   lazy val testRunnerApiSettings: Seq[Setting[?]] = Seq(
+    name := "stryker4s-testrunner-api",
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies += Dependencies.scalapbRuntime,
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
     Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
+  )
+
+  lazy val apiSettings: Seq[Setting[?]] = Seq(
+    name := "stryker4s-api",
+    crossPaths := false, // drop off Scala suffix from artifact names.
+    autoScalaLibrary := false, // exclude scala-library from dependencies
+    javacOptions ++= Seq("--release", "11")
+  )
+
+  lazy val testkitSettings: Seq[Setting[?]] = Seq(
+    name := "stryker4s-testkit",
+    libraryDependencies ++= Seq(
+      Dependencies.fansi,
+      Dependencies.test.catsEffectScalaTest,
+      Dependencies.test.mockitoScala,
+      Dependencies.test.mockitoScalaCats,
+      Dependencies.test.scalatest
+    )
   )
 
   lazy val buildLevelSettings: Seq[Setting[?]] = inThisBuild(

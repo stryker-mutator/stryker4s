@@ -45,8 +45,6 @@ object ExampleConfigs {
 
   def empty = ConfigSource.empty
 
-  def emptyStryker4s = ConfigSource.string("stryker4s {}")
-
   def nonExistentFile = ConfigSource.file(Paths.get("nonExistentFile.conf").toAbsolutePath())
 
   def wrongReporter = ConfigSource.string("""stryker4s {
@@ -74,13 +72,6 @@ object ExampleConfigs {
 
   def invalidExcludedMutation =
     ConfigSource.string("stryker4s.excluded-mutations: [Invalid, StillInvalid, BooleanLiteral]")
-
-  def filledProcess = ConfigSource.string("""stryker4s {
-                                            |  test-runner {
-                                            |    command = "gradle"
-                                            |    args="test"
-                                            |  }
-                                            |}""".stripMargin)
 
   def timeoutDuration = ConfigSource.string("""|stryker4s {
                                                | timeout = 6s

@@ -2,22 +2,22 @@ package stryker4s.log
 
 import sbt.{Level as SbtLevel, Logger as SbtInternalLogger}
 
+import java.util.function.Supplier;
+
 class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
 
-  def log(level: Level, msg: => String): Unit = sbtLogger.log(toSbtLevel(level), msg)
+  override def log(level: Level, msg: Supplier[String]): Unit = sbtLogger.log(toSbtLevel(level), msg)
 
-  def log(level: Level, msg: => String, e: => Throwable): Unit = {
+  override def log(level: Level, msg: Supplier[String], e: Throwable): Unit = {
     sbtLogger.log(toSbtLevel(level), msg)
     sbtLogger.trace(e)
   }
 
-  def log(level: Level, e: Throwable): Unit = sbtLogger.trace(e)
-
   private def toSbtLevel(level: Level): SbtLevel.Value = level match {
-    case Debug => SbtLevel.Debug
-    case Info  => SbtLevel.Info
-    case Warn  => SbtLevel.Warn
-    case Error => SbtLevel.Error
+    case Level.Debug => SbtLevel.Debug
+    case Level.Info  => SbtLevel.Info
+    case Level.Warn  => SbtLevel.Warn
+    case Level.Error => SbtLevel.Error
   }
 
   override protected val colorEnabled: Boolean =

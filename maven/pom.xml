@@ -52,12 +52,11 @@
     </prerequisites>
     <properties>
         <encoding>UTF-8</encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Scala versions -->
         <scala.version>2.13.12</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
         <scala-maven.version>4.8.1</scala-maven.version>
-        <scalatest.version>3.3.0-SNAP4</scalatest.version>
-        <mockito-scala.version>1.17.29</mockito-scala.version>
     </properties>
     <dependencies>
         <dependency>
@@ -96,15 +95,9 @@
         </dependency>
         <!-- Test -->
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.compat.version}</artifactId>
-            <version>${scalatest.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-scala-scalatest_${scala.compat.version}</artifactId>
-            <version>${mockito-scala.version}</version>
+            <groupId>io.stryker-mutator</groupId>
+            <artifactId>stryker4s-testkit_${scala.compat.version}</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
