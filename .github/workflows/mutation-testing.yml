@@ -21,7 +21,7 @@ jobs:
           java-version: 17
           cache: 'sbt'
       - name: Create Stryker4s config
-        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="core",dashboard.module="core"}' > stryker4s.conf
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/core",dashboard.module="core"}' > stryker4s.conf
       - name: Run Stryker4s
         run: sbt 'project stryker4s-core; stryker'
         env:
@@ -40,7 +40,7 @@ jobs:
           java-version: 17
           cache: 'sbt'
       - name: Create Stryker4s config
-        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="command-runner",dashboard.module="command-runner"}' > stryker4s.conf
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
       - name: Run Stryker4s
         run: sbt 'project stryker4s-command-runner; stryker'
         env:
