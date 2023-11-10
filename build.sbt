@@ -36,9 +36,7 @@ lazy val stryker4sCore = newProject("stryker4s-core", "core")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
-  .settings(
-    commandRunnerSettings
-  )
+  .settings(commandRunnerSettings)
   .dependsOn(stryker4sCore, stryker4sCore % "test->test")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
@@ -60,7 +58,7 @@ lazy val stryker4sApi = newProject("stryker4s-api", "api")
 
 def newProject(projectName: String, dir: String) =
   sbt.internal
-    .ProjectMatrix(projectName, file(dir))
+    .ProjectMatrix(projectName, file("modules") / dir)
     .settings(commonSettings)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
