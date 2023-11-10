@@ -2,11 +2,13 @@ package stryker4s.log
 
 import sbt.{Level as SbtLevel, Logger as SbtInternalLogger}
 
+import java.util.function.Supplier;
+
 class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
 
-  override def log(level: Level, msg: => String): Unit = sbtLogger.log(toSbtLevel(level), msg)
+  override def log(level: Level, msg: Supplier[String]): Unit = sbtLogger.log(toSbtLevel(level), msg)
 
-  override def log(level: Level, msg: => String, e: => Throwable): Unit = {
+  override def log(level: Level, msg: Supplier[String], e: Throwable): Unit = {
     sbtLogger.log(toSbtLevel(level), msg)
     sbtLogger.trace(e)
   }

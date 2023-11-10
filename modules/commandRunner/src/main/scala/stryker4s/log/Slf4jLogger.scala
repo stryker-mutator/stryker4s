@@ -3,22 +3,24 @@ package stryker4s.log
 import org.slf4j.simple.SimpleLoggerFactory
 import org.slf4j.Logger as Slf4jInternalLogger
 
+import java.util.function.Supplier
+
 class Slf4jLogger() extends Logger {
   private val slf4jLogger: Slf4jInternalLogger = new SimpleLoggerFactory().getLogger("Stryker4s")
 
-  override def log(level: Level, msg: => String): Unit =
+  override def log(level: Level, msg: Supplier[String]): Unit =
     doLog(level)(
-      slf4jLogger.debug(msg),
-      slf4jLogger.info(msg),
-      slf4jLogger.warn(msg),
-      slf4jLogger.error(msg)
+      slf4jLogger.debug(msg.get),
+      slf4jLogger.info(msg.get),
+      slf4jLogger.warn(msg.get),
+      slf4jLogger.error(msg.get)
     )
 
-  override def log(level: Level, msg: => String, e: => Throwable): Unit = doLog(level)(
-    slf4jLogger.debug(msg, e),
-    slf4jLogger.info(msg, e),
-    slf4jLogger.warn(msg, e),
-    slf4jLogger.error(msg, e)
+  override def log(level: Level, msg: Supplier[String], e: Throwable): Unit = doLog(level)(
+    slf4jLogger.debug(msg.get, e),
+    slf4jLogger.info(msg.get, e),
+    slf4jLogger.warn(msg.get, e),
+    slf4jLogger.error(msg.get, e)
   )
 
   private def doLog(level: Level)(

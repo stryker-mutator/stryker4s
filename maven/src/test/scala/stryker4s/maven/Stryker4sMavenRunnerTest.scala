@@ -1,15 +1,15 @@
 package stryker4s.maven
 
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.*
-import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.scalatest.LogMatchers
+import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
 
-class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
+class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")
@@ -30,10 +30,8 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
         .use(result => {
           result.goals should contain only "test"
           result.properties.getProperty("test") should equal(expectedTestFilter.mkString(", "))
-          result.properties.getProperty("wildcardSuites") should equal(expectedTestFilter.mkString(","))
-          IO.unit
+          IO.pure(result.properties.getProperty("wildcardSuites") should equal(expectedTestFilter.mkString(",")))
         })
-        .unsafeRunSync()
     }
 
     it("should add test-filter for surefire if a property is already defined") {
@@ -50,7 +48,6 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
         .get
         .head
         .use(result => IO.pure(result.properties.getProperty("test") should equal(s"*OtherTest, $expectedTestFilter")))
-        .unsafeRunSync()
     }
 
     it("should add test-filter for scalatest if a property is already defined") {
@@ -69,7 +66,6 @@ class Stryker4sMavenRunnerTest extends Stryker4sSuite with MockitoSugar {
         .use(result =>
           IO.pure(result.properties.getProperty("wildcardSuites") should equal(s"*OtherTest,$expectedTestFilter"))
         )
-        .unsafeRunSync()
     }
   }
 

@@ -36,10 +36,10 @@ object Dependencies {
   }
 
   object test {
-    val catsEffectScalaTest = "org.typelevel" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
-    val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
-    val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala % Test
-    val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
+    val catsEffectScalaTest = "org.typelevel" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest
+    val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala
+    val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala
+    val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest
   }
 
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore

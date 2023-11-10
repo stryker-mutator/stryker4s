@@ -3,6 +3,7 @@ package stryker4s.testutil
 import fansi.Str
 import stryker4s.log.{Level, Logger}
 
+import java.util.function.Supplier
 import scala.collection.mutable.Queue
 
 class TestLogger(printLogs: Boolean) extends Logger {
@@ -18,9 +19,10 @@ class TestLogger(printLogs: Boolean) extends Logger {
 
   def clear(): Unit = events.clear()
 
-  override def log(level: Level, msg: => String): Unit = addToLogs(level, msg)
+  override def log(level: Level, msg: Supplier[String]): Unit = addToLogs(level, msg.get())
 
-  override def log(level: Level, msg: => String, e: => Throwable): Unit = addToLogs(level, s"$msg, ${e.toString()}")
+  override def log(level: Level, msg: Supplier[String], e: Throwable): Unit =
+    addToLogs(level, s"${msg.get}, ${e.toString()}")
 
   private def addToLogs(level: Level, msg: => String): Unit = {
     if (printLogs) { println(s"[${level.toString().toUpperCase().padTo(5, ' ')}]: $msg") }
@@ -29,4 +31,5 @@ class TestLogger(printLogs: Boolean) extends Logger {
 
   // Always log with colors so we can test for color codes
   override val colorEnabled = true
+
 }
