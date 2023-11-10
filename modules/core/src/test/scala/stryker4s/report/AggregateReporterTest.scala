@@ -38,7 +38,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       createMutantTestedReporter.flatMap { case (completed1, reporter1) =>
         val failingReporter = new Reporter {
           override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
-            _ *> (Stream.raiseError[IO](new RuntimeException("Something happened")))
+            _ *> Stream.eval(IO.cede) *> (Stream.raiseError[IO](new RuntimeException("Something happened")))
         }
         val sut = new AggregateReporter(List(failingReporter, reporter1))
 
