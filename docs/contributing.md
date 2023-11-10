@@ -24,7 +24,7 @@ If you are having issues with setup, or want to keep a clean environment you can
 
 New features are welcome! Both as ideas or in the form of a pull request.
 
-1. Please [create an issue](https://github.com/stryker-mutator/stryker4s/issues/new) with your idea first or let us know via [Gitter](https://gitter.im/stryker-mutator/stryker4s).
+1. Please [create an issue](https://github.com/stryker-mutator/stryker4s/issues/new) with your idea first or let us know via [Slack](https://join.slack.com/t/stryker-mutator/shared_invite/enQtOTUyMTYyNTg1NDQ0LTU4ODNmZDlmN2I3MmEyMTVhYjZlYmJkOThlNTY3NTM1M2QxYmM5YTM3ODQxYmJjY2YyYzllM2RkMmM1NjNjZjM).
 2. Create a fork on your GitHub account.
 3. When writing your code, please conform the existing coding style. We use Scalafmt as a code formatter. You can format your code by running `./bin/scalafmt`, or with editor-specific settings. It also helps to take a moment to review the [Scala style guide](https://docs.scala-lang.org/style/).
 4. Please create or edit unit/integration tests for any changed or added code.
@@ -39,7 +39,7 @@ We support mutation testing Stryker4s with Stryker4s! The easiest way is to foll
 
 1. Run `sbt publishPluginLocal` to publish a test snapshot as `0.0.0-TEST-SNAPSHOT` version to your local ivy repository.
 2. Add the sbt plugin to `project/plugins.sbt` with `0.0.0-TEST-SNAPSHOT` as the version number.
-   1. If the project you are running against is not a 2.13 project, publish `stryker4s-api` and `stryker4s-sbt-testrunner` manually for your appropriate version (.e.g. `sbt "stryker4s-api2_11/publishLocal; stryker4s-sbt-testrunner2_11/publishLocal"`)
+   1. If the project you are running against is not a 2.13 project, publish `stryker4s-api` and `stryker4s-sbt-testrunner` manually for your appropriate version (.e.g. `sbt "testRunnerApi3/publishLocal; sbtTestRunner3/publishLocal"`)
 3. Run stryker4s as described in the readme.
 
 ## Learning resources
@@ -84,4 +84,4 @@ Want to help in some other ways? Great! Here are some things you could do:
 - Evangelize mutation testing
   - Mutation testing is still relatively new, especially in Scala. Please help us get the word out there!
   - Share your stories in blog posts and on social media. And please let us know about it!
-- Did you use Stryker4s? Your feedback is very valuable to us. Both good and bad! Please [contact us](https://gitter.im/stryker-mutator/stryker4s) to let us know what you think.
+- Did you use Stryker4s? Your feedback is very valuable to us. Both good and bad! Please [contact us](https://join.slack.com/t/stryker-mutator/shared_invite/enQtOTUyMTYyNTg1NDQ0LTU4ODNmZDlmN2I3MmEyMTVhYjZlYmJkOThlNTY3NTM1M2QxYmM5YTM3ODQxYmJjY2YyYzllM2RkMmM1NjNjZjM) to let us know what you think.

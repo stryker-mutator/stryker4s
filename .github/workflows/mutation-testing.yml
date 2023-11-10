@@ -23,7 +23,7 @@ jobs:
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/core",dashboard.module="core"}' > stryker4s.conf
       - name: Run Stryker4s
-        run: sbt 'project stryker4s-core; stryker'
+        run: sbt 'project core; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
@@ -40,9 +40,9 @@ jobs:
           java-version: 17
           cache: 'sbt'
       - name: Create Stryker4s config
-        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/command-runner",dashboard.module="command-runner"}' > stryker4s.conf
+        run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/commandRunner",dashboard.module="command-runner"}' > stryker4s.conf
       - name: Run Stryker4s
-        run: sbt 'project stryker4s-command-runner; stryker'
+        run: sbt 'project commandRunner; stryker'
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
