@@ -13,10 +13,10 @@ class SttpLogWrapper(implicit log: Logger) extends sttp.Logger[IO] {
     IO.delay(log.log(toLevel(level), message, t))
 
   def toLevel: sttp.LogLevel => Level = {
-    case sttp.LogLevel.Trace => Debug
-    case sttp.LogLevel.Debug => Debug
-    case sttp.LogLevel.Info  => Info
-    case sttp.LogLevel.Warn  => Warn
-    case sttp.LogLevel.Error => Error
+    case sttp.LogLevel.Trace => Level.Debug
+    case sttp.LogLevel.Debug => Level.Debug
+    case sttp.LogLevel.Info  => Level.Info
+    case sttp.LogLevel.Warn  => Level.Warn
+    case sttp.LogLevel.Error => Level.Error
   }
 }

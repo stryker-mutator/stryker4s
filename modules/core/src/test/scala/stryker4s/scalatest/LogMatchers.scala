@@ -25,10 +25,10 @@ trait LogMatchers extends BeforeAndAfterEach {
     finally testLogger.clear()
   }
 
-  def loggedAsDebug = new LogMatcherWithLevel(Debug)
-  def loggedAsInfo = new LogMatcherWithLevel(Info)
-  def loggedAsWarning = new LogMatcherWithLevel(Warn)
-  def loggedAsError = new LogMatcherWithLevel(Error)
+  def loggedAsDebug = new LogMatcherWithLevel(Level.Debug)
+  def loggedAsInfo = new LogMatcherWithLevel(Level.Info)
+  def loggedAsWarning = new LogMatcherWithLevel(Level.Warn)
+  def loggedAsError = new LogMatcherWithLevel(Level.Error)
 
   private[scalatest] class LogMatcherWithLevel(expectedLogLevel: Level) extends BeMatcher[String] {
     def apply(expectedLogMessage: String): MatchResult = {

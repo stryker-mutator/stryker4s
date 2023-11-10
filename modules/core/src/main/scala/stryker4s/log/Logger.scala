@@ -2,29 +2,34 @@ package stryker4s.log
 
 import fansi.Str
 
-trait Logger {
+import java.util.function.Supplier
+
+import Level.*
+
+trait Logger extends BaseLogger {
   final def debug(msg: => Str): Unit = logImpl(Debug, msg)
   final def debug(msg: => Str, e: Throwable): Unit = logImpl(Debug, msg, e)
-  final def debug(e: Throwable): Unit = log(Debug, e)
 
   final def info(msg: => Str): Unit = logImpl(Info, msg)
   final def info(msg: => Str, e: Throwable): Unit = logImpl(Info, msg, e)
-  final def info(e: Throwable): Unit = log(Info, e)
 
   final def warn(msg: => Str): Unit = logImpl(Warn, msg)
   final def warn(msg: => Str, e: Throwable): Unit = logImpl(Warn, msg, e)
-  final def warn(e: Throwable): Unit = log(Warn, e)
 
   final def error(msg: => Str): Unit = logImpl(Error, msg)
   final def error(msg: => Str, e: Throwable): Unit = logImpl(Error, msg, e)
-  final def error(e: Throwable): Unit = log(Error, e)
 
-  final private def logImpl(level: Level, msg: => Str): Unit = log(level, processMsgStr(msg))
-  final private def logImpl(level: Level, msg: => Str, e: => Throwable): Unit = log(level, processMsgStr(msg), e)
+  final private def logImpl(level: Level, msg: => Str): Unit = log(level, () => processMsgStr(msg))
+  final private def logImpl(level: Level, msg: => Str, e: => Throwable): Unit =
+    log(level, () => processMsgStr(msg), () => e)
 
   def log(level: Level, msg: => String): Unit
   def log(level: Level, msg: => String, e: => Throwable): Unit
-  def log(level: Level, e: Throwable): Unit
+
+  final override def log(level: Level, msg: Supplier[String]): Unit = log(level, msg.get())
+
+  final override def log(level: Level, msg: Supplier[String], e: Supplier[Throwable]): Unit =
+    log(level, msg.get(), e.get())
 
   /** Process a colored fansi.Str to a String, or plain text if colors are disabled
     */

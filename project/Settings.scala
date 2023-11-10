@@ -83,6 +83,12 @@ object Settings {
     Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
 
+  lazy val apiSettings: Seq[Setting[?]] = Seq(
+    crossPaths := false, // drop off Scala suffix from artifact names.
+    autoScalaLibrary := false, // exclude scala-library from dependencies
+    javacOptions ++= Seq("--release", "11")
+  )
+
   lazy val buildLevelSettings: Seq[Setting[?]] = inThisBuild(
     releaseCommands ++
       buildInfo

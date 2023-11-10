@@ -66,7 +66,7 @@ class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
   /** Asserts that traverser cannot place inside _any_ node of the given tree
     */
   def assertCannotPlaceInside(t: Tree): Unit =
-    t.traverse { t =>
+    t.traverse { case t =>
       val _ = traverser.canPlace(t) shouldBe none
     }
 

@@ -18,11 +18,9 @@ class TestLogger(printLogs: Boolean) extends Logger {
 
   def clear(): Unit = events.clear()
 
-  def log(level: Level, msg: => String): Unit = addToLogs(level, msg)
+  override def log(level: Level, msg: => String): Unit = addToLogs(level, msg)
 
-  def log(level: Level, msg: => String, e: => Throwable): Unit = addToLogs(level, s"$msg, ${e.toString()}")
-
-  def log(level: Level, e: Throwable): Unit = addToLogs(level, e.toString())
+  override def log(level: Level, msg: => String, e: => Throwable): Unit = addToLogs(level, s"$msg, ${e.toString()}")
 
   private def addToLogs(level: Level, msg: => String): Unit = {
     if (printLogs) { println(s"[${level.toString().toUpperCase().padTo(5, ' ')}]: $msg") }

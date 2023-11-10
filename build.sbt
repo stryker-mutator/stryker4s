@@ -32,7 +32,7 @@ lazy val root = (project withId "stryker4s" in file("."))
 
 lazy val core = (projectMatrix in file("modules") / "core")
   .settings(name := "stryker4s-core", commonSettings, coreSettings)
-  .dependsOn(testRunnerApi)
+  .dependsOn(api, testRunnerApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
@@ -56,6 +56,11 @@ lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
 lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
   .settings(name := "stryker4s-testrunner-api", commonSettings, testRunnerApiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+
+// Pure Java module with interfaces
+lazy val api = (projectMatrix in file("modules") / "api")
+  .settings(name := "stryker4s-api", apiSettings)
+  .jvmPlatform(false)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
