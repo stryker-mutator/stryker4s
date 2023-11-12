@@ -4,10 +4,10 @@ import cats.effect.{Deferred, IO, Ref, Resource}
 import cats.syntax.traverse.*
 import fansi.Color.*
 import mutationtesting.{MutantResult, MutantStatus}
-import stryker4s.api.testprocess.CoverageReport
 import stryker4s.config.Config
 import stryker4s.model.{InitialTestRunCoverageReport, InitialTestRunResult, MutantWithId, NoCoverageInitialTestRun}
 import stryker4s.scalatest.LogMatchers
+import stryker4s.testrunner.api.testprocess.CoverageReport
 import stryker4s.testutil.stubs.TestRunnerStub
 import stryker4s.testutil.{Stryker4sIOSuite, TestData}
 

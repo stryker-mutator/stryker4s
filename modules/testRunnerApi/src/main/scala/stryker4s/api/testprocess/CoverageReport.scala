@@ -1,4 +1,4 @@
-package stryker4s.api.testprocess
+package stryker4s.testrunner.api.testprocess
 
 case class CoverageReport(report: Map[Int, Seq[String]]) extends AnyVal
 

@@ -8,13 +8,13 @@ import fs2.io.net.Network
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
-import stryker4s.api.testprocess.*
 import stryker4s.config.Config
 import stryker4s.extension.DurationExtensions.*
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
+import stryker4s.testrunner.api.testprocess.*
 
 import java.net.ConnectException
 import java.util.concurrent.TimeUnit

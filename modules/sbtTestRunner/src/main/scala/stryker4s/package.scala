@@ -1,5 +1,5 @@
-import stryker4s.api.testprocess.CoverageTestNameMap
 import stryker4s.sbt.testrunner.TestInterfaceMapper
+import stryker4s.testrunner.api.testprocess.CoverageTestNameMap
 
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
 import java.util.concurrent.{ConcurrentLinkedQueue, TimeUnit}

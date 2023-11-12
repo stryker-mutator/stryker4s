@@ -1,7 +1,7 @@
 package stryker4s.sbt.testrunner
 
 import sbt.testing.{Event, EventHandler, Framework, Status, Task}
-import stryker4s.api.testprocess.*
+import stryker4s.testrunner.api.testprocess.*
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator

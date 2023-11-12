@@ -1,5 +1,6 @@
 import Dependencies.*
 import Settings.*
+import sbt.internal.ProjectMatrix
 
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
@@ -33,30 +34,26 @@ lazy val root = (project withId "stryker4s" in file("."))
   )
 
 lazy val core = (projectMatrix in file("modules") / "core")
-  .settings(commonSettings, coreSettings)
+  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testkit))
   .dependsOn(api, testRunnerApi, testkit % Test)
-  .aggregate(api, testRunnerApi, testkit)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
-  .settings(commonSettings, commandRunnerSettings)
+  .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core, testkit))
   .dependsOn(core, testkit % Test)
-  .aggregate(core, testkit)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
 lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
-  .settings(commonSettings, sbtPluginSettings)
+  .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core))
   .dependsOn(core)
-  .aggregate(core)
   .jvmPlatform(scalaVersions = Seq(versions.scala212))
 
 lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
-  .settings(commonSettings, sbtTestRunnerSettings)
+  .settings(commonSettings, sbtTestRunnerSettings, publishLocalDependsOn(testRunnerApi))
   .dependsOn(testRunnerApi)
-  .aggregate(testRunnerApi)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
@@ -66,13 +63,20 @@ lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
 // Pure Java module with interfaces
 lazy val api = (projectMatrix in file("modules") / "api")
   .settings(apiSettings)
-  .jvmPlatform(false)
+  .jvmPlatform(autoScalaLibrary = false)
 
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
-  .settings(commonSettings, testkitSettings)
+  .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
   .dependsOn(api)
-  .aggregate(api)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
+
+def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
+  val projectRefs = matrixes.flatMap(_.projectRefs)
+  Seq(
+    publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal)*).value,
+    publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2)*).value
+  )
+}
