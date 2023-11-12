@@ -39,7 +39,6 @@ We support mutation testing Stryker4s with Stryker4s! The easiest way is to foll
 
 1. Run `sbt publishPluginLocal` to publish a test snapshot as `0.0.0-TEST-SNAPSHOT` version to your local ivy repository.
 2. Add the sbt plugin to `project/plugins.sbt` with `0.0.0-TEST-SNAPSHOT` as the version number.
-   1. If the project you are running against is not a 2.13 project, publish `stryker4s-api` and `stryker4s-sbt-testrunner` manually for your appropriate version (.e.g. `sbt "testRunnerApi3/publishLocal; sbtTestRunner3/publishLocal"`)
 3. Run stryker4s as described in the readme.
 
 ## Learning resources

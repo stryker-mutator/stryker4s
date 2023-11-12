@@ -1,7 +1,7 @@
 package stryker4s.sbt.testrunner
 
 import com.google.protobuf.CodedInputStream
-import stryker4s.api.testprocess.RequestMessage
+import stryker4s.testrunner.api.testprocess.RequestMessage
 
 import java.net.{InetAddress, ServerSocket, Socket}
 

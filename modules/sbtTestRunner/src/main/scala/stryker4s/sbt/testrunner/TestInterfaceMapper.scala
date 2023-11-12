@@ -1,7 +1,7 @@
 package stryker4s.sbt.testrunner
 
 import sbt.testing.{Status, TaskDef}
-import stryker4s.api.testprocess.*
+import stryker4s.testrunner.api.testprocess.*
 
 /** Maps stryker4s-api test-interface models to sbt-testinterface models
   */

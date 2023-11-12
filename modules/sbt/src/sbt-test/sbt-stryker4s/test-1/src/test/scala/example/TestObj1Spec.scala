@@ -1,21 +1,18 @@
 package example
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
-
-class Spec extends AnyFlatSpec with Matchers {
-  it should "check for a's in mutatesOkay" in {
-    TestObj.mutatesOkay(" a ") shouldBe true
-    TestObj.mutatesOkay(" b ") shouldBe false
+class Spec extends munit.FunSuite {
+  test("check for a's in mutatesOkay") {
+    assert(TestObj.mutatesOkay(" a "))
+    assert(!TestObj.mutatesOkay(" b "))
   }
 
-  it should "return false if a file does not exists" in {
-    TestObj.test2("/home/blah/fake") shouldBe false
+  test("return false if a file does not exists") {
+    assert(!TestObj.test2("/home/blah/fake"))
   }
 
-  it should "check for b's in alsoMutatesOkay" in {
-    TestObj.alsoMutatesOkay(" b ") shouldBe true
-    TestObj.alsoMutatesOkay(" a ") shouldBe false
+  test("check for b's in alsoMutatesOkay") {
+    assert(TestObj.alsoMutatesOkay(" b "))
+    assert(!TestObj.alsoMutatesOkay(" a "))
   }
 
 }

@@ -1,7 +1,7 @@
 package stryker4s.model
 
 import cats.syntax.option.*
-import stryker4s.api.testprocess.CoverageReport
+import stryker4s.testrunner.api.testprocess.CoverageReport
 
 import scala.concurrent.duration.FiniteDuration
 
