@@ -4,8 +4,7 @@ import fansi.Color.*
 import fs2.Stream
 import mutationtesting.*
 import stryker4s.config.Config
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 
 import scala.concurrent.duration.*
 
@@ -14,28 +13,28 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
   describe("mutantTested") {
     implicit val config: Config = Config.default
 
-    it("should log progress") {
+    test("should log progress") {
       val sut = new ConsoleReporter()
 
       mutantTestedStream(2).through(sut.mutantTested).compile.drain.asserting { _ =>
-        "Tested mutant 1/2 (50%)" shouldBe loggedAsInfo
-        "Tested mutant 2/2 (100%)" shouldBe loggedAsInfo
+        assertLoggedInfo("Tested mutant 1/2 (50%)")
+        assertLoggedInfo("Tested mutant 2/2 (100%)")
       }
     }
 
-    it("should round decimal numbers") {
+    test("should round decimal numbers") {
       val sut = new ConsoleReporter()
 
       mutantTestedStream(3).through(sut.mutantTested).compile.drain.asserting { _ =>
-        "Tested mutant 1/3 (33%)" shouldBe loggedAsInfo
-        "Tested mutant 3/3 (100%)" shouldBe loggedAsInfo
+        assertLoggedInfo("Tested mutant 1/3 (33%)")
+        assertLoggedInfo("Tested mutant 3/3 (100%)")
       }
     }
     def mutantTestedStream(size: Int) = Stream.constant(()).take(size.toLong).as(MutantTestedEvent(size))
   }
 
   describe("reportFinishedRun") {
-    it("should report killed mutants as debug") {
+    test("should report killed mutants as debug") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
       val results = MutationTestResult(
@@ -53,18 +52,18 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          "Mutation run finished! Took 15 seconds" shouldBe loggedAsInfo
-          s"Total mutants: ${Cyan("1")}, detected: ${Green("1")}, undetected: ${Red("0")}" shouldBe loggedAsInfo
-          s"""Detected mutants:
-             |0. [${Magenta("Killed")}] [${LightGray("BinaryOperator")}]
-             |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("2")}
-             |${Red("-\t!=")}
-             |${Green("+\t==")}
-             |""".stripMargin shouldBe loggedAsDebug
+          assertLoggedInfo("Mutation run finished! Took 15 seconds")
+          assertLoggedInfo(s"Total mutants: ${Cyan("1")}, detected: ${Green("1")}, undetected: ${Red("0")}")
+          assertLoggedDebug(s"""Detected mutants:
+                               |0. [${Magenta("Killed")}] [${LightGray("BinaryOperator")}]
+                               |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("2")}
+                               |${Red("-\t!=")}
+                               |${Green("+\t==")}
+                               |""".stripMargin)
         }
     }
 
-    it("should report a finished run with multiple mutants") {
+    test("should report a finished run with multiple mutants") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
       val results = MutationTestResult(
@@ -89,23 +88,23 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(results, metrics, 1.minute, config.baseDir))
         .asserting { _ =>
-          "Mutation run finished! Took 1 minute" shouldBe loggedAsInfo
-          s"Total mutants: ${Cyan("3")}, detected: ${Green("1")}, undetected: ${Red("2")}" shouldBe loggedAsInfo
-          s"""Undetected mutants:
-             |0. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
-             |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
-             |${Red("-\t<")}
-             |${Green("+\t>")}
-             |
-             |2. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
-             |${Blue("subPath/stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
-             |${Red("-\t1")}
-             |${Green("+\t0")}
-             |""".stripMargin shouldBe loggedAsInfo
+          assertLoggedInfo("Mutation run finished! Took 1 minute")
+          assertLoggedInfo(s"Total mutants: ${Cyan("3")}, detected: ${Green("1")}, undetected: ${Red("2")}")
+          assertLoggedInfo(s"""Undetected mutants:
+                              |0. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
+                              |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
+                              |${Red("-\t<")}
+                              |${Green("+\t>")}
+                              |
+                              |2. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
+                              |${Blue("subPath/stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
+                              |${Red("-\t1")}
+                              |${Green("+\t0")}
+                              |""".stripMargin)
         }
     }
 
-    it("should log mutants sorted by id") {
+    test("should log mutants sorted by id") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
       val results = MutationTestResult(
@@ -135,27 +134,27 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(results, Metrics.calculateMetrics(results), 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"Total mutants: ${Cyan("3")}, detected: ${Green("0")}, undetected: ${Red("3")}" shouldBe loggedAsInfo
-          s"""Undetected mutants:
-             |0. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
-             |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
-             |${Red("-\t<")}
-             |${Green("+\t>")}
-             |
-             |1. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
-             |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("2")}
-             |${Red("-\t!=")}
-             |${Green("+\t==")}
-             |
-             |2. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
-             |${Blue("subPath/stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
-             |${Red("-\t1")}
-             |${Green("+\t0")}
-             |""".stripMargin shouldBe loggedAsInfo
+          assertLoggedInfo(s"Total mutants: ${Cyan("3")}, detected: ${Green("0")}, undetected: ${Red("3")}")
+          assertLoggedInfo(s"""Undetected mutants:
+                              |0. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
+                              |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
+                              |${Red("-\t<")}
+                              |${Green("+\t>")}
+                              |
+                              |1. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
+                              |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("2")}
+                              |${Red("-\t!=")}
+                              |${Green("+\t==")}
+                              |
+                              |2. [${Magenta("Survived")}] [${LightGray("BinaryOperator")}]
+                              |${Blue("subPath/stryker4s.scala")}:${Yellow("1")}:${Yellow("1")}
+                              |${Red("-\t1")}
+                              |${Green("+\t0")}
+                              |""".stripMargin)
         }
     }
 
-    it("should report two line mutants properly") {
+    test("should report two line mutants properly") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
       val results = MutationTestResult(
@@ -179,16 +178,16 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"""Undetected mutants:
-             |0. [${Magenta("Survived")}] [${LightGray("StringLiteral")}]
-             |${Blue("stryker4s.scala")}:${Yellow("2")}:${Yellow("1")}
-             |${Red("-\tbar\n\tbaz")}
-             |${Green("+\tqux\n\tfoo")}
-             |""".stripMargin shouldBe loggedAsInfo
+          assertLoggedInfo(s"""Undetected mutants:
+                              |0. [${Magenta("Survived")}] [${LightGray("StringLiteral")}]
+                              |${Blue("stryker4s.scala")}:${Yellow("2")}:${Yellow("1")}
+                              |${Red("-\tbar\n\tbaz")}
+                              |${Green("+\tqux\n\tfoo")}
+                              |""".stripMargin)
         }
     }
 
-    it("should report multiline mutants properly") {
+    test("should report multiline mutants properly") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
       val results = MutationTestResult(
@@ -212,17 +211,17 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(results, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"Total mutants: ${Cyan("1")}, detected: ${Green("0")}, undetected: ${Red("1")}" shouldBe loggedAsInfo
-          s"""Undetected mutants:
-             |0. [${Magenta("Survived")}] [${LightGray("StringLiteral")}]
-             |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("2")}
-             |${Red("-\too\n\tbar\n\tbaz")}
-             |${Green("+\tux\n\tqux\n\tfoo")}
-             |""".stripMargin shouldBe loggedAsInfo
+          assertLoggedInfo(s"Total mutants: ${Cyan("1")}, detected: ${Green("0")}, undetected: ${Red("1")}")
+          assertLoggedInfo(s"""Undetected mutants:
+                              |0. [${Magenta("Survived")}] [${LightGray("StringLiteral")}]
+                              |${Blue("stryker4s.scala")}:${Yellow("1")}:${Yellow("2")}
+                              |${Red("-\too\n\tbar\n\tbaz")}
+                              |${Green("+\tux\n\tqux\n\tfoo")}
+                              |""".stripMargin)
         }
     }
 
-    it("should round decimal mutation scores") {
+    test("should round decimal mutation scores") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
       val threeReport = MutationTestResult(
@@ -244,11 +243,11 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
           FinishedRunEvent(threeReport, Metrics.calculateMetrics(threeReport), 15.seconds, config.baseDir)
         )
         .asserting { _ =>
-          s"Mutation score: ${Green("66.67")}%" shouldBe loggedAsInfo
+          assertLoggedInfo(s"Mutation score: ${Green("66.67")}%")
         }
     }
 
-    it("should log NaN correctly as n/a") {
+    test("should log NaN correctly as n/a") {
       implicit val config: Config = Config.default
       val sut = new ConsoleReporter()
 
@@ -267,7 +266,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(report, Metrics.calculateMetrics(report), 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"Mutation score: ${LightGray("n/a")}" shouldBe loggedAsInfo
+          assertLoggedInfo(s"Mutation score: ${LightGray("n/a")}")
         }
     }
 
@@ -286,48 +285,48 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     )
     val metrics = Metrics.calculateMetrics(report)
 
-    it("should report the mutation score when it is info") {
+    test("should report the mutation score when it is info") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"Mutation score: ${Green("50.0")}%" shouldBe loggedAsInfo
+          assertLoggedInfo(s"Mutation score: ${Green("50.0")}%")
         }
     }
 
-    it("should report the mutation score when it is warning") {
+    test("should report the mutation score when it is warning") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
       val sut = new ConsoleReporter()
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"Mutation score: ${Yellow("50.0")}%" shouldBe loggedAsWarning
+          assertLoggedWarn(s"Mutation score: ${Yellow("50.0")}%")
         }
     }
 
-    it("should report the mutation score when it is dangerously low") {
+    test("should report the mutation score when it is dangerously low") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
       val sut = new ConsoleReporter()
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          "Mutation score dangerously low!" shouldBe loggedAsError
-          s"Mutation score: ${Red("50.0")}%" shouldBe loggedAsError
+          assertLoggedError("Mutation score dangerously low!")
+          assertLoggedError(s"Mutation score: ${Red("50.0")}%")
         }
     }
 
-    it("should log when below threshold") {
+    test("should log when below threshold") {
       implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
       val sut = new ConsoleReporter()
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          s"Mutation score below threshold! Mutation score: ${Red("50.0")}%. Threshold: 51%" shouldBe loggedAsError
+          assertLoggedError(s"Mutation score below threshold! Mutation score: ${Red("50.0")}%. Threshold: 51%")
         }
     }
   }

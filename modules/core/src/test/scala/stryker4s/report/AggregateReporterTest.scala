@@ -3,23 +3,23 @@ package stryker4s.report
 import cats.effect.{IO, Ref}
 import cats.syntax.all.*
 import fs2.{Pipe, Stream}
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite, TestData}
+import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testutil.TestData
 
-class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers with TestData {
+class AggregateReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers with TestData {
 
   describe("mutantTested") {
-    it("should do nothing if there are no reporters") {
+    test("should do nothing if there are no reporters") {
       val sut = new AggregateReporter(List.empty)
 
       Stream(MutantTestedEvent(1), MutantTestedEvent(2))
         .through(sut.mutantTested)
         .compile
         .count
-        .asserting(_ shouldBe 0)
+        .assertEquals(0L)
     }
 
-    it("should report to all reporters that a mutant is tested") {
+    test("should report to all reporters that a mutant is tested") {
       (createMutantTestedReporter, createMutantTestedReporter).tupled.flatMap {
         case ((completed1, reporter1), (completed2, reporter2)) =>
           val sut = new AggregateReporter(List(reporter1, reporter2))
@@ -28,13 +28,13 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
             .through(sut.mutantTested)
             .compile
             .drain >> {
-            completed1.get.asserting(_ shouldBe true) *>
-              completed2.get.asserting(_ shouldBe true)
+            completed1.get.assertEquals(true) *>
+              completed2.get.assertEquals(true)
           }
       }
     }
 
-    it("should report to all reporters even if a first reporter fails") {
+    test("should report to all reporters even if a first reporter fails") {
       createMutantTestedReporter.flatMap { case (completed1, reporter1) =>
         val failingReporter = new Reporter {
           override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
@@ -46,8 +46,8 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
           .through(sut.mutantTested)
           .compile
           .drain >> {
-          "Reporter failed to report, java.lang.RuntimeException: Something happened" shouldBe loggedAsError
-          completed1.get.asserting(_ shouldBe true)
+          assertLoggedError("Reporter failed to report, java.lang.RuntimeException: Something happened")
+          completed1.get.assertEquals(true)
         }
       }
     }
@@ -66,7 +66,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
   describe("onRunFinished") {
     val runReport = createFinishedRunEvent()
 
-    it("should report to all reporters that a mutation run is completed") {
+    test("should report to all reporters that a mutation run is completed") {
       val reporter1 = mock[Reporter]
       val reporter2 = mock[Reporter]
       whenF(reporter1.onRunFinished(any[FinishedRunEvent])).thenReturn(())
@@ -75,14 +75,15 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
 
       sut
         .onRunFinished(runReport)
-        .map { _ =>
+        .asserting { _ =>
           verify(reporter1).onRunFinished(runReport)
           verify(reporter2).onRunFinished(runReport)
+          ()
         }
-        .assertNoException
+
     }
 
-    it("should still call other reporters if a reporter throws an exception") {
+    test("should still call other reporters if a reporter throws an exception") {
       val failingReporter = mock[Reporter]
       val reporter2 = mock[Reporter]
       whenF(failingReporter.onRunFinished(any[FinishedRunEvent]))
@@ -92,17 +93,18 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
 
       sut
         .onRunFinished(runReport)
-        .map { _ =>
+        .asserting { _ =>
           verify(reporter2).onRunFinished(runReport)
+          ()
         }
-        .assertThrows[RuntimeException]
+        .intercept[RuntimeException]
     }
 
     describe("logging") {
       val reporter1 = mock[Reporter]
       whenF(reporter1.onRunFinished(any[FinishedRunEvent])).thenReturn(())
 
-      it("should log and throw if a reporter throws an exception") {
+      test("should log and throw if a reporter throws an exception") {
         val failingReporter = mock[ConsoleReporter]
         val sut = new AggregateReporter(List(failingReporter, reporter1))
         whenF(failingReporter.onRunFinished(runReport))
@@ -110,15 +112,10 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
 
         sut
           .onRunFinished(runReport)
-          .attempt
-          .asserting {
-            case Left(e: RuntimeException) =>
-              e.getMessage() shouldBe "Something happened"
-            case r => fail(s"Expected RuntimeException, got $r")
-          }
+          .interceptMessage[RuntimeException]("Something happened")
       }
 
-      it("should not log warnings if no exceptions occur") {
+      test("should not log warnings if no exceptions occur") {
         val consoleReporterMock = mock[ConsoleReporter]
         whenF(consoleReporterMock.onRunFinished(any[FinishedRunEvent])).thenReturn(())
         val sut = new AggregateReporter(List(consoleReporterMock, reporter1))
@@ -127,7 +124,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
           .onRunFinished(runReport)
           .asserting { _ =>
             verify(consoleReporterMock).onRunFinished(runReport)
-            "Reporter failed to report" should not be loggedAsWarning
+            assertNotLoggedWarn("Reporter failed to report")
           }
       }
     }

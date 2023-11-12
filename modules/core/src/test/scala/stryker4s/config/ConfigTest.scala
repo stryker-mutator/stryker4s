@@ -1,6 +1,6 @@
 package stryker4s.config
 
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.Stryker4sSuite
 
 class ConfigTest extends Stryker4sSuite {
   describe("concurrency") {
@@ -21,8 +21,8 @@ class ConfigTest extends Stryker4sSuite {
     )
 
     expectedConcurrencies.foreach { case (cpuCoreCount, expectedConcurrency) =>
-      it(s"should give concurrency $expectedConcurrency for $cpuCoreCount cpu cores") {
-        Config.concurrencyFor(cpuCoreCount) shouldBe expectedConcurrency
+      test(s"should give concurrency $expectedConcurrency for $cpuCoreCount cpu cores") {
+        assertEquals(Config.concurrencyFor(cpuCoreCount), expectedConcurrency)
       }
     }
   }

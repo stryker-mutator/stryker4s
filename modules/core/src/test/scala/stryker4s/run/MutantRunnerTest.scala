@@ -2,30 +2,38 @@ package stryker4s.run
 
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.effect.IO
+import cats.effect.kernel.Resource
 import cats.syntax.either.*
 import fs2.io.file.{Files, Path}
 import mutationtesting.MutantStatus
 import stryker4s.config.Config
+import stryker4s.extension.exception.InitialTestRunFailedException
 import stryker4s.model.*
 import stryker4s.report.Reporter
-import stryker4s.scalatest.{FileUtil, LogMatchers}
+import stryker4s.testkit.{FileUtil, LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testutil.TestData
 import stryker4s.testutil.stubs.{TestFileResolver, TestRunnerStub}
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite, TestData}
 
 import scala.meta.*
 
-class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers with TestData {
+class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers with TestData {
+
+  val baseDir = FileUtil.getResource("scalaFiles")
+  val staticTmpDir = baseDir.resolve("target/stryker4s-tmpDir")
+
+  override def munitFixtures = super.munitFixtures :+ ResourceTestLocalFixture(
+    "cleanup staticTmpDir",
+    Resource.onFinalize(Files[IO].deleteRecursively(staticTmpDir))
+  )
 
   describe("apply") {
-    val baseDir = FileUtil.getResource("scalaFiles")
-    val staticTmpDir = baseDir.resolve("target/stryker4s-tmpDir")
 
     implicit val config = Config.default.copy(baseDir = baseDir)
 
     val staticTmpDirConfig = config.copy(staticTmpDir = true)
     val noCleanTmpDirConfig = staticTmpDirConfig.copy(cleanTmpDir = false)
 
-    it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
+    test("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
       val reporterMock = mock[Reporter]
       val rollbackHandler = mock[RollbackHandler]
@@ -36,7 +44,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
       val testRunner = { (path: Path) =>
         // Static temp dir is not used with default settings.
-        path.toString should not endWith "stryker4s-tmpDir"
+        assert(!path.endsWith("stryker4s-tmpDir"))
         TestRunnerStub.withResults(
           mutant.toMutantResult(MutantStatus.Killed),
           secondMutant.toMutantResult(MutantStatus.Killed),
@@ -49,16 +57,16 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
       sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
-        "Setting up mutated environment..." shouldBe loggedAsInfo
-        "Starting initial test run..." shouldBe loggedAsInfo
-        "Initial test run succeeded! Testing mutants..." shouldBe loggedAsInfo
+        assertLoggedInfo("Setting up mutated environment...")
+        assertLoggedInfo("Starting initial test run...")
+        assertLoggedInfo("Initial test run succeeded! Testing mutants...")
         val (path, resultForFile) = results.loneElement
-        path shouldBe file
-        resultForFile.map(_.status) shouldBe List(MutantStatus.Killed, MutantStatus.Survived, MutantStatus.Killed)
+        assertEquals(path, file)
+        assertEquals(resultForFile.map(_.status), Seq(MutantStatus.Killed, MutantStatus.Survived, MutantStatus.Killed))
       }
     }
 
-    it("should return a mutationScore of 66.67 when 2 of 3 mutants are killed and 1 doesn't compile.") {
+    test("should return a mutationScore of 66.67 when 2 of 3 mutants are killed and 1 doesn't compile.") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
       val reporterMock = mock[Reporter]
       val rollbackHandler = mock[RollbackHandler]
@@ -87,13 +95,16 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       )
       sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
         val (path, resultForFile) = results.loneElement
-        path shouldBe file
-        "Attempting to remove 1 mutant(s) that gave a compile error..." shouldBe loggedAsInfo
-        resultForFile.map(_.status) shouldBe List(MutantStatus.Killed, MutantStatus.Killed, MutantStatus.CompileError)
+        assertEquals(path, file)
+        assertLoggedInfo("Attempting to remove 1 mutant(s) that gave a compile error...")
+        assertEquals(
+          resultForFile.map(_.status),
+          Seq(MutantStatus.Killed, MutantStatus.Killed, MutantStatus.CompileError)
+        )
       }
     }
 
-    it("should use static temp dir if it was requested") {
+    test("should use static temp dir if it was requested") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
       val reporterMock = mock[Reporter]
       val rollbackHandler = mock[RollbackHandler]
@@ -102,7 +113,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
 
       val testRunner = { (path: Path) =>
         // Static temp dir is used.
-        path.toString should endWith("stryker4s-tmpDir")
+        assert(path.endsWith("stryker4s-tmpDir"))
         TestRunnerStub.withResults(mutant.toMutantResult(MutantStatus.Killed))(path)
       }
 
@@ -112,13 +123,12 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Vector(mutatedFile)).asserting { _ =>
+      sut(Vector(mutatedFile)) *>
         // Cleaned up after run
-        staticTmpDir.toNioPath.toFile shouldNot exist
-      }
+        Files[IO].exists(staticTmpDir).assertEquals(false)
     }
 
-    it("should not clean up tmp dir on errors") {
+    test("should not clean up tmp dir on errors") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
       val reporterMock = mock[Reporter]
       val rollbackHandler = mock[RollbackHandler]
@@ -132,20 +142,13 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Vector(mutatedFile)).attempt
-        .asserting { result =>
-          staticTmpDir.toNioPath.toFile should exist
-
-          result shouldBe a[Left[Throwable, ?]]
-          result.asInstanceOf[Left[Throwable, ?]].value.getMessage should startWith("Initial test run failed")
-        }
-        .flatMap { result =>
-          // Simulate the user manually cleaned up the tmp dir (before we run the next test case).
-          Files[IO].deleteRecursively(staticTmpDir).as(result)
-        }
+      sut(Vector(mutatedFile))
+        .interceptMessage[InitialTestRunFailedException](
+          "Initial test run failed. Please make sure your tests pass before running Stryker4s."
+        )
     }
 
-    it("should not clean up tmp dir if clean-tmp-dir is disabled") {
+    test("should not clean up tmp dir if clean-tmp-dir is disabled") {
       val fileCollectorMock = new TestFileResolver(Seq.empty)
       val reporterMock = mock[Reporter]
       val rollbackHandler = mock[RollbackHandler]
@@ -161,14 +164,8 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatc
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
 
-      sut(Vector(mutatedFile))
-        .asserting { _ =>
-          staticTmpDir.toNioPath.toFile should exist
-        }
-        .flatMap { result =>
-          // Simulate the user manually cleaned up the tmp dir (before we run the next test case).
-          Files[IO].deleteRecursively(staticTmpDir).as(result)
-        }
+      sut(Vector(mutatedFile)) *>
+        Files[IO].exists(staticTmpDir).assertEquals(true)
     }
   }
 }

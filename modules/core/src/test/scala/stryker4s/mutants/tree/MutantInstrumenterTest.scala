@@ -7,8 +7,8 @@ import stryker4s.extension.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.mutationtype.{ConditionalTrue, GreaterThan, Mutation, True}
 import stryker4s.model.*
 import stryker4s.mutants.applymutants.ActiveMutationContext
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{Stryker4sSuite, TestData}
+import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
+import stryker4s.testutil.TestData
 
 import scala.meta.*
 
@@ -18,7 +18,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
   val separator = path.toNioPath.getFileSystem().getSeparator()
 
   describe("instrumentFile") {
-    it("should transform 2 mutations into a match statement with 2 mutated and 1 original") {
+    test("should transform 2 mutations into a match statement with 2 mutated and 1 original") {
       // Arrange
       val source = source"""class Foo { def foo = x >= 15 }"""
       val originalStatement = source.find(q"x >= 15").value
@@ -34,14 +34,14 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
-      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
-      result.cases.map(_.syntax) should (
-        contain
-          .inOrderOnly(
-            p"case 0 => x > 15".syntax,
-            p"case 1 => x <= 15".syntax,
-            p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15".syntax
-          )
+      assertEquals(result.expr, q"_root_.stryker4s.activeMutation")
+      assertEquals(
+        result.cases.map(_.syntax),
+        List(
+          p"case 0 => x > 15".syntax,
+          p"case 1 => x <= 15".syntax,
+          p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15".syntax
+        )
       )
       val expected = source"""class Foo {
                    def foo = _root_.stryker4s.activeMutation match {
@@ -53,11 +53,11 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
                        x >= 15
                    }
                  }"""
-      assert(mutatedSource.isEqual(expected), mutatedSource)
-      "Failed to instrument mutants" shouldNot be(loggedAsError)
+      assertEquals(mutatedSource, expected)
+      assertNotLoggedError("Failed to instrument mutants")
     }
 
-    it("should place mutants on the correct statement even if the name appears twice") {
+    test("should place mutants on the correct statement even if the name appears twice") {
       val source = source"""class Foo {
         def foo = {
           val bar = true
@@ -79,14 +79,14 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
-      assert(result.expr.isEqual(q"_root_.stryker4s.activeMutation"), result.expr)
-      result.cases.map(_.syntax) should (
-        contain
-          .inOrderOnly(
-            p"case 0 => true".syntax,
-            p"case 1 => false".syntax,
-            p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar".syntax
-          )
+      assertEquals(result.expr, q"_root_.stryker4s.activeMutation")
+      assertEquals(
+        result.cases.map(_.syntax),
+        List(
+          p"case 0 => true".syntax,
+          p"case 1 => false".syntax,
+          p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar".syntax
+        )
       )
       val expected = source"""class Foo {
         def foo = {
@@ -104,10 +104,10 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
           else 2
         }
       }"""
-      assert(mutatedSource.isEqual(expected), mutatedSource)
+      assertEquals(mutatedSource, expected)
     }
 
-    it("should apply the correct instrumenter options") {
+    test("should apply the correct instrumenter options") {
       val source = source"""class Foo { def foo = x >= 15 }"""
       val originalStatement = source.find(q"x >= 15").value
       val context = SourceContext(source, path)
@@ -121,13 +121,13 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       val result = sut.instrumentFile(context, mutants).mutatedSource.collectFirst { case t: Term.Match => t }.value
 
       //   // Assert
-      assert(result.expr.isEqual(q"_root_.scala.sys.env.get(${Lit.String("ACTIVE_MUTATION")})"), result.expr)
-      assert(result.cases.head.pat.isEqual(p"Some(${Lit.String("0")})"), result.cases.head.pat.syntax)
-      result.cases.map(_.syntax).last shouldBe p"case _ => x >= 15".syntax
+      assertEquals(result.expr, q"_root_.scala.sys.env.get(${Lit.String("ACTIVE_MUTATION")})")
+      assertEquals(result.cases.head.pat, p"Some(${Lit.String("0")})")
+      assertEquals(result.cases.map(_.syntax).last, p"case _ => x >= 15".syntax)
     }
 
     // describe("buildNewSource") {
-    it("should log failures correctly") {
+    test("should log failures correctly") {
       // Arrange
       val source = """class Foo { def foo = true }""".parse[Source].get
       val original = source.find(q"true").value
@@ -140,15 +140,18 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       }
 
       // Act
-      an[UnableToBuildPatternMatchException] shouldBe thrownBy(sut.instrumentFile(context, mutants))
+      interceptMessage[UnableToBuildPatternMatchException](
+        s"""Failed to instrument mutants in `$path`.
+           |Please open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new""".stripMargin
+      )(sut.instrumentFile(context, mutants))
 
       // Assert
-      s"Failed to instrument mutants in `foo${separator}bar.scala`. Original statement: [true]" shouldBe loggedAsError
-      "Failed mutation(s) '0, 1' at Input.String(\"class Foo { def foo = true }\"):1:23" shouldBe loggedAsError
-      "This is likely an issue on Stryker4s's end, please take a look at the debug logs" shouldBe loggedAsError
+      assertLoggedError(s"Failed to instrument mutants in `foo${separator}bar.scala`. Original statement: [true]")
+      assertLoggedError("Failed mutation(s) '0, 1' at Input.String(\"class Foo { def foo = true }\"):1:23")
+      assertLoggedError("This is likely an issue on Stryker4s's end, please take a look at the debug logs")
     }
 
-    it("should rethrow Stryker4sExceptions") {
+    test("should rethrow Stryker4sExceptions") {
       val source = """class Foo { def foo = true }""".parse[Source].get
       val original = source.find(q"true").value
       val context = SourceContext(source, path)
@@ -161,9 +164,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       }
 
       // Act
-      the[UnableToBuildPatternMatchException] thrownBy {
-        sut.instrumentFile(context, mutants)
-      } shouldBe expectedException
+      val result = intercept[UnableToBuildPatternMatchException](sut.instrumentFile(context, mutants))
+      assertEquals(result, expectedException)
     }
 
   }

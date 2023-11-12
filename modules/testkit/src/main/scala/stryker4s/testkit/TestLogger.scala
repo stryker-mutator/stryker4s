@@ -1,14 +1,14 @@
-package stryker4s.testutil
+package stryker4s.testkit
 
 import fansi.Str
 import stryker4s.log.{Level, Logger}
 
 import java.util.function.Supplier
-import scala.collection.mutable.Queue
+import scala.collection.mutable.Buffer
 
-class TestLogger(printLogs: Boolean) extends Logger {
+protected[testkit] class TestLogger(printLogs: Boolean) extends Logger {
 
-  private val events = Queue[(Level, String)]()
+  private val events = Buffer.empty[(Level, String)]
 
   def findEvent(msg: String): Option[(Level, String)] = events.find(_._2.contains(msg))
 
@@ -24,9 +24,17 @@ class TestLogger(printLogs: Boolean) extends Logger {
   override def log(level: Level, msg: Supplier[String], e: Throwable): Unit =
     addToLogs(level, s"${msg.get}, ${e.toString()}")
 
+  def printAllLogs(): Unit = {
+    events.foreach { case (level, msg) => printLog(level, msg) }
+  }
+
   private def addToLogs(level: Level, msg: => String): Unit = {
-    if (printLogs) { println(s"[${level.toString().toUpperCase().padTo(5, ' ')}]: $msg") }
-    events.enqueue((level, msg))
+    if (printLogs) { printLog(level, msg) }
+    events.append((level, msg))
+  }
+
+  private def printLog(level: Level, msg: => String): Unit = {
+    println(s"[${level.toString().toUpperCase().padTo(5, ' ')}]: $msg")
   }
 
   // Always log with colors so we can test for color codes

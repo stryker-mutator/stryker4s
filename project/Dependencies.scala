@@ -15,9 +15,9 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
 
     // Test dependencies
-    val catsEffectScalaTest = "1.5.0"
     val mockitoScala = "1.17.29"
-    val scalatest = "3.2.17"
+    val munit = "1.0.0-M10"
+    val munitCatsEffect = "2.0.0-M4"
 
     // Direct dependencies
     val catsCore = "2.10.0"
@@ -36,10 +36,10 @@ object Dependencies {
   }
 
   object test {
-    val catsEffectScalaTest = "org.typelevel" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest
-    val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala
+    val mockitoScala = "org.mockito" %% "mockito-scala" % versions.mockitoScala
     val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala
-    val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest
+    val munit = "org.scalameta" %% "munit" % versions.munit
+    val munitCatsEffect = "org.typelevel" %% "munit-cats-effect" % versions.munitCatsEffect
   }
 
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore

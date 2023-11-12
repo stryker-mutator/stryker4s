@@ -1,107 +1,110 @@
 package stryker4s.extension.mutationtype
 
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
-import stryker4s.extension.TreeExtensions.IsEqualExtension
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*
 
 class MutationTypesTest extends Stryker4sSuite {
   describe("EqualityOperator") {
-    it("> to GreaterThan") {
-      q">" should matchPattern { case GreaterThan(_) => }
+    test("> to GreaterThan") {
+      assertMatchPattern(q">", { case GreaterThan(_) => })
     }
 
-    it(">= to GreaterThanEqualTo") {
-      q">=" should matchPattern { case GreaterThanEqualTo(_) => }
+    test(">= to GreaterThanEqualTo") {
+      assertMatchPattern(q">=", { case GreaterThanEqualTo(_) => })
     }
 
-    it("<= to LesserThanEqualTo") {
-      q"<=" should matchPattern { case LesserThanEqualTo(_) => }
+    test("<= to LesserThanEqualTo") {
+      assertMatchPattern(q"<=", { case LesserThanEqualTo(_) => })
     }
 
-    it("< to LesserThan") {
-      q"<" should matchPattern { case LesserThan(_) => }
+    test("< to LesserThan") {
+      assertMatchPattern(q"<", { case LesserThan(_) => })
     }
 
-    it("== to EqualTo") {
-      q"==" should matchPattern { case EqualTo(_) => }
+    test("== to EqualTo") {
+      assertMatchPattern(q"==", { case EqualTo(_) => })
     }
 
-    it("!= to NotEqualTo") {
-      q"!=" should matchPattern { case NotEqualTo(_) => }
+    test("!= to NotEqualTo") {
+      assertMatchPattern(q"!=", { case NotEqualTo(_) => })
     }
   }
 
   describe("BooleanLiteral") {
-    it("false to False") {
-      q"false" should matchPattern { case False(_) => }
+    test("false to False") {
+      assertMatchPattern(q"false", { case False(_) => })
     }
 
-    it("true to True") {
-      q"true" should matchPattern { case True(_) => }
+    test("true to True") {
+      assertMatchPattern(q"true", { case True(_) => })
     }
   }
 
   describe("LogicalOperator") {
-    it("&& to And") {
-      q"&&" should matchPattern { case And(_) => }
+    test("&& to And") {
+      assertMatchPattern(q"&&", { case And(_) => })
     }
 
-    it("|| to Or") {
-      q"||" should matchPattern { case Or(_) => }
+    test("|| to Or") {
+      assertMatchPattern(q"||", { case Or(_) => })
     }
   }
 
   describe("StringLiteral") {
-    it("foo string to NonEmptyString") {
-      q""""foo"""" should matchPattern { case NonEmptyString(_) => }
+    test("foo string to NonEmptyString") {
+      assertMatchPattern(q""""foo"""", { case NonEmptyString(_) => })
     }
 
-    it("empty string to EmptyString") {
-      Lit.String("") should matchPattern { case EmptyString(_) => }
+    test("empty string to EmptyString") {
+      assertMatchPattern(Lit.String(""), { case EmptyString(_) => })
     }
 
-    it("string interpolation to StringInterpolation") {
-      Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should matchPattern {
-        case StringInterpolation(_) =>
-      }
+    test("string interpolation to StringInterpolation") {
+      assertMatchPattern(
+        Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")),
+        { case StringInterpolation(_) => }
+      )
     }
 
-    it("q interpolation should not match StringInterpolation") {
-      Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")) should not matchPattern {
-        case StringInterpolation(_) =>
-      }
+    test("q interpolation should not match StringInterpolation") {
+      assertNotMatchPattern(
+        Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")),
+        { case StringInterpolation(_) => }
+      )
     }
 
-    it("t interpolation should not match StringInterpolation") {
-      Term.Interpolate(q"t", List(Lit.String("scala.util.matching.Regex")), List.empty) should not matchPattern {
-        case StringInterpolation(_) =>
-      }
+    test("t interpolation should not match StringInterpolation") {
+      assertNotMatchPattern(
+        Term.Interpolate(q"t", List(Lit.String("scala.util.matching.Regex")), List.empty),
+        { case StringInterpolation(_) => }
+      )
     }
   }
 
   describe("other cases") {
-    it("should return original tree on match") {
+    test("should return original tree on match") {
       val tree = q">="
 
       val GreaterThanEqualTo(result) = tree
 
-      result should be theSameInstanceAs tree
+      assert(result eq tree)
+
     }
 
-    it("should convert GreaterThan to >") {
+    test("should convert GreaterThan to >") {
       val wrapped = WrappedTree(GreaterThan)
 
-      assert(wrapped.term.isEqual(q">"), wrapped.term)
+      assertEquals(wrapped.term, q">")
     }
 
-    it("should convert to the proper type") {
+    test("should convert to the proper type") {
       val falseTree: Tree = False
       val greaterThan: Tree = GreaterThan
 
-      falseTree shouldBe a[Lit.Boolean]
-      greaterThan shouldBe a[Term.Name]
+      assertEquals(falseTree, q"false")
+      assertEquals(greaterThan, q">")
     }
 
     final case class WrappedTree(term: Tree)

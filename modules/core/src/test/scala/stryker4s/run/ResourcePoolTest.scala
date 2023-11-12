@@ -4,33 +4,33 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Ref, Resource}
 import cats.syntax.traverse.*
 import fs2.Stream
-import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testkit.Stryker4sIOSuite
 
 import scala.concurrent.duration.*
 
 class ResourcePoolTest extends Stryker4sIOSuite {
 
   describe("resource") {
-    it("should close the resources when closing the pool") {
+    test("should close the resources when closing the pool") {
       Ref[IO].of(false).flatMap { isClosed =>
         ResourcePool(NonEmptyList.one(testRunner("A").onFinalize(isClosed.set(true))))
           .use { pool =>
             // Before use
-            isClosed.get.asserting(_ shouldBe false) *>
+            isClosed.get.assertEquals(false) *>
               // Using the testrunner resource
               Stream(1, 2, 3).covary[IO].through(pool.run { case (tr, mutant) => tr(mutant) }).compile.drain *>
               // After loan use
-              isClosed.get.asserting(_ shouldBe false)
+              isClosed.get.assertEquals(false)
           } >> {
           // After pool `Resource` is closed
-          isClosed.get.asserting(_ shouldBe true)
+          isClosed.get.assertEquals(true)
         }
       }
     }
   }
 
   describe("run") {
-    it("should divide work on the resource pool") {
+    test("should divide work on the resource pool") {
       val testRunners = NonEmptyList.of(testRunner("A"), testRunner("B"), testRunner("C"))
 
       val totalMutants = 10L
@@ -40,14 +40,14 @@ class ResourcePoolTest extends Stryker4sIOSuite {
           mutants.through(pool.run { case (tr, m) => tr(m) }).compile.toVector
         }
         .asserting { results =>
-          results.size shouldBe totalMutants
-          results.count(_._1 == "A") shouldBe >(1)
-          results.count(_._1 == "B") shouldBe >(1)
-          results.count(_._1 == "C") shouldBe >(1)
+          assertEquals(results.size, totalMutants.toInt)
+          assert(results.count(_._1 == "A") > 1)
+          assert(results.count(_._1 == "B") > 1)
+          assert(results.count(_._1 == "C") > 1)
         }
     }
 
-    it("should divide work over other resources if one is slower") {
+    test("should divide work over other resources if one is slower") {
       val testRunners = NonEmptyList.of(testRunner("A", 30.millis), testRunner("B"), testRunner("C"))
 
       val totalMutants = 10L
@@ -57,16 +57,16 @@ class ResourcePoolTest extends Stryker4sIOSuite {
           mutants.through(pool.run { case (tr, m) => tr(m) }).compile.toVector
         }
         .asserting { results =>
-          results.size shouldBe totalMutants
-          results.count(_._1 == "A") shouldBe >=(1)
-          results.count(_._1 == "B") shouldBe >=(3)
-          results.count(_._1 == "C") shouldBe >=(3)
+          assertEquals(results.size, totalMutants.toInt)
+          assert(results.count(_._1 == "A") >= 1)
+          assert(results.count(_._1 == "B") >= 3)
+          assert(results.count(_._1 == "C") >= 3)
         }
     }
   }
 
   describe("loan") {
-    it("should put the resource back in the pool after use") {
+    test("should put the resource back in the pool after use") {
       val testRunners = NonEmptyList.one(testRunner("A"))
 
       ResourcePool(testRunners)
@@ -77,7 +77,7 @@ class ResourcePoolTest extends Stryker4sIOSuite {
           }
         }
         .asserting { results =>
-          results shouldBe List(("A", 0), ("A", 1))
+          assertEquals(results, List(("A", 0), ("A", 1)))
         }
     }
   }

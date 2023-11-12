@@ -5,10 +5,9 @@ import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.*
 import stryker4s.config.Config
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
 
-class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
 
   implicit val config: Config = Config.default
 
@@ -16,7 +15,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with
 
   describe("resolveTestRunner") {
 
-    it("should add test-filter for all test runners") {
+    test("should add test-filter for all test runners") {
       val expectedTestFilter = Seq("*MavenMutantRunnerTest", "*OtherTest")
       implicit val config: Config = Config.default.copy(testFilter = expectedTestFilter)
       val invokerMock = mock[Invoker]
@@ -25,16 +24,19 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with
       sut
         .resolveTestRunners(tmpDir)
         .toOption
-        .get
+        .value
         .head
-        .use(result => {
-          result.goals should contain only "test"
-          result.properties.getProperty("test") should equal(expectedTestFilter.mkString(", "))
-          IO.pure(result.properties.getProperty("wildcardSuites") should equal(expectedTestFilter.mkString(",")))
-        })
+        .use(result =>
+          IO {
+            assertEquals(result.goals, List("test"))
+            assertEquals(result.properties.getProperty("test"), expectedTestFilter.mkString(", "))
+            assertEquals(result.properties.getProperty("wildcardSuites"), expectedTestFilter.mkString(","))
+          }
+        )
+        .assert
     }
 
-    it("should add test-filter for surefire if a property is already defined") {
+    test("should add test-filter for surefire if a property is already defined") {
       val expectedTestFilter = "*MavenMutantRunnerTest"
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
       val invokerMock = mock[Invoker]
@@ -45,12 +47,13 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with
       sut
         .resolveTestRunners(tmpDir)
         .toOption
-        .get
+        .value
         .head
-        .use(result => IO.pure(result.properties.getProperty("test") should equal(s"*OtherTest, $expectedTestFilter")))
+        .use(result => IO(assertEquals(result.properties.getProperty("test"), s"*OtherTest, $expectedTestFilter")))
+        .assert
     }
 
-    it("should add test-filter for scalatest if a property is already defined") {
+    test("should add test-filter for scalatest if a property is already defined") {
       val expectedTestFilter = "*MavenMutantRunnerTest"
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
       val invokerMock = mock[Invoker]
@@ -61,11 +64,12 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoIOSuite with
       sut
         .resolveTestRunners(tmpDir)
         .toOption
-        .get
+        .value
         .head
         .use(result =>
-          IO.pure(result.properties.getProperty("wildcardSuites") should equal(s"*OtherTest,$expectedTestFilter"))
+          IO(assertEquals(result.properties.getProperty("wildcardSuites"), s"*OtherTest,$expectedTestFilter"))
         )
+        .assert
     }
   }
 
