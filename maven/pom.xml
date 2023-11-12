@@ -108,7 +108,7 @@
             <plugin>
                 <groupId>io.stryker-mutator</groupId>
                 <artifactId>stryker4s-maven-plugin</artifactId>
-                <version>0.14.3</version>
+                <version>0.15.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
