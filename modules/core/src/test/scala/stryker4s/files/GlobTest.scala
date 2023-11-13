@@ -1,7 +1,7 @@
 package stryker4s.files
 
 import fs2.io.file.Path
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.Stryker4sSuite
 
 import scala.util.Properties
 
@@ -11,84 +11,84 @@ class GlobTest extends Stryker4sSuite {
     val path = Path("").absolute
 
     describe("include patterns") {
-      it("should match no files with empty glob") {
+      test("should match no files with empty glob") {
         val matcher = Glob.matcher(path, Seq.empty)
 
-        matcher.matches(path / "foo.scala") shouldBe false
+        assert(!matcher.matches(path / "foo.scala"))
       }
 
-      it("should match files 0 levels deep") {
+      test("should match files 0 levels deep") {
         val matcher = Glob.matcher(path, Seq("*.scala"))
 
-        matcher.matches(path / "foo.scala") shouldBe true
+        assert(matcher.matches(path / "foo.scala"))
       }
 
-      it("should match on the second glob if the first doesn't match") {
+      test("should match on the second glob if the first doesn't match") {
         val matcher = Glob.matcher(path, Seq("*.sbt", "*.scala"))
 
-        matcher.matches(path / "foo.scala") shouldBe true
+        assert(matcher.matches(path / "foo.scala"))
       }
 
-      it("should match files 1 level deep") {
+      test("should match files 1 level deep") {
         val matcher = Glob.matcher(path, Seq("src/*.scala"))
 
         val input = path / "src" / "foo.scala"
 
-        matcher.matches(input) shouldBe true
+        assert(matcher.matches(input))
       }
 
-      it("should match files multiple levels deep") {
+      test("should match files multiple levels deep") {
         val matcher = Glob.matcher(path, Seq("src/**/*.scala"))
 
         val input = path / "src" / "main" / "scala" / "foo.scala"
 
-        matcher.matches(input) shouldBe true
+        assert(matcher.matches(input))
       }
 
-      it("should match on multiple patterns") {
+      test("should match on multiple patterns") {
         val matcher = Glob.matcher(path, Seq("**/someFile.scala", "**/secondFile.scala"))
 
-        matcher.matches(path / "src" / "main" / "scala" / "someFile.scala") shouldBe true
-        matcher.matches(path / "src" / "main" / "scala" / "secondFile.scala") shouldBe true
+        assert(matcher.matches(path / "src" / "main" / "scala" / "someFile.scala"))
+        assert(matcher.matches(path / "src" / "main" / "scala" / "secondFile.scala"))
       }
     }
 
     describe("ignore patterns") {
-      it("should exclude the file specified in the excluded pattern") {
+      test("should exclude the file specified in the excluded pattern") {
         val matcher = Glob.matcher(path, Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala"))
 
-        matcher.matches(path / "src" / "someFile.scala") shouldBe false
-        matcher.matches(path / "src" / "secondFile.scala") shouldBe true
+        assert(!matcher.matches(path / "src" / "someFile.scala"))
+        assert(matcher.matches(path / "src" / "secondFile.scala"))
       }
 
-      it("should exclude all files specified in the excluded pattern") {
+      test("should exclude all files specified in the excluded pattern") {
         val matcher = Glob.matcher(
           path,
           Seq("**/someFile.scala", "**/secondFile.scala", "!**/someFile.scala", "!**/secondFile.scala")
         )
 
-        matcher.matches(path / "src" / "someFile.scala") shouldBe false
-        matcher.matches(path / "src" / "secondFile.scala") shouldBe false
+        assert(!matcher.matches(path / "src" / "someFile.scala"))
+        assert(!matcher.matches(path / "src" / "secondFile.scala"))
       }
 
-      it("should exclude all files based on a wildcard") {
+      test("should exclude all files based on a wildcard") {
         val matcher = Glob.matcher(
           path,
           Seq("**/someFile.scala", "**/secondFile.scala", "!**/*.scala")
         )
 
-        matcher.matches(path / "src" / "someFile.scala") shouldBe false
-        matcher.matches(path / "src" / "secondFile.scala") shouldBe false
+        assert(!matcher.matches(path / "src" / "someFile.scala"))
+        assert(!matcher.matches(path / "src" / "secondFile.scala"))
       }
 
-      it("should not exclude files if a non-matching ignore pattern is given") {
+      test("should not exclude files if a non-matching ignore pattern is given") {
         val matcher = Glob.matcher(
           path,
           Seq("**/someFile.scala", "**/secondFile.scala", "!**/nonExistingFile.scala")
         )
 
-        matcher.matches(path / "src" / "someFile.scala") shouldBe true
-        matcher.matches(path / "src" / "secondFile.scala") shouldBe true
+        assert(matcher.matches(path / "src" / "someFile.scala"))
+        assert(matcher.matches(path / "src" / "secondFile.scala"))
       }
     }
 
@@ -108,14 +108,13 @@ class GlobTest extends Stryker4sSuite {
       else escapeSequences ++ linuxOnlySequences
 
     allSequences.foreach { escapeSequence =>
-      it(s"should escape $escapeSequence in a path") {
+      test(s"should escape $escapeSequence in a path") {
         val matcher = Glob.matcher(path / escapeSequence, Seq(s"src/*.scala"))
 
         val input = path / escapeSequence / "src" / "foo.scala"
 
-        matcher.matches(input) shouldBe true
+        assert(matcher.matches(input))
       }
     }
   }
-
 }

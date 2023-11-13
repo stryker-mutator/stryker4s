@@ -5,22 +5,20 @@ import cats.syntax.option.*
 import fansi.Color
 import fs2.io.file.Path
 import mutationtesting.MutantStatus
-import org.scalatest.EitherValues
 import stryker4s.extension.TreeExtensions.FindExtension
 import stryker4s.model.*
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantInstrumenter}
-import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 
 import scala.meta.*
 
-class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers with EitherValues {
+class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
 
   describe("rollbackFiles") {
     val sut = new RollbackHandler(new MutantInstrumenter(InstrumenterOptions.testRunner))
-    it("should remove a non-compiling mutant") {
+    test("should remove a non-compiling mutant") {
       rollbackableTree.asserting { tree =>
-        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").get
+        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
         val mutantMetadata =
           MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos)
         val mutants = NonEmptyVector.of(
@@ -41,23 +39,28 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers with EitherV
 
         val result = sut.rollbackFiles(errors, allFiles).value
 
-        result.compileErrors.loneElement shouldBe (path -> mutants
-          .map(
-            _.toMutantResult(
-              MutantStatus.CompileError,
-              description = s"L${mutantMetadata.location.start.line}: error2".some
+        assertEquals(
+          result.compileErrors.loneElement,
+          path -> mutants
+            .map(
+              _.toMutantResult(
+                MutantStatus.CompileError,
+                description = s"L${mutantMetadata.location.start.line}: error2".some
+              )
             )
-          )
-          .toVector)
-        result.newFiles shouldBe empty
-        s"${Color.Red("2")} mutant(s) gave a compiler error. They will be marked as such in the report." shouldBe loggedAsInfo
-        s"Removing 2 mutants with compile errors from $path: 'L7: error', 'L7: error2'" shouldBe loggedAsDebug
+            .toVector
+        )
+        assertEquals(result.newFiles, Seq.empty)
+        assertLoggedInfo(
+          s"${Color.Red("2")} mutant(s) gave a compiler error. They will be marked as such in the report."
+        )
+        assertLoggedDebug(s"Removing 2 mutants with compile errors from $path: 'L7: error', 'L7: error2'")
       }
     }
 
-    it("should return a Left if no mutants were removed") {
+    test("should return a Left if no mutants were removed") {
       rollbackableTree.asserting { tree =>
-        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").get
+        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
         val mutantMetadata =
           MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos)
 
@@ -76,16 +79,16 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers with EitherV
         val allFiles = Vector(MutatedFile(path, tree, mutants))
         val errors = NonEmptyList.of(CompilerErrMsg("error", path.toString, mutantMetadata.location.start.line))
 
-        val result = sut.rollbackFiles(errors, allFiles).left.value
+        val result = sut.rollbackFiles(errors, allFiles).leftValue
 
-        result shouldBe errors
-        s"No mutants were removed in $path even though there were 1 compile errors" shouldBe loggedAsError
+        assertEquals(result, errors)
+        assertLoggedError(s"No mutants were removed in $path even though there were 1 compile errors")
       }
     }
 
-    it("should filter out fixed files of the rollbackResult") {
+    test("should filter out fixed files of the rollbackResult") {
       rollbackableTree.asserting { tree =>
-        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").get
+        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
         val mutantMetadata =
           MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos)
         val mutants = NonEmptyVector.of(
@@ -104,15 +107,18 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers with EitherV
 
         val result = sut.rollbackFiles(errors, allFiles).value
 
-        result.compileErrors.loneElement shouldBe (path -> mutants
-          .map(
-            _.toMutantResult(
-              MutantStatus.CompileError,
-              description = s"L${mutantMetadata.location.start.line}: error".some
+        assertEquals(
+          result.compileErrors.loneElement,
+          path -> mutants
+            .map(
+              _.toMutantResult(
+                MutantStatus.CompileError,
+                description = s"L${mutantMetadata.location.start.line}: error".some
+              )
             )
-          )
-          .toVector)
-        result.newFiles shouldBe allFiles.tail
+            .toVector
+        )
+        assertEquals(result.newFiles, allFiles.tail)
       }
     }
   }

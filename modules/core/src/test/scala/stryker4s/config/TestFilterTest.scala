@@ -1,24 +1,24 @@
 package stryker4s.config
 
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.Stryker4sSuite
 
 class TestFilterTest extends Stryker4sSuite {
   describe("filter") {
 
-    it("should work with default") {
+    test("should work with default") {
       implicit val conf: Config = Config.default
       val testFilter = new TestFilter
       assert(testFilter.filter("stryker4s.extension.FileExtensionsTest"))
     }
 
-    it("should work with custom") {
+    test("should work with custom") {
       implicit val conf: Config = Config.default.copy(testFilter = Seq("stryker4s.extension.*"))
       val testFilter = new TestFilter
       assert(testFilter.filter("stryker4s.extension.FileExtensionsTest"))
       assert(!testFilter.filter("stryker4s.config.TestFilterTest"))
     }
 
-    it("should work with custom and negation") {
+    test("should work with custom and negation") {
       implicit val conf: Config = Config.default.copy(testFilter = Seq("!stryker4s.extension.*"))
       val testFilter = new TestFilter
       assert(!testFilter.filter("stryker4s.extension.FileExtensionsTest"))

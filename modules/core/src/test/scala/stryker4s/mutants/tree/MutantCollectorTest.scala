@@ -8,8 +8,7 @@ import stryker4s.config.Config
 import stryker4s.model.{MutantMetadata, MutatedCode, PlaceableTree}
 import stryker4s.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
 import stryker4s.mutants.{TreeTraverser, TreeTraverserImpl}
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
 
 import java.util.concurrent.atomic.AtomicInteger
 import scala.meta.*
@@ -17,7 +16,7 @@ import scala.meta.*
 class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
 
   describe("onEnter") {
-    it("should only call 'isDefinedAt' on the PartialFunction once") {
+    test("should only call 'isDefinedAt' on the PartialFunction once") {
       val onEnterCounter = new AtomicInteger(0)
       val matcher = new MutantMatcher {
         // if-guard is always true and counts how many times it is called
@@ -38,9 +37,9 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
       val onEnterCalled = onEnterCounter.get()
 
       def lengthOfTree(t: Tree): Int = 1 + t.children.map(lengthOfTree(_)).sum
-      onEnterCalled shouldBe lengthOfTree(tree)
-      onEnterCalled shouldBe >(1)
-      results.size shouldBe 1
+      assertEquals(onEnterCalled, lengthOfTree(tree))
+      assert(onEnterCalled > 1)
+      assertEquals(results.size, 1)
     }
     class TraverserStub(
         termToMatch: Term
@@ -52,14 +51,14 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
   describe("apply") {
     implicit val config = Config.default
 
-    it("should return the mutated code") {
+    test("should return the mutated code") {
 
       val sut = new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl())
       val tree = q"def bar = 15 > 14"
 
       val (ignored, found) = sut(tree)
-      ignored shouldBe empty
-      found.size shouldBe 1
+      assertEquals(ignored, Vector.empty)
+      assertEquals(found.size, 1)
     }
 
   }

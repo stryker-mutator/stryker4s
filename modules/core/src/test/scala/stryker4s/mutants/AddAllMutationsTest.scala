@@ -2,13 +2,12 @@ package stryker4s.mutants
 
 import fs2.Stream
 import fs2.io.file.Path
-import org.scalactic.source.Position
+import munit.Location
 import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.FindExtension
 import stryker4s.mutants.findmutants.MutantMatcherImpl
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.stubs.MutantFinderStub
 
 import scala.meta.*
@@ -18,7 +17,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
   describe("failed to add mutations") {
     implicit val config = Config.default
 
-    it("#585 (if-statement in Term.Apply)") {
+    test("#585 (if-statement in Term.Apply)") {
       checkAllMutationsAreAdded(
         q"""SomeExecutor.createSomething(
         if (c.i.isDefined) "foo" else "bar",
@@ -28,7 +27,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
-    it("#586 (second function call with `case`)") {
+    test("#586 (second function call with `case`)") {
       checkAllMutationsAreAdded(
         q"""serviceProvider
               .request { _ => 4 > 5 }
@@ -40,7 +39,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
-    it("#776 (if-else block statement)") {
+    test("#776 (if-else block statement)") {
       checkAllMutationsAreAdded(
         q"""
         if (foo) bar
@@ -50,7 +49,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
-    it("#776 2") {
+    test("#776 2") {
       checkAllMutationsAreAdded(
         q"""
         try {
@@ -73,7 +72,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
-    it("each case of pattern match") {
+    test("each case of pattern match") {
       checkAllMutationsAreAdded(
         q"""
         foo match {
@@ -84,7 +83,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
-    it("try-catch-finally") {
+    test("try-catch-finally") {
       checkAllMutationsAreAdded(
         q"""
         def foo =
@@ -99,7 +98,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
-    def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit pos: Position) = {
+    def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit loc: Location) = {
       val source = source"class Foo { $tree }"
 
       val mutator = new Mutator(
@@ -111,7 +110,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       mutator
         .go(Stream.emit(Path("Foo.scala")))
         .asserting { case (ignored, files) =>
-          ignored shouldBe Map(Path("Foo.scala") -> Vector.empty)
+          assertEquals(ignored, Map(Path("Foo.scala") -> Vector.empty))
 
           val file = files.loneElement
           file.mutants.toVector.map { mutant =>
@@ -124,8 +123,8 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
                 )
               )
           }
-          file.mutants.length shouldBe expectedMutations
-          "Failed to instrument mutants" should not be loggedAsWarning
+          assertEquals(file.mutants.length, expectedMutations)
+          assertNotLoggedWarn("Failed to instrument mutants")
         }
     }
   }

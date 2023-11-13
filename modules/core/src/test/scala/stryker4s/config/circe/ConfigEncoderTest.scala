@@ -4,14 +4,14 @@ import cats.syntax.option.*
 import fs2.io.file.Path
 import io.circe.Json.*
 import io.circe.syntax.*
-import org.scalactic.source.Position
+import munit.Location
 import stryker4s.config.*
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite {
   val workspaceLocation = Path("workspace").absolute.toString
   describe("configEncoder") {
-    it("should be able to encode a minimal config") {
+    test("should be able to encode a minimal config") {
       expectJsonConfig(
         defaultConfig,
         defaultConfigJson,
@@ -22,7 +22,7 @@ class ConfigEncoderTest extends Stryker4sSuite {
       )
     }
 
-    it("should be able to encode a filled config") {
+    test("should be able to encode a filled config") {
       expectJsonConfig(
         defaultConfig.copy(
           mutate = Seq("**/main/scala/**.scala"),
@@ -72,11 +72,11 @@ class ConfigEncoderTest extends Stryker4sSuite {
     }
   }
 
-  def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit pos: Position) = {
+  def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit loc: Location) = {
     val result = config.asJson
 
-    result.noSpaces shouldBe jsonString
-    result shouldBe json
+    assertEquals(result.noSpaces, jsonString)
+    assertEquals(result, json)
   }
 
   def defaultConfig: Config = Config.default.copy(baseDir = Path("workspace"))
@@ -98,7 +98,7 @@ class ConfigEncoderTest extends Stryker4sSuite {
       "report-type" -> fromString("full")
     ),
     "timeout" -> fromInt(5000),
-    "timeout-factor" -> fromDouble(1.5).get,
+    "timeout-factor" -> fromDouble(1.5).value,
     "legacy-test-runner" -> False,
     "scala-dialect" -> fromString("scala213source3"),
     "debug" -> obj(

@@ -3,10 +3,8 @@ package stryker4s.mutants.findmutants
 import fs2.io.file.Path
 import stryker4s.config.Config
 import stryker4s.extension.FileExtensions.*
-import stryker4s.extension.TreeExtensions.IsEqualExtension
 import stryker4s.log.Logger
-import stryker4s.scalatest.{FileUtil, LogMatchers}
-import stryker4s.testutil.Stryker4sIOSuite
+import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 
 import java.nio.file.NoSuchFileException
 import scala.meta.*
@@ -17,7 +15,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
 
   describe("parseFile") {
     implicit val config: Config = Config.default
-    it("should parse an existing file") {
+    test("should parse an existing file") {
 
       val sut = new MutantFinder()
       val file = exampleClassFile
@@ -33,36 +31,34 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
                          |
                          |final case class Person(age: Int, name: String)
                          |""".stripMargin.parse[Source].get
-        assert(result.isEqual(expected), result)
+        assertEquals(result, expected)
       }
     }
 
-    it("should throw an exception on a non-parseable file") {
+    test("should throw an exception on a non-parseable file") {
       val sut = new MutantFinder()
       val file = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
-      sut.parseFile(file).attempt.asserting { result =>
-        val expectedException = result.swap.getOrElse(fail()).asInstanceOf[ParseException]
-
-        expectedException.shortMessage should be("illegal start of definition identifier")
+      sut.parseFile(file).intercept[ParseException].asserting { err =>
+        assertEquals(err.shortMessage, "illegal start of definition identifier")
       }
     }
 
-    it("should fail on a nonexistent file") {
+    test("should fail on a nonexistent file") {
       val sut = new MutantFinder()
       val noFile = Path("this/does/not/exist.scala")
 
-      sut.parseFile(noFile).assertThrows[NoSuchFileException]
+      sut.parseFile(noFile).intercept[NoSuchFileException]
     }
 
-    it("should parse a scala-3 file") {
+    test("should parse a scala-3 file") {
       import scala.meta.dialects.Scala3
 
       val scala3DialectConfig = config.copy(scalaDialect = Scala3)
       val sut = new MutantFinder()(scala3DialectConfig, implicitly[Logger])
       val file = FileUtil.getResource("scalaFiles/scala3File.scala")
 
-      sut.parseFile(file).assertNoException
+      sut.parseFile(file).void.assert
     }
   }
 
@@ -194,7 +190,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
   }
 
   describe("logging") {
-    it("should error log an unfound file") {
+    test("should error log an unfound file") {
       implicit val config: Config = Config.default
 
       val sut = new MutantFinder()
@@ -202,10 +198,10 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .parseFile(noFile)
-        .assertThrows[ParseException]
+        .intercept[ParseException]
         .asserting { _ =>
-          s"Error while parsing file '${noFile.relativePath}', illegal start of definition identifier" should be(
-            loggedAsError
+          assertLoggedError(
+            s"Error while parsing file '${noFile.relativePath}', illegal start of definition identifier"
           )
         }
     }

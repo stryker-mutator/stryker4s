@@ -95,10 +95,12 @@ object Settings {
     name := "stryker4s-testkit",
     libraryDependencies ++= Seq(
       Dependencies.fansi,
-      Dependencies.test.catsEffectScalaTest,
+      Dependencies.fs2IO,
+      Dependencies.scalameta,
       Dependencies.test.mockitoScala,
       Dependencies.test.mockitoScalaCats,
-      Dependencies.test.scalatest
+      Dependencies.test.munit,
+      Dependencies.test.munitCatsEffect
     )
   )
 

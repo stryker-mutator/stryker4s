@@ -1,31 +1,30 @@
 package stryker4s.config
 
-import org.scalatest.EitherValues
 import pureconfig.ConfigSource
 import pureconfig.error.{ConfigReaderFailures, ConvertFailure, KeyNotFound}
 import pureconfig.generic.auto.*
 import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.run.process.Command
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
 
-class ProcessConfigReaderTest extends Stryker4sSuite with LogMatchers with EitherValues {
+class ProcessConfigReaderTest extends Stryker4sSuite with LogMatchers {
   describe("ProcessConfig") {
-    it("should read a process config") {
+    test("should read a process config") {
       val confPath = filledProcess
 
-      val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath).getOrElse(fail())
+      val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath).value
 
-      result.testRunner should equal(Command("gradle", "test"))
+      assertEquals(result.testRunner, Command("gradle", "test"))
     }
 
-    it("should read an empty config to errors") {
+    test("should read an empty config to errors") {
       val confPath = emptyStryker4s
 
       val result = ConfigReader.readConfigOfType[ProcessRunnerConfig](confPath)
 
-      result.left.value should matchPattern {
-        case ConfigReaderFailures(ConvertFailure(KeyNotFound("test-runner", _), _, _), _*) =>
+      result.leftValue match {
+        case ConfigReaderFailures(ConvertFailure(KeyNotFound(key, _), _, _), _*) => assertEquals(key, "test-runner")
+        case _ => fail(s"Expected KeyNotFound, but got $result")
       }
     }
   }

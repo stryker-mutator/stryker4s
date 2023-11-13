@@ -1,4 +1,4 @@
-package stryker4s.scalatest
+package stryker4s.testkit
 
 import cats.effect.IO
 import fs2.io.file.Path
@@ -18,5 +18,5 @@ object FileUtil {
       .getOrElse(throw new FileNotFoundException(s"File $name could not be found"))
 
   def getResourceAsString(name: String): IO[String] =
-    io.readClassLoaderResource[IO](name).through(text.utf8.decode).compile.string
+    io.readClassLoaderResource[IO](name, classLoader = classLoader).through(text.utf8.decode).compile.string
 }

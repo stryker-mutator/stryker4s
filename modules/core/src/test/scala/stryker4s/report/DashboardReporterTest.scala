@@ -10,17 +10,16 @@ import mutationtesting.*
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
-import stryker4s.scalatest.LogMatchers
-import stryker4s.testutil.{MockitoIOSuite, Stryker4sIOSuite}
+import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
 import sttp.client3.*
 import sttp.client3.testing.SttpBackendStub
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
 import scala.concurrent.duration.*
 
-class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with LogMatchers {
+class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
   describe("buildRequest") {
-    it("should compose the request") {
+    test("should compose the request") {
       implicit val backend = backendStub
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       val sut = new DashboardReporter(mockDashConfig)
@@ -28,21 +27,25 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val FinishedRunEvent(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
-      request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
+      assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
       val jsonBody = {
         import mutationtesting.circe.*
         import io.circe.syntax.*
         report.asJson.noSpaces
       }
-      request.body shouldBe StringBody(jsonBody, "utf-8", MediaType.ApplicationJson)
-      request.method shouldBe Method.PUT
-      request.headers should (contain.allOf(
-        new Header("X-Api-Key", "apiKeyHere"),
-        new Header("Content-Type", "application/json")
-      ))
+      assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
+      assertEquals(request.method, Method.PUT)
+      assertSameElements(
+        request.headers,
+        List(
+          Header.acceptEncoding("gzip, deflate"),
+          new Header("X-Api-Key", "apiKeyHere"),
+          Header.contentType(MediaType.ApplicationJson)
+        )
+      )
     }
 
-    it("should make a score-only request when score-only is configured") {
+    test("should make a score-only request when score-only is configured") {
       implicit val backend = backendStub
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       val sut = new DashboardReporter(mockDashConfig)
@@ -50,12 +53,12 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       val FinishedRunEvent(report, metrics, _, _) = baseResults
 
       val request = sut.buildRequest(dashConfig, report, metrics)
-      request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar"
+      assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
       val jsonBody = """{"mutationScore":100.0}"""
-      request.body shouldBe StringBody(jsonBody, "utf-8", MediaType.ApplicationJson)
+      assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
     }
 
-    it("should add the module if it is present") {
+    test("should add the module if it is present") {
       implicit val backend = backendStub
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       val sut = new DashboardReporter(mockDashConfig)
@@ -64,12 +67,12 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
 
       val request = sut.buildRequest(dashConfig, report, metrics)
 
-      request.uri shouldBe uri"https://baseurl.com/api/reports/project/foo/version/bar?module=myModule"
+      assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar?module=myModule")
     }
   }
 
   describe("onRunFinished") {
-    it("should send the request") {
+    test("should send the request") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
           .thenRespond(DashboardPutResult("https://hrefHere.com").asRight)
@@ -82,11 +85,11 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          "Sent report to dashboard. Available at https://hrefHere.com" shouldBe loggedAsInfo
+          assertLoggedInfo("Sent report to dashboard. Available at https://hrefHere.com")
         }
     }
 
-    it("log when not being able to resolve dashboard config") {
+    test("log when not being able to resolve dashboard config") {
       implicit val backend = backendStub
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       whenF(mockDashConfig.resolveConfig()).thenReturn(NonEmptyChain("fooConfigKey", "barConfigKey").invalid)
@@ -96,11 +99,13 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report." shouldBe loggedAsWarning
+          assertLoggedWarn(
+            s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report."
+          )
         }
     }
 
-    it("should log when a response can't be parsed to a href") {
+    test("should log when a response can't be parsed to a href") {
       implicit val backend = backendStub.map(_.whenAnyRequest.thenRespond("some other response"))
       val mockDashConfig = mock[DashboardConfigProvider[IO]]
       whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
@@ -110,11 +115,13 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:" shouldBe loggedAsWarning
+          assertLoggedWarn(
+            "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:"
+          )
         }
     }
 
-    it("should log when a 401 is returned by the API") {
+    test("should log when a 401 is returned by the API") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
           .thenRespond(Response(HttpError("auth required", StatusCode.Unauthorized).asLeft, StatusCode.Unauthorized))
@@ -127,12 +134,14 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          s"Error HTTP PUT 'auth required'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
-              .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?" shouldBe loggedAsError
+          assertLoggedError(
+            s"Error HTTP PUT 'auth required'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+                .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
+          )
         }
     }
 
-    it("should log when a error code is returned by the API") {
+    test("should log when a error code is returned by the API") {
       implicit val backend =
         backendStub.map(
           _.whenAnyRequest.thenRespond(
@@ -147,7 +156,9 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoIOSuite with Lo
       sut
         .onRunFinished(runReport)
         .asserting { _ =>
-          s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'internal error'" shouldBe loggedAsError
+          assertLoggedError(
+            s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'internal error'"
+          )
         }
     }
   }
