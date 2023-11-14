@@ -1,12 +1,11 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.config.Config
-import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.extension.TreeExtensions.{FindExtension, PositionExtension}
-import stryker4s.extension.mutationtype.*
 import stryker4s.model.{MutationExcluded, PlaceableTree, RegexParseError}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
+import stryker4s.mutation.*
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*
@@ -130,10 +129,10 @@ class MutantMatcherTest extends Stryker4sSuite {
       val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
         found,
-        GreaterThanEqualTo,
-        GreaterThan,
-        LesserThan,
-        EqualTo
+        GreaterThanEqualTo.tree,
+        GreaterThan.tree,
+        LesserThan.tree,
+        EqualTo.tree
       )
     }
 
@@ -142,10 +141,10 @@ class MutantMatcherTest extends Stryker4sSuite {
       val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
         found,
-        GreaterThan,
-        GreaterThanEqualTo,
-        LesserThan,
-        EqualTo
+        GreaterThan.tree,
+        GreaterThanEqualTo.tree,
+        LesserThan.tree,
+        EqualTo.tree
       )
     }
 
@@ -154,10 +153,10 @@ class MutantMatcherTest extends Stryker4sSuite {
       val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
         found,
-        LesserThanEqualTo,
-        LesserThan,
-        GreaterThanEqualTo,
-        EqualTo
+        LesserThanEqualTo.tree,
+        LesserThan.tree,
+        GreaterThanEqualTo.tree,
+        EqualTo.tree
       )
     }
 
@@ -166,10 +165,10 @@ class MutantMatcherTest extends Stryker4sSuite {
       val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
         found,
-        LesserThan,
-        LesserThanEqualTo,
-        GreaterThan,
-        EqualTo
+        LesserThan.tree,
+        LesserThanEqualTo.tree,
+        GreaterThan.tree,
+        EqualTo.tree
       )
     }
 
@@ -178,8 +177,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       val found = tree.collect(sut.matchEqualityOperator).map(_(PlaceableTree(tree.body)))
       expectMutations(
         found,
-        EqualTo,
-        NotEqualTo
+        EqualTo.tree,
+        NotEqualTo.tree
       )
     }
 
@@ -187,8 +186,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchEqualityOperator,
         q"def foo = 18 != 20",
-        NotEqualTo,
-        EqualTo
+        NotEqualTo.tree,
+        EqualTo.tree
       )
     }
 
@@ -196,8 +195,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchEqualityOperator,
         q"def foo = 18 === 20",
-        TypedEqualTo,
-        TypedNotEqualTo
+        TypedEqualTo.tree,
+        TypedNotEqualTo.tree
       )
     }
 
@@ -205,8 +204,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchEqualityOperator,
         q"def foo = 18 =!= 20",
-        TypedNotEqualTo,
-        TypedEqualTo
+        TypedNotEqualTo.tree,
+        TypedEqualTo.tree
       )
     }
   }
@@ -217,8 +216,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchLogicalOperator,
         q"def foo = a && b",
-        And,
-        Or
+        And.tree,
+        Or.tree
       )
     }
 
@@ -226,8 +225,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchLogicalOperator,
         q"def foo = a || b",
-        Or,
-        And
+        Or.tree,
+        And.tree
       )
     }
   }
@@ -313,8 +312,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchBooleanLiteral,
         q"def foo = false",
-        False,
-        True
+        False.tree,
+        True.tree
       )
     }
 
@@ -322,8 +321,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchBooleanLiteral,
         q"def foo = true",
-        True,
-        False
+        True.tree,
+        False.tree
       )
     }
   }
@@ -335,7 +334,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchStringLiteral,
         q"""def foo: String = "bar"""",
         Lit.String("bar"),
-        EmptyString
+        EmptyString.tree
       )
     }
 
@@ -343,8 +342,8 @@ class MutantMatcherTest extends Stryker4sSuite {
       expectMutations(
         sut.matchStringLiteral,
         q"""def foo = "" """,
-        EmptyString,
-        StrykerWasHereString
+        EmptyString.tree,
+        StrykerWasHereString.tree
       )
     }
 
@@ -469,7 +468,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         tree,
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 
@@ -478,7 +477,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new scala.util.matching.Regex($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 
@@ -487,7 +486,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new Regex($regex, "any")""",
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 
@@ -496,7 +495,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = $regex.r""",
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 
@@ -505,7 +504,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 
@@ -514,7 +513,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = java.util.regex.Pattern.compile($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 
@@ -523,7 +522,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex, CASE_INSENSITIVE)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation)
+        RegularExpression(".", regex.pos.toLocation).tree
       )
     }
 

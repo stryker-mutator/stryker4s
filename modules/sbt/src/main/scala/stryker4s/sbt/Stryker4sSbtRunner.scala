@@ -10,7 +10,7 @@ import sbt.*
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.extension.FileExtensions.*
-import stryker4s.extension.exception.TestSetupException
+import stryker4s.exception.TestSetupException
 import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg

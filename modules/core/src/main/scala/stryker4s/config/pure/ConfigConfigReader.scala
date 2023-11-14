@@ -6,7 +6,7 @@ import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
 import pureconfig.generic.semiauto.*
 import stryker4s.config.*
-import stryker4s.extension.mutationtype.Mutation
+import stryker4s.mutation.Mutation
 
 import java.nio.file.Path as JPath
 import scala.meta.{dialects, Dialect}

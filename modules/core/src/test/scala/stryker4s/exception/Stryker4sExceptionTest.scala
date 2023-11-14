@@ -1,4 +1,4 @@
-package stryker4s.extension.exception
+package stryker4s.exception
 
 import cats.data.NonEmptyList
 import fs2.io.file.Path

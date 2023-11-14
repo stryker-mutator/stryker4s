@@ -5,9 +5,9 @@ import cats.syntax.all.*
 import stryker4s.config.Config
 import stryker4s.extension.PartialFunctionOps.*
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
-import stryker4s.extension.mutationtype.*
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
+import stryker4s.mutation.*
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -178,9 +178,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       mutationType: Mutation[?],
       original: Tree
   ): Either[IgnoredMutations, Mutations] = {
-    val mutationName = "stryker4s.mutation." + mutationType.mutationName
-
-    if (excludedByConfig(mutationType.mutationName) || excludedByAnnotation(original, mutationName))
+    if (excludedByConfig(mutationType.mutationName) || excludedByAnnotation(original, mutationType.fullName))
       mutations.tupleRight(MutationExcluded).asLeft
     else
       mutations.asRight

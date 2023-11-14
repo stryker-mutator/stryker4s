@@ -1,6 +1,5 @@
-package stryker4s.extension.mutationtype
+package stryker4s.mutation
 
-import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*
@@ -94,14 +93,14 @@ class MutationTypesTest extends Stryker4sSuite {
     }
 
     test("should convert GreaterThan to >") {
-      val wrapped = WrappedTree(GreaterThan)
+      val wrapped = WrappedTree(GreaterThan.tree)
 
       assertEquals(wrapped.term, q">")
     }
 
     test("should convert to the proper type") {
-      val falseTree: Tree = False
-      val greaterThan: Tree = GreaterThan
+      val falseTree: Tree = False.tree
+      val greaterThan: Tree = GreaterThan.tree
 
       assertEquals(falseTree, q"false")
       assertEquals(greaterThan, q">")

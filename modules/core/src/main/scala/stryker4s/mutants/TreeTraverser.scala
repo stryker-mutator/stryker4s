@@ -2,7 +2,7 @@ package stryker4s.mutants
 
 import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.TreeIsInExtension
-import stryker4s.extension.mutationtype.ParentIsTypeLiteral
+import stryker4s.mutation.ParentIsTypeLiteral
 
 import scala.meta.*
 
