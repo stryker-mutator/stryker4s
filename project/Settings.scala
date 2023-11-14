@@ -110,6 +110,7 @@ object Settings {
   )
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     // Fatal warnings only in CI
     tpolecatCiModeEnvVar := "CI",
     tpolecatDefaultOptionsMode := DevMode,
