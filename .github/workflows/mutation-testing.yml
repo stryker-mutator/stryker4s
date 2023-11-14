@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/core",dashboard.module="core"}' > stryker4s.conf
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
           cache: 'sbt'
       - name: Create Stryker4s config
         run: echo 'stryker4s{reporters=["console","dashboard"],base-dir="modules/commandRunner",dashboard.module="command-runner"}' > stryker4s.conf
@@ -57,7 +57,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
           cache: 'maven'
       - name: Publish Stryker4s maven deps locally
         run: sbt 'publishM2Local'
