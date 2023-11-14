@@ -9,8 +9,8 @@ import sbt.Keys.*
 import sbt.*
 import sbt.internal.LogManager
 import stryker4s.config.{Config, TestFilter}
-import stryker4s.extension.FileExtensions.*
 import stryker4s.exception.TestSetupException
+import stryker4s.extension.FileExtensions.*
 import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
@@ -21,6 +21,7 @@ import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File as JFile, PrintStream}
+import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
@@ -68,8 +69,10 @@ class Stryker4sSbtRunner(
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
       val fullSettings = settings ++ Seq(
-        libraryDependencies +=
-          "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion
+        libraryDependencies += "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
+        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT"))
+                         List(Resolver.sonatypeRepo("snapshots"): @nowarn("cat=deprecation"))
+                       else Seq.empty)
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
