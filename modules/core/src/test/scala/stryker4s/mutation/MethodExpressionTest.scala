@@ -1,4 +1,4 @@
-package stryker4s.extension.mutationtype
+package stryker4s.mutation
 
 import stryker4s.testkit.Stryker4sSuite
 

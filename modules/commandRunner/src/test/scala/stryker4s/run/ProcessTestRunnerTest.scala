@@ -4,11 +4,11 @@ import fs2.io.file.Path
 import mutationtesting.{Location, MutantStatus, Position}
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.GreaterThan
 import stryker4s.model.*
+import stryker4s.mutation.GreaterThan
 import stryker4s.run.process.{Command, ProcessRunner}
-import stryker4s.testutil.stubs.TestProcessRunner
 import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta.quasiquotes.*

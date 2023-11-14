@@ -1,4 +1,4 @@
-package stryker4s.extension.mutationtype
+package stryker4s.mutation
 
 import cats.syntax.option.*
 

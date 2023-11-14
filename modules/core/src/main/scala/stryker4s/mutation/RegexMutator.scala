@@ -1,4 +1,4 @@
-package stryker4s.extension.mutationtype
+package stryker4s.mutation
 
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
@@ -64,6 +64,7 @@ object RegexMutations {
 final case class RegularExpression(pattern: String, location: Location) extends SubstitutionMutation[Lit.String] {
 
   def mutationName: String = classOf[RegularExpression].getSimpleName
+  override def fullName: String = classOf[RegularExpression].getName()
 
   override def tree: Lit.String = Lit.String(pattern)
 

@@ -3,10 +3,10 @@ package stryker4s.mutants.findmutants
 import stryker4s.config.Config
 import stryker4s.extension.ImplicitMutationConversion.mutationToTree
 import stryker4s.extension.TreeExtensions.{FindExtension, PositionExtension}
-import stryker4s.extension.mutationtype.*
 import stryker4s.model.{MutationExcluded, PlaceableTree, RegexParseError}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
+import stryker4s.mutation.*
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*

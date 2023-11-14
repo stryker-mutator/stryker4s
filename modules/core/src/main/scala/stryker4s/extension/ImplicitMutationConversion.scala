@@ -1,6 +1,6 @@
 package stryker4s.extension
 
-import stryker4s.extension.mutationtype.SubstitutionMutation
+import stryker4s.mutation.SubstitutionMutation
 
 import scala.meta.Tree
 

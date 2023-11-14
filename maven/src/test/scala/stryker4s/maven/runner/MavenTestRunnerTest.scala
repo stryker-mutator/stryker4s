@@ -7,7 +7,7 @@ import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
 import org.mockito.captor.ArgCaptor
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.LesserThan
+import stryker4s.mutation.LesserThan
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode, NoCoverageInitialTestRun}
 import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
 

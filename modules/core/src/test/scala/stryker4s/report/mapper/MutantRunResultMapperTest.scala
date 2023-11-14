@@ -5,8 +5,8 @@ import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Config, Thresholds as ConfigThresholds}
 import stryker4s.extension.ImplicitMutationConversion.*
-import stryker4s.extension.mutationtype.*
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode}
+import stryker4s.mutation.*
 import stryker4s.testkit.{FileUtil, Stryker4sSuite}
 
 import java.nio.file.Files
