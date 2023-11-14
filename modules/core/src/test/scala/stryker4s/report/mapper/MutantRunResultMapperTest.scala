@@ -4,7 +4,6 @@ import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Config, Thresholds as ConfigThresholds}
-import stryker4s.extension.ImplicitMutationConversion.*
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode}
 import stryker4s.mutation.*
 import stryker4s.testkit.{FileUtil, Stryker4sSuite}
@@ -72,14 +71,14 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
   def mutationRunResults = {
     val path = FileUtil.getResource("scalaFiles/ExampleClass.scala")
     val mutantRunResult =
-      toMutant(0, EqualTo, NotEqualTo, path).toMutantResult(MutantStatus.Killed)
+      toMutant(0, EqualTo.tree, NotEqualTo, path).toMutantResult(MutantStatus.Killed)
 
     val mutantRunResult2 =
       toMutant(1, Lit.String("Hugo"), EmptyString, path).toMutantResult(MutantStatus.Survived)
 
     val path3 = FileUtil.getResource("scalaFiles/simpleFile.scala")
     val mutantRunResult3 =
-      toMutant(0, GreaterThan, LesserThan, path3).toMutantResult(MutantStatus.Killed)
+      toMutant(0, GreaterThan.tree, LesserThan, path3).toMutantResult(MutantStatus.Killed)
 
     Map(path -> Vector(mutantRunResult, mutantRunResult2), path3 -> Vector(mutantRunResult3))
   }
