@@ -7,7 +7,9 @@ import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
 import stryker4s.config.Config
+import stryker4s.files.MutatesFileResolver
 import stryker4s.log.Logger
+import stryker4s.maven.files.MavenMutatesResolver
 import stryker4s.maven.runner.MavenTestRunner
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
@@ -60,4 +62,8 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
     }
     ()
   }
+
+  override def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
+    if (config.mutate.isEmpty) new MavenMutatesResolver(project) else super.resolveMutatesFileSource
+
 }
