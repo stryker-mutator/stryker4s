@@ -34,15 +34,6 @@ object TreeExtensions {
         case found: T if found.isEqual(toFind) => found
       }
 
-    final def contains[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Boolean =
-      thisTree
-        .collectFirst {
-          case found: T if found.isEqual(toFind) => true
-        }
-        .getOrElse(false)
-
-    final def findParent[T <: Tree](implicit classTag: ClassTag[T]): Option[T] =
-      mapParent[T, Option[T]](thisTree, _.some, none)
   }
 
   implicit final class TransformOnceExtension(val thisTree: Tree) extends AnyVal {

@@ -45,7 +45,7 @@ class AggregateReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
         Stream(MutantTestedEvent(1), MutantTestedEvent(2))
           .through(sut.mutantTested)
           .compile
-          .drain >> {
+          .drain *> IO.cede >> {
           assertLoggedError("Reporter failed to report, java.lang.RuntimeException: Something happened")
           completed1.get.assertEquals(true)
         }

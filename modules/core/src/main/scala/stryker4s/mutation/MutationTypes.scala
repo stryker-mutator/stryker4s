@@ -9,9 +9,9 @@ import scala.meta.*
   */
 sealed trait Mutation[+T <: Tree] {
   def mutationName: String
-  /**
-    * Full name including the package.
-    * 
+
+  /** Full name including the package.
+    *
     * E.g. stryker4s.mutation.BooleanLiteral
     */
   def fullName: String
@@ -31,9 +31,6 @@ object Mutation {
 }
 
 /** Base trait for substitution mutation
-  *
-  * Can implicitly be converted to the appropriate `scala.meta.Tree` by importing
-  * [[stryker4s.extension.ImplicitMutationConversion]]
   *
   * @tparam T
   *   Has to be a subtype of Tree. This is so that the tree value and unapply methods return the appropriate type. E.G.
