@@ -3,8 +3,8 @@ package stryker4s.mutants.tree
 import cats.data.Ior.Both
 import cats.data.{Ior, NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
+import stryker4s.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
-import stryker4s.extension.exception.{Stryker4sException, UnableToBuildPatternMatchException}
 import stryker4s.log.Logger
 import stryker4s.model.*
 

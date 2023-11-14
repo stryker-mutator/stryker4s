@@ -1,7 +1,6 @@
 package stryker4s
 
 import fansi.Str
-
 import stryker4s.log.Level.*
 
 package object log {

@@ -7,7 +7,7 @@ import cats.syntax.either.*
 import fs2.io.file.{Files, Path}
 import mutationtesting.MutantStatus
 import stryker4s.config.Config
-import stryker4s.extension.exception.InitialTestRunFailedException
+import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.model.*
 import stryker4s.report.Reporter
 import stryker4s.testkit.{FileUtil, LogMatchers, MockitoSuite, Stryker4sIOSuite}
