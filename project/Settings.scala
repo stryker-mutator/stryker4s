@@ -88,7 +88,7 @@ object Settings {
     name := "stryker4s-api",
     crossPaths := false, // drop off Scala suffix from artifact names.
     autoScalaLibrary := false, // exclude scala-library from dependencies
-    javacOptions ++= Seq("--release", "11")
+    javacOptions ++= Seq("--release", "8")
   )
 
   lazy val testkitSettings: Seq[Setting[?]] = Seq(
