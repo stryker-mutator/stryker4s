@@ -93,7 +93,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
           val atLeastSize: Long = 100 * 1024L // 100KB
           Files[IO].size(tempFile).map(size => assert(size > atLeastSize))
         } >> {
-          val expectedHeader = "/*! For license information please see mutation-test-elements.js.LICENSE.txt */"
+          val expectedHeader = """var MutationTestElements=function(E){"use strict";var Wo=Object.defineProperty;"""
           // Read the first line
           Files[IO]
             .readRange(tempFile, 256, 0, expectedHeader.getBytes().length.toLong)
