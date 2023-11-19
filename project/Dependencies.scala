@@ -26,7 +26,7 @@ object Dependencies {
     val fansi = "0.4.0"
     val fs2 = "3.9.3"
     val mutationTestingElements = "2.0.5"
-    val mutationTestingMetrics = "2.0.5"
+    val mutationTestingMetrics = "3.0.0"
     val pureconfig = "0.17.4"
     val scalameta = "4.8.14"
     val slf4j = "2.0.9"
