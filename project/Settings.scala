@@ -27,7 +27,7 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
-    tpolecatScalacOptions += ScalacOptions.source3,
+    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("11")),
     Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
   )
 
