@@ -45,7 +45,7 @@ We support mutation testing Stryker4s with Stryker4s! The easiest way is to foll
 
 Here are some resources you can use if you are new to mutation testing:
 
-- [Scala Love in the City 2021 - Hugo van Rijswijk - Who is Testing yout Tests?](https://youtu.be/Vq9eqZzblfg)
+- [Scala Love in the City 2021 - Hugo van Rijswijk - Who is Testing your Tests?](https://youtu.be/Vq9eqZzblfg)
 - [What is mutation testing?](https://stryker-mutator.io/) (and the rest of the website). On the Stryker mutator website.
 - [Mutation Testing: Complete Guide - Guru99](https://www.guru99.com/mutation-testing.html)
 - [Scala Days 2019 - Daniel Westheide - Testing in the postapocalyptic future](https://portal.klewel.com/watch/webcast/scala-days-2019/talk/18/)
