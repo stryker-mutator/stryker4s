@@ -1,6 +1,7 @@
 package stryker4s.mutants.tree
 
 import cats.data.{NonEmptyList, NonEmptyVector}
+import cats.syntax.option.*
 import fs2.io.file.Path
 import stryker4s.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.TreeExtensions.*
@@ -184,7 +185,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
           MutantId(id),
           MutatedCode(
             replacement,
-            MutantMetadata(original.toString(), replacement.toString, category.mutationName, original.pos)
+            MutantMetadata(original.toString(), replacement.toString, category.mutationName, original.pos, none)
           )
         )
       }

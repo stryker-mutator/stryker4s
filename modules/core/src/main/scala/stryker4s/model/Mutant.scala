@@ -12,14 +12,19 @@ final case class MutantId(value: Int) extends AnyVal {
 }
 
 final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {
-  def toMutantResult(status: MutantStatus, testsCompleted: Option[Int] = none, description: Option[String] = none) =
+  def toMutantResult(
+      status: MutantStatus,
+      testsCompleted: Option[Int] = none,
+      statusReason: Option[String] = none
+  ): MutantResult =
     MutantResult(
       id = id.toString(),
       mutatorName = mutatedCode.metadata.mutatorName,
       replacement = mutatedCode.metadata.replacement,
       location = mutatedCode.metadata.location,
       status = status,
-      description = description,
+      description = mutatedCode.metadata.description,
+      statusReason = statusReason,
       testsCompleted = testsCompleted
     )
 }
@@ -37,7 +42,13 @@ final case class MutatedCode(mutatedStatement: Term, metadata: MutantMetadata)
   * @param location
   *   The location of the mutated code
   */
-final case class MutantMetadata(original: String, replacement: String, mutatorName: String, location: Location) {
+final case class MutantMetadata(
+    original: String,
+    replacement: String,
+    mutatorName: String,
+    location: Location,
+    description: Option[String]
+) {
   def showLocation: String = {
     import MutantMetadata.locationShow
 
@@ -46,8 +57,14 @@ final case class MutantMetadata(original: String, replacement: String, mutatorNa
 }
 
 object MutantMetadata {
-  def apply(original: String, replacement: String, mutatorName: String, position: Position): MutantMetadata =
-    MutantMetadata(original, replacement, mutatorName, position.toLocation)
+  def apply(
+      original: String,
+      replacement: String,
+      mutatorName: String,
+      position: Position,
+      description: Option[String]
+  ): MutantMetadata =
+    MutantMetadata(original, replacement, mutatorName, position.toLocation, description)
 
   implicit def locationShow: Show[Location] = Show.show(location =>
     s"${location.start.line}:${location.start.column} to ${location.end.line}:${location.end.column}"

@@ -96,7 +96,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
       MutantId(id),
       MutatedCode(
         foundOrig,
-        MutantMetadata(foundOrig.syntax, category.tree.syntax, category.mutationName, foundOrig.pos)
+        MutantMetadata(foundOrig.syntax, category.tree.syntax, category.mutationName, foundOrig.pos, none)
       )
     )
   }

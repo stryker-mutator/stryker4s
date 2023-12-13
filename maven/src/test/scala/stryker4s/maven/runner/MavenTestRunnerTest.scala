@@ -1,5 +1,6 @@
 package stryker4s.maven.runner
 
+import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.{Location, MutantStatus, Position}
 import org.apache.maven.model.Profile
@@ -138,7 +139,10 @@ class MavenTestRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMat
   }
 
   def createMutant =
-    MutantWithId(MutantId(1), MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation)))
+    MutantWithId(
+      MutantId(1),
+      MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation, none))
+    )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))
 }

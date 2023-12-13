@@ -1,6 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
+import cats.syntax.option.*
 import fansi.Color
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
@@ -38,7 +39,12 @@ object TestRunner {
                   time,
                   IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toHumanReadable}")) *>
                     releaseAndSwap
-                      .as(mutant.toMutantResult(MutantStatus.Timeout))
+                      .as(
+                        mutant.toMutantResult(
+                          MutantStatus.Timeout,
+                          statusReason = s"Timeout of ${time.toHumanReadable} exceeded.".some
+                        )
+                      )
                 ) <* IO.cede
             } yield result
 

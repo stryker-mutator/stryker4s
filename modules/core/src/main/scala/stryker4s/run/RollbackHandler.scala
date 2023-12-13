@@ -49,7 +49,7 @@ class RollbackHandler(instrumenter: MutantInstrumenter)(implicit log: Logger) {
           .nonEmptyPartition { mutant =>
             compileErrorMutantIds
               .get(mutant.id)
-              .map(error => mutant.toMutantResult(MutantStatus.CompileError, description = error.show.some))
+              .map(error => mutant.toMutantResult(MutantStatus.CompileError, statusReason = error.show.some))
               .toRight(mutant)
           }
           .map(mutatedFile.fileOrigin -> _.toList.toVector)
