@@ -232,20 +232,20 @@ class MutantRunner(
   }
 
   private def staticMutant(mutant: MutantWithId): MutantResult = mutant
-    .toMutantResult(MutantStatus.Ignored)
-    .copy(
-      description =
-        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some,
-      static = true.some
+    .toMutantResult(
+      MutantStatus.Ignored,
+      statusReason =
+        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some
     )
+    .copy(static = true.some)
 
   private def noCoverageMutant(mutant: MutantWithId): MutantResult = mutant
-    .toMutantResult(MutantStatus.Ignored)
-    .copy(
-      description =
-        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some,
-      static = true.some
+    .toMutantResult(
+      MutantStatus.Ignored,
+      statusReason =
+        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some
     )
+    .copy(static = true.some)
 
   case class CoverageExclusions(
       hasCoverage: Boolean,

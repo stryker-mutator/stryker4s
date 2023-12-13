@@ -468,7 +468,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         tree,
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 
@@ -477,7 +477,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new scala.util.matching.Regex($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 
@@ -486,7 +486,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new Regex($regex, "any")""",
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 
@@ -495,7 +495,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = $regex.r""",
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 
@@ -504,7 +504,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 
@@ -513,7 +513,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = java.util.regex.Pattern.compile($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 
@@ -522,7 +522,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex, CASE_INSENSITIVE)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation).tree
+        RegularExpression(".", regex.pos.toLocation, "").tree
       )
     }
 

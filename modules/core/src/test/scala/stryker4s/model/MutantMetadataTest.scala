@@ -1,6 +1,6 @@
 package stryker4s.model
 
-import cats.syntax.show.*
+import cats.syntax.all.*
 import mutationtesting.{Location, Position}
 import stryker4s.testkit.Stryker4sSuite
 
@@ -16,7 +16,7 @@ class MutantMetadataTest extends Stryker4sSuite {
 
     test("should be equal to showLocation") {
       val location = Location(Position(1, 2), Position(3, 4))
-      val metadata = MutantMetadata("foo", "bar", "baz", location)
+      val metadata = MutantMetadata("foo", "bar", "baz", location, none)
 
       assertEquals(location.show, metadata.showLocation)
     }

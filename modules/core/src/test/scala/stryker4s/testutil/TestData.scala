@@ -13,7 +13,10 @@ import scala.meta.quasiquotes.*
 
 trait TestData {
   def createMutant =
-    MutantWithId(MutantId(0), MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation)))
+    MutantWithId(
+      MutantId(0),
+      MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation, none))
+    )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))
 

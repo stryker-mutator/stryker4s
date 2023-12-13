@@ -50,18 +50,19 @@ object RegexMutations {
       .map(
         NonEmptyVector
           .fromVectorUnsafe(_)
-          .map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation)))
+          .map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation), r.description))
       )
   }
 
   private def ignoredMutation(lit: Lit.String, e: String) = {
     val metadata =
-      MutatedCode(lit, MutantMetadata(lit.value, "", "RegularExpression", lit.pos))
+      MutatedCode(lit, MutantMetadata(lit.value, "", "RegularExpression", lit.pos, none))
     (metadata, RegexParseError(lit.value, e))
   }
 }
 
-final case class RegularExpression(pattern: String, location: Location) extends SubstitutionMutation[Lit.String] {
+final case class RegularExpression(pattern: String, location: Location, description: String)
+    extends SubstitutionMutation[Lit.String] {
 
   def mutationName: String = classOf[RegularExpression].getSimpleName
   override def fullName: String = classOf[RegularExpression].getName()

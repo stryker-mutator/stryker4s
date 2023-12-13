@@ -1,7 +1,7 @@
 package stryker4s.run
 
 import cats.effect.{Deferred, IO, Ref, Resource}
-import cats.syntax.traverse.*
+import cats.syntax.all.*
 import fansi.Color.*
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
@@ -73,7 +73,10 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         } yield result
 
         op.asserting { result =>
-          assertEquals(result, mutant.toMutantResult(MutantStatus.Timeout))
+          assertEquals(
+            result,
+            mutant.toMutantResult(MutantStatus.Timeout, statusReason = "Timeout of 1 millisecond exceeded.".some)
+          )
           assertLoggedDebug(s"Mutant ${mutant.id} timed out over 1 millisecond")
         }
       }

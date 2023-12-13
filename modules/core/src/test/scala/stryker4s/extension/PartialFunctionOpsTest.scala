@@ -1,6 +1,6 @@
 package stryker4s.extension
 
-import cats.kernel.Monoid
+import cats.Monoid
 import cats.syntax.monoid.*
 import stryker4s.testkit.Stryker4sSuite
 

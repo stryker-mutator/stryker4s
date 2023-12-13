@@ -12,7 +12,7 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.mutants.findmutants.MutantFinder
-import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
+import stryker4s.mutants.tree.{IgnoredMutation, MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -26,7 +26,7 @@ class Mutator(
 ) {
 
   type Found[A, B] = (SourceContext, (Vector[A], Map[PlaceableTree, B]))
-  type FoundMutations = Found[(MutatedCode, IgnoredMutationReason), Mutations]
+  type FoundMutations = Found[IgnoredMutation, Mutations]
   type FoundMutationsWithId = Found[MutantResult, MutantsWithId]
 
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Vector[MutatedFile])] = {
@@ -57,7 +57,7 @@ class Mutator(
 
   private def updateWithId: Pipe[IO, FoundMutations, FoundMutationsWithId] = {
 
-    def mapLeft(lefts: Vector[(MutatedCode, IgnoredMutationReason)], i: AtomicInteger) =
+    def mapLeft(lefts: Vector[IgnoredMutation], i: AtomicInteger) =
       lefts.map { case (mutated, reason) =>
         MutantResult(
           i.getAndIncrement().toString(),

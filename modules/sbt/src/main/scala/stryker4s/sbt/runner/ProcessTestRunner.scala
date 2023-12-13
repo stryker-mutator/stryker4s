@@ -30,7 +30,7 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
         mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some)
       case TestsUnsuccessful(testsCompleted) =>
         mutant.toMutantResult(MutantStatus.Killed, testsCompleted = testsCompleted.some)
-      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, description = msg.some)
+      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, statusReason = msg.some)
       case _                       => mutant.toMutantResult(MutantStatus.RuntimeError)
     }
   }

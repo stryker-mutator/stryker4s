@@ -20,7 +20,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
       rollbackableTree.asserting { tree =>
         val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
         val mutantMetadata =
-          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos)
+          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
         val mutants = NonEmptyVector.of(
           MutantWithId(
             MutantId(1),
@@ -45,7 +45,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
             .map(
               _.toMutantResult(
                 MutantStatus.CompileError,
-                description = s"L${mutantMetadata.location.start.line}: error2".some
+                statusReason = s"L${mutantMetadata.location.start.line}: error2".some
               )
             )
             .toVector
@@ -62,7 +62,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
       rollbackableTree.asserting { tree =>
         val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
         val mutantMetadata =
-          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos)
+          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
 
         //
         val nonExistentMutantId = MutantId(2)
@@ -90,7 +90,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
       rollbackableTree.asserting { tree =>
         val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
         val mutantMetadata =
-          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos)
+          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
         val mutants = NonEmptyVector.of(
           MutantWithId(
             MutantId(1),
@@ -113,7 +113,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
             .map(
               _.toMutantResult(
                 MutantStatus.CompileError,
-                description = s"L${mutantMetadata.location.start.line}: error".some
+                statusReason = s"L${mutantMetadata.location.start.line}: error".some
               )
             )
             .toVector

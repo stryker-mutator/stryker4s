@@ -1,5 +1,6 @@
 package stryker4s.run
 
+import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.{Location, MutantStatus, Position}
 import stryker4s.command.runner.ProcessTestRunner
@@ -58,7 +59,10 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogM
   }
 
   def createMutant =
-    MutantWithId(MutantId(0), MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation)))
+    MutantWithId(
+      MutantId(0),
+      MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation, none))
+    )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))
 
