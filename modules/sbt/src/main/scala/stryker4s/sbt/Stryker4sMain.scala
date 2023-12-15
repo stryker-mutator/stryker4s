@@ -29,8 +29,9 @@ object Stryker4sMain extends AutoPlugin {
     stryker := strykerTask.value,
     stryker / logLevel := Level.Info,
     stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations
-    strykerMinimumSbtVersion := "1.4.0",
-    strykerIsSupported := sbtVersion.value >= strykerMinimumSbtVersion.value
+    strykerMinimumSbtVersion := "1.7.0",
+    strykerIsSupported := SemanticSelector(s">=${strykerMinimumSbtVersion.value}")
+      .matches(VersionNumber(sbtVersion.value))
   )
 
   lazy val strykerTask = Def.task {
