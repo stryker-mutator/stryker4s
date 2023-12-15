@@ -5,9 +5,15 @@ import cats.syntax.all.*
 import fansi.Color.*
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
-import stryker4s.model.{InitialTestRunCoverageReport, InitialTestRunResult, MutantWithId, NoCoverageInitialTestRun}
+import stryker4s.model.{
+  InitialTestRunCoverageReport,
+  InitialTestRunResult,
+  MutantId,
+  MutantWithId,
+  NoCoverageInitialTestRun
+}
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
-import stryker4s.testrunner.api.testprocess.CoverageReport
+import stryker4s.testrunner.api.{CoverageReport, TestFile}
 import stryker4s.testutil.TestData
 import stryker4s.testutil.stubs.TestRunnerStub
 
@@ -15,7 +21,7 @@ import scala.concurrent.duration.*
 
 class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
-  val coverageTestNames = Seq.empty[String]
+  val coverageTestNames = Seq.empty[TestFile]
   describe("timeoutRunner") {
     implicit val config = Config.default
 
@@ -34,8 +40,10 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         val reportedTimeout = 2.seconds
         val op = for {
           timeout <- Deferred[IO, FiniteDuration]
-          emptyReport = CoverageReport(Map.empty[Int, Seq[String]])
-          innerTR = initialTestRunner(InitialTestRunCoverageReport(true, emptyReport, emptyReport, reportedTimeout))
+          emptyReport = CoverageReport(Map.empty[MutantId, Seq[TestFile]])
+          innerTR = initialTestRunner(
+            InitialTestRunCoverageReport(true, emptyReport, emptyReport, reportedTimeout, Seq.empty)
+          )
           sut = TestRunner.timeoutRunner(timeout, innerTR)
           _ <- sut.use(_.initialTestRun())
         } yield timeout
@@ -245,13 +253,13 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
   def initialTestRunner(result: InitialTestRunResult = NoCoverageInitialTestRun(true)): Resource[IO, TestRunner] =
     Resource.pure(new TestRunner {
       def initialTestRun(): IO[InitialTestRunResult] = IO.pure(result)
-      def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = ???
+      def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = ???
     })
 
   def timeoutRunner(sleep: FiniteDuration, result: MutantWithId): Resource[IO, TestRunner] =
     Resource.pure(new TestRunner {
       def initialTestRun(): IO[InitialTestRunResult] = ???
-      def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
+      def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] =
         IO.sleep(sleep).as(result.toMutantResult(MutantStatus.Killed))
     })
 

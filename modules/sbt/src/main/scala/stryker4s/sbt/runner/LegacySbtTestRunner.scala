@@ -9,6 +9,7 @@ import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.run.TestRunner
+import stryker4s.testrunner.api.TestFile
 
 class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], extracted: Extracted)(implicit
     log: Logger
@@ -22,7 +23,7 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
     onFailed = NoCoverageInitialTestRun(false)
   )
 
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+  def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = {
     val mutationState =
       extracted.appendWithSession(settings :+ mutationSetting(mutant.id.value), initialState)
     runTests(

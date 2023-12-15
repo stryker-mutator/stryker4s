@@ -4,18 +4,17 @@ import cats.Show
 import cats.syntax.all.*
 import mutationtesting.{Location, MutantResult, MutantStatus}
 import stryker4s.extension.TreeExtensions.PositionExtension
+import stryker4s.testrunner.api.TestDefinitionId
 
 import scala.meta.{Position, Term}
-
-final case class MutantId(value: Int) extends AnyVal {
-  override def toString(): String = value.toString
-}
 
 final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {
   def toMutantResult(
       status: MutantStatus,
       testsCompleted: Option[Int] = none,
-      statusReason: Option[String] = none
+      statusReason: Option[String] = none,
+      killedBy: Option[Seq[TestDefinitionId]] = none,
+      coveredBy: Option[Seq[TestDefinitionId]] = none
   ): MutantResult =
     MutantResult(
       id = id.toString(),
@@ -25,7 +24,9 @@ final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {
       status = status,
       description = mutatedCode.metadata.description,
       statusReason = statusReason,
-      testsCompleted = testsCompleted
+      testsCompleted = testsCompleted,
+      coveredBy = coveredBy.map(_.map(_.toString)),
+      killedBy = killedBy.map(_.map(_.toString))
     )
 }
 

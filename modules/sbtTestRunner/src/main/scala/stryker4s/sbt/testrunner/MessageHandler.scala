@@ -2,7 +2,7 @@ package stryker4s.sbt.testrunner
 
 import sbt.testing.Status
 import stryker4s.coverage.{collectCoverage, timed}
-import stryker4s.testrunner.api.testprocess.*
+import stryker4s.testrunner.api.*
 
 import scala.concurrent.duration.FiniteDuration
 import scala.util.control.NonFatal
@@ -21,7 +21,7 @@ final class TestRunnerMessageHandler() extends MessageHandler {
           val result = testRunner.runMutation(mutation, testNames)
           toTestResult(result)
         } catch {
-          case NonFatal(e) => ErrorDuringTestRun(e.toString())
+          case NonFatal(e) => ErrorDuringTestRun.of(e.toString())
         }
 
       case StartInitialTestRun() =>
@@ -39,10 +39,10 @@ final class TestRunnerMessageHandler() extends MessageHandler {
     }
 
   def toTestResult(result: TestRunResult): Response =
-    if (result.status == Status.Success) TestsSuccessful(result.testsCompleted)
-    else TestsUnsuccessful(result.testsCompleted)
+    if (result.status == Status.Success) TestsSuccessful.of(result.testsCompleted)
+    else TestsUnsuccessful.of(result.testsCompleted, failedTests = result.failedTests)
 
   def toInitialTestResult(status: Status, coverage: CoverageTestNameMap, duration: FiniteDuration): Response =
-    CoverageTestRunResult(status == Status.Success, Some(coverage), durationNanos = duration.toNanos)
+    CoverageTestRunResult.of(status == Status.Success, Some(coverage), durationNanos = duration.toNanos)
 
 }

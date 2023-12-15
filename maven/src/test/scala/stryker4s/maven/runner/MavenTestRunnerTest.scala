@@ -10,6 +10,7 @@ import stryker4s.maven.stubs.{InvocationResultStub, InvokerStub}
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode, NoCoverageInitialTestRun}
 import stryker4s.mutation.LesserThan
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
+import stryker4s.testrunner.api.TestFile
 
 import java.util as ju
 import scala.jdk.CollectionConverters.*
@@ -19,7 +20,7 @@ class MavenTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")
-  val coverageTestNames = Seq.empty[String]
+  val coverageTestNames = Seq.empty[TestFile]
   def properties = new ju.Properties()
   def goals = Seq("test")
 

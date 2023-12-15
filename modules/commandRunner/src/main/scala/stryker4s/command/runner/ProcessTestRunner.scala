@@ -7,6 +7,7 @@ import stryker4s.config.Config
 import stryker4s.model.*
 import stryker4s.run.TestRunner
 import stryker4s.run.process.{Command, ProcessRunner}
+import stryker4s.testrunner.api.TestFile
 
 import scala.concurrent.TimeoutException
 import scala.util.{Failure, Success}
@@ -20,7 +21,7 @@ class ProcessTestRunner(command: Command, processRunner: ProcessRunner, tmpDir: 
     }
   }
 
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+  def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = {
     val id = mutant.id.value
     processRunner(command, tmpDir, ("ACTIVE_MUTATION", id.toString)).map {
       case Success(0)                   => mutant.toMutantResult(MutantStatus.Survived)

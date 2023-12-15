@@ -1,6 +1,8 @@
-package stryker4s.testrunner.api.testprocess
+package stryker4s.testrunner.api
 
-case class CoverageReport(report: Map[Int, Seq[String]]) extends AnyVal
+import stryker4s.model.MutantId
+
+case class CoverageReport(report: Map[MutantId, Seq[TestFile]]) extends AnyVal
 
 object CoverageReport {
   def apply(testRunMap: CoverageTestNameMap): CoverageReport = {

@@ -18,7 +18,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
       val sut = new MutantRunResultMapper {}
       implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
 
-      val result = sut.toReport(mutationRunResults)
+      val result = sut.toReport(mutationRunResults, testFiles.some)
 
       assertEquals(result.thresholds, Thresholds(high = 60, low = 40))
       assertEquals(result.files.size, 2)
@@ -82,6 +82,8 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
 
     Map(path -> Vector(mutantRunResult, mutantRunResult2), path3 -> Vector(mutantRunResult3))
   }
+
+  def testFiles: TestFileDefinitionDictionary = Map.empty
 
   /** Helper method to create a [[stryker4s.model.MutantWithId]], with the `original` param having the correct
     * `Location` property

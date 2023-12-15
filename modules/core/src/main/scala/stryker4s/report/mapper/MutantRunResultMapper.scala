@@ -12,7 +12,8 @@ import scala.util.{Properties, Try}
 
 trait MutantRunResultMapper {
   protected[stryker4s] def toReport(
-      results: MutantResultsPerFile
+      results: MutantResultsPerFile,
+      testFiles: Option[TestFileDefinitionDictionary]
   )(implicit config: Config): MutationTestResult[Config] =
     MutationTestResult(
       thresholds = toThresholds(config.thresholds),
@@ -20,7 +21,8 @@ trait MutantRunResultMapper {
       projectRoot = config.baseDir.absolute.toString.some,
       config = config.some,
       system = systemInformation.some,
-      framework = frameworkInformation.some
+      framework = frameworkInformation.some,
+      testFiles = testFiles
     )
 
   private def toThresholds(thresholds: ConfigThresholds): Thresholds =
