@@ -21,7 +21,6 @@ import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File as JFile, PrintStream}
-import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 
 /** This Runner run Stryker mutations in a single SBT session
@@ -70,8 +69,7 @@ class Stryker4sSbtRunner(
 
       val fullSettings = settings ++ Seq(
         libraryDependencies += "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
-        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT"))
-                         List(Resolver.sonatypeRepo("snapshots"): @nowarn("cat=deprecation"))
+        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT")) Resolver.sonatypeOssRepos("snapshot")
                        else Seq.empty)
       )
       val newState = extracted.appendWithSession(fullSettings, state)
