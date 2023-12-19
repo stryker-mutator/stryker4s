@@ -1,16 +1,17 @@
 package stryker4s.report
 
 import cats.effect.IO
+import cats.syntax.all.*
 import fs2.*
 import fs2.io.file.{Files, Path}
 import mutationtesting.{Metrics, MutationTestResult, Thresholds}
-import org.mockito.captor.ArgCaptor
-import stryker4s.files.{DiskFileIO, FileIO}
-import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.files.DiskFileIO
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
+import stryker4s.testutil.stubs.FileIOStub
 
 import scala.concurrent.duration.*
 
-class HtmlReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
+class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
   private val elementsLocation = "/elements/mutation-test-elements.js"
 
@@ -41,39 +42,34 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
 
   describe("indexHtml") {
     test("should contain title") {
-      val mockFileIO = mock[FileIO]
-      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
-      val sut = new HtmlReporter(mockFileIO)
+      val fileIOStub = FileIOStub()
+      val sut = new HtmlReporter(fileIOStub)
       val testFile = Path("foo.bar")
 
       sut
-        .writeIndexHtmlTo(testFile)
-        .map { _ =>
-          verify(mockFileIO).createAndWrite(testFile, expectedHtml)
+        .writeIndexHtmlTo(testFile) >>
+        fileIOStub.createAndWriteCalls.asserting { calls =>
+          assertEquals(calls.loneElement._1, testFile)
+          assertEquals(calls.loneElement._2, expectedHtml)
         }
-        .void
-        .assert
     }
   }
 
   describe("reportJs") {
     test("should contain the report") {
-      val mockFileIO = mock[FileIO]
-      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
-      val sut = new HtmlReporter(mockFileIO)
+      val fileIOStub = FileIOStub()
+      val sut = new HtmlReporter(fileIOStub)
       val testFile = Path("foo.bar")
       val runResults = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
       sut
-        .writeReportJsTo(testFile, runResults)
-        .map { _ =>
+        .writeReportJsTo(testFile, runResults) >>
+        fileIOStub.createAndWriteCalls.asserting { calls =>
           val expectedJs =
             """document.querySelector('mutation-test-report-app').report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}}"""
-          verify(mockFileIO).createAndWrite(testFile, expectedJs)
-          ()
+
+          assertEquals(calls.loneElement, (testFile, expectedJs))
         }
-        .void
-        .assert
     }
   }
 
@@ -81,7 +77,6 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     test("should write the resource") {
       // Arrange
       val fileIO = new DiskFileIO()
-
       Files[IO].tempDirectory.use { tmpDir =>
         val tempFile = tmpDir.resolve("mutation-test-elements.js")
         val sut = new HtmlReporter(fileIO)
@@ -111,60 +106,47 @@ class HtmlReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     val fileLocation = Path("target") / "stryker4s-report"
 
     test("should write the report files to the report directory") {
-      val mockFileIO = mock[FileIO]
-      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
-      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
-      val sut = new HtmlReporter(mockFileIO)
+      val fileIOStub = FileIOStub()
+      val sut = new HtmlReporter(fileIOStub)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
       sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, fileLocation))
-        .asserting { _ =>
-          val writtenFilesCaptor = ArgCaptor[Path]
-          verify(mockFileIO, times(2)).createAndWrite(writtenFilesCaptor, any[String])
-          verify(mockFileIO).createAndWriteFromResource(any[Path], eqTo(elementsLocation))
-          val paths = writtenFilesCaptor.values.map(_.toString)
-          paths.foreach(path => assert(path.contains(fileLocation.toString)))
-          assertSameElements(writtenFilesCaptor.values.map(_.fileName.toString), Seq("index.html", "report.js"))
+        .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, fileLocation)) >>
+        (fileIOStub.createAndWriteFromResourceCalls, fileIOStub.createAndWriteCalls).tupled.asserting {
+          case (fromResourceCalls, createAndWriteCalls) =>
+            createAndWriteCalls
+              .map(_._1.toString)
+              .foreach(fileName => assert(fileName.contains(fileLocation.toString), fileName))
+            assertSameElements(createAndWriteCalls.map(_._1.fileName.toString), Seq("index.html", "report.js"))
+            assertEquals(fromResourceCalls.loneElement._2, elementsLocation)
         }
     }
 
     test("should write the mutation-test-elements.js file to the report directory") {
-      val mockFileIO = mock[FileIO]
-      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
-      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
-      val sut = new HtmlReporter(mockFileIO)
+      val fileIOStub = FileIOStub()
+      val sut = new HtmlReporter(fileIOStub)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
       sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation))
-        .asserting { _ =>
-          val elementsCaptor = ArgCaptor[Path]
-          verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
-          verify(mockFileIO).createAndWriteFromResource(elementsCaptor, eqTo(elementsLocation))
-
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+        fileIOStub.createAndWriteFromResourceCalls.asserting { calls =>
           val expectedFileLocation = fileLocation / "mutation-test-elements.js"
-          assert(elementsCaptor.value.toString.endsWith(expectedFileLocation.toString))
+          assertEquals(calls.loneElement._1, expectedFileLocation)
+          assertEquals(calls.loneElement._2, elementsLocation)
         }
     }
 
     test("should info log a message") {
-      val mockFileIO = mock[FileIO]
-      whenF(mockFileIO.createAndWrite(any[Path], any[String])).thenReturn(())
-      whenF(mockFileIO.createAndWriteFromResource(any[Path], any[String])).thenReturn(())
-      val sut = new HtmlReporter(mockFileIO)
+      val fileIOStub = FileIOStub()
+      val sut = new HtmlReporter(fileIOStub)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation))
         .asserting { _ =>
-          val captor = ArgCaptor[Path]
-          verify(mockFileIO).createAndWrite(captor.capture, eqTo(expectedHtml))
-          verify(mockFileIO, times(2)).createAndWrite(any[Path], any[String])
-          verify(mockFileIO).createAndWriteFromResource(any[Path], any[String])
           assertLoggedInfo(s"Written HTML report to ${(fileLocation / "index.html").toString}")
         }
     }

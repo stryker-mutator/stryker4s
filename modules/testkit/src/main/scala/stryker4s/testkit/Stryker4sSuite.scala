@@ -4,7 +4,7 @@ import cats.effect.IO
 import munit.internal.difflib.Diff
 import munit.{CatsEffectSuite, Compare, FunSuite, Location}
 
-import scala.meta.Tree
+import scala.meta.*
 
 sealed trait Stryker4sAssertions {
   this: FunSuite =>

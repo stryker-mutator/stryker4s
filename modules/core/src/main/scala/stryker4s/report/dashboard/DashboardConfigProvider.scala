@@ -8,7 +8,17 @@ import stryker4s.config.Config
 import stryker4s.report.dashboard.Providers.*
 import stryker4s.report.model.DashboardConfig
 
-class DashboardConfigProvider[F[_]: Monad: Env]()(implicit config: Config) {
+trait DashboardConfigProvider[F[_]] {
+  def resolveConfig(): F[ValidatedNec[String, DashboardConfig]]
+}
+
+object DashboardConfigProvider {
+  def apply[F[_]: Monad: Env]()(implicit config: Config): DashboardConfigProvider[F] =
+    new DashboardConfigProviderImpl[F]()
+}
+
+private class DashboardConfigProviderImpl[F[_]: Monad: Env]()(implicit config: Config)
+    extends DashboardConfigProvider[F] {
 
   def resolveConfig(): F[ValidatedNec[String, DashboardConfig]] =
     (resolveapiKey(), resolveproject(), resolveversion()).mapN { case t =>

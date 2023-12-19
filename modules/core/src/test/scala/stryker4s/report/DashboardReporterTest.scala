@@ -8,21 +8,21 @@ import fansi.Color.Red
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.{Full, MutationScoreOnly}
-import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
-import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
+import stryker4s.testutil.stubs.DashboardConfigProviderStub
 import sttp.client3.*
 import sttp.client3.testing.SttpBackendStub
 import sttp.model.{Header, MediaType, Method, StatusCode}
 
 import scala.concurrent.duration.*
 
-class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
+class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers {
   describe("buildRequest") {
     test("should compose the request") {
       implicit val backend = backendStub
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val dashConfig = baseDashConfig
       val FinishedRunEvent(report, metrics, _, _) = baseResults
 
@@ -47,8 +47,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
 
     test("should make a score-only request when score-only is configured") {
       implicit val backend = backendStub
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val dashConfig = baseDashConfig.copy(reportType = MutationScoreOnly)
       val FinishedRunEvent(report, metrics, _, _) = baseResults
 
@@ -60,8 +60,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
 
     test("should add the module if it is present") {
       implicit val backend = backendStub
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val dashConfig = baseDashConfig.copy(module = "myModule".some)
       val FinishedRunEvent(report, metrics, _, _) = baseResults
 
@@ -77,9 +77,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
         _.whenAnyRequest
           .thenRespond(DashboardPutResult("https://hrefHere.com").asRight)
       )
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val runReport = baseResults
 
       sut
@@ -91,9 +90,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
 
     test("log when not being able to resolve dashboard config") {
       implicit val backend = backendStub
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      whenF(mockDashConfig.resolveConfig()).thenReturn(NonEmptyChain("fooConfigKey", "barConfigKey").invalid)
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub.invalid(NonEmptyChain("fooConfigKey", "barConfigKey"))
+      val sut = new DashboardReporter(dashConfigProvider)
       val runReport = baseResults
 
       sut
@@ -107,9 +105,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
 
     test("should log when a response can't be parsed to a href") {
       implicit val backend = backendStub.map(_.whenAnyRequest.thenRespond("some other response"))
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val runReport = baseResults
 
       sut
@@ -126,9 +123,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
         _.whenAnyRequest
           .thenRespond(Response(HttpError("auth required", StatusCode.Unauthorized).asLeft, StatusCode.Unauthorized))
       )
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val runReport = baseResults
 
       sut
@@ -148,9 +144,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with MockitoSuite with LogM
             Response(HttpError("internal error", StatusCode.InternalServerError).asLeft, StatusCode.InternalServerError)
           )
         )
-      val mockDashConfig = mock[DashboardConfigProvider[IO]]
-      whenF(mockDashConfig.resolveConfig()).thenReturn(baseDashConfig.validNec)
-      val sut = new DashboardReporter(mockDashConfig)
+      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+      val sut = new DashboardReporter(dashConfigProvider)
       val runReport = baseResults
 
       sut

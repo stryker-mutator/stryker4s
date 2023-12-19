@@ -3,13 +3,13 @@ package stryker4s.maven
 import cats.effect.IO
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
-import org.apache.maven.shared.invoker.*
 import stryker4s.config.Config
-import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
-import stryker4s.maven.files.MavenMutatesResolver
 import stryker4s.files.GlobFileResolver
+import stryker4s.maven.files.MavenMutatesResolver
+import stryker4s.maven.stubs.InvokerStub
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 
-class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
+class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with LogMatchers {
 
   implicit val config: Config = Config.default
 
@@ -20,8 +20,8 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with L
     test("should add test-filter for all test runners") {
       val expectedTestFilter = Seq("*MavenMutantRunnerTest", "*OtherTest")
       implicit val config: Config = Config.default.copy(testFilter = expectedTestFilter)
-      val invokerMock = mock[Invoker]
-      val sut = new Stryker4sMavenRunner(new MavenProject(), invokerMock)
+      val invokerStub = InvokerStub()
+      val sut = new Stryker4sMavenRunner(new MavenProject(), invokerStub)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -41,10 +41,10 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with L
     test("should add test-filter for surefire if a property is already defined") {
       val expectedTestFilter = "*MavenMutantRunnerTest"
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
-      val invokerMock = mock[Invoker]
+      val invokerStub = InvokerStub()
       val mavenProject = new MavenProject()
       mavenProject.getProperties().setProperty("test", "*OtherTest")
-      val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
+      val sut = new Stryker4sMavenRunner(mavenProject, invokerStub)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -58,10 +58,10 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with L
     test("should add test-filter for scalatest if a property is already defined") {
       val expectedTestFilter = "*MavenMutantRunnerTest"
       implicit val config: Config = Config.default.copy(testFilter = Seq(expectedTestFilter))
-      val invokerMock = mock[Invoker]
+      val invokerStub = InvokerStub()
       val mavenProject = new MavenProject()
       mavenProject.getProperties().setProperty("wildcardSuites", "*OtherTest")
-      val sut = new Stryker4sMavenRunner(mavenProject, invokerMock)
+      val sut = new Stryker4sMavenRunner(mavenProject, invokerStub)
 
       sut
         .resolveTestRunners(tmpDir)
@@ -79,7 +79,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with L
     test("should resolve to a maven mutates file resolver when config.mutate is empty") {
       implicit val config = Config.default.copy(mutate = Seq.empty)
       val project = new MavenProject()
-      val sut = new Stryker4sMavenRunner(project, mock[Invoker])
+      val sut = new Stryker4sMavenRunner(project, InvokerStub())
 
       assert(clue(sut.resolveMutatesFileSource).isInstanceOf[MavenMutatesResolver])
     }
@@ -87,7 +87,7 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with MockitoSuite with L
     test("uses glob for filled config.mutate") {
       implicit val config = Config.default.copy(mutate = Seq("src/test/resources/mutate/*"))
       val project = new MavenProject()
-      val sut = new Stryker4sMavenRunner(project, mock[Invoker])
+      val sut = new Stryker4sMavenRunner(project, InvokerStub())
 
       assert(clue(sut.resolveMutatesFileSource).isInstanceOf[GlobFileResolver])
     }

@@ -10,13 +10,20 @@ import scala.util.{Success, Try}
 
 object TestProcessRunner {
   def apply(testRunExitCode: Try[Int]*)(implicit log: Logger): TestProcessRunner =
-    new TestProcessRunner(true, testRunExitCode*)
-  def failInitialTestRun()(implicit log: Logger): TestProcessRunner = new TestProcessRunner(false)
+    new TestProcessRunner(true, Try(Seq.empty), testRunExitCode*)
+
+  def failInitialTestRun()(implicit log: Logger): TestProcessRunner = new TestProcessRunner(false, Try(Seq.empty))
+
+  def apply(processResult: Try[Seq[String]])(implicit log: Logger): TestProcessRunner =
+    new TestProcessRunner(true, processResult)
 }
 
-class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int]*)(implicit log: Logger)
-    extends ProcessRunner {
+class TestProcessRunner(commandSuccess: Boolean, lines: Try[Seq[String]], testRunExitCode: Try[Int]*)(implicit
+    log: Logger
+) extends ProcessRunner {
   val timesCalled: Iterator[Int] = Iterator.from(0)
+
+  override def apply(command: Command, workingDir: Path): Try[Seq[String]] = lines
 
   /** Keep track on the amount of times the function is called.
     *
@@ -26,7 +33,7 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
       config: Config
   ): IO[Try[Int]] = {
     if (envVar.isEmpty) {
-      IO.pure(Success(if (initialTestRunSuccess) 0 else 1))
+      IO.pure(Success(if (commandSuccess) 0 else 1))
     } else {
       timesCalled.next()
       IO.pure(testRunExitCode(envVar.map(_._2).head.toInt))

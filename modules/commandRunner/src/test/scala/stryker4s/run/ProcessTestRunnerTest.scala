@@ -8,14 +8,14 @@ import stryker4s.config.Config
 import stryker4s.model.*
 import stryker4s.mutation.GreaterThan
 import stryker4s.run.process.{Command, ProcessRunner}
-import stryker4s.testkit.{LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta.quasiquotes.*
 import scala.util.{Failure, Success}
 
-class ProcessTestRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers {
+class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
 
   implicit val config: Config = Config.default
   def processTestRunner(processRunner: ProcessRunner) =

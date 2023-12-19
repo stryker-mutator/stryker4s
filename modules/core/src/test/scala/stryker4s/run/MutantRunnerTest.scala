@@ -9,14 +9,13 @@ import mutationtesting.MutantStatus
 import stryker4s.config.Config
 import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.model.*
-import stryker4s.report.Reporter
-import stryker4s.testkit.{FileUtil, LogMatchers, MockitoSuite, Stryker4sIOSuite}
+import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.TestData
-import stryker4s.testutil.stubs.{TestFileResolver, TestRunnerStub}
+import stryker4s.testutil.stubs.{ReporterStub, RollbackHandlerStub, TestFileResolver, TestRunnerStub}
 
 import scala.meta.*
 
-class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatchers with TestData {
+class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
   val baseDir = FileUtil.getResource("scalaFiles")
   val staticTmpDir = baseDir.resolve("target/stryker4s-tmpDir")
@@ -34,10 +33,9 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     val noCleanTmpDirConfig = staticTmpDirConfig.copy(cleanTmpDir = false)
 
     test("should return a mutationScore of 66.67 when 2 of 3 mutants are killed") {
-      val fileCollectorMock = new TestFileResolver(Seq.empty)
-      val reporterMock = mock[Reporter]
-      val rollbackHandler = mock[RollbackHandler]
-      when(reporterMock.mutantTested).thenReturn(_.drain)
+      val fileCollectorStub = new TestFileResolver(Seq.empty)
+      val reporterStub = ReporterStub()
+      val rollbackHandler = RollbackHandlerStub.alwaysSuccessful()
       val mutant = createMutant.copy(id = MutantId(3))
       val secondMutant = createMutant.copy(id = MutantId(1))
       val thirdMutant = createMutant.copy(id = MutantId(2))
@@ -52,7 +50,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
         )(path)
       }
 
-      val sut = new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)
+      val sut = new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
@@ -67,14 +65,23 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     }
 
     test("should return a mutationScore of 66.67 when 2 of 3 mutants are killed and 1 doesn't compile.") {
-      val fileCollectorMock = new TestFileResolver(Seq.empty)
-      val reporterMock = mock[Reporter]
-      val rollbackHandler = mock[RollbackHandler]
-      when(reporterMock.mutantTested).thenReturn(_.drain)
       val mutant = createMutant.copy(id = MutantId(3))
       val secondMutant = createMutant.copy(id = MutantId(1))
       val thirdMutant = createMutant.copy(id = MutantId(2))
       val compileErrorResult = thirdMutant.toMutantResult(MutantStatus.CompileError)
+      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
+      val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
+      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+
+      val fileCollectorStub = new TestFileResolver(Seq.empty)
+      val reporterStub = ReporterStub()
+
+      val rollbackHandler = RollbackHandlerStub.withResult(
+        RollbackResult(
+          Vector(mutatedFile.copy(mutants = NonEmptyVector.of(mutant, secondMutant))),
+          Map(file -> Vector(compileErrorResult))
+        ).asRight
+      )
 
       val testRunner =
         TestRunnerStub.withInitialCompilerError(
@@ -83,16 +90,8 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
           secondMutant.toMutantResult(MutantStatus.Killed)
         )
 
-      val sut = new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)
-      val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
-      val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
-      when(rollbackHandler.rollbackFiles(any[NonEmptyList[CompilerErrMsg]], any[Vector[MutatedFile]])).thenReturn(
-        RollbackResult(
-          Vector(mutatedFile.copy(mutants = NonEmptyVector.of(mutant, secondMutant))),
-          Map(file -> Vector(compileErrorResult))
-        ).asRight
-      )
+      val sut = new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)
+
       sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
         val (path, resultForFile) = results.loneElement
         assertEquals(path, file)
@@ -105,10 +104,9 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     }
 
     test("should use static temp dir if it was requested") {
-      val fileCollectorMock = new TestFileResolver(Seq.empty)
-      val reporterMock = mock[Reporter]
-      val rollbackHandler = mock[RollbackHandler]
-      when(reporterMock.mutantTested).thenReturn(_.drain)
+      val fileCollectorStub = new TestFileResolver(Seq.empty)
+      val reporterStub = ReporterStub()
+      val rollbackHandler = RollbackHandlerStub.alwaysSuccessful()
       val mutant = createMutant.copy(id = MutantId(3))
 
       val testRunner = { (path: Path) =>
@@ -118,7 +116,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
       }
 
       val sut =
-        new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)(staticTmpDirConfig, testLogger)
+        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(staticTmpDirConfig, testLogger)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
@@ -129,15 +127,15 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     }
 
     test("should not clean up tmp dir on errors") {
-      val fileCollectorMock = new TestFileResolver(Seq.empty)
-      val reporterMock = mock[Reporter]
-      val rollbackHandler = mock[RollbackHandler]
+      val fileCollectorStub = new TestFileResolver(Seq.empty)
+      val reporterStub = ReporterStub()
+      val rollbackHandler = RollbackHandlerStub.alwaysSuccessful()
 
       val testRunner = TestRunnerStub.withResults(initialTestRunResultIsSuccessful = false)()
       val mutant = createMutant.copy(id = MutantId(3))
 
       val sut =
-        new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)(staticTmpDirConfig, testLogger)
+        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(staticTmpDirConfig, testLogger)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
@@ -149,17 +147,15 @@ class MutantRunnerTest extends Stryker4sIOSuite with MockitoSuite with LogMatche
     }
 
     test("should not clean up tmp dir if clean-tmp-dir is disabled") {
-      val fileCollectorMock = new TestFileResolver(Seq.empty)
-      val reporterMock = mock[Reporter]
-      val rollbackHandler = mock[RollbackHandler]
-
-      when(reporterMock.mutantTested).thenReturn(_.drain)
+      val fileCollectorStub = new TestFileResolver(Seq.empty)
+      val reporterStub = ReporterStub()
+      val rollbackHandler = RollbackHandlerStub.alwaysSuccessful()
       val mutant = createMutant.copy(id = MutantId(1))
 
       val testRunner = TestRunnerStub.withResults(mutant.toMutantResult(MutantStatus.Killed))
 
       val sut =
-        new MutantRunner(testRunner, fileCollectorMock, rollbackHandler, reporterMock)(noCleanTmpDirConfig, testLogger)
+        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(noCleanTmpDirConfig, testLogger)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
