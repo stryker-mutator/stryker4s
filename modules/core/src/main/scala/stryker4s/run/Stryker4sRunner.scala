@@ -35,7 +35,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
         new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
         instrumenter
       ),
-      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, new RollbackHandler(instrumenter), reporter),
+      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, RollbackHandler(instrumenter), reporter),
       reporter
     )
 
@@ -71,7 +71,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
                 )
               )
           }
-        new DashboardReporter(new DashboardConfigProvider[IO]())
+        new DashboardReporter(DashboardConfigProvider[IO]())
     }
 
   def resolveTestRunners(tmpDir: Path)(implicit

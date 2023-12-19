@@ -97,8 +97,6 @@ object Settings {
       Dependencies.fansi,
       Dependencies.fs2IO,
       Dependencies.scalameta,
-      Dependencies.test.mockitoScala,
-      Dependencies.test.mockitoScalaCats,
       Dependencies.test.munit,
       Dependencies.test.munitCatsEffect
     )

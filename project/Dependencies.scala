@@ -15,7 +15,6 @@ object Dependencies {
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
 
     // Test dependencies
-    val mockitoScala = "1.17.30"
     val munit = "1.0.0-M10"
     val munitCatsEffect = "2.0.0-M4"
 
@@ -36,8 +35,6 @@ object Dependencies {
   }
 
   object test {
-    val mockitoScala = "org.mockito" %% "mockito-scala" % versions.mockitoScala
-    val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala
     val munit = "org.scalameta" %% "munit" % versions.munit
     val munitCatsEffect = "org.typelevel" %% "munit-cats-effect" % versions.munitCatsEffect
   }

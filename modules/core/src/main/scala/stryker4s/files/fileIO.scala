@@ -5,7 +5,7 @@ import fs2.*
 import fs2.io.file.*
 import fs2.io.readInputStream
 
-sealed trait FileIO {
+trait FileIO {
   def createAndWriteFromResource(file: Path, resource: String): IO[Unit]
 
   def createAndWrite(file: Path, content: String): IO[Unit]

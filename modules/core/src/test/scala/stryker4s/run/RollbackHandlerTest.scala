@@ -15,7 +15,7 @@ import scala.meta.*
 class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
 
   describe("rollbackFiles") {
-    val sut = new RollbackHandler(new MutantInstrumenter(InstrumenterOptions.testRunner))
+    val sut = RollbackHandler(new MutantInstrumenter(InstrumenterOptions.testRunner))
     test("should remove a non-compiling mutant") {
       rollbackableTree.asserting { tree =>
         val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
