@@ -34,8 +34,8 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          # Sbt version that is tested (1.4.0) doesn't work on Java 21
-          java-version: 11
+          # Sbt version that is tested (1.7.0) doesn't work on Java 21
+          java-version: 17
           cache: 'sbt'
       - name: Run tests
         run: sbt 'sbtTestRunner2_12/publishLocal; scripted'

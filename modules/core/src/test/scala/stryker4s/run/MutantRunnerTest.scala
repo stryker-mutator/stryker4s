@@ -54,7 +54,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
       val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
-      sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
+      sut(Vector(mutatedFile)).asserting { case RunResult(results, _, _) =>
         assertLoggedInfo("Setting up mutated environment...")
         assertLoggedInfo("Starting initial test run...")
         assertLoggedInfo("Initial test run succeeded! Testing mutants...")
@@ -92,7 +92,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
       val sut = new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)
 
-      sut(Vector(mutatedFile)).asserting { case RunResult(results, _) =>
+      sut(Vector(mutatedFile)).asserting { case RunResult(results, _, _) =>
         val (path, resultForFile) = results.loneElement
         assertEquals(path, file)
         assertLoggedInfo("Attempting to remove 1 mutant(s) that gave a compile error...")

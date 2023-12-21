@@ -1,8 +1,8 @@
 package stryker4s.sbt.runner
 
+import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.apply.*
-import cats.syntax.option.*
+import cats.syntax.all.*
 import com.comcast.ip4s.{IpLiteralSyntax, Port, SocketAddress}
 import fs2.io.net.Network
 import mutationtesting.{MutantResult, MutantStatus}
@@ -14,7 +14,7 @@ import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
-import stryker4s.testrunner.api.testprocess.*
+import stryker4s.testrunner.api.*
 
 import java.net.ConnectException
 import java.util.concurrent.TimeUnit
@@ -23,17 +23,54 @@ import scala.sys.process.Process
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
-  override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
-    val message = StartTestRun(mutant.id.value, testNames)
+  override def runMutant(mutant: MutantWithId, testsToRun: Seq[TestFile]): IO[MutantResult] = {
+    val message = StartTestRun.of(mutant.id, testsToRun.map(_.fullyQualifiedName))
+    val coveredBy = testsToRun.flatMap(_.definitions).map(_.id).some
+
     testProcess.sendMessage(message).map {
       case TestsSuccessful(testsCompleted) =>
-        mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some)
-      case TestsUnsuccessful(testsCompleted) =>
-        mutant.toMutantResult(MutantStatus.Killed, testsCompleted = testsCompleted.some)
-      case ErrorDuringTestRun(msg) => mutant.toMutantResult(MutantStatus.Killed, statusReason = msg.some)
-      case _                       => mutant.toMutantResult(MutantStatus.RuntimeError)
+        mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some, coveredBy = coveredBy)
+      case TestsUnsuccessful(testsCompleted, failedTests) =>
+        mutant.toMutantResult(
+          MutantStatus.Killed,
+          testsCompleted = testsCompleted.some,
+          coveredBy = coveredBy,
+          killedBy = extractKilledBy(testsToRun, failedTests).some,
+          statusReason = extractStatusReason(failedTests)
+        )
+      case ErrorDuringTestRun(msg) =>
+        mutant.toMutantResult(MutantStatus.Killed, statusReason = msg.some, coveredBy = coveredBy)
+      case _ => mutant.toMutantResult(MutantStatus.RuntimeError, coveredBy = coveredBy)
     }
   }
+
+  /** Map failed test names to their corresponding test ids.
+    */
+  private def extractKilledBy(
+      testsToRun: Seq[TestFile],
+      failedTests: Seq[FailedTestDefinition]
+  ): Seq[TestDefinitionId] =
+    failedTests.flatMap { failedTest =>
+      testsToRun
+        .find(t => failedTest.fullyQualifiedName.contains(t.fullyQualifiedName))
+        .flatMap(_.definitions.find(_.name == failedTest.name).map(_.id))
+    }
+
+  /** Extract the status reason from the failed tests into a single string (or None).
+    */
+  private def extractStatusReason(failedTests: Seq[FailedTestDefinition]): Option[String] =
+    NonEmptyList
+      .fromList(
+        failedTests
+          .flatMap(test =>
+            test.message.map(msg =>
+              // TODO: change `.plainText` to `.render` when mutation-testing-elements supports rendering ansi-codes https://github.com/stryker-mutator/mutation-testing-elements/issues/2925
+              fansi.Str(test.name, ": ", msg).plainText
+            )
+          )
+          .toList
+      )
+      .map(_.mkString_("\n\n"))
 
   /** Initial test-run is done twice. This allows us to collect coverage data while filtering out 'static' mutants.
     * Mutants are considered static if they are initialized only once. This means the value cannot be changed using
@@ -55,9 +92,10 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
         InitialTestRunCoverageReport(
           firstRun.isSuccessful && secondRun.isSuccessful,
-          CoverageReport(firstRun.coverageTestNameMap.get),
-          CoverageReport(secondRun.coverageTestNameMap.get),
-          averageDuration
+          CoverageReport(firstRun.getCoverageTestNameMap),
+          CoverageReport(secondRun.getCoverageTestNameMap),
+          averageDuration,
+          firstRun.getCoverageTestNameMap.testNameIds.values.toSeq
         )
       case x => throw new MatchError(x)
     }
@@ -128,9 +166,9 @@ object ProcessTestRunner extends TestInterfaceMapper {
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group]
   ): IO[Unit] = {
-    val apiTestGroups = TestProcessContext(toApiTestGroups(frameworks, testGroups))
+    val testContext = TestProcessContext(toApiTestGroups(frameworks, testGroups))
 
-    testProcess.sendMessage(apiTestGroups).void
+    testProcess.sendMessage(testContext).void
   }
 
   implicit final class ResourceOps[A](val resource: Resource[IO, A]) extends AnyVal {

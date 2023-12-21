@@ -1,5 +1,6 @@
+import stryker4s.model.MutantId
 import stryker4s.sbt.testrunner.TestInterfaceMapper
-import stryker4s.testrunner.api.testprocess.CoverageTestNameMap
+import stryker4s.testrunner.api.{CoverageTestNameMap, TestDefinition, TestFile, TestFileId}
 
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
 import java.util.concurrent.{ConcurrentLinkedQueue, TimeUnit}
@@ -14,9 +15,11 @@ package object stryker4s {
 
     /** We have no idea how tests will run their code, so the coverage analysis needs to be able to handle concurrency
       */
-    private val coveredTests = TrieMap.empty[Int, ConcurrentLinkedQueue[String]]
+    private val mutantCoverage = TrieMap.empty[MutantId, ConcurrentLinkedQueue[TestFileId]]
 
-    private val activeTest = new AtomicReference[String]()
+    private val tests = TrieMap.empty[TestFileId, TestFile]
+
+    private val activeTest = new AtomicReference[TestFileId](TestFileId(-1))
 
     /** If we are currently collecting coverage analysis. If not we can skip it for performance
       */
@@ -27,9 +30,9 @@ package object stryker4s {
     def coverMutant(ids: Int*): Boolean = {
       if (collectCoverage.get()) {
         val currentTest = activeTest.get
-        if (currentTest != null) {
+        if (currentTest.value != -1) {
           ids.foreach { id =>
-            val currentCovered = coveredTests.getOrElseUpdate(id, new ConcurrentLinkedQueue())
+            val currentCovered = mutantCoverage.getOrElseUpdate(MutantId(id), new ConcurrentLinkedQueue())
             if (!currentCovered.contains(currentTest)) {
               currentCovered.add(currentTest)
               ()
@@ -40,12 +43,32 @@ package object stryker4s {
       true // Always return true, `coverMutant` is called in the guard condition of the default mutation switch
     }
 
+    /** Add the test selector to the currently active test.
+      *
+      * This is either the single test inside a suite if the framework supports it, or the name of the entire suite
+      */
+    protected[stryker4s] def appendDefinitionToActiveTest(definition: TestDefinition) =
+      if (collectCoverage.get()) {
+        val currentTestId = activeTest.get
+        synchronized {
+          val test = tests(currentTestId)
+          tests.update(currentTestId, test.addDefinitions(definition))
+        }
+      }
+
+    private val testIds = new AtomicInteger(0)
+
     /** Set the currently running test.
       *
       * This is to map the covered mutants with the test that was running at that time
       */
     protected[stryker4s] def setActiveTest(testName: String) =
-      if (collectCoverage.get()) activeTest.set(testName)
+      if (collectCoverage.get()) {
+        val testId = TestFileId(testIds.getAndIncrement())
+        val test = TestFile(testName, Seq.empty)
+        activeTest.set(testId)
+        tests.update(testId, test)
+      }
 
     /** Collect coverage analysis during the provided function and return it in a tuple
       */
@@ -57,7 +80,10 @@ package object stryker4s {
       (result, report())
     } finally {
       collectCoverage.set(false)
-      coveredTests.clear()
+      mutantCoverage.clear()
+      tests.clear()
+      activeTest.set(TestFileId(-1))
+      testIds.set(0)
     }
 
     /** Time a given function and return the result and the duration of that function as a tuple
@@ -73,7 +99,7 @@ package object stryker4s {
       */
     private def report(): CoverageTestNameMap = {
       import scala.jdk.CollectionConverters.*
-      TestInterfaceMapper.toCoverageMap(coveredTests.map { case (k, v) => k -> v.asScala.toSeq })
+      TestInterfaceMapper.toCoverageMap(mutantCoverage.map { case (k, v) => k -> v.asScala.toSeq }, tests.toMap)
     }
   }
 

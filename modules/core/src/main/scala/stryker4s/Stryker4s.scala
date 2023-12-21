@@ -33,7 +33,7 @@ class Stryker4s(fileSource: MutatesFileResolver, mutator: Mutator, runner: Mutan
     val mapper = new MutantRunResultMapper() {}
     for {
       time <- IO.realTime
-      report = mapper.toReport(merged)
+      report = mapper.toReport(merged, results.testFiles)
       metrics = Metrics.calculateMetrics(report)
       reportsLocation = config.baseDir / "target/stryker4s-report" / time.toMillis.toString()
       _ <- reporter.onRunFinished(FinishedRunEvent(report, metrics, results.duration, reportsLocation))

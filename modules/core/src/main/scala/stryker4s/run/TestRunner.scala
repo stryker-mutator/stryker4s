@@ -9,13 +9,14 @@ import stryker4s.extension.DurationExtensions.HumanReadableExtension
 import stryker4s.extension.ResourceExtensions.*
 import stryker4s.log.Logger
 import stryker4s.model.{InitialTestRunResult, MutantWithId}
+import stryker4s.testrunner.api.TestFile
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
 trait TestRunner {
   def initialTestRun(): IO[InitialTestRunResult]
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult]
+  def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult]
 }
 
 /** Wrapping testrunners to add functionality to existing testrunners
@@ -29,7 +30,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       IO {
         new TestRunner {
-          override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
+          override def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] =
             for {
               runner <- testRunnerRef.get
               time <- timeout.get
@@ -77,12 +78,12 @@ object TestRunner {
       IO {
         new TestRunner {
 
-          override def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] =
+          override def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] =
             retryRunMutation(mutant, testNames)
 
           def retryRunMutation(
               mutant: MutantWithId,
-              testNames: Seq[String],
+              testNames: Seq[TestFile],
               retriesLeft: Long = 2
           ): IO[MutantResult] = {
             testRunnerRef.get.flatMap(_.runMutant(mutant, testNames)).handleErrorWith { _ =>
@@ -110,7 +111,7 @@ object TestRunner {
     inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner {
-          def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = for {
+          def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = for {
             uses <- usesRef.getAndUpdate(_ + 1)
             _ <-
               // If the limit has been reached, create a new testrunner

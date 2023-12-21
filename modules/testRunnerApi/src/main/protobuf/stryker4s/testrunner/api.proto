@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package stryker4s.testrunner.api;
+package stryker4s.testrunner;
 
 import "scalapb/scalapb.proto";
 option (scalapb.options) = {
@@ -18,7 +18,7 @@ message Request {
 }
 
 message StartTestRun {
-  int32 mutation = 1;
+  int32 mutation = 1 [(scalapb.field).type = "stryker4s.model.MutantId"];
   repeated string test_names = 3;
 }
 message StartInitialTestRun {}
@@ -85,6 +85,7 @@ message TestsSuccessful {
 }
 message TestsUnsuccessful {
   int32 tests_completed = 1;
+  repeated FailedTestDefinition failed_tests = 2;
 }
 message ErrorDuringTestRun {
   string msg = 1;
@@ -99,12 +100,30 @@ message CoverageTestRunResult {
   * Without it, the size grows exponentially with the number of tests and mutants
   */
 message CoverageTestNameMap {
-  map<int32, string> test_name_ids = 1;
-  map<int32, TestNames> test_names = 2;
+  map<int32, TestFile> test_name_ids = 1 [
+      (scalapb.field).key_type = "stryker4s.testrunner.api.TestFileId"];
+  map<int32, TestNames> test_names = 2 [
+      (scalapb.field).key_type = "stryker4s.model.MutantId"];
 }
 
 message TestNames {
-  repeated int32 test_name = 1;
+  repeated int32 test_name = 1 [(scalapb.field).type = "stryker4s.testrunner.api.TestFileId"];
+}
+
+message TestFile {
+  string fully_qualified_name = 1;
+  repeated TestDefinition definitions = 2;
+}
+
+message TestDefinition {
+  int32 id = 1 [(scalapb.field).type = "stryker4s.testrunner.api.TestDefinitionId"];
+  string name = 2;
+}
+
+message FailedTestDefinition {
+  string fully_qualified_name = 1;
+  string name = 2;
+  optional string message = 3;
 }
 
 message Fingerprint {

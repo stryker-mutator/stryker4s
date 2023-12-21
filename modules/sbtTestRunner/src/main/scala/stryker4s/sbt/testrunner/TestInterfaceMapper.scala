@@ -1,11 +1,13 @@
 package stryker4s.sbt.testrunner
 
-import sbt.testing.{Status, TaskDef}
-import stryker4s.testrunner.api.testprocess.*
+import sbt.testing
+import sbt.testing.{Event, Status, TaskDef}
+import stryker4s.model.MutantId
+import stryker4s.testrunner.api.*
 
 /** Maps stryker4s-api test-interface models to sbt-testinterface models
   */
-trait TestInterfaceMapper {
+protected[stryker4s] trait TestInterfaceMapper {
   def combineStatus(current: Status, newStatus: Status) =
     (current, newStatus) match {
       case (Status.Error, _)   => Status.Error
@@ -39,25 +41,38 @@ trait TestInterfaceMapper {
       case Fingerprint.Empty => throw new MatchError(f)
     }
 
-  def toCoverageMap(coverage: Iterable[(Int, Seq[String])]): CoverageTestNameMap = {
+  def toCoverageMap(
+      coverage: Iterable[(MutantId, Seq[TestFileId])],
+      testNameIds: Map[TestFileId, TestFile]
+  ): CoverageTestNameMap = {
     // Create a map of fingerprints to ids to efficiently send over the wire
-    val testNameIds = coverage.flatMap(_._2).toSet.zipWithIndex.toMap
-    val testNames: Map[Int, TestNames] = coverage.map { case (id, testNames) =>
-      id -> toTestNames(testNames, testNameIds)
+    val testNames: Map[MutantId, TestNames] = coverage.map { case (mutantId, testNames) =>
+      mutantId -> TestNames.of(testNames)
     }.toMap
-    CoverageTestNameMap(testNameIds.map(_.swap), testNames)
+    CoverageTestNameMap.of(testNameIds, testNames)
   }
-
-  def toTestNames(testNames: Seq[String], testnameIds: Map[String, Int]): TestNames =
-    TestNames(testNames.map(testnameIds(_)).toSeq)
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {
-      case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint(a.isModule(), a.annotationName())
+      case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint.of(a.isModule(), a.annotationName())
       case s: sbt.testing.SubclassFingerprint =>
-        SubclassFingerprint(s.isModule(), s.superclassName(), s.requireNoArgConstructor())
+        SubclassFingerprint.of(s.isModule(), s.superclassName(), s.requireNoArgConstructor())
       case _ => throw new NotImplementedError(s"Can not map fingerprint $fp")
     }
+
+  def testNameFromEvent(event: Event): String = {
+    event.selector() match {
+      case n: testing.NestedSuiteSelector => n.suiteId()
+      case n: testing.NestedTestSelector  => n.testName()
+      case t: testing.TestSelector        => t.testName()
+      case _                              => event.fullyQualifiedName()
+    }
+  }
+
+  def toOption(optionalThrowable: testing.OptionalThrowable): Option[Throwable] =
+    if (optionalThrowable.isDefined()) Some(optionalThrowable.get())
+    else None
+
 }
 
 object TestInterfaceMapper extends TestInterfaceMapper

@@ -1,4 +1,4 @@
-package stryker4s.testrunner.api.testprocess
+package stryker4s.testrunner.api
 
 /** Keys for system properties passed to the testprocess
   */

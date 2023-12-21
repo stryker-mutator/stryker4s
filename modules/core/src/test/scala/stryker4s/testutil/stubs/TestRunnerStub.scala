@@ -7,15 +7,17 @@ import fs2.io.file.Path
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.model.*
 import stryker4s.run.{ResourcePool, TestRunner, TestRunnerPool}
+import stryker4s.testrunner.api.TestFile
 import stryker4s.testutil.TestData
 
 class TestRunnerStub(results: Seq[() => MutantResult], initialTestRunResultIsSuccessful: Boolean = true)
     extends TestRunner {
   private val stream = Iterator.from(0)
 
-  def initialTestRun(): IO[InitialTestRunResult] = IO.pure(NoCoverageInitialTestRun(initialTestRunResultIsSuccessful))
+  override def initialTestRun(): IO[InitialTestRunResult] =
+    IO.pure(NoCoverageInitialTestRun(initialTestRunResultIsSuccessful))
 
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+  override def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = {
     // Ensure runMutant can always continue
     IO(results.applyOrElse(stream.next(), (_: Int) => results.head)())
       .recover { case _: ArrayIndexOutOfBoundsException => results.head() }
