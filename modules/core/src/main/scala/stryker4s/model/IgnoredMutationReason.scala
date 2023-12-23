@@ -18,3 +18,7 @@ final case class RegexParseError(pattern: String, message: String) extends Ignor
   def explanation: String =
     s"The Regex parser of weapon-regex couldn't parse this regex pattern: '$pattern'. Please report this issue at https://github.com/stryker-mutator/weapon-regex/issues. Inner error: $message"
 }
+
+final case class NoRegexMutationsFound(pattern: String) extends IgnoredMutationReason {
+  def explanation: String = s"No mutations found in this regular expression: '$pattern'"
+}

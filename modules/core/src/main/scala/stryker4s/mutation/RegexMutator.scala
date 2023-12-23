@@ -4,7 +4,7 @@ import cats.data.NonEmptyVector
 import cats.syntax.all.*
 import mutationtesting.Location
 import stryker4s.extension.TreeExtensions.{PositionExtension, RegexLocationExtension}
-import stryker4s.model.{MutantMetadata, MutatedCode, RegexParseError}
+import stryker4s.model.{IgnoredMutationReason, MutantMetadata, MutatedCode, NoRegexMutationsFound, RegexParseError}
 import stryker4s.mutants.tree.IgnoredMutation
 
 import scala.meta.*
@@ -45,19 +45,22 @@ object RegexMutations {
   def apply(lit: Lit.String): Either[IgnoredMutation, NonEmptyVector[RegularExpression]] = {
     weaponregex.WeaponRegeX
       .mutate(lit.value, mutationLevels = Seq(1))
-      .leftMap(ignoredMutation(lit, _))
+      .leftMap(e => ignoredMutation(lit, RegexParseError(lit.value, e)))
       .map(_.toVector)
-      .map(
+      .flatMap(
         NonEmptyVector
-          .fromVectorUnsafe(_)
-          .map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation), r.description))
+          .fromVector(_)
+          .map(
+            _.map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation), r.description))
+          )
+          .toRight(ignoredMutation(lit, NoRegexMutationsFound(lit.value)))
       )
   }
 
-  private def ignoredMutation(lit: Lit.String, e: String) = {
+  private def ignoredMutation(lit: Lit.String, e: IgnoredMutationReason) = {
     val metadata =
       MutatedCode(lit, MutantMetadata(lit.value, "", "RegularExpression", lit.pos, none))
-    (metadata, RegexParseError(lit.value, e))
+    (metadata, e)
   }
 }
 
