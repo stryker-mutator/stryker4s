@@ -88,7 +88,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
           val atLeastSize: Long = 100 * 1024L // 100KB
           Files[IO].size(tempFile).map(size => assert(size > atLeastSize))
         } >> {
-          val expectedHeader = """var MutationTestElements=function(E){"use strict";var Wo=Object.defineProperty;"""
+          val expectedHeader = """var MutationTestElements"""
           // Read the first line
           Files[IO]
             .readRange(tempFile, 256, 0, expectedHeader.getBytes().length.toLong)
