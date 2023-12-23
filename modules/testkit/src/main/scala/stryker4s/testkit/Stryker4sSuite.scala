@@ -1,5 +1,6 @@
 package stryker4s.testkit
 
+import cats.data.NonEmptyVector
 import cats.effect.IO
 import munit.internal.difflib.Diff
 import munit.{CatsEffectSuite, Compare, FunSuite, Location}
@@ -71,6 +72,10 @@ sealed trait Stryker4sAssertions {
         case other => fail(s"""Expected a single element, but got size $other
                               |Elements: $it""".stripMargin)
       }
+  }
+
+  implicit class NonEmptyVectorLoneElement[A](it: NonEmptyVector[A]) {
+    def loneElement(implicit loc: Location): A = it.toVector.loneElement
   }
 
   implicit class IOSeqAssertions[A](io: IO[Seq[A]]) {
