@@ -164,10 +164,19 @@ object TreeExtensions {
 
     /** Map a `weaponregex.model.Location` to a `mutationtesting.Location`
       */
-    def toLocation(offset: Location): Location = Location(
-      start = mutationtesting
-        .Position(line = pos.start.line + offset.start.line, column = pos.start.column + offset.start.column),
-      end = mutationtesting.Position(line = pos.end.line + offset.end.line, column = pos.end.column + offset.end.column)
-    )
+    def toLocation(offset: Location, stringValue: Lit.String): Location = {
+      val stringOffset = if (stringValue.syntax.startsWith("\"\"\"")) 3 else 1
+      Location(
+        start = mutationtesting
+          .Position(
+            line = pos.start.line + offset.start.line,
+            column = pos.start.column + offset.start.column + stringOffset
+          ),
+        end = mutationtesting.Position(
+          line = pos.end.line + offset.start.line,
+          column = pos.end.column + offset.start.column + stringOffset
+        )
+      )
+    }
   }
 }

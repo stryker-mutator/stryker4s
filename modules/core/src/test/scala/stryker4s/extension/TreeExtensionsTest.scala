@@ -1,8 +1,10 @@
 package stryker4s.extension
 
 import cats.syntax.option.*
+import mutationtesting.{Location, Position}
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.testkit.Stryker4sSuite
+import weaponregex.model as wrx
 
 import scala.collection.mutable.ListBuffer
 import scala.meta.*
@@ -216,6 +218,25 @@ class TreeExtensionsTest extends Stryker4sSuite {
           c => fail(s"Should not be called, context was $c")
       }
       assertEquals(calls, 1)
+    }
+  }
+
+  describe("toLocation") {
+    val wrxLocation = wrx.Location(wrx.Position(1, 2), wrx.Position(3, 4))
+    val offset = Location(Position(5, 6), Position(7, 8))
+    test("should map a weaponregex.Location to a mutationtesting.Location") {
+      val result = wrxLocation.toLocation(offset, q""""foo"""") // single double-quote string "foo"
+
+      assertEquals(result, mutationtesting.Location(mutationtesting.Position(6, 9), mutationtesting.Position(8, 11)))
+    }
+
+    test("uses correct offset for triple double-quote strings") {
+      val result = wrxLocation.toLocation(
+        offset,
+        "\"\"\"foo\"\"\"".parse[Term].get.asInstanceOf[Lit.String]
+      ) // triple double-quote string """foo"""
+
+      assertEquals(result, mutationtesting.Location(mutationtesting.Position(6, 11), mutationtesting.Position(8, 13)))
     }
   }
 }

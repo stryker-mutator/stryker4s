@@ -141,14 +141,15 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       replacements: NonEmptyVector[T],
       mutationToTerm: T => Term
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = placeableTree => {
-    val mutations = replacements.map { replacement =>
-      val (location, description) = replacement match {
-        case r: RegularExpression => (r.location, r.description.some)
-        case _                    => (original.pos.toLocation, none)
+    val mutations = replacements.map { mutations =>
+      val tree = mutationToTerm(mutations)
+
+      val (location, description, replacement) = mutations match {
+        case r: RegularExpression => (r.location, r.description.some, r.replacement)
+        case _                    => (original.pos.toLocation, none, tree.syntax)
       }
 
-      val tree: Tree = mutationToTerm(replacement)
-      val metadata = MutantMetadata(original.syntax, tree.syntax, replacement.mutationName, location, description)
+      val metadata = MutantMetadata(original.syntax, replacement, mutations.mutationName, location, description)
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
           case t if t.isEqual(original) && t.pos == original.pos =>

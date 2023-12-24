@@ -2,7 +2,7 @@ package stryker4s.mutants.findmutants
 
 import munit.Location
 import stryker4s.config.Config
-import stryker4s.extension.TreeExtensions.{FindExtension, PositionExtension}
+import stryker4s.extension.TreeExtensions.FindExtension
 import stryker4s.model.{MutationExcluded, NoRegexMutationsFound, PlaceableTree, RegexParseError}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
@@ -41,11 +41,9 @@ class MutantMatcherTest extends Stryker4sSuite {
         .flatMap(_.toSeq)
         .flatMap(_.toVector)
         .map(_.metadata)
-        .find(m => m.original == original.syntax && m.replacement == expectedMutation.syntax)
+        .find(m => m.original == original.syntax && expectedMutation.syntax.contains(m.replacement))
         .getOrElse(fail(s"mutant $expectedMutation not found"))
 
-      assertEquals(actualMutant.original, original.syntax)
-      assertEquals(actualMutant.replacement, expectedMutation.syntax)
       assertEquals(actualMutant.mutatorName, expectedName)
     }
   }
@@ -468,7 +466,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         tree,
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
@@ -477,7 +475,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new scala.util.matching.Regex($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
@@ -486,7 +484,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = new Regex($regex, "any")""",
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
@@ -495,7 +493,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = $regex.r""",
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
@@ -504,7 +502,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
@@ -513,7 +511,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = java.util.regex.Pattern.compile($regex)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
@@ -522,7 +520,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         sut.matchRegex,
         q"""def foo = Pattern.compile($regex, CASE_INSENSITIVE)""",
         regex,
-        RegularExpression(".", regex.pos.toLocation, "").tree
+        Lit.String(".")
       )
     }
 
