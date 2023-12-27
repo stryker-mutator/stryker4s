@@ -4,7 +4,7 @@ import cats.data.NonEmptyVector
 import cats.syntax.all.*
 import mutationtesting.Location
 import stryker4s.extension.TreeExtensions.{PositionExtension, RegexLocationExtension}
-import stryker4s.model.{IgnoredMutationReason, MutantMetadata, MutatedCode, NoRegexMutationsFound, RegexParseError}
+import stryker4s.model.{MutantMetadata, MutatedCode, NoRegexMutationsFound, RegexParseError}
 import stryker4s.mutants.tree.IgnoredMutation
 
 import scala.meta.*
@@ -45,26 +45,31 @@ object RegexMutations {
   def apply(lit: Lit.String): Either[IgnoredMutation, NonEmptyVector[RegularExpression]] = {
     weaponregex.WeaponRegeX
       .mutate(lit.value, mutationLevels = Seq(1))
-      .leftMap(e => ignoredMutation(lit, RegexParseError(lit.value, e)))
+      .leftMap(e => (ignoredMutationMetadata(lit), RegexParseError(lit.value, e)))
       .map(_.toVector)
       .flatMap(
         NonEmptyVector
           .fromVector(_)
           .map(
-            _.map(r => RegularExpression(r.pattern, r.location.toLocation(offset = lit.pos.toLocation), r.description))
+            _.map(r =>
+              RegularExpression(
+                pattern = r.pattern,
+                location = r.location.toLocation(offset = lit.pos.toLocation, lit),
+                replacement = r.replacement,
+                description = r.description
+              )
+            )
           )
-          .toRight(ignoredMutation(lit, NoRegexMutationsFound(lit.value)))
+          .toRight((ignoredMutationMetadata(lit), NoRegexMutationsFound(lit.value)))
       )
   }
 
-  private def ignoredMutation(lit: Lit.String, e: IgnoredMutationReason) = {
-    val metadata =
-      MutatedCode(lit, MutantMetadata(lit.value, "", "RegularExpression", lit.pos, none))
-    (metadata, e)
+  private def ignoredMutationMetadata(lit: Lit.String) = {
+    MutatedCode(lit, MutantMetadata(lit.value, lit.value, "RegularExpression", lit.pos, none))
   }
 }
 
-final case class RegularExpression(pattern: String, location: Location, description: String)
+final case class RegularExpression(pattern: String, location: Location, replacement: String, description: String)
     extends SubstitutionMutation[Lit.String] {
 
   def mutationName: String = classOf[RegularExpression].getSimpleName
