@@ -15,12 +15,13 @@ object ReporterStub {
     val onRunFinishedCallsRef = Ref.unsafe[IO, Seq[FinishedRunEvent]](Seq.empty)
     new ReporterStub {
 
-      def mutantTestedCalls: IO[Seq[MutantTestedEvent]] = mutantTestedCallsRef.get
-      def onRunFinishedCalls: IO[Seq[FinishedRunEvent]] = onRunFinishedCallsRef.get
+      def mutantTestedCalls: IO[Seq[MutantTestedEvent]] = IO.cede *> mutantTestedCallsRef.get
+      def onRunFinishedCalls: IO[Seq[FinishedRunEvent]] = IO.cede *> onRunFinishedCallsRef.get
 
       override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] =
-        _.evalMap(in => mutantTestedCallsRef.update(_ :+ in)).drain
-      override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = onRunFinishedCallsRef.update(_ :+ runReport)
+        _.evalMap(in => mutantTestedCallsRef.update(_ :+ in) *> IO.cede).drain
+      override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
+        onRunFinishedCallsRef.update(_ :+ runReport) *> IO.cede
     }
   }
 
