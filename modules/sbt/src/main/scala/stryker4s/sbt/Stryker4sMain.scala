@@ -19,14 +19,14 @@ object Stryker4sMain extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    val stryker = taskKey[Unit]("Run Stryker4s mutation testing")
+    val stryker = inputKey[Unit]("Run Stryker4s mutation testing")
     val strykerMinimumSbtVersion = settingKey[String]("Lowest supported sbt version by Stryker4s")
     val strykerIsSupported = settingKey[Boolean]("If running Stryker4s is supported on this sbt version")
   }
   import autoImport.*
 
   override lazy val projectSettings: Seq[Def.Setting[?]] = Seq(
-    stryker := strykerTask.value,
+    stryker := strykerTask.evaluated,
     stryker / logLevel := Level.Info,
     stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations
     strykerMinimumSbtVersion := "1.7.0",
@@ -34,7 +34,7 @@ object Stryker4sMain extends AutoPlugin {
       .matches(VersionNumber(sbtVersion.value))
   )
 
-  lazy val strykerTask = Def.taskDyn {
+  lazy val strykerTask = Def.inputTaskDyn {
     // Call logLevel so it shows up as a used setting when set
     val _ = (stryker / logLevel).value
     val sbtLog = streams.value.log
