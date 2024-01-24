@@ -4,5 +4,5 @@ addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.0")
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.9.2")
 
 // Protobuf plugin and its dependencies
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7")
 libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.15"
