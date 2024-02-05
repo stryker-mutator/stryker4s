@@ -6,9 +6,10 @@ import io.circe.Json.*
 import io.circe.syntax.*
 import munit.Location
 import stryker4s.config.*
+import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.testkit.Stryker4sSuite
 
-class ConfigEncoderTest extends Stryker4sSuite {
+class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
   val workspaceLocation = Path("workspace").absolute.toString
   describe("configEncoder") {
     test("should be able to encode a minimal config") {
@@ -28,7 +29,7 @@ class ConfigEncoderTest extends Stryker4sSuite {
           mutate = Seq("**/main/scala/**.scala"),
           testFilter = Seq("foo.scala"),
           files = Seq("file.scala"),
-          excludedMutations = Set("bar.scala"),
+          excludedMutations = Seq(ExcludedMutation("bar.scala")),
           maxTestRunnerReuse = 2.some,
           dashboard = DashboardOptions(
             project = "myProject".some,

@@ -7,6 +7,7 @@ import fansi.Color.Red
 import fansi.{Bold, Str}
 import io.circe.Error
 import mutationtesting.{MetricsResult, MutationTestResult}
+import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.config.{Config, Full, MutationScoreOnly}
 import stryker4s.log.Logger
 import stryker4s.report.dashboard.DashboardConfigProvider
@@ -18,7 +19,8 @@ import sttp.model.{MediaType, StatusCode}
 class DashboardReporter(dashboardConfigProvider: DashboardConfigProvider[IO])(implicit
     log: Logger,
     httpBackend: Resource[IO, SttpBackend[IO, Any]]
-) extends Reporter {
+) extends Reporter
+    with CirceConfigEncoder {
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
     dashboardConfigProvider.resolveConfig().flatMap {

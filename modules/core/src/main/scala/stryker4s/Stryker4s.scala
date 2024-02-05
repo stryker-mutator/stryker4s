@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.syntax.align.*
 import mutationtesting.Metrics
 import stryker4s.config.Config
-import stryker4s.files.MutatesFileResolver
+import stryker4s.files.FileResolver
 import stryker4s.model.{MutantResultsPerFile, RunResult}
 import stryker4s.mutants.Mutator
 import stryker4s.report.mapper.MutantRunResultMapper
@@ -12,7 +12,7 @@ import stryker4s.report.{FinishedRunEvent, Reporter}
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.{ScoreStatus, ThresholdChecker}
 
-class Stryker4s(fileSource: MutatesFileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(implicit
+class Stryker4s(fileSource: FileResolver, mutator: Mutator, runner: MutantRunner, reporter: Reporter)(implicit
     config: Config
 ) {
 

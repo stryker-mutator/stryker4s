@@ -1,7 +1,7 @@
 package stryker4s.mutants.findmutants
 
 import munit.Location
-import stryker4s.config.Config
+import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.TreeExtensions.FindExtension
 import stryker4s.model.{MutationExcluded, NoRegexMutationsFound, PlaceableTree, RegexParseError}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
@@ -702,7 +702,7 @@ class MutantMatcherTest extends Stryker4sSuite {
   describe("filtering") {
     import cats.syntax.all.*
     test("should filter out config excluded mutants") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Set("LogicalOperator"))
+      implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("LogicalOperator")))
       val sut = new MutantMatcherImpl()(conf)
       val tree = q"def foo = 15 > 20 && 20 < 15"
 

@@ -7,13 +7,18 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
 
+// TODO: remove default values
+/** Configuration for Stryker4s.
+  *
+  * Defaults are in [[stryker4s.config.source.DefaultsConfigSource]]
+  */
 final case class Config(
     mutate: Seq[String] = Seq.empty,
     testFilter: Seq[String] = Seq.empty,
     baseDir: Path = Path("").absolute,
-    reporters: Set[ReporterType] = Set(Console, Html),
+    reporters: Seq[ReporterType] = Seq(Console, Html),
     files: Seq[String] = Seq.empty,
-    excludedMutations: Config.ExcludedMutations = Set.empty,
+    excludedMutations: Seq[ExcludedMutation] = Seq.empty,
     thresholds: Thresholds = Thresholds(),
     dashboard: DashboardOptions = DashboardOptions(),
     timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
@@ -27,18 +32,14 @@ final case class Config(
     cleanTmpDir: Boolean = true
 )
 
-object Config extends pure.ConfigConfigReader with circe.ConfigEncoder {
+object Config {
 
-  private def defaultConcurrency: Int = concurrencyFor(Runtime.getRuntime().availableProcessors())
+  protected[config] def defaultConcurrency: Int = concurrencyFor(Runtime.getRuntime().availableProcessors())
 
   def concurrencyFor(cpuCoreCount: Int) = {
     // Use (n / 4 concurrency, rounded) + 1
     (cpuCoreCount.toDouble / 4).round.toInt + 1
   }
-
-  /** Type alias for `Set[String]` so extra validation can be done
-    */
-  type ExcludedMutations = Set[String]
 
   lazy val default: Config = Config()
 }

@@ -4,6 +4,7 @@ import cats.syntax.option.*
 import sttp.client3.UriContext
 import sttp.model.Uri
 
+// TODO: remove defaults
 final case class DashboardOptions(
     baseUrl: Uri = uri"https://dashboard.stryker-mutator.io",
     reportType: DashboardReportType = Full,

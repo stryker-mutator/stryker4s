@@ -1,20 +1,21 @@
-package stryker4s.config.ciris
+package stryker4s.config.codec
 
+import cats.syntax.all.*
 import ciris.*
 import com.typesafe.config.{Config, ConfigException, ConfigFactory, ConfigValue as HoconConfigValue}
+import fs2.io.file.Path
 
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
-import cats.syntax.all.*
 
 // From https://github.com/2m/ciris-hocon (not published for 2.12)
 object Hocon extends HoconConfigDecoders {
 
-  final class HoconAt(config: Config, path: String) {
+  final class HoconAt(config: Config, path: String, filePath: Path) {
     def apply(name: String): ConfigValue[Effect, HoconConfigValue] =
       Try(config.getValue(fullPath(name))).fold(
         {
-          case _: ConfigException.Missing => ConfigValue.missing(key(name))
+          case _: ConfigException.Missing => ConfigValue.missing(s"${fullPath(name)} in $filePath")
           case ex                         => ConfigValue.failed(ConfigError(ex.getMessage))
         },
         ConfigValue.loaded(key(name), _)
@@ -24,11 +25,11 @@ object Hocon extends HoconConfigDecoders {
     private def fullPath(name: String) = s"$path.$name"
   }
 
-  def hoconAt(path: String): HoconAt =
-    hoconAt(ConfigFactory.load())(path)
+  def hoconAt(path: String, filePath: Path): HoconAt =
+    hoconAt(ConfigFactory.load())(path, filePath)
 
-  def hoconAt(config: Config)(path: String): HoconAt =
-    new HoconAt(config.resolve(), path)
+  def hoconAt(config: Config)(path: String, filePath: Path): HoconAt =
+    new HoconAt(config.resolve(), path, filePath)
 }
 
 trait HoconConfigDecoders {
@@ -37,7 +38,7 @@ trait HoconConfigDecoders {
 
   implicit def listHoconDecoder[T](implicit
       decoder: ConfigDecoder[HoconConfigValue, T]
-  ): ConfigDecoder[HoconConfigValue, List[T]] =
+  ): ConfigDecoder[HoconConfigValue, Seq[T]] =
     ConfigDecoder[HoconConfigValue]
       .map(_.atKey("t").getList("t").asScala.toList)
       .mapEither { (key, list) =>
