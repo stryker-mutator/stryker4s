@@ -1,4 +1,4 @@
-package stryker4s.config.circe
+package stryker4s.config.codec
 
 import fs2.io.file.Path
 import io.circe.Encoder
@@ -10,7 +10,7 @@ import scala.meta.Dialect
 
 /** Circe Encoder for encoding a [[stryker4s.config.Config]] to JSON
   */
-trait ConfigEncoder {
+trait CirceConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder
     .forProduct14(
       "mutate",
@@ -78,4 +78,6 @@ trait ConfigEncoder {
 
   implicit def debugOptionsEncoder: Encoder[DebugOptions] =
     Encoder.forProduct2("log-test-runner-stdout", "debug-test-runner")(d => (d.logTestRunnerStdout, d.debugTestRunner))
+
+  implicit def excludedMutationEncoder: Encoder[ExcludedMutation] = Encoder[String].contramap(_.value)
 }

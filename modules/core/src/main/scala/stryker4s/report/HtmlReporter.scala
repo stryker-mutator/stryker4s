@@ -4,10 +4,11 @@ import cats.effect.IO
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.Config
+import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
+class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter with CirceConfigEncoder {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"

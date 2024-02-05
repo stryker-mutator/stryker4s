@@ -44,8 +44,6 @@ object Settings {
       Dependencies.hocon,
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,
-      Dependencies.pureconfig,
-      Dependencies.pureconfigSttp,
       Dependencies.scalameta,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,

@@ -40,8 +40,6 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.3.0"
 
-    val pureconfig = "0.17.7"
-
     val scalameta = "4.9.9"
 
     val slf4j = "2.0.16"
@@ -69,8 +67,6 @@ object Dependencies {
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
-  val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
   // Exclude some 2.13 dependencies when on scala 3 to avoid conflicts
   val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
     .cross(CrossVersion.for3Use2_13)

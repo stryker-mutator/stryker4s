@@ -5,6 +5,7 @@ import cats.effect.{IO, Resource}
 import fs2.io.file.Path
 import stryker4s.Stryker4s
 import stryker4s.config.*
+import stryker4s.config.source.ConfigSource
 import stryker4s.files.*
 import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
@@ -13,7 +14,6 @@ import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstr
 import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
-import stryker4s.run.process.ProcessRunner
 import stryker4s.run.threshold.ScoreStatus
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
@@ -22,27 +22,33 @@ import sttp.model.HeaderNames
 
 abstract class Stryker4sRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] = {
-    implicit val config: Config = ConfigReader.readConfig()
+    ConfigLoader.loadAll[IO](extraConfigSources).flatMap { implicit config =>
+      val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
+      val reporter = new AggregateReporter(resolveReporters())
 
-    val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
-    val reporter = new AggregateReporter(resolveReporters())
+      val instrumenter = new MutantInstrumenter(instrumenterOptions)
 
-    val instrumenter = new MutantInstrumenter(instrumenterOptions)
-    val stryker4s = new Stryker4s(
-      resolveMutatesFileSource,
-      new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
-        instrumenter
-      ),
-      new MutantRunner(createTestRunnerPool, resolveFilesFileSource, RollbackHandler(instrumenter), reporter),
-      reporter
-    )
+      val stryker4s = new Stryker4s(
+        GlobFileResolver.forMutate(),
+        new Mutator(
+          new MutantFinder(),
+          new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
+          instrumenter
+        ),
+        new MutantRunner(
+          createTestRunnerPool,
+          GlobFileResolver.forFiles(),
+          RollbackHandler(instrumenter),
+          reporter
+        ),
+        reporter
+      )
 
-    stryker4s.run()
+      stryker4s.run()
+    }
   }
 
-  def resolveReporters()(implicit config: Config): List[Reporter] =
+  private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
       case Console => new ConsoleReporter()
       case Html    => new HtmlReporter(new DiskFileIO())
@@ -78,13 +84,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       config: Config
   ): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, stryker4s.run.TestRunner]]]
 
-  def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
-    new GlobFileResolver(
-      config.baseDir,
-      if (config.mutate.nonEmpty) config.mutate else Seq("**/main/scala/**.scala")
-    )
-
-  def resolveFilesFileSource(implicit config: Config): FilesFileResolver = new ConfigFilesResolver(ProcessRunner())
-
   def instrumenterOptions(implicit config: Config): InstrumenterOptions
+
+  def extraConfigSources: List[ConfigSource[IO]]
 }
