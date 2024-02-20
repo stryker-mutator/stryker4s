@@ -30,18 +30,18 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       )
       val sut = new MutantInstrumenter(InstrumenterOptions.testRunner)
 
-      //   // Act
+      // Act
       val mutatedSource = sut.instrumentFile(context, mutants).mutatedSource
       val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
 
-      //   // Assert
+      // Assert
       assertEquals(result.expr, q"_root_.stryker4s.activeMutation")
       assertEquals(
-        result.cases.map(_.syntax),
+        result.cases,
         List(
-          p"case 0 => x > 15".syntax,
-          p"case 1 => x <= 15".syntax,
-          p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15".syntax
+          p"case 0 => x > 15",
+          p"case 1 => x <= 15",
+          p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15"
         )
       )
       val expected = source"""class Foo {
@@ -82,11 +82,11 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       //   // Assert
       assertEquals(result.expr, q"_root_.stryker4s.activeMutation")
       assertEquals(
-        result.cases.map(_.syntax),
+        result.cases,
         List(
-          p"case 0 => true".syntax,
-          p"case 1 => false".syntax,
-          p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar".syntax
+          p"case 0 => true",
+          p"case 1 => false",
+          p"case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar"
         )
       )
       val expected = source"""class Foo {
@@ -123,8 +123,14 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
 
       //   // Assert
       assertEquals(result.expr, q"_root_.scala.sys.env.get(${Lit.String("ACTIVE_MUTATION")})")
-      assertEquals(result.cases.head.pat, p"Some(${Lit.String("0")})")
-      assertEquals(result.cases.map(_.syntax).last, p"case _ => x >= 15".syntax)
+      assertEquals(
+        result.cases,
+        List(
+          p"case Some(${Lit.String("0")}) => x > 15",
+          p"case Some(${Lit.String("1")}) => x <= 15",
+          p"case _ => x >= 15"
+        )
+      )
     }
 
     // describe("buildNewSource") {

@@ -20,7 +20,7 @@ object InstrumenterOptions {
 
   def testRunner = InstrumenterOptions(
     ActiveMutationContext.testRunner,
-    pattern = i => p"$i",
+    pattern = Lit.Int(_),
     condition = Some(ids => q"_root_.stryker4s.coverage.coverMutant(..${ids.map(Lit.Int(_)).toList})")
   )
 }

@@ -3,7 +3,9 @@ import sbt.*
 object Dependencies {
   object versions {
     val scala212 = "2.12.18"
+
     val scala213 = "2.13.12"
+
     val scala3 = "3.3.1"
 
     /** Cross-versions for main projects
@@ -16,21 +18,34 @@ object Dependencies {
 
     // Test dependencies
     val munit = "1.0.0-M11"
+
     val munitCatsEffect = "2.0.0-M4"
 
     // Direct dependencies
     val catsCore = "2.10.0"
+
     val catsEffect = "3.5.3"
+
     val circe = "0.14.6"
+
     val fansi = "0.4.0"
+
     val fs2 = "3.9.4"
+
     val mutationTestingElements = "3.0.2"
+
     val mutationTestingMetrics = "3.0.2"
+
     val pureconfig = "0.17.5"
-    val scalameta = "4.8.15"
+
+    val scalameta = "4.9.0"
+
     val slf4j = "2.0.12"
+
     val sttp = "3.9.3"
+
     val testInterface = "1.0"
+
     val weaponRegeX = "1.3.1"
   }
 
