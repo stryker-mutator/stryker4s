@@ -7,6 +7,7 @@ import fs2.io.file.Files
 import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.ConfigSource
 import stryker4s.log.Logger
+import stryker4s.run.process.Command
 
 private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDecoders {
 
@@ -29,6 +30,11 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.debugDebugTestRunner
   ).parMapN(DebugOptions.apply)
 
+  def testRunner: ConfigValue[F, Command] = (
+    source.testRunnerCommand,
+    source.testRunnerArgs
+  ).parMapN(Command.apply)
+
   def config: ConfigValue[F, Config] = (
     source.mutate,
     source.testFilter,
@@ -46,7 +52,8 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.concurrency,
     debug,
     source.staticTmpDir,
-    source.cleanTmpDir
+    source.cleanTmpDir,
+    testRunner
   ).parMapN(Config.apply)
 
 }

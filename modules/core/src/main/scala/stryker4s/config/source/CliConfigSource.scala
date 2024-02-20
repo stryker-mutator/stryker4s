@@ -68,4 +68,7 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
 
   override def cleanTmpDir: ConfigValue[F, Boolean] = findArg("clean-tmp-dir").as[Boolean]
 
+  override def testRunnerCommand: ConfigValue[F, String] = findArg("test-runner.command")
+  override def testRunnerArgs: ConfigValue[F, String] = findArg("test-runner.args")
+
 }

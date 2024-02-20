@@ -67,4 +67,6 @@ class DefaultsConfigSource[F[_]](inner: ConfigSource[F]) extends ConfigSource[F]
 
   override def cleanTmpDir: ConfigValue[F, Boolean] = inner.cleanTmpDir.default(true)
 
+  override def testRunnerCommand: ConfigValue[F, String] = inner.testRunnerCommand.default("sbt")
+  override def testRunnerArgs: ConfigValue[F, String] = inner.testRunnerArgs.default("test")
 }

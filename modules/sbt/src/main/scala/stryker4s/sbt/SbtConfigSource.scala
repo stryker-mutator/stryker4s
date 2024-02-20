@@ -2,17 +2,18 @@ package stryker4s.sbt
 
 import cats.effect.IO
 import cats.syntax.option.*
-import ciris.{ConfigKey, ConfigValue}
+import ciris.{ConfigError, ConfigKey, ConfigValue}
 import fs2.io.file.Path
 import sbt.Def
 import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{ConfigOrder, DashboardReportType, ExcludedMutation, ReporterType}
-import stryker4s.sbt.Stryker4sPlugin.autoImport.*
 import sttp.model.Uri
 
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
+
+import Stryker4sPlugin.autoImport.*
 
 object SbtConfigSource {
   def apply(): Def.Initialize[ConfigSource[IO]] = Def.setting {
@@ -153,6 +154,11 @@ object SbtConfigSource {
         strykerCleanTmpDir.key.label
       )
 
+      override def testRunnerCommand: ConfigValue[IO, String] = notSupported("test-runner.command")
+      override def testRunnerArgs: ConfigValue[IO, String] = notSupported("test-runner.args")
+
+      def notSupported[A](key: String): ConfigValue[IO, A] =
+        ConfigValue.failed(ConfigError(s"Key $key is not supported by $name"))
     }
   }
 }

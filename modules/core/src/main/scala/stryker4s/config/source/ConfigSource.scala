@@ -47,6 +47,9 @@ trait ConfigSource[+F[_]] {
 
   def staticTmpDir: ConfigValue[F, Boolean]
   def cleanTmpDir: ConfigValue[F, Boolean]
+
+  def testRunnerCommand: ConfigValue[F, String]
+  def testRunnerArgs: ConfigValue[F, String]
 }
 
 object ConfigSource {
@@ -58,11 +61,11 @@ object ConfigSource {
   )(implicit log: Logger): F[ConfigSource[F]] = {
 
     FileConfigSource.load[F]().flatMap { fileConfigSource =>
-      val defaultSources = NonEmptyList.of(
-        fileConfigSource
-      )
+      val allSources = NonEmptyList(
+        fileConfigSource,
+        extraSources
+      ).sortBy(_.priority)
 
-      val allSources = (defaultSources ++ extraSources).sortBy(_.priority)
       Async[F]
         .delay(log.debug(s"Loaded config sources ${allSources.map(_.name).mkString_(" | ")}"))
         .as(new AggregateConfigSource[F](allSources))

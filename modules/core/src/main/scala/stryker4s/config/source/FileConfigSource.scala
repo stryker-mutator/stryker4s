@@ -75,6 +75,9 @@ class FileConfigSource[F[_]](h: ConfigValue[F, Hocon.HoconAt])
 
   override def cleanTmpDir: ConfigValue[F, Boolean] = findInConfig("clean-tmp-dir").as[Boolean]
 
+  override def testRunnerCommand: ConfigValue[F, String] = findInConfig("test-runner.command").as[String]
+  override def testRunnerArgs: ConfigValue[F, String] = findInConfig("test-runner.args").as[String]
+
 }
 
 object FileConfigSource {

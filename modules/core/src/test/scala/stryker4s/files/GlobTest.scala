@@ -121,5 +121,4 @@ class GlobTest extends Stryker4sSuite {
       assert(matcher.matches(input))
     }
   }
-
 }

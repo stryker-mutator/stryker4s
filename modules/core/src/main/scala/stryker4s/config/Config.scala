@@ -6,6 +6,7 @@ import fs2.io.file.Path
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
+import stryker4s.run.process.Command
 
 // TODO: remove default values
 /** Configuration for Stryker4s.
@@ -29,7 +30,8 @@ final case class Config(
     concurrency: Int = Config.defaultConcurrency,
     debug: DebugOptions = DebugOptions(),
     staticTmpDir: Boolean = false,
-    cleanTmpDir: Boolean = true
+    cleanTmpDir: Boolean = true,
+    testRunner: Command = Command("sbt", "test")
 )
 
 object Config {

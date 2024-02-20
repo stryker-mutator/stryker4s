@@ -5,8 +5,8 @@ import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.either.*
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
 import sbt.internal.LogManager
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
@@ -17,11 +17,12 @@ import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
-import stryker4s.sbt.Stryker4sPlugin.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
+
+import Stryker4sPlugin.autoImport.stryker
 
 /** This Runner run Stryker mutations in a single SBT session
   *
