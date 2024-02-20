@@ -90,9 +90,15 @@ sealed trait Stryker4sAssertions {
 
   /** Compare 2 trees by structure.
     */
-  implicit def treeCompare[A <: Tree, B <: Tree]: Compare[A, B] = (obtained: A, expected: B) =>
+  implicit def treeCompare[A <: Tree, B <: Tree]: Compare[A, B] = (obtained, expected) =>
     obtained == expected || obtained.structure == expected.structure
 
+  implicit def listCompare[A, B](implicit compare: Compare[A, B]): Compare[List[A], List[B]] =
+    (obtained, expected) =>
+      obtained.size == expected.size &&
+        obtained.zip(expected).forall { case (obtained, expected) =>
+          compare.isEqual(obtained, expected)
+        }
 }
 
 abstract protected[stryker4s] class Stryker4sSuite extends FunSuite with Stryker4sAssertions
