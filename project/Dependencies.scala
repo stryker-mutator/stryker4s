@@ -36,7 +36,7 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.0.2"
 
-    val pureconfig = "0.17.5"
+    val pureconfig = "0.17.6"
 
     val scalameta = "4.9.0"
 
