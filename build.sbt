@@ -60,10 +60,9 @@ lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
   .settings(commonSettings, testRunnerApiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-// Pure Java module with interfaces
 lazy val api = (projectMatrix in file("modules") / "api")
-  .settings(apiSettings)
-  .jvmPlatform(autoScalaLibrary = false)
+  .settings(commonSettings, apiSettings)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))

@@ -146,10 +146,16 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
 
       val (location, description, replacement) = mutations match {
         case r: RegularExpression => (r.location, r.description.some, r.replacement)
-        case _                    => (original.pos.toLocation, none, tree.syntax)
+        case _                    => (original.pos.toLocation, none, tree.printSyntaxFor(config.scalaDialect))
       }
 
-      val metadata = MutantMetadata(original.syntax, replacement, mutations.mutationName, location, description)
+      val metadata = MutantMetadata(
+        original.printSyntaxFor(config.scalaDialect),
+        replacement,
+        mutations.mutationName,
+        location,
+        description
+      )
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
           case t if t.isEqual(original) && t.pos == original.pos =>

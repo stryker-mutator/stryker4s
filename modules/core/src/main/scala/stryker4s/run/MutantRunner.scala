@@ -18,7 +18,6 @@ import stryker4s.report.{MutantTestedEvent, Reporter}
 import java.nio
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.Builder
-import scala.meta.Tree
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
@@ -148,11 +147,7 @@ class MutantRunner(
           .createDirectories(targetPath.parent.get)
           .as((mutatedFile, targetPath))
     }.map { case (mutatedFile, targetPath) =>
-      Stream(
-        Tree
-          .showSyntax(config.scalaDialect)(mutatedFile.mutatedSource)
-          .toString()
-      )
+      Stream(mutatedFile.mutatedSource.printSyntaxFor(config.scalaDialect))
         .covary[IO]
         .through(text.utf8.encode)
         .through(Files[IO].writeAll(targetPath))

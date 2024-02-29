@@ -4,8 +4,7 @@ import cats.syntax.option.*
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.applymutants.ActiveMutationContext.ActiveMutationContext
 
-import scala.meta.quasiquotes.*
-import scala.meta.{Lit, Pat}
+import scala.meta.*
 
 final case class InstrumenterOptions(
     mutationContext: ActiveMutationContext,
