@@ -4,8 +4,7 @@ import cats.syntax.option.*
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
 
-import scala.meta.quasiquotes.*
-import scala.meta.{Lit, Mod, Tree}
+import scala.meta.*
 
 class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
 

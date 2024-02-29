@@ -10,8 +10,10 @@ import stryker4s.model.CompilerErrMsg.*
 import stryker4s.model.{CompilerErrMsg, MutantResultsPerFile, MutatedFile}
 import stryker4s.mutants.tree.MutantInstrumenter
 
-import scala.meta.Source
 import scala.meta.parsers.*
+import scala.meta.transversers.*
+import scala.meta.Source
+import scala.meta.prettyprinters.XtensionSyntax
 
 trait RollbackHandler {
   def rollbackFiles(
@@ -48,7 +50,8 @@ object RollbackHandler {
             .get // Should always pass as we already parsed it once
 
           log.debug(
-            s"Removing ${errors.size} mutants with compile errors from ${mutatedFile.fileOrigin}: ${errors.map(_.show).mkString_("'", "', '", "'")}"
+            s"Removing ${errors.size} mutants with compile errors from ${mutatedFile.fileOrigin}: ${errors
+                .mkString_("'", "', '", "'")}"
           )
           val treeWithoutErrors = parsed.transform(instrumenter.attemptRemoveMutant(errors))
           val (errorsWithoutIds, compileErrorMutantIds) = instrumenter.mutantIdsForCompileErrors(parsed, errors)

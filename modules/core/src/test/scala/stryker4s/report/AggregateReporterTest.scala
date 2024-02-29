@@ -1,7 +1,6 @@
 package stryker4s.report
 
 import cats.effect.IO
-import cats.syntax.all.*
 import fs2.Stream
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.TestData

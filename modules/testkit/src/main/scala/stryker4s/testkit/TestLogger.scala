@@ -3,7 +3,6 @@ package stryker4s.testkit
 import fansi.Str
 import stryker4s.log.{Level, Logger}
 
-import java.util.function.Supplier
 import scala.collection.mutable.Buffer
 
 protected[testkit] class TestLogger(printLogs: Boolean) extends Logger {
@@ -19,10 +18,10 @@ protected[testkit] class TestLogger(printLogs: Boolean) extends Logger {
 
   def clear(): Unit = events.clear()
 
-  override def log(level: Level, msg: Supplier[String]): Unit = addToLogs(level, msg.get())
+  override def log(level: Level, msg: => String): Unit = addToLogs(level, msg)
 
-  override def log(level: Level, msg: Supplier[String], e: Throwable): Unit =
-    addToLogs(level, s"${msg.get}, ${e.toString()}")
+  override def log(level: Level, msg: => String, e: => Throwable): Unit =
+    addToLogs(level, s"$msg, ${e.toString()}")
 
   def printAllLogs(): Unit = {
     events.foreach { case (level, msg) => printLog(level, msg) }
