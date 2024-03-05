@@ -32,7 +32,7 @@ object Settings {
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
-    name := "stryker4s-core",
+    moduleName := "stryker4s-core",
     libraryDependencies ++= Seq(
       Dependencies.catsCore,
       Dependencies.catsEffect,
@@ -52,14 +52,14 @@ object Settings {
   )
 
   lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
-    name := "stryker4s-command-runner",
+    moduleName := "stryker4s-command-runner",
     libraryDependencies ++= Seq(
       Dependencies.slf4j
     )
   )
 
   lazy val sbtPluginSettings: Seq[Setting[?]] = Seq(
-    name := "sbt-stryker4s",
+    moduleName := "sbt-stryker4s",
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
@@ -68,14 +68,14 @@ object Settings {
   )
 
   lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
-    name := "stryker4s-sbt-testrunner",
+    moduleName := "stryker4s-sbt-testrunner",
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     )
   )
 
   lazy val testRunnerApiSettings: Seq[Setting[?]] = Seq(
-    name := "stryker4s-testrunner-api",
+    moduleName := "stryker4s-testrunner-api",
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
     ),
@@ -85,14 +85,14 @@ object Settings {
   )
 
   lazy val apiSettings: Seq[Setting[?]] = Seq(
-    name := "stryker4s-api",
+    moduleName := "stryker4s-api",
     libraryDependencies ++= Seq(
       Dependencies.fansi
     )
   )
 
   lazy val testkitSettings: Seq[Setting[?]] = Seq(
-    name := "stryker4s-testkit",
+    moduleName := "stryker4s-testkit",
     libraryDependencies ++= Seq(
       Dependencies.fansi,
       Dependencies.fs2IO,
