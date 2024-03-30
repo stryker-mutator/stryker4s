@@ -30,7 +30,7 @@ lazy val root = (project withId "stryker4s" in file("."))
       sbtTestRunner.projectRefs ++
       testRunnerApi.projectRefs ++
       api.projectRefs ++
-      testkit.projectRefs)*
+      testkit.projectRefs) *
   )
 
 lazy val core = (projectMatrix in file("modules") / "core")
@@ -75,7 +75,7 @@ Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.v
 def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
   val projectRefs = matrixes.flatMap(_.projectRefs)
   Seq(
-    publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal)*).value,
-    publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2)*).value
+    publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal) *).value,
+    publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2) *).value
   )
 }
