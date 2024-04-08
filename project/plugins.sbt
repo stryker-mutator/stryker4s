@@ -1,6 +1,6 @@
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.16.0")
-addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.0")
+addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.1")
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.10.0")
 
 // Protobuf plugin and its dependencies
