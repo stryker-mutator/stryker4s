@@ -32,10 +32,11 @@ class Stryker4sSbtRunner(
     state: State,
     sharedTimeout: Deferred[IO, FiniteDuration],
     sources: Seq[Path],
-    targetDir: Path
+    targetDir: Path,
+    openReportAutomatically: Boolean
 )(implicit
     log: Logger
-) extends Stryker4sRunner {
+) extends Stryker4sRunner(openReportAutomatically) {
 
   def resolveTestRunners(
       tmpDir: Path
@@ -223,5 +224,4 @@ class Stryker4sSbtRunner(
     } else {
       InstrumenterOptions.testRunner
     }
-
 }

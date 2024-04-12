@@ -20,7 +20,8 @@ import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 import sttp.client3.logging.LoggingBackend
 import sttp.model.HeaderNames
 
-abstract class Stryker4sRunner(implicit log: Logger) {
+abstract class Stryker4sRunner(openReportAutomatically: Boolean = false)(implicit log: Logger) {
+
   def run(): IO[ScoreStatus] = {
     implicit val config: Config = ConfigReader.readConfig()
 
@@ -42,10 +43,10 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     stryker4s.run()
   }
 
-  def resolveReporters()(implicit config: Config): List[Reporter] =
+  private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
       case Console => new ConsoleReporter()
-      case Html    => new HtmlReporter(new DiskFileIO())
+      case Html    => new HtmlReporter(new DiskFileIO(), openReportAutomatically)
       case Json    => new JsonReporter(new DiskFileIO())
       case Dashboard =>
         implicit val httpBackend: Resource[IO, SttpBackend[IO, Any]] =

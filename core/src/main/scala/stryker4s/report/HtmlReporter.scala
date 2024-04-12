@@ -1,14 +1,16 @@
 package stryker4s.report
 
+import cats.Monad
 import cats.effect.IO
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.Config
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
+
 import java.awt.Desktop
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
+class HtmlReporter(fileIO: FileIO, openReportAutomatically: Boolean = false)(implicit log: Logger) extends Reporter {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -63,18 +65,23 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter {
       writeReportJsTo(reportLocation, runReport.report) &>
       writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
-    val openFileIO = IO {
-      // Verify that Desktop is supported and the file exists before attempting to open it
-      if (Desktop.isDesktopSupported && indexLocation.toNioPath.toFile.exists()) {
-        Desktop.getDesktop.open(indexLocation.toNioPath.toFile)
-      } else {
-        log.warn("Desktop operations not supported or file does not exist.")
-      }
-    }
+    def desktopSupportedAndFileExists: IO[Boolean] = IO(
+      Desktop.isDesktopSupported && indexLocation.toNioPath.toFile.exists()
+    )
 
-    reportsWriting *>
-      IO(log.info(s"Written HTML report to $indexLocation")) *>
-      openFileIO
+    def openFile: IO[Unit] = IO(Desktop.getDesktop.open(indexLocation.toNioPath.toFile))
+
+    val openFileIO = Monad[IO].ifElseM(
+      desktopSupportedAndFileExists -> openFile
+    )(
+      IO(log.warn("Desktop operations not supported or file does not exist."))
+    )
+
+    for {
+      _ <- reportsWriting
+      _ <- IO(log.info(s"Written HTML report to $indexLocation"))
+      _ <- if (openReportAutomatically) openFileIO else IO.unit
+    } yield ()
 
   }
 }
