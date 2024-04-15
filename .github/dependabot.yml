@@ -14,3 +14,7 @@ updates:
       - dependency-name: io.stryker-mutator:stryker4s-core_2.12
         versions:
           - "> SET-BY-SBT-SNAPSHOT"
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: daily

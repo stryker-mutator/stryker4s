@@ -1,28 +1,27 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/java
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
 {
-  "name": "Scala",
-  // Set *default* container specific settings.json values on container create.
-  "settings": {
-    "java.home": "/docker-java-home",
-    "metals.javaHome": "/docker-java-home",
-    "metals.sbtScript": "/home/vscode/.local/share/coursier/bin/sbt"
-  },
-  "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      // Options
-      "VARIANT": "latest",
-      "INSTALL_MAVEN": "true",
-      "INSTALL_GRADLE": "false",
-      "NODE_VERSION": "none"
-    }
-  },
-  "remoteEnv": {
-    "PATH": "${containerEnv:PATH}:/home/vscode/.local/share/coursier/bin"
-  },
-  // Add the IDs of extensions you want installed when the container is created.
-  "extensions": ["scalameta.metals"],
-  "onCreateCommand": "cs install sbt bloop",
-  "remoteUser": "vscode"
+	"name": "Scala",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"jdkDistro": "temurin",
+			"installMaven": "true"
+		}
+	},
+	"onCreateCommand": "curl -fL 'https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux-static.gz' | gzip -d > cs && chmod +x ./cs && ./cs setup --yes --apps sbt,cs,scalafmt && rm ./cs && echo 'export PATH=\"$HOME/.local/share/coursier/bin:$PATH\"' >> ~/.bashrc && . ~/.bashrc",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"scalameta.metals"
+			],
+			// Set *default* container specific settings.json values on container create.
+			"settings": {
+				"java.jdt.ls.java.home": "/docker-java-home",
+				"metals.javaHome": "/docker-java-home",
+				"metals.sbtScript": "/home/vscode/.local/share/coursier/bin/sbt"
+			}
+		}
+	}
 }
