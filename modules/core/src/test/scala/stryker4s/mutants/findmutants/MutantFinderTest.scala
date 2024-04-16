@@ -40,7 +40,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
       val file = FileUtil.getResource("scalaFiles/nonParseableFile.notScala")
 
       sut.parseFile(file).intercept[ParseException].asserting { err =>
-        assertEquals(err.shortMessage, "illegal start of definition identifier")
+        assertEquals(err.shortMessage, "illegal start of definition `identifier`")
       }
     }
 
@@ -201,7 +201,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
         .intercept[ParseException]
         .asserting { _ =>
           assertLoggedError(
-            s"Error while parsing file '${noFile.relativePath}', illegal start of definition identifier"
+            s"Error while parsing file '${noFile.relativePath}', illegal start of definition `identifier`"
           )
         }
     }

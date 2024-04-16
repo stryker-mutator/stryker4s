@@ -38,7 +38,7 @@ object Dependencies {
 
     val pureconfig = "0.17.6"
 
-    val scalameta = "4.9.2"
+    val scalameta = "4.9.3"
 
     val slf4j = "2.0.13"
 
