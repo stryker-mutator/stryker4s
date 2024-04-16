@@ -75,7 +75,7 @@ jobs:
         run: ./bin/scalafmt --test
   release:
     needs: [test, sbt-scripted, maven-plugin, formatting]
-    if: "github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/')"
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
