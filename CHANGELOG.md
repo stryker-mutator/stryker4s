@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/stryker-mutator/stryker4s/compare/v0.16.0...v0.16.1) (2024-04-18)
+
+
+### Miscellaneous Chores
+
+* release 0.16.1 ([3785173](https://github.com/stryker-mutator/stryker4s/commit/3785173dab45ce8d98819f7a269b7e73978b8eed))
+
 ## [0.16.0](https://github.com/stryker-mutator/stryker4s/compare/v0.15.2...v0.16.0) (2023-12-27)
 
 
