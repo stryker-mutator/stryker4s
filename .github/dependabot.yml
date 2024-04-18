@@ -11,7 +11,10 @@ updates:
     labels:
       - dependencies
     ignore:
-      - dependency-name: io.stryker-mutator:stryker4s-core_2.12
+      - dependency-name: io.stryker-mutator:stryker4s-core_2.13
+        versions:
+          - "> SET-BY-SBT-SNAPSHOT"
+      - dependency-name: io.stryker-mutator:stryker4s-testkit.13
         versions:
           - "> SET-BY-SBT-SNAPSHOT"
   - package-ecosystem: "devcontainers"

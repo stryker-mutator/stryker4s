@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.stryker-mutator</groupId>
     <artifactId>stryker4s-maven-plugin</artifactId>
-    <version>0.16.1</version>
+    <version>SET-BY-SBT-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
     <name>Stryker4s Maven plugin</name>
     <description>Stryker4s, the mutation testing framework for Scala.</description>
@@ -122,7 +122,7 @@
             <plugin>
                 <groupId>io.stryker-mutator</groupId>
                 <artifactId>stryker4s-maven-plugin</artifactId>
-                <version>0.16.0</version>
+                <version>0.16.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
