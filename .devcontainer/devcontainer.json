@@ -10,7 +10,7 @@
 			"installMaven": "true"
 		}
 	},
-	"onCreateCommand": "curl -fL 'https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux-static.gz' | gzip -d > cs && chmod +x ./cs && ./cs setup --yes --apps sbt,cs && rm ./cs && echo 'export PATH=\"$HOME/.local/share/coursier/bin:$PATH\"' >> ~/.bashrc && . ~/.bashrc",
+	"postCreateCommand": "bash -c \"source /usr/local/sdkman/bin/sdkman-init.sh && sdk install sbt\"",
 	"customizations": {
 		"vscode": {
 			"extensions": [
