@@ -2,7 +2,7 @@ package stryker4s.testkit
 
 import cats.data.NonEmptyVector
 import cats.effect.IO
-import munit.internal.difflib.Diff
+import munit.diff.Diff
 import munit.{CatsEffectSuite, Compare, FunSuite, Location}
 
 import scala.meta.*
