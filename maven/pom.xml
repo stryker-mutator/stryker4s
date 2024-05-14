@@ -58,7 +58,7 @@
         <!-- Scala versions -->
         <scala.version>2.13.14</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
-        <scala-maven.version>4.9.0</scala-maven.version>
+        <scala-maven.version>4.9.1</scala-maven.version>
     </properties>
     <dependencies>
         <dependency>
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-invoker</artifactId>
-            <version>3.2.0</version>
+            <version>3.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
