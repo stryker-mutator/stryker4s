@@ -67,7 +67,7 @@ lazy val api = (projectMatrix in file("modules") / "api")
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
   .dependsOn(api)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)

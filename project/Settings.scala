@@ -77,7 +77,11 @@ object Settings {
   lazy val testRunnerApiSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-testrunner-api",
     Compile / PB.targets := Seq(
-      scalapb.gen(grpc = false, lenses = false) -> (Compile / sourceManaged).value / "scalapb"
+      scalapb.gen(
+        grpc = false,
+        lenses = false,
+        scala3Sources = scalaBinaryVersion.value == "3"
+      ) -> (Compile / sourceManaged).value / "scalapb"
     ),
     libraryDependencies += Dependencies.scalapbRuntime,
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
