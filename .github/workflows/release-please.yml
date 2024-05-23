@@ -19,7 +19,7 @@ jobs:
         with:
           app_id: ${{ vars.STRYKER_MUTATOR_APP_ID }}
           private_key: ${{ secrets.STRYKER_MUTATOR_NPA_KEY }}
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         with:
           # Version is determined by sbt-ci-release (which uses sbt-dynver)
           # Actual release code is in `./ci.yml`
