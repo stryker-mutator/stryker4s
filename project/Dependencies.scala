@@ -65,7 +65,11 @@ object Dependencies {
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
   val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
-  val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
+  // Exclude some 2.13 dependencies when on scala 3 to avoid conflicts
+  val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
+    .cross(CrossVersion.for3Use2_13)
+    .exclude("com.lihaoyi", "sourcecode_2.13")
+    .exclude("com.thesamet.scalapb", "scalapb-runtime_2.13")
   val scalapbRuntime =
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
