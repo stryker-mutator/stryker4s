@@ -58,7 +58,7 @@
         <!-- Scala versions -->
         <scala.version>2.13.14</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
-        <scala-maven.version>4.9.1</scala-maven.version>
+        <scala-maven.version>4.9.2</scala-maven.version>
     </properties>
     <dependencies>
         <dependency>
