@@ -32,9 +32,9 @@ object Dependencies {
 
     val fs2 = "3.10.2"
 
-    val mutationTestingElements = "3.1.0"
+    val mutationTestingElements = "3.1.1"
 
-    val mutationTestingMetrics = "3.1.0"
+    val mutationTestingMetrics = "3.1.1"
 
     val pureconfig = "0.17.7"
 
