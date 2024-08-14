@@ -40,7 +40,7 @@ object Dependencies {
 
     val scalameta = "4.9.9"
 
-    val slf4j = "2.0.13"
+    val slf4j = "2.0.16"
 
     val sttp = "3.9.7"
 
