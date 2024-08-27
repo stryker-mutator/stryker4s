@@ -30,7 +30,7 @@ object Dependencies {
 
     val fansi = "0.5.0"
 
-    val fs2 = "3.10.2"
+    val fs2 = "3.11.0"
 
     val mutationTestingElements = "3.2.0"
 
