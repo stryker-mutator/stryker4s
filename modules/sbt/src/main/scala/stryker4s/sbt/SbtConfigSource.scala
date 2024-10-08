@@ -8,11 +8,12 @@ import sbt.Def
 import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{ConfigOrder, DashboardReportType, ExcludedMutation, ReporterType}
-import stryker4s.sbt.Stryker4sPlugin.autoImport.*
 import sttp.model.Uri
 
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
+
+import Stryker4sPlugin.autoImport.*
 
 object SbtConfigSource {
   def apply(): Def.Initialize[ConfigSource[IO]] = Def.setting {
@@ -152,6 +153,9 @@ object SbtConfigSource {
         strykerCleanTmpDir.?.value,
         strykerCleanTmpDir.key.label
       )
+
+      override def testRunnerCommand: ConfigValue[IO, String] = notSupported("test-runner.command")
+      override def testRunnerArgs: ConfigValue[IO, String] = notSupported("test-runner.args")
 
     }
   }

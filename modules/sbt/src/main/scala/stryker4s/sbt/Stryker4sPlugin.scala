@@ -2,19 +2,20 @@ package stryker4s.sbt
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{Deferred, IO}
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
 import sbt.plugins.*
 import stryker4s.config.DashboardReportType
 import stryker4s.config.source.CliConfigSource
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
+import stryker4s.sbt.*
 import sttp.model.Uri
 
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
 
-/** This plugin adds a new task (stryker) to the project that allow you to run mutation testing over your code
+/** This plugin adds a new task (stryker) to the project that allows you to run mutation testing over your code
   */
 object Stryker4sPlugin extends AutoPlugin {
   override def requires = JvmPlugin
@@ -22,7 +23,10 @@ object Stryker4sPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
+    // Task
     val stryker = inputKey[Unit]("Run Stryker4s mutation testing")
+
+    // Settings
     val strykerMinimumSbtVersion = settingKey[String]("Lowest supported sbt version by Stryker4s")
     val strykerIsSupported = settingKey[Boolean]("If running Stryker4s is supported on this sbt version")
 
@@ -58,20 +62,10 @@ object Stryker4sPlugin extends AutoPlugin {
     val strykerStaticTmpDir = settingKey[Boolean]("Force temporary dir to a static path (`target/stryker4s-tmpDir`)")
     val strykerCleanTmpDir = settingKey[Boolean]("Remove the tmpDir after a successful mutation test run")
   }
+
   import autoImport.*
 
-  /** Dynamically load git-current-branch from sbt-git if it is installed, for the dashboard version config
-    */
-  private val gitCurrentBranch = SettingKey[String]("git-current-branch")
-
-  /** sbt-crossproject base-directory setting
-    */
-  private val crossProjectBaseDirectory = SettingKey[File]("crossProjectBaseDirectory")
-
-  /** sbt-projectmatrix base-directory setting
-    */
-  private val projectMatrixBaseDirectory = SettingKey[File]("projectMatrixBaseDirectory")
-
+  // Default settings for the plugin
   override lazy val projectSettings: Seq[Def.Setting[?]] = Seq(
     stryker := strykerTask.evaluated,
     stryker / logLevel := Level.Info,
@@ -88,6 +82,18 @@ object Stryker4sPlugin extends AutoPlugin {
     strykerDashboardVersion := gitCurrentBranch.?.value.filterNot(_.isBlank()),
     strykerDashboardModule := normalizedName.value
   )
+
+  /** Dynamically load git-current-branch from sbt-git if it is installed, for the dashboard version config
+    */
+  private val gitCurrentBranch = SettingKey[String]("git-current-branch")
+
+  /** sbt-crossproject base-directory setting
+    */
+  private val crossProjectBaseDirectory = SettingKey[File]("crossProjectBaseDirectory")
+
+  /** sbt-projectmatrix base-directory setting
+    */
+  private val projectMatrixBaseDirectory = SettingKey[File]("projectMatrixBaseDirectory")
 
   private def getSourceDirectories(postfix: String) = Def.setting {
     (Compile / sourceDirectories).value

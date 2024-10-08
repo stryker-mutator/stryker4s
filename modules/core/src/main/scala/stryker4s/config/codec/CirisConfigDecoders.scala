@@ -7,8 +7,12 @@ import stryker4s.config.*
 import stryker4s.mutation.Mutation
 import sttp.model.Uri
 
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
 
+/** Common Ciris decoders for types used by Stryker4s config
+  */
 trait CirisConfigDecoders {
   implicit def pathDecoder: ConfigDecoder[String, Path] =
     ConfigDecoder[String].map(Path(_))
@@ -16,47 +20,45 @@ trait CirisConfigDecoders {
   implicit def seqDecoder[F[_], A, B](implicit decoder: ConfigDecoder[A, B]): ConfigDecoder[Seq[A], Seq[B]] =
     ConfigDecoder[Seq[A]].mapEither { case (key, list) =>
       list.toList.partitionEither(decoder.decode(key, _)) match {
-        case (Nil, rights)       => Right(rights)
-        case (firstLeft :: _, _) => Left(firstLeft)
+        case (Nil, decodedValues) => decodedValues.distinct.asRight
+        case (failures, _)        => failures.reduce(_ and _).asLeft
       }
     }
 
-  implicit def reporterDecoder: ConfigDecoder[String, ReporterType] = ConfigDecoder[String].mapEither {
-    case (key, str) =>
-      str.toLowerCase match {
-        case "console"   => Console.asRight
-        case "html"      => Html.asRight
-        case "json"      => Json.asRight
-        case "dashboard" => Dashboard.asRight
-        case _           => ConfigError.decode("reporter", key, str).asLeft
-      }
+  implicit def reporterDecoder: ConfigDecoder[String, ReporterType] = ConfigDecoder[String].mapOption("reporter") {
+    _.toLowerCase match {
+      case "console"   => Console.some
+      case "html"      => Html.some
+      case "json"      => Json.some
+      case "dashboard" => Dashboard.some
+      case _           => none
+    }
   }
 
   implicit def dashboardReportTypeDecoder: ConfigDecoder[String, DashboardReportType] =
-    ConfigDecoder[String].mapEither { case (key, str) =>
-      str.toLowerCase match {
-        case "full"              => Full.asRight
-        case "mutationScoreOnly" => MutationScoreOnly.asRight
-        case "scoreOnly"         => MutationScoreOnly.asRight
-        case _                   => ConfigError.decode("dashboard.reportType", key, str).asLeft
+    ConfigDecoder[String].mapOption("dashboard.reportType") {
+      _.toLowerCase.replace("-", "") match {
+        case "full"              => Full.some
+        case "mutationscoreonly" => MutationScoreOnly.some
+        case "scoreonly"         => MutationScoreOnly.some
+        case _                   => none
       }
     }
 
   implicit def exclusionsDecoder: ConfigDecoder[String, ExcludedMutation] =
     ConfigDecoder[String].mapEither { case (key, exclusion) =>
-      if (Mutation.mutations.contains(exclusion.toLowerCase)) {
-        ExcludedMutation(exclusion).asRight
-      } else {
+      val mutations = Mutation.mutations
+      mutations.find(_.equalsIgnoreCase(exclusion)).map(ExcludedMutation(_)).toRight {
         val validExclusions = Mutation.mutations.mkString(", ")
         key match {
           case Some(k) =>
             ConfigError(
               s"invalid ${k.description} with value '$exclusion'. Valid exclusions are '$validExclusions'"
-            ).asLeft
+            )
           case None =>
             ConfigError(
               s"invalid option '$exclusion'. Valid exclusions are '$validExclusions'"
-            ).asLeft
+            )
         }
       }
     }
@@ -117,7 +119,7 @@ trait CirisConfigDecoders {
     )
 
     ConfigDecoder[String].mapEither { case (key, input) =>
-      def toCannotConvert(msg: String) = {
+      def cannotConvert(msg: String) = {
         val invalidDialectString =
           s"Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${scalaVersions.keys.flatten
               .map(d => s"'$d'")
@@ -126,11 +128,18 @@ trait CirisConfigDecoders {
       }
 
       if (deprecatedVersions.contains(input))
-        toCannotConvert("Deprecated dialect").asLeft
+        cannotConvert("Deprecated dialect").asLeft
       else
         scalaVersions
           .collectFirst { case (strings, dialect) if strings.contains(input.toLowerCase()) => dialect }
-          .toRight(toCannotConvert("Unsupported dialect"))
+          .toRight(cannotConvert("Unsupported dialect"))
     }
   }
+
+  /** Use the default Ciris decoders for FiniteDuration, or Long values as milliseconds as a fallback
+    */
+  implicit def durationDecoder: ConfigDecoder[String, FiniteDuration] =
+    ConfigDecoder.stringFiniteDurationConfigDecoder orElse
+      ConfigDecoder[String, Long].map(FiniteDuration(_, TimeUnit.MILLISECONDS))
+
 }

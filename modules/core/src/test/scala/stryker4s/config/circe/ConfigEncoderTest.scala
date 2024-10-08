@@ -16,10 +16,10 @@ class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
       expectJsonConfig(
         defaultConfig,
         defaultConfigJson,
-        s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
+        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
+          )}","reporters":["console","html"],"files":["**/main/scala/**.scala"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
       )
     }
 
@@ -31,7 +31,7 @@ class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
           files = Seq("file.scala"),
           excludedMutations = Seq(ExcludedMutation("bar.scala")),
           maxTestRunnerReuse = 2.some,
-          dashboard = DashboardOptions(
+          dashboard = Config.default.dashboard.copy(
             project = "myProject".some,
             version = "1.3.3.7".some,
             module = "myModule".some
@@ -76,15 +76,15 @@ class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
   def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit loc: Location) = {
     val result = config.asJson
 
-    assertEquals(result.noSpaces, jsonString)
+    assertNoDiff(result.noSpaces, jsonString)
     assertEquals(result, json)
   }
 
   def defaultConfig: Config = Config.default.copy(baseDir = Path("workspace"))
 
   def defaultConfigJson = obj(
-    "mutate" -> arr(),
-    "files" -> arr(),
+    "mutate" -> arr(fromString("**/main/scala/**.scala")),
+    "files" -> arr(fromString("**/main/scala/**.scala")),
     "test-filter" -> arr(),
     "base-dir" -> fromString(workspaceLocation),
     "reporters" -> arr(fromString("console"), fromString("html")),

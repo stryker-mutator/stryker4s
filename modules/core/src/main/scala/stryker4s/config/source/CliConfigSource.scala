@@ -61,11 +61,14 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
 
   override def concurrency: ConfigValue[F, Int] = findArg("concurrency").as[Int]
 
-  override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] = findArg("debug.log-test-runner-stdout").as[Boolean]
-  override def debugDebugTestRunner: ConfigValue[F, Boolean] = findArg("debug.debug-test-runner").as[Boolean]
+  override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] = findArg("log-test-runner-stdout").as[Boolean]
+  override def debugDebugTestRunner: ConfigValue[F, Boolean] = findArg("debug-test-runner").as[Boolean]
 
   override def staticTmpDir: ConfigValue[F, Boolean] = findArg("static-tmp-dir").as[Boolean]
 
   override def cleanTmpDir: ConfigValue[F, Boolean] = findArg("clean-tmp-dir").as[Boolean]
+
+  override def testRunnerCommand: ConfigValue[F, String] = findArg("test-runner.command")
+  override def testRunnerArgs: ConfigValue[F, String] = findArg("test-runner.args")
 
 }

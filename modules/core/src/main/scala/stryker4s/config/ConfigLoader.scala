@@ -7,7 +7,10 @@ import fs2.io.file.Files
 import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.ConfigSource
 import stryker4s.log.Logger
+import stryker4s.run.process.Command
 
+/** Combines a ConfigSource into a Config object
+  */
 private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDecoders {
 
   def thresholds: ConfigValue[F, Thresholds] = (
@@ -29,6 +32,11 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.debugDebugTestRunner
   ).parMapN(DebugOptions.apply)
 
+  def testRunner: ConfigValue[F, Command] = (
+    source.testRunnerCommand,
+    source.testRunnerArgs
+  ).parMapN(Command.apply)
+
   def config: ConfigValue[F, Config] = (
     source.mutate,
     source.testFilter,
@@ -46,7 +54,8 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.concurrency,
     debug,
     source.staticTmpDir,
-    source.cleanTmpDir
+    source.cleanTmpDir,
+    testRunner
   ).parMapN(Config.apply)
 
 }
@@ -59,8 +68,7 @@ object ConfigLoader {
 
   def loadAll[F[_]: Async: Files](extraConfigSources: List[ConfigSource[F]])(implicit log: Logger): F[Config] = for {
     aggregated <- ConfigSource.aggregate[F](extraConfigSources)
-    withDefaults = aggregated.withDefaults
-    config <- ConfigLoader.load[F](withDefaults)
+    config <- load[F](aggregated)
   } yield config
 
 }

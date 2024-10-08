@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import cats.effect.Sync
 import cats.syntax.all.*
 import ciris.*
-import fansi.{Color, Underlined}
+import fansi.Color
 import fs2.io.file.Path
 import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.{ConfigOrder, DashboardReportType, ExcludedMutation, ReporterType}
@@ -66,16 +66,20 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
 
   override def cleanTmpDir: ConfigValue[F, Boolean] = loadAndLog("cleanTmpDir", _.cleanTmpDir)
 
+  override def testRunnerCommand: ConfigValue[F, String] = loadAndLog("testRunner.command", _.testRunnerCommand)
+  override def testRunnerArgs: ConfigValue[F, String] = loadAndLog("testRunner.args", _.testRunnerArgs)
+
   /** Load a value from the sources, using the first available value
     */
-  private def loadAndLog[A](name: String, f: ConfigSource[F] => ConfigValue[F, A]): ConfigValue[F, A] = sources
-    .map(source =>
-      f(source).evalMap(value =>
-        Sync[F]
-          .delay(log.debug(s"Loaded ${Color.Magenta(name)} from ${Underlined.On(source.name)}: $value"))
-          .as(value)
+  private def loadAndLog[A](name: String, configValueFn: ConfigSource[F] => ConfigValue[F, A]): ConfigValue[F, A] =
+    sources
+      .map(source =>
+        configValueFn(source).evalMap(value =>
+          Sync[F]
+            .delay(log.debug(s"Loaded ${Color.Magenta(name)} from ${Color.Cyan(source.name)}: $value"))
+            .as(value)
+        )
       )
-    )
-    .reduceLeft(_ or _)
+      .reduceLeft(_ or _)
 
 }

@@ -1,35 +1,36 @@
 package stryker4s.config
 
-import cats.syntax.option.*
+import cats.effect.IO
 import fs2.io.file.Path
+import stryker4s.config.source.DefaultsConfigSource
+import stryker4s.run.process.Command
 
-import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
-import scala.meta.{dialects, Dialect}
+import scala.meta.Dialect
 
-// TODO: remove default values
 /** Configuration for Stryker4s.
   *
   * Defaults are in [[stryker4s.config.source.DefaultsConfigSource]]
   */
 final case class Config(
-    mutate: Seq[String] = Seq.empty,
-    testFilter: Seq[String] = Seq.empty,
-    baseDir: Path = Path("").absolute,
-    reporters: Seq[ReporterType] = Seq(Console, Html),
-    files: Seq[String] = Seq.empty,
-    excludedMutations: Seq[ExcludedMutation] = Seq.empty,
-    thresholds: Thresholds = Thresholds(),
-    dashboard: DashboardOptions = DashboardOptions(),
-    timeout: FiniteDuration = FiniteDuration(5000, TimeUnit.MILLISECONDS),
-    timeoutFactor: Double = 1.5,
-    maxTestRunnerReuse: Option[Int] = none,
-    legacyTestRunner: Boolean = false,
-    scalaDialect: Dialect = dialects.Scala213Source3,
-    concurrency: Int = Config.defaultConcurrency,
-    debug: DebugOptions = DebugOptions(),
-    staticTmpDir: Boolean = false,
-    cleanTmpDir: Boolean = true
+    mutate: Seq[String],
+    testFilter: Seq[String],
+    baseDir: Path,
+    reporters: Seq[ReporterType],
+    files: Seq[String],
+    excludedMutations: Seq[ExcludedMutation],
+    thresholds: Thresholds,
+    dashboard: DashboardOptions,
+    timeout: FiniteDuration,
+    timeoutFactor: Double,
+    maxTestRunnerReuse: Option[Int],
+    legacyTestRunner: Boolean,
+    scalaDialect: Dialect,
+    concurrency: Int,
+    debug: DebugOptions,
+    staticTmpDir: Boolean,
+    cleanTmpDir: Boolean,
+    testRunner: Command
 )
 
 object Config {
@@ -41,5 +42,10 @@ object Config {
     (cpuCoreCount.toDouble / 4).round.toInt + 1
   }
 
-  lazy val default: Config = Config()
+  // Only used in tests
+  lazy val default: Config = {
+    import cats.effect.unsafe.implicits.global
+    // We need to run this as IO because .load needs Async
+    new ConfigLoader(new DefaultsConfigSource[IO]()).config.load.unsafeRunSync()
+  }
 }

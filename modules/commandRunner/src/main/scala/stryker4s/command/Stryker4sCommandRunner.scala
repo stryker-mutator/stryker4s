@@ -4,7 +4,6 @@ import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.either.*
 import fs2.io.file.Path
-import stryker4s.command.config.ProcessRunnerConfig
 import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
 import stryker4s.config.source.{CliConfigSource, ConfigSource}
@@ -17,18 +16,14 @@ import stryker4s.run.{Stryker4sRunner, TestRunner}
 
 import scala.concurrent.duration.FiniteDuration
 
-class Stryker4sCommandRunner(
-    processRunnerConfig: ProcessRunnerConfig,
-    timeout: Deferred[IO, FiniteDuration],
-    args: List[String]
-)(implicit log: Logger)
+class Stryker4sCommandRunner(timeout: Deferred[IO, FiniteDuration], args: List[String])(implicit log: Logger)
     extends Stryker4sRunner {
 
   override def resolveTestRunners(
       tmpDir: Path
   )(implicit config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
     val innerTestRunner =
-      Resource.pure[IO, TestRunner](new ProcessTestRunner(processRunnerConfig.testRunner, ProcessRunner(), tmpDir))
+      Resource.pure[IO, TestRunner](new ProcessTestRunner(config.testRunner, ProcessRunner(), tmpDir))
 
     val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 

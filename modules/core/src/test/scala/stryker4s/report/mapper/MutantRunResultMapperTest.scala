@@ -3,7 +3,7 @@ package stryker4s.report.mapper
 import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.*
-import stryker4s.config.{Config, Thresholds as ConfigThresholds}
+import stryker4s.config.Config
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode}
 import stryker4s.mutation.*
 import stryker4s.testkit.{FileUtil, Stryker4sSuite}
@@ -16,7 +16,8 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
   describe("mapper") {
     test("should map 4 files to valid MutationTestResult") {
       val sut = new MutantRunResultMapper {}
-      implicit val config: Config = Config(thresholds = ConfigThresholds(high = 60, low = 40))
+      implicit val config: Config =
+        Config.default.copy(thresholds = Config.default.thresholds.copy(high = 60, low = 40))
 
       val result = sut.toReport(mutationRunResults, testFiles.some)
 
