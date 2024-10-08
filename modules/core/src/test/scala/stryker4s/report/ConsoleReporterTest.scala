@@ -222,7 +222,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should round decimal mutation scores") {
-      implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
+      implicit val config: Config =
+        Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
       val threeReport = MutationTestResult(
         thresholds = Thresholds(80, 60), // These thresholds are not used
@@ -286,7 +287,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     val metrics = Metrics.calculateMetrics(report)
 
     test("should report the mutation score when it is info") {
-      implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
+      implicit val config: Config =
+        Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
       val sut = new ConsoleReporter()
 
       sut
@@ -297,7 +299,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should report the mutation score when it is warning") {
-      implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
+      implicit val config: Config =
+        Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 49, low = 50, high = 51))
       val sut = new ConsoleReporter()
 
       sut
@@ -308,7 +311,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should report the mutation score when it is dangerously low") {
-      implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
+      implicit val config: Config =
+        Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 50, low = 51, high = 52))
       val sut = new ConsoleReporter()
 
       sut
@@ -320,7 +324,8 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should log when below threshold") {
-      implicit val config: Config = Config(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
+      implicit val config: Config =
+        Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 51, low = 52, high = 53))
       val sut = new ConsoleReporter()
 
       sut

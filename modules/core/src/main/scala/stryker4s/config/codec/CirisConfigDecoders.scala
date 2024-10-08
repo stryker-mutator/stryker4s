@@ -117,7 +117,7 @@ trait CirisConfigDecoders {
     )
 
     ConfigDecoder[String].mapEither { case (key, input) =>
-      def toCannotConvert(msg: String) = {
+      def cannotConvert(msg: String) = {
         val invalidDialectString =
           s"Leaving this configuration empty defaults to scala213source3 which might also work for you. Valid scalaDialects are: ${scalaVersions.keys.flatten
               .map(d => s"'$d'")
@@ -126,11 +126,11 @@ trait CirisConfigDecoders {
       }
 
       if (deprecatedVersions.contains(input))
-        toCannotConvert("Deprecated dialect").asLeft
+        cannotConvert("Deprecated dialect").asLeft
       else
         scalaVersions
           .collectFirst { case (strings, dialect) if strings.contains(input.toLowerCase()) => dialect }
-          .toRight(toCannotConvert("Unsupported dialect"))
+          .toRight(cannotConvert("Unsupported dialect"))
     }
   }
 }

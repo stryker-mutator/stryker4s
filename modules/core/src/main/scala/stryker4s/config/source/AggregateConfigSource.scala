@@ -66,6 +66,9 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
 
   override def cleanTmpDir: ConfigValue[F, Boolean] = loadAndLog("cleanTmpDir", _.cleanTmpDir)
 
+  override def testRunnerCommand: ConfigValue[F, String] = loadAndLog("testRunner.command", _.testRunnerCommand)
+  override def testRunnerArgs: ConfigValue[F, String] = loadAndLog("testRunner.args", _.testRunnerArgs)
+
   /** Load a value from the sources, using the first available value
     */
   private def loadAndLog[A](name: String, f: ConfigSource[F] => ConfigValue[F, A]): ConfigValue[F, A] = sources

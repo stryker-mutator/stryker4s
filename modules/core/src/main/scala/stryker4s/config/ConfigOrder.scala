@@ -8,7 +8,7 @@ import cats.Order
 final case class ConfigOrder(value: Int) extends AnyVal
 
 object ConfigOrder {
-  def Lowest = ConfigOrder(Int.MaxValue)
+  def Last = ConfigOrder(Int.MaxValue)
 
   implicit def order: Order[ConfigOrder] = Order.by(_.value)
 

@@ -12,6 +12,9 @@ import sttp.model.Uri
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
 
+/** Reads config values from a source into a [[ciris.ConfigValue]]. Used to eventually read into a
+  * [[stryker4s.config.Config]] object
+  */
 trait ConfigSource[+F[_]] {
 
   def name: String
@@ -47,6 +50,9 @@ trait ConfigSource[+F[_]] {
 
   def staticTmpDir: ConfigValue[F, Boolean]
   def cleanTmpDir: ConfigValue[F, Boolean]
+
+  def testRunnerCommand: ConfigValue[F, String]
+  def testRunnerArgs: ConfigValue[F, String]
 }
 
 object ConfigSource {
@@ -58,18 +64,15 @@ object ConfigSource {
   )(implicit log: Logger): F[ConfigSource[F]] = {
 
     FileConfigSource.load[F]().flatMap { fileConfigSource =>
-      val defaultSources = NonEmptyList.of(
-        fileConfigSource
-      )
+      val allSources = NonEmptyList(
+        fileConfigSource,
+        extraSources
+      ).sortBy(_.priority)
 
-      val allSources = (defaultSources ++ extraSources).sortBy(_.priority)
       Async[F]
         .delay(log.debug(s"Loaded config sources ${allSources.map(_.name).mkString_(" | ")}"))
         .as(new AggregateConfigSource[F](allSources))
     }
   }
 
-  implicit final class ConfigSourceOps[F[_]](val source: ConfigSource[F]) extends AnyVal {
-    def withDefaults: ConfigSource[F] = new DefaultsConfigSource[F](source)
-  }
 }
