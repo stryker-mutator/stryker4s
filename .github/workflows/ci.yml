@@ -19,11 +19,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
-          cache: 'sbt'
       - name: Run tests
         run: sbt 'compile; ++2.13 test'
   sbt-scripted:
@@ -31,12 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
           # Sbt version that is tested (1.7.0) doesn't work on Java 21
           java-version: 17
-          cache: 'sbt'
       - name: Run tests
         run: sbt 'sbtTestRunner2_12/publishLocal; scripted'
   maven-plugin:
@@ -45,10 +41,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v4
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
-          java-version: 21
           cache: 'maven'
       - name: Cleanup M2
         run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
@@ -67,10 +61,7 @@ jobs:
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
           extraKey: 'scalafmt'
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 21
+      - uses: ./.github/setup
       - name: Test formatting
         run: ./bin/scalafmt --test
   release:
@@ -84,11 +75,9 @@ jobs:
           fetch-depth: 0
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-java@v4
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
           java-version: 11
-          cache: 'sbt'
       - name: Publish
         run: sbt ci-release
         env:
