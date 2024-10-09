@@ -1,0 +1,23 @@
+name: "Setup CI"
+
+description: "Set up Java, sbt and cache for CI"
+
+inputs:
+  java-version:
+    description: "The Java version to use"
+    default: "21"
+    required: false
+  cache:
+    description: "The cache to use"
+    default: "sbt"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: "temurin"
+        java-version: "${{ inputs.java-version }}"
+        cache: "${{ inputs.cache }}"
+    - uses: sbt/setup-sbt@v1
