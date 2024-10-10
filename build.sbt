@@ -49,7 +49,7 @@ lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
   .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core))
   .dependsOn(core)
-  .jvmPlatform(scalaVersions = Seq(versions.scala212))
+  .jvmPlatform(scalaVersions = Seq(versions.scala212 /* , versions.scala3 */ ))
 
 lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
   .settings(commonSettings, sbtTestRunnerSettings, publishLocalDependsOn(testRunnerApi))
