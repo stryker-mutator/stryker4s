@@ -19,7 +19,7 @@ class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
         s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":["**/main/scala/**.scala"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
+          )}","reporters":["console","html"],"files":["**","!target/**","!project/**","!.metals/**","!.bloop/**","!.idea/**"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
       )
     }
 
@@ -84,7 +84,7 @@ class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
 
   def defaultConfigJson = obj(
     "mutate" -> arr(fromString("**/main/scala/**.scala")),
-    "files" -> arr(fromString("**/main/scala/**.scala")),
+    "files" -> arr(Seq("**", "!target/**", "!project/**", "!.metals/**", "!.bloop/**", "!.idea/**").map(fromString)*),
     "test-filter" -> arr(),
     "base-dir" -> fromString(workspaceLocation),
     "reporters" -> arr(fromString("console"), fromString("html")),

@@ -27,7 +27,7 @@ class AggregateConfigSourceTest extends Stryker4sIOSuite with LogMatchers {
       IO(assertLoggedDebug(s"Loaded ${Color.Magenta("baseDir")} from ${Color.Cyan("CLI arguments")}: $path")) *>
       // defaults
       aggregate.thresholdsHigh.load.assertEquals(80) *>
-      IO(assertLoggedDebug(s"Loaded ${Color.Magenta("thresholds.high")} from ${Color.Cyan("defaults")}: 80"))
+      IO(assertLoggedDebug(s"Loaded ${Color.Magenta("thresholdsHigh")} from ${Color.Cyan("defaults")}: 80"))
   }
 
   test("aggregate combines given sources and defaults") {

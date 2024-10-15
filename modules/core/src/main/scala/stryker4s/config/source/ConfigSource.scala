@@ -56,8 +56,8 @@ trait ConfigSource[+F[_]] {
   def testRunnerCommand: ConfigValue[F, String]
   def testRunnerArgs: ConfigValue[F, String]
 
-  protected def notSupported[A](key: String): ConfigValue[F, A] =
-    ConfigValue.missing(s"Key $key is not supported by $name")
+  protected def notSupported[A](implicit key: sourcecode.Name): ConfigValue[F, A] =
+    ConfigValue.missing(s"Key ${key.value} is not supported by $name")
 }
 
 object ConfigSource {

@@ -22,11 +22,20 @@ class DefaultsConfigSource[F[_]]() extends ConfigSource[F] {
 
   override def testFilter: ConfigValue[F, Seq[String]] = ConfigValue.default(Seq.empty)
 
-  override def baseDir: ConfigValue[F, Path] = ConfigValue.default(Path(".").absolute)
+  override def baseDir: ConfigValue[F, Path] = ConfigValue.default(Path("").absolute)
 
   override def reporters: ConfigValue[F, Seq[ReporterType]] = ConfigValue.default(Seq(Console, Html))
 
-  override def files: ConfigValue[F, Seq[String]] = ConfigValue.default(Seq("**/main/scala/**.scala"))
+  override def files: ConfigValue[F, Seq[String]] = ConfigValue.default(
+    Seq(
+      "**",
+      "!target/**",
+      "!project/**",
+      "!.metals/**",
+      "!.bloop/**",
+      "!.idea/**"
+    )
+  )
 
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] = ConfigValue.default(Seq.empty)
 

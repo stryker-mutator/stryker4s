@@ -22,61 +22,63 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
 
   override def priority: ConfigOrder = ConfigOrder(0)
 
-  override def testFilter: ConfigValue[F, Seq[String]] = loadAndLog("testFilter", _.testFilter)
-  override def mutate: ConfigValue[F, Seq[String]] = loadAndLog("mutate", _.mutate)
+  override def testFilter: ConfigValue[F, Seq[String]] = loadAndLog(_.testFilter)
+  override def mutate: ConfigValue[F, Seq[String]] = loadAndLog(_.mutate)
 
-  override def baseDir: ConfigValue[F, Path] = loadAndLog("baseDir", _.baseDir)
+  override def baseDir: ConfigValue[F, Path] = loadAndLog(_.baseDir)
 
-  override def reporters: ConfigValue[F, Seq[ReporterType]] = loadAndLog("reporters", _.reporters)
+  override def reporters: ConfigValue[F, Seq[ReporterType]] = loadAndLog(_.reporters)
 
-  override def files: ConfigValue[F, Seq[String]] = loadAndLog("files", _.files)
+  override def files: ConfigValue[F, Seq[String]] = loadAndLog(_.files)
 
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
-    loadAndLog("excludedMutations", _.excludedMutations)
+    loadAndLog(_.excludedMutations)
 
-  override def thresholdsHigh: ConfigValue[F, Int] = loadAndLog("thresholds.high", _.thresholdsHigh)
-  override def thresholdsLow: ConfigValue[F, Int] = loadAndLog("thresholds.low", _.thresholdsLow)
-  override def thresholdsBreak: ConfigValue[F, Int] = loadAndLog("thresholds.break", _.thresholdsBreak)
+  override def thresholdsHigh: ConfigValue[F, Int] = loadAndLog(_.thresholdsHigh)
+  override def thresholdsLow: ConfigValue[F, Int] = loadAndLog(_.thresholdsLow)
+  override def thresholdsBreak: ConfigValue[F, Int] = loadAndLog(_.thresholdsBreak)
 
-  override def dashboardBaseUrl: ConfigValue[F, Uri] = loadAndLog("dashboard.baseUrl", _.dashboardBaseUrl)
+  override def dashboardBaseUrl: ConfigValue[F, Uri] = loadAndLog(_.dashboardBaseUrl)
   override def dashboardReportType: ConfigValue[F, DashboardReportType] =
-    loadAndLog("dashboardReportType", _.dashboardReportType)
-  override def dashboardProject: ConfigValue[F, Option[String]] = loadAndLog("dashboard.project", _.dashboardProject)
-  override def dashboardVersion: ConfigValue[F, Option[String]] = loadAndLog("dashboard.version", _.dashboardVersion)
-  override def dashboardModule: ConfigValue[F, Option[String]] = loadAndLog("dashboard.module", _.dashboardModule)
+    loadAndLog(_.dashboardReportType)
+  override def dashboardProject: ConfigValue[F, Option[String]] = loadAndLog(_.dashboardProject)
+  override def dashboardVersion: ConfigValue[F, Option[String]] = loadAndLog(_.dashboardVersion)
+  override def dashboardModule: ConfigValue[F, Option[String]] = loadAndLog(_.dashboardModule)
 
-  override def timeout: ConfigValue[F, FiniteDuration] = loadAndLog("timeout", _.timeout)
+  override def timeout: ConfigValue[F, FiniteDuration] = loadAndLog(_.timeout)
 
-  override def timeoutFactor: ConfigValue[F, Double] = loadAndLog("timeoutFactor", _.timeoutFactor)
+  override def timeoutFactor: ConfigValue[F, Double] = loadAndLog(_.timeoutFactor)
 
-  override def maxTestRunnerReuse: ConfigValue[F, Option[Int]] = loadAndLog("maxTestRunnerReuse", _.maxTestRunnerReuse)
+  override def maxTestRunnerReuse: ConfigValue[F, Option[Int]] = loadAndLog(_.maxTestRunnerReuse)
 
-  override def legacyTestRunner: ConfigValue[F, Boolean] = loadAndLog("legacyTestRunner", _.legacyTestRunner)
+  override def legacyTestRunner: ConfigValue[F, Boolean] = loadAndLog(_.legacyTestRunner)
 
-  override def scalaDialect: ConfigValue[F, Dialect] = loadAndLog("scalaDialect", _.scalaDialect)
+  override def scalaDialect: ConfigValue[F, Dialect] = loadAndLog(_.scalaDialect)
 
-  override def concurrency: ConfigValue[F, Int] = loadAndLog("concurrency", _.concurrency)
+  override def concurrency: ConfigValue[F, Int] = loadAndLog(_.concurrency)
 
   override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] =
-    loadAndLog("debug.logTestRunnerStdout", _.debugLogTestRunnerStdout)
+    loadAndLog(_.debugLogTestRunnerStdout)
   override def debugDebugTestRunner: ConfigValue[F, Boolean] =
-    loadAndLog("debug.debugTestRunner", _.debugDebugTestRunner)
+    loadAndLog(_.debugDebugTestRunner)
 
-  override def staticTmpDir: ConfigValue[F, Boolean] = loadAndLog("staticTmpDir", _.staticTmpDir)
+  override def staticTmpDir: ConfigValue[F, Boolean] = loadAndLog(_.staticTmpDir)
 
-  override def cleanTmpDir: ConfigValue[F, Boolean] = loadAndLog("cleanTmpDir", _.cleanTmpDir)
+  override def cleanTmpDir: ConfigValue[F, Boolean] = loadAndLog(_.cleanTmpDir)
 
-  override def testRunnerCommand: ConfigValue[F, String] = loadAndLog("testRunner.command", _.testRunnerCommand)
-  override def testRunnerArgs: ConfigValue[F, String] = loadAndLog("testRunner.args", _.testRunnerArgs)
+  override def testRunnerCommand: ConfigValue[F, String] = loadAndLog(_.testRunnerCommand)
+  override def testRunnerArgs: ConfigValue[F, String] = loadAndLog(_.testRunnerArgs)
 
   /** Load a value from the sources, using the first available value
     */
-  private def loadAndLog[A](name: String, configValueFn: ConfigSource[F] => ConfigValue[F, A]): ConfigValue[F, A] =
+  private def loadAndLog[A](
+      configValueFn: ConfigSource[F] => ConfigValue[F, A]
+  )(implicit name: sourcecode.Name): ConfigValue[F, A] =
     sources
       .map(source =>
         configValueFn(source).evalMap(value =>
           Sync[F]
-            .delay(log.debug(s"Loaded ${Color.Magenta(name)} from ${Color.Cyan(source.name)}: $value"))
+            .delay(log.debug(s"Loaded ${Color.Magenta(name.value)} from ${Color.Cyan(source.name)}: $value"))
             .as(value)
         )
       )

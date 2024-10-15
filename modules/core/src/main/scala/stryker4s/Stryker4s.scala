@@ -16,16 +16,12 @@ class Stryker4s(fileSource: FileResolver, mutator: Mutator, runner: MutantRunner
     config: Config
 ) {
 
-  def run(): IO[ScoreStatus] = {
-    val filesToMutate = fileSource.files
-
-    for {
-      (ignored, files) <- mutator.go(filesToMutate)
-      result <- runner(files)
-      metrics <- createAndReportResults(result, ignored)
-      scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
-    } yield scoreStatus
-  }
+  def run(): IO[ScoreStatus] = for {
+    (ignored, files) <- mutator.go(fileSource.files)
+    result <- runner(files)
+    metrics <- createAndReportResults(result, ignored)
+    scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
+  } yield scoreStatus
 
   // TODO: move result reporting
   def createAndReportResults(results: RunResult, ignored: MutantResultsPerFile) = {

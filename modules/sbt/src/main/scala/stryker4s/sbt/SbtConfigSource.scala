@@ -44,7 +44,7 @@ object SbtConfigSource {
       override val baseDir: ConfigValue[IO, Path] = sbtSetting(
         strykerBaseDir.?.value,
         strykerBaseDir.key.label
-      ).map(f => Path.fromNioPath(f.toPath))
+      ).map(f => Path.fromNioPath(f.toPath.toAbsolutePath()))
 
       override def testFilter: ConfigValue[IO, Seq[String]] = sbtSetting(
         strykerTestFilter.?.value,
@@ -154,8 +154,8 @@ object SbtConfigSource {
         strykerCleanTmpDir.key.label
       )
 
-      override def testRunnerCommand: ConfigValue[IO, String] = notSupported("test-runner.command")
-      override def testRunnerArgs: ConfigValue[IO, String] = notSupported("test-runner.args")
+      override def testRunnerCommand: ConfigValue[IO, String] = notSupported
+      override def testRunnerArgs: ConfigValue[IO, String] = notSupported
 
     }
   }

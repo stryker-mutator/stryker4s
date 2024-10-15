@@ -16,9 +16,9 @@ class DefaultsConfigSourceTest extends Stryker4sIOSuite {
 
     conf.mutate.load.assertEquals(Seq("**/main/scala/**.scala")) *>
       conf.testFilter.load.assertEquals(Seq.empty) *>
-      conf.baseDir.load.assertEquals(Path(".").absolute) *>
+      conf.baseDir.load.assertEquals(Path("").absolute) *>
       conf.reporters.load.assertSameElementsAs(Seq(Console, Html)) *>
-      conf.files.load.assertEquals(Seq("**/main/scala/**.scala")) *>
+      conf.files.load.assertEquals(Seq("**", "!target/**", "!project/**", "!.metals/**", "!.bloop/**", "!.idea/**")) *>
       conf.excludedMutations.load.assertEquals(Seq.empty) *>
       conf.thresholdsHigh.load.assertEquals(80) *>
       conf.thresholdsLow.load.assertEquals(60) *>

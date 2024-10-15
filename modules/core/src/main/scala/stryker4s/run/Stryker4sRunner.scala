@@ -21,7 +21,7 @@ import sttp.client3.logging.LoggingBackend
 import sttp.model.HeaderNames
 
 abstract class Stryker4sRunner(implicit log: Logger) {
-  def run(): IO[ScoreStatus] = {
+  def run(): IO[ScoreStatus] =
     ConfigLoader.loadAll[IO](extraConfigSources).flatMap { implicit config =>
       val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
       val reporter = new AggregateReporter(resolveReporters())
@@ -46,7 +46,6 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
       stryker4s.run()
     }
-  }
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {

@@ -11,78 +11,69 @@ import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.*
 import scala.meta.Dialect
 
-// TODO: Add missing implementations
+// TODO: Add missing implementations and resolving config from maven pom.xml
 class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] {
 
   override def name: String = "maven"
 
   override def priority: ConfigOrder = ConfigOrder(15)
 
-  def mvnKey(key: String): ConfigKey = ConfigKey(s"$name $key")
+  override def mutate: ConfigValue[F, Seq[String]] = ConfigValue.loaded(
+    ConfigKey(implicitly[sourcecode.Name].value),
+    project.getCompileSourceRoots().asScala.map(_ + "/**.scala").toSeq
+  )
 
-  override def mutate: ConfigValue[F, Seq[String]] = notSupported("mutate")
+  override def testFilter: ConfigValue[F, Seq[String]] = notSupported
 
-  override def testFilter: ConfigValue[F, Seq[String]] = notSupported("testFilter")
+  override def baseDir: ConfigValue[F, Path] = notSupported
 
-  override def baseDir: ConfigValue[F, Path] = notSupported("baseDir")
+  override def reporters: ConfigValue[F, Seq[ReporterType]] = notSupported
 
-  override def reporters: ConfigValue[F, Seq[ReporterType]] = notSupported("reporters")
-
-  override def files: ConfigValue[F, Seq[String]] = {
-    val sources = project.getCompileSourceRoots().asScala.map(_ + "/**/*.scala").toSeq
-    ConfigValue.loaded(mvnKey("files"), sources)
-  }
+  override def files: ConfigValue[F, Seq[String]] = notSupported
 
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
-    notSupported("excludedMutations")
+    notSupported
 
-  override def thresholdsHigh: ConfigValue[F, Int] = notSupported("thresholdsHigh")
+  override def thresholdsHigh: ConfigValue[F, Int] = notSupported
 
-  override def thresholdsLow: ConfigValue[F, Int] = notSupported("thresholdsLow")
+  override def thresholdsLow: ConfigValue[F, Int] = notSupported
 
-  override def thresholdsBreak: ConfigValue[F, Int] = notSupported("thresholdsBreak")
+  override def thresholdsBreak: ConfigValue[F, Int] = notSupported
 
-  override def dashboardBaseUrl: ConfigValue[F, Uri] = notSupported("dashboardBaseUrl")
+  override def dashboardBaseUrl: ConfigValue[F, Uri] = notSupported
 
   override def dashboardReportType: ConfigValue[F, DashboardReportType] =
-    notSupported("dashboardReportType")
+    notSupported
 
-  override def dashboardProject: ConfigValue[F, Option[String]] = notSupported("dashboardProject")
+  override def dashboardProject: ConfigValue[F, Option[String]] = notSupported
 
-  override def dashboardVersion: ConfigValue[F, Option[String]] = notSupported("dashboardVersion")
+  override def dashboardVersion: ConfigValue[F, Option[String]] = notSupported
 
-  override def dashboardModule: ConfigValue[F, Option[String]] = notSupported("dashboardModule")
+  override def dashboardModule: ConfigValue[F, Option[String]] = notSupported
 
-  override def timeout: ConfigValue[F, FiniteDuration] = notSupported("timeout")
+  override def timeout: ConfigValue[F, FiniteDuration] = notSupported
 
-  override def timeoutFactor: ConfigValue[F, Double] = notSupported("timeoutFactor")
+  override def timeoutFactor: ConfigValue[F, Double] = notSupported
 
-  override def maxTestRunnerReuse: ConfigValue[F, Option[Int]] = notSupported("maxTestRunnerReuse")
+  override def maxTestRunnerReuse: ConfigValue[F, Option[Int]] = notSupported
 
-  override def legacyTestRunner: ConfigValue[F, Boolean] = notSupported("legacyTestRunner")
+  override def legacyTestRunner: ConfigValue[F, Boolean] = notSupported
 
-  override def scalaDialect: ConfigValue[F, Dialect] = notSupported("scalaDialect")
+  override def scalaDialect: ConfigValue[F, Dialect] = notSupported
 
-  override def concurrency: ConfigValue[F, Int] = notSupported("concurrency")
+  override def concurrency: ConfigValue[F, Int] = notSupported
 
   override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] =
-    notSupported("debugLogTestRunnerStdout")
+    notSupported
 
-  override def debugDebugTestRunner: ConfigValue[F, Boolean] = notSupported("debugDebugTestRunner")
+  override def debugDebugTestRunner: ConfigValue[F, Boolean] = notSupported
 
-  override def staticTmpDir: ConfigValue[F, Boolean] = notSupported("staticTmpDir")
+  override def staticTmpDir: ConfigValue[F, Boolean] = notSupported
 
-  override def cleanTmpDir: ConfigValue[F, Boolean] = notSupported("cleanTmpDir")
+  override def cleanTmpDir: ConfigValue[F, Boolean] = notSupported
 
-  override def testRunnerCommand: ConfigValue[F, String] = notSupported("testRunnerCommand")
+  override def testRunnerCommand: ConfigValue[F, String] = notSupported
 
-  override def testRunnerArgs: ConfigValue[F, String] = notSupported("testRunnerArgs")
+  override def testRunnerArgs: ConfigValue[F, String] = notSupported
 
 }
-
-// override def files: fs2.Stream[IO, Path] =
-//   Stream
-//     .emits(project.getCompileSourceRoots().asScala)
-//     .map(Path(_))
-//     .evalFilter(Files[IO].exists)
-//     .flatMap(Glob.glob(_, Seq("**/*.scala")))
