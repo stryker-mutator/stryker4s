@@ -78,6 +78,10 @@ sealed trait Stryker4sAssertions {
     def loneElement(implicit loc: Location): A = it.toVector.loneElement
   }
 
+  implicit class ChainLoneElement[A](it: cats.data.Chain[A]) {
+    def loneElement(implicit loc: Location): A = it.toVector.loneElement
+  }
+
   implicit class IOSeqAssertions[A](io: IO[Seq[A]]) {
     def assertSameElementsAs(expected: Seq[A])(implicit loc: Location): IO[Unit] =
       io.flatMap(a => IO(assertSameElements(a, expected)))

@@ -5,23 +5,24 @@ import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.either.*
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
 import sbt.internal.LogManager
+import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.exception.TestSetupException
 import stryker4s.extension.FileExtensions.*
-import stryker4s.files.{FilesFileResolver, MutatesFileResolver, SbtFilesResolver, SbtMutatesResolver}
 import stryker4s.log.Logger
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
-import stryker4s.sbt.Stryker4sMain.autoImport.stryker
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
+
+import Stryker4sPlugin.autoImport.stryker
 
 /** This Runner run Stryker mutations in a single SBT session
   *
@@ -31,8 +32,7 @@ import scala.concurrent.duration.FiniteDuration
 class Stryker4sSbtRunner(
     state: State,
     sharedTimeout: Deferred[IO, FiniteDuration],
-    sources: Seq[Path],
-    targetDir: Path
+    override val extraConfigSources: List[ConfigSource[IO]]
 )(implicit
     log: Logger
 ) extends Stryker4sRunner {
@@ -211,12 +211,6 @@ class Stryker4sSbtRunner(
     } else
       setupSbtTestRunner(settings, extracted)
   }
-
-  override def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
-    if (config.mutate.isEmpty) new SbtMutatesResolver(state, targetDir) else super.resolveMutatesFileSource
-
-  override def resolveFilesFileSource(implicit config: Config): FilesFileResolver =
-    if (config.files.isEmpty) new SbtFilesResolver(sources, targetDir) else super.resolveFilesFileSource
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
     if (config.legacyTestRunner) {

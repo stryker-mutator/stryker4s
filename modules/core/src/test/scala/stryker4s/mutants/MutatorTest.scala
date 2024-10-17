@@ -2,7 +2,7 @@ package stryker4s.mutants
 
 import fansi.Color.*
 import fs2.Stream
-import stryker4s.config.Config
+import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
@@ -91,7 +91,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should log the amount of excluded mutants") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Set("EqualityOperator"))
+      implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("EqualityOperator")))
       val sut = new Mutator(
         new MutantFinder(),
         new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
@@ -108,7 +108,7 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should log a warning if no mutants are found") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Set("EqualityOperator"))
+      implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("EqualityOperator")))
       val sut = new Mutator(
         new MutantFinder(),
         new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
@@ -125,7 +125,9 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should log if all mutations are excluded") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Set("EqualityOperator", "StringLiteral"))
+      implicit val conf: Config = Config.default.copy(excludedMutations =
+        Seq(ExcludedMutation("EqualityOperator"), ExcludedMutation("StringLiteral"))
+      )
       val sut = new Mutator(
         new MutantFinder(),
         new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),

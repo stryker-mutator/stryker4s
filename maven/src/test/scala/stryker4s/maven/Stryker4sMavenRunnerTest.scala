@@ -4,8 +4,6 @@ import cats.effect.IO
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import stryker4s.config.Config
-import stryker4s.files.GlobFileResolver
-import stryker4s.maven.files.MavenMutatesResolver
 import stryker4s.maven.stubs.InvokerStub
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 
@@ -75,21 +73,4 @@ class Stryker4sMavenRunnerTest extends Stryker4sIOSuite with LogMatchers {
     }
   }
 
-  describe("resolveMutatesFileSource") {
-    test("should resolve to a maven mutates file resolver when config.mutate is empty") {
-      implicit val config = Config.default.copy(mutate = Seq.empty)
-      val project = new MavenProject()
-      val sut = new Stryker4sMavenRunner(project, InvokerStub())
-
-      assert(clue(sut.resolveMutatesFileSource).isInstanceOf[MavenMutatesResolver])
-    }
-
-    test("uses glob for filled config.mutate") {
-      implicit val config = Config.default.copy(mutate = Seq("src/test/resources/mutate/*"))
-      val project = new MavenProject()
-      val sut = new Stryker4sMavenRunner(project, InvokerStub())
-
-      assert(clue(sut.resolveMutatesFileSource).isInstanceOf[GlobFileResolver])
-    }
-  }
 }

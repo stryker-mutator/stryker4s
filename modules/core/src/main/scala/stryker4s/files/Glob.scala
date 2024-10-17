@@ -31,7 +31,7 @@ object Glob {
       .replace("]", "\\]")
 
     def toPathMatcher(glob: String): file.PathMatcher =
-      path.toNioPath.getFileSystem().getPathMatcher(s"glob:$escapedPath$glob")
+      path.toNioPath.getFileSystem().getPathMatcher(s"glob:$escapedPath${glob.stripPrefix(path.toString + separator)}")
 
     val matchers = validPatterns.map(toPathMatcher)
     val ignoreMatchers = ignorePatternsStripped.map(toPathMatcher)

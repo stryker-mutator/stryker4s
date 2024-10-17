@@ -9,6 +9,7 @@ class GlobFileResolverTest extends Stryker4sIOSuite {
     val defaultGlob = Seq("**/main/**.scala")
     val filledDirPath: Path = FileUtil.getResource("fileTests/filledDir")
     val basePath: Path = filledDirPath / "src/main/scala"
+    val separator = filledDirPath.toNioPath.getFileSystem.getSeparator
 
     test("should not collect the baseDir") {
       val emptyDir = FileUtil.getResource("fileTests/emptyDir")
@@ -56,6 +57,23 @@ class GlobFileResolverTest extends Stryker4sIOSuite {
 
       sut.files.compile.toVector.assertSameElementsAs(
         List(
+          basePath / "fileInRootSourceDir.scala",
+          basePath / "package" / "someFile.scala",
+          basePath / "package" / "secondFile.scala",
+          basePath / "package" / "target.scala"
+        )
+      )
+    }
+
+    test("should match if basePath and glob are absolute") {
+      val sut =
+        new GlobFileResolver(
+          filledDirPath.absolute,
+          Seq((filledDirPath.toString + separator + "**/main/**.scala").toString)
+        )
+
+      sut.files.compile.toVector.assertSameElementsAs(
+        Seq(
           basePath / "fileInRootSourceDir.scala",
           basePath / "package" / "someFile.scala",
           basePath / "package" / "secondFile.scala",

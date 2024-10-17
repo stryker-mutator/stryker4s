@@ -6,19 +6,20 @@ import io.circe.Json.*
 import io.circe.syntax.*
 import munit.Location
 import stryker4s.config.*
+import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.testkit.Stryker4sSuite
 
-class ConfigEncoderTest extends Stryker4sSuite {
+class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
   val workspaceLocation = Path("workspace").absolute.toString
   describe("configEncoder") {
     test("should be able to encode a minimal config") {
       expectJsonConfig(
         defaultConfig,
         defaultConfigJson,
-        s"""{"mutate":[],"test-filter":[],"base-dir":"${workspaceLocation.replace(
+        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation.replace(
             "\\",
             "\\\\"
-          )}","reporters":["console","html"],"files":[],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
+          )}","reporters":["console","html"],"files":["**","!target/**","!project/**","!.metals/**","!.bloop/**","!.idea/**"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
       )
     }
 
@@ -28,9 +29,9 @@ class ConfigEncoderTest extends Stryker4sSuite {
           mutate = Seq("**/main/scala/**.scala"),
           testFilter = Seq("foo.scala"),
           files = Seq("file.scala"),
-          excludedMutations = Set("bar.scala"),
+          excludedMutations = Seq(ExcludedMutation("bar.scala")),
           maxTestRunnerReuse = 2.some,
-          dashboard = DashboardOptions(
+          dashboard = Config.default.dashboard.copy(
             project = "myProject".some,
             version = "1.3.3.7".some,
             module = "myModule".some
@@ -75,15 +76,15 @@ class ConfigEncoderTest extends Stryker4sSuite {
   def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit loc: Location) = {
     val result = config.asJson
 
-    assertEquals(result.noSpaces, jsonString)
+    assertNoDiff(result.noSpaces, jsonString)
     assertEquals(result, json)
   }
 
   def defaultConfig: Config = Config.default.copy(baseDir = Path("workspace"))
 
   def defaultConfigJson = obj(
-    "mutate" -> arr(),
-    "files" -> arr(),
+    "mutate" -> arr(fromString("**/main/scala/**.scala")),
+    "files" -> arr(Seq("**", "!target/**", "!project/**", "!.metals/**", "!.bloop/**", "!.idea/**").map(fromString)*),
     "test-filter" -> arr(),
     "base-dir" -> fromString(workspaceLocation),
     "reporters" -> arr(fromString("console"), fromString("html")),
