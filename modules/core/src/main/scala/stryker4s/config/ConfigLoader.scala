@@ -63,7 +63,11 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
 object ConfigLoader {
 
   def load[F[_]: Async](source: ConfigSource[F])(implicit log: Logger) =
-    Async[F].delay(log.info(s"Loading config...")) *>
+    Async[F].delay(
+      log.info(
+        "Loading config. Read how to configure Stryker4s here: https://stryker-mutator.io/docs/stryker4s/configuration/"
+      )
+    ) *>
       new ConfigLoader(source).config.load[F]
 
   def loadAll[F[_]: Async: Files](extraConfigSources: List[ConfigSource[F]])(implicit log: Logger): F[Config] = for {
