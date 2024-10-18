@@ -10,7 +10,7 @@ import mutationtesting.{MutantResult, MutantStatus, TestDefinition, TestFile, Te
 import stryker4s.config.Config
 import stryker4s.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
 import stryker4s.extension.FileExtensions.*
-import stryker4s.files.FilesFileResolver
+import stryker4s.files.FileResolver
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.report.{MutantTestedEvent, Reporter}
@@ -21,7 +21,7 @@ import scala.collection.mutable.Builder
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
-    fileResolver: FilesFileResolver,
+    fileResolver: FileResolver,
     rollbackHandler: RollbackHandler,
     reporter: Reporter
 )(implicit config: Config, log: Logger) {

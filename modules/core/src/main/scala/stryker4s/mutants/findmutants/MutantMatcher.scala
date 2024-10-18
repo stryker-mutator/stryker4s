@@ -2,7 +2,7 @@ package stryker4s.mutants.findmutants
 
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
-import stryker4s.config.Config
+import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
 import stryker4s.model.*
@@ -191,7 +191,8 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       mutations.asRight
   }
 
-  private def excludedByConfig(mutation: String): Boolean = config.excludedMutations.contains(mutation)
+  private def excludedByConfig(mutation: String): Boolean =
+    config.excludedMutations.contains(ExcludedMutation(mutation))
 
   @tailrec
   private def excludedByAnnotation(original: Tree, mutationName: String): Boolean = {

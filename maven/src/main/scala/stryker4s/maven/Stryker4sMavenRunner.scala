@@ -7,9 +7,8 @@ import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
 import stryker4s.config.Config
-import stryker4s.files.MutatesFileResolver
+import stryker4s.config.source.ConfigSource
 import stryker4s.log.Logger
-import stryker4s.maven.files.MavenMutatesResolver
 import stryker4s.maven.runner.MavenTestRunner
 import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.applymutants.ActiveMutationContext
@@ -35,6 +34,8 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
       .one(Resource.pure[IO, MavenTestRunner](new MavenTestRunner(project, invoker, properties, goals, tmpDir)))
       .asRight
   }
+
+  override def extraConfigSources: List[ConfigSource[IO]] = List(new MavenConfigSource(project))
 
   private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {
     // Stop after first failure. Only works with surefire plugin, not scalatest
@@ -62,8 +63,5 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
     }
     ()
   }
-
-  override def resolveMutatesFileSource(implicit config: Config): MutatesFileResolver =
-    if (config.mutate.isEmpty) new MavenMutatesResolver(project) else super.resolveMutatesFileSource
 
 }

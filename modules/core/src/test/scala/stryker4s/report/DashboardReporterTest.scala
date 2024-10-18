@@ -7,6 +7,7 @@ import fansi.Bold
 import fansi.Color.Red
 import fs2.io.file.Path
 import mutationtesting.*
+import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.config.{Full, MutationScoreOnly}
 import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
@@ -17,7 +18,7 @@ import sttp.model.{Header, MediaType, Method, StatusCode}
 
 import scala.concurrent.duration.*
 
-class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers {
+class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with CirceConfigEncoder {
   describe("buildRequest") {
     test("should compose the request") {
       implicit val backend = backendStub

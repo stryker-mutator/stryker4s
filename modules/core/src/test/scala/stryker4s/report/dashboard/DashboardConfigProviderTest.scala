@@ -4,11 +4,11 @@ import cats.Id
 import cats.data.NonEmptyChain
 import cats.effect.std.Env
 import cats.syntax.all.*
-import stryker4s.config.{Config, DashboardOptions, Full, MutationScoreOnly}
+import stryker4s.config.{Config, Full, MutationScoreOnly}
 import stryker4s.report.model.DashboardConfig
 import stryker4s.testkit.Stryker4sSuite
-import sttp.client3.UriContext
 import stryker4s.testutil.stubs.EnvStub
+import sttp.client3.UriContext
 
 class DashboardConfigProviderTest extends Stryker4sSuite {
 
@@ -118,7 +118,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
     test("should resolve a configured environment") {
       implicit val config = Config.default.copy(
-        dashboard = DashboardOptions(
+        dashboard = Config.default.dashboard.copy(
           baseUrl = uri"https://baseUrl.com",
           reportType = MutationScoreOnly,
           project = "projectHere".some,
@@ -148,7 +148,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
     test("should resolve without a module") {
       implicit val config = Config.default.copy(
-        dashboard = DashboardOptions(
+        dashboard = Config.default.dashboard.copy(
           project = "projectHere".some,
           version = "versionHere".some,
           module = none
@@ -205,7 +205,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
     test("should not resolve when there is no STRYKER_DASHBOARD_API_KEY environment") {
       implicit val config = Config.default.copy(
-        dashboard = DashboardOptions(
+        dashboard = Config.default.dashboard.copy(
           project = "projectHere".some,
           version = "versionHere".some,
           module = "moduleHere".some
@@ -221,7 +221,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
     test("should not resolve when there is no project") {
       implicit val config = Config.default.copy(
-        dashboard = DashboardOptions(
+        dashboard = Config.default.dashboard.copy(
           project = none,
           version = "versionHere".some,
           module = "moduleHere".some
@@ -237,7 +237,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
     test("should not resolve when there is no version") {
       implicit val config = Config.default.copy(
-        dashboard = DashboardOptions(
+        dashboard = Config.default.dashboard.copy(
           project = "projectHere".some,
           version = none,
           module = "moduleHere".some
@@ -253,7 +253,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
     test("should return all unresolved") {
       implicit val config = Config.default.copy(
-        dashboard = DashboardOptions(
+        dashboard = Config.default.dashboard.copy(
           project = none,
           version = none,
           module = "moduleHere".some

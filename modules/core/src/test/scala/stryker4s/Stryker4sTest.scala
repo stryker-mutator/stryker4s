@@ -1,7 +1,7 @@
 package stryker4s
 
 import stryker4s.config.Config
-import stryker4s.files.ConfigFilesResolver
+import stryker4s.files.GlobFileResolver
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
@@ -9,9 +9,7 @@ import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.run.MutantRunner
 import stryker4s.run.threshold.SuccessStatus
 import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
-import stryker4s.testutil.stubs.{ReporterStub, RollbackHandlerStub, TestFileResolver, TestProcessRunner, TestRunnerStub}
-
-import scala.util.Success
+import stryker4s.testutil.stubs.{ReporterStub, RollbackHandlerStub, TestFileResolver, TestRunnerStub}
 
 class Stryker4sTest extends Stryker4sIOSuite with LogMatchers {
 
@@ -19,7 +17,6 @@ class Stryker4sTest extends Stryker4sIOSuite with LogMatchers {
     val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
     val testFiles = Seq(file)
     val testSourceCollector = new TestFileResolver(testFiles)
-    val testProcessRunner = TestProcessRunner(Success(1), Success(1), Success(1), Success(1))
     val reporterStub = ReporterStub()
     val rollbackHandler = RollbackHandlerStub.alwaysSuccessful()
 
@@ -28,7 +25,7 @@ class Stryker4sTest extends Stryker4sIOSuite with LogMatchers {
     val testMutantRunner =
       new MutantRunner(
         TestRunnerStub.resource,
-        new ConfigFilesResolver(testProcessRunner),
+        GlobFileResolver.forFiles(),
         rollbackHandler,
         reporterStub
       )

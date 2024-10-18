@@ -28,15 +28,17 @@ object Dependencies {
 
     val circe = "0.14.10"
 
+    val ciris = "3.5.0"
+
     val fansi = "0.5.0"
+
+    val hocon = "1.4.3"
 
     val fs2 = "3.11.0"
 
     val mutationTestingElements = "3.3.0"
 
     val mutationTestingMetrics = "3.3.0"
-
-    val pureconfig = "0.17.7"
 
     val scalameta = "4.9.9"
 
@@ -57,14 +59,14 @@ object Dependencies {
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
+  val ciris = "is.cir" %% "ciris" % versions.ciris
   val fansi = "com.lihaoyi" %% "fansi" % versions.fansi
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
+  val hocon = "com.typesafe" % "config" % versions.hocon
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
-  val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
   // Exclude some 2.13 dependencies when on scala 3 to avoid conflicts
   val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
     .cross(CrossVersion.for3Use2_13)
