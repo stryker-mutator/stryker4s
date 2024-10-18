@@ -76,7 +76,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
     test("should send the request") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
-          .thenRespond(DashboardPutResult("https://hrefHere.com").asRight)
+          .thenRespond(Right(DashboardPutResult("https://hrefHere.com")))
       )
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
       val sut = new DashboardReporter(dashConfigProvider)
@@ -122,7 +122,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
     test("should log when a 401 is returned by the API") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
-          .thenRespond(Response(HttpError("auth required", StatusCode.Unauthorized).asLeft, StatusCode.Unauthorized))
+          .thenRespond(Response(Left(HttpError("auth required", StatusCode.Unauthorized)), StatusCode.Unauthorized))
       )
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
       val sut = new DashboardReporter(dashConfigProvider)
@@ -142,7 +142,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
       implicit val backend =
         backendStub.map(
           _.whenAnyRequest.thenRespond(
-            Response(HttpError("internal error", StatusCode.InternalServerError).asLeft, StatusCode.InternalServerError)
+            Response(Left(HttpError("internal error", StatusCode.InternalServerError)), StatusCode.InternalServerError)
           )
         )
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)

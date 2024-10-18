@@ -36,12 +36,12 @@ lazy val root = (project withId "stryker4s" in file("."))
 lazy val core = (projectMatrix in file("modules") / "core")
   .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testkit))
   .dependsOn(api, testRunnerApi, testkit % Test)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
   .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core, testkit))
   .dependsOn(core, testkit % Test)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
 lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
@@ -49,7 +49,7 @@ lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
   .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core))
   .dependsOn(core)
-  .jvmPlatform(scalaVersions = Seq(versions.scala212 /* , versions.scala3 */ ))
+  .jvmPlatform(scalaVersions = Seq(versions.scala3, versions.scala212))
 
 lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
   .settings(commonSettings, sbtTestRunnerSettings, publishLocalDependsOn(testRunnerApi))

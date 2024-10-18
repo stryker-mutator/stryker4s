@@ -52,7 +52,8 @@ object TestRunner {
           override def initialTestRun(): IO[InitialTestRunResult] =
             for {
               runner <- testRunnerRef.get
-              (timedDuration, result) <- runner.initialTestRun().timed
+              t <- runner.initialTestRun().timed
+              (timedDuration, result) = t
               // Use reported duration if its available, or timed duration as a backup
               duration = result.reportedDuration.getOrElse(timedDuration)
 

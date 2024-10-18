@@ -121,7 +121,7 @@ class MavenTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
   def createMutant =
     MutantWithId(
       MutantId(1),
-      MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation, none))
+      MutatedCode(Term.Name("<"), MutantMetadata(">", "<", LesserThan.mutationName, createLocation, none))
     )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))

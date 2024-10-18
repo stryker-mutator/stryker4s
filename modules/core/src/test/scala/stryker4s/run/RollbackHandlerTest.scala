@@ -18,7 +18,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     val sut = RollbackHandler(new MutantInstrumenter(InstrumenterOptions.testRunner))
     test("should remove a non-compiling mutant") {
       rollbackableTree.asserting { tree =>
-        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
+        val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
         val mutantMetadata =
           MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
         val mutants = NonEmptyVector.of(
@@ -60,7 +60,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
 
     test("should return a Left if no mutants were removed") {
       rollbackableTree.asserting { tree =>
-        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
+        val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
         val mutantMetadata =
           MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
 
@@ -88,7 +88,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
 
     test("should filter out fixed files of the rollbackResult") {
       rollbackableTree.asserting { tree =>
-        val mutantTree = tree.find(q"Files.forall(Paths.get(a))").value
+        val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
         val mutantMetadata =
           MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
         val mutants = NonEmptyVector.of(
