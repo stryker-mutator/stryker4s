@@ -1,16 +1,16 @@
 package stryker4s.report
 
-import cats.Monad
 import cats.effect.IO
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.Config
 import stryker4s.config.codec.CirceConfigEncoder
-import stryker4s.files.FileIO
+import stryker4s.files.{DesktopIO, FileIO}
 import stryker4s.log.Logger
-import java.awt.Desktop
 
-class HtmlReporter(fileIO: FileIO)(implicit config: Config, log: Logger) extends Reporter with CirceConfigEncoder {
+class HtmlReporter(fileIO: FileIO, desktopIO: DesktopIO)(implicit config: Config, log: Logger)
+    extends Reporter
+    with CirceConfigEncoder {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -65,23 +65,17 @@ class HtmlReporter(fileIO: FileIO)(implicit config: Config, log: Logger) extends
       writeReportJsTo(reportLocation, runReport.report) &>
       writeMutationTestElementsJsTo(mutationTestElementsLocation)
 
-    def desktopSupportedAndFileExists: IO[Boolean] = IO(
-      Desktop.isDesktopSupported && indexLocation.toNioPath.toFile.exists()
-    )
-
-    def openFile: IO[Unit] = IO(Desktop.getDesktop.open(indexLocation.toNioPath.toFile))
-
-    val openFileIO = Monad[IO].ifElseM(
-      desktopSupportedAndFileExists -> openFile
-    )(
-      IO(log.warn("Desktop operations not supported or file does not exist."))
-    )
-
     for {
       _ <- reportsWriting
-      _ <- IO(log.info(s"Written HTML report to $indexLocation"))
-      _ <- if (config.OpenReportAutomatically) openFileIO else IO.unit
+      _ <- IO(
+        log.info(s"Written HTML report to $indexLocation")
+      )
+      _ <-
+        if (config.OpenReportAutomatically) desktopIO.open(indexLocation.toNioPath.toFile()).flatMap {
+          case Right(_)           => IO(log.info("Report opened in default browser."))
+          case Left(errorMessage) => IO(log.error(s"Error opening report in browser: $errorMessage"))
+        }
+        else IO.unit
     } yield ()
-
   }
 }
