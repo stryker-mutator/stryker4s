@@ -1,16 +1,16 @@
 import Dependencies.*
 import Settings.*
-import sbt.internal.ProjectMatrix
 
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     buildLevelSettings,
     publish / skip := true,
     Global / onLoad ~= (_ andThen ("writeHooks" :: _)),
+    crossScalaVersions := Nil,
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; sbtPlugin/publishLocal; sbtTestRunner/publishLocal;"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; ++ 2.12 sbtPlugin/publishLocal; + sbtTestRunner/publishLocal;"
     ),
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
@@ -23,57 +23,41 @@ lazy val root = (project withId "stryker4s" in file("."))
       "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; commandRunner/publishLocal"
     )
   )
-  .aggregate(
-    (core.projectRefs ++
-      commandRunner.projectRefs ++
-      sbtPlugin.projectRefs ++
-      sbtTestRunner.projectRefs ++
-      testRunnerApi.projectRefs ++
-      api.projectRefs ++
-      testkit.projectRefs) *
-  )
+  .aggregate(core, commandRunner, sbtPlugin, sbtTestRunner, testRunnerApi, api, testkit)
 
-lazy val core = (projectMatrix in file("modules") / "core")
+lazy val core = (project in file("modules") / "core")
   .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testkit))
   .dependsOn(api, testRunnerApi, testkit % Test)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
+lazy val commandRunner = (project in file("modules") / "commandRunner")
   .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core, testkit))
   .dependsOn(core, testkit % Test)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
-lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
+lazy val sbtPlugin = (project in file("modules") / "sbt")
   .enablePlugins(SbtPlugin)
-  .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
-  .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core))
+  .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core, sbtTestRunner))
   .dependsOn(core)
-  .jvmPlatform(scalaVersions = Seq(versions.scala212 /* , versions.scala3 */ ))
 
-lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
+lazy val sbtTestRunner = (project in file("modules") / "sbtTestRunner")
   .settings(commonSettings, sbtTestRunnerSettings, publishLocalDependsOn(testRunnerApi))
   .dependsOn(testRunnerApi)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
+lazy val testRunnerApi = (project in file("modules") / "testRunnerApi")
   .settings(commonSettings, testRunnerApiSettings)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-lazy val api = (projectMatrix in file("modules") / "api")
+lazy val api = (project in file("modules") / "api")
   .settings(commonSettings, apiSettings)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-lazy val testkit = (projectMatrix in file("modules") / "testkit")
+lazy val testkit = (project in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
   .dependsOn(api)
-  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
 
-def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
-  val projectRefs = matrixes.flatMap(_.projectRefs)
+def publishLocalDependsOn(matrixes: ProjectReference*) = {
+  val projectRefs = matrixes
   Seq(
     publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal) *).value,
     publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2) *).value

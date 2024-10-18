@@ -7,9 +7,12 @@ import sbt.*
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
 import TpolecatPlugin.autoImport.*
+import Dependencies.versions
 
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
+    scalaVersion := versions.scala213,
+    crossScalaVersions := versions.crossScalaVersions,
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         Seq(
@@ -33,6 +36,7 @@ object Settings {
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-core",
+    crossScalaVersions := versions.crossScalaVersions,
     libraryDependencies ++= Seq(
       Dependencies.catsCore,
       Dependencies.catsEffect,
@@ -53,6 +57,7 @@ object Settings {
 
   lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-command-runner",
+    crossScalaVersions := versions.crossScalaVersions,
     libraryDependencies ++= Seq(
       Dependencies.slf4j
     )
@@ -64,6 +69,8 @@ object Settings {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
+    scalaVersion := versions.scala212,
+    crossScalaVersions := Seq(versions.scala212 /* , versions.scala3 */ ),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.7.0"
@@ -75,6 +82,7 @@ object Settings {
 
   lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-sbt-testrunner",
+    crossScalaVersions := versions.fullCrossScalaVersions,
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     )
@@ -82,6 +90,7 @@ object Settings {
 
   lazy val testRunnerApiSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-testrunner-api",
+    crossScalaVersions := versions.fullCrossScalaVersions,
     Compile / PB.targets := Seq(
       scalapb.gen(
         grpc = false,
@@ -96,6 +105,7 @@ object Settings {
 
   lazy val apiSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-api",
+    crossScalaVersions := versions.fullCrossScalaVersions,
     libraryDependencies ++= Seq(
       Dependencies.fansi
     )
@@ -103,6 +113,7 @@ object Settings {
 
   lazy val testkitSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-testkit",
+    crossScalaVersions := versions.fullCrossScalaVersions,
     libraryDependencies ++= Seq(
       Dependencies.fansi,
       Dependencies.fs2IO,
