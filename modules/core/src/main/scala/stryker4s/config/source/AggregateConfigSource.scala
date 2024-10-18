@@ -68,6 +68,7 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
 
   override def testRunnerCommand: ConfigValue[F, String] = loadAndLog(_.testRunnerCommand)
   override def testRunnerArgs: ConfigValue[F, String] = loadAndLog(_.testRunnerArgs)
+  override def openReportAutomatically: ConfigValue[F, Boolean] = loadAndLog(_.openReportAutomatically)
 
   /** Load a value from the sources, using the first available value
     */

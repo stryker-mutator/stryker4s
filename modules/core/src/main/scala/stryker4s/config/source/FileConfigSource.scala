@@ -78,6 +78,8 @@ class FileConfigSource[F[_]](h: ConfigValue[F, Hocon.HoconAt])
   override def testRunnerCommand: ConfigValue[F, String] = read("test-runner.command").as[String]
   override def testRunnerArgs: ConfigValue[F, String] = read("test-runner.args").as[String]
 
+  override def openReportAutomatically: ConfigValue[F, Boolean] = read("open-report-automatically").as[Boolean]
+
 }
 
 object FileConfigSource {

@@ -78,4 +78,5 @@ class DefaultsConfigSource[F[_]]() extends ConfigSource[F] {
 
   override def testRunnerCommand: ConfigValue[F, String] = ConfigValue.default("sbt")
   override def testRunnerArgs: ConfigValue[F, String] = ConfigValue.default("test")
+  override def openReportAutomatically: ConfigValue[F, Boolean] = ConfigValue.default(false)
 }

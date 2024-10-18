@@ -8,8 +8,9 @@ import stryker4s.config.Config
 import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.files.FileIO
 import stryker4s.log.Logger
+import java.awt.Desktop
 
-class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter with CirceConfigEncoder {
+class HtmlReporter(fileIO: FileIO)(implicit config: Config, log: Logger) extends Reporter with CirceConfigEncoder {
 
   private val title = "Stryker4s report"
   private val mutationTestElementsName = "mutation-test-elements.js"
@@ -79,7 +80,7 @@ class HtmlReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter with C
     for {
       _ <- reportsWriting
       _ <- IO(log.info(s"Written HTML report to $indexLocation"))
-      _ <- if (openReportAutomatically) openFileIO else IO.unit
+      _ <- if (config.OpenReportAutomatically) openFileIO else IO.unit
     } yield ()
 
   }
