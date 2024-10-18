@@ -96,8 +96,7 @@ object Stryker4sPlugin extends AutoPlugin {
   private val projectMatrixBaseDirectory = SettingKey[File]("projectMatrixBaseDirectory")
 
   private def getSourceDirectories(postfix: String) = Def.setting {
-    (Compile / sourceDirectories).value
-      .filterNot(_.toString().startsWith(target.value.toString()))
+    (Compile / unmanagedSourceDirectories).value
       .flatMap(_.relativeTo(strykerBaseDir.value))
       .map(file => (file / postfix).toString)
   }
@@ -105,7 +104,7 @@ object Stryker4sPlugin extends AutoPlugin {
   private def getStryker4sBaseDir = Def.setting[File] {
     crossProjectBaseDirectory.?.value
       .orElse(projectMatrixBaseDirectory.?.value)
-      .orElse(sourceDirectory.?.value.flatMap(f => if (f.getName() == "src") f.getParentFile.some else none))
+      .orElse(sourceDirectory.?.value.flatMap(f => if (f.getName() == "src") Option(f.getParentFile) else none))
       .getOrElse(baseDirectory.value)
   }
 
