@@ -35,7 +35,7 @@ class Stryker4sSbtRunner(
     override val extraConfigSources: List[ConfigSource[IO]]
 )(implicit
     log: Logger
-) extends Stryker4sRunner(openReportAutomatically) {
+) extends Stryker4sRunner {
 
   def resolveTestRunners(
       tmpDir: Path

@@ -154,6 +154,8 @@ object SbtConfigSource {
         strykerCleanTmpDir.key.label
       )
 
+      override def openReportAutomatically: ConfigValue[IO, Boolean] = notSupported
+
       override def testRunnerCommand: ConfigValue[IO, String] = notSupported
       override def testRunnerArgs: ConfigValue[IO, String] = notSupported
 
