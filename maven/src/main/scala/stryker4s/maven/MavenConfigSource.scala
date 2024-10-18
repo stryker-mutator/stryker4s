@@ -76,4 +76,6 @@ class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] {
 
   override def testRunnerArgs: ConfigValue[F, String] = notSupported
 
+  override def openReportAutomatically: ConfigValue[F, Boolean] = notSupported
+
 }

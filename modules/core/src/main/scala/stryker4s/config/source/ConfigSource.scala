@@ -47,6 +47,8 @@ trait ConfigSource[+F[_]] {
   def scalaDialect: ConfigValue[F, Dialect]
   def concurrency: ConfigValue[F, Int]
 
+  def openReportAutomatically: ConfigValue[F, Boolean]
+
   def debugLogTestRunnerStdout: ConfigValue[F, Boolean]
   def debugDebugTestRunner: ConfigValue[F, Boolean]
 
