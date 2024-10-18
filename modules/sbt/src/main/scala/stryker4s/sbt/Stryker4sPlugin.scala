@@ -76,7 +76,7 @@ object Stryker4sPlugin extends AutoPlugin {
 
     // Config settings
     strykerBaseDir := getStryker4sBaseDir.value,
-    strykerMutate := getSourceDirectories("**/*.scala").value,
+    strykerMutate := getSourceDirectories("**.scala").value,
     strykerFiles := getSourceDirectories("**").value,
     strykerDashboardProject := scmInfo.value.flatMap(toDashboardProject),
     strykerDashboardVersion := gitCurrentBranch.?.value.filterNot(_.isBlank()),
