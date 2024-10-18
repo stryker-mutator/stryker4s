@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.17.0](https://github.com/stryker-mutator/stryker4s/compare/v0.16.1...v0.17.0) (2024-10-18)
+
+
+### Features
+
+* **config:** add CLI and build tool config support ([#1643](https://github.com/stryker-mutator/stryker4s/issues/1643)) ([9fcc1b1](https://github.com/stryker-mutator/stryker4s/commit/9fcc1b176f5dbf7a838baf025bb1a1a80a9ffbe2))
+
+
+### Bug Fixes
+
+* compatibility with sbt-crossproject ([#1648](https://github.com/stryker-mutator/stryker4s/issues/1648)) ([3879b63](https://github.com/stryker-mutator/stryker4s/commit/3879b63b8c623b8626643390847355d5d70844d9))
+* mutate glob ([a933e7b](https://github.com/stryker-mutator/stryker4s/commit/a933e7b1377b160117dfd32e875f125b5ce5e885))
+
 ## [0.16.1](https://github.com/stryker-mutator/stryker4s/compare/v0.16.0...v0.16.1) (2024-04-18)
 
 
