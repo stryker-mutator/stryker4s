@@ -2,58 +2,76 @@ import sbt.*
 
 object Dependencies {
   object versions {
-    val scala212 = "2.12.18"
-    val scala213 = "2.13.12"
-    val scala3 = "3.3.1"
+    val scala212 = "2.12.20"
+
+    val scala213 = "2.13.15"
+
+    val scala3 = "3.3.4"
 
     /** Cross-versions for main projects
       */
     val crossScalaVersions = Seq(scala213, scala212)
 
-    /** Fuller cross-versions (used for injected packages like stryker4s-api and sbt-stryker4s-testrunner)
+    /** Fuller cross-versions (used for injected packages like testRunnerApi and sbtTestRunner)
       */
     val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
 
     // Test dependencies
-    val catsEffectScalaTest = "1.5.0"
-    val mockitoScala = "1.17.27"
-    val scalatest = "3.2.17"
+    val munit = "1.0.2"
+
+    val munitCatsEffect = "2.0.0"
 
     // Direct dependencies
-    val catsCore = "2.10.0"
-    val catsEffect = "3.5.2"
-    val circe = "0.14.6"
-    val fansi = "0.4.0"
-    val fs2 = "3.9.2"
-    val mutationTestingElements = "2.0.3"
-    val mutationTestingMetrics = "2.0.3"
-    val pureconfig = "0.17.4"
-    val scalameta = "4.8.11"
-    val slf4j = "2.0.9"
-    val sttp = "3.9.0"
+    val catsCore = "2.12.0"
+
+    val catsEffect = "3.5.4"
+
+    val circe = "0.14.10"
+
+    val ciris = "3.5.0"
+
+    val fansi = "0.5.0"
+
+    val hocon = "1.4.3"
+
+    val fs2 = "3.11.0"
+
+    val mutationTestingElements = "3.3.0"
+
+    val mutationTestingMetrics = "3.3.0"
+
+    val scalameta = "4.9.9"
+
+    val slf4j = "2.0.16"
+
+    val sttp = "3.10.1"
+
     val testInterface = "1.0"
-    val weaponRegeX = "1.1.1"
+
+    val weaponRegeX = "1.3.2"
   }
 
   object test {
-    val catsEffectScalaTest = "org.typelevel" %% "cats-effect-testing-scalatest" % versions.catsEffectScalaTest % Test
-    val mockitoScala = "org.mockito" %% "mockito-scala-scalatest" % versions.mockitoScala % Test
-    val mockitoScalaCats = "org.mockito" %% "mockito-scala-cats" % versions.mockitoScala % Test
-    val scalatest = "org.scalatest" %% "scalatest" % versions.scalatest % Test
+    val munit = "org.scalameta" %% "munit" % versions.munit
+    val munitCatsEffect = "org.typelevel" %% "munit-cats-effect" % versions.munitCatsEffect
   }
 
   val catsCore = "org.typelevel" %% "cats-core" % versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
+  val ciris = "is.cir" %% "ciris" % versions.ciris
   val fansi = "com.lihaoyi" %% "fansi" % versions.fansi
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
+  val hocon = "com.typesafe" % "config" % versions.hocon
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics =
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
-  val pureconfig = "com.github.pureconfig" %% "pureconfig" % versions.pureconfig
-  val pureconfigSttp = "com.github.pureconfig" %% "pureconfig-sttp" % versions.pureconfig
-  val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
+  // Exclude some 2.13 dependencies when on scala 3 to avoid conflicts
+  val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
+    .cross(CrossVersion.for3Use2_13)
+    .exclude("com.lihaoyi", "sourcecode_2.13")
+    .exclude("com.thesamet.scalapb", "scalapb-runtime_2.13")
   val scalapbRuntime =
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j

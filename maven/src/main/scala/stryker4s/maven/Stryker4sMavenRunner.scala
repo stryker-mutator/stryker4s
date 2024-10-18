@@ -7,6 +7,7 @@ import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
 import org.apache.maven.shared.invoker.Invoker
 import stryker4s.config.Config
+import stryker4s.config.source.ConfigSource
 import stryker4s.log.Logger
 import stryker4s.maven.runner.MavenTestRunner
 import stryker4s.model.CompilerErrMsg
@@ -34,6 +35,8 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
       .asRight
   }
 
+  override def extraConfigSources: List[ConfigSource[IO]] = List(new MavenConfigSource(project))
+
   private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {
     // Stop after first failure. Only works with surefire plugin, not scalatest
     properties.setProperty(
@@ -60,4 +63,5 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
     }
     ()
   }
+
 }

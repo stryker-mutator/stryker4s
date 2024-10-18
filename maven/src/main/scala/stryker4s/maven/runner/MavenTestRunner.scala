@@ -8,6 +8,7 @@ import org.apache.maven.shared.invoker.{DefaultInvocationRequest, InvocationRequ
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.run.TestRunner
+import stryker4s.testrunner.api.TestFile
 
 import java.util.Properties
 import scala.jdk.CollectionConverters.*
@@ -28,7 +29,7 @@ class MavenTestRunner(
     IO.blocking(invoker.execute(request)).map(_.getExitCode() == 0).map(NoCoverageInitialTestRun(_))
   }
 
-  def runMutant(mutant: MutantWithId, testNames: Seq[String]): IO[MutantResult] = {
+  def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = {
     val request = createRequestWithMutation(mutant.id)
 
     IO.blocking(invoker.execute(request)).map { result =>

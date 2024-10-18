@@ -1,150 +1,128 @@
 package stryker4s.maven.runner
 
-import cats.effect.unsafe.implicits.global
+import cats.syntax.option.*
 import fs2.io.file.Path
 import mutationtesting.{Location, MutantStatus, Position}
 import org.apache.maven.model.Profile
 import org.apache.maven.project.MavenProject
-import org.apache.maven.shared.invoker.{InvocationRequest, InvocationResult, Invoker}
-import org.mockito.captor.ArgCaptor
-import org.mockito.scalatest.MockitoSugar
 import stryker4s.config.Config
-import stryker4s.extension.mutationtype.LesserThan
+import stryker4s.maven.stubs.{InvocationResultStub, InvokerStub}
 import stryker4s.model.{MutantId, MutantMetadata, MutantWithId, MutatedCode, NoCoverageInitialTestRun}
-import stryker4s.testutil.Stryker4sSuite
+import stryker4s.mutation.LesserThan
+import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
+import stryker4s.testrunner.api.TestFile
 
 import java.util as ju
 import scala.jdk.CollectionConverters.*
 import scala.meta.*
 
-class MavenTestRunnerTest extends Stryker4sSuite with MockitoSugar {
+class MavenTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
   implicit val config: Config = Config.default
 
   val tmpDir = Path("/home/user/tmpDir")
-  val coverageTestNames = Seq.empty[String]
+  val coverageTestNames = Seq.empty[TestFile]
   def properties = new ju.Properties()
   def goals = Seq("test")
 
   describe("runInitialTest") {
 
-    it("should fail on exit-code 1 invoker") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(1)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
+    test("should fail on exit-code 1 invoker") {
+      val resultStub = InvocationResultStub(1)
+      val invokerStub = InvokerStub(resultStub)
 
-      val result = sut.initialTestRun().unsafeRunSync()
+      val sut = new MavenTestRunner(new MavenProject(), invokerStub, properties, goals, tmpDir)
 
-      result shouldBe NoCoverageInitialTestRun(false)
+      sut.initialTestRun().assertEquals(NoCoverageInitialTestRun(false))
     }
 
-    it("should not add the environment variable") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val captor = ArgCaptor[InvocationRequest]
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
+    test("should not add the environment variable") {
+      val resultStub = InvocationResultStub(0)
+      val invokerStub = InvokerStub(resultStub)
 
-      val result = sut.initialTestRun().unsafeRunSync()
+      val sut = new MavenTestRunner(new MavenProject(), invokerStub, properties, goals, tmpDir)
 
-      result shouldBe NoCoverageInitialTestRun(true)
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getShellEnvironments should be(empty)
+      sut.initialTestRun().asserting { result =>
+        assertEquals(result, NoCoverageInitialTestRun(true))
+        val invokedRequest = invokerStub.calls.loneElement
+        assert(invokedRequest.getShellEnvironments.isEmpty)
+      }
     }
 
-    it("should propagate active profiles") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val captor = ArgCaptor[InvocationRequest]
+    test("should propagate active profiles") {
+      val resultStub = InvocationResultStub(0)
+      val invokerStub = InvokerStub(resultStub)
       val mavenProject = new MavenProject()
       val profile = new Profile()
       profile.setId("best-profile-ever")
       mavenProject.getActiveProfiles.add(profile)
-      val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals, tmpDir)
+      val sut = new MavenTestRunner(mavenProject, invokerStub, properties, goals, tmpDir)
 
-      sut.initialTestRun().unsafeRunSync()
-
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+      sut.initialTestRun().asserting { _ =>
+        val invokedRequest = invokerStub.calls.loneElement
+        assert(invokedRequest.getProfiles.contains("best-profile-ever"))
+      }
     }
   }
 
   describe("runMutants") {
-    it("should have a Killed mutant on a exit-code 1") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(1)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
+    test("should have a Killed mutant on a exit-code 1") {
+      val resultStub = InvocationResultStub(1)
+      val invokerStub = InvokerStub(resultStub)
+      val sut = new MavenTestRunner(new MavenProject(), invokerStub, properties, goals, tmpDir)
 
-      val result = sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      result.status shouldBe MutantStatus.Killed
+      sut.runMutant(createMutant, coverageTestNames).map(_.status).assertEquals(MutantStatus.Killed)
     }
 
-    it("should have a Survived mutant on a exit-code 0") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val sut = new MavenTestRunner(new MavenProject(), invokerMock, properties, goals, tmpDir)
+    test("should have a Survived mutant on a exit-code 0") {
+      val resultStub = InvocationResultStub(0)
+      val invokerStub = InvokerStub(resultStub)
+      val sut = new MavenTestRunner(new MavenProject(), invokerStub, properties, goals, tmpDir)
 
-      val result = sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      result.status shouldBe MutantStatus.Survived
+      sut.runMutant(createMutant, coverageTestNames).map(_.status).assertEquals(MutantStatus.Survived)
     }
 
-    it("should add the environment variable to the request") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(1)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val captor = ArgCaptor[InvocationRequest]
+    test("should add the environment variable to the request") {
+      val resultStub = InvocationResultStub(1)
+      val invokerStub = InvokerStub(resultStub)
       val project = new MavenProject()
       project.getProperties().setProperty("surefire.skipAfterFailureCount", "1")
 
-      val sut = new MavenTestRunner(project, invokerMock, project.getProperties(), goals, tmpDir)
+      val sut = new MavenTestRunner(project, invokerStub, project.getProperties(), goals, tmpDir)
 
-      sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getShellEnvironments.asScala should equal(Map("ACTIVE_MUTATION" -> "1"))
-      invokedRequest.getGoals should contain only "test"
-      invokedRequest.isBatchMode should be(true)
-      invokedRequest.getProperties.getProperty("surefire.skipAfterFailureCount") should equal("1")
-      invokedRequest.getProperties.getProperty("test") shouldBe null
-      invokedRequest.getBaseDirectory() should equal(tmpDir.toNioPath.toFile())
+      sut.runMutant(createMutant, coverageTestNames).asserting { _ =>
+        val invokedRequest = invokerStub.calls.loneElement
+        assertEquals(invokedRequest.getShellEnvironments.asScala.toMap, Map("ACTIVE_MUTATION" -> "1"))
+        assertEquals(invokedRequest.getGoals.asScala.toList, List("test"))
+        assert(invokedRequest.isBatchMode)
+        assertEquals(invokedRequest.getProperties.getProperty("surefire.skipAfterFailureCount"), "1")
+        assertEquals(invokedRequest.getProperties.getProperty("test"), null)
+        assertEquals(invokedRequest.getBaseDirectory(), tmpDir.toNioPath.toFile())
+      }
     }
 
-    it("should propagate active profiles") {
-      val invokerMock = mock[Invoker]
-      val mockResult = mock[InvocationResult]
-      when(mockResult.getExitCode).thenReturn(0)
-      when(invokerMock.execute(any[InvocationRequest])).thenReturn(mockResult)
-      val captor = ArgCaptor[InvocationRequest]
+    test("should propagate active profiles") {
+      val resultStub = InvocationResultStub(0)
+      val invokerStub = InvokerStub(resultStub)
       val mavenProject = new MavenProject()
       val profile = new Profile()
       profile.setId("best-profile-ever")
       mavenProject.getActiveProfiles.add(profile)
-      val sut = new MavenTestRunner(mavenProject, invokerMock, properties, goals, tmpDir)
+      val sut = new MavenTestRunner(mavenProject, invokerStub, properties, goals, tmpDir)
 
-      sut.runMutant(createMutant, coverageTestNames).unsafeRunSync()
-
-      verify(invokerMock).execute(captor)
-      val invokedRequest = captor.value
-      invokedRequest.getProfiles.asScala should contain("best-profile-ever")
+      sut
+        .runMutant(createMutant, coverageTestNames)
+        .map { _ =>
+          val invokedRequest = invokerStub.calls.loneElement
+          assert(invokedRequest.getProfiles.contains("best-profile-ever"))
+        }
     }
   }
 
   def createMutant =
-    MutantWithId(MutantId(1), MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation)))
+    MutantWithId(
+      MutantId(1),
+      MutatedCode(q"<", MutantMetadata(">", "<", LesserThan.mutationName, createLocation, none))
+    )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))
 }

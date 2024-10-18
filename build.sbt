@@ -1,5 +1,6 @@
 import Dependencies.*
 import Settings.*
+import sbt.internal.ProjectMatrix
 
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
@@ -9,59 +10,72 @@ lazy val root = (project withId "stryker4s" in file("."))
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s2_12/publishLocal; stryker4s-api/publishLocal; sbt-stryker4s-testrunner/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; sbtPlugin/publishLocal; sbtTestRunner/publishLocal;"
     ),
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; stryker4s-core/publishM2; stryker4s-api/publishM2"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core/publishM2;"
     ),
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(
       "publishCommandRunnerLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; stryker4s-core/publishLocal; stryker4s-api/publishLocal; stryker4s-command-runner/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; commandRunner/publishLocal"
     )
   )
   .aggregate(
-    (stryker4sCore.projectRefs ++
-      stryker4sCommandRunner.projectRefs ++
-      sbtStryker4s.projectRefs ++
-      stryker4sApi.projectRefs ++
-      sbtTestRunner.projectRefs)*
+    (core.projectRefs ++
+      commandRunner.projectRefs ++
+      sbtPlugin.projectRefs ++
+      sbtTestRunner.projectRefs ++
+      testRunnerApi.projectRefs ++
+      api.projectRefs ++
+      testkit.projectRefs) *
   )
 
-lazy val stryker4sCore = newProject("stryker4s-core", "core")
-  .settings(coreSettings)
-  .dependsOn(stryker4sApi)
+lazy val core = (projectMatrix in file("modules") / "core")
+  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testkit))
+  .dependsOn(api, testRunnerApi, testkit % Test)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
-lazy val stryker4sCommandRunner = newProject("stryker4s-command-runner", "command-runner")
-  .settings(
-    commandRunnerSettings
-  )
-  .dependsOn(stryker4sCore, stryker4sCore % "test->test")
+lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
+  .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core, testkit))
+  .dependsOn(core, testkit % Test)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // sbt plugins have to use Scala 2.12
-lazy val sbtStryker4s = newProject("sbt-stryker4s", "sbt")
+lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .enablePlugins(SbtPlugin)
-  .settings(sbtPluginSettings)
-  .dependsOn(stryker4sCore)
-  .jvmPlatform(scalaVersions = Seq(versions.scala212))
+  .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
+  .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core))
+  .dependsOn(core)
+  .jvmPlatform(scalaVersions = Seq(versions.scala212 /* , versions.scala3 */ ))
 
-lazy val sbtTestRunner = newProject("sbt-stryker4s-testrunner", "sbt-testrunner")
-  .settings(sbtTestrunnerSettings)
-  .dependsOn(stryker4sApi)
+lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
+  .settings(commonSettings, sbtTestRunnerSettings, publishLocalDependsOn(testRunnerApi))
+  .dependsOn(testRunnerApi)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-lazy val stryker4sApi = newProject("stryker4s-api", "api")
-  .settings(apiSettings)
+lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
+  .settings(commonSettings, testRunnerApiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
-def newProject(projectName: String, dir: String) =
-  sbt.internal
-    .ProjectMatrix(projectName, file(dir))
-    .settings(commonSettings)
+lazy val api = (projectMatrix in file("modules") / "api")
+  .settings(commonSettings, apiSettings)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+
+lazy val testkit = (projectMatrix in file("modules") / "testkit")
+  .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
+  .dependsOn(api)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val writeHooks = taskKey[Unit]("Write git hooks")
 Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
+
+def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
+  val projectRefs = matrixes.flatMap(_.projectRefs)
+  Seq(
+    publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal) *).value,
+    publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2) *).value
+  )
+}

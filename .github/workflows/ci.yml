@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+    types: [synchronize, opened, reopened]
 
 jobs:
   test:
@@ -8,17 +13,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [11, 17]
+        java-version: [11, 21]
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
-          cache: 'sbt'
       - name: Run tests
         run: sbt 'compile; ++2.13 test'
   sbt-scripted:
@@ -26,29 +29,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
-          # Sbt version that is tested (1.1.1) doesn't work on Java 17
-          java-version: 11
-          cache: 'sbt'
+          # Sbt version that is tested (1.7.0) doesn't work on Java 21
+          java-version: 17
       - name: Run tests
-        # Only publish stryker4s-core -api and -testrunner, sbt-stryker4s is published by scripted tests
-        run: sbt 'stryker4s-core2_12/publishLocal; stryker4s-api2_12/publishLocal; sbt-stryker4s-testrunner2_12/publishLocal; scripted sbt-stryker4s/test-1'
+        run: sbt 'sbtTestRunner2_12/publishLocal; scripted'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: coursier/cache-action@v6
-      - uses: actions/setup-java@v3
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
-          java-version: 17
           cache: 'maven'
       - name: Cleanup M2
         run: rm -rf ~/.m2/repository/io/stryker-mutator/*/SET-BY-SBT-SNAPSHOT/
-      - name: Publish stryker4s-core
+      - name: Publish core
         run: sbt 'publishM2Local'
       - name: Run Maven tests
         run: |
@@ -63,15 +61,12 @@ jobs:
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
           extraKey: 'scalafmt'
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
+      - uses: ./.github/setup
       - name: Test formatting
         run: ./bin/scalafmt --test
   release:
     needs: [test, sbt-scripted, maven-plugin, formatting]
-    if: "github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/')"
+    if: ${{ github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,11 +75,9 @@ jobs:
           fetch-depth: 0
       # Fetch all tags
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-java@v3
+      - uses: ./.github/setup
         with:
-          distribution: 'temurin'
           java-version: 11
-          cache: 'sbt'
       - name: Publish
         run: sbt ci-release
         env:

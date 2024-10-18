@@ -238,7 +238,7 @@ To debug in VS Code, you can use (and edit) this `launch.json`:
       "request": "attach",
       "hostName": "127.0.0.1",
       "port": 8000,
-      "buildTarget": "sbt-stryker4s-testrunner"
+      "buildTarget": "sbtTestRunner"
     }
   ]
 }
