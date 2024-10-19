@@ -71,7 +71,7 @@ class HtmlReporter(fileIO: FileIO, desktopIO: DesktopIO)(implicit config: Config
         log.info(s"Written HTML report to $indexLocation")
       )
       _ <-
-        if (config.OpenReportAutomatically) desktopIO.open(indexLocation.toNioPath.toFile()).flatMap {
+        if (config.openReport) desktopIO.open(indexLocation.toNioPath.toFile()).flatMap {
           case Right(_)           => IO(log.info("Report opened in default browser."))
           case Left(errorMessage) => IO(log.error(s"Error opening report in browser: $errorMessage"))
         }

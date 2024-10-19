@@ -31,7 +31,7 @@ final case class Config(
     staticTmpDir: Boolean,
     cleanTmpDir: Boolean,
     testRunner: Command,
-    OpenReportAutomatically: Boolean
+    openReport: Boolean
 )
 
 object Config {

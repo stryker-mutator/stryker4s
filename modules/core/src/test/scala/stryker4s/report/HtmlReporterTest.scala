@@ -162,7 +162,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
     }
 
     test("should open the report automatically") {
-      implicit val config: Config = Config.default.copy(OpenReportAutomatically = true)
+      implicit val config: Config = Config.default.copy(openReport = true)
       val fileIOStub = FileIOStub()
       val desktopIOStub = DesktopIOStub()
 
