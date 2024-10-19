@@ -49,6 +49,8 @@ object Dependencies {
     val testInterface = "1.0"
 
     val weaponRegeX = "1.3.2"
+
+    val decline = "2.4.1"
   }
 
   object test {
@@ -79,5 +81,6 @@ object Dependencies {
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "fs2" % versions.sttp
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
+  val decline = "com.monovore" %% "decline" % versions.decline
 
 }

@@ -38,6 +38,7 @@ object Settings {
       Dependencies.catsEffect,
       Dependencies.circeCore,
       Dependencies.ciris,
+      Dependencies.decline,
       Dependencies.fansi,
       Dependencies.fs2Core,
       Dependencies.fs2IO,
