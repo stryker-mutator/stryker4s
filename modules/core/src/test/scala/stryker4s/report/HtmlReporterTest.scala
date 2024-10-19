@@ -161,7 +161,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
         }
     }
 
-    test("should open the report automatically") {
+    test("should open the report when openReport is true") {
       implicit val config: Config = Config.default.copy(openReport = true)
       val fileIOStub = FileIOStub()
       val desktopIOStub = DesktopIOStub()
@@ -176,6 +176,22 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
         desktopIOStub.openCalls.asserting { calls =>
           assertEquals(calls.loneElement, expectedFileLocation)
+        }
+    }
+
+    test("should not open the report when openReport is false") {
+      implicit val config: Config = Config.default.copy(openReport = false)
+      val fileIOStub = FileIOStub()
+      val desktopIOStub = DesktopIOStub()
+
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+      val metrics = Metrics.calculateMetrics(report)
+
+      sut
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+        desktopIOStub.openCalls.asserting { calls =>
+          assertEquals(calls, Seq.empty)
         }
     }
   }
