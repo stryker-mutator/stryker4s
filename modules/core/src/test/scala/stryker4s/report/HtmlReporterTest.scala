@@ -175,8 +175,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
         desktopIOStub.openCalls.asserting { calls =>
-          val expectedFile = expectedFileLocation.toNioPath.toFile()
-          assertEquals(calls.loneElement, expectedFile)
+          assertEquals(calls.loneElement, expectedFileLocation)
         }
     }
   }

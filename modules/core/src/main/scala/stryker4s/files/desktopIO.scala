@@ -3,41 +3,28 @@ package stryker4s.files
 import cats.effect.IO
 import java.awt.Desktop
 import java.io.File
+import fs2.io.file.Files
+import fs2.io.file.Path
 
 trait DesktopIO {
-  def open(file: java.io.File): IO[Either[String, Unit]]
+  def attemptOpen(path: Path): IO[Unit]
 }
 
 class DesktopFileIO extends DesktopIO {
-  override def open(file: File): IO[Either[String, Unit]] = {
-    for {
-      desktopResult <- desktopSupported
-      result <- desktopResult match {
-        case Left(errorMessage) => IO.pure(Left(errorMessage))
-        case Right(_) =>
-          fileExists(file).flatMap {
-            case Left(errorMessage) => IO.pure(Left(errorMessage))
-            case Right(_) =>
-              openFile(file)
-          }
-      }
-    } yield result
-  }
+  override def attemptOpen(path: Path): IO[Unit] =
+    isDesktopSupported.ifM(
+      Files[IO]
+        .exists(path)
+        .ifM(
+          openFile(path.toNioPath.toFile()),
+          IO.unit
+        ),
+      IO.unit
+    )
 
-  def openFile(file: File): IO[Either[String, Unit]] =
-    IO(Desktop.getDesktop.open(file)).as(Right(())).handleError(e => Left(s"Error opening file: ${e.getMessage}"))
+  def openFile(file: File): IO[Unit] = IO(Desktop.getDesktop.open(file))
 
-  def desktopSupported: IO[Either[String, Unit]] = IO {
-    if (Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.OPEN))
-      Right(())
-    else
-      Left("Desktop API is not supported")
-  }
-
-  def fileExists(file: File): IO[Either[String, Unit]] = IO {
-    if (file.exists())
-      Right(())
-    else
-      Left(s"File does not exist: ${file.getAbsolutePath}")
-  }
+  def isDesktopSupported: IO[Boolean] = IO(
+    Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.OPEN)
+  )
 }
