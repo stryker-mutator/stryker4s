@@ -1,11 +1,10 @@
-import java.nio.file.Files
-import java.nio.file.attribute.PosixFilePermissions
-
-import scala.collection.JavaConverters.*
-import scala.util.Properties
-
 import sbt.*
 import sbt.internal.util.ManagedLogger
+
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermissions
+import scala.collection.JavaConverters.*
+import scala.util.Properties
 
 /** Starting point:
   * https://github.com/randomcoder/sbt-git-hooks/blob/master/src/main/scala/uk/co/randomcoding/sbt/GitHooks.scala

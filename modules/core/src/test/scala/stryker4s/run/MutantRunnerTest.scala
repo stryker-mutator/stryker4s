@@ -13,8 +13,6 @@ import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.TestData
 import stryker4s.testutil.stubs.{ReporterStub, RollbackHandlerStub, TestFileResolver, TestRunnerStub}
 
-import scala.meta.*
-
 class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
   val baseDir = FileUtil.getResource("scalaFiles")
