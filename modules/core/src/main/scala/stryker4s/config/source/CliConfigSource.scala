@@ -70,5 +70,5 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
 
   override def testRunnerCommand: ConfigValue[F, String] = findArg("test-runner.command")
   override def testRunnerArgs: ConfigValue[F, String] = findArg("test-runner.args")
-
+  override def openReport: ConfigValue[F, Boolean] = findArg("open-report").as[Boolean]
 }

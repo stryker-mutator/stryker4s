@@ -10,8 +10,12 @@ import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.stubs.FileIOStub
 
 import scala.concurrent.duration.*
+import stryker4s.config.Config
+import stryker4s.testutil.stubs.DesktopIOStub
 
 class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
+
+  implicit val config: Config = Config.default
 
   private val elementsLocation = "/elements/mutation-test-elements.js"
 
@@ -43,7 +47,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
   describe("indexHtml") {
     test("should contain title") {
       val fileIOStub = FileIOStub()
-      val sut = new HtmlReporter(fileIOStub)
+      val desktopIOStub = DesktopIOStub()
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
       val testFile = Path("foo.bar")
 
       sut
@@ -58,7 +63,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
   describe("reportJs") {
     test("should contain the report") {
       val fileIOStub = FileIOStub()
-      val sut = new HtmlReporter(fileIOStub)
+      val desktopIOStub = DesktopIOStub()
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
       val testFile = Path("foo.bar")
       val runResults = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
@@ -77,9 +83,10 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
     test("should write the resource") {
       // Arrange
       val fileIO = new DiskFileIO()
+      val desktopIOStub = DesktopIOStub()
       Files[IO].tempDirectory.use { tmpDir =>
         val tempFile = tmpDir.resolve("mutation-test-elements.js")
-        val sut = new HtmlReporter(fileIO)
+        val sut = new HtmlReporter(fileIO, desktopIOStub)
 
         // Act
         sut
@@ -107,7 +114,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     test("should write the report files to the report directory") {
       val fileIOStub = FileIOStub()
-      val sut = new HtmlReporter(fileIOStub)
+      val desktopIOStub = DesktopIOStub()
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
@@ -125,7 +133,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     test("should write the mutation-test-elements.js file to the report directory") {
       val fileIOStub = FileIOStub()
-      val sut = new HtmlReporter(fileIOStub)
+      val desktopIOStub = DesktopIOStub()
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
@@ -140,7 +149,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
     test("should info log a message") {
       val fileIOStub = FileIOStub()
-      val sut = new HtmlReporter(fileIOStub)
+      val desktopIOStub = DesktopIOStub()
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
       val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
       val metrics = Metrics.calculateMetrics(report)
 
@@ -149,6 +159,38 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
         .asserting { _ =>
           assertLoggedInfo(s"Written HTML report to ${(fileLocation / "index.html").toString}")
         }
+    }
+
+    test("should open the report when openReport is true") {
+      implicit val config: Config = Config.default.copy(openReport = true)
+      val fileIOStub = FileIOStub()
+      val desktopIOStub = DesktopIOStub()
+
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+      val metrics = Metrics.calculateMetrics(report)
+
+      val expectedFileLocation = fileLocation / "index.html"
+
+      sut
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+        desktopIOStub.openCalls.asserting { calls =>
+          assertEquals(calls.loneElement, expectedFileLocation)
+        }
+    }
+
+    test("should not open the report when openReport is false") {
+      implicit val config: Config = Config.default.copy(openReport = false)
+      val fileIOStub = FileIOStub()
+      val desktopIOStub = DesktopIOStub()
+
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+      val metrics = Metrics.calculateMetrics(report)
+
+      sut
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+        desktopIOStub.openCalls.assertEquals(Seq.empty)
     }
   }
 }

@@ -215,5 +215,4 @@ class Stryker4sSbtRunner(
     } else {
       InstrumenterOptions.testRunner
     }
-
 }

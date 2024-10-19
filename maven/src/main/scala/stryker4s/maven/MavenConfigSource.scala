@@ -63,8 +63,7 @@ class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] {
 
   override def concurrency: ConfigValue[F, Int] = notSupported
 
-  override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] =
-    notSupported
+  override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] = notSupported
 
   override def debugDebugTestRunner: ConfigValue[F, Boolean] = notSupported
 
@@ -75,5 +74,7 @@ class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] {
   override def testRunnerCommand: ConfigValue[F, String] = notSupported
 
   override def testRunnerArgs: ConfigValue[F, String] = notSupported
+
+  override def openReport: ConfigValue[F, Boolean] = notSupported
 
 }

@@ -30,7 +30,8 @@ final case class Config(
     debug: DebugOptions,
     staticTmpDir: Boolean,
     cleanTmpDir: Boolean,
-    testRunner: Command
+    testRunner: Command,
+    openReport: Boolean
 )
 
 object Config {

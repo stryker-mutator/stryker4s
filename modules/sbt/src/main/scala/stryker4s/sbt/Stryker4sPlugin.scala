@@ -61,6 +61,7 @@ object Stryker4sPlugin extends AutoPlugin {
     val strykerDebugDebugTestRunner = settingKey[Boolean]("Pass JVM debugging parameters to the test-runner")
     val strykerStaticTmpDir = settingKey[Boolean]("Force temporary dir to a static path (`target/stryker4s-tmpDir`)")
     val strykerCleanTmpDir = settingKey[Boolean]("Remove the tmpDir after a successful mutation test run")
+    val strykerOpenReport = settingKey[Boolean]("Open the report after a mutation test run")
   }
 
   import autoImport.*
