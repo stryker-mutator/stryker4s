@@ -190,9 +190,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        desktopIOStub.openCalls.asserting { calls =>
-          assertEquals(calls, Seq.empty)
-        }
+        desktopIOStub.openCalls.assertEquals(Seq.empty)
     }
   }
 }

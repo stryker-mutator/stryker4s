@@ -72,7 +72,7 @@ class HtmlReporter(fileIO: FileIO, desktopIO: DesktopIO)(implicit config: Config
       )
       _ <-
         if (config.openReport) desktopIO.attemptOpen(indexLocation).handleErrorWith { e =>
-          IO(log.error(s"Error opening report in browser: ${e.getMessage}"))
+          IO(log.error("Error opening report in browser", e))
         }
         else IO.unit
     } yield ()
