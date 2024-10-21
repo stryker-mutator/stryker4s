@@ -20,19 +20,18 @@ final class TreeTraverserImpl() extends TreeTraverser {
   def canPlace(currentTree: Tree): Option[Term] = {
     currentTree.parent
       .filter {
-        case ParentIsTypeLiteral() => false
-        case name: Name            => !name.isDefinition
-        case t if t.is[Init]       => false
-
-        case d: Defn.Def if d.body == currentTree         => true
-        case d: Defn.Val if d.rhs == currentTree          => true
-        case d: Defn.Var if d.body == currentTree         => true
-        case _: Term.Block                                => true
-        case t: Term.Function if t.body == currentTree    => true
-        case t: Case if t.body == currentTree             => true
-        case t: Term.ForYield if t.body == currentTree    => true
-        case t: Template if t.stats.contains(currentTree) => true
-        case _                                            => false
+        case ParentIsTypeLiteral()                             => false
+        case name: Name                                        => !name.isDefinition
+        case t if t.is[Init]                                   => false
+        case d: Defn.Def if d.body == currentTree              => true
+        case d: Defn.Val if d.rhs == currentTree               => true
+        case d: Defn.Var if d.body == currentTree              => true
+        case _: Term.Block                                     => true
+        case t: Term.Function if t.body == currentTree         => true
+        case t: Case if t.body == currentTree                  => true
+        case t: Term.ForYield if t.body == currentTree         => true
+        case t: Template.Body if t.stats.contains(currentTree) => true
+        case _                                                 => false
       }
       .filterNot(_.isIn[Mod.Annot])
       .as(currentTree)
