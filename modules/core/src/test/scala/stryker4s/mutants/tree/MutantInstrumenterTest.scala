@@ -37,7 +37,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       // Assert
       assertEquals(result.expr, "_root_.stryker4s.activeMutation".parseTerm)
       assertEquals(
-        result.cases,
+        result.casesBlock.cases,
         List(
           "case 0 => x > 15".parseCase,
           "case 1 => x <= 15".parseCase,
@@ -87,7 +87,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       //   // Assert
       assertEquals(result.expr, "_root_.stryker4s.activeMutation".parseTerm)
       assertEquals(
-        result.cases,
+        result.casesBlock.cases,
         List(
           "case 0 => true".parseCase,
           "case 1 => false".parseCase,
@@ -129,7 +129,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       //   // Assert
       assertEquals(result.expr, "_root_.scala.sys.env.get(\"ACTIVE_MUTATION\")".parseTerm)
       assertEquals(
-        result.cases,
+        result.casesBlock.cases,
         List(
           "case Some(\"0\") => x > 15".parseCase,
           "case Some(\"1\") => x <= 15".parseCase,

@@ -86,17 +86,17 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     // Match on mutation switching trees
     case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
       // Filter out any cases that are in the same range as a compile error
-      val newCases = tree.cases.filterNot(caze => errors.exists(compileErrorIsInCaseStatement(caze, _)))
+      val newCases = tree.casesBlock.cases.filterNot(caze => errors.exists(compileErrorIsInCaseStatement(caze, _)))
 
       tree.copy(cases = newCases)
   }
 
   def mutantIdsForCompileErrors(tree: Tree, errors: NonEmptyList[CompilerErrMsg]) = {
-    val mutationSwitchingCases = tree.collect {
+    val mutationSwitchingCases: List[Case] = tree.collect {
       // Match on mutation switching trees
       case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
         // Filter out default case as it's not mutated
-        tree.cases.filterNot(c => c.pat.isEqual(Pat.Wildcard()))
+        tree.casesBlock.cases.filterNot(_.pat.isEqual(Pat.Wildcard()))
     }.flatten
 
     errors
