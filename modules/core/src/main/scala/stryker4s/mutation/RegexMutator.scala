@@ -17,8 +17,27 @@ case object RegexConstructor {
     .flatMap(_.parent)
     .flatMap(_.parent)
     .collect {
-      case Term.New(Init.After_4_6_0(Type.Name("Regex"), _, exprss))           => exprss
-      case Term.New(Init.After_4_6_0(t"scala.util.matching.Regex", _, exprss)) => exprss
+      // new Regex(_)
+      case Term.New(Init.After_4_6_0(Type.Name("Regex"), _, exprss)) => exprss
+
+      // new scala.util.matching.Regex(_)
+      case Term.New(
+            Init.After_4_6_0(
+              Type.Select(
+                Term.Select(
+                  Term.Select(
+                    Term.Name("scala"),
+                    Term.Name("util")
+                  ),
+                  Term.Name("matching")
+                ),
+                Type.Name("Regex")
+              ),
+              _,
+              exprss
+            )
+          ) =>
+        exprss
     }
     .collect { case Term.ArgClause(`arg` :: _, _) :: _ => arg }
 }
@@ -36,8 +55,28 @@ case object RegexStringOps {
   */
 case object PatternConstructor {
   def unapply(arg: Lit.String): Option[Lit.String] = arg.parent.flatMap(_.parent).collect {
-    case Term.Apply.After_4_6_0(q"Pattern.compile", Term.ArgClause(`arg` :: _, _))                 => arg
-    case Term.Apply.After_4_6_0(q"java.util.regex.Pattern.compile", Term.ArgClause(`arg` :: _, _)) => arg
+    // Pattern.compile(_)
+    case Term.Apply
+          .After_4_6_0(Term.Select(Term.Name("Pattern"), Term.Name("compile")), Term.ArgClause(`arg` :: _, _)) =>
+      arg
+    // java.util.regex.Pattern.compile(_)
+    case Term.Apply.After_4_6_0(
+          Term.Select(
+            Term.Select(
+              Term.Select(
+                Term.Select(
+                  Term.Name("java"),
+                  Term.Name("util")
+                ),
+                Term.Name("regex")
+              ),
+              Term.Name("Pattern")
+            ),
+            Term.Name("compile")
+          ),
+          Term.ArgClause(`arg` :: _, _)
+        ) =>
+      arg
   }
 }
 

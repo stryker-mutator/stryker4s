@@ -1,7 +1,7 @@
-import scala.sys.process
-
-import sbt.Keys.*
 import sbt.*
+import sbt.Keys.*
+
+import scala.sys.process
 
 object Release {
   // Main release commands

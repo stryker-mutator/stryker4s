@@ -23,7 +23,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
   val coverageTestNames = Seq.empty[TestFile]
   describe("timeoutRunner") {
-    implicit val config = Config.default
+    implicit val config: Config = Config.default
 
     describe("initialTestRun") {
       test("should complete the timeout after the initial testrun") {

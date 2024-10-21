@@ -4,7 +4,8 @@ import cats.effect.IO
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Keys.*
 import sbt.Tests.Output
-import sbt.*
+import sbt.{given, *}
+import stryker4s.PluginCompat
 import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
 import stryker4s.model.*
@@ -38,11 +39,11 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
   }
 
   private def runTests[T](state: State, onError: => T, onSuccess: => T, onFailed: => T): IO[T] =
-    IO(Project.runTask(Test / executeTests, state)) map {
-      case Some((_, Value(Output(TestResult.Passed, _, _)))) => onSuccess
-      case Some((_, Value(Output(TestResult.Failed, _, _)))) => onFailed
-      case Some((_, Value(Output(TestResult.Error, _, _))))  => onFailed
-      case _                                                 => onError
+    IO(PluginCompat.runTask(Test / executeTests, state)) map {
+      case Some(Right(Output(TestResult.Passed, _, _))) => onSuccess
+      case Some(Right(Output(TestResult.Failed, _, _))) => onFailed
+      case Some(Right(Output(TestResult.Error, _, _)))  => onFailed
+      case _                                            => onError
     }
 
   private def mutationSetting(mutation: Int): Def.Setting[?] =

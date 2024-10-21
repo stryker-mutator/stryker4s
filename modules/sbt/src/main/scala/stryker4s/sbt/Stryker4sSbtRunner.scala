@@ -5,9 +5,10 @@ import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.either.*
 import com.comcast.ip4s.Port
 import fs2.io.file.Path
-import sbt.*
 import sbt.Keys.*
 import sbt.internal.LogManager
+import sbt.{given, *}
+import stryker4s.PluginCompat
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.exception.TestSetupException
@@ -18,6 +19,7 @@ import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
+import xsbti.FileConverter
 
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
@@ -34,7 +36,8 @@ class Stryker4sSbtRunner(
     sharedTimeout: Deferred[IO, FiniteDuration],
     override val extraConfigSources: List[ConfigSource[IO]]
 )(implicit
-    log: Logger
+    log: Logger,
+    conv: FileConverter
 ) extends Stryker4sRunner {
 
   def resolveTestRunners(
@@ -74,13 +77,12 @@ class Stryker4sSbtRunner(
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
-      def extractTaskValue[T](task: TaskKey[T], name: String) = {
-
-        Project.runTask(task, newState) match {
-          case Some((_, Value(result))) => result
+      def extractTaskValue[T](task: TaskKey[T]): T = {
+        PluginCompat.runTask(task, newState) match {
+          case Some(Right(result)) => result
           case other =>
-            log.debug(s"Expected $name but got $other")
-            throw TestSetupException(name)
+            log.debug(s"Expected ${task.key.label} but got $other")
+            throw TestSetupException(task.key.label)
         }
       }
 
@@ -96,8 +98,8 @@ class Stryker4sSbtRunner(
       }
 
       // See if the mutations compile, and if not extract the errors
-      val compilerErrors = Project.runTask(Compile / compile, newState) match {
-        case Some((_, Inc(cause))) =>
+      val compilerErrors = PluginCompat.runTask(Compile / compile, newState) match {
+        case Some(Left(cause)) =>
           val rootCauses = getRootCause(cause)
           rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
           val compileErrors = rootCauses
@@ -119,18 +121,18 @@ class Stryker4sSbtRunner(
       }
 
       compilerErrors.toLeft {
-        val classpath = extractTaskValue(Test / fullClasspath, "classpath").map(_.data.getPath())
+        val classpath = stryker4s.PluginCompat.toNioPaths(extractTaskValue(Test / fullClasspath))
 
-        val javaOpts = extractTaskValue(Test / javaOptions, "javaOptions")
+        val javaOpts = extractTaskValue(Test / javaOptions)
 
-        val frameworks = extractTaskValue(Test / loadedTestFrameworks, "test frameworks").values.toSeq
+        val frameworks = extractTaskValue(Test / loadedTestFrameworks).values.toSeq
         if (frameworks.isEmpty)
           log.warn(
             "No test frameworks found via loadedTestFrameworks. " +
               "Will likely result in no tests being run and a NoCoverage result for all mutants."
           )
 
-        val testGroups = extractTaskValue(Test / testGrouping, "testGrouping").map { group =>
+        val testGroups = extractTaskValue(Test / testGrouping).map { group =>
           if (config.testFilter.isEmpty) group
           else {
             val testFilter = new TestFilter()

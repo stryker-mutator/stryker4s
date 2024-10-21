@@ -12,7 +12,7 @@ import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
-import scala.meta.quasiquotes.*
+import scala.meta.Term
 import scala.util.{Failure, Success}
 
 class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
@@ -61,7 +61,7 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
   def createMutant =
     MutantWithId(
       MutantId(0),
-      MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation, none))
+      MutatedCode(Term.Name("<"), MutantMetadata(">", "<", GreaterThan.mutationName, createLocation, none))
     )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))
