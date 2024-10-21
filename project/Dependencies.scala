@@ -8,13 +8,7 @@ object Dependencies {
 
     val scala3 = "3.3.4"
 
-    /** Cross-versions for main projects
-      */
-    val crossScalaVersions = Seq(scala213, scala212)
-
-    /** Fuller cross-versions (used for injected packages like testRunnerApi and sbtTestRunner)
-      */
-    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
+    val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
 
     // Test dependencies
     val munit = "1.0.2"
@@ -28,7 +22,7 @@ object Dependencies {
 
     val circe = "0.14.10"
 
-    val ciris = "3.5.0"
+    val ciris = "3.6.0"
 
     val fansi = "0.5.0"
 

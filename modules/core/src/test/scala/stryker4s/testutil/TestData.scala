@@ -9,13 +9,13 @@ import stryker4s.mutation.GreaterThan
 import stryker4s.report.FinishedRunEvent
 
 import scala.concurrent.duration.*
-import scala.meta.quasiquotes.*
+import scala.meta.Term
 
 trait TestData {
   def createMutant =
     MutantWithId(
       MutantId(0),
-      MutatedCode(q"<", MutantMetadata(">", "<", GreaterThan.mutationName, createLocation, none))
+      MutatedCode(Term.Name("<"), MutantMetadata(">", "<", GreaterThan.mutationName, createLocation, none))
     )
 
   def createLocation = Location(Position(0, 0), Position(0, 0))

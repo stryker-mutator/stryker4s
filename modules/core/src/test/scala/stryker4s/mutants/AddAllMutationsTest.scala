@@ -15,43 +15,43 @@ import scala.meta.*
 class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
 
   describe("failed to add mutations") {
-    implicit val config = Config.default
+    implicit val config: Config = Config.default
 
     test("#585 (if-statement in Term.Apply)") {
       checkAllMutationsAreAdded(
-        q"""SomeExecutor.createSomething(
+        """SomeExecutor.createSomething(
         if (c.i.isDefined) "foo" else "bar",
         false,
-      )""",
+      )""".parseTerm,
         5
       )
     }
 
     test("#586 (second function call with `case`)") {
       checkAllMutationsAreAdded(
-        q"""serviceProvider
+        """serviceProvider
               .request { _ => 4 > 5 }
               .recoverWith {
                 case e: Throwable =>
                   logger.info(s"Something failed")
-              }""",
+              }""".parseTerm,
         4
       )
     }
 
     test("#776 (if-else block statement)") {
       checkAllMutationsAreAdded(
-        q"""
+        """
         if (foo) bar
         else { 4 > 5 }
-      """,
+      """.parseTerm,
         5
       )
     }
 
     test("#776 2") {
       checkAllMutationsAreAdded(
-        q"""
+        """
         try {
           val (p1, s, rs1) = runSeqCmds(sut, as.s, as.seqCmds)
           val l1 = s"Initial State:\n \nSequential Commands:\n"
@@ -67,25 +67,25 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
               }
             )
         } finally if (as.parCmds.isEmpty) finalize
-      """,
+      """.parseTerm,
         11
       )
     }
 
     test("each case of pattern match") {
       checkAllMutationsAreAdded(
-        q"""
+        """
         foo match {
           case _ => "break"
           case _ if high == low => baz
-        }""",
+        }""".parseStat,
         2
       )
     }
 
     test("try-catch-finally") {
       checkAllMutationsAreAdded(
-        q"""
+        """
         def foo =
           try {
             runAndContinue("task.run")
@@ -93,13 +93,13 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
             case _ => logger.error("Error during run", e)
           } finally {
             logger.info("Done")
-          }""",
+          }""".parseStat,
         3
       )
     }
 
     def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit loc: Location) = {
-      val source = source"class Foo { $tree }"
+      val source = s"class Foo { ${tree.syntax} }".parseSource
 
       val mutator = new Mutator(
         new MutantFinderStub(source),

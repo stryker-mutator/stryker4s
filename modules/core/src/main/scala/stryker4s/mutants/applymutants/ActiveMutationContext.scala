@@ -5,11 +5,30 @@ import scala.meta.*
 object ActiveMutationContext {
   type ActiveMutationContext = Term
 
-  lazy val envVar: ActiveMutationContext = sysContext(q"env")
+  lazy val envVar: ActiveMutationContext = sysContext(Term.Name("env"))
 
-  lazy val sysProps: ActiveMutationContext = sysContext(q"props")
+  lazy val sysProps: ActiveMutationContext = sysContext(Term.Name("props"))
 
-  lazy val testRunner: ActiveMutationContext = q"_root_.stryker4s.activeMutation"
+  // _root_.stryker4s.activeMutation
+  lazy val testRunner: ActiveMutationContext =
+    Term.Select(Term.Select(Term.Name("_root_"), Term.Name("stryker4s")), Term.Name("activeMutation"))
 
-  private def sysContext(c: Term.Name): Term.Apply = q"_root_.scala.sys.$c.get(${Lit.String("ACTIVE_MUTATION")})"
+  // _root_.scala.$c.get("ACTIVE_MUTATION")
+  private def sysContext(c: Term.Name): Term.Apply =
+    Term.Apply(
+      Term.Select(
+        Term.Select(
+          Term.Select(
+            Term.Select(
+              Term.Name("_root_"),
+              Term.Name("scala")
+            ),
+            Term.Name("sys")
+          ),
+          c
+        ),
+        Term.Name("get")
+      ),
+      Term.ArgClause(List(Lit.String("ACTIVE_MUTATION")))
+    )
 }

@@ -33,7 +33,7 @@ trait TestInterfaceMapper {
     }
     if (frameworks.nonEmpty)
       for (test <- tests) assignTest(test)
-    map.toMap.mapValues(_.toSet)
+    map.mapValues(_.toSet).toMap
   }
 
   private def toTaskDefinition(td: SbtTestDefinition): TaskDefinition = {

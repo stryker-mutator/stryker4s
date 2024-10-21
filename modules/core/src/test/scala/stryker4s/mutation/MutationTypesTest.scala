@@ -7,53 +7,53 @@ import scala.meta.*
 class MutationTypesTest extends Stryker4sSuite {
   describe("EqualityOperator") {
     test("> to GreaterThan") {
-      assertMatchPattern(q">", { case GreaterThan(_) => })
+      assertMatchPattern(Term.Name(">"), { case GreaterThan(_) => })
     }
 
     test(">= to GreaterThanEqualTo") {
-      assertMatchPattern(q">=", { case GreaterThanEqualTo(_) => })
+      assertMatchPattern(Term.Name(">="), { case GreaterThanEqualTo(_) => })
     }
 
     test("<= to LesserThanEqualTo") {
-      assertMatchPattern(q"<=", { case LesserThanEqualTo(_) => })
+      assertMatchPattern(Term.Name("<="), { case LesserThanEqualTo(_) => })
     }
 
     test("< to LesserThan") {
-      assertMatchPattern(q"<", { case LesserThan(_) => })
+      assertMatchPattern(Term.Name("<"), { case LesserThan(_) => })
     }
 
     test("== to EqualTo") {
-      assertMatchPattern(q"==", { case EqualTo(_) => })
+      assertMatchPattern(Term.Name("=="), { case EqualTo(_) => })
     }
 
     test("!= to NotEqualTo") {
-      assertMatchPattern(q"!=", { case NotEqualTo(_) => })
+      assertMatchPattern(Term.Name("!="), { case NotEqualTo(_) => })
     }
   }
 
   describe("BooleanLiteral") {
     test("false to False") {
-      assertMatchPattern(q"false", { case False(_) => })
+      assertMatchPattern(Lit.Boolean(false), { case False(_) => })
     }
 
     test("true to True") {
-      assertMatchPattern(q"true", { case True(_) => })
+      assertMatchPattern(Lit.Boolean(true), { case True(_) => })
     }
   }
 
   describe("LogicalOperator") {
     test("&& to And") {
-      assertMatchPattern(q"&&", { case And(_) => })
+      assertMatchPattern(Term.Name("&&"), { case And(_) => })
     }
 
     test("|| to Or") {
-      assertMatchPattern(q"||", { case Or(_) => })
+      assertMatchPattern(Term.Name("||"), { case Or(_) => })
     }
   }
 
   describe("StringLiteral") {
     test("foo string to NonEmptyString") {
-      assertMatchPattern(q""""foo"""", { case NonEmptyString(_) => })
+      assertMatchPattern(Lit.String("foo"), { case NonEmptyString(_) => })
     }
 
     test("empty string to EmptyString") {
@@ -62,21 +62,21 @@ class MutationTypesTest extends Stryker4sSuite {
 
     test("string interpolation to StringInterpolation") {
       assertMatchPattern(
-        Term.Interpolate(q"s", List(Lit.String("foo "), Lit.String("")), List(q"foo")),
+        Term.Interpolate(Term.Name("s"), List(Lit.String("foo "), Lit.String("")), List(Term.Name("foo"))),
         { case StringInterpolation(_) => }
       )
     }
 
     test("q interpolation should not match StringInterpolation") {
       assertNotMatchPattern(
-        Term.Interpolate(q"q", List(Lit.String("foo "), Lit.String("")), List(q"foo")),
+        Term.Interpolate(Term.Name("q"), List(Lit.String("foo "), Lit.String("")), List(Term.Name("foo"))),
         { case StringInterpolation(_) => }
       )
     }
 
     test("t interpolation should not match StringInterpolation") {
       assertNotMatchPattern(
-        Term.Interpolate(q"t", List(Lit.String("scala.util.matching.Regex")), List.empty),
+        Term.Interpolate(Term.Name("t"), List(Lit.String("scala.util.matching.Regex")), List.empty),
         { case StringInterpolation(_) => }
       )
     }
@@ -84,9 +84,9 @@ class MutationTypesTest extends Stryker4sSuite {
 
   describe("other cases") {
     test("should return original tree on match") {
-      val tree = q">="
+      val tree = Term.Name(">=")
 
-      val GreaterThanEqualTo(result) = tree
+      val result = GreaterThanEqualTo.unapply(tree).value
 
       assert(result eq tree)
 
@@ -95,15 +95,15 @@ class MutationTypesTest extends Stryker4sSuite {
     test("should convert GreaterThan to >") {
       val wrapped = WrappedTree(GreaterThan.tree)
 
-      assertEquals(wrapped.term, q">")
+      assertEquals(wrapped.term, Term.Name(">"))
     }
 
     test("should convert to the proper type") {
       val falseTree: Tree = False.tree
       val greaterThan: Tree = GreaterThan.tree
 
-      assertEquals(falseTree, q"false")
-      assertEquals(greaterThan, q">")
+      assertEquals(falseTree, Lit.Boolean(false))
+      assertEquals(greaterThan, Term.Name(">"))
     }
 
     final case class WrappedTree(term: Tree)

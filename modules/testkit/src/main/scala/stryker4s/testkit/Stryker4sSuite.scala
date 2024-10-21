@@ -103,6 +103,18 @@ sealed trait Stryker4sAssertions {
         obtained.zip(expected).forall { case (obtained, expected) =>
           compare.isEqual(obtained, expected)
         }
+
+  implicit class ParseTreeExtension(s: String) {
+    def parseCase(implicit loc: Location): Case = s.parse[Case].toEither.value
+    def parseDef(implicit loc: Location): Defn.Def = parseStat match {
+      case d: Defn.Def => d
+      case other       => fail(s"Expected a Defn.Def, but got $other")
+    }
+    def parseTerm(implicit loc: Location): Term = s.parse[Term].toEither.value
+    def parseStat(implicit loc: Location): Stat = s.parse[Stat].toEither.value
+    def parseSource(implicit loc: Location): Source = s.parse[Source].toEither.value
+    def parseType(implicit loc: Location): Type = s.parse[Type].toEither.value
+  }
 }
 
 abstract protected[stryker4s] class Stryker4sSuite extends FunSuite with Stryker4sAssertions

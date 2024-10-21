@@ -8,11 +8,12 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.run.TestRunner
 
+import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 object SbtTestRunner {
   def create(
-      classpath: Seq[String],
+      classpath: Seq[Path],
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],

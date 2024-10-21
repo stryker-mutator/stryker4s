@@ -63,7 +63,8 @@ class MutantRunner(
           for {
             initialTestRunResult <- testRunnerPool.loan.use(testrunner => initialTestRun(testrunner))
             testFiles = createTestFileDictionary(initialTestRunResult)
-            (duration, results) <- runMutants(mutatedFiles, testRunnerPool, initialTestRunResult).timed
+            t <- runMutants(mutatedFiles, testRunnerPool, initialTestRunResult).timed
+            (duration, results) = t
           } yield RunResult(results, testFiles, duration)
         }
       }

@@ -12,35 +12,35 @@ class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
 
   describe("canPlace") {
     test("can not place inside case guards") {
-      val code = q"""x.bar(2) match {
+      val code = """x.bar(2) match {
         case 1 if x.foo() => 1
-      }"""
+      }""".parseTerm
 
-      val caseGuard = code.find(q"x.foo()").value
+      val caseGuard = code.find("x.foo()".parseTerm).value
       assertCannotPlaceInside(caseGuard)
     }
 
     test("can place in case body") {
-      val code = q"""x.bar(2) match {
+      val code = """x.bar(2) match {
         case 1 if x.foo() => 3
-      }"""
+      }""".parseTerm
       val body = code.find(Lit.Int(3)).value
       val result = traverser.canPlace(body).value
       assertEquals(result, body)
     }
 
     test("can not place inside annotations") {
-      val code = q"""
+      val code = """
       @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
       val x = foo()
-        """
+        """.parseStat
       val annotation = code.collectFirst { case t: Mod.Annot => t }.value.init
 
       assertCannotPlaceInside(annotation)
     }
 
     test("can not place inside deep term Term") {
-      val code = q"def bar = P(CharIn(${Lit.String("0-9")}).rep(1).!) map (_.toInt)"
+      val code = s"""def bar = P(CharIn("0-9").rep(1).!) map (_.toInt)""".parseDef
       val foo = code.find(Lit.String("0-9")).value
 
       val placeAtFoo = traverser.canPlace(foo)
@@ -48,15 +48,15 @@ class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
     }
 
     test("can place outside part of a Term") {
-      val code = q"def bar = P(CharIn(${Lit.String("0-9")}).rep(1).!) map (_.toInt)"
-      val foo = code.find(q"P(CharIn(${Lit.String("0-9")}).rep(1).!) map (_.toInt)").value
+      val code = """def bar = P(CharIn("0-9").rep(1).!) map (_.toInt)""".parseDef
+      val foo = code.find("P(CharIn(\"0-9\").rep(1).!) map (_.toInt)".parseTerm).value
 
       val placeAtFoo = traverser.canPlace(foo).value
       assertEquals(placeAtFoo, foo)
     }
 
     test("can not place inside type literals") {
-      val code = q"type Foo = ${Lit.String("Bar")} | ${Lit.String("Baz")}"
+      val code = "type Foo = \"Bar\" | \"Baz\"".parseStat
       assertCannotPlaceInside(code)
     }
   }
