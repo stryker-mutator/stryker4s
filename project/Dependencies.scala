@@ -6,9 +6,13 @@ object Dependencies {
 
     val scala213 = "2.13.16"
 
-    val scala3 = "3.3.5"
+    // sbt-test-runner uses LTS to ensure compatibility with any project it runs in
+    val scala3Lts = "3.3.5"
+
+    val scala3 = "3.6.4"
 
     val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
+    val ltsCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
 
     // Test dependencies
     val munit = "1.1.0"
