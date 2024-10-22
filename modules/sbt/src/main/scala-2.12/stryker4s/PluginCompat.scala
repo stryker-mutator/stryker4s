@@ -6,6 +6,7 @@ import xsbti.FileConverter
 import java.io.File
 import java.nio.file.Path as NioPath
 import scala.annotation.nowarn
+import scala.collection.mutable
 
 /** For compatibility with sbt 1.x
   */
@@ -22,4 +23,6 @@ private[stryker4s] object PluginCompat {
   def runTask[T](taskKey: TaskKey[T], state: State): Option[Either[Incomplete, T]] =
     Project.runTask(taskKey, state).map(_._2.toEither)
 
+  def mapValues[K, V, W](map: mutable.Map[K, V])(f: V => W): Map[K, W] =
+    map.mapValues(f).toMap
 }

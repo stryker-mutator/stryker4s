@@ -3,16 +3,17 @@ package stryker4s.model
 import cats.syntax.option.*
 import sbt.testing.Framework as SbtFramework
 import sbt.{TestDefinition as SbtTestDefinition, TestFramework as SbtTestFramework, Tests}
+import stryker4s.PluginCompat
 import stryker4s.testrunner.api.*
 
 trait TestInterfaceMapper {
-  def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Array[TestGroup] = {
+  def toApiTestGroups(frameworks: Seq[SbtFramework], sbtTestGroups: Seq[Tests.Group]): Seq[TestGroup] = {
     val mapped = testMap(frameworks, sbtTestGroups.flatMap(_.tests))
     mapped.map { case (framework, tests) =>
-      val taskDefs: Array[TaskDefinition] = tests.map(toTaskDefinition).toArray
+      val taskDefs: Seq[TaskDefinition] = tests.map(toTaskDefinition).toSeq
       val runnerOptions = RunnerOptions(Seq.empty, Seq.empty)
       TestGroup(framework.getClass.getCanonicalName(), taskDefs, runnerOptions.some)
-    }.toArray
+    }.toSeq
   }
 
   /** From https://github.com/sbt/sbt/blob/develop/testing/src/main/scala/sbt/TestFramework.scala
@@ -33,12 +34,12 @@ trait TestInterfaceMapper {
     }
     if (frameworks.nonEmpty)
       for (test <- tests) assignTest(test)
-    map.mapValues(_.toSet).toMap
+    PluginCompat.mapValues(map)(_.toSet)
   }
 
   private def toTaskDefinition(td: SbtTestDefinition): TaskDefinition = {
     val fingerprint = toFingerprint(td.fingerprint)
-    val selectors = td.selectors.map(toSelector)
+    val selectors = td.selectors.map(toSelector).toSeq
     TaskDefinition(td.name, fingerprint, td.explicitlySpecified, selectors)
   }
 
