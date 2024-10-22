@@ -124,7 +124,7 @@ object Stryker4sPlugin extends AutoPlugin {
     } yield s"$base/$path"
   }
 
-  lazy val strykerTask = Def.inputTaskDyn {
+  lazy val strykerTask = Def.inputTask {
     // Call logLevel so it shows up as a used setting when set
     val _ = (stryker / logLevel).value
     val sbtLog = streams.value.log
@@ -137,23 +137,24 @@ object Stryker4sPlugin extends AutoPlugin {
 
     val sbtConfig = SbtConfigSource[IO]().value
 
-    Def.task {
-      implicit val runtime: IORuntime = IORuntime.global
-      implicit val logger: Logger = new SbtLogger(sbtLog)
-      implicit val conv: FileConverter = fileConverter.value
-      val parsed = sbt.complete.DefaultParsers.spaceDelimited("<arg>").parsed
-      val cliConfig = new CliConfigSource(parsed)
-      val extraConfigSources = List(sbtConfig, cliConfig)
+    // TODO: uncomment when inputTaskDyn is implemented in sbt 2.x https://github.com/sbt/sbt/issues/7707
+    // Def.task {
+    implicit val runtime: IORuntime = IORuntime.global
+    implicit val logger: Logger = new SbtLogger(sbtLog)
+    implicit val conv: FileConverter = fileConverter.value
+    val parsed = sbt.complete.DefaultParsers.spaceDelimited("<arg>").parsed
+    val cliConfig = new CliConfigSource(parsed)
+    val extraConfigSources = List(sbtConfig, cliConfig)
 
-      Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
-        .map(new Stryker4sSbtRunner(state.value, _, extraConfigSources))
-        .flatMap(_.run())
-        .flatMap {
-          case ErrorStatus => IO.raiseError(new MessageOnlyException("Mutation score is below configured threshold"))
-          case _           => IO.unit
-        }
-        .unsafeRunSync()
-    }
+    Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
+      .map(new Stryker4sSbtRunner(state.value, _, extraConfigSources))
+      .flatMap(_.run())
+      .flatMap {
+        case ErrorStatus => IO.raiseError(new MessageOnlyException("Mutation score is below configured threshold"))
+        case _           => IO.unit
+      }
+      .unsafeRunSync()
+    // }
   }
 
   private class UnsupportedSbtVersionException(s: String)

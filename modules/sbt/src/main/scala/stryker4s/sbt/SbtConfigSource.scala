@@ -15,7 +15,59 @@ import scala.meta.Dialect
 import Stryker4sPlugin.autoImport.*
 
 object SbtConfigSource {
+
+  // TODO: revert when https://github.com/sbt/sbt/issues/7768 is released
+  private val configValuesTupled = Def.setting(
+    (
+      strykerMutate.?.value,
+      strykerBaseDir.?.value,
+      strykerTestFilter.?.value,
+      strykerReporters.?.value,
+      strykerFiles.?.value,
+      strykerExcludedMutations.?.value,
+      strykerThresholdsHigh.?.value,
+      strykerThresholdsLow.?.value,
+      strykerThresholdsBreak.?.value,
+      strykerDashboardBaseUrl.?.value,
+      strykerDashboardReportType.?.value,
+      strykerDashboardProject.?.value,
+      strykerDashboardVersion.?.value,
+      strykerDashboardModule.?.value,
+      strykerTimeout.?.value,
+      strykerTimeoutFactor.?.value
+    )
+  )
+
   def apply[F[_]]() = Def.setting[ConfigSource[F]] {
+    val (
+      mutateValue,
+      baseDirValue,
+      testFilterValue,
+      reportersValue,
+      filesValue,
+      excludedMutationsValue,
+      thresholdsHighValue,
+      thresholdsLowValue,
+      thresholdsBreakValue,
+      dashboardBaseUrlValue,
+      dashboardReportTypeValue,
+      dashboardProjectValue,
+      dashboardVersionValue,
+      dashboardModuleValue,
+      timeoutValue,
+      timeoutFactorValue
+    ) = configValuesTupled.value
+
+    val maxTestRunnerReuseValue = strykerMaxTestRunnerReuse.?.value
+    val legacyTestRunnerValue = strykerLegacyTestRunner.?.value
+    val scalaDialectValue = strykerScalaDialect.?.value
+    val concurrencyValue = strykerConcurrency.?.value
+    val debugLogTestRunnerStdoutValue = strykerDebugLogTestRunnerStdout.?.value
+    val debugDebugTestRunnerValue = strykerDebugDebugTestRunner.?.value
+    val staticTmpDirValue = strykerStaticTmpDir.?.value
+    val cleanTmpDirValue = strykerCleanTmpDir.?.value
+    val openReportValue = strykerOpenReport.?.value
+
     new ConfigSource[F] with CirisConfigDecoders {
 
       override def name: String = "sbt settings"
@@ -36,125 +88,127 @@ object SbtConfigSource {
       }
 
       override val mutate: ConfigValue[F, Seq[String]] = sbtSetting(
-        strykerMutate.?.value,
+        mutateValue,
         strykerMutate.key.label
       )
 
       override val baseDir: ConfigValue[F, Path] = sbtSetting(
-        strykerBaseDir.?.value,
+        baseDirValue,
         strykerBaseDir.key.label
       ).map(f => Path.fromNioPath(f.toPath.toAbsolutePath()))
 
       override def testFilter: ConfigValue[F, Seq[String]] = sbtSetting(
-        strykerTestFilter.?.value,
+        testFilterValue,
         strykerTestFilter.key.label
       )
 
       override def reporters: ConfigValue[F, Seq[ReporterType]] = sbtSetting(
-        strykerReporters.?.value,
+        reportersValue,
         strykerReporters.key.label
       ).as[Seq[ReporterType]]
 
       override def files: ConfigValue[F, Seq[String]] = sbtSetting(
-        strykerFiles.?.value,
+        filesValue,
         strykerFiles.key.label
       )
 
       override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] = sbtSetting(
-        strykerExcludedMutations.?.value,
+        excludedMutationsValue,
         strykerExcludedMutations.key.label
       ).as[Seq[ExcludedMutation]]
 
       override def thresholdsHigh: ConfigValue[F, Int] = sbtSetting(
-        strykerThresholdsHigh.?.value,
+        thresholdsHighValue,
         strykerThresholdsHigh.key.label
       )
+
       override def thresholdsLow: ConfigValue[F, Int] = sbtSetting(
-        strykerThresholdsLow.?.value,
+        thresholdsLowValue,
         strykerThresholdsLow.key.label
       )
 
       override def thresholdsBreak: ConfigValue[F, Int] = sbtSetting(
-        strykerThresholdsBreak.?.value,
+        thresholdsBreakValue,
         strykerThresholdsBreak.key.label
       )
 
       override def dashboardBaseUrl: ConfigValue[F, Uri] = sbtSetting(
-        strykerDashboardBaseUrl.?.value,
+        dashboardBaseUrlValue,
         strykerDashboardBaseUrl.key.label
       ).as[Uri]
 
       override def dashboardReportType: ConfigValue[F, DashboardReportType] = sbtSetting(
-        strykerDashboardReportType.?.value,
+        dashboardReportTypeValue,
         strykerDashboardReportType.key.label
       )
 
       override def dashboardProject: ConfigValue[F, Option[String]] = optSbtSetting(
-        strykerDashboardProject.?.value,
+        dashboardProjectValue,
         strykerDashboardProject.key.label
       )
 
       override def dashboardVersion: ConfigValue[F, Option[String]] = optSbtSetting(
-        strykerDashboardVersion.?.value,
+        dashboardVersionValue,
         strykerDashboardVersion.key.label
       )
 
       override def dashboardModule: ConfigValue[F, Option[String]] = sbtSetting(
-        strykerDashboardModule.?.value,
+        dashboardModuleValue,
         strykerDashboardModule.key.label
       ).map(_.some)
 
       override def timeout: ConfigValue[F, FiniteDuration] = sbtSetting(
-        strykerTimeout.?.value,
+        timeoutValue,
         strykerTimeout.key.label
       )
 
       override def timeoutFactor: ConfigValue[F, Double] = sbtSetting(
-        strykerTimeoutFactor.?.value,
+        timeoutFactorValue,
         strykerTimeoutFactor.key.label
       )
 
       override def maxTestRunnerReuse: ConfigValue[F, Option[Int]] = sbtSetting(
-        strykerMaxTestRunnerReuse.?.value,
+        maxTestRunnerReuseValue,
         strykerMaxTestRunnerReuse.key.label
       ).map(_.some)
 
       override def legacyTestRunner: ConfigValue[F, Boolean] = sbtSetting(
-        strykerLegacyTestRunner.?.value,
+        legacyTestRunnerValue,
         strykerLegacyTestRunner.key.label
       )
 
       override def scalaDialect: ConfigValue[F, Dialect] = sbtSetting(
-        strykerScalaDialect.?.value,
+        scalaDialectValue,
         strykerScalaDialect.key.label
       )
 
       override def concurrency: ConfigValue[F, Int] = sbtSetting(
-        strykerConcurrency.?.value,
+        concurrencyValue,
         strykerConcurrency.key.label
       )
 
       override def debugLogTestRunnerStdout: ConfigValue[F, Boolean] = sbtSetting(
-        strykerDebugLogTestRunnerStdout.?.value,
+        debugLogTestRunnerStdoutValue,
         strykerDebugLogTestRunnerStdout.key.label
       )
+
       override def debugDebugTestRunner: ConfigValue[F, Boolean] = sbtSetting(
-        strykerDebugDebugTestRunner.?.value,
+        debugDebugTestRunnerValue,
         strykerDebugDebugTestRunner.key.label
       )
 
       override def staticTmpDir: ConfigValue[F, Boolean] = sbtSetting(
-        strykerStaticTmpDir.?.value,
+        staticTmpDirValue,
         strykerStaticTmpDir.key.label
       )
 
       override def cleanTmpDir: ConfigValue[F, Boolean] = sbtSetting(
-        strykerCleanTmpDir.?.value,
+        cleanTmpDirValue,
         strykerCleanTmpDir.key.label
       )
 
       override def openReport: ConfigValue[F, Boolean] = sbtSetting(
-        strykerOpenReport.?.value,
+        openReportValue,
         strykerOpenReport.key.label
       )
 
