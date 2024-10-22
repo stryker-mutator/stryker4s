@@ -64,6 +64,21 @@ object Settings {
       scriptedLaunchOpts.value ++
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
+    tpolecatExcludeOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) =>
+        Set(
+          // TODO: remove when https://github.com/sbt/sbt/issues/7726 is fixed
+          ScalacOptions.warnUnusedImplicits,
+          ScalacOptions.warnUnusedImports,
+          ScalacOptions.warnUnusedLocals,
+          ScalacOptions.warnUnusedParams,
+          ScalacOptions.warnUnusedPatVars,
+          ScalacOptions.warnUnusedPrivates,
+          ScalacOptions.warnUnusedExplicits,
+          ScalacOptions.warnUnusedNoWarn
+        )
+      case _ => Set.empty
+    }),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.7.0"
