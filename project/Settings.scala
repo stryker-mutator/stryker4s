@@ -27,8 +27,7 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
-    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("11")),
-    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("11"))
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(

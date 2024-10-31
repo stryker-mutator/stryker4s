@@ -35,7 +35,7 @@ class TestProcessRunner(commandSuccess: Boolean, lines: Try[Seq[String]], testRu
     if (envVar.isEmpty) {
       IO.pure(Success(if (commandSuccess) 0 else 1))
     } else {
-      timesCalled.next()
+      val _ = timesCalled.next()
       IO.pure(testRunExitCode(envVar.map(_._2).head.toInt))
     }
   }

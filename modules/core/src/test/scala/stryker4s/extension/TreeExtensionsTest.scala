@@ -134,7 +134,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       var context = 0
       var result = 5 // offset to have different comparisons
 
-      tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
+      val _ = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
         c =>
           assertEquals(c, 1)
           result += 1
@@ -148,7 +148,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       val tree = "def foo = { 4 + 2 }".parseDef
       val context = ListBuffer.empty[Tree]
 
-      tree.collectWithContext { case t => context += t; context } { case Lit.Int(2) =>
+      val _ = tree.collectWithContext { case t => context += t; context } { case Lit.Int(2) =>
         _ => ()
       }
 
@@ -159,7 +159,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       val tree = "def foo = 5".parseDef
       var called = false
 
-      tree.collectWithContext { case _ => called = true } { case Lit.Int(6) => _ => 6 }
+      val _ = tree.collectWithContext { case _ => called = true } { case Lit.Int(6) => _ => 6 }
 
       assert(!called)
     }
@@ -168,7 +168,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       val tree = "def foo = 5 + 2".parseDef
       var context = 0
 
-      tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
+      val _ = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
         c => assertEquals(c, 1)
       }
 
@@ -182,7 +182,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       }""".parseDef
       var calls = 0
 
-      tree.collectWithContext {
+      val _ = tree.collectWithContext {
         case t if t.syntax == "1 + 2" => "firstContext"
         case t if t.syntax == "3 - 4" => "secondContext"
       } {
@@ -206,7 +206,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
           }""".parseDef
       var calls = 0
 
-      tree.collectWithContext {
+      val _ = tree.collectWithContext {
         // Only match context on the first statement
         case t if t.syntax == "1" => "firstContext"
       } {

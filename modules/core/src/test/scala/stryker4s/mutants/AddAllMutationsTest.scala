@@ -113,7 +113,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
           assertEquals(ignored, Map(Path("Foo.scala") -> Vector.empty))
 
           val file = files.loneElement
-          file.mutants.toVector.map { mutant =>
+          file.mutants.toVector.foreach { mutant =>
             file.mutatedSource
               .find(mutant.mutatedCode.mutatedStatement)
               .flatMap(_ => file.mutatedSource.find(Lit.Int(mutant.id.value)))
