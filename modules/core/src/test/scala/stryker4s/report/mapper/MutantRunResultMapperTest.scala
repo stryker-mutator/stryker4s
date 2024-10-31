@@ -24,7 +24,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
       assertEquals(result.thresholds, Thresholds(high = 60, low = 40))
       assertEquals(result.files.size, 2)
       val firstResult = result.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
-      result.files.find(_._1.endsWith("scalaFiles/simpleFile.scala")).value
+      assert(result.files.exists(_._1.endsWith("scalaFiles/simpleFile.scala")))
       val FileResult(source, mutants, language) = firstResult._2
       assertEquals(language, "scala")
       assertEquals(

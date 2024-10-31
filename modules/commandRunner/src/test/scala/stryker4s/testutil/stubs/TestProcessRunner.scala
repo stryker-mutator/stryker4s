@@ -28,7 +28,7 @@ class TestProcessRunner(initialTestRunSuccess: Boolean, testRunExitCode: Try[Int
     if (envVar.isEmpty) {
       IO.pure(Success(if (initialTestRunSuccess) 0 else 1))
     } else {
-      timesCalled.next()
+      val _ = timesCalled.next()
       IO.pure(testRunExitCode(envVar.map(_._2).head.toInt))
     }
   }

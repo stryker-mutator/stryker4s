@@ -152,7 +152,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       }
 
       // Act
-      interceptMessage[UnableToBuildPatternMatchException](
+      val _ = interceptMessage[UnableToBuildPatternMatchException](
         s"""Failed to instrument mutants in `$path`.
            |Please open an issue on github and include the stacktrace and failed instrumentation code: https://github.com/stryker-mutator/stryker4s/issues/new""".stripMargin
       )(sut.instrumentFile(context, mutants))
