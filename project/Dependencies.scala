@@ -22,7 +22,7 @@ object Dependencies {
 
     val circe = "0.14.10"
 
-    val ciris = "3.6.0"
+    val ciris = "3.7.0"
 
     val fansi = "0.5.0"
 
