@@ -203,7 +203,7 @@ class Stryker4sSbtRunner(
     }
 
     def tmpDirFor(source: File, tmpDir: Path): JFile =
-      (Path.fromNioPath(source.toPath()) inSubDir tmpDir).toNioPath.toFile()
+      Path.fromNioPath(source.toPath()).inSubDir(tmpDir).toNioPath.toFile()
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 
