@@ -117,6 +117,7 @@ trait CirisConfigDecoders {
       List("scala33", "scala3.3", "3.3", "33") -> dialects.Scala33,
       List("scala34", "scala3.4", "3.4", "34") -> dialects.Scala34,
       List("scala35", "scala3.5", "3.5", "35") -> dialects.Scala35,
+      List("scala36", "scala3.6", "3.6", "36") -> dialects.Scala36,
       List("scala3", "3") -> dialects.Scala3
     )
 
