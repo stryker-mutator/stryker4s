@@ -171,7 +171,10 @@ class Stryker4sSbtRunner(
         "unused:params",
         "unused:explicits"
         // -Ywarn for Scala 2.12, -W for Scala 2.13
-      ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt"))
+      ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt")) ++ Seq(
+        // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile
+        "-Xfatal-warnings"
+      )
 
       val filteredSystemProperties: Seq[String] = {
         // Matches strings that start with one of the options between brackets
