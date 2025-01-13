@@ -56,7 +56,7 @@
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Scala versions -->
-        <scala.version>2.13.15</scala.version>
+        <scala.version>2.13.16</scala.version>
         <scala.compat.version>2.13</scala.compat.version>
         <scala-maven.version>4.9.2</scala-maven.version>
     </properties>
