@@ -8,27 +8,21 @@ object Dependencies {
 
     val scala3 = "3.3.4"
 
-    /** Cross-versions for main projects
-      */
-    val crossScalaVersions = Seq(scala213, scala212)
-
-    /** Fuller cross-versions (used for injected packages like testRunnerApi and sbtTestRunner)
-      */
-    val fullCrossScalaVersions = crossScalaVersions ++ Seq(scala3)
+    val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
 
     // Test dependencies
-    val munit = "1.0.2"
+    val munit = "1.0.3"
 
     val munitCatsEffect = "2.0.0"
 
     // Direct dependencies
     val catsCore = "2.12.0"
 
-    val catsEffect = "3.5.4"
+    val catsEffect = "3.5.7"
 
     val circe = "0.14.10"
 
-    val ciris = "3.5.0"
+    val ciris = "3.7.0"
 
     val fansi = "0.5.0"
 
@@ -36,15 +30,15 @@ object Dependencies {
 
     val fs2 = "3.11.0"
 
-    val mutationTestingElements = "3.3.0"
+    val mutationTestingElements = "3.4.0"
 
-    val mutationTestingMetrics = "3.3.0"
+    val mutationTestingMetrics = "3.4.1"
 
-    val scalameta = "4.9.9"
+    val scalameta = "4.12.3"
 
     val slf4j = "2.0.16"
 
-    val sttp = "3.10.1"
+    val sttp = "3.10.2"
 
     val testInterface = "1.0"
 

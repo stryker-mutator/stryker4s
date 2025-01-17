@@ -17,7 +17,8 @@ class Stryker4s(fileSource: FileResolver, mutator: Mutator, runner: MutantRunner
 ) {
 
   def run(): IO[ScoreStatus] = for {
-    (ignored, files) <- mutator.go(fileSource.files)
+    t <- mutator.go(fileSource.files)
+    (ignored, files) = t
     result <- runner(files)
     metrics <- createAndReportResults(result, ignored)
     scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)

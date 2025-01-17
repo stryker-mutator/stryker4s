@@ -5,7 +5,7 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fansi.Color
 import fs2.io.file.{Files, Path}
-import fs2.{text, Pipe, Stream}
+import fs2.{Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus, TestDefinition, TestFile, TestFileDefinitionDictionary}
 import stryker4s.config.Config
 import stryker4s.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
@@ -63,7 +63,8 @@ class MutantRunner(
           for {
             initialTestRunResult <- testRunnerPool.loan.use(testrunner => initialTestRun(testrunner))
             testFiles = createTestFileDictionary(initialTestRunResult)
-            (duration, results) <- runMutants(mutatedFiles, testRunnerPool, initialTestRunResult).timed
+            t <- runMutants(mutatedFiles, testRunnerPool, initialTestRunResult).timed
+            (duration, results) = t
           } yield RunResult(results, testFiles, duration)
         }
       }
@@ -149,8 +150,7 @@ class MutantRunner(
     }.map { case (mutatedFile, targetPath) =>
       Stream(mutatedFile.mutatedSource.printSyntaxFor(config.scalaDialect))
         .covary[IO]
-        .through(text.utf8.encode)
-        .through(Files[IO].writeAll(targetPath))
+        .through(Files[IO].writeUtf8(targetPath))
     }.parJoin(config.concurrency)
 
   private def runMutants(

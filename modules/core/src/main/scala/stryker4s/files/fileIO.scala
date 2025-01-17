@@ -25,8 +25,7 @@ class DiskFileIO() extends FileIO {
   override def createAndWrite(file: Path, content: String): IO[Unit] = {
     Files[IO].createDirectories(file.parent.get) *>
       Stream(content)
-        .through(text.utf8.encode)
-        .through(Files[IO].writeAll(file))
+        .through(Files[IO].writeUtf8(file))
         .compile
         .drain
   }

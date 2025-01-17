@@ -2,15 +2,16 @@ package stryker4s.sbt
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{Deferred, IO}
-import sbt.*
 import sbt.Keys.*
 import sbt.plugins.*
+import sbt.{given, *}
 import stryker4s.config.DashboardReportType
 import stryker4s.config.source.CliConfigSource
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
 import stryker4s.sbt.*
 import sttp.model.Uri
+import xsbti.FileConverter
 
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.Dialect
@@ -134,14 +135,15 @@ object Stryker4sPlugin extends AutoPlugin {
       )
     }
 
-    val sbtConfig = SbtConfigSource().value
+    val sbtConfig = SbtConfigSource[IO]().value
 
     Def.task {
       implicit val runtime: IORuntime = IORuntime.global
       implicit val logger: Logger = new SbtLogger(sbtLog)
+      implicit val conv: FileConverter = fileConverter.value
       val parsed = sbt.complete.DefaultParsers.spaceDelimited("<arg>").parsed
-
-      val extraConfigSources = List(sbtConfig, new CliConfigSource(parsed))
+      val cliConfig = new CliConfigSource(parsed)
+      val extraConfigSources = List(sbtConfig, cliConfig)
 
       Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
         .map(new Stryker4sSbtRunner(state.value, _, extraConfigSources))

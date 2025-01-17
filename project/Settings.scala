@@ -1,9 +1,9 @@
 import Release.*
 import org.typelevel.sbt.tpolecat.*
 import org.typelevel.scalacoptions.*
+import sbt.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
-import sbt.*
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
 import TpolecatPlugin.autoImport.*
@@ -27,8 +27,7 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
-    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("11")),
-    Test / tpolecatExcludeOptions += ScalacOptions.warnNonUnitStatement
+    tpolecatScalacOptions ++= Set(ScalacOptions.source3, ScalacOptions.release("11"))
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(

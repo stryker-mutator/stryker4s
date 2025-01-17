@@ -1,9 +1,10 @@
 package stryker4s.mutation
 
 import cats.syntax.option.*
+import stryker4s.extension.TreeExtensions.IsEqualExtension
 
 import scala.meta.Term.*
-import scala.meta.{Term, Type}
+import scala.meta.{Lit, Term, Type}
 
 /** Base trait for method calls with one or multiple argument(s)
   */
@@ -44,7 +45,8 @@ sealed trait ArgMethodExpression extends MethodExpression {
         Option((term, name => Apply.After_4_6_0(Term.Select(q, Name(name)), ArgClause(arg :: Nil, clause))))
 
       // foo filter( a => a > 0 )
-      case ApplyInfix.After_4_6_0(q, Name(`methodName`), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause)) =>
+      case ApplyInfix.After_4_6_0(q, Name(`methodName`), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause))
+          if !arg.isEqual(Lit.Unit()) =>
         Option(
           (term, name => ApplyInfix.After_4_6_0(q, Name(name), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause)))
         )

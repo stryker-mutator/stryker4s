@@ -8,7 +8,7 @@ sealed trait IgnoredMutationReason {
 
 /** A mutation was excluded through user configuration
   */
-final case object MutationExcluded extends IgnoredMutationReason {
+case object MutationExcluded extends IgnoredMutationReason {
   def explanation: String = "Mutation was excluded by user configuration"
 }
 

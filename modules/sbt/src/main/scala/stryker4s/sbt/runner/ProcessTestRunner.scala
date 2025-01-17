@@ -3,7 +3,7 @@ package stryker4s.sbt.runner
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import com.comcast.ip4s.{IpLiteralSyntax, Port, SocketAddress}
+import com.comcast.ip4s.{Host, Port, SocketAddress}
 import fs2.io.net.Network
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
@@ -17,6 +17,7 @@ import stryker4s.run.process.ProcessResource
 import stryker4s.testrunner.api.*
 
 import java.net.ConnectException
+import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 import scala.sys.process.Process
@@ -106,7 +107,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
   private val classPathSeparator = java.io.File.pathSeparator
 
   def newProcess(
-      classpath: Seq[String],
+      classpath: Seq[Path],
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
@@ -117,11 +118,11 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .map(new ProcessTestRunner(_))
 
   def createProcess(
-      classpath: Seq[String],
+      classpath: Seq[Path],
       javaOpts: Seq[String],
       port: Port
   )(implicit log: Logger, config: Config): Resource[IO, Process] = {
-    val classpathString = classpath.mkString(classPathSeparator)
+    val classpathString = classpath.map(_.toString()).mkString(classPathSeparator)
     val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
 
     val logger: String => Unit =
@@ -147,7 +148,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
   }
 
   private def connectToProcess(port: Port)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
-    val socketAddress = SocketAddress(host"127.0.0.1", port)
+    val socketAddress = SocketAddress(Host.fromString("127.0.0.1").get, port)
 
     Network[IO]
       .client(socketAddress)

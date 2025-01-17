@@ -26,15 +26,15 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
               NonEmptyVector
                 .one(
                   MutatedCode(
-                    q"foo",
+                    Term.Name("foo"),
                     MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)), none)
                   )
                 )
                 .asRight[IgnoredMutations]
         }
       }
-      val sut = new MutantCollector(new TraverserStub(q"foo"), matcher)
-      val tree = q"def bar = 15 > 14"
+      val sut = new MutantCollector(new TraverserStub(Term.Name("foo")), matcher)
+      val tree = "def bar = 15 > 14".parseDef
 
       val (_, results) = sut(tree)
       val onEnterCalled = onEnterCounter.get()
@@ -52,12 +52,12 @@ class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
   }
 
   describe("apply") {
-    implicit val config = Config.default
+    implicit val config: Config = Config.default
 
     test("should return the mutated code") {
 
       val sut = new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl())
-      val tree = q"def bar = 15 > 14"
+      val tree = "def bar = 15 > 14".parseStat
 
       val (ignored, found) = sut(tree)
       assertEquals(ignored, Vector.empty)

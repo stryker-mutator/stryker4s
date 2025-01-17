@@ -71,16 +71,14 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   def mutantToCase(mutant: MutantWithId): Case = {
     val newTree = mutant.mutatedCode.mutatedStatement.asInstanceOf[Term]
 
-    buildCase(newTree, options.pattern(mutant.id.value))
+    Case(options.pattern(mutant.id.value), none, newTree)
   }
 
   def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]): Case =
-    p"case _ if ${options.condition.mapApply(mutantIds.map(_.value))} => ${placeableTree.tree.asInstanceOf[Term]}"
-
-  def buildCase(expression: Term, pattern: Pat): Case = p"case $pattern => $expression"
+    Case(Pat.Wildcard(), options.condition.mapApply(mutantIds.map(_.value)), placeableTree.tree.asInstanceOf[Term])
 
   def buildMatch(cases: NonEmptyVector[Case]): Term.Match =
-    q"(${options.mutationContext} match { ..case ${cases.toList} })"
+    Term.Match.After_4_4_5(options.mutationContext, cases.toList)
 
   /** Removes any mutants that are in the same range as a compile error
     */
@@ -88,17 +86,17 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     // Match on mutation switching trees
     case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
       // Filter out any cases that are in the same range as a compile error
-      val newCases = tree.cases.filterNot(caze => errors.exists(compileErrorIsInCaseStatement(caze, _)))
+      val newCases = tree.casesBlock.cases.filterNot(caze => errors.exists(compileErrorIsInCaseStatement(caze, _)))
 
       tree.copy(cases = newCases)
   }
 
   def mutantIdsForCompileErrors(tree: Tree, errors: NonEmptyList[CompilerErrMsg]) = {
-    val mutationSwitchingCases = tree.collect {
+    val mutationSwitchingCases: List[Case] = tree.collect {
       // Match on mutation switching trees
       case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
         // Filter out default case as it's not mutated
-        tree.cases.filterNot(c => c.pat.isEqual(p"_"))
+        tree.casesBlock.cases.filterNot(_.pat.isEqual(Pat.Wildcard()))
     }.flatten
 
     errors

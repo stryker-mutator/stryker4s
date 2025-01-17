@@ -13,8 +13,6 @@ import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.TestData
 import stryker4s.testutil.stubs.{ReporterStub, RollbackHandlerStub, TestFileResolver, TestRunnerStub}
 
-import scala.meta.*
-
 class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
   val baseDir = FileUtil.getResource("scalaFiles")
@@ -27,7 +25,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
   describe("apply") {
 
-    implicit val config = Config.default.copy(baseDir = baseDir)
+    implicit val config: Config = Config.default.copy(baseDir = baseDir)
 
     val staticTmpDirConfig = config.copy(staticTmpDir = true)
     val noCleanTmpDirConfig = staticTmpDirConfig.copy(cleanTmpDir = false)
@@ -53,14 +51,17 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       val sut = new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+      val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
       sut(Vector(mutatedFile)).asserting { case RunResult(results, _, _) =>
         assertLoggedInfo("Setting up mutated environment...")
         assertLoggedInfo("Starting initial test run...")
         assertLoggedInfo("Initial test run succeeded! Testing mutants...")
         val (path, resultForFile) = results.loneElement
         assertEquals(path, file)
-        assertEquals(resultForFile.map(_.status), Seq(MutantStatus.Killed, MutantStatus.Survived, MutantStatus.Killed))
+        assertEquals(
+          resultForFile.map(_.status),
+          Vector(MutantStatus.Killed, MutantStatus.Survived, MutantStatus.Killed)
+        )
       }
     }
 
@@ -71,7 +72,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       val compileErrorResult = thirdMutant.toMutantResult(MutantStatus.CompileError)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.of(mutant, secondMutant, thirdMutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+      val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
       val fileCollectorStub = new TestFileResolver(Seq.empty)
       val reporterStub = ReporterStub()
@@ -98,7 +99,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         assertLoggedInfo("Attempting to remove 1 mutant(s) that gave a compile error...")
         assertEquals(
           resultForFile.map(_.status),
-          Seq(MutantStatus.Killed, MutantStatus.Killed, MutantStatus.CompileError)
+          Vector(MutantStatus.Killed, MutantStatus.Killed, MutantStatus.CompileError)
         )
       }
     }
@@ -119,7 +120,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(staticTmpDirConfig, testLogger)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+      val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
       sut(Vector(mutatedFile)) *>
         // Cleaned up after run
@@ -138,7 +139,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(staticTmpDirConfig, testLogger)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+      val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
       sut(Vector(mutatedFile))
         .interceptMessage[InitialTestRunFailedException](
@@ -158,7 +159,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
         new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(noCleanTmpDirConfig, testLogger)
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
-      val mutatedFile = MutatedFile(file, q"def foo = 4", mutants)
+      val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
       sut(Vector(mutatedFile)) *>
         Files[IO].exists(staticTmpDir).assertEquals(true)

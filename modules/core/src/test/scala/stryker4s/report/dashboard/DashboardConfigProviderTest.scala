@@ -14,12 +14,12 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
 
   describe("resolveConfig") {
     test("should resolve a Travis environment") {
-      implicit val config = Config.default
+      implicit val config: Config = Config.default
       implicit val env: Env[Id] = EnvStub.makeEnv[Id](
-        "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
-        "TRAVIS" -> "true",
-        "TRAVIS_REPO_SLUG" -> "travisRepo/slug",
-        "TRAVIS_BRANCH" -> "travisBranch"
+        ("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"),
+        ("TRAVIS", "true"),
+        ("TRAVIS_REPO_SLUG", "travisRepo/slug"),
+        ("TRAVIS_BRANCH", "travisBranch")
       )
       val sut = DashboardConfigProvider[Id]()
 
@@ -40,13 +40,13 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should resolve a CircleCI environment") {
-      implicit val config = Config.default
-      implicit val env = EnvStub.makeEnv[Id](
-        "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
-        "CIRCLECI" -> "true",
-        "CIRCLE_PROJECT_USERNAME" -> "circleUsername",
-        "CIRCLE_PROJECT_REPONAME" -> "circleRepoName",
-        "CIRCLE_BRANCH" -> "circleBranch"
+      implicit val config: Config = Config.default
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](
+        ("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"),
+        ("CIRCLECI", "true"),
+        ("CIRCLE_PROJECT_USERNAME", "circleUsername"),
+        ("CIRCLE_PROJECT_REPONAME", "circleRepoName"),
+        ("CIRCLE_BRANCH", "circleBranch")
       )
       val sut = DashboardConfigProvider[Id]()
 
@@ -67,8 +67,8 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should resolve a GitHub actions environment") {
-      implicit val config = Config.default
-      implicit val env = EnvStub.makeEnv[Id](
+      implicit val config: Config = Config.default
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](
         "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
         "GITHUB_ACTION" -> "true",
         "GITHUB_REPOSITORY" -> "github/repo",
@@ -92,8 +92,8 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should resolve a GitHub actions PR environment") {
-      implicit val config = Config.default
-      implicit val env = EnvStub.makeEnv[Id](
+      implicit val config: Config = Config.default
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](
         "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
         "GITHUB_ACTION" -> "true",
         "GITHUB_REPOSITORY" -> "github/repo",
@@ -117,7 +117,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should resolve a configured environment") {
-      implicit val config = Config.default.copy(
+      implicit val config: Config = Config.default.copy(
         dashboard = Config.default.dashboard.copy(
           baseUrl = uri"https://baseUrl.com",
           reportType = MutationScoreOnly,
@@ -126,7 +126,7 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
           module = "moduleHere".some
         )
       )
-      implicit val env = EnvStub.makeEnv[Id](
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](
         "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere"
       )
       val sut = DashboardConfigProvider[Id]()
@@ -147,14 +147,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should resolve without a module") {
-      implicit val config = Config.default.copy(
+      implicit val config: Config = Config.default.copy(
         dashboard = Config.default.dashboard.copy(
           project = "projectHere".some,
           version = "versionHere".some,
           module = none
         )
       )
-      implicit val env = EnvStub.makeEnv[Id]("STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere")
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"))
       val sut = DashboardConfigProvider[Id]()
 
       val result = sut.resolveConfig()
@@ -173,12 +173,12 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should not resolve a GitHub actions with malformed ref") {
-      implicit val config = Config.default
-      implicit val env = EnvStub.makeEnv[Id](
-        "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
-        "GITHUB_ACTION" -> "true",
-        "GITHUB_REPOSITORY" -> "github/repo",
-        "GITHUB_REF" -> "refs/whatever"
+      implicit val config: Config = Config.default
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](
+        ("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"),
+        ("GITHUB_ACTION", "true"),
+        ("GITHUB_REPOSITORY", "github/repo"),
+        ("GITHUB_REF", "refs/whatever")
       )
       val sut = DashboardConfigProvider[Id]()
 
@@ -188,13 +188,13 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should not resolve empty env variables") {
-      implicit val config = Config.default
-      implicit val env = EnvStub.makeEnv[Id](
-        "STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere",
-        "CIRCLECI" -> "true",
-        "CIRCLE_PROJECT_USERNAME" -> "circleUsername",
-        "CIRCLE_PROJECT_REPONAME" -> "circleRepoName",
-        "CIRCLE_BRANCH" -> ""
+      implicit val config: Config = Config.default
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](
+        ("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"),
+        ("CIRCLECI", "true"),
+        ("CIRCLE_PROJECT_USERNAME", "circleUsername"),
+        ("CIRCLE_PROJECT_REPONAME", "circleRepoName"),
+        ("CIRCLE_BRANCH", "")
       )
       val sut = DashboardConfigProvider[Id]()
 
@@ -204,14 +204,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should not resolve when there is no STRYKER_DASHBOARD_API_KEY environment") {
-      implicit val config = Config.default.copy(
+      implicit val config: Config = Config.default.copy(
         dashboard = Config.default.dashboard.copy(
           project = "projectHere".some,
           version = "versionHere".some,
           module = "moduleHere".some
         )
       )
-      implicit val env = EnvStub.makeEnv[Id]()
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id]()
       val sut = DashboardConfigProvider[Id]()
 
       val result = sut.resolveConfig()
@@ -220,14 +220,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should not resolve when there is no project") {
-      implicit val config = Config.default.copy(
+      implicit val config: Config = Config.default.copy(
         dashboard = Config.default.dashboard.copy(
           project = none,
           version = "versionHere".some,
           module = "moduleHere".some
         )
       )
-      implicit val env = EnvStub.makeEnv[Id]("STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere")
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"))
       val sut = DashboardConfigProvider[Id]()
 
       val result = sut.resolveConfig()
@@ -236,14 +236,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should not resolve when there is no version") {
-      implicit val config = Config.default.copy(
+      implicit val config: Config = Config.default.copy(
         dashboard = Config.default.dashboard.copy(
           project = "projectHere".some,
           version = none,
           module = "moduleHere".some
         )
       )
-      implicit val env = EnvStub.makeEnv[Id]("STRYKER_DASHBOARD_API_KEY" -> "apiKeyHere")
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id](("STRYKER_DASHBOARD_API_KEY", "apiKeyHere"))
       val sut = DashboardConfigProvider[Id]()
 
       val result = sut.resolveConfig()
@@ -252,14 +252,14 @@ class DashboardConfigProviderTest extends Stryker4sSuite {
     }
 
     test("should return all unresolved") {
-      implicit val config = Config.default.copy(
+      implicit val config: Config = Config.default.copy(
         dashboard = Config.default.dashboard.copy(
           project = none,
           version = none,
           module = "moduleHere".some
         )
       )
-      implicit val env = EnvStub.makeEnv[Id]()
+      implicit val env: Env[Id] = EnvStub.makeEnv[Id]()
       val sut = DashboardConfigProvider[Id]()
 
       val result = sut.resolveConfig()
