@@ -1,6 +1,6 @@
 scalaVersion := "2.12.20"
 
-libraryDependencies += "org.scalameta" %% "munit" % "1.0.3" % Test
+libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test
 
 stryker / logLevel := Level.Debug
 
