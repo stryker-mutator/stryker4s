@@ -21,10 +21,9 @@ class ResourcePoolTest extends Stryker4sIOSuite {
               Stream(1, 2, 3).covary[IO].through(pool.run { case (tr, mutant) => tr(mutant) }).compile.drain *>
               // After loan use
               isClosed.get.assertEquals(false)
-          } >> {
+          } >>
           // After pool `Resource` is closed
           isClosed.get.assertEquals(true)
-        }
       }
     }
   }
