@@ -32,7 +32,7 @@ object Dependencies {
 
     val mutationTestingElements = "3.4.0"
 
-    val mutationTestingMetrics = "3.4.1"
+    val mutationTestingMetrics = "3.5.0"
 
     val scalameta = "4.12.7"
 
