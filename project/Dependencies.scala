@@ -6,7 +6,7 @@ object Dependencies {
 
     val scala213 = "2.13.16"
 
-    val scala3 = "3.3.4"
+    val scala3 = "3.3.5"
 
     val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
 
