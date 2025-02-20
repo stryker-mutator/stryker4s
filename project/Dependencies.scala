@@ -4,19 +4,19 @@ object Dependencies {
   object versions {
     val scala212 = "2.12.20"
 
-    val scala213 = "2.13.15"
+    val scala213 = "2.13.16"
 
-    val scala3 = "3.3.4"
+    val scala3 = "3.3.5"
 
     val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
 
     // Test dependencies
-    val munit = "1.0.3"
+    val munit = "1.1.0"
 
     val munitCatsEffect = "2.0.0"
 
     // Direct dependencies
-    val catsCore = "2.12.0"
+    val catsCore = "2.13.0"
 
     val catsEffect = "3.5.7"
 
@@ -30,15 +30,15 @@ object Dependencies {
 
     val fs2 = "3.11.0"
 
-    val mutationTestingElements = "3.4.0"
+    val mutationTestingElements = "3.5.1"
 
-    val mutationTestingMetrics = "3.4.1"
+    val mutationTestingMetrics = "3.5.1"
 
-    val scalameta = "4.12.3"
+    val scalameta = "4.13.1.1"
 
     val slf4j = "2.0.16"
 
-    val sttp = "3.10.2"
+    val sttp = "3.10.3"
 
     val testInterface = "1.0"
 
