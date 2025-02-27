@@ -44,7 +44,7 @@ object Dependencies {
 
     val weaponRegeX = "1.3.2"
 
-    val decline = "2.4.1"
+    val decline = "2.5.0"
   }
 
   object test {
@@ -56,6 +56,7 @@ object Dependencies {
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val ciris = "is.cir" %% "ciris" % versions.ciris
+  val decline = "com.monovore" %% "decline" % versions.decline
   val fansi = "com.lihaoyi" %% "fansi" % versions.fansi
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
@@ -75,6 +76,5 @@ object Dependencies {
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "fs2" % versions.sttp
   val testInterface = "org.scala-sbt" % "test-interface" % versions.testInterface
   val weaponRegeX = "io.stryker-mutator" %% "weapon-regex" % versions.weaponRegeX
-  val decline = "com.monovore" %% "decline" % versions.decline
 
 }

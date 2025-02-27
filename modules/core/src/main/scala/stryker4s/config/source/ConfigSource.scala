@@ -24,10 +24,15 @@ trait ConfigSource[+F[_]] {
   def priority: ConfigOrder
 
   def mutate: ConfigValue[F, Seq[String]]
+
   def testFilter: ConfigValue[F, Seq[String]]
+
   def baseDir: ConfigValue[F, Path]
+
   def reporters: ConfigValue[F, Seq[ReporterType]]
+
   def files: ConfigValue[F, Seq[String]]
+
   def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]]
 
   def thresholdsHigh: ConfigValue[F, Int]
@@ -47,8 +52,6 @@ trait ConfigSource[+F[_]] {
   def scalaDialect: ConfigValue[F, Dialect]
   def concurrency: ConfigValue[F, Int]
 
-  def openReport: ConfigValue[F, Boolean]
-
   def debugLogTestRunnerStdout: ConfigValue[F, Boolean]
   def debugDebugTestRunner: ConfigValue[F, Boolean]
 
@@ -57,6 +60,10 @@ trait ConfigSource[+F[_]] {
 
   def testRunnerCommand: ConfigValue[F, String]
   def testRunnerArgs: ConfigValue[F, String]
+
+  def openReport: ConfigValue[F, Boolean]
+
+  def showHelpMessage: ConfigValue[F, Option[String]]
 
   protected def notSupported[A](implicit key: sourcecode.Name): ConfigValue[F, A] =
     ConfigValue.missing(s"Key ${key.value} is not supported by $name")
