@@ -77,4 +77,6 @@ class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] {
 
   override def openReport: ConfigValue[F, Boolean] = notSupported
 
+  override def showHelpMessage: ConfigValue[F, Option[String]] = notSupported
+
 }

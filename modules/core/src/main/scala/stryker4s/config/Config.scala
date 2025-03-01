@@ -31,7 +31,8 @@ final case class Config(
     staticTmpDir: Boolean,
     cleanTmpDir: Boolean,
     testRunner: Command,
-    openReport: Boolean
+    openReport: Boolean,
+    showHelpMessage: Option[String]
 )
 
 object Config {

@@ -14,7 +14,7 @@ import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstr
 import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
-import stryker4s.run.threshold.ScoreStatus
+import stryker4s.run.threshold.{ScoreStatus, SuccessStatus}
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.fs2.HttpClientFs2Backend
 import sttp.client3.logging.LoggingBackend
@@ -23,29 +23,36 @@ import sttp.model.HeaderNames
 abstract class Stryker4sRunner(implicit log: Logger) {
   def run(): IO[ScoreStatus] =
     ConfigLoader.loadAll[IO](extraConfigSources).flatMap { implicit config =>
-      val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
-      val reporter = new AggregateReporter(resolveReporters())
-
-      val instrumenter = new MutantInstrumenter(instrumenterOptions)
-
-      val stryker4s = new Stryker4s(
-        GlobFileResolver.forMutate(),
-        new Mutator(
-          new MutantFinder(),
-          new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
-          instrumenter
-        ),
-        new MutantRunner(
-          createTestRunnerPool,
-          GlobFileResolver.forFiles(),
-          RollbackHandler(instrumenter),
-          reporter
-        ),
-        reporter
-      )
-
-      stryker4s.run()
+      config.showHelpMessage match {
+        case Some(helpMessage) => IO(log.info(helpMessage)).as(SuccessStatus)
+        case None              => executeStryker(config)
+      }
     }
+
+  private def executeStryker(implicit config: Config): IO[ScoreStatus] = {
+    val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
+    val reporter = new AggregateReporter(resolveReporters())
+
+    val instrumenter = new MutantInstrumenter(instrumenterOptions)
+
+    val stryker4s = new Stryker4s(
+      GlobFileResolver.forMutate(),
+      new Mutator(
+        new MutantFinder(),
+        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
+        instrumenter
+      ),
+      new MutantRunner(
+        createTestRunnerPool,
+        GlobFileResolver.forFiles(),
+        RollbackHandler(instrumenter),
+        reporter
+      ),
+      reporter
+    )
+
+    stryker4s.run()
+  }
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
