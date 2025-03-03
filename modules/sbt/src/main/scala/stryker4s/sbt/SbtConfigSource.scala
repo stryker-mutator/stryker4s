@@ -161,6 +161,7 @@ object SbtConfigSource {
       override def testRunnerCommand: ConfigValue[F, String] = notSupported
       override def testRunnerArgs: ConfigValue[F, String] = notSupported
 
+      override def showHelpMessage: ConfigValue[F, Option[String]] = notSupported
     }
   }
 }
