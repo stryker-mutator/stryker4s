@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.17.0](https://github.com/stryker-mutator/stryker4s/compare/v0.16.1...v0.17.0) (2025-03-10)
+
+
+### Features
+
+* better CLI parsing ([#1711](https://github.com/stryker-mutator/stryker4s/issues/1711)) ([27a9b4a](https://github.com/stryker-mutator/stryker4s/commit/27a9b4a21b2a6abc9b9cf0f43f37a46a28569a93))
+* **config:** add CLI and build tool config support ([#1643](https://github.com/stryker-mutator/stryker4s/issues/1643)) ([9fcc1b1](https://github.com/stryker-mutator/stryker4s/commit/9fcc1b176f5dbf7a838baf025bb1a1a80a9ffbe2))
+* **config:** support scala 3.4 and 3.5 dialect ([#1654](https://github.com/stryker-mutator/stryker4s/issues/1654)) ([c9ed5ac](https://github.com/stryker-mutator/stryker4s/commit/c9ed5ac6df9b597d5a7f55abc4622941d2c5bc04))
+* **config:** support scala 3.6 dialect ([#1681](https://github.com/stryker-mutator/stryker4s/issues/1681)) ([299875b](https://github.com/stryker-mutator/stryker4s/commit/299875b917a4c5e94fbd6bbb57eb68f6d35123a3))
+* **conf:** open report automatically ([#1430](https://github.com/stryker-mutator/stryker4s/issues/1430)) ([b58b851](https://github.com/stryker-mutator/stryker4s/commit/b58b8512aec6fc100ea3ee9e24ef822291986c32))
+* cross-publish to scala 3 ([#1651](https://github.com/stryker-mutator/stryker4s/issues/1651)) ([c9c3c1d](https://github.com/stryker-mutator/stryker4s/commit/c9c3c1d1e7d49ab15136ac00e0d44cb5c0ea128a))
+
+
+### Bug Fixes
+
+* compatibility with sbt-crossproject ([#1648](https://github.com/stryker-mutator/stryker4s/issues/1648)) ([3879b63](https://github.com/stryker-mutator/stryker4s/commit/3879b63b8c623b8626643390847355d5d70844d9))
+* disable fatal-warnings scalacOption when mutating ([#1680](https://github.com/stryker-mutator/stryker4s/issues/1680)) ([0b1db17](https://github.com/stryker-mutator/stryker4s/commit/0b1db172593c4148074587e6abfd7d0f3e821adf))
+* mutate glob ([a933e7b](https://github.com/stryker-mutator/stryker4s/commit/a933e7b1377b160117dfd32e875f125b5ce5e885))
+
 ## [0.16.1](https://github.com/stryker-mutator/stryker4s/compare/v0.16.0...v0.16.1) (2024-04-18)
 
 
