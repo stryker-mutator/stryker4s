@@ -1,20 +1,22 @@
 package stryker4s.report
 
 import cats.data.NonEmptyChain
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import cats.syntax.all.*
 import fansi.Bold
 import fansi.Color.Red
 import fs2.io.file.Path
+import io.circe.Json
+import io.circe.syntax.*
 import mutationtesting.*
+import mutationtesting.circe.*
 import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.config.{Full, MutationScoreOnly}
-import stryker4s.report.model.{DashboardConfig, DashboardPutResult}
+import stryker4s.report.model.DashboardConfig
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.stubs.DashboardConfigProviderStub
-import sttp.client3.*
-import sttp.client3.testing.SttpBackendStub
-import sttp.model.{Header, MediaType, Method, StatusCode}
+import sttp.client4.*
+import sttp.model.{Header, MediaType, Method}
 
 import scala.concurrent.duration.*
 
@@ -29,11 +31,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
 
       val request = sut.buildRequest(dashConfig, report, metrics)
       assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
-      val jsonBody = {
-        import mutationtesting.circe.*
-        import io.circe.syntax.*
-        report.asJson.noSpaces
-      }
+      val jsonBody = report.asJson.noSpaces
+
       assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
       assertEquals(request.method, Method.PUT)
       assertSameElements(
@@ -41,7 +40,8 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
         List(
           Header.acceptEncoding("gzip, deflate"),
           new Header("X-Api-Key", "apiKeyHere"),
-          Header.contentType(MediaType.ApplicationJson)
+          Header.contentType(MediaType.ApplicationJson),
+          Header.contentLength(jsonBody.length().toLong)
         )
       )
     }
@@ -76,7 +76,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
     test("should send the request") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
-          .thenRespond(Right(DashboardPutResult("https://hrefHere.com")))
+          .thenRespondAdjust(Json.obj(("href", Json.fromString("https://hrefHere.com"))).noSpaces)
       )
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
       val sut = new DashboardReporter(dashConfigProvider)
@@ -105,7 +105,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
     }
 
     test("should log when a response can't be parsed to a href") {
-      implicit val backend = backendStub.map(_.whenAnyRequest.thenRespond("some other response"))
+      implicit val backend = backendStub.map(_.whenAnyRequest.thenRespondAdjust("some other response"))
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
       val sut = new DashboardReporter(dashConfigProvider)
       val runReport = baseResults
@@ -122,7 +122,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
     test("should log when a 401 is returned by the API") {
       implicit val backend = backendStub.map(
         _.whenAnyRequest
-          .thenRespond(Response(Left(HttpError("auth required", StatusCode.Unauthorized)), StatusCode.Unauthorized))
+          .thenRespondUnauthorized()
       )
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
       val sut = new DashboardReporter(dashConfigProvider)
@@ -132,7 +132,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
         .onRunFinished(runReport)
         .asserting { _ =>
           assertLoggedError(
-            s"Error HTTP PUT 'auth required'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+            s"Error HTTP PUT 'Unauthorized'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
                 .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
           )
         }
@@ -141,9 +141,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
     test("should log when a error code is returned by the API") {
       implicit val backend =
         backendStub.map(
-          _.whenAnyRequest.thenRespond(
-            Response(Left(HttpError("internal error", StatusCode.InternalServerError)), StatusCode.InternalServerError)
-          )
+          _.whenAnyRequest.thenRespondServerError()
         )
       val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
       val sut = new DashboardReporter(dashConfigProvider)
@@ -153,14 +151,14 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
         .onRunFinished(runReport)
         .asserting { _ =>
           assertLoggedError(
-            s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'internal error'"
+            s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'Internal Server Error'"
           )
         }
     }
   }
 
   def backendStub =
-    Resource.pure[IO, SttpBackendStub[IO, Any]](sttp.client3.httpclient.fs2.HttpClientFs2Backend.stub[IO])
+    sttp.client4.httpclient.fs2.HttpClientFs2Backend.stub[IO].pure[IO].toResource
 
   def baseResults = {
     val files =
