@@ -15,7 +15,7 @@ import scala.meta.Dialect
 import Stryker4sPlugin.autoImport.*
 
 object SbtConfigSource {
-  def apply[F[_]]() = Def.setting[ConfigSource[F]] {
+  def apply[F[_]]() = Def.task[ConfigSource[F]] {
     new ConfigSource[F] with CirisConfigDecoders {
 
       override def name: String = "sbt settings"
