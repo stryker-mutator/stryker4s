@@ -6,6 +6,7 @@ import sbt.Keys.*
 import sbt.plugins.*
 import sbt.{given, *}
 import stryker4s.config.DashboardReportType
+import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.CliConfigSource
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
@@ -14,7 +15,7 @@ import sttp.model.Uri
 import xsbti.FileConverter
 
 import scala.concurrent.duration.FiniteDuration
-import scala.meta.Dialect
+import scala.meta.{dialects, Dialect}
 
 /** This plugin adds a new task (stryker) to the project that allows you to run mutation testing over your code
   */
@@ -56,7 +57,7 @@ object Stryker4sPlugin extends AutoPlugin {
     )
     val strykerMaxTestRunnerReuse = settingKey[Int]("Restart the testrunner after every `n` runs.")
     val strykerLegacyTestRunner = settingKey[Boolean]("Use the legacy test runner (not recommended)")
-    val strykerScalaDialect = settingKey[Dialect]("Dialect for parsing Scala files")
+    val strykerScalaDialect = taskKey[Dialect]("Dialect for parsing Scala files")
     val strykerConcurrency = settingKey[Int]("Number of testrunners to start")
     val strykerDebugLogTestRunnerStdout = settingKey[Boolean]("Log test-runner output to debug log")
     val strykerDebugDebugTestRunner = settingKey[Boolean]("Pass JVM debugging parameters to the test-runner")
@@ -82,7 +83,8 @@ object Stryker4sPlugin extends AutoPlugin {
     strykerFiles := getSourceDirectories("**").value,
     strykerDashboardProject := scmInfo.value.flatMap(toDashboardProject),
     strykerDashboardVersion := gitCurrentBranch.?.value.filterNot(_.isBlank()),
-    strykerDashboardModule := normalizedName.value
+    strykerDashboardModule := normalizedName.value,
+    strykerScalaDialect := getStrykerScalaDialect.value
   )
 
   /** Dynamically load git-current-branch from sbt-git if it is installed, for the dashboard version config
@@ -108,6 +110,23 @@ object Stryker4sPlugin extends AutoPlugin {
       .orElse(projectMatrixBaseDirectory.?.value)
       .orElse(sourceDirectory.?.value.flatMap(f => if (f.getName() == "src") Option(f.getParentFile) else none))
       .getOrElse(baseDirectory.value)
+  }
+
+  /** Get the Scala dialect for the current Scala version.
+    */
+  private def getStrykerScalaDialect = Def.task[Dialect] {
+    val hasSource3 = (Compile / scalacOptions).value.exists(_.startsWith("-Xsource:3"))
+    val reader = (major: Long, minor: Long, hasSource3: Boolean) =>
+      new CirisConfigDecoders {}.dialectReader
+        .decode(none, s"scala$major$minor${if (hasSource3) "source3" else ""}")
+        .toOption
+    CrossVersion
+      .partialVersion((Compile / scalaVersion).value)
+      .flatMap {
+        case (3, minor)     => reader(3, minor, false).orElse(dialects.Scala3.some)
+        case (major, minor) => reader(major, minor, hasSource3)
+      }
+      .getOrElse(if (hasSource3) dialects.Scala213Source3 else dialects.Scala213)
   }
 
   /** Parse scmInfo to a dashboard project identifier, using the format of `gitProvider/organization/repository`.
