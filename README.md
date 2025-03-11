@@ -60,7 +60,7 @@ Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapsho
 
 ## Configuration
 
-See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configuration) for setting up your `stryker4s.conf` file (optional).
+See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configuration) for all the configuration options available in Stryker4s.
 
 ## Supported mutators
 
