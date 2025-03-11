@@ -18,7 +18,7 @@ addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % stryker4sVersion)
 
 ## 2 Configure
 
-Stryker4s will look for a `stryker4s.conf` file in the root of your project. If found, it will use the configured values. All arguments in the configuration (and the file itself) are optional. You can find the possible values in the [configuration](./configuration.md) page.
+Stryker4s can be configured in multiple ways. You can use sbt settings, a configuration file, or command-line arguments. Stryker4s will set defaults for some values, and retrieve project information from your sbt build for others. For more information on how to configure Stryker4s, visit our [configuration page](./configuration.md).
 
 ## 3 Let's kill some mutants
 
