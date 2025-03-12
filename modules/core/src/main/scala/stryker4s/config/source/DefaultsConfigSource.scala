@@ -4,7 +4,7 @@ import cats.syntax.option.*
 import ciris.ConfigValue
 import fs2.io.file.Path
 import stryker4s.config.*
-import sttp.client4.UriContext
+import sttp.client3.UriContext
 import sttp.model.Uri
 
 import scala.concurrent.duration.*

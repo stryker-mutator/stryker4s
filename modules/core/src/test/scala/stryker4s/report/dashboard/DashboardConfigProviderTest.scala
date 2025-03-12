@@ -8,7 +8,7 @@ import stryker4s.config.{Config, Full, MutationScoreOnly}
 import stryker4s.report.model.DashboardConfig
 import stryker4s.testkit.Stryker4sSuite
 import stryker4s.testutil.stubs.EnvStub
-import sttp.client4.UriContext
+import sttp.client3.UriContext
 
 class DashboardConfigProviderTest extends Stryker4sSuite {
 
