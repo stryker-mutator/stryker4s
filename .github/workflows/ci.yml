@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         run: sbt 'compile; ++2.13 test'
   sbt-scripted:
-    name: sbt plugin scripted tests
+    name: sbt 1 plugin scripted tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,15 @@ jobs:
           # Sbt version that is tested (1.7.0) doesn't work on Java 21
           java-version: 17
       - name: Run tests
-        run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin/scripted; sbtPlugin3/scripted'
+        run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin/scripted'
+  sbt-scripted-2:
+    name: sbt 2 plugin scripted tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/setup
+      - name: Run tests
+        run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin3/scripted'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
@@ -65,7 +73,7 @@ jobs:
       - name: Test formatting
         run: ./bin/scalafmt --test
   release:
-    needs: [test, sbt-scripted, maven-plugin, formatting]
+    needs: [test, sbt-scripted, sbt-scripted-2, maven-plugin, formatting]
     if: ${{ github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:
