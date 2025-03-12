@@ -9,7 +9,7 @@ import stryker4s.config.codec.Hocon
 import stryker4s.config.{ExcludedMutation, Html, MutationScoreOnly}
 import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.ExampleConfigs
-import sttp.client4.UriContext
+import sttp.client3.*
 
 import scala.concurrent.duration.*
 import scala.meta.dialects.*

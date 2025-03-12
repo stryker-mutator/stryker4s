@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import fs2.io.file.Path
 import stryker4s.config.*
 import stryker4s.testkit.Stryker4sIOSuite
-import sttp.client4.UriContext
+import sttp.client3.*
 
 import scala.concurrent.duration.*
 import scala.meta.dialects
