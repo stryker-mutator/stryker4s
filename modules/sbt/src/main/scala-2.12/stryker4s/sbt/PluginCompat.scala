@@ -1,4 +1,4 @@
-package stryker4s
+package stryker4s.sbt
 
 import _root_.sbt.*
 import xsbti.FileConverter

@@ -5,7 +5,7 @@ import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Keys.*
 import sbt.Tests.Output
 import sbt.{given, *}
-import stryker4s.PluginCompat
+import stryker4s.sbt.PluginCompat
 import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
 import stryker4s.model.*

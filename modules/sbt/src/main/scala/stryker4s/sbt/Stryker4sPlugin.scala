@@ -10,7 +10,6 @@ import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.CliConfigSource
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
-import stryker4s.sbt.*
 import sttp.model.Uri
 import xsbti.FileConverter
 
@@ -134,7 +133,7 @@ object Stryker4sPlugin extends AutoPlugin {
     * E.g. `github.com/stryker-mutator/stryker4s`
     */
   private def toDashboardProject(scmInfo: ScmInfo): Option[String] = {
-    val uri = Uri(scmInfo.browseUrl.toURI())
+    val uri = toSttpUri(scmInfo.browseUrl)
     for {
       base <- uri.host
       if base.startsWith("github.com")
@@ -178,4 +177,7 @@ object Stryker4sPlugin extends AutoPlugin {
   private class UnsupportedSbtVersionException(s: String)
       extends IllegalArgumentException(s)
       with FeedbackProvidedException
+
+  private[stryker4s] def toSttpUri(uri: URI): sttp.model.Uri = Uri(uri)
+  private[stryker4s] def toSttpUri(url: URL): sttp.model.Uri = Uri(url.toURI())
 }

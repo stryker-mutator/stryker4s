@@ -48,7 +48,12 @@ object Settings {
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
       Dependencies.weaponRegeX
-    )
+    ),
+    // Scaladoc is buggy on scala 3, so we disable it
+    Compile / doc / sources := (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq.empty
+      case _            => (Compile / doc / sources).value
+    })
   )
 
   lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
@@ -66,7 +71,7 @@ object Settings {
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.7.0"
-        case _      => "2.0.0-M2"
+        case _      => "2.0.0-M4"
       }
     },
     scriptedBufferLog := false

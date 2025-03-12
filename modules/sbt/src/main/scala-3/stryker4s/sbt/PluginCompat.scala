@@ -1,7 +1,7 @@
-package stryker4s
+package stryker4s.sbt
 
 import _root_.sbt.*
-import xsbti.{FileConverter, HashedVirtualFileRef, VirtualFile}
+import xsbti.{FileConverter, HashedVirtualFileRef}
 
 import java.nio.file.Path as NioPath
 import scala.collection.mutable

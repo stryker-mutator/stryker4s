@@ -8,7 +8,6 @@ import fs2.io.file.Path
 import sbt.Keys.*
 import sbt.internal.LogManager
 import sbt.{given, *}
-import stryker4s.PluginCompat
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.exception.TestSetupException
@@ -121,7 +120,7 @@ class Stryker4sSbtRunner(
       }
 
       compilerErrors.toLeft {
-        val classpath = stryker4s.PluginCompat.toNioPaths(extractTaskValue(Test / fullClasspath))
+        val classpath = PluginCompat.toNioPaths(extractTaskValue(Test / fullClasspath))
 
         val javaOpts = extractTaskValue(Test / javaOptions)
 
@@ -203,7 +202,7 @@ class Stryker4sSbtRunner(
     }
 
     def tmpDirFor(source: File, tmpDir: Path): JFile =
-      (Path.fromNioPath(source.toPath()) inSubDir tmpDir).toNioPath.toFile()
+      Path.fromNioPath(source.toPath()).inSubDir(tmpDir).toNioPath.toFile()
 
     val (settings, extracted) = extractSbtProject(tmpDir)
 
