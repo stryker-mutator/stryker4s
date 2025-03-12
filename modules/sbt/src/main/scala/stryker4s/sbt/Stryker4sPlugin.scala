@@ -10,7 +10,6 @@ import stryker4s.config.codec.CirisConfigDecoders
 import stryker4s.config.source.CliConfigSource
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
-import stryker4s.sbt.*
 import sttp.model.Uri
 import xsbti.FileConverter
 

@@ -48,7 +48,12 @@ object Settings {
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
       Dependencies.weaponRegeX
-    )
+    ),
+    // Scaladoc is buggy on scala 3, so we disable it
+    Compile / doc / sources := (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => Seq.empty
+      case _            => (Compile / doc / sources).value
+    })
   )
 
   lazy val commandRunnerSettings: Seq[Setting[?]] = Seq(
