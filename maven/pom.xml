@@ -242,7 +242,6 @@
                                 </goals>
                                 <configuration>
                                     <keyname>strykermutator</keyname>
-                                    <passphrase>${env.PGP_PASSPHRASE}</passphrase>
                                     <!-- For gpg2 -->
                                     <useAgent>true</useAgent>
                                     <gpgArguments>
