@@ -3,13 +3,14 @@ package stryker4s.files
 import fs2.io.file.Path
 import stryker4s.testkit.{FileUtil, Stryker4sIOSuite}
 
+import java.io.File.separator
+
 class GlobFileResolverTest extends Stryker4sIOSuite {
 
   describe("files") {
     val defaultGlob = Seq("**/main/**.scala")
     val filledDirPath: Path = FileUtil.getResource("fileTests/filledDir")
     val basePath: Path = filledDirPath / "src/main/scala"
-    val separator = filledDirPath.toNioPath.getFileSystem.getSeparator
 
     test("should not collect the baseDir") {
       val emptyDir = FileUtil.getResource("fileTests/emptyDir")

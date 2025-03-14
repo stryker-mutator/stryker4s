@@ -3,6 +3,8 @@ package stryker4s.extension
 import fs2.io.file.Path
 import stryker4s.config.Config
 
+import java.io.File
+
 object FileExtensions {
 
   implicit final class PathExtensions(val path: Path) extends AnyVal {
@@ -11,7 +13,14 @@ object FileExtensions {
       *
       * For example, with the file `projectRoot/src/main`, this function will return `src/main`
       */
-    final def relativePath(implicit config: Config): Path = config.baseDir.relativize(path)
+    final def relativePath(implicit config: Config): Path =
+      (config.baseDir.isAbsolute, path.isAbsolute) match {
+        case (true, false) => config.baseDir.relativize(path.absolute)
+        case (false, true) => config.baseDir.absolute.relativize(path)
+        case (true, true)  => config.baseDir.relativize(path)
+        case (false, false) =>
+          Path(path.toString.stripPrefix(config.baseDir.toString + File.separator))
+      }
 
     /** The directory for this file, using `subDir` param as the base-directory instead of the Config base-dir.
       *

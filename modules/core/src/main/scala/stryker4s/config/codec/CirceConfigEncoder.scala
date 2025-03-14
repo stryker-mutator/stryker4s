@@ -47,7 +47,7 @@ trait CirceConfigEncoder {
     )
     .mapJson(_.deepDropNullValues)
 
-  implicit def pathEncoder: Encoder[Path] = Encoder[String].contramap(_.absolute.toString)
+  implicit def pathEncoder: Encoder[Path] = Encoder[String].contramap(_.toString)
   implicit def reporterTypeEncoder: Encoder[ReporterType] = Encoder[String].contramap(_.toString.toLowerCase)
   implicit def thresholdsEncoder: Encoder[Thresholds] =
     Encoder.forProduct3("high", "low", "break")(t => (t.high, t.low, t.break))

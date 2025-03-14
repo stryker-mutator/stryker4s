@@ -5,11 +5,12 @@ import fs2.io.file.Path
 import stryker4s.model.CompilerErrMsg
 import stryker4s.testkit.Stryker4sSuite
 
+import java.io.File.separator
+
 class Stryker4sExceptionTest extends Stryker4sSuite {
   describe("UnableToBuildPatternMatchException") {
     test("should have the correct message") {
       val path = Path("foo/bar.scala")
-      val separator = path.toNioPath.getFileSystem().getSeparator()
       val sut = UnableToBuildPatternMatchException(path)
       assertNoDiff(
         sut.getMessage,

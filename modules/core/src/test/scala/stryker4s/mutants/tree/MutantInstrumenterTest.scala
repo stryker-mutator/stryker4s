@@ -11,12 +11,12 @@ import stryker4s.mutation.{ConditionalTrue, GreaterThan, Mutation, True}
 import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
 import stryker4s.testutil.TestData
 
+import java.io.File.separator
 import scala.meta.*
 
 class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatchers {
 
   val path = Path("foo/bar.scala")
-  val separator = path.toNioPath.getFileSystem().getSeparator()
 
   describe("instrumentFile") {
     test("should transform 2 mutations into a match statement with 2 mutated and 1 original") {

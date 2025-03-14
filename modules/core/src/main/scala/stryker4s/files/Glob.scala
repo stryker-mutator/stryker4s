@@ -3,6 +3,7 @@ package stryker4s.files
 import cats.effect.IO
 import fs2.io.file.{Files, Path}
 
+import java.io.File.separator
 import java.nio.file
 
 object Glob {
@@ -17,8 +18,6 @@ object Glob {
   def matcher(path: Path, patterns: Seq[String]): PathMatcher = {
     val (ignorePatterns, validPatterns) = patterns.partition(_.startsWith("!"))
     val ignorePatternsStripped = ignorePatterns.map(_.stripPrefix("!"))
-
-    val separator = path.toNioPath.getFileSystem().getSeparator()
 
     // Escape start of the path so it is not parsed as part of the glob expression, but as a literal
     val escapedPath = (path.toString + separator)
