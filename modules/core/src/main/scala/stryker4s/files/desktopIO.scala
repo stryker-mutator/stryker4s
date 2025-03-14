@@ -6,6 +6,7 @@ import fs2.io.file.{Files, Path}
 
 import java.awt.Desktop
 import java.io.File
+import scala.sys.process.*
 
 trait DesktopIO {
   def attemptOpen(path: Path): IO[Unit]
@@ -19,7 +20,15 @@ class DesktopFileIO extends DesktopIO {
       }
   }
 
-  def openFile(file: File): IO[Unit] = IO(Desktop.getDesktop.open(file))
+  def openFile(file: File): IO[Unit] =
+    IO(sys.props.get("os.version").exists(_.contains("WSL"))).flatMap { isWsl =>
+      if (isWsl)
+        // Convert to windows-style path with wslpath utility and open with powershell
+        IO.blocking(s"wslpath -ma $file".!!.trim())
+          .flatMap(file => IO.blocking(s"powershell.exe -NoProfile -Command Start-Process file://$file".!!))
+          .void
+      else IO.blocking(Desktop.getDesktop.open(file))
+    }
 
   def isDesktopSupported: IO[Boolean] = IO(
     Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.OPEN)
