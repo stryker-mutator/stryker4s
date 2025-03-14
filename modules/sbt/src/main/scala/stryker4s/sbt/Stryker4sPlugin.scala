@@ -13,6 +13,7 @@ import stryker4s.run.threshold.ErrorStatus
 import sttp.model.Uri
 import xsbti.FileConverter
 
+import java.io.File
 import scala.concurrent.duration.FiniteDuration
 import scala.meta.{dialects, Dialect}
 
@@ -101,7 +102,8 @@ object Stryker4sPlugin extends AutoPlugin {
   private def getSourceDirectories(postfix: String) = Def.setting {
     (Compile / unmanagedSourceDirectories).value
       .flatMap(_.relativeTo(strykerBaseDir.value))
-      .map(file => (file / postfix).toString)
+      // Replace backslashes with forward slashes for glob syntax
+      .map(file => (file / postfix).toString.replace(File.separator, "/"))
   }
 
   private def getStryker4sBaseDir = Def.setting[File] {
