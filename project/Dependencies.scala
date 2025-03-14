@@ -38,7 +38,7 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.5.1"
 
-    val scalameta = "4.13.3"
+    val scalameta = "4.13.4"
 
     val slf4j = "2.0.17"
 
