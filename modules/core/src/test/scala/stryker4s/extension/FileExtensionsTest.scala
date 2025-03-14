@@ -7,7 +7,8 @@ import stryker4s.testkit.Stryker4sSuite
 
 class FileExtensionsTest extends Stryker4sSuite {
 
-  implicit val config: Config = Config.default.copy(baseDir = Path("/home/project/stryker4s"))
+  val absoluteBaseDir = Path(".").absolute
+  implicit val config: Config = Config.default.copy(baseDir = absoluteBaseDir)
 
   describe("relativePath") {
     test("should return the relative path on a file inside the base-dir") {
@@ -27,6 +28,38 @@ class FileExtensionsTest extends Stryker4sSuite {
 
       assertEquals(result, expectedRelativePath)
     }
+
+    test("should return the path if the given path is relative") {
+      val result = Path("src/main").relativePath
+
+      assertEquals(result, Path("src/main"))
+    }
+
+    test("works if both are relative") {
+      val result = (Path("module") / "src" / "main").relativePath(config.copy(baseDir = Path("module")))
+      assertEquals(result, Path("src") / "main")
+    }
+
+    test("works if both are absolute") {
+      val result =
+        (config.baseDir / "module" / "src" / "main").relativePath(config.copy(baseDir = config.baseDir / "module"))
+      assertEquals(result, Path("src/main"))
+    }
+
+    test("works if baseDir is relative and path is absolute") {
+      val result = (absoluteBaseDir / "module" / "src" / "main").relativePath(config.copy(baseDir = Path("module")))
+      assertEquals(result, Path("src/main"))
+    }
+
+    test("works if baseDir is absolute and path is relative") {
+      val result = Path("module/src/main").relativePath(config.copy(baseDir = absoluteBaseDir / "module"))
+      assertEquals(result, Path("src/main"))
+    }
+
+    test("multiple calls doesn't change the path") {
+      val result = Path("src/main").relativePath.relativePath.relativePath
+      assertEquals(result, Path("src/main"))
+    }
   }
 
   describe("inSubDir") {
@@ -37,7 +70,7 @@ class FileExtensionsTest extends Stryker4sSuite {
 
       val result = sut.inSubDir(subDir)
 
-      assertEquals(result, Path("/home/project/stryker4s/target/tmp/src/main"))
+      assertEquals(result, Path("target/tmp/src/main").absolute)
     }
   }
 }

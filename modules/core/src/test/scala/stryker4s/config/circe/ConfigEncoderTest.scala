@@ -10,7 +10,7 @@ import stryker4s.config.codec.CirceConfigEncoder
 import stryker4s.testkit.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
-  val workspaceLocation = Path("workspace").absolute.toString
+  val workspaceLocation = "workspace"
   describe("configEncoder") {
     test("should be able to encode a minimal config") {
       expectJsonConfig(

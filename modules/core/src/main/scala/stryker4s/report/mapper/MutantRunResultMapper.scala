@@ -35,8 +35,8 @@ trait MutantRunResultMapper {
       path.relativePath.toString.replace('\\', '/') -> FileResult(fileContentAsString(path), runResults)
     }
 
-  private def fileContentAsString(path: Path)(implicit config: Config): String =
-    new String(Files.readAllBytes((if (path.isAbsolute) path else config.baseDir / path).toNioPath))
+  private def fileContentAsString(path: Path): String =
+    new String(Files.readAllBytes(path.toNioPath))
 
   private def systemInformation: SystemInformation = SystemInformation(
     ci = sys.env.contains("CI"),
