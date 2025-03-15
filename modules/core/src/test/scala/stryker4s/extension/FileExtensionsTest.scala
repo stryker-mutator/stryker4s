@@ -36,23 +36,23 @@ class FileExtensionsTest extends Stryker4sSuite {
     }
 
     test("works if both are relative") {
-      val result = (Path("module") / "src" / "main").relativePath(config.copy(baseDir = Path("module")))
+      val result = (Path("module") / "src" / "main").relativePath(Path("module"))
       assertEquals(result, Path("src") / "main")
     }
 
     test("works if both are absolute") {
       val result =
-        (config.baseDir / "module" / "src" / "main").relativePath(config.copy(baseDir = config.baseDir / "module"))
+        (config.baseDir / "module" / "src" / "main").relativePath(config.baseDir / "module")
       assertEquals(result, Path("src/main"))
     }
 
     test("works if baseDir is relative and path is absolute") {
-      val result = (absoluteBaseDir / "module" / "src" / "main").relativePath(config.copy(baseDir = Path("module")))
+      val result = (absoluteBaseDir / "module" / "src" / "main").relativePath(Path("module"))
       assertEquals(result, Path("src/main"))
     }
 
     test("works if baseDir is absolute and path is relative") {
-      val result = Path("module/src/main").relativePath(config.copy(baseDir = absoluteBaseDir / "module"))
+      val result = Path("module/src/main").relativePath(absoluteBaseDir / "module")
       assertEquals(result, Path("src/main"))
     }
 

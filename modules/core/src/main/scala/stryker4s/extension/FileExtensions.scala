@@ -13,14 +13,15 @@ object FileExtensions {
       *
       * For example, with the file `projectRoot/src/main`, this function will return `src/main`
       */
-    final def relativePath(implicit config: Config): Path =
-      (config.baseDir.isAbsolute, path.isAbsolute) match {
-        case (true, false) => config.baseDir.relativize(path.absolute)
-        case (false, true) => config.baseDir.absolute.relativize(path)
-        case (true, true)  => config.baseDir.relativize(path)
-        case (false, false) =>
-          Path(path.toString.stripPrefix(config.baseDir.toString + File.separator))
-      }
+    final def relativePath(implicit config: Config): Path = relativePath(config.baseDir)
+
+    final def relativePath(base: Path) = (base.isAbsolute, path.isAbsolute) match {
+      case (true, false) => base.relativize(path.absolute)
+      case (false, true) => base.absolute.relativize(path)
+      case (true, true)  => base.relativize(path)
+      case (false, false) =>
+        Path(path.toString.stripPrefix(base.toString + File.separator))
+    }
 
     /** The directory for this file, using `subDir` param as the base-directory instead of the Config base-dir.
       *
