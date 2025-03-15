@@ -10,6 +10,7 @@ import TpolecatPlugin.autoImport.*
 
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         Seq(
