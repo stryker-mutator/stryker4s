@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/stryker-mutator/stryker4s/compare/v0.17.0...v0.17.1) (2025-03-15)
+
+
+### Bug Fixes
+
+* handle relative paths correctly when fixing compile errors ([#1731](https://github.com/stryker-mutator/stryker4s/issues/1731)) ([c341c20](https://github.com/stryker-mutator/stryker4s/commit/c341c2079b30dd45a4573be289f5499d1472495a))
+
 ## [0.17.0](https://github.com/stryker-mutator/stryker4s/compare/v0.16.1...v0.17.0) (2025-03-14)
 
 
