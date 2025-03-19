@@ -5,6 +5,7 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import com.comcast.ip4s.{Host, Port, SocketAddress}
 import fs2.io.net.Network
+import fs2.io.process.{Process, ProcessBuilder}
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
 import sbt.testing.Framework
@@ -20,7 +21,6 @@ import java.net.ConnectException
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
-import scala.sys.process.Process
 
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
@@ -121,16 +121,16 @@ object ProcessTestRunner extends TestInterfaceMapper {
       classpath: Seq[Path],
       javaOpts: Seq[String],
       port: Port
-  )(implicit log: Logger, config: Config): Resource[IO, Process] = {
+  )(implicit log: Logger, config: Config): Resource[IO, Process[IO]] = {
     val classpathString = classpath.map(_.toString()).mkString(classPathSeparator)
-    val command = Seq("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
+    val command = List("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
 
-    val logger: String => Unit =
-      if (config.debug.logTestRunnerStdout) m => log.debug(s"testrunner $port: $m")
-      else _ => ()
+    val logger: String => IO[Unit] =
+      if (config.debug.logTestRunnerStdout) m => IO(log.debug(s"testrunner $port: $m"))
+      else _ => IO.unit
 
     ProcessResource
-      .fromProcessBuilder(Process(command, config.baseDir.toNioPath.toFile()))(logger)
+      .fromProcessBuilder(ProcessBuilder(command.head, command.tail).withWorkingDirectory(config.baseDir), logger)
       .preAllocate(IO(log.debug(s"Starting process '${command.mkString(" ")}'")))
       .evalTap(_ => IO(log.debug("Started process")))
   }
