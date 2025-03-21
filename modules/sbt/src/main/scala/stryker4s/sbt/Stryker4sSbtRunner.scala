@@ -32,6 +32,7 @@ import Stryker4sPlugin.autoImport.stryker
   */
 class Stryker4sSbtRunner(
     state: State,
+    javaHome: Option[File],
     sharedTimeout: Deferred[IO, FiniteDuration],
     override val extraConfigSources: List[ConfigSource[IO]]
 )(implicit
@@ -156,7 +157,7 @@ class Stryker4sSbtRunner(
         )
 
         portRanges.map { port =>
-          SbtTestRunner.create(classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
+          SbtTestRunner.create(javaHome, classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
         }
       }
     }
