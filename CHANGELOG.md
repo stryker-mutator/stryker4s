@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.17.2](https://github.com/stryker-mutator/stryker4s/compare/v0.17.1...v0.17.2) (2025-03-21)
+
+
+### Bug Fixes
+
+* **CLI:** allow multiple CLI arguments ([#1738](https://github.com/stryker-mutator/stryker4s/issues/1738)) ([f55e244](https://github.com/stryker-mutator/stryker4s/commit/f55e244dc285e18d5b2db26c4b5e31ae249cf49a))
+* **sbt:** use argfile to start new java processes ([#1741](https://github.com/stryker-mutator/stryker4s/issues/1741)) ([5cdd00e](https://github.com/stryker-mutator/stryker4s/commit/5cdd00e04a79f345b5a1ee7d1e7c782c6e9d1f02))
+
 ## [0.17.1](https://github.com/stryker-mutator/stryker4s/compare/v0.17.0...v0.17.1) (2025-03-15)
 
 
