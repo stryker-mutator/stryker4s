@@ -40,6 +40,8 @@ object Dependencies {
 
     val scalameta = "4.13.4"
 
+    val scopt = "4.1.0"
+
     val slf4j = "2.0.17"
 
     val sttp = "3.10.3"
@@ -48,7 +50,6 @@ object Dependencies {
 
     val weaponRegeX = "1.3.2"
 
-    val decline = "2.5.0"
   }
 
   object test {
@@ -60,7 +61,6 @@ object Dependencies {
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val circeCore = "io.circe" %% "circe-core" % versions.circe
   val ciris = "is.cir" %% "ciris" % versions.ciris
-  val decline = "com.monovore" %% "decline" % versions.decline
   val fansi = "com.lihaoyi" %% "fansi" % versions.fansi
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
@@ -75,6 +75,7 @@ object Dependencies {
     .exclude("com.thesamet.scalapb", "scalapb-runtime_2.13")
   val scalapbRuntime =
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
+  val scopt = "com.github.scopt" %% "scopt" % versions.scopt
   val slf4j = "org.slf4j" % "slf4j-simple" % versions.slf4j
   val sttpCirce = "com.softwaremill.sttp.client3" %% "circe" % versions.sttp
   val sttpFs2Backend = "com.softwaremill.sttp.client3" %% "fs2" % versions.sttp
