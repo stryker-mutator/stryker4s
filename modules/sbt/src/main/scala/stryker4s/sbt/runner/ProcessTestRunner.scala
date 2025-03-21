@@ -4,6 +4,9 @@ import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import com.comcast.ip4s.{Host, Port, SocketAddress}
+import fs2.Stream
+import fs2.io.file
+import fs2.io.file.Files
 import fs2.io.net.Network
 import fs2.io.process.{Process, ProcessBuilder}
 import mutationtesting.{MutantResult, MutantStatus}
@@ -17,6 +20,7 @@ import stryker4s.run.TestRunner
 import stryker4s.run.process.ProcessResource
 import stryker4s.testrunner.api.*
 
+import java.io.File
 import java.net.ConnectException
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
@@ -107,32 +111,45 @@ object ProcessTestRunner extends TestInterfaceMapper {
   private val classPathSeparator = java.io.File.pathSeparator
 
   def newProcess(
+      javaHome: Option[File],
       classpath: Seq[Path],
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
       port: Port
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
-    (createProcess(classpath, javaOpts, port) *> connectToProcess(port))
+    (createProcess(javaHome, classpath, javaOpts, port) *> connectToProcess(port))
       .evalTap(setupTestRunner(_, frameworks, testGroups))
       .map(new ProcessTestRunner(_))
 
-  def createProcess(
-      classpath: Seq[Path],
-      javaOpts: Seq[String],
-      port: Port
-  )(implicit log: Logger, config: Config): Resource[IO, Process[IO]] = {
+  def createProcess(javaHome: Option[File], classpath: Seq[Path], javaOpts: Seq[String], port: Port)(implicit
+      log: Logger,
+      config: Config
+  ): Resource[IO, Process[IO]] = {
     val classpathString = classpath.map(_.toString()).mkString(classPathSeparator)
-    val command = List("java", "-Xmx4G", "-cp", classpathString) ++ javaOpts ++ args(port)
+    val javaBin = javaHome.fold("java")(h => (file.Path.fromNioPath(h.toPath()) / "bin" / "java").toString)
+    val allArgs = List(
+      "-Xmx4G",
+      "-cp",
+      classpathString
+    ) ++ javaOpts ++ args(port)
 
     val logger: String => IO[Unit] =
       if (config.debug.logTestRunnerStdout) m => IO(log.debug(s"testrunner $port: $m"))
       else _ => IO.unit
 
-    ProcessResource
-      .fromProcessBuilder(ProcessBuilder(command.head, command.tail).withWorkingDirectory(config.baseDir), logger)
-      .preAllocate(IO(log.debug(s"Starting process '${command.mkString(" ")}'")))
-      .evalTap(_ => IO(log.debug("Started process")))
+    for {
+      // Create a file with all arguments to pass to the java process
+      // Sometimes the classpath and arguments is too long for the OS to handle, so we write it to a file and pass the file as argument
+      argfile <- Files[IO].tempFile
+      _ <- Stream.emits(allArgs).intersperse(" ").through(Files[IO].writeUtf8(argfile)).compile.drain.toResource
+      _ <- IO(log.debug(s"Starting process '$javaBin @$argfile'")).toResource
+      process <- ProcessResource.fromProcessBuilder(
+        ProcessBuilder(javaBin, s"@$argfile").withWorkingDirectory(config.baseDir),
+        logger
+      )
+      _ <- IO(log.debug("Started process")).toResource
+    } yield process
   }
 
   private def args(port: Port)(implicit config: Config): Seq[String] = {

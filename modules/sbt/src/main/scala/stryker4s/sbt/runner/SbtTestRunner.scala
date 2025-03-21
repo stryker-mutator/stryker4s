@@ -8,11 +8,13 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.run.TestRunner
 
+import java.io.File
 import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 object SbtTestRunner {
   def create(
+      javaHome: Option[File],
       classpath: Seq[Path],
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
@@ -24,7 +26,7 @@ object SbtTestRunner {
       log: Logger
   ): Resource[IO, TestRunner] = {
     // Timeout will be set by timeoutRunner after initialTestRun
-    val innerTestRunner = ProcessTestRunner.newProcess(classpath, javaOpts, frameworks, testGroups, port)
+    val innerTestRunner = ProcessTestRunner.newProcess(javaHome, classpath, javaOpts, frameworks, testGroups, port)
 
     val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 
