@@ -54,7 +54,7 @@ class CliConfigSourceTest extends Stryker4sIOSuite {
       parseArg(_.testRunnerArgs, "--test-runner-args", "test").assertEquals("test") *>
       parseArg(_.openReport, "--open-report").assertEquals(true) *>
       parseArg(_.showHelpMessage, "--help").map(_.value).asserting { helpMsg =>
-        assert(helpMsg.startsWith("Usage: stryker4s --"), helpMsg)
+        assert(helpMsg.startsWith("Usage: stryker4s [options]"), helpMsg)
         assert(helpMsg.contains("Stryker4s - A mutation testing tool for Scala"), helpMsg)
 
       }
@@ -87,14 +87,14 @@ class CliConfigSourceTest extends Stryker4sIOSuite {
   test("fails on unknown arguments") {
     parseArgAttempt(_.baseDir, "--unknown-argument=foo")
       .map(_.leftValue.messages.loneElement)
-      .assertEquals("Missing unexpected option: --unknown-argument") *>
+      .assertEquals("Missing unknown option --unknown-argument=foo") *>
       parseArgAttempt(_.baseDir)
         .map(_.leftValue.messages.loneElement)
-        .assertEquals("Missing expected flag --base-dir!")
+        .assertEquals("Missing baseDir option")
   }
 
-  test("should show help message when no arguments are given") {
-    parseArg(_.showHelpMessage, "--help").map(_.value).asserting(helpMsg => assert(helpMsg.startsWith("Usage:")))
+  test("should handle multiple arguments") {
+    parseArg(_.mutate, "--mutate", "foo", "--files", "bar").assertEquals(Seq("foo"))
   }
 
   private def parseArg[T](fn: CliConfigSource[IO] => ConfigValue[IO, T], args: String*)(implicit loc: Location) =

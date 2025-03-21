@@ -37,7 +37,6 @@ object Settings {
       Dependencies.catsEffect,
       Dependencies.circeCore,
       Dependencies.ciris,
-      Dependencies.decline,
       Dependencies.fansi,
       Dependencies.fs2Core,
       Dependencies.fs2IO,
@@ -45,6 +44,7 @@ object Settings {
       Dependencies.mutationTestingElements,
       Dependencies.mutationTestingMetrics,
       Dependencies.scalameta,
+      Dependencies.scopt,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
       Dependencies.weaponRegeX
