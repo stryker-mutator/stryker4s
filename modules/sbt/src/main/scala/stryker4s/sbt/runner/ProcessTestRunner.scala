@@ -2,7 +2,9 @@ package stryker4s.sbt.runner
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.all.*
+import cats.syntax.apply.*
+import cats.syntax.foldable.*
+import cats.syntax.option.*
 import com.comcast.ip4s.{Host, Port, SocketAddress}
 import fs2.Stream
 import fs2.io.file
@@ -200,7 +202,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
         delay: FiniteDuration,
         onError: FiniteDuration => IO[Unit]
     ): Resource[IO, A] = {
-      resource.handleErrorWith[A, Throwable] {
+      resource.handleErrorWith[A] {
         case _: ConnectException if maxAttempts != 0 =>
           (onError(delay) *> IO.sleep(delay)).toResource *>
             retryWithBackoff(maxAttempts - 1, delay * 2, onError)
