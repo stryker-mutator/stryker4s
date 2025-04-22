@@ -16,7 +16,7 @@ For an introduction to mutation testing and Stryker's features, see [stryker-mut
 
 ## Getting Started
 
-For the quickstart, see [our website's quickstart](https://stryker-mutator.io/stryker4s/quickstart).
+For the quickstart, see [our website's quickstart](https://stryker-mutator.io/docs/stryker4s/getting-started/).
 
 Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs. Depending on your project setup, there are multiple ways to get started with Stryker4s.
 
@@ -32,7 +32,7 @@ After adding the plugin, Stryker4s can be used by running `sbt stryker` in the r
 
 ### Multi-module projects
 
-Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
+Multi-module projects are not yet fully supported. However, there is a workaround you can use while we work on a better solution. Set the base-directory to the correct directory of the submodule with the [`base-dir` configuration setting](https://stryker-mutator.io/docs/stryker4s/configuration/#base-dir-string). Then you can run `sbt "project yourSubmoduleNameHere" stryker` to set the active project and run Stryker4s.
 
 ## Maven plugin
 
@@ -60,7 +60,7 @@ Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapsho
 
 ## Configuration
 
-See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configuration) for all the configuration options available in Stryker4s.
+See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configuration/) for all the configuration options available in Stryker4s.
 
 ## Supported mutators
 
@@ -75,4 +75,4 @@ See the [releases page](https://github.com/stryker-mutator/stryker4s/releases) f
 
 ## Contributing
 
-Want to contribute? That's great! Please have a look at our [contributing guide](https://stryker-mutator.io/docs/stryker4s/contributing).
+Want to contribute? That's great! Please have a look at our [contributing guide](https://stryker-mutator.io/docs/stryker4s/contributing/).
