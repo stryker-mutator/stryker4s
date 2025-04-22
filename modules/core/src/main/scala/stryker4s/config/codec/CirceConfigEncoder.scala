@@ -12,7 +12,7 @@ import scala.meta.Dialect
   */
 trait CirceConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder
-    .forProduct14(
+    .forProduct15(
       "mutate",
       "test-filter",
       "base-dir",
@@ -26,7 +26,8 @@ trait CirceConfigEncoder {
       "max-test-runner-reuse",
       "legacy-test-runner",
       "scala-dialect",
-      "debug"
+      "debug",
+      "no-coverage-ignored"
     )((c: Config) =>
       (
         c.mutate,
@@ -42,7 +43,8 @@ trait CirceConfigEncoder {
         c.maxTestRunnerReuse,
         c.legacyTestRunner,
         c.scalaDialect,
-        c.debug
+        c.debug,
+        c.noCoverageIgnored
       )
     )
     .mapJson(_.deepDropNullValues)

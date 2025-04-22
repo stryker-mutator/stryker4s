@@ -57,7 +57,8 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.cleanTmpDir,
     testRunner,
     source.openReport,
-    source.showHelpMessage
+    source.showHelpMessage,
+    source.noCoverageIgnored
   ).parMapN(Config.apply)
 
 }

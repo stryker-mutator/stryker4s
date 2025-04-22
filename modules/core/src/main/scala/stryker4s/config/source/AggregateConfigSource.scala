@@ -71,6 +71,7 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
   override def openReport: ConfigValue[F, Boolean] = loadAndLog(_.openReport)
 
   override def showHelpMessage: ConfigValue[F, Option[String]] = loadAndLog(_.showHelpMessage)
+  override def noCoverageIgnored: ConfigValue[F, Boolean] = loadAndLog(_.noCoverageIgnored)
 
   /** Load a value from the sources, using the first available value
     */

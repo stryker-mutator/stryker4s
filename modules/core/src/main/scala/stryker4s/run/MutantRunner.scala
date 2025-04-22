@@ -238,10 +238,9 @@ class MutantRunner(
 
   private def noCoverageMutant(mutant: MutantWithId): MutantResult = mutant
     .toMutantResult(
-      MutantStatus.Ignored,
-      statusReason =
-        "This is a 'static' mutant and can not be tested. If you still want to have this mutant tested, change your code to make this value initialize each time it is called.".some
+      if (config.noCoverageIgnored) MutantStatus.NoCoverage else MutantStatus.Ignored,
+      statusReason = "This is a no coverage mutant and is not tested.".some
     )
-    .copy(static = true.some)
+    .copy(static = None)
 
 }

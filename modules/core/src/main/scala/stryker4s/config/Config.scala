@@ -32,7 +32,8 @@ final case class Config(
     cleanTmpDir: Boolean,
     testRunner: Command,
     openReport: Boolean,
-    showHelpMessage: Option[String]
+    showHelpMessage: Option[String],
+    noCoverageIgnored: Boolean = true
 )
 
 object Config {

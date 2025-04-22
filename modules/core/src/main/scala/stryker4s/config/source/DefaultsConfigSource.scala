@@ -81,4 +81,5 @@ class DefaultsConfigSource[F[_]]() extends ConfigSource[F] {
   override def openReport: ConfigValue[F, Boolean] = ConfigValue.default(false)
 
   override def showHelpMessage: ConfigValue[F, Option[String]] = ConfigValue.default(none)
+  override def noCoverageIgnored: ConfigValue[F, Boolean] = ConfigValue.default(true)
 }
