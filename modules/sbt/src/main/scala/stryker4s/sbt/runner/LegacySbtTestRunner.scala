@@ -4,7 +4,7 @@ import cats.effect.IO
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Keys.*
 import sbt.Tests.Output
-import sbt.{given, *}
+import sbt.*
 import stryker4s.sbt.PluginCompat
 import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
