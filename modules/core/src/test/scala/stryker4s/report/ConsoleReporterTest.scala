@@ -286,6 +286,21 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
     )
     val metrics = Metrics.calculateMetrics(report)
 
+    val reportWithNoCoverage = MutationTestResult(
+      thresholds = Thresholds(80, 60), // These thresholds are not used
+      files = Map(
+        "stryker4s.scala" -> FileResult(
+          source = "foo\nbar\nbaz",
+          mutants = Seq(
+            MutantResult("0", "", "bar\nbaz\nqu", Location(Position(1, 1), Position(2, 2)), MutantStatus.Survived),
+            MutantResult("1", "", "==", Location(Position(1, 1), Position(1, 3)), MutantStatus.Killed),
+            MutantResult("2", "", ">=", Location(Position(1, 1), Position(1, 3)), MutantStatus.NoCoverage)
+          )
+        )
+      )
+    )
+    val metricsWithNoCoverage = Metrics.calculateMetrics(reportWithNoCoverage)
+
     test("should report the mutation score when it is info") {
       implicit val config: Config =
         Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 48, low = 49, high = 50))
@@ -332,6 +347,18 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
           assertLoggedError(s"Mutation score below threshold! Mutation score: ${Red("50.0")}%. Threshold: 51%")
+        }
+    }
+
+    test("should log covered code if it is different to the total") {
+      implicit val config: Config =
+        Config.default.copy(thresholds = stryker4s.config.Thresholds(break = 31, low = 32, high = 34))
+      val sut = new ConsoleReporter()
+
+      sut
+        .onRunFinished(FinishedRunEvent(reportWithNoCoverage, metricsWithNoCoverage, 15.seconds, config.baseDir))
+        .asserting { _ =>
+          assertLoggedWarn(s"Mutation score: ${Yellow("33.33")}% (of total), ${Green("50.0")}% (of covered code)")
         }
     }
   }
