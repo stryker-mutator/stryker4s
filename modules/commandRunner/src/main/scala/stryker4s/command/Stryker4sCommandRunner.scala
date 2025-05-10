@@ -14,6 +14,7 @@ import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.process.ProcessRunner
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 
+import scala.annotation.unused
 import scala.concurrent.duration.FiniteDuration
 
 class Stryker4sCommandRunner(timeout: Deferred[IO, FiniteDuration], args: List[String])(implicit log: Logger)
@@ -30,7 +31,7 @@ class Stryker4sCommandRunner(timeout: Deferred[IO, FiniteDuration], args: List[S
     NonEmptyList.one(withTimeout).asRight
   }
 
-  override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
+  override def instrumenterOptions(implicit @unused config: Config): InstrumenterOptions =
     InstrumenterOptions.sysContext(ActiveMutationContext.envVar)
 
   override def extraConfigSources: List[ConfigSource[IO]] = List(new CliConfigSource[IO](args))
