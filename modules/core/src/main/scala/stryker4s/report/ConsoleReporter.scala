@@ -42,25 +42,45 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
       if (detectedMutants.nonEmpty) log.debug(resultToString("Detected", detectedMutants))
       if (undetectedMutants.nonEmpty) log.info(resultToString("Undetected", undetectedMutants))
 
-      val mutationScoreRounded = metrics.mutationScore.roundDecimals(2) match {
+      def roundScore(score: Double): String = score.roundDecimals(2) match {
         case score if score.isNaN() => "n/a"
         case score                  => score.toString
       }
 
-      def scoreString(color: EscapeAttr) = s"Mutation score: ${color(mutationScoreRounded)}%"
+      val mutationScoreRounded = roundScore(metrics.mutationScore)
+      val mutationScoreCoveredCode = roundScore(metrics.mutationScoreBasedOnCoveredCode)
 
       val scoreStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScore)
+      val coveredStatus = ThresholdChecker.determineScoreStatus(metrics.mutationScoreBasedOnCoveredCode)
+
+      def colorForStatus(status: ScoreStatus): EscapeAttr = status match {
+        case _ if metrics.mutationScore.isNaN() => Color.LightGray
+        case SuccessStatus                      => Color.Green
+        case WarningStatus                      => Color.Yellow
+        case DangerStatus                       => Color.Red
+        case ErrorStatus                        => Color.Red
+      }
+
+      def scoreString = {
+        val color = colorForStatus(scoreStatus)
+        val coveredColor =
+          colorForStatus(coveredStatus)
+
+        if (mutationScoreRounded != mutationScoreCoveredCode)
+          s"Mutation score: ${color(mutationScoreRounded)}% (of total), ${coveredColor(mutationScoreCoveredCode)}% (of covered code)"
+        else s"Mutation score: ${color(mutationScoreRounded)}%"
+      }
+
       scoreStatus match {
-        case _ if metrics.mutationScore.isNaN() =>
-          log.info(scoreString(Color.LightGray))
-        case SuccessStatus => log.info(scoreString(Color.Green))
-        case WarningStatus => log.warn(scoreString(Color.Yellow))
+        case _ if metrics.mutationScore.isNaN() => log.info(scoreString)
+        case SuccessStatus                      => log.info(scoreString)
+        case WarningStatus                      => log.warn(scoreString)
         case DangerStatus =>
           log.error(s"Mutation score dangerously low!")
-          log.error(scoreString(Color.Red))
+          log.error(scoreString)
         case ErrorStatus =>
           log.error(
-            s"Mutation score below threshold! ${scoreString(Color.Red)}. Threshold: ${config.thresholds.break}%"
+            s"Mutation score below threshold! $scoreString. Threshold: ${config.thresholds.break}%"
           )
       }
     }
