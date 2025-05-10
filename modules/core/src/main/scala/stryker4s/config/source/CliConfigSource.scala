@@ -89,7 +89,6 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
   override def testRunnerArgs: ConfigValue[F, String] = parseOpt(opts.testRunnerArgs)
 
   override def openReport: ConfigValue[F, Boolean] = parseOpt(opts.openReport).map(_ => true)
-  override def noCoverageIgnored: ConfigValue[F, Boolean] = parseOpt(opts.noCoverageIgnored).map(_ => true)
 
   override def showHelpMessage: ConfigValue[F, Option[String]] =
     parseOpt(opts.help).map(_ => opts.helpText.some)
@@ -162,7 +161,6 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
       makeOpt[Unit](_.opt[Unit]('o', "open-report").text("Opens the report in the default browser."))
 
     val help = makeOpt[Unit](_.opt[Unit]("help")).text("Display this help text.")
-    val noCoverageIgnored = makeOpt[Unit](_.opt[Unit]("no-coverage-ignored")).text("Count no coverage as ignored")
 
     def helpText = {
       def asAnyP[A, C](p: OParser[A, Option[C]]): OParser[Any, Option[Any]] = p.asInstanceOf[OParser[Any, Option[Any]]]
@@ -198,8 +196,7 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
             asAnyP(testRunnerCommand),
             asAnyP(testRunnerArgs),
             asAnyP(openReport),
-            asAnyP(help),
-            asAnyP(noCoverageIgnored)
+            asAnyP(help)
           )
         )
     }

@@ -81,7 +81,6 @@ class FileConfigSource[F[_]](h: ConfigValue[F, Hocon.HoconAt])
   override def openReport: ConfigValue[F, Boolean] = read("open-report").as[Boolean]
 
   override def showHelpMessage: ConfigValue[F, Option[String]] = notSupported
-  override def noCoverageIgnored: ConfigValue[F, Boolean] = read("no-coverage-ignored").as[Boolean]
 
 }
 

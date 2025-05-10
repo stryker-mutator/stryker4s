@@ -158,11 +158,6 @@ object SbtConfigSource {
         strykerOpenReport.key.label
       )
 
-      override def noCoverageIgnored: ConfigValue[F, Boolean] = sbtSetting(
-        strykerNoCoverageIgnored.?.value,
-        strykerNoCoverageIgnored.key.label
-      )
-
       override def testRunnerCommand: ConfigValue[F, String] = notSupported
       override def testRunnerArgs: ConfigValue[F, String] = notSupported
 

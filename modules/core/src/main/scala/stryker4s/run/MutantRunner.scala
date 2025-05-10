@@ -238,9 +238,8 @@ class MutantRunner(
 
   private def noCoverageMutant(mutant: MutantWithId): MutantResult = mutant
     .toMutantResult(
-      if (config.noCoverageIgnored) MutantStatus.NoCoverage else MutantStatus.Ignored,
-      statusReason = "This is a no coverage mutant and is not tested.".some
+      MutantStatus.NoCoverage,
+      statusReason = "This mutant was not covered by any code.".some
     )
-    .copy(static = None)
 
 }

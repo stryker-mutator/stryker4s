@@ -64,7 +64,6 @@ trait ConfigSource[+F[_]] {
   def openReport: ConfigValue[F, Boolean]
 
   def showHelpMessage: ConfigValue[F, Option[String]]
-  def noCoverageIgnored: ConfigValue[F, Boolean]
 
   protected def notSupported[A](implicit key: sourcecode.Name): ConfigValue[F, A] =
     ConfigValue.missing(s"Key ${key.value} is not supported by $name")
