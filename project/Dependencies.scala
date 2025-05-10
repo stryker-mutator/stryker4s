@@ -7,7 +7,7 @@ object Dependencies {
     val scala213 = "2.13.16"
 
     // sbt-test-runner uses LTS to ensure compatibility with any project it runs in
-    val scala3Lts = "3.3.5"
+    val scala3Lts = "3.3.6"
 
     val scala3 = "3.6.4"
 
@@ -15,7 +15,7 @@ object Dependencies {
     val ltsCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
 
     // Test dependencies
-    val munit = "1.1.0"
+    val munit = "1.1.1"
 
     val munitCatsEffect = "2.1.0"
 
@@ -24,7 +24,7 @@ object Dependencies {
 
     val catsEffect = "3.6.1"
 
-    val circe = "0.14.12"
+    val circe = "0.14.13"
 
     val ciris = "3.8.0"
 
@@ -38,7 +38,7 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.5.1"
 
-    val scalameta = "4.13.4"
+    val scalameta = "4.13.5"
 
     val scopt = "4.1.0"
 
