@@ -34,8 +34,7 @@ protected[stryker4s] trait LogMatchers extends Suite with TestTransforms {
         test.withBodyMap { body =>
           body.recover {
             case exception if !printLogs => testLogger.printAllLogs(); throw exception
-
-          }(munitExecutionContext)
+          }
         }
       }
     )
