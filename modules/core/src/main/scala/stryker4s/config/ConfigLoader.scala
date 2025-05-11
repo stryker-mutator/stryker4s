@@ -17,7 +17,7 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.thresholdsHigh,
     source.thresholdsLow,
     source.thresholdsBreak
-  ).parMapN(Thresholds.apply).as(validateThresholds)
+  ).parMapN(Thresholds.apply).as(using validateThresholds)
 
   def dashboard: ConfigValue[F, DashboardOptions] = (
     source.dashboardBaseUrl,

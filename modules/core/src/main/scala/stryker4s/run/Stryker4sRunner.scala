@@ -25,7 +25,7 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     ConfigLoader.loadAll[IO](extraConfigSources).flatMap { implicit config =>
       config.showHelpMessage match {
         case Some(helpMessage) => IO(log.info(helpMessage)).as(SuccessStatus)
-        case None              => executeStryker(config)
+        case None              => executeStryker
       }
     }
 

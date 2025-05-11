@@ -10,7 +10,7 @@ object Stryker4sMain extends IOApp {
     for {
       log <- Stryker4sArgumentHandler.configureLogger(args)
       timeout <- Deferred[IO, FiniteDuration]
-      result <- new Stryker4sCommandRunner(timeout, args)(log).run()
+      result <- new Stryker4sCommandRunner(timeout, args)(using log).run()
     } yield result match {
       case ErrorStatus => ExitCode.Error
       case _           => ExitCode.Success
