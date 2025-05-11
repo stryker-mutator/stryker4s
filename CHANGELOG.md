@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.18.0](https://github.com/stryker-mutator/stryker4s/compare/v0.17.2...v0.18.0) (2025-05-11)
+
+
+### Features
+
+* **console-reporter:** report score based on covered code ([#1764](https://github.com/stryker-mutator/stryker4s/issues/1764)) ([7929d03](https://github.com/stryker-mutator/stryker4s/commit/7929d03bb8fea63b53755a07ab219a7e397c9145))
+
+
+### Bug Fixes
+
+* no-coverage mutants should not be reported as static ([#1755](https://github.com/stryker-mutator/stryker4s/issues/1755)) ([779d2b4](https://github.com/stryker-mutator/stryker4s/commit/779d2b44729cbdd913dd7086ab2162b4697e40db))
+
 ## [0.17.2](https://github.com/stryker-mutator/stryker4s/compare/v0.17.1...v0.17.2) (2025-03-21)
 
 
