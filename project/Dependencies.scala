@@ -34,9 +34,9 @@ object Dependencies {
 
     val fs2 = "3.12.0"
 
-    val mutationTestingElements = "3.5.1"
+    val mutationTestingElements = "3.5.2"
 
-    val mutationTestingMetrics = "3.5.1"
+    val mutationTestingMetrics = "3.5.2"
 
     val scalameta = "4.13.5"
 
