@@ -58,7 +58,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     val newTree = Try(context.source.transformOnce(instrumentWithMutants(mutantMap))) match {
       case Success(tree)                  => tree
       case Failure(e: Stryker4sException) => throw e
-      case Failure(e) =>
+      case Failure(e)                     =>
         log.error(s"Failed to instrument mutants in `${context.path}`.", e)
         throw new UnableToBuildPatternMatchException(context.path)
     }
@@ -115,7 +115,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   /** Extracts the mutant id from a case statement
     */
   private def extractMutantId(pat: Pat) = pat match {
-    case Lit.Int(value) => MutantId(value)
+    case Lit.Int(value)                                                                     => MutantId(value)
     case Pat.Extract.After_4_6_0(Term.Name("Some"), Pat.ArgClause(List(Lit.String(value)))) =>
       MutantId(value.toInt)
     case _ => throw new IllegalArgumentException(s"Could not extract mutant id from '${pat.syntax}'")

@@ -67,8 +67,8 @@ sealed trait Stryker4sAssertions {
   implicit class IterableLoneElement[A](it: Iterable[A]) {
     def loneElement(implicit loc: Location): A =
       it.size match {
-        case 0 => fail("Expected a single element, but got an empty collection")
-        case 1 => it.head
+        case 0     => fail("Expected a single element, but got an empty collection")
+        case 1     => it.head
         case other => fail(s"""Expected a single element, but got size $other
                               |Elements: $it""".stripMargin)
       }

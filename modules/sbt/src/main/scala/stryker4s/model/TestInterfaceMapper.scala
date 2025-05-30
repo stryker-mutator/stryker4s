@@ -46,7 +46,7 @@ trait TestInterfaceMapper {
   private def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {
       case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint(a.isModule(), a.annotationName())
-      case s: sbt.testing.SubclassFingerprint =>
+      case s: sbt.testing.SubclassFingerprint  =>
         SubclassFingerprint(s.isModule(), s.superclassName(), s.requireNoArgConstructor())
     }
 

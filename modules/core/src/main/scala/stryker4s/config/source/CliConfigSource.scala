@@ -23,7 +23,7 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
     val parsed = OParser.runParser(parser, args, none, parserSetup)
 
     parsed match {
-      case (Some(Some(value)), _) => ConfigValue.loaded(ConfigKey(name.value), value)
+      case (Some(Some(value)), _)     => ConfigValue.loaded(ConfigKey(name.value), value)
       case (_, errs) if errs.nonEmpty =>
         errs
           .map {

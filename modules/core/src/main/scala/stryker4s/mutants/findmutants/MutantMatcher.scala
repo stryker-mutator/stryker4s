@@ -169,7 +169,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
 
       mutatedTopStatement match {
         case t: Term => MutatedCode(t, metadata)
-        case t =>
+        case t       =>
           throw new RuntimeException(
             s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation}). Expected a Term, but was a ${t.getClass().getSimpleName}"
           )
