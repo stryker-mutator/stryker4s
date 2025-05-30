@@ -55,7 +55,7 @@ protected[stryker4s] trait TestInterfaceMapper {
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =
     fp match {
       case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint.of(a.isModule(), a.annotationName())
-      case s: sbt.testing.SubclassFingerprint =>
+      case s: sbt.testing.SubclassFingerprint  =>
         SubclassFingerprint.of(s.isModule(), s.superclassName(), s.requireNoArgConstructor())
       case _ => throw new NotImplementedError(s"Can not map fingerprint $fp")
     }

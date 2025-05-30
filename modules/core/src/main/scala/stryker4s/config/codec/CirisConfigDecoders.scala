@@ -80,7 +80,7 @@ trait CirisConfigDecoders {
       case (key, Thresholds(high, _, _)) if isNotPercentage(high)   => notPercentageError(high, key)
       case (key, Thresholds(_, low, _)) if isNotPercentage(low)     => notPercentageError(low, key)
       case (key, Thresholds(_, _, break)) if isNotPercentage(break) => notPercentageError(break, key)
-      case (key, Thresholds(high, low, _)) if high < low =>
+      case (key, Thresholds(high, low, _)) if high < low            =>
         ConfigError
           .decode("thresholds.high", key, high)
           .and(

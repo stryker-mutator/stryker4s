@@ -56,9 +56,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
-      case Console => new ConsoleReporter()
-      case Html    => new HtmlReporter(new DiskFileIO(), new DesktopFileIO())
-      case Json    => new JsonReporter(new DiskFileIO())
+      case Console   => new ConsoleReporter()
+      case Html      => new HtmlReporter(new DiskFileIO(), new DesktopFileIO())
+      case Json      => new JsonReporter(new DiskFileIO())
       case Dashboard =>
         implicit val httpBackend: Resource[IO, Backend[IO]] =
           // Catch if the user runs the dashboard on Java <11

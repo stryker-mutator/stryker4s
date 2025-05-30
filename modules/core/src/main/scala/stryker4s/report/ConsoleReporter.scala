@@ -75,7 +75,7 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
         case _ if metrics.mutationScore.isNaN() => log.info(scoreString)
         case SuccessStatus                      => log.info(scoreString)
         case WarningStatus                      => log.warn(scoreString)
-        case DangerStatus =>
+        case DangerStatus                       =>
           log.error(s"Mutation score dangerously low!")
           log.error(scoreString)
         case ErrorStatus =>

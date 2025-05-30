@@ -80,7 +80,7 @@ class Stryker4sSbtRunner(
       def extractTaskValue[T](task: TaskKey[T]): T = {
         PluginCompat.runTask(task, newState) match {
           case Some(Right(result)) => result
-          case other =>
+          case other               =>
             log.debug(s"Expected ${task.key.label} but got $other")
             throw TestSetupException(task.key.label)
         }

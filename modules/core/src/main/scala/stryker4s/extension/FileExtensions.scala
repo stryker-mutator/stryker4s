@@ -16,9 +16,9 @@ object FileExtensions {
     final def relativePath(implicit config: Config): Path = relativePath(config.baseDir)
 
     final def relativePath(base: Path) = (base.isAbsolute, path.isAbsolute) match {
-      case (true, false) => base.relativize(path.absolute)
-      case (false, true) => base.absolute.relativize(path)
-      case (true, true)  => base.relativize(path)
+      case (true, false)  => base.relativize(path.absolute)
+      case (false, true)  => base.absolute.relativize(path)
+      case (true, true)   => base.relativize(path)
       case (false, false) =>
         Path(path.toString.stripPrefix(base.toString + File.separator))
     }
