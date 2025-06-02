@@ -28,7 +28,7 @@ object DurationExtensions {
       timeStrings match {
         case Chain()  => "0 seconds"
         case Chain(a) => a
-        case _ =>
+        case _        =>
           val (strings, last) = timeStrings.initLast.get
           strings.mkString_(", ") + " and " + last
       }

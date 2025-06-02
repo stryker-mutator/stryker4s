@@ -70,7 +70,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
           // Fail early
           case Status.Failure => Array.empty[Task]
           case Status.Error   => Array.empty[Task]
-          case _ =>
+          case _              =>
             stryker4s.coverage.setActiveTest(task.taskDef().fullyQualifiedName())
             task.execute(eventHandler, Array.empty)
         }
