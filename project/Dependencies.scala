@@ -9,7 +9,7 @@ object Dependencies {
     // sbt-test-runner uses LTS to ensure compatibility with any project it runs in
     val scala3Lts = "3.3.6"
 
-    val scala3 = "3.6.4"
+    val scala3 = "3.7.1"
 
     val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
     val ltsCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
