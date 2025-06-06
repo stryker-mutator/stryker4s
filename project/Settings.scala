@@ -65,9 +65,7 @@ object Settings {
 
   lazy val sbtPluginSettings: Seq[Setting[?]] = Seq(
     moduleName := "sbt-stryker4s",
-    scriptedLaunchOpts :=
-      scriptedLaunchOpts.value ++
-        Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
+    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.7.0"
