@@ -24,7 +24,7 @@ object Dependencies {
 
     val catsEffect = "3.6.1"
 
-    val circe = "0.14.13"
+    val circe = "0.14.14"
 
     val ciris = "3.8.0"
 
