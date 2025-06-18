@@ -30,7 +30,8 @@ lazy val root = (project withId "stryker4s" in file("."))
       sbtTestRunner.projectRefs ++
       testRunnerApi.projectRefs ++
       api.projectRefs ++
-      testkit.projectRefs) *
+      testkit.projectRefs :+
+      mutatorApi.project) *
   )
 
 lazy val core = (projectMatrix in file("modules") / "core")
@@ -63,6 +64,12 @@ lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
 lazy val api = (projectMatrix in file("modules") / "api")
   .settings(commonSettings, apiSettings)
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
+
+/** Java-only project that contains interfaces for a language-agnostic mutator API
+  */
+lazy val mutatorApi = (project in file("modules") / "mutatorApi")
+  .settings(mutatorApiSettings)
+// .dependsOn(testkit.jvm(versions.scala3) % Test)
 
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
