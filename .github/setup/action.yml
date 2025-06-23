@@ -20,4 +20,4 @@ runs:
         distribution: "temurin"
         java-version: "${{ inputs.java-version }}"
         cache: "${{ inputs.cache }}"
-    - uses: sbt/setup-sbt@v1
+    - uses: sbt/setup-sbt@v1.1.8
