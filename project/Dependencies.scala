@@ -24,7 +24,7 @@ object Dependencies {
 
     val catsEffect = "3.6.1"
 
-    val circe = "0.14.13"
+    val circe = "0.14.14"
 
     val ciris = "3.9.0"
 
@@ -38,13 +38,13 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.5.2"
 
-    val scalameta = "4.13.6"
+    val scalameta = "4.13.7"
 
     val scopt = "4.1.0"
 
     val slf4j = "2.0.17"
 
-    val sttp = "4.0.8"
+    val sttp = "4.0.9"
 
     val testInterface = "1.0"
 
