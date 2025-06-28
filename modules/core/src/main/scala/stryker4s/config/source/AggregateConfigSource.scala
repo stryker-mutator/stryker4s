@@ -85,6 +85,6 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
             .as(value)
         )
       )
-      .reduceLeft(_ or _)
+      .reduceLeft(_ alt _)
 
 }
