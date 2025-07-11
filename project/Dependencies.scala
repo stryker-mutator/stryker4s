@@ -30,7 +30,7 @@ object Dependencies {
 
     val fansi = "0.5.0"
 
-    val hocon = "1.4.3"
+    val hocon = "1.4.4"
 
     val fs2 = "3.12.0"
 
