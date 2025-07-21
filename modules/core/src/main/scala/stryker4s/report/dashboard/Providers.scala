@@ -12,9 +12,9 @@ object Providers {
       .orElse(readEnvironmentVariable("CIRCLECI").as(new CircleProvider()))
       .orElse(readEnvironmentVariable("GITHUB_ACTION").as(new GithubActionsProvider()))
 
-  sealed trait CiProvider[+F[_]] {
-    def determineProject(): F[Option[String]]
-    def determineVersion(): F[Option[String]]
+  sealed trait CiProvider[F[_]] {
+    def determineProject(): OptionT[F, String]
+    def determineVersion(): OptionT[F, String]
   }
 
   private def readEnvironmentVariable[F[_]: Functor: Env](name: String): OptionT[F, String] =
@@ -25,34 +25,32 @@ object Providers {
   private val githubCom = "github.com"
 
   private class TravisProvider[F[_]: Functor: Env]() extends CiProvider[F] {
-    override def determineProject(): F[Option[String]] =
+    override def determineProject(): OptionT[F, String] =
       readEnvironmentVariable("TRAVIS_REPO_SLUG")
         .map(project => s"$githubCom/$project")
-        .value
 
-    override def determineVersion(): F[Option[String]] =
-      readEnvironmentVariable("TRAVIS_BRANCH").value
+    override def determineVersion(): OptionT[F, String] =
+      readEnvironmentVariable("TRAVIS_BRANCH")
   }
 
   private class CircleProvider[F[_]: Monad: Env]() extends CiProvider[F] {
-    override def determineProject(): F[Option[String]] =
-      (for {
+    override def determineProject(): OptionT[F, String] =
+      for {
         username <- readEnvironmentVariable("CIRCLE_PROJECT_USERNAME")
         repoName <- readEnvironmentVariable("CIRCLE_PROJECT_REPONAME")
-      } yield s"$githubCom/$username/$repoName").value
+      } yield s"$githubCom/$username/$repoName"
 
-    override def determineVersion(): F[Option[String]] =
-      readEnvironmentVariable("CIRCLE_BRANCH").value
+    override def determineVersion(): OptionT[F, String] =
+      readEnvironmentVariable("CIRCLE_BRANCH")
   }
 
   private class GithubActionsProvider[F[_]: Monad: Env]() extends CiProvider[F] {
-    override def determineProject(): F[Option[String]] =
+    override def determineProject(): OptionT[F, String] =
       readEnvironmentVariable("GITHUB_REPOSITORY")
         .map(project => s"$githubCom/$project")
-        .value
 
-    override def determineVersion(): F[Option[String]] =
-      (for {
+    override def determineVersion(): OptionT[F, String] =
+      for {
         ref <- readEnvironmentVariable("GITHUB_REF")
         refs = ref.split('/')
         version <- refs match {
@@ -61,7 +59,7 @@ object Providers {
           case _                              => OptionT.none[F, String]
         }
         if version.nonEmpty
-      } yield version).value
+      } yield version
   }
 
   // TODO: Support VSTS, GitLab CI

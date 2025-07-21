@@ -1,7 +1,7 @@
 package stryker4s.report.dashboard
 
 import cats.Monad
-import cats.data.ValidatedNec
+import cats.data.{OptionT, ValidatedNec}
 import cats.effect.std.Env
 import cats.syntax.all.*
 import stryker4s.config.Config
@@ -52,6 +52,6 @@ private class DashboardConfigProviderImpl[F[_]: Monad: Env]()(implicit config: C
       .value
       .map(_.toValidNec("dashboard.version"))
 
-  private def byCiProvider[T](f: CiProvider[F] => F[Option[T]]) =
-    Providers.determineCiProvider[F]().flatMapF(f)
+  private def byCiProvider[T](f: CiProvider[F] => OptionT[F, T]) =
+    Providers.determineCiProvider[F]().flatMap(f)
 }
