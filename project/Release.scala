@@ -11,18 +11,14 @@ object Release {
   private val stryker4sMvnDeploy = "stryker4sMvnDeploy"
   private val publishM2Core = "core/publishM2"
   private val crossPublishSigned = "publishSigned"
-  private val sonatypePrepare = "sonatypePrepare"
-  private val sonatypeReleaseAll = "sonatypeReleaseAll"
-  private val sonatypeBundleUpload = "sonatypeBundleUpload"
 
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= Seq(
     // Called by sbt-ci-release
     Command.command(stryker4sPublishSigned)(
-      sonatypePrepare :: crossPublishSigned :: publishM2Core :: stryker4sMvnDeploy :: _
+      crossPublishSigned :: publishM2Core :: stryker4sMvnDeploy :: _
     ),
     // Called by stryker4sPublish(signed)
-    Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value, version.value)),
-    Command.command(stryker4sReleaseAll)(sonatypeBundleUpload :: s"""$sonatypeReleaseAll "io.stryker-mutator"""" :: _)
+    Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value, version.value))
   )
 
   /** Sets version of mvn project, calls `mvn deploy` and fails state if the command fails
