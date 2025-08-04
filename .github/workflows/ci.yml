@@ -93,7 +93,6 @@ jobs:
         run: sbt ci-release
         env:
           CI_RELEASE: stryker4sPublishSigned
-          CI_SONATYPE_RELEASE: stryker4sReleaseAll
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
