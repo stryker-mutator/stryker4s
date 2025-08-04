@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/stryker-mutator/stryker4s/compare/v0.18.0...v0.18.1) (2025-08-04)
+
+
+### Bug Fixes
+
+* configure maven plugin to publish to new maven-central ([#1803](https://github.com/stryker-mutator/stryker4s/issues/1803)) ([dc6a5a9](https://github.com/stryker-mutator/stryker4s/commit/dc6a5a942de1fc16787b1de7a02486dcdcb77efa))
+
 ## [0.18.0](https://github.com/stryker-mutator/stryker4s/compare/v0.17.2...v0.18.0) (2025-05-11)
 
 
