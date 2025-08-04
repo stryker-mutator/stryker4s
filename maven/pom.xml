@@ -140,6 +140,13 @@
                             <goal>testCompile</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>generate-sources</id>
+                        <goals>
+                            <goal>doc-jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
                 </executions>
                 <configuration>
                     <args>
@@ -199,6 +206,7 @@
         </plugins>
     </build>
     <profiles>
+        
         <profile>
             <id>release</id>
             <build>
