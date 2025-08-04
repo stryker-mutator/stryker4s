@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## [0.18.1](https://github.com/stryker-mutator/stryker4s/compare/v0.18.0...v0.18.1) (2025-08-04)
 
 
