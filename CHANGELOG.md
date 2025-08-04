@@ -6,6 +6,7 @@
 ### Bug Fixes
 
 * configure maven plugin to publish to new maven-central ([#1803](https://github.com/stryker-mutator/stryker4s/issues/1803)) ([dc6a5a9](https://github.com/stryker-mutator/stryker4s/commit/dc6a5a942de1fc16787b1de7a02486dcdcb77efa))
+* use correct tasks for sonatype central release ([#1805](https://github.com/stryker-mutator/stryker4s/issues/1805)) ([ce7c317](https://github.com/stryker-mutator/stryker4s/commit/ce7c317731177efce9809c5f689b236f54e9a5d2))
 
 ## [0.18.0](https://github.com/stryker-mutator/stryker4s/compare/v0.17.2...v0.18.0) (2025-05-11)
 
