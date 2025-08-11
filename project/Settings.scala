@@ -65,11 +65,13 @@ object Settings {
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.7.0"
+        case "2.12" => "1.11.2"
         case _      => "2.0.0-RC2"
       }
     },
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    // Disable unused import warnings (for 2.12), for better compatibility with SBT 2/Scala 3
+    tpolecatExcludeOptions ++= Set(ScalacOptions.privateWarnUnusedImports)
   )
 
   lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(

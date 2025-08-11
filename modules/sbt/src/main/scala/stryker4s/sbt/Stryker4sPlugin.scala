@@ -5,8 +5,9 @@ import cats.effect.{Deferred, IO}
 import sbt.Keys.*
 import sbt.plugins.*
 import sbt.{given, *}
+import sjsonnew.{given, *}
 import stryker4s.config.DashboardReportType
-import stryker4s.config.codec.CirisConfigDecoders
+import stryker4s.config.codec.{CirceConfigEncoder, CirisConfigDecoders}
 import stryker4s.config.source.CliConfigSource
 import stryker4s.log.{Logger, SbtLogger}
 import stryker4s.run.threshold.ErrorStatus
@@ -68,12 +69,25 @@ object Stryker4sPlugin extends AutoPlugin {
 
   import autoImport.*
 
+  implicit private[stryker4s] object DialectJsonFormat
+      extends JsonFormat[Dialect]
+      with CirceConfigEncoder
+      with CirisConfigDecoders {
+
+    def write[J](x: Dialect, builder: Builder[J]): Unit =
+      builder.writeString(x.toString().toLowerCase())
+    def read[J](jsOpt: Option[J], unbuilder: Unbuilder[J]): Dialect =
+      jsOpt.flatMap(js => dialectReader.decode(None, unbuilder.readString(js)).toOption).getOrElse {
+        throw new sjsonnew.DeserializationException("Expected a string for Dialect")
+      }
+  }
+
   // Default settings for the plugin
   override lazy val projectSettings: Seq[Def.Setting[?]] = Seq(
     stryker := strykerTask.evaluated,
     stryker / logLevel := Level.Info,
     stryker / onLoadMessage := "", // Prevents "[info] Set current project to ..." in between mutations
-    strykerMinimumSbtVersion := "1.7.0",
+    strykerMinimumSbtVersion := "1.11.2",
     strykerIsSupported := SemanticSelector(s">=${strykerMinimumSbtVersion.value}")
       .matches(VersionNumber(sbtVersion.value)),
 
