@@ -19,7 +19,7 @@ import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 import xsbti.FileConverter
-
+import sjsonnew.{given, *}
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
 
