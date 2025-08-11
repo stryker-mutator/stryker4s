@@ -8,6 +8,7 @@ import fs2.io.file.Path
 import sbt.Keys.*
 import sbt.internal.LogManager
 import sbt.{given, *}
+import sjsonnew.{given, *}
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.exception.TestSetupException
@@ -19,7 +20,7 @@ import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
 import stryker4s.sbt.runner.{LegacySbtTestRunner, SbtTestRunner}
 import xsbti.FileConverter
-import sjsonnew.{given, *}
+
 import java.io.{File as JFile, PrintStream}
 import scala.concurrent.duration.FiniteDuration
 
@@ -72,7 +73,7 @@ class Stryker4sSbtRunner(
 
       val fullSettings = settings ++ Seq(
         libraryDependencies += "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
-        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT")) Resolver.sonatypeOssRepos("snapshot")
+        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT")) Seq(Resolver.sonatypeCentralSnapshots)
                        else Seq.empty)
       )
       val newState = extracted.appendWithSession(fullSettings, state)

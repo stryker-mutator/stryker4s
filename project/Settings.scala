@@ -65,7 +65,7 @@ object Settings {
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.7.0"
+        case "2.12" => "1.11.2"
         case _      => "2.0.0-RC2"
       }
     },
