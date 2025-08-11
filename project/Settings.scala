@@ -66,7 +66,7 @@ object Settings {
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.7.0"
-        case _      => "2.0.0-M4"
+        case _      => "2.0.0-RC2"
       }
     },
     scriptedBufferLog := false
