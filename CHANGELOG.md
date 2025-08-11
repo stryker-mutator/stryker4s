@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.19.0](https://github.com/stryker-mutator/stryker4s/compare/v0.18.1...v0.19.0) (2025-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **core:** Minimum sbt version is now 1.11.2
+
+### Features
+
+* **core:** support scala 3.7 dialect ([0e1bdb2](https://github.com/stryker-mutator/stryker4s/commit/0e1bdb2b42ff01eb017ee2cac00f95f0e28f146b))
+* **sbt-plugin:** publish to sbt 2.0.0-RC2 ([0e1bdb2](https://github.com/stryker-mutator/stryker4s/commit/0e1bdb2b42ff01eb017ee2cac00f95f0e28f146b))
+
+
 ## [0.18.1](https://github.com/stryker-mutator/stryker4s/compare/v0.18.0...v0.18.1) (2025-08-04)
 
 
