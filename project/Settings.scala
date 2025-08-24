@@ -69,7 +69,9 @@ object Settings {
         case _      => "2.0.0-RC3"
       }
     },
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
+    // Disable unused import warnings (for 2.12), for better compatibility with SBT 2/Scala 3
+    tpolecatExcludeOptions ++= Set(ScalacOptions.privateWarnUnusedImports)
   )
 
   lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
