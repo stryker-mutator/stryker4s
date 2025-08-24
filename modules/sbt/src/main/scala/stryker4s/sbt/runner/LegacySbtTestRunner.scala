@@ -4,7 +4,7 @@ import cats.effect.IO
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.*
 import sbt.Keys.*
-import sjsonnew.{given, *}
+import sjsonnew.*
 import stryker4s.exception.InitialTestRunFailedException
 import stryker4s.log.Logger
 import stryker4s.model.*

@@ -8,7 +8,7 @@ import fs2.io.file.Path
 import sbt.Keys.*
 import sbt.internal.LogManager
 import sbt.{given, *}
-import sjsonnew.{given, *}
+import sjsonnew.*
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
 import stryker4s.exception.TestSetupException

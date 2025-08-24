@@ -5,7 +5,7 @@ import cats.effect.{Deferred, IO}
 import sbt.Keys.*
 import sbt.plugins.*
 import sbt.{given, *}
-import sjsonnew.{given, *}
+import sjsonnew.*
 import stryker4s.config.DashboardReportType
 import stryker4s.config.codec.{CirceConfigEncoder, CirisConfigDecoders}
 import stryker4s.config.source.CliConfigSource
