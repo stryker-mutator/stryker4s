@@ -32,7 +32,7 @@ object Dependencies {
 
     val hocon = "1.4.4"
 
-    val fs2 = "3.12.0"
+    val fs2 = "3.12.2"
 
     val mutationTestingElements = "3.6.0"
 
