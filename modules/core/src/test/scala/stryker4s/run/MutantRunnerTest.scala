@@ -117,7 +117,10 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       }
 
       val sut =
-        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(staticTmpDirConfig, testLogger)
+        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(using
+          staticTmpDirConfig,
+          testLogger
+        )
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
@@ -136,7 +139,10 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       val mutant = createMutant.copy(id = MutantId(3))
 
       val sut =
-        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(staticTmpDirConfig, testLogger)
+        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(using
+          staticTmpDirConfig,
+          testLogger
+        )
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
@@ -156,7 +162,10 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       val testRunner = TestRunnerStub.withResults(mutant.toMutantResult(MutantStatus.Killed))
 
       val sut =
-        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(noCleanTmpDirConfig, testLogger)
+        new MutantRunner(testRunner, fileCollectorStub, rollbackHandler, reporterStub)(using
+          noCleanTmpDirConfig,
+          testLogger
+        )
       val file = FileUtil.getResource("scalaFiles/simpleFile.scala")
       val mutants = NonEmptyVector.one(mutant)
       val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)

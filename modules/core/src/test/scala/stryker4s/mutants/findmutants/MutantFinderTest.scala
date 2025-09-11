@@ -55,7 +55,7 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
       import scala.meta.dialects.Scala3
 
       val scala3DialectConfig = config.copy(scalaDialect = Scala3)
-      val sut = new MutantFinder()(scala3DialectConfig, implicitly[Logger])
+      val sut = new MutantFinder()(using scala3DialectConfig, implicitly[Logger])
       val file = FileUtil.getResource("scalaFiles/scala3File.scala")
 
       sut.parseFile(file).void.assert
