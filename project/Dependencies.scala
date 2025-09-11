@@ -15,7 +15,7 @@ object Dependencies {
     val ltsCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
 
     // Test dependencies
-    val munit = "1.1.1"
+    val munit = "1.1.2"
 
     val munitCatsEffect = "2.1.0"
 
