@@ -20,7 +20,7 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
   override def munitFixtures = super.munitFixtures :+ ResourceTestLocalFixture(
     "cleanup staticTmpDir",
-    Resource.onFinalize(Files[IO].deleteRecursively(staticTmpDir))
+    Resource.onFinalize(Files[IO].exists(staticTmpDir).ifM(Files[IO].deleteRecursively(staticTmpDir), IO.unit))
   )
 
   describe("apply") {
