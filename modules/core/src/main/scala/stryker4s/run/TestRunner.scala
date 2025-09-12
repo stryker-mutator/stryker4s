@@ -27,12 +27,12 @@ object TestRunner {
       config: Config,
       log: Logger
   ): Resource[IO, TestRunner] =
-    inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
+    inner.selfRecreatingResource { (testRunnerF, releaseAndSwap) =>
       IO {
         new TestRunner {
           override def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] =
             for {
-              runner <- testRunnerRef.get
+              runner <- testRunnerF
               time <- timeout.get
               result <- runner
                 .runMutant(mutant, testNames)
@@ -51,7 +51,7 @@ object TestRunner {
 
           override def initialTestRun(): IO[InitialTestRunResult] =
             for {
-              runner <- testRunnerRef.get
+              runner <- testRunnerF
               t <- runner.initialTestRun().timed
               (timedDuration, result) = t
               // Use reported duration if its available, or timed duration as a backup
@@ -75,7 +75,7 @@ object TestRunner {
   def retryRunner(
       inner: Resource[IO, TestRunner]
   )(implicit log: Logger): Resource[IO, TestRunner] =
-    inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
+    inner.selfRecreatingResource { (testRunnerF, releaseAndSwap) =>
       IO {
         new TestRunner {
 
@@ -87,7 +87,7 @@ object TestRunner {
               testNames: Seq[TestFile],
               retriesLeft: Long = 2
           ): IO[MutantResult] = {
-            testRunnerRef.get.flatMap(_.runMutant(mutant, testNames)).handleErrorWith { _ =>
+            testRunnerF.flatMap(_.runMutant(mutant, testNames)).handleErrorWith { _ =>
               // On error, get a new testRunner and set it
               IO(
                 log.debug(
@@ -101,7 +101,7 @@ object TestRunner {
             }
           }
           override def initialTestRun(): IO[InitialTestRunResult] =
-            testRunnerRef.get.flatMap(_.initialTestRun())
+            testRunnerF.flatMap(_.initialTestRun())
         }
       }
     }
@@ -109,7 +109,7 @@ object TestRunner {
   def maxReuseTestRunner(maxReuses: Int, inner: Resource[IO, TestRunner])(implicit
       log: Logger
   ): Resource[IO, TestRunner] =
-    inner.selfRecreatingResource { (testRunnerRef, releaseAndSwap) =>
+    inner.selfRecreatingResource { (testRunnerF, releaseAndSwap) =>
       Ref[IO].of(0).map { usesRef =>
         new TestRunner {
           def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = for {
@@ -121,13 +121,13 @@ object TestRunner {
                   releaseAndSwap *>
                   usesRef.set(1)
               }
-            runner <- testRunnerRef.get
+            runner <- testRunnerF
             result <- runner.runMutant(mutant, testNames)
           } yield result
 
           override def initialTestRun(): IO[InitialTestRunResult] = for {
             _ <- usesRef.update(_ + 1)
-            runner <- testRunnerRef.get
+            runner <- testRunnerF
             result <- runner.initialTestRun()
           } yield result
         }
