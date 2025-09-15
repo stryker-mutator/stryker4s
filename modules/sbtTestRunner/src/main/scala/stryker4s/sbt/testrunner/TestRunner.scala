@@ -4,6 +4,7 @@ import sbt.testing.{Event, EventHandler, Framework, Status, Task}
 import stryker4s.model.MutantId
 import stryker4s.testrunner.api.*
 
+import java.io.{PrintWriter, StringWriter}
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
@@ -116,7 +117,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
           _ :+ FailedTestDefinition.of(
             fullyQualifiedName = event.fullyQualifiedName,
             name = testName,
-            message = toOption(event.throwable()).map(_.getMessage())
+            message = toOption(event.throwable()).map(throwableToString)
           )
         )
         ()
@@ -125,5 +126,17 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
       status.updateAndGet(old => combineStatus(old, event.status()))
       ()
     }
+  }
+
+  /** Gets the stack trace from a Throwable as a String, including suppressed and cause exceptions.
+    *
+    * @see
+    *   https://commons.apache.org/proper/commons-lang/apidocs/src-html/org/apache/commons/lang3/exception/ExceptionUtils.html#line-463
+    */
+  private def throwableToString(throwable: Throwable): String = {
+    val sw = new StringWriter()
+
+    throwable.printStackTrace(new PrintWriter(sw, true))
+    sw.toString()
   }
 }
