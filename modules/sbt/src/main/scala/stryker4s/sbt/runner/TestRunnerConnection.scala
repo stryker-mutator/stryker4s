@@ -1,53 +1,54 @@
 package stryker4s.sbt.runner
 
-import cats.effect.IO
-import cats.syntax.bifunctor.*
-import com.google.protobuf.UInt32Value
-import fs2.Chunk
-import fs2.io.net.Socket
-import scodec.bits.BitVector
+import cats.effect.{IO, Resource}
+import com.comcast.ip4s.GenSocketAddress
+import com.google.protobuf.CodedOutputStream
+import fs2.io.net.{Network, Socket}
+import fs2.io.{readOutputStream, toInputStreamResource}
+import scalapb.LiteParser
 import stryker4s.log.Logger
 import stryker4s.testrunner.api.{Request, RequestMessage, Response, ResponseMessage}
+
+import java.io.InputStream
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
 }
 
-final class SocketTestRunnerConnection(socket: Socket[IO])(implicit log: Logger) extends TestRunnerConnection {
+final class SocketTestRunnerConnection private (socket: Socket[IO], input: InputStream)(implicit log: Logger)
+    extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] =
-    IO(log.debug(s"Sending message $request")) *>
-      (write(request.asMessage) *> read)
-        .flatTap(response => IO(log.debug(s"Received message $response")))
+    (write(request.asMessage) *> read)
+      .flatTap(response => IO(log.debug(s"Received message $response")))
 
-  def write(msg: RequestMessage) = {
-    // Delimiter announcing the size of the upcoming message. `tail` because the first byte is the tag of the message, which isn't included in the delimiter (it is always uint32)
-    val serializedSize = msg.serializedSize
-    val delimiter = Chunk.array(UInt32Value.newBuilder.setValue(serializedSize).build.toByteArray().tail)
+  def write(msg: RequestMessage) =
+    readOutputStream(bufferSizeForMsg(msg))(os => IO.blocking(msg.writeDelimitedTo(os)))
+      .through(socket.writes)
+      .compile
+      .drain
 
-    IO(log.debug(s"Writing message of $serializedSize bytes")) *>
-      socket.write(delimiter ++ Chunk.array(msg.toByteArray))
+  def read: IO[Response] = IO.blocking(ResponseMessage.parseDelimitedFrom(input)).flatMap {
+    case Some(responseMsg) => IO.pure(responseMsg.toResponse)
+    case None              => IO.raiseError(new RuntimeException("Failed to parse ResponseMessage from input stream"))
   }
 
-  def read: IO[Response] = {
-    // The delimiter tells us how many bytes to read for the response.
-    // @see https://developers.google.com/protocol-buffers/docs/encoding#varints
-    def readDelimiter(acc: BitVector): IO[BitVector] =
-      socket
-        .readN(1)
-        // If the first bit is positive (1), continue reading bytes
-        .map(_.toBitVector.splitAt(1).leftMap(_.head))
-        .flatMap { case (continue, newBits) =>
-          val sum = newBits ++ acc
-          if (continue) readDelimiter(sum)
-          else IO.pure(sum)
-        }
-
-    readDelimiter(BitVector.empty)
-      .map(_.toInt(false))
-      .flatTap(size => IO(log.debug(s"Reading message of $size bytes")))
-      .flatMap(socket.readN)
-      .map(bytes => ResponseMessage.parseFrom(bytes.toArray).toResponse)
+  /** Copied from RequestMessage#writeDelimitedTo
+    */
+  private def bufferSizeForMsg(msg: RequestMessage): Int = {
+    val serialized = msg.serializedSize
+    LiteParser.preferredCodedOutputStreamBufferSize(
+      CodedOutputStream.computeUInt32SizeNoTag(serialized) + serialized
+    )
   }
+
+}
+
+object SocketTestRunnerConnection {
+
+  def create(socketAddress: GenSocketAddress)(implicit log: Logger): Resource[IO, TestRunnerConnection] = for {
+    socket <- Network[IO].connect(socketAddress)
+    input <- toInputStreamResource(socket.reads)
+  } yield new SocketTestRunnerConnection(socket, input)
 
 }

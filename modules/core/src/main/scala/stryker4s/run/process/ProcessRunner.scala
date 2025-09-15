@@ -1,6 +1,7 @@
 package stryker4s.run.process
 
 import cats.effect.IO
+import cats.syntax.all.*
 import fs2.io.file.Path
 import fs2.io.process.ProcessBuilder
 import stryker4s.config.Config
@@ -10,9 +11,9 @@ import scala.util.{Properties, Try}
 
 abstract class ProcessRunner(implicit log: Logger) {
   def apply(command: Command, workingDir: Path, envVar: (String, String)*)(implicit config: Config): IO[Try[Int]] = {
-    val logger: String => IO[Unit] =
-      if (config.debug.logTestRunnerStdout) m => IO(log.debug(s"testrunner: $m"))
-      else _ => IO.unit
+    val logger = config.debug.logTestRunnerStdout
+      .guard[Option]
+      .as((m: String) => IO(log.debug(s"testrunner: $m")))
 
     ProcessResource
       .fromProcessBuilder(

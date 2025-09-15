@@ -3,7 +3,6 @@ package stryker4s.sbt
 import cats.data.NonEmptyList
 import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.either.*
-import com.comcast.ip4s.Port
 import fs2.io.file.Path
 import sbt.Keys.*
 import sbt.internal.LogManager
@@ -14,7 +13,7 @@ import stryker4s.config.{Config, TestFilter}
 import stryker4s.exception.TestSetupException
 import stryker4s.extension.FileExtensions.*
 import stryker4s.log.Logger
-import stryker4s.model.CompilerErrMsg
+import stryker4s.model.{CompilerErrMsg, TestRunnerId}
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutants.tree.InstrumenterOptions
 import stryker4s.run.{Stryker4sRunner, TestRunner}
@@ -152,13 +151,12 @@ class Stryker4sSbtRunner(
           config.concurrency
         }
 
-        val portStart = 13336
-        val portRanges = NonEmptyList.fromListUnsafe(
-          (1 to concurrency).map(p => Port.fromInt(p + portStart).get).toList
+        val testRunnerIds = NonEmptyList.fromListUnsafe(
+          (1 to concurrency).map(TestRunnerId(_)).toList
         )
 
-        portRanges.map { port =>
-          SbtTestRunner.create(javaHome, classpath, javaOpts, frameworks, testGroups, port, sharedTimeout)
+        testRunnerIds.map { id =>
+          SbtTestRunner.create(javaHome, classpath, javaOpts, frameworks, testGroups, id, sharedTimeout)
         }
       }
     }
@@ -179,7 +177,7 @@ class Stryker4sSbtRunner(
 
       val filteredSystemProperties: Seq[String] = {
         // Matches strings that start with one of the options between brackets
-        val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal|jdk).*"
+        val regex = "^(java|sun|file|user|jna|os|sbt|jline|awt|graal|jdk|line\\.separator).*"
         for {
           (key, value) <- sys.props.toList.filterNot { case (key, _) => key.matches(regex) }
           param = s"-D$key=$value"

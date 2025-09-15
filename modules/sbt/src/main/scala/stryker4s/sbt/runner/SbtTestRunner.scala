@@ -1,11 +1,11 @@
 package stryker4s.sbt.runner
 
 import cats.effect.{Deferred, IO, Resource}
-import com.comcast.ip4s.Port
 import sbt.Tests
 import sbt.testing.Framework
 import stryker4s.config.Config
 import stryker4s.log.Logger
+import stryker4s.model.TestRunnerId
 import stryker4s.run.TestRunner
 
 import java.io.File
@@ -19,14 +19,14 @@ object SbtTestRunner {
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
-      port: Port,
+      id: TestRunnerId,
       timeout: Deferred[IO, FiniteDuration]
   )(implicit
       config: Config,
       log: Logger
   ): Resource[IO, TestRunner] = {
     // Timeout will be set by timeoutRunner after initialTestRun
-    val innerTestRunner = ProcessTestRunner.newProcess(javaHome, classpath, javaOpts, frameworks, testGroups, port)
+    val innerTestRunner = ProcessTestRunner.newProcess(javaHome, classpath, javaOpts, frameworks, testGroups, id)
 
     val withTimeout = TestRunner.timeoutRunner(timeout, innerTestRunner)
 

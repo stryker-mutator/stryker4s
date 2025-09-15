@@ -1,6 +1,7 @@
 package stryker4s.report
 
 import cats.effect.IO
+import cats.syntax.applicative.*
 import fs2.io.file.Path
 import mutationtesting.*
 import stryker4s.config.Config
@@ -67,14 +68,11 @@ class HtmlReporter(fileIO: FileIO, desktopIO: DesktopIO)(implicit config: Config
 
     for {
       _ <- reportsWriting
-      _ <- IO(
-        log.info(s"Written HTML report to $indexLocation")
-      )
-      _ <-
-        if (config.openReport) desktopIO.attemptOpen(indexLocation).handleErrorWith { e =>
-          IO(log.error("Error opening report in browser", e))
-        }
-        else IO.unit
+      _ <- IO(log.info(s"Written HTML report to $indexLocation"))
+      _ <- desktopIO
+        .attemptOpen(indexLocation)
+        .handleErrorWith(e => IO(log.error("Error opening report in browser", e)))
+        .whenA(config.openReport)
     } yield ()
   }
 }
