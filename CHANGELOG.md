@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.1](https://github.com/stryker-mutator/stryker4s/compare/v0.19.0...v0.19.1) (2025-09-15)
+
+
+### Bug Fixes
+
+* **testrunner:** fix null pointer exception in testrunner when event throwable is null ([#1833](https://github.com/stryker-mutator/stryker4s/issues/1833)) ([2af192c](https://github.com/stryker-mutator/stryker4s/commit/2af192cf94b056240f127792e19658cebef71600))
+
 ## [0.19.0](https://github.com/stryker-mutator/stryker4s/compare/v0.18.1...v0.19.0) (2025-08-11)
 
 
