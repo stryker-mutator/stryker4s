@@ -10,11 +10,16 @@ object ProcessResource {
   def fromProcessBuilder(pb: ProcessBuilder, logger: Option[String => IO[Unit]]) = {
     def log(logger: String => IO[Unit]): Pipe[IO, Byte, Unit] = _.through(utf8.decode).through(lines).evalMap(logger)
 
-    val process = pb.spawn[IO]
-
-    logger.fold(process) { logger =>
-      val logPipe = log(logger)
-      process.flatTap(p => p.stdout.through(logPipe).concurrently(p.stderr.through(logPipe)).compile.drain.background)
-    }
+    pb.spawn[IO]
+      .flatTap(p =>
+        logger
+          .fold(p.stdout.drain.concurrently(p.stderr.drain)) { logger =>
+            val logPipe = log(logger)
+            p.stdout.through(logPipe).concurrently(p.stderr.through(logPipe)).drain
+          }
+          .compile
+          .drain
+          .background
+      )
   }
 }

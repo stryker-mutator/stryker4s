@@ -1,8 +1,9 @@
 package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
-import com.comcast.ip4s.GenSocketAddress
+import com.comcast.ip4s.{GenSocketAddress, UnixSocketAddress}
 import com.google.protobuf.CodedOutputStream
+import fs2.io.file.{Files, Path}
 import fs2.io.net.{Network, Socket}
 import fs2.io.{readOutputStream, toInputStreamResource}
 import scalapb.LiteParser
@@ -10,6 +11,7 @@ import stryker4s.log.Logger
 import stryker4s.testrunner.api.{Request, RequestMessage, Response, ResponseMessage}
 
 import java.io.InputStream
+import java.net.SocketException
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
@@ -47,6 +49,14 @@ final class SocketTestRunnerConnection private (socket: Socket[IO], input: Input
 object SocketTestRunnerConnection {
 
   def create(socketAddress: GenSocketAddress)(implicit log: Logger): Resource[IO, TestRunnerConnection] = for {
+    _ <- socketAddress match {
+      case UnixSocketAddress(path) =>
+        Files[IO]
+          .exists(Path(path))
+          .ifM(IO.unit, IO.raiseError(new SocketException(s"Socket file $path does not exist")))
+          .toResource
+      case _ => Resource.unit[IO]
+    }
     socket <- Network[IO].connect(socketAddress)
     input <- toInputStreamResource(socket.reads)
   } yield new SocketTestRunnerConnection(socket, input)
