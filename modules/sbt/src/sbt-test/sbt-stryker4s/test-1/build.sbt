@@ -2,6 +2,7 @@ scalaVersion := "2.12.20"
 
 libraryDependencies += "org.scalameta" %% "munit" % "1.2.0" % Test
 
+strykerDebugLogTestRunnerStdout := true
 stryker / logLevel := Level.Debug
 
 // Reproduce https://github.com/stryker-mutator/stryker4s/issues/726

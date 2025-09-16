@@ -3,11 +3,10 @@ package stryker4s.sbt.runner
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
 import cats.syntax.all.*
-import com.comcast.ip4s.{Host, Port, SocketAddress}
+import com.comcast.ip4s.*
 import fs2.Stream
 import fs2.io.file
 import fs2.io.file.Files
-import fs2.io.net.Network
 import fs2.io.process.{Process, ProcessBuilder}
 import mutationtesting.{MutantResult, MutantStatus}
 import sbt.Tests
@@ -21,7 +20,7 @@ import stryker4s.run.process.ProcessResource
 import stryker4s.testrunner.api.*
 
 import java.io.File
-import java.net.ConnectException
+import java.net.{ConnectException, SocketException, StandardProtocolFamily}
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
@@ -116,13 +115,22 @@ object ProcessTestRunner extends TestInterfaceMapper {
       javaOpts: Seq[String],
       frameworks: Seq[Framework],
       testGroups: Seq[Tests.Group],
-      port: Port
+      id: TestRunnerId
   )(implicit config: Config, log: Logger): Resource[IO, ProcessTestRunner] =
-    (createProcess(javaHome, classpath, javaOpts, port) *> connectToProcess(port))
-      .evalTap(setupTestRunner(_, frameworks, testGroups))
-      .map(new ProcessTestRunner(_))
+    for {
+      socketAddress <- getSocketAddress(id).toResource
+      _ <- createProcess(javaHome, classpath, javaOpts, socketAddress, id)
+      conn <- connectToProcess(socketAddress)
+      _ <- setupTestRunner(conn, frameworks, testGroups).toResource
+    } yield new ProcessTestRunner(conn)
 
-  def createProcess(javaHome: Option[File], classpath: Seq[Path], javaOpts: Seq[String], port: Port)(implicit
+  def createProcess(
+      javaHome: Option[File],
+      classpath: Seq[Path],
+      javaOpts: Seq[String],
+      socketAddress: GenSocketAddress,
+      id: TestRunnerId
+  )(implicit
       log: Logger,
       config: Config
   ): Resource[IO, Process[IO]] = {
@@ -132,11 +140,11 @@ object ProcessTestRunner extends TestInterfaceMapper {
       "-Xmx4G",
       "-cp",
       classpathString
-    ) ++ javaOpts ++ args(port)
+    ) ++ javaOpts ++ args(socketAddress)
 
-    val logger: String => IO[Unit] =
-      if (config.debug.logTestRunnerStdout) m => IO(log.debug(s"testrunner $port: $m"))
-      else _ => IO.unit
+    val logger = config.debug.logTestRunnerStdout
+      .guard[Option]
+      .as((m: String) => IO(log.debug(s"testrunner $id: $m")))
 
     for {
       args <-
@@ -165,9 +173,12 @@ object ProcessTestRunner extends TestInterfaceMapper {
     } yield process
   }
 
-  private def args(port: Port)(implicit config: Config): Seq[String] = {
+  private def args(address: GenSocketAddress)(implicit config: Config): Seq[String] = {
     val mainClass = "stryker4s.sbt.testrunner.SbtTestRunnerMain"
-    val sysProps = s"-D${TestProcessProperties.port}=$port"
+    val sysProps = address match {
+      case SocketAddress(_, port)  => s"-D${TestProcessProperties.port}=$port"
+      case UnixSocketAddress(path) => s"-D${TestProcessProperties.unixSocketPath}=$path"
+    }
     val debugArgs =
       if (config.debug.debugTestRunner)
         Seq("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:8000")
@@ -177,19 +188,23 @@ object ProcessTestRunner extends TestInterfaceMapper {
     debugArgs ++ Seq(sysProps, mainClass)
   }
 
-  private def connectToProcess(port: Port)(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
-    val socketAddress = SocketAddress(Host.fromString("127.0.0.1").get, port)
+  private def connectToProcess(
+      socketAddress: GenSocketAddress
+  )(implicit log: Logger): Resource[IO, TestRunnerConnection] = {
+    val name = socketAddress match {
+      case UnixSocketAddress(path) => path
+      case SocketAddress(_, port)  => s"port :$port"
+    }
 
-    Network[IO]
-      .client(socketAddress)
-      .map(new SocketTestRunnerConnection(_))
+    SocketTestRunnerConnection
+      .create(socketAddress)
       .retryWithBackoff(
         6,
         0.2.seconds,
         delay => IO(log.debug(s"Could not connect to testprocess. Retrying after ${delay.toHumanReadable}..."))
       )
-      .evalTap(_ => IO(log.debug(s"Connected to testprocess on port $port")))
-      .onFinalize(IO(log.debug(s"Closing test-runner on port $port")))
+      .evalTap(_ => IO(log.debug(s"Connected to testprocess at $name")))
+      .onFinalize(IO(log.debug(s"Closing test-runner at $name")))
   }
 
   def setupTestRunner(
@@ -201,6 +216,22 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
     testProcess.sendMessage(testContext).void
   }
+
+  def getSocketAddress(id: TestRunnerId)(implicit config: Config): IO[GenSocketAddress] =
+    unixSocketSupported.ifM(
+      IO.pure(UnixSocketAddress((config.baseDir / "target" / s"stryker4s-$id.sock").toString)),
+      IO.pure {
+        val portStart = 13336
+        SocketAddress(ipv4"127.0.0.1", Port.fromInt(portStart + id.value).get)
+      }
+    )
+
+  /** Check if unix domain sockets are supported on this platform. If not, we fall back to TCP sockets.
+    *
+    * @see
+    *   https://github.com/typelevel/fs2/blob/fdaae8959ad5d64fa0d30d78d9821897e7148bcf/io/jvm/src/main/scala/fs2/io/net/JdkUnixSocketsProvider.scala#L39
+    */
+  def unixSocketSupported: IO[Boolean] = IO(StandardProtocolFamily.values.size > 2)
 
   implicit final class ResourceOps[A](val resource: Resource[IO, A]) extends AnyVal {
 
@@ -214,10 +245,10 @@ object ProcessTestRunner extends TestInterfaceMapper {
         onError: FiniteDuration => IO[Unit]
     ): Resource[IO, A] = {
       resource.handleErrorWith[A] {
-        case _: ConnectException if maxAttempts != 0 =>
+        case _: ConnectException | _: SocketException if maxAttempts != 0 =>
           (onError(delay) *> IO.sleep(delay)).toResource *>
             retryWithBackoff(maxAttempts - 1, delay * 2, onError)
-        case _ => Resource.raiseError[IO, A, Throwable](new RuntimeException("Could not connect to testprocess"))
+        case e => Resource.raiseError[IO, A, Throwable](new RuntimeException("Could not connect to testprocess", e))
       }
     }
   }

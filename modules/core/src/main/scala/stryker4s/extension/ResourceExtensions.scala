@@ -1,9 +1,9 @@
 package stryker4s.extension
 
-import cats.effect.std.Hotswap
+import cats.effect.std.NonEmptyHotswap
 import cats.effect.{Concurrent, Resource}
 import cats.syntax.applicative.*
-import cats.syntax.functor.*
+import cats.syntax.option.*
 
 object ResourceExtensions {
 
@@ -19,11 +19,13 @@ object ResourceExtensions {
       * @return
       *   The new resource created with @param f
       */
-    final def selfRecreatingResource[B](f: (F[A], F[Unit]) => F[B])(implicit F: Concurrent[F]): Resource[F, B] =
-      Hotswap(startResource).evalMap { case (hotswap, _) =>
+    final def selfRecreatingResource[B](f: (F[A], F[Unit]) => F[B])(implicit F: Concurrent[F]): Resource[F, B] = {
+      val next = startResource.map(_.some)
+      NonEmptyHotswap(next).evalMap { hotswap =>
         // .clear to run the finalizer of the existing resource first before starting a new one
-        val releaseAndSwapF = F.guarantee(hotswap.clear, hotswap.swap(startResource).void)
-        f(hotswap.get.use(_.get.pure[F]), releaseAndSwapF)
+        val releaseAndSwapF = F.guarantee(hotswap.clear, hotswap.swap(next))
+        f(hotswap.getOpt.use(_.get.pure[F]), releaseAndSwapF)
       }
+    }
   }
 }

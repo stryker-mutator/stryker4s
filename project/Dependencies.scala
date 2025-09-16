@@ -17,12 +17,12 @@ object Dependencies {
     // Test dependencies
     val munit = "1.2.0"
 
-    val munitCatsEffect = "2.1.0"
+    val munitCatsEffect = "2.2.0-RC1"
 
     // Direct dependencies
     val catsCore = "2.13.0"
 
-    val catsEffect = "3.6.3"
+    val catsEffect = "3.7.0-RC1"
 
     val circe = "0.14.14"
 
@@ -32,7 +32,7 @@ object Dependencies {
 
     val hocon = "1.4.5"
 
-    val fs2 = "3.12.2"
+    val fs2 = "3.13.0-M7"
 
     val mutationTestingElements = "3.6.0"
 

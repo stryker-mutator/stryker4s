@@ -4,4 +4,5 @@ package stryker4s.testrunner.api
   */
 object TestProcessProperties {
   val port = "stryker4s.testprocess.port"
+  val unixSocketPath = "stryker4s.testprocess.unixSocketPath"
 }

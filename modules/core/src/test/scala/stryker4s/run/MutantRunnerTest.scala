@@ -1,8 +1,7 @@
 package stryker4s.run
 
 import cats.data.{NonEmptyList, NonEmptyVector}
-import cats.effect.IO
-import cats.effect.kernel.Resource
+import cats.effect.{IO, Resource}
 import cats.syntax.either.*
 import fs2.io.file.{Files, Path}
 import mutationtesting.MutantStatus

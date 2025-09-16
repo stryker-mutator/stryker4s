@@ -1,7 +1,7 @@
 package stryker4s.files
 
 import cats.effect.IO
-import cats.syntax.parallel.*
+import cats.syntax.all.*
 import fs2.io.file.{Files, Path}
 import fs2.io.process.{Process, ProcessBuilder}
 import fs2.text.utf8
@@ -22,15 +22,15 @@ class DesktopFileIO extends DesktopIO {
   }
 
   def openFile(file: File): IO[Unit] =
-    IO(sys.props.get("os.version").exists(_.contains("WSL"))).flatMap { isWsl =>
-      if (isWsl) for {
+    IO(sys.props.get("os.version").exists(_.contains("WSL"))).ifM(
+      for {
         // Convert to windows-style path with wslpath utility and open with powershell
         file <- spawnProcess("wslpath", "-ma", file.toString()).use(processStdout)
         _ <- spawnProcess("powershell.exe", "-NoProfile", "-Command", "Start-Process", s"file://$file")
           .use(_.exitValue)
-      } yield ()
-      else IO.blocking(Desktop.getDesktop.open(file))
-    }
+      } yield (),
+      IO.blocking(Desktop.getDesktop.open(file))
+    )
 
   private def spawnProcess(command: String, args: String*) = ProcessBuilder(command, args.toList).spawn[IO]
 
