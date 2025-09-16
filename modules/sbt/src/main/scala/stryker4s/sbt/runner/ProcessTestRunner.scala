@@ -2,9 +2,7 @@ package stryker4s.sbt.runner
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
-import cats.syntax.apply.*
-import cats.syntax.foldable.*
-import cats.syntax.option.*
+import cats.syntax.all.*
 import com.comcast.ip4s.{Host, Port, SocketAddress}
 import fs2.Stream
 import fs2.io.file
@@ -141,13 +139,26 @@ object ProcessTestRunner extends TestInterfaceMapper {
       else _ => IO.unit
 
     for {
-      // Create a file with all arguments to pass to the java process
-      // Sometimes the classpath and arguments is too long for the OS to handle, so we write it to a file and pass the file as argument
-      argfile <- Files[IO].tempFile
-      _ <- Stream.emits(allArgs).intersperse(" ").through(Files[IO].writeUtf8(argfile)).compile.drain.toResource
-      _ <- IO(log.debug(s"Starting process '$javaBin @$argfile'")).toResource
+      args <-
+        if (!sys.props.get("java.version").exists(_.startsWith("1.8.")))
+          // Create a file with all arguments to pass to the java process
+          // Sometimes the classpath and arguments is too long for the OS to handle, so we write it to a file and pass the file as argument
+          Files[IO].tempFile
+            .flatMap(argfile =>
+              Stream
+                .emits(allArgs)
+                .intersperse(" ")
+                .through(Files[IO].writeUtf8(argfile))
+                .compile
+                .resource
+                .drain
+                .as(List(s"@$argfile"))
+            )
+        // Argfiles are not supported in Java 8
+        else Resource.pure[IO, List[String]](allArgs)
+      _ <- IO(log.debug(s"Starting process '$javaBin ${args.mkString(" ")}'")).toResource
       process <- ProcessResource.fromProcessBuilder(
-        ProcessBuilder(javaBin, s"@$argfile").withWorkingDirectory(config.baseDir),
+        ProcessBuilder(javaBin, args).withWorkingDirectory(config.baseDir),
         logger
       )
       _ <- IO(log.debug("Started process")).toResource
