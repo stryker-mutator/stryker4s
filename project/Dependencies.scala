@@ -11,8 +11,7 @@ object Dependencies {
 
     val scala3 = "3.7.3"
 
-    val fullCrossScalaVersions = Seq(scala3, scala213, scala212)
-    val ltsCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
+    val crossScalaVersions = Seq(scala3Lts, scala213, scala212)
 
     // Test dependencies
     val munit = "1.2.0"
