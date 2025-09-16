@@ -10,6 +10,8 @@ import scala.meta.*
 sealed trait Stryker4sAssertions {
   this: FunSuite =>
 
+  implicit def dialect: Dialect = dialects.Scala213Source3
+
   def describe(description: String)(body: => Unit): Unit = {
     val start = munitTestsBuffer.size
     body
@@ -105,15 +107,15 @@ sealed trait Stryker4sAssertions {
         }
 
   implicit class ParseTreeExtension(s: String) {
-    def parseCase(implicit loc: Location): Case = s.parse[Case].toEither.value
-    def parseDef(implicit loc: Location): Defn.Def = parseStat match {
+    def parseCase(implicit loc: Location, dialect: Dialect): Case = s.parse[Case].toEither.value
+    def parseDef(implicit loc: Location, dialect: Dialect): Defn.Def = parseStat match {
       case d: Defn.Def => d
       case other       => fail(s"Expected a Defn.Def, but got $other")
     }
-    def parseTerm(implicit loc: Location): Term = s.parse[Term].toEither.value
-    def parseStat(implicit loc: Location): Stat = s.parse[Stat].toEither.value
-    def parseSource(implicit loc: Location): Source = s.parse[Source].toEither.value
-    def parseType(implicit loc: Location): Type = s.parse[Type].toEither.value
+    def parseTerm(implicit loc: Location, dialect: Dialect): Term = s.parse[Term].toEither.value
+    def parseStat(implicit loc: Location, dialect: Dialect): Stat = s.parse[Stat].toEither.value
+    def parseSource(implicit loc: Location, dialect: Dialect): Source = s.parse[Source].toEither.value
+    def parseType(implicit loc: Location, dialect: Dialect): Type = s.parse[Type].toEither.value
   }
 }
 

@@ -72,7 +72,6 @@ object Dependencies {
   val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
     .cross(CrossVersion.for3Use2_13)
     .exclude("com.lihaoyi", "sourcecode_2.13")
-    .exclude("com.thesamet.scalapb", "scalapb-runtime_2.13")
   val scalapbRuntime =
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val scopt = "com.github.scopt" %% "scopt" % versions.scopt
