@@ -30,8 +30,8 @@ abstract class ProcessRunner(implicit log: Logger) {
 
 object ProcessRunner {
 
-  def apply()(implicit log: Logger): ProcessRunner = {
+  def apply()(implicit log: Logger): ProcessRunner =
     if (Properties.isWin) new WindowsProcessRunner
     else new UnixProcessRunner
-  }
+
 }
