@@ -14,6 +14,8 @@ trait DesktopIO {
 }
 
 class DesktopFileIO extends DesktopIO {
+
+  @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
   override def attemptOpen(path: Path): IO[Unit] = {
     (isDesktopSupported, Files[IO].exists(path)).parTupled
       .flatMap { case (desktopSupported, fileExists) =>
