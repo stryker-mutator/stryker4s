@@ -35,7 +35,7 @@ class Stryker4sMavenRunner(project: MavenProject, invoker: Invoker)(implicit log
       .asRight
   }
 
-  override def extraConfigSources: List[ConfigSource[IO]] = List(new MavenConfigSource(project))
+  override def extraConfigSources: List[ConfigSource[IO]] = List(new MavenConfigSource[IO](project))
 
   private def setTestProperties(properties: Properties, testFilter: Seq[String]): Unit = {
     // Stop after first failure. Only works with surefire plugin, not scalatest
