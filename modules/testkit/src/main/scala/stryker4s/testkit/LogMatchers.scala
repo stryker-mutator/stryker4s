@@ -19,7 +19,7 @@ protected[stryker4s] trait LogMatchers extends Suite with TestTransforms {
 
   implicit lazy val testLogger: TestLogger = testLoggerFixture()
 
-  private val testLoggerFixture = new Fixture[TestLogger]("testlogger") {
+  private val testLoggerFixture: Fixture[TestLogger] = new Fixture[TestLogger]("testlogger") {
     val testLogger: TestLogger = new TestLogger(printLogs)
     override def apply(): TestLogger = testLogger
     override def afterEach(context: AfterEach): Unit = testLogger.clear()
