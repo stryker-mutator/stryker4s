@@ -2,6 +2,7 @@ package stryker4s.report
 
 import cats.effect.IO
 import fs2.io.file.Path
+import fs2.{text, Stream}
 import mutationtesting.MutationTestResult
 import stryker4s.config.Config
 import stryker4s.config.codec.CirceConfigEncoder
@@ -14,7 +15,7 @@ class JsonReporter(fileIO: FileIO)(implicit log: Logger) extends Reporter with C
     import io.circe.syntax.*
     import mutationtesting.circe.*
     val json = report.asJson.noSpaces
-    fileIO.createAndWrite(file, json)
+    fileIO.createAndWrite(file, text.utf8.encode(Stream.emit(json)))
   }
 
   override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = {
