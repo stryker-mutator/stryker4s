@@ -41,7 +41,7 @@ jobs:
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
-      - uses: coursier/cache-action@v6
+      - uses: coursier/cache-action@v7
       - uses: ./.github/setup
         with:
           cache: 'maven'

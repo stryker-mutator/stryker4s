@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: coursier/cache-action@v6
+      - uses: coursier/cache-action@v7
       - uses: ./.github/setup
         with:
           cache: 'maven'
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: coursier/cache-action@v6
+      - uses: coursier/cache-action@v7
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
           extraKey: 'scalafmt'
