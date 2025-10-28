@@ -1,17 +1,14 @@
 package stryker4s.report
 
-import cats.effect.IO
 import cats.syntax.all.*
-import fs2.*
-import fs2.io.file.{Files, Path}
+import fs2.io.file.Path
+import fs2.text
 import mutationtesting.{Metrics, MutationTestResult, Thresholds}
-import stryker4s.files.DiskFileIO
+import stryker4s.config.Config
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
-import stryker4s.testutil.stubs.FileIOStub
+import stryker4s.testutil.stubs.{DesktopIOStub, FileIOStub}
 
 import scala.concurrent.duration.*
-import stryker4s.config.Config
-import stryker4s.testutil.stubs.DesktopIOStub
 
 class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
@@ -19,93 +16,55 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
   private val elementsLocation = "/elements/mutation-test-elements.js"
 
-  private val expectedHtml =
-    """<!DOCTYPE html>
-      |<html lang="en">
-      |<head>
-      |  <meta charset="UTF-8">
-      |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      |  <script src="mutation-test-elements.js"></script>
-      |</head>
-      |<body>
-      |  <mutation-test-report-app title-postfix="Stryker4s report">
-      |    Your browser doesn't support <a href="https://caniuse.com/#search=custom%20elements">custom elements</a>.
-      |    Please use a latest version of an evergreen browser (Firefox, Chrome, Safari, Opera, etc).
-      |  </mutation-test-report-app>
-      |  <script>
-      |    const app = document.getElementsByTagName('mutation-test-report-app').item(0);
-      |    function updateTheme() {
-      |      document.body.style.backgroundColor = app.themeBackgroundColor;
-      |    }
-      |    app.addEventListener('theme-changed', updateTheme);
-      |    updateTheme();
-      |  </script>
-      |  <script src="report.js"></script>
-      |</body>
-      |</html>""".stripMargin
+  describe("reportAsJsonStr") {
+    test("should return a JSON string representation of the report") {
+      val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
-  describe("indexHtml") {
-    test("should contain title") {
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val testFile = Path("foo.bar")
+      val result = sut.reportAsJsonStr(report)
 
-      sut
-        .writeIndexHtmlTo(testFile) >>
-        fileIOStub.createAndWriteCalls.asserting { calls =>
-          assertEquals(calls.loneElement._1, testFile)
-          assertEquals(calls.loneElement._2, expectedHtml)
-        }
+      assertNoDiff(
+        result,
+        """      app.report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}};"""
+      )
+    }
+
+    test("escapes HTML inside the JSON") {
+      val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
+      val report = MutationTestResult(
+        thresholds = Thresholds(100, 0),
+        files = Map(
+          "Example.scala" -> mutationtesting.FileResult(
+            source = "<script>alert('boo')</script>",
+            mutants = Seq.empty
+          )
+        )
+      )
+
+      val result = sut.reportAsJsonStr(report)
+
+      assert(result.contains("<\"+\"script>alert('boo')<\"+\"/script>"))
+      assert(!result.contains("<script>alert('boo')</script>"))
     }
   }
 
-  describe("reportJs") {
-    test("should contain the report") {
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val testFile = Path("foo.bar")
-      val runResults = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+  describe("createHtmlReportStream") {
+    test("should create a stream containing the HTML report") {
+      val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
-      sut
-        .writeReportJsTo(testFile, runResults) >>
-        fileIOStub.createAndWriteCalls.asserting { calls =>
-          val expectedJs =
-            """document.querySelector('mutation-test-report-app').report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}}"""
+      val resultStream = sut.createHtmlReportStream(report)
 
-          assertEquals(calls.loneElement, (testFile, expectedJs))
+      resultStream
+        .through(text.utf8.decode)
+        .compile
+        .string
+        .asserting { resultString =>
+          assert(resultString.startsWith("<!DOCTYPE html>"))
+          assert(resultString.endsWith("</html>\n"))
+          assert(resultString.contains(""""files":{}"""))
+          assert(resultString.contains("""<mutation-test-report-app title-postfix="Stryker4s report">"""))
         }
-    }
-  }
-
-  describe("mutation-test-elements") {
-    test("should write the resource") {
-      // Arrange
-      val fileIO = new DiskFileIO()
-      val desktopIOStub = DesktopIOStub()
-      Files[IO].tempDirectory.use { tmpDir =>
-        val tempFile = tmpDir.resolve("mutation-test-elements.js")
-        val sut = new HtmlReporter(fileIO, desktopIOStub)
-
-        // Act
-        sut
-          .writeMutationTestElementsJsTo(tempFile) >> {
-          // assert
-          val atLeastSize: Long = 100 * 1024L // 100KB
-          Files[IO].size(tempFile).map(size => assert(size > atLeastSize))
-        } >> {
-          val expectedHeader = """var MutationTestElements"""
-          // Read the first line
-          Files[IO]
-            .readRange(tempFile, 256, 0, expectedHeader.getBytes().length.toLong)
-            .through(text.utf8.decode)
-            .head
-            .compile
-            .lastOrError
-            .assertEquals(expectedHeader)
-        }
-      }
     }
   }
 
@@ -121,13 +80,13 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, fileLocation)) >>
-        (fileIOStub.createAndWriteFromResourceCalls, fileIOStub.createAndWriteCalls).tupled.asserting {
-          case (fromResourceCalls, createAndWriteCalls) =>
+        (fileIOStub.resourceAsStreamCalls, fileIOStub.createAndWriteCalls).tupled.asserting {
+          case (resourceCalls, createAndWriteCalls) =>
             createAndWriteCalls
               .map(_._1.toString)
               .foreach(fileName => assert(fileName.contains(fileLocation.toString), fileName))
-            assertSameElements(createAndWriteCalls.map(_._1.fileName.toString), Seq("index.html", "report.js"))
-            assertEquals(fromResourceCalls.loneElement._2, elementsLocation)
+            assertEquals(createAndWriteCalls.loneElement._1.fileName.toString, "index.html")
+            assertEquals(resourceCalls.loneElement, elementsLocation)
         }
     }
 
@@ -140,10 +99,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        fileIOStub.createAndWriteFromResourceCalls.asserting { calls =>
-          val expectedFileLocation = fileLocation / "mutation-test-elements.js"
-          assertEquals(calls.loneElement._1, expectedFileLocation)
-          assertEquals(calls.loneElement._2, elementsLocation)
+        fileIOStub.resourceAsStreamCalls.asserting { calls =>
+          assertEquals(calls.loneElement, elementsLocation)
         }
     }
 
@@ -191,6 +148,22 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
         desktopIOStub.openCalls.assertEquals(Seq.empty)
+    }
+
+    test("logs when opening the report fails") {
+      implicit val config: Config = Config.default.copy(openReport = true)
+      val fileIOStub = FileIOStub()
+      val desktopIOStub = DesktopIOStub.throws()
+
+      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+      val metrics = Metrics.calculateMetrics(report)
+
+      sut
+        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+        desktopIOStub.openCalls.asserting { _ =>
+          assertLoggedError("Error opening report in browser")
+        }
     }
   }
 }

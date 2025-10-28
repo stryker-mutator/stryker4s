@@ -18,4 +18,10 @@ object DesktopIOStub {
       override def attemptOpen(path: Path): IO[Unit] = openRef.update(_ :+ path)
     }
   }
+
+  def throws(): DesktopIOStub = new DesktopIOStub {
+    override def attemptOpen(path: Path): IO[Unit] = IO.raiseError(new Exception("Failed to open file"))
+
+    def openCalls: IO[Seq[Path]] = IO.pure(Seq.empty)
+  }
 }
