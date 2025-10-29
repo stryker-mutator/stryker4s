@@ -43,7 +43,7 @@ object Dependencies {
 
     val slf4j = "2.0.17"
 
-    val sttp = "4.0.12"
+    val sttp = "4.0.13"
 
     val testInterface = "1.0"
 
