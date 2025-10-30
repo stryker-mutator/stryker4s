@@ -15,11 +15,11 @@ jobs:
     steps:
       - name: Generate token
         id: generate-token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v1
         with:
-          app_id: ${{ vars.STRYKER_MUTATOR_APP_ID }}
-          private_key: ${{ secrets.STRYKER_MUTATOR_NPA_KEY }}
-      - uses: googleapis/release-please-action@v4
+          app-id: ${{ vars.STRYKER_MUTATOR_APP_ID }}
+          private-key: ${{ secrets.STRYKER_MUTATOR_NPA_KEY }}
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38
         with:
           # Version is determined by sbt-ci-release (which uses sbt-dynver)
           # Actual release code is in `./ci.yml`
