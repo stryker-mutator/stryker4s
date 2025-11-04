@@ -130,10 +130,10 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 
 ### `open-report` (`Boolean`)
 
-**Config file:** `open-report: true`
-**Sbt:** `strykerOpenReport := true`
-**CLI:** `--open-report`
-**Default value:** `false`
+**Config file:** `open-report: true` 
+**Sbt:** `strykerOpenReport := true`  
+**CLI:** `--open-report`  
+**Default value:** `false`  
 
 Open the HTML report in the default browser after the mutation run is finished.
 
