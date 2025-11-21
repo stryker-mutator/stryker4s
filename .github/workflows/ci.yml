@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup
         with:
           java-version: ${{ matrix.java-version }}
@@ -31,7 +31,7 @@ jobs:
     name: sbt 1 plugin scripted tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Run tests
         run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin/scripted'
@@ -39,7 +39,7 @@ jobs:
     name: sbt 2 plugin scripted tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Run tests
         run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin3/scripted'
@@ -47,7 +47,7 @@ jobs:
     name: Test Maven plugin
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: coursier/cache-action@bebeeb0e6f48ebad66d3783946588ecf43114433 # v7.0.0
       - uses: ./.github/setup
         with:
@@ -64,7 +64,7 @@ jobs:
     name: Test formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: coursier/cache-action@bebeeb0e6f48ebad66d3783946588ecf43114433 # v7.0.0
         with:
           extraFiles: 'bin/scalafmt,.scalafmt.conf'
@@ -77,7 +77,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Fetch all commits, used by sbt-dynver plugin to determine version
           fetch-depth: 0
