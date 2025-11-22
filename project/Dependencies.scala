@@ -33,7 +33,7 @@ object Dependencies {
 
     val fs2 = "3.13.0-M7"
 
-    val mutationTestingElements = "3.6.0"
+    val mutationTestingElements = "3.7.0"
 
     val mutationTestingMetrics = "3.5.2"
 
