@@ -10,4 +10,4 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: sbt/setup-sbt@3e125ece5c3e5248e18da9ed8d2cce3d335ec8dd # v1.1.14
-      - uses: scalacenter/sbt-dependency-submission@1772d9070d86ec472bdb7606229b047f51ec3319 # v3.1.1
+      - uses: scalacenter/sbt-dependency-submission@f43202114d7522a4b233e052f82c2eea8d658134 # v3.1.1
