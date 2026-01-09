@@ -219,6 +219,13 @@ class TreeExtensionsTest extends Stryker4sSuite {
       }
       assertEquals(calls, 1)
     }
+
+    test("should collect multiple values") {
+      val tree = "def foo = 5 + 2".parseDef
+      val result = tree.collectWithContext { case _ => () } { case Lit.Int(n) => _ => n }
+
+      assertEquals(result, Seq(5, 2))
+    }
   }
 
   describe("toLocation") {

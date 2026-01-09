@@ -1,6 +1,6 @@
 package stryker4s.mutants.tree
 
-import cats.syntax.all.*
+import cats.Monoid
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.model.PlaceableTree
 import stryker4s.mutants.TreeTraverser
@@ -20,16 +20,14 @@ class MutantCollector(traverser: TreeTraverser, matcher: MutantMatcher) {
 
     // Walk through the tree and create a Map of PlaceableTree and Mutants
     val collected: Seq[(PlaceableTree, Either[IgnoredMutations, Mutations])] =
-      tree.collectWithContext(canPlaceF)(onEnterF)
+      tree.collectWithContext(canPlaceF)(onEnterF).reverse
 
-    // IgnoredMutations are grouped by PlaceableTree, but we want all IgnoredMutations per file, which we can do with a foldLeft
-    collected
-      .foldLeft(
-        (Vector.newBuilder[IgnoredMutation], Map.empty[PlaceableTree, Mutations])
-      ) {
-        case ((acc, acc2), (_, Left(m)))  => (acc ++= m.toVector, acc2)
-        case ((acc, acc2), (p, Right(m))) => (acc, acc2.alignCombine(Map(p -> m)))
+    // IgnoredMutations are grouped by PlaceableTree, but we want all IgnoredMutations per file, which we can do with a combineAll
+    Monoid.combineAll(
+      collected.map {
+        case (_, Left(m))  => (m.toVector, Map.empty[PlaceableTree, Mutations])
+        case (p, Right(m)) => (Vector.empty, Map(p -> m))
       }
-      .leftMap(_.result())
+    )
   }
 }

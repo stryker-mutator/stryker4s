@@ -1,9 +1,9 @@
 package stryker4s.mutants
 
-import cats.Functor
 import cats.data.NonEmptyVector
 import cats.effect.IO
 import cats.syntax.all.*
+import cats.{Functor, Monoid}
 import fansi.Color
 import fs2.io.file.Path
 import fs2.{Chunk, Pipe, Stream}
@@ -125,15 +125,13 @@ class Mutator(
       }
   }
 
-  def foldAndSplitEithers[A, B, C]: Pipe[IO, Either[
+  def foldAndSplitEithers[A, B: Monoid, C]: Pipe[IO, Either[
     (A, B),
     C
   ], (Map[A, B], Vector[C])] =
-    _.fold((Map.newBuilder[A, B], Vector.newBuilder[C])) {
-      case ((l, r), Right(f)) =>
-        (l, r += f)
-      case ((l, r), Left(f)) =>
-        (l += f, r)
-    }.map { case (l, r) => (l.result(), r.result()) }
+    _.foldMap {
+      case Left(value)  => (Map(value), Vector.empty[C])
+      case Right(value) => (Map.empty[A, B], Vector(value))
+    }
 
 }
