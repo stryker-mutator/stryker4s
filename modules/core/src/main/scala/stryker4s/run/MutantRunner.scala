@@ -17,7 +17,6 @@ import stryker4s.report.{MutantTestedEvent, Reporter}
 
 import java.nio
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.Builder
 
 class MutantRunner(
     createTestRunnerPool: Path => Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]],
@@ -202,16 +201,12 @@ class MutantRunner(
     // Back to per-file structure
     implicit val pathOrdering: Ordering[Path] = implicitly[Ordering[nio.file.Path]].on[Path](_.toNioPath)
     implicit val mutantResultOrdering: Ordering[MutantResult] = Ordering.String.on[MutantResult](_.id)
-    type MutantResultBuilder = Builder[MutantResult, Vector[MutantResult]]
 
     (static ++ noCoverage ++ testedMutants)
-      .fold(SortedMap.empty[Path, MutantResultBuilder]) { case (resultsMap, (path, result)) =>
-        val results: MutantResultBuilder = resultsMap.getOrElse(path, Vector.newBuilder) += result
-        resultsMap + (path -> results)
-      }
+      .foldMap { case (a, b) => SortedMap(a -> Vector(b)) }
+      .map(_.map { case (k, v) => k -> v.sorted })
       .compile
       .lastOrError
-      .map(_.map { case (k, v) => k -> v.result().sorted })
   }
 
   def initialTestRun(testRunner: TestRunner): IO[InitialTestRunResult] = {
