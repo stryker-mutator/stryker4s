@@ -159,7 +159,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
 
       // Assert
       assertLoggedError(s"Failed to instrument mutants in `foo${separator}bar.scala`. Original statement: [true]")
-      assertLoggedError("Failed mutation(s) '0, 1' at Input.String(\"class Foo { def foo = true }\"):1:23")
+      assertLoggedError("Failed mutation(s) '0, 1' at str(class Foo { def foo = true }):1:23")
       assertLoggedError("This is likely an issue on Stryker4s's end, please take a look at the debug logs")
     }
 
