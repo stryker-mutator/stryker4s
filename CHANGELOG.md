@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.20.0](https://github.com/stryker-mutator/stryker4s/compare/v0.19.1...v0.20.0) (2026-02-27)
+
+
+### Features
+
+* connect to testrunner over unix sockets, if available ([#1834](https://github.com/stryker-mutator/stryker4s/issues/1834)) ([3921e7c](https://github.com/stryker-mutator/stryker4s/commit/3921e7c6079b27550fe523a73e5bf1c3f33d3606))
+* **report:** output HTML report as single file ([#1867](https://github.com/stryker-mutator/stryker4s/issues/1867)) ([cd60269](https://github.com/stryker-mutator/stryker4s/commit/cd60269dd8e1d05e92d4286af1619f9c7ea511ef))
+* **scala-dialect:** support Scala 3.8 ([#1883](https://github.com/stryker-mutator/stryker4s/issues/1883)) ([810c600](https://github.com/stryker-mutator/stryker4s/commit/810c600a4f7fe0fa4d8103fc77262e6f0b60f4fe))
+
+
+### Bug Fixes
+
+* compatibility with java 8 ([#1837](https://github.com/stryker-mutator/stryker4s/issues/1837)) ([be4590f](https://github.com/stryker-mutator/stryker4s/commit/be4590fe6e571239ce80ea26a2feb8d402bd7cd5))
+* cross-compile to Scala 3 LTS, instead of for SBT2 ([#1840](https://github.com/stryker-mutator/stryker4s/issues/1840)) ([6e853ed](https://github.com/stryker-mutator/stryker4s/commit/6e853ed040987eb44296c8514a2c0c1157a54020))
+
 ## [0.19.1](https://github.com/stryker-mutator/stryker4s/compare/v0.19.0...v0.19.1) (2025-09-15)
 
 
