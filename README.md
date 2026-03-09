@@ -1,6 +1,6 @@
-[![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/search?q=g:io.stryker-mutator)
+[![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_3.svg?label=Maven%20Central&colorB=brightgreen)](https://central.sonatype.com/artifact/io.stryker-mutator/stryker4s-core_3)
 [![Build status](https://github.com/stryker-mutator/stryker4s/workflows/CI/badge.svg)](https://github.com/stryker-mutator/stryker4s/actions)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master)
+[![Mutation testing badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fstryker-mutator%2Fstryker4s%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/stryker-mutator/stryker4s/master)
 [![Slack Chat](https://img.shields.io/badge/slack-chat-brightgreen.svg?logo=slack)](https://join.slack.com/t/stryker-mutator/shared_invite/enQtOTUyMTYyNTg1NDQ0LTU4ODNmZDlmN2I3MmEyMTVhYjZlYmJkOThlNTY3NTM1M2QxYmM5YTM3ODQxYmJjY2YyYzllM2RkMmM1NjNjZjM)
 
 ![stryker-80x80](https://user-images.githubusercontent.com/10114577/59962899-d26b8d00-94eb-11e9-8e31-18b3d8d96fd3.png)
@@ -22,7 +22,7 @@ Stryker4s is a mutation testing framework for Scala. It allows you to test your 
 
 ## Sbt plugin
 
-Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/sbt-stryker4s):
+Stryker4s provides a sbt plugin for easy use within sbt projects. To install the plugin, add the following line to `plugins.sbt` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/sbt-stryker4s_2.12_1.0.svg?label=Maven%20Central&colorB=brightgreen)](https://central.sonatype.com/artifact/io.stryker-mutator/sbt-stryker4s_2.12_1.0):
 
 ```scala
 addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % stryker4sVersion)
@@ -36,7 +36,7 @@ Multi-module projects are not yet fully supported. However, there is a workaroun
 
 ## Maven plugin
 
-The Maven plugin can be added as follows in `pom.xml` under `<plugins>` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-core_2.12.svg?label=Maven%20Central&colorB=brightgreen)](https://search.maven.org/artifact/io.stryker-mutator/stryker4s-maven-plugin):
+The Maven plugin can be added as follows in `pom.xml` under `<plugins>` [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/stryker4s-maven-plugin.svg?label=Maven%20Central&colorB=brightgreen)](https://central.sonatype.com/artifact/io.stryker-mutator/stryker4s-maven-plugin):
 
 ```xml
 <plugin>
@@ -56,7 +56,7 @@ We also publish SNAPSHOT versions of each commit on master. To use a pre-release
 resolvers += Resolver.sonatypeCentralSnapshots
 ```
 
-Then replace the Stryker4s version with this version: [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/io.stryker-mutator/stryker4s-core_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/io/stryker-mutator/).
+Then replace the Stryker4s version with this version: [![Maven Central (Snapshots)](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fio%2Fstryker-mutator%2Fstryker4s-core_3%2Fmaven-metadata.xml)](https://central.sonatype.com/artifact/io.stryker-mutator/stryker4s-core_3/versions).
 
 ## Configuration
 
