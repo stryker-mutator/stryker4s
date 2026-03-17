@@ -30,7 +30,7 @@ final class SocketTestRunnerConnection private (socket: Socket[IO], input: Input
       .compile
       .drain
 
-  def read: IO[Response] = IO.blocking(ResponseMessage.parseDelimitedFrom(input)).flatMap {
+  def read: IO[Response] = IO.interruptible(ResponseMessage.parseDelimitedFrom(input)).flatMap {
     case Some(responseMsg) => IO.pure(responseMsg.toResponse)
     case None              => IO.raiseError(new RuntimeException("Failed to parse ResponseMessage from input stream"))
   }
