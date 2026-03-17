@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.1](https://github.com/stryker-mutator/stryker4s/compare/v0.20.0...v0.20.1) (2026-03-17)
+
+
+### Bug Fixes
+
+* fix test-runner timeouts ([#1950](https://github.com/stryker-mutator/stryker4s/issues/1950)) ([88fb656](https://github.com/stryker-mutator/stryker4s/commit/88fb656b5fa5c08643cf87e46a421d785f43abd8))
+
 ## [0.20.0](https://github.com/stryker-mutator/stryker4s/compare/v0.19.1...v0.20.0) (2026-03-16)
 
 This release uses the new support in [FS2](https://fs2.io/#/) for Unix sockets to communicate with test-runners. Stryker4s will seamlessly use either native Unix file sockets, or the "old" TCP sockets, whichever is available. This should give slightly improved performance and stability. If you run into any issues, [please let us know](https://github.com/stryker-mutator/stryker4s/issues/new/choose)!
