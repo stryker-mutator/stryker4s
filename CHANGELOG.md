@@ -2,6 +2,9 @@
 
 ## [0.20.2](https://github.com/stryker-mutator/stryker4s/compare/v0.20.1...v0.20.2) (2026-03-19)
 
+### Bug Fixes
+
+* fix test-runner timeouts ([#1950](https://github.com/stryker-mutator/stryker4s/issues/1950)) ([88fb656](https://github.com/stryker-mutator/stryker4s/commit/88fb656b5fa5c08643cf87e46a421d785f43abd8))
 
 ### Miscellaneous Chores
 
