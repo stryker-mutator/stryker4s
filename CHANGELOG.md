@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.3](https://github.com/stryker-mutator/stryker4s/compare/v0.20.2...v0.20.3) (2026-03-25)
+
+
+### Bug Fixes
+
+* **unix-sockets:** use temp file for socket path instead of fixed path ([#1958](https://github.com/stryker-mutator/stryker4s/issues/1958)) ([f42d3ac](https://github.com/stryker-mutator/stryker4s/commit/f42d3accac45ef8546638ad8c2a79d882f25a023))
+
 ## [0.20.2](https://github.com/stryker-mutator/stryker4s/compare/v0.20.1...v0.20.2) (2026-03-19)
 
 ### Bug Fixes
