@@ -217,9 +217,12 @@ object ProcessTestRunner extends TestInterfaceMapper {
     testProcess.sendMessage(testContext).void
   }
 
-  def getSocketAddress(id: TestRunnerId)(implicit config: Config): IO[GenSocketAddress] =
+  def getSocketAddress(id: TestRunnerId): IO[GenSocketAddress] =
     unixSocketSupported.ifM(
-      IO.pure(UnixSocketAddress((config.baseDir / "target" / s"stryker4s-$id.sock").toString)),
+      // Creates a temp file and then deletes it. But this ensures there is a known unique path for the socket
+      Files[IO]
+        .tempFile(None, "s4s-", ".sock", None)
+        .use(path => IO.pure(UnixSocketAddress(path.toString))),
       IO.pure {
         val portStart = 13336
         SocketAddress(ipv4"127.0.0.1", Port.fromInt(portStart + id.value).get)
