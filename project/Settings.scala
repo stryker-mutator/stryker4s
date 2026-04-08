@@ -108,6 +108,16 @@ object Settings {
     )
   )
 
+  lazy val mutatorApiSettings: Seq[Setting[?]] = Seq(
+    moduleName := "stryker-mutator-api",
+    // Target Java 11 as the minimum version
+    javacOptions ++= Seq("--release", "11"),
+    // Disable Scala library dependency
+    crossPaths := false,
+    autoScalaLibrary := false
+    // scalaVersion  := Dependencies.versions.scala3,
+  )
+
   lazy val testkitSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-testkit",
     libraryDependencies ++= Seq(
