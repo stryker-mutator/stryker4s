@@ -1,7 +1,6 @@
 package stryker4s.sbt
 
 import _root_.sbt.*
-import xsbti.{FileConverter, HashedVirtualFileRef}
 
 import java.nio.file.Path as NioPath
 import scala.collection.mutable
@@ -9,17 +8,9 @@ import scala.collection.mutable
 /** For compatibility with sbt 2.x
   */
 private[stryker4s] object PluginCompat {
-  type FileRef = java.io.File
-  type Out = java.io.File
 
-  def toNioPath(a: Attributed[HashedVirtualFileRef])(using conv: FileConverter): NioPath =
-    conv.toPath(a.data)
-  inline def toFile(a: Attributed[HashedVirtualFileRef])(using conv: FileConverter): File =
-    toNioPath(a).toFile()
   def toNioPaths(cp: Seq[Attributed[HashedVirtualFileRef]])(using conv: FileConverter): Vector[NioPath] =
-    cp.map(toNioPath).toVector
-  inline def toFiles(cp: Seq[Attributed[HashedVirtualFileRef]])(using conv: FileConverter): Vector[File] =
-    toNioPaths(cp).map(_.toFile())
+    cp.map(a => conv.toPath(a.data)).toVector
 
   def runTask[T](taskKey: TaskKey[T], state: State): Option[Either[Incomplete, T]] =
     val extracted = Project.extract(state)
