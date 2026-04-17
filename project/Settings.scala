@@ -1,12 +1,12 @@
 import Release.*
-import org.typelevel.sbt.tpolecat.*
-import org.typelevel.scalacoptions.*
+// import org.typelevel.sbt.tpolecat.*
+// import org.typelevel.scalacoptions.*
 import sbt.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
-import TpolecatPlugin.autoImport.*
+// import TpolecatPlugin.autoImport.*
 
 object Settings {
   lazy val commonSettings: Seq[Setting[?]] = Seq(
@@ -16,6 +16,12 @@ object Settings {
       case _ =>
         Nil
     }),
+    scalacOptions ++= {
+      scalaBinaryVersion.value match {
+        case "3" => Seq.empty
+        case _   => Seq("-Xsource:3")
+      }
+    },
     // Add src/main/ scala-2.13- and scala-2.13+ source directories
     Compile / unmanagedSourceDirectories += {
       val sourceDir = (Compile / sourceDirectory).value
@@ -23,8 +29,8 @@ object Settings {
         case Some((2, n)) if n <= 12 => sourceDir / "scala-2.13-"
         case _                       => sourceDir / "scala-2.13+"
       }
-    },
-    tpolecatScalacOptions ++= Set(ScalacOptions.source3)
+    }
+    // tpolecatScalacOptions ++= Set(ScalacOptions.source3)
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
@@ -75,9 +81,9 @@ object Settings {
       case Dependencies.versions.scala3Lts => Dependencies.versions.scala3
       case other                           => other
     },
-    scriptedBufferLog := false,
+    scriptedBufferLog := false
     // Disable unused import warnings (for 2.12), for better compatibility with SBT 2/Scala 3
-    tpolecatExcludeOptions ++= Set(ScalacOptions.privateWarnUnusedImports)
+    // tpolecatExcludeOptions ++= Set(ScalacOptions.privateWarnUnusedImports)
   )
 
   lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
@@ -96,9 +102,9 @@ object Settings {
         scala3Sources = scalaBinaryVersion.value == "3"
       ) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime,
+    libraryDependencies += Dependencies.scalapbRuntime
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
-    Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
+    // Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
 
   lazy val apiSettings: Seq[Setting[?]] = Seq(
@@ -126,8 +132,8 @@ object Settings {
 
   lazy val buildInfo: Seq[Def.Setting[?]] = Seq(
     // Fatal warnings only in CI
-    tpolecatCiModeEnvVar := "CI",
-    tpolecatDefaultOptionsMode := DevMode,
+    // tpolecatCiModeEnvVar := "CI",
+    // tpolecatDefaultOptionsMode := DevMode,
     // Prevent version clash warnings when running Stryker4s on a locally-published on Stryker4s
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,

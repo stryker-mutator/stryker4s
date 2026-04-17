@@ -1,6 +1,5 @@
 import Dependencies.*
 import Settings.*
-import sbt.internal.ProjectMatrix
 
 lazy val root = (project withId "stryker4s" in file("."))
   .settings(
