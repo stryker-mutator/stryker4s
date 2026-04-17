@@ -28,7 +28,8 @@ object Settings {
       ScalacOptions.source("3", version => version.isBetween(ScalaVersion.V2_12_0, ScalaVersion.V2_13_0)),
       ScalacOptions.source("3-cross", version => version.isBetween(ScalaVersion.V2_13_0, ScalaVersion.V3_0_0)),
       ScalacOptions.release("17")
-    )
+    ),
+    exportJars := false
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
@@ -145,18 +146,18 @@ object Settings {
     ),
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
-    organizationHomepage := Some(url("https://stryker-mutator.io/")),
-    homepage := Some(url("https://stryker-mutator.io/")),
+    organizationHomepage := Some(uri("https://stryker-mutator.io/")),
+    homepage := Some(uri("https://stryker-mutator.io/")),
     licenses := Seq(License.Apache2),
     scmInfo := Some(
       ScmInfo(
-        url("https://github.com/stryker-mutator/stryker4s"),
+        uri("https://github.com/stryker-mutator/stryker4s"),
         "scm:git:https://github.com/stryker-mutator/stryker4s.git",
         "scm:git:git@github.com:stryker-mutator/stryker4s.git"
       )
     ),
     developers := List(
-      Developer("hugo-vrijswijk", "Hugo", "", url("https://github.com/hugo-vrijswijk"))
+      Developer("hugo-vrijswijk", "Hugo", "", uri("https://github.com/hugo-vrijswijk"))
     ),
     versionScheme := Some("semver-spec")
   )
