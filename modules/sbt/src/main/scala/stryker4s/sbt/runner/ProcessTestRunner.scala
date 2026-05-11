@@ -178,6 +178,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     val sysProps = address match {
       case SocketAddress(_, port)  => s"-D${TestProcessProperties.port}=$port"
       case UnixSocketAddress(path) => s"-D${TestProcessProperties.unixSocketPath}=$path"
+      case other: GenSocketAddress => throw new IllegalArgumentException(s"Unknown socket address type: $other")
     }
     val debugArgs =
       if (config.debug.debugTestRunner)
@@ -194,6 +195,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
     val name = socketAddress match {
       case UnixSocketAddress(path) => path
       case SocketAddress(_, port)  => s"port :$port"
+      case other: GenSocketAddress => throw new IllegalArgumentException(s"Unknown socket address type: $other")
     }
 
     SocketTestRunnerConnection
