@@ -48,6 +48,7 @@ trait TestInterfaceMapper {
       case a: sbt.testing.AnnotatedFingerprint => AnnotatedFingerprint(a.isModule(), a.annotationName())
       case s: sbt.testing.SubclassFingerprint  =>
         SubclassFingerprint(s.isModule(), s.superclassName(), s.requireNoArgConstructor())
+      case other: sbt.testing.Fingerprint => throw new IllegalArgumentException(s"Unknown fingerprint type: $other")
     }
 
   private def toSelector(s: sbt.testing.Selector): Selector =
@@ -57,5 +58,6 @@ trait TestInterfaceMapper {
       case _: sbt.testing.SuiteSelector        => SuiteSelector()
       case a: sbt.testing.TestSelector         => TestSelector(a.testName())
       case a: sbt.testing.TestWildcardSelector => TestWildcardSelector(a.testWildcard())
+      case other: sbt.testing.Selector         => throw new IllegalArgumentException(s"Unknown selector type: $other")
     }
 }
