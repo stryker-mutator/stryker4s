@@ -41,7 +41,7 @@ object Dependencies {
 
     val scopt = "4.1.0"
 
-    val slf4j = "2.0.17"
+    val slf4j = "2.0.18"
 
     val sttp = "4.0.23"
 
