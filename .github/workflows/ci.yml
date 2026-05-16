@@ -34,7 +34,8 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Run tests
-        run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin/scripted'
+        # sbtTestRunner3 is required by test-subproject (Scala 3 LTS); 2_12 by test-1.
+        run: sbt 'sbtTestRunner2_12/publishLocal; sbtTestRunner3/publishLocal; sbtPlugin/scripted'
   sbt-scripted-2:
     name: sbt 2 plugin scripted tests
     runs-on: ubuntu-latest
@@ -42,7 +43,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Run tests
-        run: sbt 'sbtTestRunner2_12/publishLocal; sbtPlugin3/scripted'
+        run: sbt 'sbtTestRunner2_12/publishLocal; sbtTestRunner3/publishLocal; sbtPlugin3/scripted'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest

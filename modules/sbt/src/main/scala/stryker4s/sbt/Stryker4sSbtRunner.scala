@@ -33,6 +33,7 @@ import Stryker4sPlugin.autoImport.stryker
 class Stryker4sSbtRunner(
     state: State,
     javaHome: Option[File],
+    targetProject: ProjectRef,
     sharedTimeout: Deferred[IO, FiniteDuration],
     override val extraConfigSources: List[ConfigSource[IO]]
 )(implicit
@@ -53,14 +54,14 @@ class Stryker4sSbtRunner(
         LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
 
       val fullSettings = settings ++ Seq(
-        logManager := {
+        targetProject / logManager := {
           if ((stryker / logLevel).value == Level.Debug) logManager.value
           else emptyLogManager
         }
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
-      NonEmptyList.of(Resource.pure(new LegacySbtTestRunner(newState, fullSettings, extracted)))
+      NonEmptyList.of(Resource.pure(new LegacySbtTestRunner(newState, fullSettings, extracted, targetProject)))
     }
 
     def setupSbtTestRunner(
@@ -71,9 +72,10 @@ class Stryker4sSbtRunner(
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
       val fullSettings = settings ++ Seq(
-        libraryDependencies += "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
-        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT")) Seq(Resolver.sonatypeCentralSnapshots)
-                       else Seq.empty)
+        targetProject / libraryDependencies +=
+          "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
+        targetProject / resolvers ++=
+          (if (stryker4sVersion.endsWith("-SNAPSHOT")) Seq(Resolver.sonatypeCentralSnapshots) else Seq.empty)
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
@@ -97,8 +99,10 @@ class Stryker4sSbtRunner(
         }
       }
 
-      // See if the mutations compile, and if not extract the errors
-      val compilerErrors = PluginCompat.runTask(Compile / compile, newState) match {
+      // See if the mutations compile, and if not extract the errors.
+      // Scoped to targetProject so `sbt sub/stryker` compiles the subproject's sources, not the
+      // (auto-generated) root project's. See also extractTaskValue calls below.
+      val compilerErrors = PluginCompat.runTask(targetProject / Compile / compile, newState) match {
         case Some(Left(cause)) =>
           val rootCauses = getRootCause(cause)
           rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
@@ -121,18 +125,18 @@ class Stryker4sSbtRunner(
       }
 
       compilerErrors.toLeft {
-        val classpath = PluginCompat.toNioPaths(extractTaskValue(Test / fullClasspath))
+        val classpath = PluginCompat.toNioPaths(extractTaskValue(targetProject / Test / fullClasspath))
 
-        val javaOpts = extractTaskValue(Test / javaOptions)
+        val javaOpts = extractTaskValue(targetProject / Test / javaOptions)
 
-        val frameworks = extractTaskValue(Test / loadedTestFrameworks).values.toSeq
+        val frameworks = extractTaskValue(targetProject / Test / loadedTestFrameworks).values.toSeq
         if (frameworks.isEmpty)
           log.warn(
             "No test frameworks found via loadedTestFrameworks. " +
               "Will likely result in no tests being run and a NoCoverage result for all mutants."
           )
 
-        val testGroups = extractTaskValue(Test / testGrouping).map { group =>
+        val testGroups = extractTaskValue(targetProject / Test / testGrouping).map { group =>
           if (config.testFilter.isEmpty) group
           else {
             val testFilter = new TestFilter()
@@ -171,8 +175,12 @@ class Stryker4sSbtRunner(
         "unused:explicits"
         // -Ywarn for Scala 2.12, -W for Scala 2.13
       ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt")) ++ Seq(
-        // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile
-        "-Xfatal-warnings"
+        // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile.
+        // -Xfatal-warnings is the Scala 2.x flag; -Werror is the Scala 3 / tpolecat 0.5.3+ replacement
+        // and must also be stripped — otherwise warnings the mutation-switching pattern triggers
+        // (e.g. non-exhaustive match on the synthetic Some("n") cases) propagate as errors.
+        "-Xfatal-warnings",
+        "-Werror"
       )
 
       val filteredSystemProperties: Seq[String] = {
@@ -185,15 +193,18 @@ class Stryker4sSbtRunner(
       }
       log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
 
+      // All settings are scoped to targetProject so that appendWithSession changes only affect the
+      // subproject the user invoked stryker on, not every project in the build (in particular not the
+      // auto-generated root, against which our task queries previously resolved).
       val settings: Seq[Def.Setting[?]] = Seq(
-        scalacOptions --= blocklistedScalacOptions,
-        Test / fork := true,
-        Compile / unmanagedSourceDirectories ~= (_.map(tmpDirFor(_, tmpDir))),
-        Test / javaOptions ++= filteredSystemProperties
+        targetProject / scalacOptions --= blocklistedScalacOptions,
+        targetProject / Test / fork := true,
+        targetProject / Compile / unmanagedSourceDirectories ~= (_.map(tmpDirFor(_, tmpDir))),
+        targetProject / Test / javaOptions ++= filteredSystemProperties
       ) ++ {
         if (config.testFilter.nonEmpty) {
           val testFilter = new TestFilter()
-          Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
+          Seq(targetProject / Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
         } else
           Nil
       }

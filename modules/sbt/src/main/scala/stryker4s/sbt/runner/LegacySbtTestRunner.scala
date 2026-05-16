@@ -12,7 +12,12 @@ import stryker4s.run.TestRunner
 import stryker4s.sbt.PluginCompat
 import stryker4s.testrunner.api.TestFile
 
-class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], extracted: Extracted)(implicit
+class LegacySbtTestRunner(
+    initialState: State,
+    settings: Seq[Def.Setting[?]],
+    extracted: Extracted,
+    targetProject: ProjectRef
+)(implicit
     log: Logger
 ) extends TestRunner {
   def initialTestRun(): IO[InitialTestRunResult] = runTests(
@@ -39,7 +44,7 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
   }
 
   private def runTests[T](state: State, onError: => T, onSuccess: => T, onFailed: => T): IO[T] =
-    IO(PluginCompat.runTask(Test / executeTests, state)) map {
+    IO(PluginCompat.runTask(targetProject / Test / executeTests, state)) map {
       case Some(Right(output)) if output.overall == TestResult.Passed => onSuccess
       case Some(Right(output)) if output.overall == TestResult.Failed => onFailed
       case Some(Right(output)) if output.overall == TestResult.Error  => onFailed
@@ -47,5 +52,5 @@ class LegacySbtTestRunner(initialState: State, settings: Seq[Def.Setting[?]], ex
     }
 
   private def mutationSetting(mutation: Int): Def.Setting[?] =
-    Test / javaOptions += s"-DACTIVE_MUTATION=${mutation.toString()}"
+    targetProject / Test / javaOptions += s"-DACTIVE_MUTATION=${mutation.toString()}"
 }

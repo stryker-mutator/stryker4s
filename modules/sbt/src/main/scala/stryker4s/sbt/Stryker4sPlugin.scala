@@ -170,6 +170,11 @@ object Stryker4sPlugin extends AutoPlugin {
     }
 
     val sbtConfig = SbtConfigSource[IO]().value
+    // The project the user invoked `stryker` on. Captured here (task-scoped) so that the runner
+    // can scope its task queries (Test / loadedTestFrameworks, Compile / compile, ...) to it.
+    // Without this, `sbt sub/stryker` queries those tasks against the build's current project
+    // (typically the auto-generated root), which has no test frameworks → silent 0% mutation score.
+    val targetProject = thisProjectRef.value
 
     Def.task {
       implicit val runtime: IORuntime = IORuntime.global
@@ -180,7 +185,7 @@ object Stryker4sPlugin extends AutoPlugin {
       val extraConfigSources = List(sbtConfig, cliConfig)
 
       Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
-        .map(new Stryker4sSbtRunner(state.value, javaHome.value, _, extraConfigSources))
+        .map(new Stryker4sSbtRunner(state.value, javaHome.value, targetProject, _, extraConfigSources))
         .flatMap(_.run())
         .flatMap {
           case ErrorStatus => IO.raiseError(new MessageOnlyException("Mutation score is below configured threshold"))
