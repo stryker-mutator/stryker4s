@@ -170,10 +170,6 @@ object Stryker4sPlugin extends AutoPlugin {
     }
 
     val sbtConfig = SbtConfigSource[IO]().value
-    // The project the user invoked `stryker` on. Captured here (task-scoped) so that the runner
-    // can scope its task queries (Test / loadedTestFrameworks, Compile / compile, ...) to it.
-    // Without this, `sbt sub/stryker` queries those tasks against the build's current project
-    // (typically the auto-generated root), which has no test frameworks → silent 0% mutation score.
     val targetProject = thisProjectRef.value
 
     Def.task {

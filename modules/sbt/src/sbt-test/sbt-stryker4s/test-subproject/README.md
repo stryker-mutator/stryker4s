@@ -10,5 +10,5 @@ score.
 
 The fix: pass `thisProjectRef` from the task macro into `Stryker4sSbtRunner`
 and scope every task query / appended setting to it. If the fix regresses,
-the threshold break in `app/stryker4s.conf` trips and this scripted test
-fails.
+the `strykerThresholdsBreak` set in `build.sbt` trips and this scripted
+test fails.

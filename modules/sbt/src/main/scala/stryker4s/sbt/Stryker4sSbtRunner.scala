@@ -99,32 +99,30 @@ class Stryker4sSbtRunner(
         }
       }
 
-      // See if the mutations compile, and if not extract the errors.
-      // Scoped to targetProject so `sbt sub/stryker` compiles the subproject's sources, not the
-      // (auto-generated) root project's. See also extractTaskValue calls below.
-      val compilerErrors = PluginCompat.runTask(targetProject / Compile / compile, newState) match {
-        case Some(Left(cause)) =>
-          val rootCauses = getRootCause(cause)
-          rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
-          val compileErrors = rootCauses
-            .collect { case e: xsbti.CompileFailed => e }
-            .flatMap { exception =>
-              exception.problems.flatMap { e =>
-                for {
-                  path <- e.position().sourceFile().asScala
-                  pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
-                  line <- e.position().line().asScala
-                } yield CompilerErrMsg(e.message(), pathStr, line)
+      def attemptCompileAndCollectErrors(): Option[NonEmptyList[CompilerErrMsg]] =
+        PluginCompat.runTask(targetProject / Compile / compile, newState) match {
+          case Some(Left(cause)) =>
+            val rootCauses = getRootCause(cause)
+            rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
+            val compileErrors = rootCauses
+              .collect { case e: xsbti.CompileFailed => e }
+              .flatMap { exception =>
+                exception.problems.flatMap { e =>
+                  for {
+                    path <- e.position().sourceFile().asScala
+                    pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
+                    line <- e.position().line().asScala
+                  } yield CompilerErrMsg(e.message(), pathStr, line)
+                }
               }
-            }
-            .toList
+              .toList
 
-          NonEmptyList.fromList(compileErrors)
-        case _ =>
-          None
-      }
+            NonEmptyList.fromList(compileErrors)
+          case _ =>
+            None
+        }
 
-      compilerErrors.toLeft {
+      attemptCompileAndCollectErrors().toLeft {
         val classpath = PluginCompat.toNioPaths(extractTaskValue(targetProject / Test / fullClasspath))
 
         val javaOpts = extractTaskValue(targetProject / Test / javaOptions)
@@ -165,7 +163,7 @@ class Stryker4sSbtRunner(
       }
     }
 
-    def extractSbtProject(tmpDir: Path)(implicit config: Config) = {
+    def targetProjectSessionOverrides(tmpDir: Path)(implicit config: Config): Seq[Def.Setting[?]] = {
       // Remove scalacOptions that are very likely to cause errors with generated code
       // https://github.com/stryker-mutator/stryker4s/issues/321
       val blocklistedScalacOptions = Seq(
@@ -175,12 +173,8 @@ class Stryker4sSbtRunner(
         "unused:explicits"
         // -Ywarn for Scala 2.12, -W for Scala 2.13
       ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt")) ++ Seq(
-        // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile.
-        // -Xfatal-warnings is the Scala 2.x flag; -Werror is the Scala 3 / tpolecat 0.5.3+ replacement
-        // and must also be stripped — otherwise warnings the mutation-switching pattern triggers
-        // (e.g. non-exhaustive match on the synthetic Some("n") cases) propagate as errors.
-        "-Xfatal-warnings",
-        "-Werror"
+        // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile
+        "-Xfatal-warnings"
       )
 
       val filteredSystemProperties: Seq[String] = {
@@ -193,10 +187,7 @@ class Stryker4sSbtRunner(
       }
       log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
 
-      // All settings are scoped to targetProject so that appendWithSession changes only affect the
-      // subproject the user invoked stryker on, not every project in the build (in particular not the
-      // auto-generated root, against which our task queries previously resolved).
-      val settings: Seq[Def.Setting[?]] = Seq(
+      Seq(
         targetProject / scalacOptions --= blocklistedScalacOptions,
         targetProject / Test / fork := true,
         targetProject / Compile / unmanagedSourceDirectories ~= (_.map(tmpDirFor(_, tmpDir))),
@@ -208,20 +199,19 @@ class Stryker4sSbtRunner(
         } else
           Nil
       }
-
-      (settings, Project.extract(state))
     }
 
     def tmpDirFor(source: File, tmpDir: Path): JFile =
       Path.fromNioPath(source.toPath()).inSubDir(tmpDir).toNioPath.toFile().getAbsoluteFile()
 
-    val (settings, extracted) = extractSbtProject(tmpDir)
+    val sessionOverrides = targetProjectSessionOverrides(tmpDir)
+    val extracted = Project.extract(state)
 
     if (config.legacyTestRunner) {
       // No compiler error handling in the legacy runner
-      setupLegacySbtTestRunner(settings, extracted).asRight
+      setupLegacySbtTestRunner(sessionOverrides, extracted).asRight
     } else
-      setupSbtTestRunner(settings, extracted)
+      setupSbtTestRunner(sessionOverrides, extracted)
   }
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =
