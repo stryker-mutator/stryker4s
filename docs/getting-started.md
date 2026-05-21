@@ -28,6 +28,12 @@ Run Stryker4s to mutation test your project:
 sbt stryker
 ```
 
+Or on multi-module projects:
+
+```shell
+sbt <module-name>/stryker
+```
+
 ## 4 Having trouble?
 
 Are you having troubles? Try enabling debug logging. For more information on how to enable debug logging visit our [configuration page](./configuration.md#log-level-string).
