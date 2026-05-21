@@ -99,30 +99,30 @@ class Stryker4sSbtRunner(
         }
       }
 
-      def attemptCompileAndCollectErrors(): Option[NonEmptyList[CompilerErrMsg]] =
-        PluginCompat.runTask(targetProject / Compile / compile, newState) match {
-          case Some(Left(cause)) =>
-            val rootCauses = getRootCause(cause)
-            rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
-            val compileErrors = rootCauses
-              .collect { case e: xsbti.CompileFailed => e }
-              .flatMap { exception =>
-                exception.problems.flatMap { e =>
-                  for {
-                    path <- e.position().sourceFile().asScala
-                    pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
-                    line <- e.position().line().asScala
-                  } yield CompilerErrMsg(e.message(), pathStr, line)
-                }
+      // See if the mutations compile, and if not extract the errors
+      val compilerErrors = PluginCompat.runTask(targetProject / Compile / compile, newState) match {
+        case Some(Left(cause)) =>
+          val rootCauses = getRootCause(cause)
+          rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
+          val compileErrors = rootCauses
+            .collect { case e: xsbti.CompileFailed => e }
+            .flatMap { exception =>
+              exception.problems.flatMap { e =>
+                for {
+                  path <- e.position().sourceFile().asScala
+                  pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
+                  line <- e.position().line().asScala
+                } yield CompilerErrMsg(e.message(), pathStr, line)
               }
-              .toList
+            }
+            .toList
 
-            NonEmptyList.fromList(compileErrors)
-          case _ =>
-            None
-        }
+          NonEmptyList.fromList(compileErrors)
+        case _ =>
+          None
+      }
 
-      attemptCompileAndCollectErrors().toLeft {
+      compilerErrors.toLeft {
         val classpath = PluginCompat.toNioPaths(extractTaskValue(targetProject / Test / fullClasspath))
 
         val javaOpts = extractTaskValue(targetProject / Test / javaOptions)
