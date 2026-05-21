@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.20.4](https://github.com/stryker-mutator/stryker4s/compare/v0.20.3...v0.20.4) (2026-05-21)
+
+Stryker4s now works properly on multi-module projects! Simply running `sbt <module-name>/stryker` will run Stryker4s on the specified module. The workaround of `sbt 'project <module-name>' stryker` is no longer necessary. Thanks to @rwaldvogel for the contribution!
+
+### Bug Fixes
+
+* **sbt:** scope task queries to the invoking project ([#1994](https://github.com/stryker-mutator/stryker4s/issues/1994)) ([bfbe167](https://github.com/stryker-mutator/stryker4s/commit/bfbe167bc378a5018b9f512a6b16f13a3579405d))
+* **sbt:** strip -Werror alongside -Xfatal-warnings ([#1999](https://github.com/stryker-mutator/stryker4s/issues/1999)) ([afb2e50](https://github.com/stryker-mutator/stryker4s/commit/afb2e505d6fd598266984ed6702e897676ddc96d))
+
 ## [0.20.3](https://github.com/stryker-mutator/stryker4s/compare/v0.20.2...v0.20.3) (2026-03-25)
 
 
