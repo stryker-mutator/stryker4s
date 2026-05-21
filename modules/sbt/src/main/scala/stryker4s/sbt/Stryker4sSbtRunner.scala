@@ -33,6 +33,7 @@ import Stryker4sPlugin.autoImport.stryker
 class Stryker4sSbtRunner(
     state: State,
     javaHome: Option[File],
+    targetProject: ProjectRef,
     sharedTimeout: Deferred[IO, FiniteDuration],
     override val extraConfigSources: List[ConfigSource[IO]]
 )(implicit
@@ -53,14 +54,14 @@ class Stryker4sSbtRunner(
         LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
 
       val fullSettings = settings ++ Seq(
-        logManager := {
+        targetProject / logManager := {
           if ((stryker / logLevel).value == Level.Debug) logManager.value
           else emptyLogManager
         }
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
-      NonEmptyList.of(Resource.pure(new LegacySbtTestRunner(newState, fullSettings, extracted)))
+      NonEmptyList.of(Resource.pure(new LegacySbtTestRunner(newState, fullSettings, extracted, targetProject)))
     }
 
     def setupSbtTestRunner(
@@ -71,9 +72,10 @@ class Stryker4sSbtRunner(
       log.debug(s"Resolved stryker4s version $stryker4sVersion")
 
       val fullSettings = settings ++ Seq(
-        libraryDependencies += "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
-        resolvers ++= (if (stryker4sVersion.endsWith("-SNAPSHOT")) Seq(Resolver.sonatypeCentralSnapshots)
-                       else Seq.empty)
+        targetProject / libraryDependencies +=
+          "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % stryker4sVersion,
+        targetProject / resolvers ++=
+          (if (stryker4sVersion.endsWith("-SNAPSHOT")) Seq(Resolver.sonatypeCentralSnapshots) else Seq.empty)
       )
       val newState = extracted.appendWithSession(fullSettings, state)
 
@@ -97,42 +99,42 @@ class Stryker4sSbtRunner(
         }
       }
 
-      // See if the mutations compile, and if not extract the errors
-      val compilerErrors = PluginCompat.runTask(Compile / compile, newState) match {
-        case Some(Left(cause)) =>
-          val rootCauses = getRootCause(cause)
-          rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
-          val compileErrors = rootCauses
-            .collect { case e: xsbti.CompileFailed => e }
-            .flatMap { exception =>
-              exception.problems.flatMap { e =>
-                for {
-                  path <- e.position().sourceFile().asScala
-                  pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
-                  line <- e.position().line().asScala
-                } yield CompilerErrMsg(e.message(), pathStr, line)
+      def attemptCompileAndCollectErrors(): Option[NonEmptyList[CompilerErrMsg]] =
+        PluginCompat.runTask(targetProject / Compile / compile, newState) match {
+          case Some(Left(cause)) =>
+            val rootCauses = getRootCause(cause)
+            rootCauses.foreach(t => log.debug(s"Compile failed with ${t.getClass().getName()} root cause: $t"))
+            val compileErrors = rootCauses
+              .collect { case e: xsbti.CompileFailed => e }
+              .flatMap { exception =>
+                exception.problems.flatMap { e =>
+                  for {
+                    path <- e.position().sourceFile().asScala
+                    pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
+                    line <- e.position().line().asScala
+                  } yield CompilerErrMsg(e.message(), pathStr, line)
+                }
               }
-            }
-            .toList
+              .toList
 
-          NonEmptyList.fromList(compileErrors)
-        case _ =>
-          None
-      }
+            NonEmptyList.fromList(compileErrors)
+          case _ =>
+            None
+        }
 
-      compilerErrors.toLeft {
-        val classpath = PluginCompat.toNioPaths(extractTaskValue(Test / fullClasspath))
+      attemptCompileAndCollectErrors().toLeft {
+        val classpath = PluginCompat.toNioPaths(extractTaskValue(targetProject / Test / fullClasspath))
 
-        val javaOpts = extractTaskValue(Test / javaOptions)
+        val javaOpts = extractTaskValue(targetProject / Test / javaOptions)
 
-        val frameworks = extractTaskValue(Test / loadedTestFrameworks).values.toSeq
+        val frameworks = extractTaskValue(targetProject / Test / loadedTestFrameworks).values.toSeq
         if (frameworks.isEmpty)
           log.warn(
             "No test frameworks found via loadedTestFrameworks. " +
               "Will likely result in no tests being run and a NoCoverage result for all mutants."
           )
 
-        val testGroups = extractTaskValue(Test / testGrouping).map { group =>
+        val testGroups = extractTaskValue(targetProject / Test / testGrouping).map { group =>
           if (config.testFilter.isEmpty) group
           else {
             val testFilter = new TestFilter()
@@ -161,7 +163,7 @@ class Stryker4sSbtRunner(
       }
     }
 
-    def extractSbtProject(tmpDir: Path)(implicit config: Config) = {
+    def targetProjectSessionOverrides(tmpDir: Path)(implicit config: Config): Seq[Def.Setting[?]] = {
       // Remove scalacOptions that are very likely to cause errors with generated code
       // https://github.com/stryker-mutator/stryker4s/issues/321
       val blocklistedScalacOptions = Seq(
@@ -186,32 +188,31 @@ class Stryker4sSbtRunner(
       }
       log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
 
-      val settings: Seq[Def.Setting[?]] = Seq(
-        scalacOptions --= blocklistedScalacOptions,
-        Test / fork := true,
-        Compile / unmanagedSourceDirectories ~= (_.map(tmpDirFor(_, tmpDir))),
-        Test / javaOptions ++= filteredSystemProperties
+      Seq(
+        targetProject / scalacOptions --= blocklistedScalacOptions,
+        targetProject / Test / fork := true,
+        targetProject / Compile / unmanagedSourceDirectories ~= (_.map(tmpDirFor(_, tmpDir))),
+        targetProject / Test / javaOptions ++= filteredSystemProperties
       ) ++ {
         if (config.testFilter.nonEmpty) {
           val testFilter = new TestFilter()
-          Seq(Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
+          Seq(targetProject / Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
         } else
           Nil
       }
-
-      (settings, Project.extract(state))
     }
 
     def tmpDirFor(source: File, tmpDir: Path): JFile =
       Path.fromNioPath(source.toPath()).inSubDir(tmpDir).toNioPath.toFile().getAbsoluteFile()
 
-    val (settings, extracted) = extractSbtProject(tmpDir)
+    val sessionOverrides = targetProjectSessionOverrides(tmpDir)
+    val extracted = Project.extract(state)
 
     if (config.legacyTestRunner) {
       // No compiler error handling in the legacy runner
-      setupLegacySbtTestRunner(settings, extracted).asRight
+      setupLegacySbtTestRunner(sessionOverrides, extracted).asRight
     } else
-      setupSbtTestRunner(settings, extracted)
+      setupSbtTestRunner(sessionOverrides, extracted)
   }
 
   override def instrumenterOptions(implicit config: Config): InstrumenterOptions =

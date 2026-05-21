@@ -170,6 +170,7 @@ object Stryker4sPlugin extends AutoPlugin {
     }
 
     val sbtConfig = SbtConfigSource[IO]().value
+    val targetProject = thisProjectRef.value
 
     Def.task {
       implicit val runtime: IORuntime = IORuntime.global
@@ -180,7 +181,7 @@ object Stryker4sPlugin extends AutoPlugin {
       val extraConfigSources = List(sbtConfig, cliConfig)
 
       Deferred[IO, FiniteDuration] // Create shared timeout between testrunners
-        .map(new Stryker4sSbtRunner(state.value, javaHome.value, _, extraConfigSources))
+        .map(new Stryker4sSbtRunner(state.value, javaHome.value, targetProject, _, extraConfigSources))
         .flatMap(_.run())
         .flatMap {
           case ErrorStatus => IO.raiseError(new MessageOnlyException("Mutation score is below configured threshold"))
