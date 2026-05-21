@@ -2,6 +2,7 @@
 
 ## [0.20.4](https://github.com/stryker-mutator/stryker4s/compare/v0.20.3...v0.20.4) (2026-05-21)
 
+Stryker4s now works properly on multi-module projects! Simply running `sbt <module-name>/stryker` will run Stryker4s on the specified module. The workaround of `sbt 'project <module-name>' stryker` is no longer necessary. Thanks to @rwaldvogel for the contribution!
 
 ### Bug Fixes
 
