@@ -2,23 +2,22 @@ package stryker4s.sbt.runner
 
 import cats.effect.{IO, Resource}
 import com.comcast.ip4s.{GenSocketAddress, UnixSocketAddress}
-import com.google.protobuf.CodedOutputStream
+import com.google.protobuf.{CodedInputStream, CodedOutputStream}
+import fs2.Chunk
 import fs2.io.file.{Files, Path}
 import fs2.io.net.{Network, Socket}
-import fs2.io.{readOutputStream, toInputStreamResource}
+import fs2.io.readOutputStream
 import scalapb.LiteParser
 import stryker4s.log.Logger
 import stryker4s.testrunner.api.{Request, RequestMessage, Response, ResponseMessage}
 
-import java.io.InputStream
 import java.net.SocketException
 
 sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
 }
 
-final class SocketTestRunnerConnection private (socket: Socket[IO], input: InputStream)(implicit log: Logger)
-    extends TestRunnerConnection {
+final class SocketTestRunnerConnection private (socket: Socket[IO])(implicit log: Logger) extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] =
     (write(request.asMessage) *> read)
@@ -30,10 +29,28 @@ final class SocketTestRunnerConnection private (socket: Socket[IO], input: Input
       .compile
       .drain
 
-  def read: IO[Response] = IO.interruptible(ResponseMessage.parseDelimitedFrom(input)).flatMap {
-    case Some(responseMsg) => IO.pure(responseMsg.toResponse)
-    case None              => IO.raiseError(new RuntimeException("Failed to parse ResponseMessage from input stream"))
+  def read: IO[Response] =
+    readVarint32
+      .flatMap(readExactly)
+      .map(bytes => ResponseMessage.parseFrom(bytes.toArray).toResponse)
+
+  private def readVarint32: IO[Int] = {
+    def readWhileContinuationBitSet(readSoFar: Chunk[Byte]): IO[Chunk[Byte]] =
+      readByte.flatMap { byte =>
+        val read = readSoFar ++ Chunk(byte)
+        if ((byte & 0x80) != 0) readWhileContinuationBitSet(read) else IO.pure(read)
+      }
+
+    readWhileContinuationBitSet(Chunk.empty).map(bytes => CodedInputStream.newInstance(bytes.toArray).readRawVarint32())
   }
+
+  private def readByte: IO[Byte] = readExactly(1).map(_(0))
+
+  private def readExactly(numBytes: Int): IO[Chunk[Byte]] =
+    socket.readN(numBytes).flatMap { chunk =>
+      if (chunk.size == numBytes) IO.pure(chunk)
+      else IO.raiseError(new SocketException("Test-runner closed the connection while reading a message"))
+    }
 
   /** Copied from RequestMessage#writeDelimitedTo
     */
@@ -58,7 +75,6 @@ object SocketTestRunnerConnection {
       case _ => Resource.unit[IO]
     }
     socket <- Network[IO].connect(socketAddress)
-    input <- toInputStreamResource(socket.reads)
-  } yield new SocketTestRunnerConnection(socket, input)
+  } yield new SocketTestRunnerConnection(socket)
 
 }
