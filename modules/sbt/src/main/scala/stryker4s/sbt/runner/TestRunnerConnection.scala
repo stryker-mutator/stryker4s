@@ -30,9 +30,11 @@ final class SocketTestRunnerConnection private (socket: Socket[IO])(implicit log
       .drain
 
   def read: IO[Response] =
-    readVarint32
-      .flatMap(readExactly)
-      .map(bytes => ResponseMessage.parseFrom(bytes.toArray).toResponse)
+    for {
+      size <- readVarint32
+      bytes <- readExactly(size)
+      resp = ResponseMessage.parseFrom(bytes.toArray).toResponse
+    } yield resp
 
   private def readVarint32: IO[Int] = {
     def readWhileContinuationBitSet(readSoFar: Chunk[Byte]): IO[Chunk[Byte]] =
@@ -47,10 +49,13 @@ final class SocketTestRunnerConnection private (socket: Socket[IO])(implicit log
   private def readByte: IO[Byte] = readExactly(1).map(_(0))
 
   private def readExactly(numBytes: Int): IO[Chunk[Byte]] =
-    socket.readN(numBytes).flatMap { chunk =>
-      if (chunk.size == numBytes) IO.pure(chunk)
-      else IO.raiseError(new SocketException("Test-runner closed the connection while reading a message"))
-    }
+    socket
+      .readN(numBytes)
+      .flatTap(chunk =>
+        IO.raiseWhen(chunk.size != numBytes)(
+          new SocketException("Test-runner closed the connection while reading a message")
+        )
+      )
 
   /** Copied from RequestMessage#writeDelimitedTo
     */
