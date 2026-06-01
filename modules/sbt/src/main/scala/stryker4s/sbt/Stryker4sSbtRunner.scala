@@ -112,7 +112,8 @@ class Stryker4sSbtRunner(
                   path <- e.position().sourceFile().asScala
                   pathStr = Path.fromNioPath(path.toPath()).relativePath(tmpDir).toString
                   line <- e.position().line().asScala
-                } yield CompilerErrMsg(e.message(), pathStr, line)
+                  offset = e.position().offset().asScala.map(_.toInt)
+                } yield CompilerErrMsg(e.message(), pathStr, line, offset)
               }
             }
             .toList
