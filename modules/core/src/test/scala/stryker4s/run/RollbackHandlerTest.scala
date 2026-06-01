@@ -123,6 +123,44 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
         assertEquals(result.newFiles, allFiles.tail)
       }
     }
+
+    test("should remove a non-compiling mutant when using character offset instead of line number") {
+      rollbackableTree.asserting { tree =>
+        val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
+        val mutantMetadata =
+          MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
+        val mutants = NonEmptyVector.of(
+          MutantWithId(
+            MutantId(1),
+            MutatedCode(
+              mutantTree,
+              mutantMetadata
+            )
+          )
+        )
+        val path = Path("bar/baz.scala")
+        val allFiles = Vector(MutatedFile(path, tree, mutants))
+        // Use line=1 (wrong line, would not match by line-number), but offset points into the case statement
+        val errors = NonEmptyList.of(
+          CompilerErrMsg("error", path.toString, 1, mutantTree.pos.start.some)
+        )
+
+        val result = sut.rollbackFiles(errors, allFiles).value
+
+        assertEquals(
+          result.compileErrors.loneElement,
+          path -> mutants
+            .map(
+              _.toMutantResult(
+                MutantStatus.CompileError,
+                statusReason = s"L1: error".some
+              )
+            )
+            .toVector
+        )
+        assertEquals(result.newFiles, Seq.empty)
+      }
+    }
   }
 
   def rollbackableTree = FileUtil.getResourceAsString("rollbackTest/RollbackableTree.scala").map(_.parse[Source].get)
