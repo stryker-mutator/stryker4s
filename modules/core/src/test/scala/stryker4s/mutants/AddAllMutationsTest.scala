@@ -39,6 +39,29 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
       )
     }
 
+    test("#587 (string literal in getOrElse at end of method chain)") {
+      checkAllMutationsAreAdded(
+        """serviceProvider
+              .request { _ => "foo" }
+              .getOrElse("bar")""".parseTerm,
+        2
+      )
+    }
+
+    test("#587 (string interpolation inside method chain with getOrElse)") {
+      val interp = Term.Interpolate(
+        Term.Name("s"),
+        List(Lit.String("<li>"), Lit.String("</li>")),
+        List("a.areaName.getOrElse(\"Unknown\")".parseTerm)
+      )
+      checkAllMutationsAreAdded(
+        s"""e.rules
+              .map { r => $interp }
+              .getOrElse("")""".parseTerm,
+        3
+      )
+    }
+
     test("#776 (if-else block statement)") {
       checkAllMutationsAreAdded(
         """
