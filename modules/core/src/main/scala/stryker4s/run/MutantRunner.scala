@@ -9,6 +9,7 @@ import fs2.{Pipe, Stream}
 import mutationtesting.{MutantResult, MutantStatus, TestDefinition, TestFile, TestFileDefinitionDictionary}
 import stryker4s.config.Config
 import stryker4s.exception.{InitialTestRunFailedException, UnableToFixCompilerErrorsException}
+import stryker4s.extension.DurationExtensions.*
 import stryker4s.extension.FileExtensions.*
 import stryker4s.files.FileResolver
 import stryker4s.log.Logger
@@ -115,7 +116,7 @@ class MutantRunner(
   }
 
   private def setupFiles(tmpDir: Path, mutatedFiles: Seq[MutatedFile]): IO[Unit] =
-    IO(log.info("Setting up mutated environment...")) *>
+    IO(log.info(s"Setting up environment for ${mutatedFiles.size} mutated file(s)...")) *>
       IO(log.debug("Using temp directory: " + tmpDir)) *> {
         val mutatedPaths = mutatedFiles.map(_.fileOrigin)
         val unmutatedFilesStream =
@@ -170,11 +171,19 @@ class MutantRunner(
             .Magenta("NoCoverage")}"
       )
       log.debug(s"NoCoverage mutant ids are: ${noCoverageMutants.map(_._2.id).mkString(", ")}")
+      if (testableMutants.isEmpty && staticMutants.isEmpty) {
+        log.warn(
+          "All mutants have no code coverage and will not be tested. This typically means that the test runner did not collect any coverage information."
+        )
+        log.warn(
+          "You can enable 'log-test-runner-stdout' in your configuration to see test runner output and diagnose the issue. See https://stryker-mutator.io/docs/stryker4s/configuration/ for more information."
+        )
+      }
     }
 
     if (staticMutants.nonEmpty) {
       log.info(
-        s"${staticMutants.size} mutants detected as static. They will be skipped and marked as Ignored"
+        s"${staticMutants.size} mutant(s) detected as static. They will be skipped and marked as ${Color.Magenta("Ignored")}"
       )
       log.debug(s"Static mutant ids are: ${staticMutants.map(_._2.id).mkString(", ")}")
     }
@@ -194,7 +203,9 @@ class MutantRunner(
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
         val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id, Seq.empty)
         IO(log.debug(s"Running mutant $mutant")) *>
-          testRunner.runMutant(mutant, coverageForMutant).tupleLeft(path)
+          testRunner.runMutant(mutant, coverageForMutant).timed.flatMap { case (duration, result) =>
+            IO(log.debug(s"Mutant ${mutant.id} tested in ${duration.toHumanReadable}")).as(path -> result)
+          }
       })
       .observe(in => in.as(MutantTestedEvent(totalTestableMutants)).through(reporter.mutantTested))
 

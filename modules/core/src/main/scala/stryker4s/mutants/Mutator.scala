@@ -45,7 +45,7 @@ class Mutator(
       .flatMap { case (ctx, (ignored, found)) => splitIgnoredAndFound(ctx, ignored, found) }
       // Instrument files
       .parEvalMapUnordered(config.concurrency)(_.traverse { case (context, mutations) =>
-        IO(log.debug(s"Instrumenting mutations in ${mutations.size} places in ${context.path}")) *>
+        IO(log.debug(s"Instrumenting mutations in ${mutations.size} places for ${context.path}")) *>
           IO(instrumenter.instrumentFile(context, mutations))
       })
       // Fold into 2 separate lists of ignored and found mutants (in files)
@@ -119,8 +119,8 @@ class Mutator(
           IO(log.warn(s"All found mutations are excluded. ${dryRunText("mutate", "excluded-mutations")}"))
         else
           IO.whenA(totalMutants == 0) {
-            IO(log.info("Files to be mutated are found, but no mutations were found in those files.")) *>
-              IO(log.info("If this is not intended, please check your configuration and try again."))
+            IO(log.warn("Files to be mutated are found, but no mutations were found in those files.")) *>
+              IO(log.warn("If this is not intended, please check your configuration and try again."))
           }
       }
   }

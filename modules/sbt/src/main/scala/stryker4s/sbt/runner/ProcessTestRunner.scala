@@ -144,7 +144,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
 
     val logger = config.debug.logTestRunnerStdout
       .guard[Option]
-      .as((m: String) => IO(log.debug(s"testrunner $id: $m")))
+      .as((m: String) => IO(log.debug(s"[test-runner $id] $m")))
 
     for {
       args <-
@@ -169,7 +169,7 @@ object ProcessTestRunner extends TestInterfaceMapper {
         ProcessBuilder(javaBin, args).withWorkingDirectory(config.baseDir),
         logger
       )
-      _ <- IO(log.debug("Started process")).toResource
+      _ <- IO(log.debug(s"Started test-runner process for id $id")).toResource
     } yield process
   }
 
@@ -203,9 +203,9 @@ object ProcessTestRunner extends TestInterfaceMapper {
       .retryWithBackoff(
         6,
         0.2.seconds,
-        delay => IO(log.debug(s"Could not connect to testprocess. Retrying after ${delay.toHumanReadable}..."))
+        delay => IO(log.debug(s"Could not connect to test process. Retrying after ${delay.toHumanReadable}..."))
       )
-      .evalTap(_ => IO(log.debug(s"Connected to testprocess at $name")))
+      .evalTap(_ => IO(log.debug(s"Connected to test process at $name")))
       .onFinalize(IO(log.debug(s"Closing test-runner at $name")))
   }
 

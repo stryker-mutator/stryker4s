@@ -48,7 +48,9 @@ class Stryker4sSbtRunner(
         settings: Seq[Def.Setting[?]],
         extracted: Extracted
     ): NonEmptyList[Resource[IO, TestRunner]] = {
-      log.info("Using the legacy sbt testrunner")
+      log.warn(
+        "Using the legacy sbt testrunner. Note: this mode is much slower, and does not support compiler error detection. Consider disabling 'legacy-test-runner' for a better experience."
+      )
 
       val emptyLogManager =
         LogManager.defaultManager(ConsoleOut.printStreamOut(new PrintStream((_: Int) => {})))
@@ -83,7 +85,7 @@ class Stryker4sSbtRunner(
         PluginCompat.runTask(task, newState) match {
           case Some(Right(result)) => result
           case other               =>
-            log.debug(s"Expected ${task.key.label} but got $other")
+            log.debug(s"Expected task '${task.key.label}' to succeed, but got: $other")
             throw TestSetupException(task.key.label)
         }
       }
@@ -187,7 +189,7 @@ class Stryker4sSbtRunner(
           param = s"-D$key=$value"
         } yield param
       }
-      log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(",")}")
+      log.debug(s"System properties added to the forked JVM: ${filteredSystemProperties.mkString(", ")}")
 
       Seq(
         targetProject / scalacOptions --= blocklistedScalacOptions,

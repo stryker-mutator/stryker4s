@@ -8,7 +8,6 @@ import fs2.io.file.{Files, Path}
 import fs2.io.net.{Network, Socket}
 import fs2.io.readOutputStream
 import scalapb.LiteParser
-import stryker4s.log.Logger
 import stryker4s.testrunner.api.{Request, RequestMessage, Response, ResponseMessage}
 
 import java.net.SocketException
@@ -17,13 +16,12 @@ sealed trait TestRunnerConnection {
   def sendMessage(request: Request): IO[Response]
 }
 
-final class SocketTestRunnerConnection private (socket: Socket[IO])(implicit log: Logger) extends TestRunnerConnection {
+final class SocketTestRunnerConnection private (socket: Socket[IO]) extends TestRunnerConnection {
 
   override def sendMessage(request: Request): IO[Response] =
-    (write(request.asMessage) *> read)
-      .flatTap(response => IO(log.debug(s"Received message $response")))
+    write(request.asMessage) *> read
 
-  def write(msg: RequestMessage) =
+  def write(msg: RequestMessage): IO[Unit] =
     readOutputStream(bufferSizeForMsg(msg))(os => IO.blocking(msg.writeDelimitedTo(os)))
       .through(socket.writes)
       .compile
@@ -70,7 +68,7 @@ final class SocketTestRunnerConnection private (socket: Socket[IO])(implicit log
 
 object SocketTestRunnerConnection {
 
-  def create(socketAddress: GenSocketAddress)(implicit log: Logger): Resource[IO, TestRunnerConnection] = for {
+  def create(socketAddress: GenSocketAddress): Resource[IO, TestRunnerConnection] = for {
     _ <- socketAddress match {
       case UnixSocketAddress(path) =>
         Files[IO]

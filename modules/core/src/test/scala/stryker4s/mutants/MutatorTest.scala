@@ -83,7 +83,9 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       )
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
-      sut.go(files).asserting { _ =>
+      sut.go(files).asserting { files =>
+        val fileOrigin = files._2.loneElement.fileOrigin
+        assertLoggedDebug(s"Instrumenting mutations in 2 places for $fileOrigin")
         assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
         assertNotLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated. Of which")
         assertLoggedInfo(s"${Cyan("4")} mutant(s) generated")
@@ -102,8 +104,8 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       sut.go(files).asserting { _ =>
         assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
         assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("3")} mutant(s) are excluded.")
-        assertNotLoggedInfo("Files to be mutated are found, but no mutations were found in those files.")
-        assertNotLoggedInfo("If this is not intended, please check your configuration and try again.")
+        assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+        assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
       }
     }
 
@@ -119,8 +121,8 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       sut.go(files).asserting { _ =>
         assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
         assertLoggedInfo(s"${Cyan("0")} mutant(s) generated.")
-        assertLoggedInfo("Files to be mutated are found, but no mutations were found in those files.")
-        assertLoggedInfo("If this is not intended, please check your configuration and try again.")
+        assertLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+        assertLoggedWarn("If this is not intended, please check your configuration and try again.")
       }
     }
 
@@ -142,8 +144,8 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
           s"""All found mutations are excluded. Stryker4s will perform a dry-run without actually mutating anything.
              |You can configure the `mutate` or `excluded-mutations` property in your configuration""".stripMargin
         )
-        assertNotLoggedInfo("Files to be mutated are found, but no mutations were found in those files.")
-        assertNotLoggedInfo("If this is not intended, please check your configuration and try again.")
+        assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+        assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
       }
     }
   }

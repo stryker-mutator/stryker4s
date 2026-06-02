@@ -38,7 +38,7 @@ object TestRunner {
                 .runMutant(mutant, testNames)
                 .timeoutTo(
                   time,
-                  IO(log.debug(s"Mutant ${mutant.id} timed out over ${time.toHumanReadable}")) *>
+                  IO(log.debug(s"Mutant ${mutant.id} timed out after ${time.toHumanReadable}")) *>
                     releaseAndSwap
                       .as(
                         mutant.toMutantResult(
@@ -117,7 +117,7 @@ object TestRunner {
             _ <-
               // If the limit has been reached, create a new testrunner
               IO.whenA(uses == maxReuses) {
-                IO(log.info(s"Testrunner has run for $uses times. Restarting it...")) *>
+                IO(log.info(s"Testrunner has run for $uses/$maxReuses times. Restarting it...")) *>
                   releaseAndSwap *>
                   usesRef.set(1)
               }
