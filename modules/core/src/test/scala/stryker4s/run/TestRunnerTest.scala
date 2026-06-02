@@ -85,7 +85,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
             result,
             mutant.toMutantResult(MutantStatus.Timeout, statusReason = "Timeout of 1 millisecond exceeded.".some)
           )
-          assertLoggedDebug(s"Mutant ${mutant.id} timed out over 1 millisecond")
+          assertLoggedDebug(s"Mutant ${mutant.id} timed out after 1 millisecond")
         }
       }
 
@@ -116,7 +116,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
         op.asserting { result =>
           assertEquals(result, mutant.toMutantResult(MutantStatus.Killed))
-          assertNotLoggedDebug(s"Mutant ${mutant.id} timed out over")
+          assertNotLoggedDebug(s"Mutant ${mutant.id} timed out after")
         }
       }
     }
@@ -224,7 +224,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       op.asserting { case (result, log) =>
         assertEquals(log, List("open", "close"))
         assertEquals(result, expectedResults)
-        assertNotLoggedInfo(s"Testrunner has run for $reuse times. Restarting it...")
+        assertNotLoggedInfo(s"Testrunner has run for $reuse/$reuse times. Restarting it...")
       }
     }
 
@@ -245,7 +245,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
       op.asserting { case (result, log) =>
         assertEquals(log, List("open", "close", "open", "close"))
         assertEquals(result, expectedResults)
-        assertLoggedInfo(s"Testrunner has run for $reuse times. Restarting it...")
+        assertLoggedInfo(s"Testrunner has run for $reuse/$reuse times. Restarting it...")
       }
     }
   }

@@ -333,7 +333,7 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 15.seconds, config.baseDir))
         .asserting { _ =>
-          assertLoggedError("Mutation score dangerously low!")
+          assertLoggedError("Mutation score dangerously low! Below the low threshold of 51%")
           assertLoggedError(s"Mutation score: ${Red("50.0")}%")
         }
     }
@@ -359,6 +359,65 @@ class ConsoleReporterTest extends Stryker4sIOSuite with LogMatchers {
         .onRunFinished(FinishedRunEvent(reportWithNoCoverage, metricsWithNoCoverage, 15.seconds, config.baseDir))
         .asserting { _ =>
           assertLoggedWarn(s"Mutation score: ${Yellow("33.33")}% (of total), ${Green("50.0")}% (of covered code)")
+        }
+    }
+
+    test("should warn when mutation score is n/a") {
+      implicit val config: Config = Config.default
+      val sut = new ConsoleReporter()
+      val allIgnoredReport = MutationTestResult(
+        thresholds = Thresholds(80, 60),
+        files = Map(
+          "stryker4s.scala" -> FileResult(
+            source = "foo",
+            mutants = Seq(
+              MutantResult("0", "", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Ignored)
+            )
+          )
+        )
+      )
+
+      sut
+        .onRunFinished(
+          FinishedRunEvent(allIgnoredReport, Metrics.calculateMetrics(allIgnoredReport), 15.seconds, config.baseDir)
+        )
+        .asserting { _ =>
+          assertLoggedWarn(
+            "It looks like no mutations were actually tested. This could indicate that the test runner is not set up correctly, or that all mutants are excluded from coverage."
+          )
+          assertLoggedWarn(
+            "You can enable 'log-test-runner-stdout' in your configuration to see test runner output. See https://stryker-mutator.io/docs/stryker4s/configuration/ for more information."
+          )
+        }
+    }
+
+    test("should warn when all mutants survived") {
+      implicit val config: Config = Config.default
+      val sut = new ConsoleReporter()
+      val allSurvivedReport = MutationTestResult(
+        thresholds = Thresholds(80, 60),
+        files = Map(
+          "stryker4s.scala" -> FileResult(
+            source = "foo",
+            mutants = Seq(
+              MutantResult("0", "", ">", Location(Position(1, 1), Position(1, 2)), MutantStatus.Survived),
+              MutantResult("1", "", "==", Location(Position(1, 2), Position(1, 4)), MutantStatus.Survived)
+            )
+          )
+        )
+      )
+
+      sut
+        .onRunFinished(
+          FinishedRunEvent(allSurvivedReport, Metrics.calculateMetrics(allSurvivedReport), 15.seconds, config.baseDir)
+        )
+        .asserting { _ =>
+          assertLoggedWarn(
+            "None of the mutations were detected. This may indicate that your tests are not running, or that the test assertions are too weak to catch mutations."
+          )
+          assertLoggedWarn(
+            "You can enable 'log-test-runner-stdout' in your configuration to see test runner output. See https://stryker-mutator.io/docs/stryker4s/configuration/ for more information."
+          )
         }
     }
   }

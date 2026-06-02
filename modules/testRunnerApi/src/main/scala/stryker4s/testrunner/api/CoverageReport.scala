@@ -11,4 +11,6 @@ object CoverageReport {
     }
     CoverageReport(map)
   }
+
+  lazy val empty: CoverageReport = CoverageReport(Map.empty[MutantId, Seq[TestFile]])
 }

@@ -10,12 +10,14 @@ import stryker4s.run.{ResourcePool, TestRunner, TestRunnerPool}
 import stryker4s.testrunner.api.TestFile
 import stryker4s.testutil.TestData
 
-class TestRunnerStub(results: Seq[() => MutantResult], initialTestRunResultIsSuccessful: Boolean = true)
-    extends TestRunner {
+class TestRunnerStub(
+    results: Seq[() => MutantResult],
+    initialTestRunResult: InitialTestRunResult = NoCoverageInitialTestRun(true)
+) extends TestRunner {
   private val stream = Iterator.from(0)
 
   override def initialTestRun(): IO[InitialTestRunResult] =
-    IO.pure(NoCoverageInitialTestRun(initialTestRunResultIsSuccessful))
+    IO.pure(initialTestRunResult)
 
   override def runMutant(mutant: MutantWithId, testNames: Seq[TestFile]): IO[MutantResult] = {
     // Ensure runMutant can always continue
@@ -30,8 +32,8 @@ object TestRunnerStub extends TestData {
 
   def withResults(mutants: MutantResult*) = (_: Path) => makeResults(mutants)
 
-  def withResults(initialTestRunResultIsSuccessful: Boolean)(mutants: MutantResult*) = (_: Path) =>
-    makeResults(mutants, initialTestRunResultIsSuccessful)
+  def withResults(initialTestRun: InitialTestRunResult)(mutants: MutantResult*) = (_: Path) =>
+    makeResults(mutants, initialTestRun)
 
   def withInitialCompilerError(
       errs: NonEmptyList[CompilerErrMsg],
@@ -49,11 +51,11 @@ object TestRunnerStub extends TestData {
 
   private def makeResults(
       mutants: Seq[MutantResult],
-      initialTestRunResultIsSuccessful: Boolean = true
+      initialTestRunResult: InitialTestRunResult = NoCoverageInitialTestRun(isSuccessful = true)
   ): Either[NonEmptyList[CompilerErrMsg], Resource[IO, TestRunnerPool]] =
     ResourcePool(
       NonEmptyList.one(
-        Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _), initialTestRunResultIsSuccessful))
+        Resource.pure[IO, TestRunner](new TestRunnerStub(mutants.map(() => _), initialTestRunResult))
       )
     ).asRight
 }

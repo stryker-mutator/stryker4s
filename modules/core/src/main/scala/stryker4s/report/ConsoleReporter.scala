@@ -72,16 +72,32 @@ class ConsoleReporter()(implicit config: Config, log: Logger) extends Reporter {
       }
 
       scoreStatus match {
-        case _ if metrics.mutationScore.isNaN() => log.info(scoreString)
-        case SuccessStatus                      => log.info(scoreString)
-        case WarningStatus                      => log.warn(scoreString)
-        case DangerStatus                       =>
-          log.error(s"Mutation score dangerously low!")
+        case _ if metrics.mutationScore.isNaN() =>
+          log.info(scoreString)
+          log.warn(
+            "It looks like no mutations were actually tested. This could indicate that the test runner is not set up correctly, or that all mutants are excluded from coverage."
+          )
+          log.warn(
+            "You can enable 'log-test-runner-stdout' in your configuration to see test runner output. See https://stryker-mutator.io/docs/stryker4s/configuration/ for more information."
+          )
+        case SuccessStatus => log.info(scoreString)
+        case WarningStatus => log.warn(scoreString)
+        case DangerStatus  =>
+          log.error(s"Mutation score dangerously low! Below the low threshold of ${config.thresholds.low}%")
           log.error(scoreString)
         case ErrorStatus =>
           log.error(
             s"Mutation score below threshold! $scoreString. Threshold: ${config.thresholds.break}%"
           )
+      }
+
+      if (metrics.totalDetected == 0 && metrics.totalUndetected > 0) {
+        log.warn(
+          "None of the mutations were detected. This may indicate that your tests are not running, or that the test assertions are too weak to catch mutations."
+        )
+        log.warn(
+          "You can enable 'log-test-runner-stdout' in your configuration to see test runner output. See https://stryker-mutator.io/docs/stryker4s/configuration/ for more information."
+        )
       }
     }
 
