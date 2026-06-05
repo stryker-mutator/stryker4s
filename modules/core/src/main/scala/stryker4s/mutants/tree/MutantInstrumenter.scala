@@ -74,8 +74,21 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     Case(options.pattern(mutant.id.value), none, newTree)
   }
 
-  def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]): Case =
-    Case(Pat.Wildcard(), options.condition.mapApply(mutantIds.map(_.value)), placeableTree.tree.asInstanceOf[Term])
+  def defaultCase(placeableTree: PlaceableTree, mutantIds: NonEmptyList[MutantId]): Case = {
+    val term = placeableTree.tree.asInstanceOf[Term]
+    Case(
+      Pat.Wildcard(),
+      None,
+      options.coverageStatement.fold(term) { coverageFn =>
+        val coverageTerm = coverageFn(mutantIds.map(_.value))
+        // Create a block, or place it in the original
+        term match {
+          case Term.Block(stats) => Term.Block(coverageTerm :: stats)
+          case term              => Term.Block(List(coverageTerm, term))
+        }
+      }
+    )
+  }
 
   def buildMatch(cases: NonEmptyVector[Case]): Term.Match =
     Term.Match.After_4_4_5(options.mutationContext, cases.toList)

@@ -16,6 +16,6 @@ package object tree {
 
   type MutationMatcher = PartialFunction[Tree, PlaceableTree => Mutations]
 
-  type DefaultMutationCondition = (NonEmptyList[Int]) => Term
+  type MutantCoverageTermFn = (NonEmptyList[Int]) => Term
 
 }

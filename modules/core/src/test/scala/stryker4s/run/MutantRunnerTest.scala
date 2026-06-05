@@ -17,7 +17,7 @@ import stryker4s.testutil.stubs.{ReporterStub, RollbackHandlerStub, TestFileReso
 import scala.concurrent.duration.*
 
 class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
-  override def printLogs = true
+
   val baseDir = FileUtil.getResource("scalaFiles")
   val staticTmpDir = baseDir.resolve("target/stryker4s-tmpDir")
 

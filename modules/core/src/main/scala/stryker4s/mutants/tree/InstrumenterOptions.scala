@@ -9,7 +9,7 @@ import scala.meta.*
 final case class InstrumenterOptions(
     mutationContext: ActiveMutationContext,
     pattern: Int => Pat,
-    condition: Option[DefaultMutationCondition]
+    coverageStatement: Option[MutantCoverageTermFn]
 )
 
 object InstrumenterOptions {
@@ -24,7 +24,7 @@ object InstrumenterOptions {
   def testRunner = InstrumenterOptions(
     ActiveMutationContext.testRunner,
     pattern = Lit.Int(_),
-    condition = Some(ids =>
+    coverageStatement = Some(ids =>
       // _root_.stryker4s.coverage.coverMutant(ids*)
       Term.Apply.After_4_6_0(
         Term.Select(
