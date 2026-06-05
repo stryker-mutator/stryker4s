@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-echo "Running pre-push formatting hook... (you can skip this with --no-verify, but don't)"
-./bin/scalafmt --test --mode diff

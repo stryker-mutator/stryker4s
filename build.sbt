@@ -6,7 +6,6 @@ lazy val root = (project withId "stryker4s" in file("."))
   .settings(
     buildLevelSettings,
     publish / skip := true,
-    Global / onLoad ~= (_ andThen ("writeHooks" :: _)),
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
@@ -68,9 +67,6 @@ lazy val testkit = (projectMatrix in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
   .dependsOn(api)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
-
-lazy val writeHooks = taskKey[Unit]("Write git hooks")
-Global / writeHooks := GitHooks(file("git-hooks"), file(".git/hooks"), streams.value.log)
 
 def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
   val projectRefs = matrixes.flatMap(_.projectRefs)
