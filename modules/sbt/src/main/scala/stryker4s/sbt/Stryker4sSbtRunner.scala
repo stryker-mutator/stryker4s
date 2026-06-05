@@ -178,7 +178,8 @@ class Stryker4sSbtRunner(
       ).flatMap(opt => Seq(s"-Ywarn-$opt", s"-W$opt")) ++ Seq(
         // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile
         "-Xfatal-warnings",
-        "-Werror"
+        "-Werror",
+        "-Ycheck-all-patmat"
       )
 
       val filteredSystemProperties: Seq[String] = {
