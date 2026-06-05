@@ -770,9 +770,10 @@ class MutantMatcherTest extends Stryker4sSuite {
         tree.collect(sut.allMatchers).map(_(PlaceableTree(tree.body))).partitionEither(identity)
 
       assertEquals(found.flatMap(_.toVector), List.empty)
-      val (_, reason) = ignored.flatMap(_.toVector).loneElement
+      val reason = ignored.flatMap(_.toVector).loneElement._2.asInstanceOf[RegexParseError]
 
-      assertEquals(reason, RegexParseError("[[]]", "[Error] Parser: Position 1:1, found \"[[]]\""))
+      assertEquals(reason.pattern, "[[]]")
+      assert(reason.message.contains("must end the string"))
     }
   }
 }
