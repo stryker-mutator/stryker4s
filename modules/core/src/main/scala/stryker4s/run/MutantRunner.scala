@@ -148,7 +148,7 @@ class MutantRunner(
           .createDirectories(targetPath.parent.get)
           .as((mutatedFile, targetPath))
     }.map { case (mutatedFile, targetPath) =>
-      Stream(mutatedFile.mutatedSource.printSyntaxFor(config.scalaDialect))
+      Stream(mutatedFile.mutatedSource.text)
         .covary[IO]
         .through(Files[IO].writeUtf8(targetPath))
     }.parJoin(config.concurrency)

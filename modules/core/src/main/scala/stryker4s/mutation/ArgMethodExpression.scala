@@ -41,14 +41,30 @@ sealed trait ArgMethodExpression extends MethodExpression {
         none
 
       // foo.filter( a => a > 0 )
-      case Apply.After_4_6_0(Select(q, Name(`methodName`)), ArgClause(arg :: Nil, clause)) =>
-        Option((term, name => Apply.After_4_6_0(Term.Select(q, Name(name)), ArgClause(arg :: Nil, clause))))
+      case term @ Apply.After_4_6_0(s @ Select(_, Name(`methodName`)), ArgClause(_ :: Nil, _)) =>
+        Option(
+          (
+            term,
+            name =>
+              term.copyWithComments(
+                fun = s.copyWithComments(
+                  name = s.name.copyWithComments(value = name)
+                )
+              )
+          )
+        )
 
       // foo filter( a => a > 0 )
-      case ApplyInfix.After_4_6_0(q, Name(`methodName`), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause))
+      case term @ ApplyInfix.After_4_6_0(_, Name(`methodName`), Type.ArgClause(Nil), ArgClause(arg :: Nil, _))
           if !arg.isEqual(Lit.Unit()) =>
         Option(
-          (term, name => ApplyInfix.After_4_6_0(q, Name(name), Type.ArgClause(Nil), ArgClause(arg :: Nil, clause)))
+          (
+            term,
+            name =>
+              term.copyWithComments(
+                op = term.op.copyWithComments(value = name)
+              )
+          )
         )
 
       case _ => none
