@@ -1,7 +1,7 @@
 package stryker4s.log
 
-import stryker4s.log.Level.*
 import fansi.Str
+import stryker4s.log.Level.*
 
 trait Logger {
 

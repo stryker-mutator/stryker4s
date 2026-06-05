@@ -1,9 +1,9 @@
 package stryker4s.mutation
 
-import cats.data.NonEmptyVector
+import cats.data.{NonEmptySet, NonEmptyVector}
 import cats.syntax.all.*
 import mutationtesting.Location
-import stryker4s.extension.TreeExtensions.{PositionExtension, RegexLocationExtension}
+import stryker4s.extension.TreeExtensions.{LocationExtension, PositionExtension}
 import stryker4s.model.{MutantMetadata, MutatedCode, NoRegexMutationsFound, RegexParseError}
 import stryker4s.mutants.tree.IgnoredMutation
 
@@ -83,7 +83,7 @@ case object PatternConstructor {
 object RegexMutations {
   def apply(lit: Lit.String): Either[IgnoredMutation, NonEmptyVector[RegularExpression]] = {
     weaponregex.WeaponRegeX
-      .mutate(lit.value, mutationLevels = Seq(1))
+      .mutate(lit.value, mutationLevels = NonEmptySet.one(1).some)
       .leftMap(e => (ignoredMutationMetadata(lit), RegexParseError(lit.value, e)))
       .map(_.toVector)
       .flatMap(
@@ -93,7 +93,7 @@ object RegexMutations {
             _.map(r =>
               RegularExpression(
                 pattern = r.pattern,
-                location = r.location.toLocation(offset = lit.pos.toLocation, lit),
+                location = r.location.withOffset(offset = lit.pos.toLocation, lit),
                 replacement = r.replacement,
                 description = r.description
               )

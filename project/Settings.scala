@@ -42,13 +42,12 @@ object Settings {
       Dependencies.fs2IO,
       Dependencies.hocon,
       Dependencies.mutationTestingElements,
-      Dependencies.mutationTestingMetrics,
       Dependencies.scalameta,
       Dependencies.scopt,
       Dependencies.sttpCirce,
       Dependencies.sttpFs2Backend,
       Dependencies.weaponRegeX
-    ),
+    ) ++ Dependencies.mutationTestingMetrics,
     // Scaladoc is buggy on scala 3, so we disable it
     Compile / doc / sources := (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) => Seq.empty
