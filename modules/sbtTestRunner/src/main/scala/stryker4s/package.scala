@@ -27,7 +27,7 @@ package object stryker4s {
 
     /** Add a mutant to the current coverage report
       */
-    def coverMutant(ids: Int*): Boolean = {
+    def coverMutant(ids: Int*): Unit = {
       if (collectCoverage.get()) {
         val currentTest = activeTest.get
         if (currentTest.value != -1) {
@@ -40,7 +40,6 @@ package object stryker4s {
           }
         }
       }
-      true // Always return true, `coverMutant` is called in the guard condition of the default mutation switch
     }
 
     /** Add the test selector to the currently active test.

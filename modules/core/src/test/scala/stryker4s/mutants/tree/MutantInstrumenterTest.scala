@@ -41,17 +41,20 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
         List(
           "case 0 => x > 15".parseCase,
           "case 1 => x <= 15".parseCase,
-          "case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => x >= 15".parseCase
+          """case _ => 
+              _root_.stryker4s.coverage.coverMutant(0, 1)
+              x >= 15""".parseCase
         )
       )
       val expected = """class Foo {
-                   def foo = _root_.stryker4s.activeMutation match {
-                     case 0 =>
-                       x > 15
-                     case 1 =>
-                       x <= 15
-                     case _ if _root_.stryker4s.coverage.coverMutant(0, 1) =>
-                       x >= 15
+                  def foo = _root_.stryker4s.activeMutation match {
+                    case 0 =>
+                      x > 15
+                    case 1 =>
+                      x <= 15
+                    case _ =>
+                      _root_.stryker4s.coverage.coverMutant(0, 1)
+                      x >= 15
                    }
                  }""".parseSource
       assertEquals(mutatedSource, expected)
@@ -91,7 +94,9 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
         List(
           "case 0 => true".parseCase,
           "case 1 => false".parseCase,
-          "case _ if _root_.stryker4s.coverage.coverMutant(0, 1) => bar".parseCase
+          """case _ =>
+                _root_.stryker4s.coverage.coverMutant(0, 1)
+                bar""".parseCase
         )
       )
       val expected = """class Foo {
@@ -103,7 +108,8 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
                 true
               case 1 =>
                 false
-              case _ if _root_.stryker4s.coverage.coverMutant(0, 1) =>
+              case _ =>
+                _root_.stryker4s.coverage.coverMutant(0, 1)
                 bar
             }
           ) 1
@@ -138,7 +144,6 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
       )
     }
 
-    // describe("buildNewSource") {
     test("should log failures correctly") {
       // Arrange
       val source = """class Foo { def foo = true }""".parse[Source].get

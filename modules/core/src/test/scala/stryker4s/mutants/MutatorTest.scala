@@ -23,24 +23,27 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
       sut.go(files).asserting { case (_, result) =>
-        val expected = """object Foo {
-                         |  def bar = _root_.stryker4s.activeMutation match {
-                         |    case 0 =>
-                         |      15 >= 14
-                         |    case 1 =>
-                         |      15 < 14
-                         |    case 2 =>
-                         |      15 == 14
-                         |    case _ if _root_.stryker4s.coverage.coverMutant(0, 1, 2) =>
-                         |      15 > 14
-                         |  }
-                         |  def foobar = _root_.stryker4s.activeMutation match {
-                         |    case 3 =>
-                         |      ""
-                         |    case _ if _root_.stryker4s.coverage.coverMutant(3) =>
-                         |      s"${bar}foo"
-                         |  }
-                         |}""".stripMargin.parse[Source].get
+        val expected =
+          """object Foo {
+            |  def bar = _root_.stryker4s.activeMutation match {
+            |    case 0 =>
+            |      15 >= 14
+            |    case 1 =>
+            |      15 < 14
+            |    case 2 =>
+            |      15 == 14
+            |    case _ =>
+            |      _root_.stryker4s.coverage.coverMutant(0, 1, 2)
+            |      15 > 14
+            |  }
+            |  def foobar = _root_.stryker4s.activeMutation match {
+            |    case 3 =>
+            |      ""
+            |    case _ =>
+            |      _root_.stryker4s.coverage.coverMutant(3)
+            |      s"${bar}foo"
+            |  }
+            |}""".stripMargin.parse[Source].get
 
         assertEquals(result.loneElement.mutatedSource, expected)
       }
@@ -50,24 +53,27 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
       sut.go(files).asserting { case (_, result) =>
-        val expected = """object Foo {
-                         |  def bar = _root_.stryker4s.activeMutation match {
-                         |    case 0 =>
-                         |      15 >= 14
-                         |    case 1 =>
-                         |      15 < 14
-                         |    case 2 =>
-                         |      15 == 14
-                         |    case _ if _root_.stryker4s.coverage.coverMutant(0, 1, 2) =>
-                         |      15 > 14
-                         |  }
-                         |  def foobar = _root_.stryker4s.activeMutation match {
-                         |    case 3 =>
-                         |      ""
-                         |    case _ if _root_.stryker4s.coverage.coverMutant(3) =>
-                         |      s"${bar}foo"
-                         |  }
-                         |}""".stripMargin.parse[Source].get
+        val expected =
+          """object Foo {
+            |  def bar = _root_.stryker4s.activeMutation match {
+            |    case 0 =>
+            |      15 >= 14
+            |    case 1 =>
+            |      15 < 14
+            |    case 2 =>
+            |      15 == 14
+            |    case _ =>
+            |      _root_.stryker4s.coverage.coverMutant(0, 1, 2)
+            |      15 > 14
+            |  }
+            |  def foobar = _root_.stryker4s.activeMutation match {
+            |    case 3 =>
+            |      ""
+            |    case _ =>
+            |      _root_.stryker4s.coverage.coverMutant(3)
+            |      s"${bar}foo"
+            |  }
+            |}""".stripMargin.parse[Source].get
         assertEquals(result.loneElement.mutatedSource, expected)
       }
     }
