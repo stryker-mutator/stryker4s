@@ -4,6 +4,7 @@ import cats.Eval
 import cats.data.{Chain, OptionT}
 import cats.syntax.all.*
 import mutationtesting.Location
+import mutationtesting.cats.*
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -161,22 +162,16 @@ object TreeExtensions {
   }
 
   implicit final class LocationExtension(val pos: Location) extends AnyVal {
+    import mutationtesting.Position
 
     /** Adds an offset to a `mutationtesting.Location`
       */
     def withOffset(offset: Location, stringValue: Lit.String): Location = {
       val stringOffset = if (stringValue.text.startsWith("\"\"\"")) 3 else 1
       Location(
-        start = mutationtesting
-          .Position(
-            line = pos.start.line + offset.start.line,
-            column = pos.start.column + offset.start.column + stringOffset
-          ),
-        end = mutationtesting.Position(
-          line = pos.end.line + offset.start.line,
-          column = pos.end.column + offset.start.column + stringOffset
-        )
-      )
+        offset.start |+| Position(0, stringOffset),
+        offset.start |+| Position(0, stringOffset)
+      ) |+| pos
     }
   }
 }
