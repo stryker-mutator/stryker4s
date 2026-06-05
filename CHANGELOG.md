@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.21.0](https://github.com/stryker-mutator/stryker4s/compare/v0.20.4...v0.21.0) (2026-06-05)
+
+
+### Features
+
+* clearer logging ([#2015](https://github.com/stryker-mutator/stryker4s/issues/2015)) ([517bc58](https://github.com/stryker-mutator/stryker4s/commit/517bc58b45870b6d898467251ffb340ccb3efb5a))
+
+
+### Bug Fixes
+
+* disable Scala3 pattern match exhaustiveness check ([#2023](https://github.com/stryker-mutator/stryker4s/issues/2023)) ([a753f8f](https://github.com/stryker-mutator/stryker4s/commit/a753f8f29092bc69e6aff23089aec57ec8edce85))
+* place coverage statement inside wildcard block instead of in condition ([#2024](https://github.com/stryker-mutator/stryker4s/issues/2024)) ([5d24b3e](https://github.com/stryker-mutator/stryker4s/commit/5d24b3e63ad335eeee239ea0a17ac8c76bf82a70))
+* report correct location for statements with comments ([#2025](https://github.com/stryker-mutator/stryker4s/issues/2025)) ([8e187b8](https://github.com/stryker-mutator/stryker4s/commit/8e187b827bc3118b129c56e161cdc5f6df2f7fe6))
+* **rollback:** use offset for compile error location when available ([#2013](https://github.com/stryker-mutator/stryker4s/issues/2013)) ([b7c6d79](https://github.com/stryker-mutator/stryker4s/commit/b7c6d79f993c7de79648d853fd533188571091f0)), closes [#2011](https://github.com/stryker-mutator/stryker4s/issues/2011)
+* **sbt:** read test-runner responses on demand to avoid teardown race ([#1861](https://github.com/stryker-mutator/stryker4s/issues/1861)) ([#2010](https://github.com/stryker-mutator/stryker4s/issues/2010)) ([9585be4](https://github.com/stryker-mutator/stryker4s/commit/9585be4d316c91cc33532e529c1c6721c2b7ebd2))
+
 ## [0.20.4](https://github.com/stryker-mutator/stryker4s/compare/v0.20.3...v0.20.4) (2026-05-21)
 
 Stryker4s now works properly on multi-module projects! Simply running `sbt <module-name>/stryker` will run Stryker4s on the specified module. The workaround of `sbt 'project <module-name>' stryker` is no longer necessary. Thanks to @rwaldvogel for the contribution!
