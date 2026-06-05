@@ -11,8 +11,9 @@ sealed trait NoArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] =
     term match {
       // foo.filter or foo filter
-      case Select(q, Name(`methodName`)) => Option((term, name => Select(q, Name(name))))
-      case _                             => none
+      case term @ Select(_, Name(`methodName`)) =>
+        Option((term, name => term.copyWithComments(name = term.name.copyWithComments(value = name))))
+      case _ => none
     }
 }
 

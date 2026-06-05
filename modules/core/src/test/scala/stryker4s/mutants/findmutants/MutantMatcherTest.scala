@@ -38,7 +38,7 @@ class MutantMatcherTest extends Stryker4sSuite {
         .flatMap(_.toSeq)
         .flatMap(_.toVector)
         .map(_.metadata)
-        .find(m => m.original == original.syntax && expectedMutation.syntax.contains(m.replacement))
+        .find(m => m.original == original.text && expectedMutation.text.contains(m.replacement))
         .getOrElse(fail(s"mutant $expectedMutation not found"))
 
       assertEquals(actualMutant.mutatorName, expectedName)
@@ -118,6 +118,33 @@ class MutantMatcherTest extends Stryker4sSuite {
 
       assertEquals(found.flatMap(_.toSeq).flatMap(_.toVector).length, 3)
       expectMutations(found, Term.Name(">"), Term.Name(">="), Term.Name("<"), Term.Name("=="))("EqualityOperator")
+    }
+
+    test("original should have correct location and replacement") {
+      val tree = """def foo = {
+                      baz match {
+                        case t =>
+                          // comment
+                          a.filter(b)
+                      }
+                    }""".parseDef
+
+      val statement = tree
+        .find("""// comment
+                 a.filter(b)""".parseTerm)
+        .value
+      val found = tree
+        .collect(sut.allMatchers)
+        .map(_(PlaceableTree(statement)))
+        .loneElement
+        .value
+        .loneElement
+
+      assertNoDiff(found.metadata.replacement, found.metadata.original.replace("filter", "filterNot"))
+      assertNoDiff(
+        found.metadata.original,
+        tree.text.replaceAll("\r\n", "\n").substring(statement.pos.start, statement.pos.end)
+      )
     }
   }
 
@@ -349,10 +376,10 @@ class MutantMatcherTest extends Stryker4sSuite {
     test("should match on interpolated strings") {
       val interpolated =
         Term.Interpolate(Term.Name("s"), List(Lit.String("interpolate "), Lit.String("")), List(Term.Name("foo")))
-      val tree = s"def foo = ${interpolated.syntax}".parseDef
+      val tree = s"def foo = ${interpolated.text}".parseDef
       val emptyString = Lit.String("")
 
-      assertEquals(interpolated.syntax, "s\"interpolate $foo\"")
+      assertEquals(interpolated.text, "s\"interpolate $foo\"")
       expectMutations(
         sut.matchStringLiteral,
         tree,
@@ -370,7 +397,7 @@ class MutantMatcherTest extends Stryker4sSuite {
       val tree = Defn.Def.After_4_7_3(Nil, Term.Name("foo"), Nil, None, interpolated)
       val emptyString = Lit.String("")
 
-      assertEquals(interpolated.syntax, "s\"interpolate $fooVar foo ${barVar" + " + 1} bar\"")
+      assertEquals(interpolated.text, "s\"interpolate $fooVar foo ${barVar" + " + 1} bar\"")
       expectMutations(
         sut.matchStringLiteral,
         tree,
@@ -382,11 +409,11 @@ class MutantMatcherTest extends Stryker4sSuite {
     test("should not match non-string interpolation") {
       val interpolated =
         Term.Interpolate(Term.Name("q"), List(Lit.String("interpolate "), Lit.String("")), List(Term.Name("foo")))
-      val tree = s"def foo = ${interpolated.syntax} ".parseStat
+      val tree = s"def foo = ${interpolated.text} ".parseStat
 
       val result = tree collect sut.allMatchers
 
-      assertEquals(interpolated.syntax, "q\"interpolate $foo\"")
+      assertEquals(interpolated.text, "q\"interpolate $foo\"")
       assert(result.isEmpty, result)
     }
 
@@ -416,7 +443,7 @@ class MutantMatcherTest extends Stryker4sSuite {
 
     test("should not match xml literals") {
       val tree = s"""class Foo {
-        def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(Term.Name("foo"))).syntax}
+        def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(Term.Name("foo"))).text}
       }""".parseSource
 
       val result = tree collect sut.allMatchers
@@ -437,7 +464,7 @@ class MutantMatcherTest extends Stryker4sSuite {
     test("should match inside xml literal args") {
       val str = Lit.String("str")
       val tree =
-        s"""def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(str)).syntax}""".parseDef
+        s"""def bar = ${Term.Xml(List(Lit.String("<foo>"), Lit.String("</foo>")), List(str)).text}""".parseDef
       expectMutations(
         sut.matchStringLiteral,
         tree,

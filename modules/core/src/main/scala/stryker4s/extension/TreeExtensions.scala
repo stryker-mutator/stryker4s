@@ -165,7 +165,7 @@ object TreeExtensions {
     /** Map a `weaponregex.model.Location` to a `mutationtesting.Location`
       */
     def toLocation(offset: Location, stringValue: Lit.String): Location = {
-      val stringOffset = if (stringValue.syntax.startsWith("\"\"\"")) 3 else 1
+      val stringOffset = if (stringValue.text.startsWith("\"\"\"")) 3 else 1
       Location(
         start = mutationtesting
           .Position(

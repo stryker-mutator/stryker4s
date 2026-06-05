@@ -40,7 +40,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
           catch {
             case NonFatal(e) =>
               log.error(
-                s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.syntax}]"
+                s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.text}]"
               )
               log.error(
                 s"Failed mutation(s) '${mutations.map(_.id.value).mkString_(", ")}' at ${originalTree.pos.input}:${originalTree.pos.startLine + 1}:${originalTree.pos.startColumn + 1}."
@@ -83,8 +83,8 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
         val coverageTerm = coverageFn(mutantIds.map(_.value))
         // Create a block, or place it in the original
         term match {
-          case Term.Block(stats) => Term.Block(coverageTerm :: stats)
-          case term              => Term.Block(List(coverageTerm, term))
+          case t @ Term.Block(stats) => t.copyWithComments(coverageTerm :: stats)
+          case term                  => Term.Block(List(coverageTerm, term))
         }
       }
     )
@@ -128,10 +128,11 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   /** Extracts the mutant id from a case statement
     */
   private def extractMutantId(pat: Pat) = pat match {
-    case Lit.Int(value)                                                                     => MutantId(value)
+    case Lit.Int(value) =>
+      MutantId(value)
     case Pat.Extract.After_4_6_0(Term.Name("Some"), Pat.ArgClause(List(Lit.String(value)))) =>
       MutantId(value.toInt)
-    case _ => throw new IllegalArgumentException(s"Could not extract mutant id from '${pat.syntax}'")
+    case _ => throw new IllegalArgumentException(s"Could not extract mutant id from '${pat.text}'")
   }
 
   /** Checks if the compile error is inside the mutant case statement

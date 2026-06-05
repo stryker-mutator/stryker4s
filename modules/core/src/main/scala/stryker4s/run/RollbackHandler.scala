@@ -11,9 +11,8 @@ import stryker4s.model.CompilerErrMsg.*
 import stryker4s.model.{CompilerErrMsg, MutantResultsPerFile, MutatedFile}
 import stryker4s.mutants.tree.MutantInstrumenter
 
-import scala.meta.parsers.*
 import scala.meta.transversers.*
-import scala.meta.{Dialect, Source}
+import scala.meta.{Dialect, Source, XtensionTree}
 
 trait RollbackHandler {
   def rollbackFiles(
@@ -46,10 +45,8 @@ object RollbackHandler {
       val filesWithRemovedErrors = compileErrorFiles
         .traverse { case (mutatedFile, errors) =>
           implicit val dialect: Dialect = config.scalaDialect
-          val parsed = mutatedFile.mutatedSource
-            .printSyntaxFor(config.scalaDialect)
-            .parse[Source]
-            .get // Should always pass as we already parsed it once
+          val parsed =
+            mutatedFile.mutatedSource.reparseAs[Source].get // Should always pass as we already parsed it once
 
           log.debug(
             s"Removing ${errors.size} mutants with compile errors from ${mutatedFile.fileOrigin}: ${errors
