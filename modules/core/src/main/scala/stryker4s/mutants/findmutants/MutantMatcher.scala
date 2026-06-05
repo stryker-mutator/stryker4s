@@ -2,6 +2,7 @@ package stryker4s.mutants.findmutants
 
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
+import mutationtesting.cats.*
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
 import stryker4s.extension.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
@@ -11,6 +12,7 @@ import stryker4s.mutation.*
 
 import scala.annotation.tailrec
 import scala.meta.*
+import scala.meta.prettyprinters.XtensionReprint
 
 import MutantMatcher.MutationMatcher
 
@@ -164,7 +166,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         }
         .getOrElse(
           throw new RuntimeException(
-            s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation})"
+            show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${metadata.location})"
           )
         )
 
@@ -172,7 +174,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         case t: Term => MutatedCode(t, metadata)
         case t       =>
           throw new RuntimeException(
-            s"Could not transform '$original' in ${placeableTree.tree} (${metadata.showLocation}). Expected a Term, but was a ${t.getClass().getSimpleName}"
+            show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${metadata.location}). Expected a Term, but was a ${t.getClass().getSimpleName}"
           )
       }
 

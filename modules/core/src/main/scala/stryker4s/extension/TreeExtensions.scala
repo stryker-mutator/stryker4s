@@ -4,7 +4,6 @@ import cats.Eval
 import cats.data.{Chain, OptionT}
 import cats.syntax.all.*
 import mutationtesting.Location
-import weaponregex.model.Location as RegexLocation
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -160,11 +159,12 @@ object TreeExtensions {
       end = mutationtesting.Position(line = pos.endLine + 1, column = pos.endColumn + 1)
     )
   }
-  implicit final class RegexLocationExtension(val pos: RegexLocation) extends AnyVal {
 
-    /** Map a `weaponregex.model.Location` to a `mutationtesting.Location`
+  implicit final class LocationExtension(val pos: Location) extends AnyVal {
+
+    /** Adds an offset to a `mutationtesting.Location`
       */
-    def toLocation(offset: Location, stringValue: Lit.String): Location = {
+    def withOffset(offset: Location, stringValue: Lit.String): Location = {
       val stringOffset = if (stringValue.text.startsWith("\"\"\"")) 3 else 1
       Location(
         start = mutationtesting

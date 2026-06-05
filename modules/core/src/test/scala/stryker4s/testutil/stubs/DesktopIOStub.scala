@@ -1,8 +1,8 @@
 package stryker4s.testutil.stubs
 
-import stryker4s.files.DesktopIO
 import cats.effect.{IO, Ref}
 import fs2.io.file.Path
+import stryker4s.files.DesktopIO
 
 trait DesktopIOStub extends DesktopIO {
   def openCalls: IO[Seq[Path]]

@@ -1,6 +1,5 @@
 package stryker4s.model
 
-import cats.Show
 import cats.syntax.all.*
 import mutationtesting.{Location, MutantResult, MutantStatus}
 import stryker4s.extension.TreeExtensions.PositionExtension
@@ -49,13 +48,7 @@ final case class MutantMetadata(
     mutatorName: String,
     location: Location,
     description: Option[String]
-) {
-  def showLocation: String = {
-    import MutantMetadata.locationShow
-
-    location.show
-  }
-}
+)
 
 object MutantMetadata {
   def apply(
@@ -67,7 +60,4 @@ object MutantMetadata {
   ): MutantMetadata =
     MutantMetadata(original, replacement, mutatorName, position.toLocation, description)
 
-  implicit def locationShow: Show[Location] = Show.show(location =>
-    s"${location.start.line}:${location.start.column} to ${location.end.line}:${location.end.column}"
-  )
 }

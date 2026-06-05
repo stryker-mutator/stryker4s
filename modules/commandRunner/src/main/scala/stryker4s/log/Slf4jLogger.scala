@@ -1,7 +1,7 @@
 package stryker4s.log
 
-import org.slf4j.simple.SimpleLoggerFactory
 import org.slf4j.Logger as Slf4jInternalLogger
+import org.slf4j.simple.SimpleLoggerFactory
 
 class Slf4jLogger() extends Logger {
   private val slf4jLogger: Slf4jInternalLogger = new SimpleLoggerFactory().getLogger("Stryker4s")

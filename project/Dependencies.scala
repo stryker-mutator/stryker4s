@@ -33,9 +33,9 @@ object Dependencies {
 
     val fs2 = "3.13.0"
 
-    val mutationTestingElements = "3.7.3"
+    val mutationTestingElements = "3.8.0"
 
-    val mutationTestingMetrics = "3.7.3"
+    val mutationTestingMetrics = "3.8.0"
 
     val scalameta = "4.17.0"
 
@@ -47,7 +47,7 @@ object Dependencies {
 
     val testInterface = "1.0"
 
-    val weaponRegeX = "1.4.1"
+    val weaponRegeX = "2.0.0"
 
   }
 
@@ -65,8 +65,11 @@ object Dependencies {
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
   val hocon = "com.typesafe" % "config" % versions.hocon
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
-  val mutationTestingMetrics =
-    "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics
+  val mutationTestingMetrics = Seq(
+    "io.stryker-mutator" %% "mutation-testing-metrics" % versions.mutationTestingMetrics,
+    "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics,
+    "io.stryker-mutator" %% "mutation-testing-metrics-cats" % versions.mutationTestingMetrics
+  )
   // Exclude some 2.13 dependencies when on scala 3 to avoid conflicts
   val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
     .cross(CrossVersion.for3Use2_13)

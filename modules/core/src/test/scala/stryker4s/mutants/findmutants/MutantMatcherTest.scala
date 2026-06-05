@@ -773,7 +773,7 @@ class MutantMatcherTest extends Stryker4sSuite {
       val reason = ignored.flatMap(_.toVector).loneElement._2.asInstanceOf[RegexParseError]
 
       assertEquals(reason.pattern, "[[]]")
-      assert(reason.message.contains("must end the string"))
+      assert(reason.message.contains("expectations:"))
     }
   }
 }
