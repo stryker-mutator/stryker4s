@@ -1,6 +1,6 @@
 import Release.*
 import org.typelevel.sbt.tpolecat.*
-import org.typelevel.scalacoptions.*
+import org.typelevel.scalacoptions.{ScalaVersion, *}
 import sbt.*
 import sbt.Keys.*
 import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
@@ -24,7 +24,10 @@ object Settings {
         case _                       => sourceDir / "scala-2.13+"
       }
     },
-    tpolecatScalacOptions ++= Set(ScalacOptions.source3)
+    tpolecatScalacOptions ++= Set(
+      ScalacOptions.source("3", version => version.isBetween(ScalaVersion.V2_12_0, ScalaVersion.V2_13_0)),
+      ScalacOptions.source("3-cross", version => version.isBetween(ScalaVersion.V2_13_0, ScalaVersion.V3_0_0))
+    )
   )
 
   lazy val coreSettings: Seq[Setting[?]] = Seq(
