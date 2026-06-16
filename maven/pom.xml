@@ -156,15 +156,15 @@
                         <arg>-feature</arg>
                         <arg>-language:existentials</arg>
                         <arg>-language:experimental.macros</arg>
-                        <arg>-language:higherKinds</arg>
                         <arg>-language:implicitConversions</arg>
                         <arg>-unchecked</arg>
-                        <arg>-Xcheckinit</arg>
                         <arg>-Xlint:adapted-args</arg>
                         <arg>-Xlint:constant</arg>
                         <arg>-Xlint:delayedinit-select</arg>
                         <arg>-Xlint:deprecation</arg>
                         <arg>-Xlint:doc-detached</arg>
+                        <arg>-Xlint:implicit-recursion</arg>
+                        <arg>-Xlint:implicit-not-found</arg>
                         <arg>-Xlint:inaccessible</arg>
                         <arg>-Xlint:infer-any</arg>
                         <arg>-Xlint:missing-interpolator</arg>
@@ -181,6 +181,7 @@
                         <arg>-Wdead-code</arg>
                         <arg>-Wextra-implicit</arg>
                         <arg>-Wnumeric-widen</arg>
+                        <arg>-Wnonunit-statement</arg>
                         <arg>-Wunused:implicits</arg>
                         <arg>-Wunused:explicits</arg>
                         <arg>-Wunused:imports</arg>
@@ -189,11 +190,10 @@
                         <arg>-Wunused:patvars</arg>
                         <arg>-Wunused:privates</arg>
                         <arg>-Wvalue-discard</arg>
-                        <arg>-Vimplicits</arg>
-                        <arg>-Vtype-diffs</arg>
-                        <arg>-Xfatal-warnings</arg>
+                        <arg>-Werror</arg>
                         <arg>-Xsource:3-cross</arg>
-                        <arg>-Yrelease:8</arg>
+                        <arg>-release</arg>
+                        <arg>17</arg>
                     </args>
                 </configuration>
             </plugin>
