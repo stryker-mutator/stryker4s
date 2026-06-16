@@ -24,26 +24,28 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Run tests
         run: sbt 'compile; ++2.13 test'
-  sbt-scripted:
+  sbt-integration:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-    name: sbt 1 plugin scripted tests (${{ matrix.os }})
+    name: sbt plugin integration tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/setup
       - name: Run tests
-        # sbtTestRunner3 is required by test-subproject (Scala 3 LTS); 2_12 by test-1.
-        run: sbt 'sbtTestRunner2_12/publishLocal; sbtTestRunner3/publishLocal; sbtPlugin/scripted'
-  sbt-scripted-2:
-    name: sbt 2 plugin scripted tests
-    runs-on: ubuntu-latest
+        run: sbt 'sbtPlugin/scripted; sbtPlugin3/scripted'
+  mill-integration:
+    name: Mill plugin integration tests (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/setup
-      - name: Run tests
-        run: sbt 'sbtTestRunner2_12/publishLocal; sbtTestRunner3/publishLocal; sbtPlugin3/scripted'
+      - name: Run Mill integration tests
+        run: sbt 'millPlugin/millScripted'
   maven-plugin:
     name: Test Maven plugin
     runs-on: ubuntu-latest
@@ -74,7 +76,7 @@ jobs:
       - name: Test formatting
         run: ./bin/scalafmt --test
   release:
-    needs: [test, sbt-scripted, sbt-scripted-2, maven-plugin, formatting]
+    needs: [test, sbt-integration, mill-integration, maven-plugin, formatting]
     if: ${{ github.ref == 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:

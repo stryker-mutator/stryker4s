@@ -1,4 +1,5 @@
 import Dependencies.*
+import MillScripted.*
 import Settings.*
 import sbt.internal.ProjectMatrix
 
@@ -9,36 +10,44 @@ lazy val root = (project withId "stryker4s" in file("."))
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; sbtPlugin/publishLocal; sbtTestRunner/publishLocal; sbtTestRunner3/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; sbtPlugin/publishLocal"
     ),
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core/publishM2;"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core/publishM2; testkit/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(
       "publishCommandRunnerLocal",
       "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; commandRunner/publishLocal"
+    ),
+    // Publish Mill plugin + test runner for Mill plugin local testing
+    addCommandAlias(
+      "publishMillLocal",
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; millPlugin/publishLocal"
     )
   )
   .aggregate(
-    (core.projectRefs ++
-      commandRunner.projectRefs ++
-      sbtPlugin.projectRefs ++
-      sbtTestRunner.projectRefs ++
-      testRunnerApi.projectRefs ++
+    (
       api.projectRefs ++
-      testkit.projectRefs) *
+        commandRunner.projectRefs ++
+        core.projectRefs ++
+        millPlugin.projectRefs ++
+        sbtPlugin.projectRefs ++
+        testRunner.projectRefs ++
+        testkit.projectRefs ++
+        testRunnerApi.projectRefs
+    ) *
   )
 
 lazy val core = (projectMatrix in file("modules") / "core")
-  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testkit))
+  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testRunner))
   .dependsOn(api, testRunnerApi, testkit % Test)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
-  .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core, testkit))
+  .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core))
   .dependsOn(core, testkit % Test)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
@@ -46,12 +55,26 @@ lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
 lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
-  .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core))
+  .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core, testRunner))
   .dependsOn(core)
   .jvmPlatform(scalaVersions = Seq(versions.scala212, versions.scala3Lts))
 
-lazy val sbtTestRunner = (projectMatrix in file("modules") / "sbtTestRunner")
-  .settings(commonSettings, sbtTestRunnerSettings, publishLocalDependsOn(testRunnerApi))
+// Mill plugins are compiled with the Scala version of the minimum supported Mill version
+lazy val millPlugin = (projectMatrix in file("modules") / "mill")
+  .defaultAxes(VirtualAxis.scalaABIVersion(versions.scala3Lts), VirtualAxis.jvm)
+  .settings(
+    commonSettings,
+    millPluginSettings,
+    publishLocalDependsOn(core, testRunner),
+    millScripted := millScriptedTask
+      .dependsOn(publishLocal, testRunner.jvm(versions.scala3Lts) / publishLocal)
+      .value
+  )
+  .dependsOn(core, testkit % Test)
+  .jvmPlatform(scalaVersions = Seq(versions.scala3Lts))
+
+lazy val testRunner = (projectMatrix in file("modules") / "testRunner")
+  .settings(commonSettings, testRunnerSettings, publishLocalDependsOn(testRunnerApi))
   .dependsOn(testRunnerApi)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 

@@ -11,6 +11,9 @@ object Dependencies {
 
     val scala3 = "3.8.4"
 
+    // Mill plugins must be compiled with the same Scala version as the minimum supported Mill version
+    val scalaMill = "3.8.2"
+
     val crossScalaVersions = Seq(scala3Lts, scala213, scala212)
 
     // Test dependencies
@@ -29,9 +32,11 @@ object Dependencies {
 
     val fansi = "0.5.1"
 
+    val fs2 = "3.13.0"
+
     val hocon = "1.4.9"
 
-    val fs2 = "3.13.0"
+    val mill = "1.1.6"
 
     val mutationTestingElements = "3.8.0"
 
@@ -64,6 +69,8 @@ object Dependencies {
   val fs2Core = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2IO = "co.fs2" %% "fs2-io" % versions.fs2
   val hocon = "com.typesafe" % "config" % versions.hocon
+  val millLibsScalalib = "com.lihaoyi" %% "mill-libs-scalalib" % versions.mill
+  val millTestkit = "com.lihaoyi" %% "mill-testkit" % versions.mill
   val mutationTestingElements = "io.stryker-mutator" % "mutation-testing-elements" % versions.mutationTestingElements
   val mutationTestingMetrics = Seq(
     "io.stryker-mutator" %% "mutation-testing-metrics" % versions.mutationTestingMetrics,

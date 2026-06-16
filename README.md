@@ -48,6 +48,29 @@ The Maven plugin can be added as follows in `pom.xml` under `<plugins>` [![Maven
 
 You can then run Stryker4s with the command `mvn stryker4s:run`. Note that this is different than the command for the sbt plugin.
 
+## Mill plugin
+
+Stryker4s provides a plugin for the [Mill](https://mill-build.org/) build tool. Import the plugin in your `build.mill` and mix the `Stryker4sModule` trait into the `ScalaModule` you want to mutation test [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/mill-stryker4s_mill1_3.svg?label=Maven%20Central&colorB=brightgreen)](https://central.sonatype.com/artifact/io.stryker-mutator/mill-stryker4s_mill1_3):
+
+```scala
+//| mvnDeps:
+//| - io.stryker-mutator:::mill-stryker4s:<version>
+package build
+import mill.*, scalalib.*
+import stryker4s.mill.Stryker4sModule
+
+object foo extends ScalaModule, Stryker4sModule {
+  // ...
+  object test extends ScalaTests {
+    // ...
+  }
+}
+```
+
+You can then run Stryker4s with `./mill foo.stryker`, where `foo` is the name of your module. The tests of the module are run via its first child test module (e.g. `object test extends ScalaTests`); override `strykerTestModule` to point it elsewhere.
+
+Configuration is read from `stryker`-prefixed overrides on the module (e.g. `def strykerConcurrency = Some(4)`), from `stryker4s.conf`, or from command-line arguments (e.g. `./mill foo.stryker --thresholds.break 80`).
+
 ## Pre-release versions
 
 We also publish SNAPSHOT versions of each commit on master. To use a pre-release, add the following setting to your `build.sbt` and `plugins.sbt`:
