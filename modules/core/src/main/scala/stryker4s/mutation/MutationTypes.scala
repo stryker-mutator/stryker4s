@@ -4,7 +4,6 @@ import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.treeEq
 
 import scala.meta.*
-import scala.meta.internal.trees.XtensionTreesName
 
 /** Base trait for mutations. Mutations can be used to pattern match on (see MutantMatcher).
   */

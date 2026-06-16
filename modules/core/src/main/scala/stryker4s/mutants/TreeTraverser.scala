@@ -5,7 +5,6 @@ import stryker4s.extension.TreeExtensions.TreeIsInExtension
 import stryker4s.mutation.ParentIsTypeLiteral
 
 import scala.meta.*
-import scala.meta.internal.trees.XtensionTreesName
 
 trait TreeTraverser {
 
