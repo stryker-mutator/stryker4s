@@ -15,6 +15,7 @@ Configuration methods can be combined seamlessly. The priority is as follows:
 | Source         | [CLI args](#cli-args) | [Build tool settings](#build-tool-settings-sbt) | [Config file](#config-file) |
 | -------------- | --------------------- | ----------------------------------------------- | --------------------------- |
 | Sbt plugin     | ✅                    | ✅                                              | ✅                          |
+| Mill plugin    | ✅                    | ✅                                              | ✅                          |
 | Maven plugin   | ❌                    | ❌                                              | ✅                          |
 | Command runner | ✅                    | N/A                                             | ✅                          |
 
@@ -47,6 +48,20 @@ You can also see the value of a key by running e.g. `sbt show strykerBaseDir`.
 :::tip
 In `*.sbt` files the keys are imported automatically, in `project/*.scala` files you can import them from `import stryker4s.sbt.Stryker4sPlugin.autoImport._`. Your editor will autocomplete the keys for you.
 :::
+
+### Build tool settings (Mill)
+
+The Mill plugin reads some default values from the module, but you can override them by defining `stryker`-prefixed members on the module the `Stryker4sModule` trait is mixed into. Each member is named `stryker` followed by the camelCase name of the config key and returns an `Task[Option[_]]`:
+
+```scala
+import stryker4s.mill.Stryker4sModule
+
+object core extends ScalaModule, Stryker4sModule {
+  override def strykerMutate = Task(Some(Seq("src/main/scala/**/*.scala")))
+  override def strykerConcurrency = Task(Some(4))
+  override def strykerDashboardModule = Task(Some("core"))
+}
+```
 
 ### Config file
 
@@ -362,6 +377,8 @@ How to adjust the loglevel depends on how you run stryker4s:
 - sbt plugin
   - Add `stryker / logLevel := Level.Debug` to your build.sbt. Or use `set stryker / logLevel := Level.Debug` if you are in a sbt session.
   - Options: `Debug`, `Info`, `Warn`, `Error`
+- Mill plugin
+  - Pass Mill's `--debug` flag, like so: `./mill --debug foo.stryker`
 - Commandrunner
   - Pass the loglevel as a parameter when running, like so: `--debug`
   - Options: `--debug`, `--info`, `--warn`, `--error` (not case sensitive)

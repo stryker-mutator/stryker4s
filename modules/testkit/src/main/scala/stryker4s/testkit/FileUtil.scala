@@ -13,7 +13,7 @@ object FileUtil {
   def getResource(name: String): Path =
     Option(classLoader.getResource(name))
       .map(_.toURI())
-      .map(file.Path.of)
+      .map(file.Paths.get)
       .map(Path.fromNioPath)
       .getOrElse(throw new FileNotFoundException(s"File $name could not be found"))
 

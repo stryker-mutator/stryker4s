@@ -83,8 +83,21 @@ object Settings {
     tpolecatExcludeOptions ++= Set(ScalacOptions.privateWarnUnusedImports)
   )
 
-  lazy val sbtTestRunnerSettings: Seq[Setting[?]] = Seq(
-    moduleName := "stryker4s-sbt-testrunner",
+  lazy val millPluginSettings: Seq[Setting[?]] = Seq(
+    moduleName := "mill-stryker4s_mill1",
+    scalaVersion := Dependencies.versions.scalaMill,
+    libraryDependencies ++= Seq(
+      Dependencies.millLibsScalalib % Provided,
+      Dependencies.millTestkit % Test
+    ),
+    Test / parallelExecution := false,
+    // Mill (Scala 3) and scalameta (for3Use2_13) bring conflicting cross-version suffixes for
+    // scala-xml and scala-collection-compat. Mill is Provided and provides these at runtime itself
+    conflictWarning := ConflictWarning.disable
+  )
+
+  lazy val testRunnerSettings: Seq[Setting[?]] = Seq(
+    moduleName := "stryker4s-testrunner",
     libraryDependencies ++= Seq(
       Dependencies.testInterface
     )
@@ -135,7 +148,7 @@ object Settings {
     libraryDependencySchemes ++= Seq(
       "io.stryker-mutator" %% "stryker4s-core" % VersionScheme.Always,
       "io.stryker-mutator" %% "stryker4s-testrunner-api" % VersionScheme.Always,
-      "io.stryker-mutator" %% "stryker4s-sbt-testrunner" % VersionScheme.Always
+      "io.stryker-mutator" %% "stryker4s-testrunner" % VersionScheme.Always
     ),
     description := "Stryker4s, the mutation testing framework for Scala.",
     organization := "io.stryker-mutator",
