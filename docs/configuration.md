@@ -51,15 +51,15 @@ In `*.sbt` files the keys are imported automatically, in `project/*.scala` files
 
 ### Build tool settings (Mill)
 
-The Mill plugin reads some default values from the module, but you can override them by defining `stryker`-prefixed members on the module the `Stryker4sModule` trait is mixed into. Each member is named `stryker` followed by the camelCase name of the config key and returns an `Task[Option[_]]`:
+The Mill plugin reads some default values from the module, but you can override them by defining `stryker`-prefixed members on the module the `Stryker4sModule` trait is mixed into. Each member is named `stryker` followed by the camelCase name of the config key and returns a `T[Option[_]]`:
 
 ```scala
 import stryker4s.mill.Stryker4sModule
 
 object core extends ScalaModule, Stryker4sModule {
-  override def strykerMutate = Task(Some(Seq("src/main/scala/**/*.scala")))
-  override def strykerConcurrency = Task(Some(4))
-  override def strykerDashboardModule = Task(Some("core"))
+  override def strykerMutate = Some(Seq("src/main/scala/**/*.scala"))
+  override def strykerConcurrency = Some(4)
+  override def strykerDashboardModule = Some("core")
 }
 ```
 
@@ -81,6 +81,7 @@ stryker4s {
 
 **Config file:** `mutate: [ "**/main/scala/**/*.scala" ]`  
 **Sbt:** `strykerMutate := Seq("**/main/scala/**/*.scala")`  
+**Mill:** `override def strykerMutate = Some(Seq("**/main/scala/**/*.scala"))`  
 **CLI:** `--mutate "**/main/scala/**/*.scala"`  
 **Default value:** `[ "**/main/scala/**/*.scala" ]`
 
@@ -94,6 +95,7 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 
 **Config file:** `test-filter: [ "com.mypackage.MyTest" ]`  
 **Sbt:** `strykerTestFilter := Seq("com.mypackage.MyTest")`  
+**Mill:** `override def strykerTestFilter = Some(Seq("com.mypackage.MyTest"))`  
 **CLI:** `--test-filter com.mypackage.MyTest`  
 **Default value:** `[]`  
 **Since:** `v0.8.0`
@@ -101,10 +103,7 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 With `test-filter` you configure the subset of tests to use for mutation testing. By default, all tests are included.
 You can use a wildcard pattern: `com.mypackage.*`.
 
-- With sbt [`Tests.Filter`](https://www.scala-sbt.org/1.x/docs/Testing.html#Filter+classes) is used.
-  - You can _ignore_ tests by adding an exclamation mark (`!`) at the start of an expression.
-- With Maven and the ScalaTest plugin, [`wildcardSuites`](https://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin) property is used
-- With Maven and the SureFire plugin, [`tests`](https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html) property is used
+[`Tests.Filter`](https://www.scala-sbt.org/1.x/docs/Testing.html#Filter+classes) is used. You can _ignore_ tests by adding an exclamation mark (`!`) at the start of an expression.
 
 Note: Not supported in the command-runner plugin.
 
@@ -112,6 +111,7 @@ Note: Not supported in the command-runner plugin.
 
 **Config file:** `files: [ "**/main/scala/**/*.scala" ]`  
 **Sbt:** `strykerFiles := Seq("**/main/scala/**/*.scala")`  
+**Mill:** `override def strykerFiles = Some(Seq("**/main/scala/**/*.scala"))`  
 **CLI:** `--files "**/main/scala/**/*.scala"`  
 **Default value:** `[ "**", "!target/**", "!project/**", "!.metals/**", "!.bloop/**", "!.idea/**" ]`
 
@@ -124,6 +124,7 @@ You can _ignore_ files by adding an exclamation mark (`!`) at the start of an ex
 
 **Config file:** `base-dir: '/usr/your/project/folder/here'`  
 **Sbt:** `strykerBaseDir := file("./submodule1")`  
+**Mill:** N/A (derived from the module's `moduleDir`)  
 **CLI:** `--base-dir submodule1`  
 **Default value:** The current working directory
 
@@ -133,6 +134,7 @@ With `base-dir` you specify the directory from which stryker4s starts and search
 
 **Config file:** `reporters: ["console", "html", "json", "dashboard"]`  
 **Sbt:** `strykerReporters := Seq("console", "html", "json", "dashboard")`  
+**Mill:** `override def strykerReporters = Some(Seq("console", "html", "json", "dashboard"))`  
 **CLI:** `--reporters html --reporters console`  
 **Default value:** The `console` and `html` reporters
 
@@ -147,6 +149,7 @@ With `reporters` you can specify reporters for stryker4s to use. The following r
 
 **Config file:** `open-report: true` 
 **Sbt:** `strykerOpenReport := true`  
+**Mill:** `override def strykerOpenReport = Some(true)`  
 **CLI:** `--open-report`  
 **Default value:** `false`  
 
@@ -156,6 +159,7 @@ Open the HTML report in the default browser after the mutation run is finished.
 
 **Config file:** `excluded-mutations: ["BooleanLiteral"]`  
 **Sbt:** `strykerExcludedMutations := Seq("BooleanLiteral")`  
+**Mill:** `override def strykerExcludedMutations = Some(Seq("BooleanLiteral"))`  
 **CLI:** `--excluded-mutations BooleanLiteral`  
 **Default value:** `[]`
 
@@ -172,6 +176,7 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 
 **Config file:** `thresholds{ high=80, low=60, break=0 }`  
 **Sbt:** `strykerThresholdsHigh := 80; strykerThresholdsLow := 60; strykerThresholdsBreak := 0`  
+**Mill:** `override def strykerThresholdsHigh = Some(80)` (and `strykerThresholdsLow` / `strykerThresholdsBreak`)  
 **CLI:** `--thresholds.high 80 --thresholds.low 60 --thresholds.break 0`  
 **Default values:** `high=80`, `low=60`, `break=0`
 
@@ -187,8 +192,9 @@ Setting `break=0` (default value) ensures that the build will never fail.
 ### `dashboard.*` (`object`)
 
 **Config file:** `dashboard { module="core" }`  
-**Sbt:** `dashboardProject := "myproject"; dashboardModule := "core"; `  
-**CLI:** `--dashboard.project "myproject --dashboard.module core`  
+**Sbt:** `strykerDashboardProject := "myproject"; strykerDashboardModule := "core"`  
+**Mill:** `override def strykerDashboardProject = Some("myproject")` (and `strykerDashboardModule` / `strykerDashboardBaseUrl` / `strykerDashboardReportType` / `strykerDashboardVersion`)  
+**CLI:** `--dashboard.project "myproject" --dashboard.module core`  
 **Default values:** `dashboard { base-url="https://dashboard.stryker-mutator.io", project="github.com/$USER/$PROJECT_NAME", report-type=full, version=$BRANCH }` if filled by CI environment
 
 Settings for the dashboard [reporter](#reporters-seqstring). See the [dashboard docs](../General/dashboard.md). Note that the values should be kebab-case, not camelCase. If nothing is configured, Stryker4s will try to retrieve the values from one of the supported CI environments:
@@ -201,11 +207,12 @@ Settings for the dashboard [reporter](#reporters-seqstring). See the [dashboard 
 
 **Config file:** `scala-dialect: "2.13"`  
 **Sbt:** `strykerScalaDialect := scala.meta.dialects.Scala3`  
+**Mill:** `override def strykerScalaDialect = Some(scala.meta.dialects.Scala3)`  
 **CLI:** `--scala-dialect "scala3"`  
-**Default value:** `scala213source3`  
+**Default value:** the project's Scala version, derived from the build (falling back to `scala213source3`)  
 **Since:** `v0.10.1`
 
-Set the Scala dialect that should be used for parsing Scala files. The default is Scala 2.13 with `-XSource:3` as this has the widest compatibility. If you are running into issues with parsing older unsupported Scala syntax that we forgot about you can change this value.
+Set the Scala dialect that should be used for parsing Scala files. The sbt, Mill and Maven plugins derive this from the project's Scala version (and `-Xsource:3` flag) automatically, so you normally don't need to set it. When it can't be derived (for example in the command runner), it falls back to Scala 2.13 with `-Xsource:3`, as this has the widest compatibility. If you are running into issues with parsing Scala syntax, you can override this value.
 
 Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/modules/core/src/main/scala/stryker4s/config/codec/CirisConfigDecoders.scala#L109-L121).
 
@@ -213,6 +220,7 @@ Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.
 
 **Config file:** `static-tmp-dir: true`  
 **Sbt:** `strykerStaticTmpDir := true`  
+**Mill:** `override def strykerStaticTmpDir = Some(true)`  
 **CLI:** `--static-tmp-dir`  
 **Default value:** `false`  
 **Since:** `v0.15.0`
@@ -226,6 +234,7 @@ local cache - hashes the path to create the sandbox's name) as it speeds up muta
 
 **Config file:** `clean-tmp-dir: false`  
 **Sbt:** `strykerCleanTmpDir := false`  
+**Mill:** `override def strykerCleanTmpDir = Some(false)`  
 **CLI:** `--clean-tmp-dir=false`  
 **Default value:** `true`  
 **Since:** `v0.15.0`
@@ -235,12 +244,15 @@ If cleaning the temporary dir is disabled, you need to clean the temporary dir m
 
 On error the temporary dir is never deleted (even if this option is set).
 
-## Sbt plugin config
+## Test runner config
+
+These options configure the forked test runner that the sbt, Mill and Maven plugins all use. The sbt and Mill plugins additionally expose them as build-tool settings (shown below); for the Maven plugin, set them in `stryker4s.conf`. The exception is [`legacy-test-runner`](#legacy-test-runner-boolean), which only applies to the sbt plugin.
 
 ### `timeout-factor` (`Double`)
 
 **Config file:** `timeout-factor: 1.5`  
 **Sbt:** `strykerTimeoutFactor := 1.5`  
+**Mill:** `override def strykerTimeoutFactor = Some(1.5)`  
 **CLI:** `--timeout-factor 1.5`  
 **Default value:** `1.5`  
 **Since:** `v0.10.0`
@@ -251,6 +263,7 @@ See [timeout](#timeout-finiteduration)
 
 **Config file:** `timeout: 5000`  
 **Sbt:** `strykerTimeout := 5.seconds`  
+**Mill:** `override def strykerTimeout = Some(5.seconds)` (with `import scala.concurrent.duration.*`)  
 **CLI:** `--timeout 5s`  
 **Default value:** `5 seconds`  
 **Since:** `v0.10.0`
@@ -272,6 +285,7 @@ With `timeout-factor` you can configure the allowed deviation relative to the ti
 
 **Config file:** `max-test-runner-reuse: 5`  
 **Sbt:** `strykerMaxTestRunnerReuse := 3`  
+**Mill:** `override def strykerMaxTestRunnerReuse = Some(3)`  
 **CLI:** `--max-test-runner-reuse 3`  
 **Default value:** disabled  
 **Since:** `v0.10.0`
@@ -285,6 +299,8 @@ Restart the testrunner child process after every `n` mutation runs. Not recommen
 **CLI:** `--legacy-test-runner`  
 **Default value:** `false`  
 **Since:** `v0.10.0`
+
+> This option only applies to the **sbt** plugin. The Mill and Maven plugins do not support the legacy test runner.
 
 Use the sbt testrunner that was the default before `v0.10.0`. This testrunner is a lot slower, so it is recommended to only enable this if you are running into issues with the new testrunner. You might want to take a look at [`max-test-runner-reuse`](#max-test-runner-reuse-int) first.
 
@@ -300,6 +316,7 @@ For the last two cases, please [let us know by creating an issue](https://github
 
 **Config file:** `concurrency: 4`  
 **Sbt:** `strykerConcurrency := 4`  
+**Mill:** `override def strykerConcurrency = Some(4)`  
 **CLI:** `--concurrency 4`  
 **Default value:** `(cpuCoreCount / 4).rounded + 1`  
 **Since:** `v0.12.0`
@@ -314,6 +331,7 @@ Describes the `debug` config field
 
 **Config file:** `debug { debug-test-runner: true }`  
 **Sbt:** `strykerDebugDebugTestRunner := true`  
+**Mill:** `override def strykerDebugDebugTestRunner = Some(true)`  
 **CLI:** `--debug-test-runner`  
 **Default value:** `false`  
 **Since:** `v0.14.0`
@@ -336,7 +354,7 @@ To debug in VS Code, you can use (and edit) this `launch.json`:
       "request": "attach",
       "hostName": "127.0.0.1",
       "port": 8000,
-      "buildTarget": "sbtTestRunner"
+      "buildTarget": "testRunner"
     }
   ]
 }
@@ -346,6 +364,7 @@ To debug in VS Code, you can use (and edit) this `launch.json`:
 
 **Config file:** `debug { log-test-runner-stdout: true }`  
 **Sbt:** `strykerDebugLogTestRunnerStdout := true`  
+**Mill:** `override def strykerDebugLogTestRunnerStdout = Some(true)`  
 **CLI:** `--log-test-runner-stdout`  
 **Default value:** `false`  
 **Since:** `v0.14.0`

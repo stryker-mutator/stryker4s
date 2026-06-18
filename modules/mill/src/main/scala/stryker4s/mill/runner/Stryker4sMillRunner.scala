@@ -9,7 +9,7 @@ import mill.api.daemon.internal.CompileProblemReporter
 import mill.javalib.api.{CompilationResult, JvmWorkerApi}
 import stryker4s.config.source.ConfigSource
 import stryker4s.config.{Config, TestFilter}
-import stryker4s.exception.TestSetupException
+import stryker4s.exception.TestSetupFailedException
 import stryker4s.extension.FileExtensions.*
 import stryker4s.log.Logger
 import stryker4s.model.{CompilerErrMsg, TestRunnerId}
@@ -84,7 +84,7 @@ class Stryker4sMillRunner(
       testRunnerIds.map { id =>
         ProcessTestRunner.create(
           ctx.javaHome.map(p => new File(p.toString())),
-          classpath.map(_.toNIO),
+          classpath.map(p => Path.fromNioPath(p.toNIO)),
           ctx.forkArgs,
           testGroups,
           id,
@@ -135,7 +135,7 @@ class Stryker4sMillRunner(
       case failure: Result.Failure           =>
         NonEmptyList
           .fromList(reporter.errors.toList)
-          .toLeft(throw TestSetupException(s"Failed to compile mutated sources: ${failure.error}"))
+          .toLeft(throw TestSetupFailedException(s"Failed to compile mutated sources: ${failure.error}"))
     }
   }
 

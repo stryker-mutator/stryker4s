@@ -48,13 +48,15 @@ The Maven plugin can be added as follows in `pom.xml` under `<plugins>` [![Maven
 
 You can then run Stryker4s with the command `mvn stryker4s:run`. Note that this is different than the command for the sbt plugin.
 
+The Maven plugin discovers tests through the [`sbt.testing`](https://github.com/sbt/test-interface) interface, so your test framework needs to ship one (munit, ScalaTest, specs2, weaver, utest, ZIO Test, ScalaCheck, …). Surefire/JUnit-native test discovery is not supported yet. JUnit should have the [junit-interface](https://github.com/sbt/junit-interface) as a dependency.
+
 ## Mill plugin
 
 Stryker4s provides a plugin for the [Mill](https://mill-build.org/) build tool. Import the plugin in your `build.mill` and mix the `Stryker4sModule` trait into the `ScalaModule` you want to mutation test [![Maven Central](https://img.shields.io/maven-central/v/io.stryker-mutator/mill-stryker4s_mill1_3.svg?label=Maven%20Central&colorB=brightgreen)](https://central.sonatype.com/artifact/io.stryker-mutator/mill-stryker4s_mill1_3):
 
 ```scala
 //| mvnDeps:
-//| - io.stryker-mutator:::mill-stryker4s:<version>
+//| - io.stryker-mutator::mill-stryker4s::<version>
 package build
 import mill.*, scalalib.*
 import stryker4s.mill.Stryker4sModule
@@ -90,7 +92,7 @@ See the [configuration page](https://stryker-mutator.io/docs/stryker4s/configura
 Stryker4s supports a variety of mutators, which can be found [here](https://stryker-mutator.io/docs/mutation-testing-elements/supported-mutators/).
 Do you have a suggestion for a (new) mutator? Feel free to create an [issue](https://github.com/stryker-mutator/stryker4s/issues/new)!
 
-An always up-to-date reference is also available in the [MutantMatcher source](core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
+An always up-to-date reference is also available in the [MutantMatcher source](modules/core/src/main/scala/stryker4s/mutants/findmutants/MutantMatcher.scala).
 
 ## Changelog
 

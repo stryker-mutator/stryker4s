@@ -3,6 +3,6 @@
         "editor.formatOnSave": true
     },
     "files.watcherExclude": {
-        "**/target": true
+        "**/target/**": true
     }
 }

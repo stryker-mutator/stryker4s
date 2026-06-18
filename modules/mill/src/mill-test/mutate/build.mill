@@ -1,5 +1,5 @@
 //| mvnDeps:
-//| - io.stryker-mutator::mill-stryker4s_mill1:@STRYKER4S_VERSION@
+//| - io.stryker-mutator::mill-stryker4s::@STRYKER4S_VERSION@
 package build
 import mill.*, scalalib.*
 import stryker4s.mill.Stryker4sModule
@@ -9,8 +9,8 @@ object foo extends ScalaModule, Stryker4sModule {
 
   // Sanity-check that build-tool config overrides are picked up. The sample scores ~66%, so a
   // break threshold of 40 passes; the integration test also overrides this via CLI to force a break.
-  def strykerThresholdsBreak = Task(Some(40))
-  def strykerReporters = Task(Some(Seq("console", "html")))
+  def strykerThresholdsBreak = Some(40)
+  def strykerReporters = Some(Seq("console", "html"))
 
   object test extends ScalaTests {
     def testFramework = "munit.Framework"

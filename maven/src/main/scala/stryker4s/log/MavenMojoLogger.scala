@@ -25,10 +25,10 @@ class MavenMojoLogger(mavenLogger: Log) extends Logger {
       onWarn: => Unit,
       onError: => Unit
   ): Unit = level match {
-    case Level.Debug => if (mavenLogger.isDebugEnabled()) onDebug
-    case Level.Info  => if (mavenLogger.isInfoEnabled()) onInfo
-    case Level.Warn  => if (mavenLogger.isWarnEnabled()) onWarn
-    case Level.Error => if (mavenLogger.isErrorEnabled()) onError
+    case Level.Debug => if mavenLogger.isDebugEnabled() then onDebug
+    case Level.Info  => if mavenLogger.isInfoEnabled() then onInfo
+    case Level.Warn  => if mavenLogger.isWarnEnabled() then onWarn
+    case Level.Error => if mavenLogger.isErrorEnabled() then onError
   }
 
   override val colorEnabled = MessageUtils.isColorEnabled() && !sys.env.contains("NO_COLOR")

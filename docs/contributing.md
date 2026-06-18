@@ -11,7 +11,7 @@ This is the contribution guide for Stryker4s. Great to have you here! Here are a
 
 To get started with developing Stryker4s, you'll need a couple of tools:
 
-- [Java JDK](https://openjdk.java.net/), a recent version like 11 or 17 is recommended
+- [Java JDK](https://openjdk.java.net/), version 17 or newer (the build targets Java 17 bytecode)
 - [sbt](https://www.scala-sbt.org/), to build and test the project
 
 Once these tools are installed you can open the project with [IntelliJ](https://www.jetbrains.com/idea/), or [VS Code](https://code.visualstudio.com/) combined with [Metals](https://scalameta.org/metals/).
@@ -35,11 +35,26 @@ Don't hesitate or get discouraged to get in touch! We are always happy to help y
 
 ## Running Stryker4s on Stryker4s
 
-We support mutation testing Stryker4s with Stryker4s! The easiest way is to follow our guide in the root readme. If you want to test any local changes, follow these steps:
+We support mutation testing Stryker4s with Stryker4s! The easiest way is to follow our guide in the root readme. If you want to test any local changes, publish them locally first, depending on which plugin you want to test:
 
-1. Run `sbt publishPluginLocal` to publish a test snapshot as `0.0.0-TEST-SNAPSHOT` version to your local ivy repository.
+### sbt plugin
+
+1. Run `sbt publishPluginLocal` to publish a test snapshot as `0.0.0-TEST-SNAPSHOT` to your local ivy repository.
 2. Add the sbt plugin to `project/plugins.sbt` with `0.0.0-TEST-SNAPSHOT` as the version number.
+3. `reload` your sbt session.
 3. Run stryker4s as described in the readme.
+
+### Mill plugin
+
+1. Run `sbt publishMillLocal` to publish the Mill plugin (and test runner) as `0.0.0-TEST-SNAPSHOT` to your local ivy repository.
+2. Reference `io.stryker-mutator::mill-stryker4s::0.0.0-TEST-SNAPSHOT` in your test project's `build.mill`.
+3. Run stryker4s as described in the readme.
+
+### Maven plugin
+
+1. Run `sbt publishM2Local` to publish `stryker4s-core` and the test runner as `SET-BY-SBT-SNAPSHOT` to your local `.m2` repository.
+2. Build and install the Maven plugin itself: `cd maven && mvn install`.
+3. Run `mvn stryker4s:run` in your test project (or in the `maven` module to mutate the plugin itself).
 
 ## Learning resources
 
@@ -53,7 +68,7 @@ Here are some resources you can use if you are new to mutation testing:
 
 ## Mutation switching
 
-Stryker4s uses a technique called 'mutation switching' to perform mutations. It does this by adding all mutations into a single pattern match, and activating the correct mutation via an environment variable. This would change the following code:
+Stryker4s uses a technique called 'mutation switching' to perform mutations. It does this by adding all mutations into a single pattern match, and activating the correct mutation at runtime. This would change the following code:
 
 ```scala
 def isAdult(person: Person) = {
@@ -65,11 +80,13 @@ To:
 
 ```scala
 def isAdult(person: Person) = {
-  sys.env.get("ACTIVE_MUTATION") match {
-    case Some("1") => person.age > 18
-    case Some("2") => person.age < 18
-    case Some("3") => person.age == 18
-    case _         => person.age >= 18 // Original
+  _root_.stryker4s.activeMutation match {
+    case 1 => person.age > 18
+    case 2 => person.age < 18
+    case 3 => person.age == 18
+    case _ =>
+      _root_.stryker4s.coverage.coverMutant(1, 2, 3) // Coverage
+      person.age >= 18 // Original
   }
 }
 ```
