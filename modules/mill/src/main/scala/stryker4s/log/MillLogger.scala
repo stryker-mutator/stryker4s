@@ -2,6 +2,9 @@ package stryker4s.log
 
 import mill.api.daemon.Logger as MillInternalLogger
 
+import java.io.{PrintWriter, StringWriter}
+import scala.util.Using
+
 class MillLogger(millLogger: MillInternalLogger, env: Map[String, String]) extends Logger {
 
   override def log(level: Level, msg: => String): Unit = level match {
@@ -13,8 +16,14 @@ class MillLogger(millLogger: MillInternalLogger, env: Map[String, String]) exten
 
   override def log(level: Level, msg: => String, e: => Throwable): Unit = {
     log(level, msg)
-    log(level, e.toString())
+    log(level, stackTraceOf(e))
   }
+
+  private def stackTraceOf(e: Throwable): String =
+    val writer = new StringWriter()
+    Using.resource(new PrintWriter(writer)): pw =>
+      e.printStackTrace(pw)
+      writer.toString()
 
   override protected def colorEnabled: Boolean =
     mill.api.daemon.loggerColorEnabled(millLogger) && !env.contains("NO_COLOR")

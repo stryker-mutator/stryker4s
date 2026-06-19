@@ -34,6 +34,22 @@ class Stryker4sModuleTest extends Stryker4sSuite {
     lazy val millDiscover = Discover[this.type]
   }
 
+  object multipleTestModuleProject extends TestRootModule {
+    object foo extends ScalaModule, Stryker4sModule {
+      def scalaVersion = "3.3.8"
+
+      object test extends ScalaTests {
+        def testFramework = "munit.Framework"
+      }
+
+      object itTest extends ScalaTests {
+        def testFramework = "munit.Framework"
+      }
+    }
+
+    lazy val millDiscover = Discover[this.type]
+  }
+
   test("strykerTestModule resolves the child test module") {
     UnitTester(unitTestProject, resourceProject("unit-test-project")).scoped { _ =>
       assertEquals(unitTestProject.foo.strykerTestModule, unitTestProject.foo.test)
@@ -45,6 +61,14 @@ class Stryker4sModuleTest extends Stryker4sSuite {
       interceptMessage[RuntimeException](
         "No test module found for module 'bar'. Override with `def strykerTestModule = myTestModule` to point Stryker4s to the test module to run tests with."
       )(noTestModuleProject.bar.strykerTestModule)
+    }
+  }
+
+  test("strykerTestModule fails with a helpful message when there are multiple test modules") {
+    UnitTester(multipleTestModuleProject, resourceProject("unit-test-project")).scoped { _ =>
+      interceptMessage[RuntimeException](
+        "Multiple test modules found for module 'foo' (itTest, test). Override with `def strykerTestModule = myTestModule` to point Stryker4s to the test module to run tests with."
+      )(multipleTestModuleProject.foo.strykerTestModule)
     }
   }
 
