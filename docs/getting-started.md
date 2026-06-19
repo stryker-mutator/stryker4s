@@ -8,7 +8,7 @@ Stryker4s is a mutation testing framework for Scala. It allows you to test your 
 
 This guide is for the **sbt** plugin for Stryker4s.
 
-:::note Using Mill or Maven?
+:::note[Using Mill or Maven?]
 Stryker4s also has plugins for other build tools. See the README for setup instructions for the [Mill plugin](https://github.com/stryker-mutator/stryker4s/blob/master/README.md#mill-plugin) and the [Maven plugin](https://github.com/stryker-mutator/stryker4s/blob/master/README.md#maven-plugin). [Configuration](./configuration.md) is shared across all plugins.
 :::
 
