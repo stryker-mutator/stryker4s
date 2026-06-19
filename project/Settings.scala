@@ -72,12 +72,6 @@ object Settings {
         case _      => "2.0.0"
       }
     },
-    scalaVersion ~= {
-      // Hard code Scala 3 version to non-LTS for SBT plugins, as required by SBT 2
-      // Hardcoding to prevent core2_13 being used
-      case Dependencies.versions.scala3Lts => Dependencies.versions.scala3
-      case other                           => other
-    },
     scriptedBufferLog := false,
     // Disable unused import warnings (for 2.12), for better compatibility with SBT 2/Scala 3
     tpolecatExcludeOptions ++= Set(ScalacOptions.privateWarnUnusedImports)
@@ -85,7 +79,6 @@ object Settings {
 
   lazy val millPluginSettings: Seq[Setting[?]] = Seq(
     moduleName := "mill-stryker4s_mill1",
-    scalaVersion := Dependencies.versions.scalaMill,
     libraryDependencies ++= Seq(
       Dependencies.millLibsScalalib % Provided,
       Dependencies.millTestkit % Test
