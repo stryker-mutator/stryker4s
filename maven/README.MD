@@ -7,8 +7,13 @@ This is the project for the Stryker4s Maven plugin. As you cannot build a Maven 
 ## Overriding compiler flags
 
 Stryker4s can generate mutated code that produces warnings.
-This will not work well with `-Xfatal-warnings` and/or `-Werror` Scala compiler options.
-To mitigate this, you can specify a profile where the scala maven plugin uses different set of compiler flags.
+This will not work well with "fatal warning" style Scala compiler options.
+To mitigate this, Stryker4s automatically strips the most common offenders from the compiler options it reads from
+the `scala-maven-plugin` before compiling the mutated sources, including `-Xfatal-warnings`, `-Werror`,
+`-Ycheck-all-patmat`, `-W/-Ywarn-dead-code`, `-W/-Ywarn-value-discard` and the `-Wunused`/`-Ywarn-unused` family.
+
+If you use other flags that don't play well with mutated code, you can specify a profile where the scala maven plugin
+uses a different set of compiler flags.
 
 ```xml
     <profile>
@@ -51,4 +56,6 @@ Then you can activate this profile in `stryker4s-maven-plugin`'s `configuration`
 
 ## Developing
 
-The maven plugin depends on the `stryker4s-core` dependency. To install it locally, you can execute the following command in the root of this repository: `sbt 'publishM2Local`. This will install `stryker4s-core_2.13` into your local Maven repository so you can start local development.
+The maven plugin depends on the `stryker4s-core` dependency. To install it locally, you can execute the following command in the root of this repository: `sbt publishM2Local`. This will install `stryker4s-core_3` (and the test runner) into your local Maven repository so you can start local development.
+
+After making changes to a shared module (e.g. `stryker4s-core`), republish before re-running the plugin.

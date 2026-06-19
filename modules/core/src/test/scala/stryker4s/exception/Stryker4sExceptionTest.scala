@@ -34,6 +34,15 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
     }
   }
 
+  describe("TestSetupFailedException") {
+    test("should use the message") {
+      assertNoDiff(
+        TestSetupFailedException("Something went wrong during setup").getMessage,
+        "Something went wrong during setup"
+      )
+    }
+  }
+
   describe("MutationRunFailedException") {
     test("should have the correct message") {
       assertNoDiff(MutationRunFailedException("xyz").getMessage, "xyz")

@@ -6,7 +6,11 @@ sidebar_position: 1
 
 Stryker4s is a mutation testing framework for Scala. It allows you to test your tests by temporarily inserting bugs.
 
-This guide is for the sbt plugin for Stryker4s. For other ways to run Stryker4s, such as on Mill or Maven projects, look at our [README](https://github.com/stryker-mutator/stryker4s/blob/master/README.md#getting-started).
+This guide is for the **sbt** plugin for Stryker4s.
+
+:::note Using Mill or Maven?
+Stryker4s also has plugins for other build tools. See the README for setup instructions for the [Mill plugin](https://github.com/stryker-mutator/stryker4s/blob/master/README.md#mill-plugin) and the [Maven plugin](https://github.com/stryker-mutator/stryker4s/blob/master/README.md#maven-plugin). [Configuration](./configuration.md) is shared across all plugins.
+:::
 
 ## 1 Install
 
@@ -33,6 +37,8 @@ Or on multi-module projects:
 ```shell
 sbt <module-name>/stryker
 ```
+
+On Mill, run `./mill <module>.stryker`; on Maven, run `mvn stryker4s:run`. See the [README](https://github.com/stryker-mutator/stryker4s/blob/master/README.md) for the full setup of those plugins.
 
 ## 4 Having trouble?
 

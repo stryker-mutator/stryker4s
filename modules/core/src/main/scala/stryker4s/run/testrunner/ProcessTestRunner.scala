@@ -5,8 +5,7 @@ import cats.effect.{Deferred, IO, Resource}
 import cats.syntax.all.*
 import com.comcast.ip4s.*
 import fs2.Stream
-import fs2.io.file
-import fs2.io.file.Files
+import fs2.io.file.{Files, Path}
 import fs2.io.process.{Process, ProcessBuilder}
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
@@ -19,7 +18,6 @@ import stryker4s.testrunner.api.*
 
 import java.io.File
 import java.net.{ConnectException, SocketException, StandardProtocolFamily}
-import java.nio.file.Path
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
@@ -161,8 +159,8 @@ object ProcessTestRunner {
       log: Logger,
       config: Config
   ): Resource[IO, Process[IO]] = {
-    val classpathString = classpath.map(_.toString()).mkString(classPathSeparator)
-    val javaBin = javaHome.fold("java")(h => (file.Path.fromNioPath(h.toPath()) / "bin" / "java").toString)
+    val classpathString = classpath.map(_.toString).mkString(classPathSeparator)
+    val javaBin = javaHome.fold("java")(h => (Path.fromNioPath(h.toPath()) / "bin" / "java").toString)
     val allArgs = List(
       "-Xmx4G",
       "-cp",

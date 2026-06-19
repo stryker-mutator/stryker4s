@@ -2,7 +2,7 @@ package stryker4s.log
 
 import mill.api.daemon.Logger as MillInternalLogger
 
-class MillLogger(millLogger: MillInternalLogger) extends Logger {
+class MillLogger(millLogger: MillInternalLogger, env: Map[String, String]) extends Logger {
 
   override def log(level: Level, msg: => String): Unit = level match {
     case Level.Debug => if millLogger.debugEnabled then millLogger.debug(msg)
@@ -16,5 +16,6 @@ class MillLogger(millLogger: MillInternalLogger) extends Logger {
     log(level, e.toString())
   }
 
-  override protected def colorEnabled: Boolean = mill.api.daemon.loggerColorEnabled(millLogger)
+  override protected def colorEnabled: Boolean =
+    mill.api.daemon.loggerColorEnabled(millLogger) && !env.contains("NO_COLOR")
 }

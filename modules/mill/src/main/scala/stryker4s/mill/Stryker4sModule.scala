@@ -44,78 +44,78 @@ trait Stryker4sModule extends ScalaModule {
   }
 
   /** Pattern(s) of files to mutate. Defaults to all Scala files in `sources` */
-  def strykerMutate: Task[Option[Seq[String]]] = Task(sourceGlobs(sources().map(_.path), "**.scala").some)
+  def strykerMutate: T[Option[Seq[String]]] = sourceGlobs(sources().map(_.path), "**.scala").some
 
   /** Pattern(s) of files to include in mutation testing. Defaults to all files in `sources` */
-  def strykerFiles: Task[Option[Seq[String]]] = Task(sourceGlobs(sources().map(_.path), "**").some)
+  def strykerFiles: T[Option[Seq[String]]] = sourceGlobs(sources().map(_.path), "**").some
 
   /** Filter out tests to run */
-  def strykerTestFilter: Task[Option[Seq[String]]] = Task(None)
+  def strykerTestFilter: T[Option[Seq[String]]] = None
 
   /** Reporter(s) to use */
-  def strykerReporters: Task[Option[Seq[String]]] = Task(None)
+  def strykerReporters: T[Option[Seq[String]]] = None
 
   /** Mutations to exclude from mutation testing */
-  def strykerExcludedMutations: Task[Option[Seq[String]]] = Task(None)
+  def strykerExcludedMutations: T[Option[Seq[String]]] = None
 
   /** Threshold for high mutation score */
-  def strykerThresholdsHigh: Task[Option[Int]] = Task(None)
+  def strykerThresholdsHigh: T[Option[Int]] = None
 
   /** Threshold for low mutation score */
-  def strykerThresholdsLow: Task[Option[Int]] = Task(None)
+  def strykerThresholdsLow: T[Option[Int]] = None
 
   /** Threshold score for breaking the build */
-  def strykerThresholdsBreak: Task[Option[Int]] = Task(None)
+  def strykerThresholdsBreak: T[Option[Int]] = None
 
   /** Base-url for the dashboard reporter */
-  def strykerDashboardBaseUrl: Task[Option[String]] = Task(None)
+  def strykerDashboardBaseUrl: T[Option[String]] = None
 
   /** Type of dashboard report (`full`, `mutationScoreOnly`) */
-  def strykerDashboardReportType: Task[Option[String]] = Task(None)
+  def strykerDashboardReportType: T[Option[String]] = None
 
   /** Dashboard project identifier. Format of `gitProvider/organization/repository` */
-  def strykerDashboardProject: Task[Option[String]] = Task(None)
+  def strykerDashboardProject: T[Option[String]] = None
 
   /** Dashboard version identifier */
-  def strykerDashboardVersion: Task[Option[String]] = Task(None)
+  def strykerDashboardVersion: T[Option[String]] = None
 
   /** Dashboard module identifier. Defaults to `artifactName` */
-  def strykerDashboardModule: Task[Option[String]] = Task(artifactName().some)
+  def strykerDashboardModule: T[Option[String]] = artifactName().some
 
   /** Timeout for a single mutation test run. timeoutForTestRun = netTime * timeoutFactor + timeout */
-  def strykerTimeout: Task[Option[FiniteDuration]] = Task(None)
+  def strykerTimeout: T[Option[FiniteDuration]] = None
 
   /** Timeout factor for a single mutation test run. timeoutForTestRun = netTime * timeoutFactor + timeout */
-  def strykerTimeoutFactor: Task[Option[Double]] = Task(None)
+  def strykerTimeoutFactor: T[Option[Double]] = None
 
   /** Restart the test-runner after every `n` runs */
-  def strykerMaxTestRunnerReuse: Task[Option[Int]] = Task(None)
+  def strykerMaxTestRunnerReuse: T[Option[Int]] = None
 
   /** Dialect for parsing Scala files (e.g. `scala213source3`). Defaults to a dialect derived from `scalaVersion` */
-  def strykerScalaDialect: Task[Option[Dialect]] = Task(strykerDialect(scalaVersion(), scalacOptions()).some)
+  def strykerScalaDialect: T[Option[Dialect]] = strykerDialect(scalaVersion(), scalacOptions()).some
 
   /** Number of test-runners to start */
-  def strykerConcurrency: Task[Option[Int]] = Task(None)
+  def strykerConcurrency: T[Option[Int]] = None
 
   /** Log test-runner output to debug log */
-  def strykerDebugLogTestRunnerStdout: Task[Option[Boolean]] = Task(None)
+  def strykerDebugLogTestRunnerStdout: T[Option[Boolean]] = None
 
   /** Pass JVM debugging parameters to the test-runner */
-  def strykerDebugDebugTestRunner: Task[Option[Boolean]] = Task(None)
+  def strykerDebugDebugTestRunner: T[Option[Boolean]] = None
 
   /** Force temporary dir to a static path (`target/stryker4s-tmpDir`) */
-  def strykerStaticTmpDir: Task[Option[Boolean]] = Task(None)
+  def strykerStaticTmpDir: T[Option[Boolean]] = None
 
   /** Remove the tmpDir after a successful mutation test run */
-  def strykerCleanTmpDir: Task[Option[Boolean]] = Task(None)
+  def strykerCleanTmpDir: T[Option[Boolean]] = None
 
   /** Open the report after a mutation test run */
-  def strykerOpenReport: Task[Option[Boolean]] = Task(None)
+  def strykerOpenReport: T[Option[Boolean]] = None
 
   /** Run Stryker4s mutation testing. */
   def stryker(args: String*): Command[Unit] = Task.Command {
 
-    given Logger = new MillLogger(Task.log)
+    given Logger = new MillLogger(Task.log, Task.env)
     given IORuntime = IORuntime.global
 
     val testRunnerClasspath = resolveTestRunnerArtifact()()

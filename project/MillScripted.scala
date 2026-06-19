@@ -17,8 +17,8 @@ object MillScripted {
   /** Scripted-style integration test for the Mill plugin. Runs against the sample project(s) under
     * `modules/mill/src/mill-test/`.
     *
-    * The required artifacts are published by automatically as this task depends on relevant `publishLocal` tasks. Run
-    * it with `sbt millPlugin/millScripted`.
+    * The required artifacts are published automatically as this task depends on relevant `publishLocal` tasks. Run it
+    * with `sbt millPlugin/millScripted`.
     */
   val millScripted = taskKey[Unit]("Run integration tests for the Mill plugin against a real Mill project")
 

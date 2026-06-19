@@ -128,7 +128,8 @@ class Stryker4sSbtRunner(
       }
 
       compilerErrors.toLeft {
-        val classpath = PluginCompat.toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath))
+        val classpath =
+          PluginCompat.toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath)).map(Path.fromNioPath)
 
         val javaOpts = extractTaskValue(ctx.targetProject / Test / javaOptions)
 

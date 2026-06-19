@@ -56,20 +56,32 @@
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Scala versions -->
-        <scala.version>2.13.18</scala.version>
-        <scala.compat.version>2.13</scala.compat.version>
+        <scala.version>3.8.4</scala.version>
+        <scala.compat.version>3</scala.compat.version>
         <scala-maven.version>4.9.10</scala-maven.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
+            <artifactId>scala3-library_${scala.compat.version}</artifactId>
             <version>${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>io.stryker-mutator</groupId>
             <artifactId>stryker4s-core_${scala.compat.version}</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- sbt.testing interfaces, used to discover tests on the project's test classpath -->
+        <dependency>
+            <groupId>org.scala-sbt</groupId>
+            <artifactId>test-interface</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- Used by MavenMojoLogger for color detection (was previously transitive via maven-invoker) -->
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-shared-utils</artifactId>
+            <version>3.4.2</version>
         </dependency>
         <!-- Maven plugin -->
         <dependency>
@@ -85,15 +97,27 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-invoker</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
             <version>3.15.2</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-api</artifactId>
+            <version>1.9.22</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-util</artifactId>
+            <version>1.9.22</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-sbt</groupId>
+            <artifactId>zinc_${scala.compat.version}</artifactId>
+            <version>2.0.0</version>
         </dependency>
         <!-- Test -->
         <dependency>
@@ -129,6 +153,20 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.15.2</version>
             </plugin>
+            <!-- Add Implementation-Version to the manifest so the plugin can resolve its own stryker4s version
+                 at runtime (used to fetch the matching stryker4s-testrunner artifact) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
@@ -141,46 +179,45 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>generate-sources</id>
+                        <id>attach-javadocs</id>
                         <goals>
                             <goal>doc-jar</goal>
                         </goals>
                         <phase>package</phase>
+                        <configuration>
+                            <scaladocClassName>dotty.tools.scaladoc.Main</scaladocClassName>
+                            <sourceDir>${project.build.outputDirectory}</sourceDir>
+                            <args>-nobootcp</args>
+                            <includes>
+                                <include>**/*.tasty</include>
+                            </includes>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>org.scala-lang</groupId>
+                                    <artifactId>scaladoc_3</artifactId>
+                                    <version>${scala.version}</version>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.fasterxml.jackson.core</groupId>
+                                    <artifactId>jackson-databind</artifactId>
+                                    <version>2.22.0</version>
+                                </dependency>
+                            </dependencies>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <args>
                         <arg>-encoding</arg>
                         <arg>utf8</arg>
-                        <arg>-explaintypes</arg>
+                        <arg>-deprecation</arg>
                         <arg>-feature</arg>
-                        <arg>-language:existentials</arg>
+                        <arg>-unchecked</arg>
                         <arg>-language:experimental.macros</arg>
                         <arg>-language:implicitConversions</arg>
-                        <arg>-unchecked</arg>
-                        <arg>-Xlint:adapted-args</arg>
-                        <arg>-Xlint:constant</arg>
-                        <arg>-Xlint:delayedinit-select</arg>
-                        <arg>-Xlint:deprecation</arg>
-                        <arg>-Xlint:doc-detached</arg>
-                        <arg>-Xlint:implicit-recursion</arg>
-                        <arg>-Xlint:implicit-not-found</arg>
-                        <arg>-Xlint:inaccessible</arg>
-                        <arg>-Xlint:infer-any</arg>
-                        <arg>-Xlint:missing-interpolator</arg>
-                        <arg>-Xlint:nullary-unit</arg>
-                        <arg>-Xlint:option-implicit</arg>
-                        <arg>-Xlint:package-object-classes</arg>
-                        <arg>-Xlint:poly-implicit-overload</arg>
-                        <arg>-Xlint:private-shadow</arg>
-                        <arg>-Xlint:stars-align</arg>
-                        <arg>-Xlint:strict-unsealed-patmat</arg>
-                        <arg>-Xlint:type-parameter-shadow</arg>
-                        <arg>-Xlint:-byname-implicit</arg>
-                        <arg>-Wunused:nowarn</arg>
-                        <arg>-Wdead-code</arg>
-                        <arg>-Wextra-implicit</arg>
-                        <arg>-Wnumeric-widen</arg>
+                        <arg>-Xkind-projector</arg>
+                        <arg>-Ycheck-all-patmat</arg>
+                        <arg>-Wvalue-discard</arg>
                         <arg>-Wnonunit-statement</arg>
                         <arg>-Wunused:implicits</arg>
                         <arg>-Wunused:explicits</arg>
@@ -189,9 +226,6 @@
                         <arg>-Wunused:params</arg>
                         <arg>-Wunused:patvars</arg>
                         <arg>-Wunused:privates</arg>
-                        <arg>-Wvalue-discard</arg>
-                        <arg>-Werror</arg>
-                        <arg>-Xsource:3-cross</arg>
                         <arg>-release</arg>
                         <arg>17</arg>
                     </args>
