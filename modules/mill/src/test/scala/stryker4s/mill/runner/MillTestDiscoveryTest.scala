@@ -19,16 +19,23 @@ class MillTestDiscoveryTest extends Stryker4sSuite with LogMatchers {
 
     val group = groups.loneElement
     assertEquals(group.frameworkClass, "munit.Framework")
-    assert(
-      group.taskDefs.exists(_.fullyQualifiedName == "stryker4s.mill.runner.MillTestDiscoveryTest"),
-      s"This test suite should be discovered, but got: ${group.taskDefs.map(_.fullyQualifiedName)}"
-    )
+    val taskDef = group.taskDefs
+      .find(_.fullyQualifiedName == "stryker4s.mill.runner.MillTestDiscoveryTest")
+      .getOrElse(
+        fail(s"This test suite should be discovered, but got: ${group.taskDefs.map(_.fullyQualifiedName)}")
+      )
+    // Discovered tests are never explicitly specified on the command line
+    assertEquals(taskDef.explicitlySpecified, false)
+    assertNotLoggedWarn("No tests found for test framework")
   }
 
   test("warns when no tests are found for the framework") {
     val groups = MillTestDiscovery.discover("munit.Framework", Seq.empty, fullClasspath)
 
     assertEquals(groups.loneElement.taskDefs, Seq.empty)
-    assertLoggedWarn("No tests found for test framework munit.Framework")
+    assertLoggedWarn(
+      "No tests found for test framework munit.Framework. " +
+        "Will likely result in no tests being run and a NoCoverage result for all mutants."
+    )
   }
 }
