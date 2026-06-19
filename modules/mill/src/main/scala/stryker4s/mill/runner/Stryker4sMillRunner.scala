@@ -105,7 +105,8 @@ class Stryker4sMillRunner(
     val mutatedSources = ctx.sourceFiles.map { source =>
       val mutated = Path(source.toString()).inSubDir(tmpDir)
       // Files not matched by the 'files' config are not copied to the tmpDir, for those use the original
-      if os.exists(os.Path(mutated.absolute.toNioPath)) then os.Path(mutated.absolute.toNioPath) else source
+      val osPath = os.Path(mutated.absolute.toNioPath)
+      if os.exists(osPath) then osPath else source
     }
 
     log.debug(s"Compiling ${mutatedSources.size} mutated sources to ${ctx.taskCtx.dest}")

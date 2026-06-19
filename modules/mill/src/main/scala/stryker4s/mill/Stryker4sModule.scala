@@ -30,17 +30,26 @@ trait Stryker4sModule extends ScalaModule {
     * test extends ScalaTests`).
     */
   def strykerTestModule: TestModule = {
-    this.getClass.getMethods
-      .filter(m => m.getParameterCount == 0 && m.getName != "strykerTestModule")
-      .find { m =>
-        classOf[TestModule].isAssignableFrom(m.getReturnType)
-      }
-      .map(_.invoke(this).asInstanceOf[TestModule])
-      .getOrElse(
+    val candidates = this.getClass.getMethods
+      .filter(m =>
+        m.getParameterCount == 0 && m.getName != "strykerTestModule" &&
+          classOf[TestModule].isAssignableFrom(m.getReturnType)
+      )
+      .sortBy(_.getName)
+      .toList
+
+    candidates match {
+      case single :: Nil => single.invoke(this).asInstanceOf[TestModule]
+      case Nil           =>
         throw RuntimeException(
           s"No test module found for module '$this'. Override with `def strykerTestModule = myTestModule` to point Stryker4s to the test module to run tests with."
         )
-      )
+      case multiple =>
+        throw RuntimeException(
+          s"Multiple test modules found for module '$this' (${multiple.map(_.getName).mkString(", ")}). " +
+            "Override with `def strykerTestModule = myTestModule` to point Stryker4s to the test module to run tests with."
+        )
+    }
   }
 
   /** Pattern(s) of files to mutate. Defaults to all Scala files in `sources` */
