@@ -57,7 +57,7 @@ lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
   .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core, testRunner))
-  .dependsOn(core)
+  .dependsOn(core, testkit % Test)
   .jvmPlatform(scalaVersions = Seq(versions.scala3, versions.scala212))
 
 // Mill plugins are compiled with the Scala version of the minimum supported Mill version
