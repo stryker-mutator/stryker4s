@@ -14,7 +14,11 @@ object Dependencies {
     // Mill plugins must be compiled with the same Scala version as the minimum supported Mill version
     val scalaMill = "3.8.2"
 
-    val crossScalaVersions = Seq(scala3Lts, scala213, scala212)
+    // All supported Scala versions
+    val fullCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
+
+    // Scala 3 versions and 2.12 (for sbtPlugin)
+    val crossScalaVersions = Seq(scala3Lts, scala3, scalaMill, scala212).distinct
 
     // Test dependencies
     val munit = "1.3.3"

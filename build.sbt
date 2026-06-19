@@ -47,9 +47,10 @@ lazy val core = (projectMatrix in file("modules") / "core")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
+  .defaultAxes(VirtualAxis.scalaABIVersion(versions.scala3), VirtualAxis.jvm)
   .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core))
   .dependsOn(core, testkit % Test)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = Seq(versions.scala3))
 
 // sbt plugins have to use Scala 2.12
 lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
@@ -57,11 +58,11 @@ lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
   .defaultAxes(VirtualAxis.scalaPartialVersion("2.12"), VirtualAxis.jvm)
   .settings(commonSettings, sbtPluginSettings, publishLocalDependsOn(core, testRunner))
   .dependsOn(core)
-  .jvmPlatform(scalaVersions = Seq(versions.scala212, versions.scala3Lts))
+  .jvmPlatform(scalaVersions = Seq(versions.scala3, versions.scala212))
 
 // Mill plugins are compiled with the Scala version of the minimum supported Mill version
 lazy val millPlugin = (projectMatrix in file("modules") / "mill")
-  .defaultAxes(VirtualAxis.scalaABIVersion(versions.scala3Lts), VirtualAxis.jvm)
+  .defaultAxes(VirtualAxis.scalaABIVersion(versions.scalaMill), VirtualAxis.jvm)
   .settings(
     commonSettings,
     millPluginSettings,
@@ -71,20 +72,20 @@ lazy val millPlugin = (projectMatrix in file("modules") / "mill")
       .value
   )
   .dependsOn(core, testkit % Test)
-  .jvmPlatform(scalaVersions = Seq(versions.scala3Lts))
+  .jvmPlatform(scalaVersions = Seq(versions.scalaMill))
 
 lazy val testRunner = (projectMatrix in file("modules") / "testRunner")
   .settings(commonSettings, testRunnerSettings, publishLocalDependsOn(testRunnerApi))
   .dependsOn(testRunnerApi)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val testRunnerApi = (projectMatrix in file("modules") / "testRunnerApi")
   .settings(commonSettings, testRunnerApiSettings)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val api = (projectMatrix in file("modules") / "api")
   .settings(commonSettings, apiSettings)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
