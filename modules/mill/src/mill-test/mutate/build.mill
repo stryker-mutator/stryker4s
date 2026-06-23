@@ -1,10 +1,11 @@
 //| mvnDeps:
 //| - io.stryker-mutator::mill-stryker4s::@STRYKER4S_VERSION@
 package build
+
 import mill.*, scalalib.*
 import stryker4s.mill.Stryker4sModule
 
-object foo extends ScalaModule, Stryker4sModule {
+object foo extends ScalaModule with Stryker4sModule {
   def scalaVersion = "3.3.8"
 
   // Sanity-check that build-tool config overrides are picked up. The sample scores ~66%, so a

@@ -27,10 +27,10 @@ class Slf4jLogger() extends Logger {
       onWarn: => Unit,
       onError: => Unit
   ): Unit = level match {
-    case Level.Debug => if (slf4jLogger.isDebugEnabled()) onDebug
-    case Level.Info  => if (slf4jLogger.isInfoEnabled()) onInfo
-    case Level.Warn  => if (slf4jLogger.isWarnEnabled()) onWarn
-    case Level.Error => if (slf4jLogger.isErrorEnabled()) onError
+    case Level.Debug => if slf4jLogger.isDebugEnabled() then onDebug
+    case Level.Info  => if slf4jLogger.isInfoEnabled() then onInfo
+    case Level.Warn  => if slf4jLogger.isWarnEnabled() then onWarn
+    case Level.Error => if slf4jLogger.isErrorEnabled() then onError
   }
 
 }
