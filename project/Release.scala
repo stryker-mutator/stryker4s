@@ -9,7 +9,7 @@ object Release {
   private val stryker4sReleaseAll = "stryker4sReleaseAll"
   // Helper command names
   private val stryker4sMvnDeploy = "stryker4sMvnDeploy"
-  private val publishM2Core = "core/publishM2"
+  private val publishM2Core = "core3/publishM2"
   private val crossPublishSigned = "publishSigned"
 
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= Seq(

@@ -48,8 +48,8 @@ object MillScripted {
       val command = Seq(s".${separator}mill", "--no-daemon") ++ args
       val os = sys.props("os.name").toLowerCase
       val panderToWindows = os match {
-        case n if n contains "windows" => Seq("cmd", "/C") ++ command
-        case _                         => command
+        case n if n.contains("windows") => Seq("cmd", "/C") ++ command
+        case _                          => command
       }
       log.info(s"Running: ${panderToWindows.mkString(" ")}")
       val exit = Process(panderToWindows, mutate).!(logger)

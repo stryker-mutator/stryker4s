@@ -10,7 +10,7 @@ lazy val root = (project withId "stryker4s" in file("."))
     // Publish locally for sbt plugin testing
     addCommandAlias(
       "publishPluginLocal",
-      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; sbtPlugin/publishLocal"
+      "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; sbtPlugin/publishLocal; sbtPlugin3/publishLocal"
     ),
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
