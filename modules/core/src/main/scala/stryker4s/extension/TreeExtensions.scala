@@ -1,7 +1,7 @@
 package stryker4s.extension
 
 import cats.Eval
-import cats.data.{Chain, OptionT}
+import cats.data.{Chain, State}
 import cats.syntax.all.*
 import mutationtesting.Location
 import mutationtesting.cats.*
@@ -130,23 +130,22 @@ object TreeExtensions {
         buildContext: PartialFunction[Tree, C]
     )(collectFn: PartialFunction[Tree, C => T]): Seq[T] = {
       val collectFnLifted = collectFn.lift
-      val buildContextLifted = buildContext.andThen(_.some.pure[Eval])
+      val buildContextLifted = buildContext.lift
 
-      def traverse(tree: Tree, context: Eval[Option[C]]): Eval[Chain[T]] = {
-        // Either match on the context of the currently-visiting tree, or go looking upwards for one (that's what the context param does)
-        val newContext = Eval.defer(buildContextLifted.applyOrElse(tree, (_: Tree) => context))
+      def traverse(tree: Tree): State[Eval[Option[C]], Chain[T]] =
+        State.get[Eval[Option[C]]].flatMap { inherited =>
+          // The context for this node and its descendants
+          val contextEval = Eval.defer(buildContextLifted(tree).fold(inherited)(_.some.pure[Eval])).memoize
 
-        val findAndCollect = for {
-          collectTreeFn <- collectFnLifted(tree).toOptionT[Eval]
-          contextForTree <- OptionT(newContext)
-        } yield collectTreeFn(contextForTree)
+          // Only read the context when this node actually collects something.
+          val collected = collectFnLifted(tree).foldMap(collect => Chain.fromOption(contextEval.value.map(collect)))
 
-        findAndCollect.value.map(Chain.fromOption) |+|
-          Chain.fromSeq(tree.children).flatTraverse(traverse(_, newContext))
-      }
+          // Each child starts from this node's context, independent of its siblings.
+          tree.children.foldMapM(child => State.set(contextEval) *> traverse(child)).map(collected ++ _)
+        }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, none.pure[Eval]).value.toVector
+      traverse(tree).runA(none.pure[Eval]).value.toVector
     }
 
   }
