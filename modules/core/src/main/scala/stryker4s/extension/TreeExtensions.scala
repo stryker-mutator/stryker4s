@@ -84,19 +84,12 @@ object TreeExtensions {
   implicit final class GetMods(val tree: Tree) extends AnyVal {
     final def getMods: List[Mod] =
       tree match {
-        case mc: Defn.Class  => mc.mods
-        case mc: Defn.Trait  => mc.mods
-        case mc: Defn.Object => mc.mods
-        case mc: Defn.Def    => mc.mods
-        case mc: Defn.Val    => mc.mods
-        case mc: Defn.Var    => mc.mods
-        case mc: Defn.Type   => mc.mods
-        case mc: Term.Param  => mc.mods
-        case mc: Decl.Def    => mc.mods
-        case mc: Decl.Var    => mc.mods
-        case mc: Decl.Val    => mc.mods
-        case mc: Decl.Type   => mc.mods
-        case _               => Nil
+        case mc: Stat.WithMods           => mc.mods
+        case mc: Term.MatchLike          => mc.mods
+        case mc: Member.Param            => mc.mods
+        case mc: Ctor.Primary            => mc.mods
+        case mc: Type.FunctionParamOrArg => mc.mods
+        case _                           => Nil
       }
 
   }
