@@ -30,10 +30,11 @@ case object NonEmptyString extends NoInvalidPlacement[Lit.String] {
 /** Not a mutation, just an extractor for pattern matching on interpolated strings
   */
 case object StringInterpolation extends NoInvalidPlacement[Term.Interpolate] {
-  import stryker4s.extension.TreeExtensions.IsEqualExtension
+  import cats.syntax.all.*
+  import stryker4s.extension.TreeExtensions.treeEq
 
   override def unapply(arg: Term.Interpolate): Option[Term.Interpolate] =
-    super.unapply(arg).filter(_.prefix.isEqual(Term.Name("s")))
+    super.unapply(arg).filter(_.prefix === Term.Name("s"))
 }
 
 private object ParentIsInterpolatedString {
