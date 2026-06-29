@@ -1,5 +1,6 @@
 package stryker4s.testkit
 
+import cats.effect.IO
 import fansi.Attr
 import fansi.Color.*
 import munit.{BaseFunSuite, Location, Suite, TestTransforms}
@@ -49,6 +50,27 @@ protected[stryker4s] trait LogMatchers extends Suite with TestTransforms {
   def assertNotLoggedInfo(msg: String)(implicit loc: Location): Unit = findForLevel(Level.Info, msg).assertFailure()
   def assertNotLoggedWarn(msg: String)(implicit loc: Location): Unit = findForLevel(Level.Warn, msg).assertFailure()
   def assertNotLoggedError(msg: String)(implicit loc: Location): Unit = findForLevel(Level.Error, msg).assertFailure()
+
+  // Extensions to assert logging after a `IO[A]`
+  implicit class LogAssertionsForIOOps[A](io: IO[A]) {
+    def assertLoggedDebug(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Debug, msg).assertSuccess())
+    def assertLoggedInfo(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Info, msg).assertSuccess())
+    def assertLoggedWarn(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Warn, msg).assertSuccess())
+    def assertLoggedError(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Error, msg).assertSuccess())
+
+    def assertNotLoggedDebug(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Debug, msg).assertFailure())
+    def assertNotLoggedInfo(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Info, msg).assertFailure())
+    def assertNotLoggedWarn(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Warn, msg).assertFailure())
+    def assertNotLoggedError(msg: String)(implicit loc: Location): IO[Unit] =
+      io *> IO(findForLevel(Level.Error, msg).assertFailure())
+  }
 
   private def findForLevel(expectedLogLevel: Level, expectedLogMessage: String) = {
     testLogger.findEvent(expectedLogMessage) match {

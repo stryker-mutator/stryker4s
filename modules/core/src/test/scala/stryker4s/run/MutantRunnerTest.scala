@@ -174,11 +174,12 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
     val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
     sut(Vector(mutatedFile)) *>
-      Files[IO].exists(staticTmpDir).assertEquals(true).asserting { _ =>
-        assertLoggedInfo(
+      Files[IO]
+        .exists(staticTmpDir)
+        .assert
+        .assertLoggedInfo(
           s"Not deleting $staticTmpDir (turn off cleanTmpDir to disable this). Please clean it up manually."
         )
-      }
   }
 
   test("should debug log timing when a mutant is tested") {
@@ -193,10 +194,9 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
     val mutants = NonEmptyVector.one(mutant)
     val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
-    sut(Vector(mutatedFile)).asserting { _ =>
-      assertLoggedDebug(s"Running mutant $mutant")
-      assertLoggedDebug("Mutant 1 tested in")
-    }
+    sut(Vector(mutatedFile))
+      .assertLoggedDebug(s"Running mutant $mutant")
+      .assertLoggedDebug("Mutant 1 tested in")
   }
 
   test("should warn when all mutants have no code coverage") {

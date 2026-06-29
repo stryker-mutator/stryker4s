@@ -5,6 +5,7 @@ import cats.syntax.all.*
 import fansi.Color.*
 import mutationtesting.{MutantResult, MutantStatus}
 import stryker4s.config.Config
+import stryker4s.extension.DurationExtensions.HumanReadableExtension
 import stryker4s.model.{
   InitialTestRunCoverageReport,
   InitialTestRunResult,
@@ -48,10 +49,10 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           _ <- sut.use(_.initialTestRun())
         } yield timeout
 
-        op.flatMap(_.tryGet).asserting { setTimeout =>
-          assertEquals(setTimeout.value, (reportedTimeout * 1.5) + config.timeout)
-          assertLoggedInfo(s"Timeout set to 8 seconds (${LightGray("net 2 seconds")})")
-        }
+        op.flatMap(_.tryGet)
+          .map(_.value.duration)
+          .assertEquals((reportedTimeout * 1.5) + config.timeout)
+          .assertLoggedInfo(s"Timeout set to 8 seconds (${LightGray("net 2 seconds")})")
       }
 
       test("should not log the timeout setting if timeout has already been completed") {
@@ -62,9 +63,7 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           _ <- sut.use(_.initialTestRun())
         } yield timeout
 
-        op.asserting { _ =>
-          assertNotLoggedInfo("Timeout set to ")
-        }
+        op.assertNotLoggedInfo("Timeout set to ")
       }
     }
 
@@ -80,13 +79,11 @@ class TestRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
           result <- sut.use(_.runMutant(mutant, coverageTestNames))
         } yield result
 
-        op.asserting { result =>
-          assertEquals(
-            result,
+        op
+          .assertEquals(
             mutant.toMutantResult(MutantStatus.Timeout, statusReason = "Timeout of 1 millisecond exceeded.".some)
           )
-          assertLoggedDebug(s"Mutant ${mutant.id} timed out after 1 millisecond")
-        }
+          .assertLoggedDebug(s"Mutant ${mutant.id} timed out after 1 millisecond")
       }
 
       test("should recreate the inner resource after a timeout") {
