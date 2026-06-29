@@ -42,11 +42,14 @@ sealed trait Stryker4sAssertions {
     )
   }
 
-  def assertMatchPattern[A](obtained: A, matchFn: PartialFunction[Any, Unit])(implicit loc: Location): Unit =
-    assert(matchFn.isDefinedAt(obtained), s"Expected $obtained to match pattern")
-
-  def assertNotMatchPattern[A <: Any](obtained: A, matchFn: PartialFunction[Any, Unit])(implicit loc: Location): Unit =
-    assert(!matchFn.isDefinedAt(obtained), s"Expected $obtained to not match pattern")
+  /** Inverse of munit's `assertMatches`: asserts the partial function does not match (it's either undefined for the
+    * value, or defined but returns false).
+    */
+  def assertNoMatches[A](value: A, clue: => String = "assertion failed")(
+      predicate: PartialFunction[A, Boolean]
+  )(implicit loc: Location): Unit =
+    if (predicate.applyOrElse(value, (_: A) => false))
+      fail(s"$clue: predicate matched value: $value")
 
   implicit class EitherValues[A, B](either: Either[A, B]) {
 

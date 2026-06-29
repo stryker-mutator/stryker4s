@@ -7,78 +7,75 @@ import scala.meta.*
 class MutationTypesTest extends Stryker4sSuite {
   describe("EqualityOperator") {
     test("> to GreaterThan") {
-      assertMatchPattern(Term.Name(">"), { case GreaterThan(_) => })
+      assertMatches(Term.Name(">")) { case GreaterThan(_) => true }
     }
 
     test(">= to GreaterThanEqualTo") {
-      assertMatchPattern(Term.Name(">="), { case GreaterThanEqualTo(_) => })
+      assertMatches(Term.Name(">=")) { case GreaterThanEqualTo(_) => true }
     }
 
     test("<= to LesserThanEqualTo") {
-      assertMatchPattern(Term.Name("<="), { case LesserThanEqualTo(_) => })
+      assertMatches(Term.Name("<=")) { case LesserThanEqualTo(_) => true }
     }
 
     test("< to LesserThan") {
-      assertMatchPattern(Term.Name("<"), { case LesserThan(_) => })
+      assertMatches(Term.Name("<")) { case LesserThan(_) => true }
     }
 
     test("== to EqualTo") {
-      assertMatchPattern(Term.Name("=="), { case EqualTo(_) => })
+      assertMatches(Term.Name("==")) { case EqualTo(_) => true }
     }
 
     test("!= to NotEqualTo") {
-      assertMatchPattern(Term.Name("!="), { case NotEqualTo(_) => })
+      assertMatches(Term.Name("!=")) { case NotEqualTo(_) => true }
     }
   }
 
   describe("BooleanLiteral") {
     test("false to False") {
-      assertMatchPattern(Lit.Boolean(false), { case False(_) => })
+      assertMatches(Lit.Boolean(false)) { case False(_) => true }
     }
 
     test("true to True") {
-      assertMatchPattern(Lit.Boolean(true), { case True(_) => })
+      assertMatches(Lit.Boolean(true)) { case True(_) => true }
     }
   }
 
   describe("LogicalOperator") {
     test("&& to And") {
-      assertMatchPattern(Term.Name("&&"), { case And(_) => })
+      assertMatches(Term.Name("&&")) { case And(_) => true }
     }
 
     test("|| to Or") {
-      assertMatchPattern(Term.Name("||"), { case Or(_) => })
+      assertMatches(Term.Name("||")) { case Or(_) => true }
     }
   }
 
   describe("StringLiteral") {
     test("foo string to NonEmptyString") {
-      assertMatchPattern(Lit.String("foo"), { case NonEmptyString(_) => })
+      assertMatches(Lit.String("foo")) { case NonEmptyString(_) => true }
     }
 
     test("empty string to EmptyString") {
-      assertMatchPattern(Lit.String(""), { case EmptyString(_) => })
+      assertMatches(Lit.String("")) { case EmptyString(_) => true }
     }
 
     test("string interpolation to StringInterpolation") {
-      assertMatchPattern(
-        Term.Interpolate(Term.Name("s"), List(Lit.String("foo "), Lit.String("")), List(Term.Name("foo"))),
-        { case StringInterpolation(_) => }
-      )
+      assertMatches(
+        Term.Interpolate(Term.Name("s"), List(Lit.String("foo "), Lit.String("")), List(Term.Name("foo")))
+      ) { case StringInterpolation(_) => true }
     }
 
     test("q interpolation should not match StringInterpolation") {
-      assertNotMatchPattern(
-        Term.Interpolate(Term.Name("q"), List(Lit.String("foo "), Lit.String("")), List(Term.Name("foo"))),
-        { case StringInterpolation(_) => }
-      )
+      assertNoMatches(
+        Term.Interpolate(Term.Name("q"), List(Lit.String("foo "), Lit.String("")), List(Term.Name("foo")))
+      ) { case StringInterpolation(_) => true }
     }
 
     test("t interpolation should not match StringInterpolation") {
-      assertNotMatchPattern(
-        Term.Interpolate(Term.Name("t"), List(Lit.String("scala.util.matching.Regex")), List.empty),
-        { case StringInterpolation(_) => }
-      )
+      assertNoMatches(
+        Term.Interpolate(Term.Name("t"), List(Lit.String("scala.util.matching.Regex")), List.empty)
+      ) { case StringInterpolation(_) => true }
     }
   }
 
