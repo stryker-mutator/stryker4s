@@ -23,7 +23,7 @@ class ResourcePoolTest extends Stryker4sIOSuite {
               isClosed.get.assertEquals(false)
           } >>
           // After pool `Resource` is closed
-          isClosed.get.assertEquals(true)
+          isClosed.get.assert
       }
     }
   }

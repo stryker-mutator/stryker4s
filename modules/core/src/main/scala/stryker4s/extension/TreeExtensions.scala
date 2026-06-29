@@ -12,12 +12,14 @@ import scala.meta.transversers.SimpleTraverser
 import scala.reflect.ClassTag
 
 object TreeExtensions {
+
+  /** Searches up the tree for the closest parent of type `T`, if any. */
   @tailrec
-  private def mapParent[T <: Tree, U](tree: Tree, ifFound: T => U, notFound: => U)(implicit classTag: ClassTag[T]): U =
+  private def parentOfType[T <: Tree](tree: Tree)(implicit classTag: ClassTag[T]): Option[T] =
     tree.parent match {
-      case Some(value: T)   => ifFound(value)
-      case Some(otherValue) => mapParent(otherValue, ifFound, notFound)
-      case _                => notFound
+      case Some(value: T)   => value.some
+      case Some(otherValue) => parentOfType(otherValue)
+      case _                => none
     }
 
   implicit final class FindExtension(val thisTree: Tree) extends AnyVal {
@@ -76,7 +78,7 @@ object TreeExtensions {
       * found.
       */
     final def isIn[T <: Tree](implicit classTag: ClassTag[T]): Boolean =
-      mapParent[T, Boolean](thisTree, _ => true, false)
+      parentOfType[T](thisTree).isDefined
   }
 
   implicit final class GetMods(val tree: Tree) extends AnyVal {
@@ -109,7 +111,7 @@ object TreeExtensions {
       val fn = pf.lift
       object traverser extends SimpleTraverser {
         override def apply(t: Tree): Unit = {
-          result = if (result.isEmpty) fn(t).orElse(result) else result
+          result = result.orElse(fn(t))
           super.apply(t)
         }
       }
