@@ -1,7 +1,7 @@
 package stryker4s.mutation
 
-import cats.syntax.option.*
-import stryker4s.extension.TreeExtensions.IsEqualExtension
+import cats.syntax.all.*
+import stryker4s.extension.TreeExtensions.treeEq
 
 import scala.meta.*
 import scala.meta.internal.trees.XtensionTreesName
@@ -42,7 +42,7 @@ trait SubstitutionMutation[T <: Tree] extends Mutation[T] with NoInvalidPlacemen
 
   override def unapply(arg: T): Option[T] =
     arg.some
-      .filter(_.isEqual(tree))
+      .filter(_ === tree)
       .flatMap(super.unapply)
 }
 

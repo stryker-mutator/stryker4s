@@ -1,7 +1,7 @@
 package stryker4s.mutation
 
-import cats.syntax.option.*
-import stryker4s.extension.TreeExtensions.IsEqualExtension
+import cats.syntax.all.*
+import stryker4s.extension.TreeExtensions.treeEq
 
 import scala.meta.Term.*
 import scala.meta.{Lit, Term, Type}
@@ -56,7 +56,7 @@ sealed trait ArgMethodExpression extends MethodExpression {
 
       // foo filter( a => a > 0 )
       case term @ ApplyInfix.After_4_6_0(_, Name(`methodName`), Type.ArgClause(Nil), ArgClause(arg :: Nil, _))
-          if !arg.isEqual(Lit.Unit()) =>
+          if arg =!= Lit.Unit() =>
         Option(
           (
             term,

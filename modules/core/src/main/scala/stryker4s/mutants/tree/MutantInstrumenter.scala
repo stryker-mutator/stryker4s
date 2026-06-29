@@ -4,7 +4,7 @@ import cats.data.Ior.Both
 import cats.data.{Ior, NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4s.exception.{Stryker4sException, UnableToBuildPatternMatchException}
-import stryker4s.extension.TreeExtensions.{IsEqualExtension, TransformOnceExtension}
+import stryker4s.extension.TreeExtensions.{treeEq, TransformOnceExtension}
 import stryker4s.log.Logger
 import stryker4s.model.*
 
@@ -97,10 +97,10 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     */
   def attemptRemoveMutant(errors: NonEmptyList[CompilerErrMsg]): PartialFunction[Tree, Tree] = {
     // Match on mutation switching trees
-    case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
+    case tree: Term.Match if tree.expr === options.mutationContext =>
       // Filter out any cases that are in the same range as a compile error
       val newCases = tree.casesBlock.cases.filterNot(caze =>
-        !caze.pat.isEqual(Pat.Wildcard()) && errors.exists(compileErrorIsInCaseStatement(caze, _))
+        (caze.pat =!= Pat.Wildcard()) && errors.exists(compileErrorIsInCaseStatement(caze, _))
       )
 
       tree.copy(cases = newCases)
@@ -109,9 +109,9 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   def mutantIdsForCompileErrors(tree: Tree, errors: NonEmptyList[CompilerErrMsg]) = {
     val mutationSwitchingCases: List[Case] = tree.collect {
       // Match on mutation switching trees
-      case tree: Term.Match if tree.expr.isEqual(options.mutationContext) =>
+      case tree: Term.Match if tree.expr === options.mutationContext =>
         // Filter out default case as it's not mutated
-        tree.casesBlock.cases.filterNot(_.pat.isEqual(Pat.Wildcard()))
+        tree.casesBlock.cases.filterNot(_.pat === Pat.Wildcard())
     }.flatten
 
     errors

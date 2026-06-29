@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import mutationtesting.cats.*
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
-import stryker4s.extension.TreeExtensions.{IsEqualExtension, PositionExtension, TransformOnceExtension}
+import stryker4s.extension.TreeExtensions.{treeEq, PositionExtension, TransformOnceExtension}
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 import stryker4s.mutation.*
@@ -161,7 +161,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       )
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
-          case t if t.isEqual(original) && t.pos == original.pos =>
+          case t if t === original && t.pos == original.pos =>
             tree
         }
         .getOrElse(

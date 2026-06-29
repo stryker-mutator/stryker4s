@@ -1,8 +1,8 @@
 package stryker4s.extension
 
-import cats.Eval
 import cats.data.{Chain, State}
 import cats.syntax.all.*
+import cats.{Eq, Eval}
 import mutationtesting.Location
 import mutationtesting.cats.*
 
@@ -31,7 +31,7 @@ object TreeExtensions {
       */
     final def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
       thisTree.collectFirst {
-        case found: T if found.isEqual(toFind) => found
+        case found: T if found === toFind => found
       }
 
   }
@@ -99,12 +99,9 @@ object TreeExtensions {
 
   }
 
-  implicit final class IsEqualExtension(val thisTree: Tree) extends AnyVal {
-
-    /** Structural equality for Trees
-      */
-    final def isEqual(other: Tree): Boolean = thisTree == other || thisTree.structure == other.structure
-  }
+  /** Structural equality for `Tree`s
+    */
+  implicit def treeEq[A <: Tree]: Eq[A] = Eq.instance((x, y) => x == y || x.structure == y.structure)
 
   implicit final class CollectFirstExtension(tree: Tree) {
     final def collectFirst[T](pf: PartialFunction[Tree, T]): Option[T] = {
