@@ -25,7 +25,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       assertNoDiff(
         result,
-        """      app.report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}};"""
+        """app.report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}};"""
       )
     }
 
@@ -113,9 +113,7 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation))
-        .asserting { _ =>
-          assertLoggedInfo(s"Written HTML report to ${(fileLocation / "index.html").toString}")
-        }
+        .assertLoggedInfo(s"Written HTML report to ${(fileLocation / "index.html").toString}")
     }
 
     test("should open the report when openReport is true") {
@@ -161,9 +159,8 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
       sut
         .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        desktopIOStub.openCalls.asserting { _ =>
-          assertLoggedError("Error opening report in browser")
-        }
+        desktopIOStub.openCalls
+          .assertLoggedError("Error opening report in browser")
     }
   }
 }

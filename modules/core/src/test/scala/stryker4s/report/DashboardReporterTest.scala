@@ -84,9 +84,7 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
 
       sut
         .onRunFinished(runReport)
-        .asserting { _ =>
-          assertLoggedInfo("Sent report to dashboard. Available at https://hrefHere.com")
-        }
+        .assertLoggedInfo("Sent report to dashboard. Available at https://hrefHere.com")
     }
 
     test("log when not being able to resolve dashboard config") {
@@ -97,11 +95,9 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
 
       sut
         .onRunFinished(runReport)
-        .asserting { _ =>
-          assertLoggedWarn(
-            s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report."
-          )
-        }
+        .assertLoggedWarn(
+          s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report."
+        )
     }
 
     test("should log when a response can't be parsed to a href") {
@@ -112,11 +108,9 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
 
       sut
         .onRunFinished(runReport)
-        .asserting { _ =>
-          assertLoggedWarn(
-            "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:"
-          )
-        }
+        .assertLoggedWarn(
+          "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:"
+        )
     }
 
     test("should log when a 401 is returned by the API") {
@@ -130,12 +124,10 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
 
       sut
         .onRunFinished(runReport)
-        .asserting { _ =>
-          assertLoggedError(
-            s"Error HTTP PUT 'Unauthorized'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
-                .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
-          )
-        }
+        .assertLoggedError(
+          s"Error HTTP PUT 'Unauthorized'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+              .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
+        )
     }
 
     test("should log when a error code is returned by the API") {
@@ -149,11 +141,9 @@ class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with Circe
 
       sut
         .onRunFinished(runReport)
-        .asserting { _ =>
-          assertLoggedError(
-            s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'Internal Server Error'"
-          )
-        }
+        .assertLoggedError(
+          s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'Internal Server Error'"
+        )
     }
   }
 

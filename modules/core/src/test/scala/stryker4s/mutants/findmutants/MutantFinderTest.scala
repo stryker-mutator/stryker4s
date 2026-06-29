@@ -72,11 +72,9 @@ class MutantFinderTest extends Stryker4sIOSuite with LogMatchers {
       sut
         .parseFile(noFile)
         .intercept[ParseException]
-        .asserting { _ =>
-          assertLoggedError(
-            s"Error while parsing file '${noFile.relativePath}', illegal start of definition `identifier`"
-          )
-        }
+        .assertLoggedError(
+          s"Error while parsing file '${noFile.relativePath}', illegal start of definition `identifier`"
+        )
     }
   }
 }

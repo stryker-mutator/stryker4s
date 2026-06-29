@@ -107,12 +107,13 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       )
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
-      sut.go(files).asserting { _ =>
-        assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("3")} mutant(s) are excluded.")
-        assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
-        assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
-      }
+      sut
+        .go(files)
+        .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+        .assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("3")} mutant(s) are excluded.")
+        .assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+        .assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
+
     }
 
     test("should log a warning if no mutants are found") {
@@ -124,12 +125,12 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       )
       val files = Stream(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala"))
 
-      sut.go(files).asserting { _ =>
-        assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        assertLoggedInfo(s"${Cyan("0")} mutant(s) generated.")
-        assertLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
-        assertLoggedWarn("If this is not intended, please check your configuration and try again.")
-      }
+      sut
+        .go(files)
+        .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+        .assertLoggedInfo(s"${Cyan("0")} mutant(s) generated.")
+        .assertLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+        .assertLoggedWarn("If this is not intended, please check your configuration and try again.")
     }
 
     test("should log if all mutations are excluded") {
@@ -143,16 +144,16 @@ class MutatorTest extends Stryker4sIOSuite with LogMatchers {
       )
       val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
-      sut.go(files).asserting { _ =>
-        assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("4")} mutant(s) are excluded.")
-        assertLoggedWarn(
+      sut
+        .go(files)
+        .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+        .assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("4")} mutant(s) are excluded.")
+        .assertLoggedWarn(
           s"""All found mutations are excluded. Stryker4s will perform a dry-run without actually mutating anything.
              |You can configure the `mutate` or `excluded-mutations` property in your configuration""".stripMargin
         )
-        assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
-        assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
-      }
+        .assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+        .assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
     }
   }
 }

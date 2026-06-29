@@ -20,25 +20,27 @@ class AggregateConfigSourceTest extends Stryker4sIOSuite with LogMatchers {
     val aggregate = new AggregateConfigSource[IO](NonEmptyList.of(file, cli, defaults))
 
     // file
-    aggregate.timeout.load.assertEquals(6.seconds) *>
-      IO(assertLoggedDebug(s"Loaded ${Color.Magenta("timeout")} from ${Color.Cyan("file config")}: 6 seconds")) *>
+    aggregate.timeout.load
+      .assertEquals(6.seconds)
+      .assertLoggedDebug(s"Loaded ${Color.Magenta("timeout")} from ${Color.Cyan("file config")}: 6 seconds") *>
       // cli
-      aggregate.baseDir.load.assertEquals(Path("/tmp/project")) *>
-      IO(assertLoggedDebug(s"Loaded ${Color.Magenta("baseDir")} from ${Color.Cyan("CLI arguments")}: $path")) *>
+      aggregate.baseDir.load
+        .assertEquals(Path("/tmp/project"))
+        .assertLoggedDebug(s"Loaded ${Color.Magenta("baseDir")} from ${Color.Cyan("CLI arguments")}: $path") *>
       // defaults
-      aggregate.thresholdsHigh.load.assertEquals(80) *>
-      IO(assertLoggedDebug(s"Loaded ${Color.Magenta("thresholdsHigh")} from ${Color.Cyan("defaults")}: 80"))
+      aggregate.thresholdsHigh.load
+        .assertEquals(80)
+        .assertLoggedDebug(s"Loaded ${Color.Magenta("thresholdsHigh")} from ${Color.Cyan("defaults")}: 80")
   }
 
   test("aggregate combines given sources and defaults") {
     val cli = new CliConfigSource[IO](Seq("--base-dir=/tmp/project"))
-    ConfigSource.aggregate(List(cli)).flatMap { conf =>
-      conf.baseDir.load.assertEquals(Path("/tmp/project")) *>
-        conf.thresholdsHigh.load.assertEquals(80)
-    } *> IO(
-      assertLoggedDebug(
-        s"Loaded config sources '${Color.Cyan("CLI arguments")}', '${Color.Cyan("file config")}'"
-      )
-    )
+    ConfigSource
+      .aggregate(List(cli))
+      .flatMap { conf =>
+        conf.baseDir.load.assertEquals(Path("/tmp/project")) *>
+          conf.thresholdsHigh.load.assertEquals(80)
+      }
+      .assertLoggedDebug(s"Loaded config sources '${Color.Cyan("CLI arguments")}', '${Color.Cyan("file config")}'")
   }
 }

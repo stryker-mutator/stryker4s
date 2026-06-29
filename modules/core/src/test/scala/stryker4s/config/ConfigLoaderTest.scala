@@ -9,11 +9,10 @@ import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 class ConfigLoaderTest extends Stryker4sIOSuite with LogMatchers {
   test("combines a ConfigSource into Config") {
     val result = ConfigLoader.loadAll[IO](List.empty)
-    result.assertEquals(Config.default) *>
-      IO(
-        assertLoggedInfo(
-          "Loading config. Read how to configure Stryker4s here: https://stryker-mutator.io/docs/stryker4s/configuration/"
-        )
+    result
+      .assertEquals(Config.default)
+      .assertLoggedInfo(
+        "Loading config. Read how to configure Stryker4s here: https://stryker-mutator.io/docs/stryker4s/configuration/"
       )
   }
 

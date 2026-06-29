@@ -41,10 +41,10 @@ class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestD
       Stream(MutantTestedEvent(1), MutantTestedEvent(2))
         .through(sut.mutantTested)
         .compile
-        .drain *> IO.cede >> {
-        assertLoggedError("Reporter failed to report, java.lang.RuntimeException: Something happened")
-        reporter1.mutantTestedCalls.assert(_.length == 2)
-      }
+        .drain *> IO.cede
+        .assertLoggedError(
+          "Reporter failed to report, java.lang.RuntimeException: Something happened"
+        ) >> reporter1.mutantTestedCalls.assert(_.length == 2)
     }
   }
 
@@ -92,8 +92,9 @@ class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestD
         val sut = new AggregateReporter(List(consoleReporterStub, reporter1))
 
         sut.onRunFinished(runReport) >>
-          consoleReporterStub.onRunFinishedCalls.assert(_.length == 1) >>
-          IO(assertNotLoggedWarn("Reporter failed to report"))
+          consoleReporterStub.onRunFinishedCalls
+            .assert(_.length == 1)
+            .assertNotLoggedWarn("Reporter failed to report")
       }
     }
   }

@@ -30,11 +30,9 @@ class MavenTestDiscoveryTest extends Stryker4sIOSuite with LogMatchers {
   test("warns when no test frameworks are found on the classpath") {
     MavenTestDiscovery
       .discover(Seq(testClassesDir), fullClasspath, frameworkNames = Seq("does.not.Exist"))
-      .map { groups =>
-        assertEquals(groups, Seq.empty)
-        assertLoggedWarn("No sbt.testing test frameworks found on the test classpath")
-        assertLoggedWarn("Will likely result in no tests being run and a NoCoverage result for all mutants.")
-      }
+      .assertEquals(Seq.empty)
+      .assertLoggedWarn("No sbt.testing test frameworks found on the test classpath")
+      .assertLoggedWarn("Will likely result in no tests being run and a NoCoverage result for all mutants.")
   }
 
   test("a framework name that resolves to a non-Framework class is skipped without failing") {
