@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.22.0](https://github.com/stryker-mutator/stryker4s/compare/v0.21.0...v0.22.0) (2026-07-01)
+
+
+### Features
+
+* **maven:** rewrite Maven plugin with testrunner and rollback support ([#2044](https://github.com/stryker-mutator/stryker4s/issues/2044)) ([053b3ce](https://github.com/stryker-mutator/stryker4s/commit/053b3ce6eaff1711fe5ef9642a22bca600e7eb44))
+* **mill:** add Mill plugin ([#2042](https://github.com/stryker-mutator/stryker4s/issues/2042)) ([d18cbf7](https://github.com/stryker-mutator/stryker4s/commit/d18cbf73080d5eb0882a5849fce3e04020099c02))
+
+
+### Bug Fixes
+
+* always preserve original statement in mutation switch case ([#2045](https://github.com/stryker-mutator/stryker4s/issues/2045)) ([fff3a4a](https://github.com/stryker-mutator/stryker4s/commit/fff3a4aeebdaa5d255c651a11c4f0429060011d6))
+* improve exclude-annotation matching ([#2063](https://github.com/stryker-mutator/stryker4s/issues/2063)) ([20059f0](https://github.com/stryker-mutator/stryker4s/commit/20059f075ab9f830490e4ce9fe7bd045bda14d00))
+* target java-output-version 17 ([#2040](https://github.com/stryker-mutator/stryker4s/issues/2040)) ([a82c4ae](https://github.com/stryker-mutator/stryker4s/commit/a82c4ae301be37eb40458693dca91ecae7cca535))
+
 ## [0.21.0](https://github.com/stryker-mutator/stryker4s/compare/v0.20.4...v0.21.0) (2026-06-05)
 
 
