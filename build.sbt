@@ -1,9 +1,9 @@
 import Dependencies.*
 import MillScripted.*
 import Settings.*
-import sbt.internal.ProjectMatrix
+import sbt.ProjectMatrix
 
-lazy val root = (project withId "stryker4s" in file("."))
+lazy val root = rootProject
   .settings(
     buildLevelSettings,
     publish / skip := true,
@@ -15,7 +15,7 @@ lazy val root = (project withId "stryker4s" in file("."))
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core3/publishM2; testkit3/publishM2"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core/publishM2; testkit/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(
@@ -28,18 +28,7 @@ lazy val root = (project withId "stryker4s" in file("."))
       "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; millPlugin/publishLocal"
     )
   )
-  .aggregate(
-    (
-      api.projectRefs ++
-        commandRunner.projectRefs ++
-        core.projectRefs ++
-        millPlugin.projectRefs ++
-        sbtPlugin.projectRefs ++
-        testRunner.projectRefs ++
-        testkit.projectRefs ++
-        testRunnerApi.projectRefs
-    ) *
-  )
+  .autoAggregate
 
 lazy val core = (projectMatrix in file("modules") / "core")
   .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testRunner))
