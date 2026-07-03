@@ -119,8 +119,17 @@ final class ClientActor(channel: SocketChannel, messageHandler: MessageHandler) 
     val bytesRead = channel.read(buf)
 
     if (bytesRead < 0) None
-    else if (bytesRead != size) throw new IOException(s"Expected to read $size bytes, but read $bytesRead bytes")
-    else Some(buf.array())
+    else {
+      // The channel is non-blocking, so a single read can return fewer bytes than requested when the message is
+      // larger than what has arrived in the socket buffer. Keep reading until the full message is in.
+      while (buf.hasRemaining()) {
+        val read = channel.read(buf)
+        if (read < 0)
+          throw new IOException(s"Expected to read $size bytes, but read ${buf.position()} bytes before end-of-stream")
+        else if (read == 0) Thread.onSpinWait()
+      }
+      Some(buf.array())
+    }
   }
 
   private def write(response: Response): Unit = {
