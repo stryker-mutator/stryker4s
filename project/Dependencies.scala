@@ -56,7 +56,7 @@ object Dependencies {
 
     val testInterface = "1.0"
 
-    val weaponRegeX = "2.0.2"
+    val weaponRegeX = "2.0.3"
 
   }
 
