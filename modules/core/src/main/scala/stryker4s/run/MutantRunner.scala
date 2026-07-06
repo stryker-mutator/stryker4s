@@ -132,7 +132,7 @@ class MutantRunner(
 
   def writeOriginalFile(tmpDir: Path): Pipe[IO, Path, Unit] =
     in =>
-      in.parEvalMapUnordered(config.concurrency) { file =>
+      in.parEvalMapUnordered(Config.cpuParallelism) { file =>
         val newSubPath = file.inSubDir(tmpDir)
 
         IO(log.debug(s"Copying $file to $newSubPath")) *>

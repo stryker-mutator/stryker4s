@@ -20,10 +20,7 @@ class Mutator(
     mutantFinder: MutantFinder,
     collector: MutantCollector,
     instrumenter: MutantInstrumenter
-)(implicit
-    config: Config,
-    log: Logger
-) {
+)(implicit log: Logger) {
 
   type Found[A, B] = (SourceContext, (Vector[A], Map[PlaceableTree, B]))
   type FoundMutations = Found[IgnoredMutation, Mutations]
@@ -32,7 +29,7 @@ class Mutator(
   def go(files: Stream[IO, Path]): IO[(MutantResultsPerFile, Vector[MutatedFile])] = {
     files
       // Parse and mutate files
-      .parEvalMap(config.concurrency)(path =>
+      .parEvalMap(Config.cpuParallelism)(path =>
         mutantFinder.parseFile(path).map { source =>
           val foundMutations = collector(source)
 
@@ -44,7 +41,7 @@ class Mutator(
       // Split mutations into active and ignored mutations
       .flatMap { case (ctx, (ignored, found)) => splitIgnoredAndFound(ctx, ignored, found) }
       // Instrument files
-      .parEvalMapUnordered(config.concurrency)(_.traverse { case (context, mutations) =>
+      .parEvalMapUnordered(Config.cpuParallelism)(_.traverse { case (context, mutations) =>
         IO(log.debug(s"Instrumenting mutations in ${mutations.size} places for ${context.path}")) *>
           IO(instrumenter.instrumentFile(context, mutations))
       })
