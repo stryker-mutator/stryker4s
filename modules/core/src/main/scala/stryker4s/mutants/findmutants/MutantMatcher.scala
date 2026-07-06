@@ -149,8 +149,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       val (location, description, replacement) = mutations match {
         case r: RegularExpression       => (r.location, r.description.some, r.replacement)
         case s: SubstitutionMutation[?] => (original.pos.toLocation, none, s.treeSyntax)
-        case _                          =>
-          (original.pos.toLocation, none, tree.reprint())
+        case _                          => (original.pos.toLocation, none, tree.reprint())
       }
 
       val metadata = MutantMetadata(
