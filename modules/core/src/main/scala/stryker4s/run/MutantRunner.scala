@@ -141,17 +141,16 @@ class MutantRunner(
       }
 
   def writeMutatedFile(tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
-    _.parEvalMap(config.concurrency) { mutatedFile =>
+    _.parEvalMapUnordered(Config.cpuParallelism) { mutatedFile =>
       val targetPath = mutatedFile.fileOrigin.inSubDir(tmpDir)
       IO(log.debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
-        Files[IO]
-          .createDirectories(targetPath.parent.get)
-          .as((mutatedFile, targetPath))
-    }.map { case (mutatedFile, targetPath) =>
-      Stream(mutatedFile.mutatedSource.text)
-        .covary[IO]
-        .through(Files[IO].writeUtf8(targetPath))
-    }.parJoin(config.concurrency)
+        Files[IO].createDirectories(targetPath.parent.get) *>
+        Stream
+          .eval(IO(mutatedFile.mutatedSource.text))
+          .through(Files[IO].writeUtf8(targetPath))
+          .compile
+          .drain
+    }
 
   private def runMutants(
       mutatedFiles: Seq[MutatedFile],
