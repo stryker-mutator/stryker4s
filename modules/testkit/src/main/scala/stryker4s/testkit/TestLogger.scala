@@ -37,6 +37,6 @@ protected[testkit] class TestLogger(printLogs: Boolean) extends Logger {
   }
 
   // Always log with colors so we can test for color codes
-  override val colorEnabled = true
+  override lazy val colorEnabled = true
 
 }

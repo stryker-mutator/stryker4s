@@ -25,6 +25,6 @@ class MillLogger(millLogger: MillInternalLogger, env: Map[String, String]) exten
       e.printStackTrace(pw)
       writer.toString()
 
-  override protected def colorEnabled: Boolean =
+  override protected lazy val colorEnabled: Boolean =
     mill.api.daemon.loggerColorEnabled(millLogger) && !env.contains("NO_COLOR")
 }

@@ -110,7 +110,6 @@ class Stryker4sMavenRunner(
     val binaryVersion = ScalaVersions.binaryVersion(ScalaVersions.fullVersionUnsafe(project))
     resolver
       .resolveTransitively(s"io.stryker-mutator:stryker4s-testrunner_$binaryVersion:$version")
-      .map(_.map(f => Path.fromNioPath(f.toPath)))
   }
 
   /** JVM options for the forked test-runner: the parent's system properties, minus platform/internal ones (mirrors the
