@@ -2,13 +2,19 @@ package stryker4s.log
 
 import sbt.{Level as SbtLevel, Logger as SbtInternalLogger}
 
-class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
+class SbtLogger(sbtLogger: SbtInternalLogger, minLevel: SbtLevel.Value) extends Logger {
 
-  override def log(level: Level, msg: => String): Unit = sbtLogger.log(toSbtLevel(level), msg)
+  override def log(level: Level, msg: => String): Unit = {
+    val sbtLevel = toSbtLevel(level)
+    if (sbtLevel >= minLevel) sbtLogger.log(sbtLevel, msg)
+  }
 
   override def log(level: Level, msg: => String, e: => Throwable): Unit = {
-    sbtLogger.log(toSbtLevel(level), msg)
-    sbtLogger.trace(e)
+    val sbtLevel = toSbtLevel(level)
+    if (sbtLevel >= minLevel) {
+      sbtLogger.log(sbtLevel, msg)
+      sbtLogger.trace(e)
+    }
   }
 
   private def toSbtLevel(level: Level): SbtLevel.Value = level match {
@@ -18,6 +24,6 @@ class SbtLogger(sbtLogger: SbtInternalLogger) extends Logger {
     case Level.Error => SbtLevel.Error
   }
 
-  override protected val colorEnabled: Boolean =
+  override protected lazy val colorEnabled: Boolean =
     sbt.internal.util.Terminal.console.isColorEnabled && !sys.env.contains("NO_COLOR")
 }

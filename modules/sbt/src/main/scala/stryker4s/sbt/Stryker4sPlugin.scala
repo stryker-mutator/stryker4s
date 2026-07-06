@@ -159,8 +159,7 @@ object Stryker4sPlugin extends AutoPlugin {
   }
 
   lazy val strykerTask = Def.inputTaskDyn {
-    // Call logLevel so it shows up as a used setting when set
-    val _ = (stryker / logLevel).value
+    val minLogLevel = (stryker / logLevel).value
     val sbtLog = streams.value.log
 
     if (!strykerIsSupported.value) {
@@ -174,7 +173,7 @@ object Stryker4sPlugin extends AutoPlugin {
 
     Def.task {
       implicit val runtime: IORuntime = IORuntime.global
-      implicit val logger: Logger = new SbtLogger(sbtLog)
+      implicit val logger: Logger = new SbtLogger(sbtLog, minLogLevel)
       implicit val conv: FileConverter = fileConverter.value
       val parsed = sbt.complete.DefaultParsers.spaceDelimited("<arg>").parsed
       val cliConfig = new CliConfigSource(parsed)
