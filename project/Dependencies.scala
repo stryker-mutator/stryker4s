@@ -42,9 +42,9 @@ object Dependencies {
 
     val mill = "1.1.7"
 
-    val mutationTestingElements = "3.8.0"
+    val mutationTestingElements = "3.8.4"
 
-    val mutationTestingMetrics = "3.8.3"
+    val mutationTestingMetrics = "3.8.4"
 
     val scalameta = "4.17.1"
 
