@@ -161,7 +161,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       )
       val mutatedTopStatement = placeableTree.tree
         .transformExactlyOnce {
-          case t if t === original && t.pos == original.pos =>
+          case t if (t eq original) || (t.pos == original.pos && t === original) =>
             tree
         }
         .getOrElse(
