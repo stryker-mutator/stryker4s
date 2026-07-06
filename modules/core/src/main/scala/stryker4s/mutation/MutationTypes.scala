@@ -39,6 +39,8 @@ object Mutation {
 trait SubstitutionMutation[T <: Tree] extends Mutation[T] with NoInvalidPlacement[T] {
   def tree: T
 
+  final lazy val treeSyntax: String = tree.reprint()
+
   override def unapply(arg: T): Option[T] =
     arg.some
       .filter(_ === tree)
