@@ -35,7 +35,7 @@ trait Logger {
   /** Whether colors are enabled in the log. Loggers can override this, a build tool might provide a flag to
     * disable/enable colors
     */
-  protected def colorEnabled: Boolean = {
+  protected lazy val colorEnabled: Boolean = {
 
     // Explicitly disable color https://no-color.org/
     val notNoColor = !sys.env.contains("NO_COLOR")

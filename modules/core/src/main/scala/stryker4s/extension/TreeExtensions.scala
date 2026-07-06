@@ -96,7 +96,18 @@ object TreeExtensions {
 
   /** Structural equality for `Tree`s
     */
-  implicit def treeEq[A <: Tree]: Eq[A] = Eq.instance((x, y) => x == y || x.structure == y.structure)
+  implicit def treeEq[A <: Tree]: Eq[A] = Eq.instance((x, y) => (x eq y) || structurallyEqual(x, y))
+
+  /** Compares two trees by their structure (class, leaf values and children, recursively)
+    */
+  private def structurallyEqual(x: Tree, y: Tree): Boolean =
+    (x eq y) ||
+      (x.getClass == y.getClass &&
+        ((x, y) match {
+          case (x: Name, y: Name) => x.value == y.value
+          case (x: Lit, y: Lit)   => x.value == y.value
+          case _                  => true
+        }) && x.children.corresponds(y.children)(structurallyEqual(_, _)))
 
   implicit final class CollectFirstExtension(tree: Tree) {
     final def collectFirst[T](pf: PartialFunction[Tree, T]): Option[T] = {

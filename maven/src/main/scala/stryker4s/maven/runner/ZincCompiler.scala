@@ -116,16 +116,22 @@ object ZincCompiler {
         .resolveTransitively(compilerCoords)
         .toResource
         .flatMap(makeScalaInstance(scalaVersion, _))
-      scalac <- resolver.resolveArtifact(bridgeCoords).map(ZincUtil.scalaCompiler(scalaInstance, _)).toResource
+      scalac <- resolver
+        .resolveArtifact(bridgeCoords)
+        .map(p => ZincUtil.scalaCompiler(scalaInstance, p.toNioPath))
+        .toResource
       compilers = ZincUtil.compilers(scalaInstance, ClasspathOptionsUtil.boot(), None, scalac)
     } yield new ZincCompiler(scalaInstance, compilers)
   }
 
-  def makeScalaInstance(scalaVersion: String, scalaCompilerClasspath: Seq[File]): Resource[IO, ScalaInstance] = {
-    val allJars = scalaCompilerClasspath.filterNot { jar =>
-      val name = jar.getName()
-      name.startsWith("compiler-interface") || name.startsWith("util-interface")
-    }.toArray
+  def makeScalaInstance(scalaVersion: String, scalaCompilerClasspath: Seq[Path]): Resource[IO, ScalaInstance] = {
+    val allJars = scalaCompilerClasspath
+      .filterNot { jar =>
+        val name = jar.fileName.toString
+        name.startsWith("compiler-interface") || name.startsWith("util-interface")
+      }
+      .map(_.toNioPath.toFile())
+      .toArray
     val libraryJars = allJars.filter { jar =>
       val name = jar.getName()
       name.startsWith("scala-library") || name.startsWith("scala3-library") || name.startsWith("scala-reflect")

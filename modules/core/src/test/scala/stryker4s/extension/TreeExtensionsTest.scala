@@ -1,5 +1,6 @@
 package stryker4s.extension
 
+import cats.syntax.eq.*
 import cats.syntax.option.*
 import mutationtesting.{Location, Position}
 import stryker4s.extension.TreeExtensions.*
@@ -63,6 +64,69 @@ class TreeExtensionsTest extends Stryker4sSuite {
       val result = original.find(Term.Name(">")).value
 
       assert(result.parent.value eq original)
+    }
+  }
+
+  describe("treeEq") {
+    test("equal for same instance") {
+      val tree = "a + b".parseTerm
+      assert(tree === tree)
+    }
+
+    test("equal for identical trees") {
+      assert("a + b".parseTerm === "a + b".parseTerm)
+    }
+
+    test("equal ignoring positions") {
+      assert("a + b".parseTerm === "a  +  b".parseTerm)
+    }
+
+    test("equal for nested trees") {
+      assert("a + (b * c)".parseTerm === "a + (b * c)".parseTerm)
+    }
+
+    test("not equal for different node types") {
+      assert("5".parseTerm =!= "x".parseTerm)
+    }
+
+    test("not equal for different name types") {
+      assert((Term.Name("a"): Tree) =!= (Type.Name("a"): Tree))
+    }
+
+    test("not equal for different literal types") {
+      assert("5".parseTerm =!= "\"5\"".parseTerm)
+    }
+
+    test("not equal for different name values") {
+      assert(Term.Name("a") =!= Term.Name("b"))
+    }
+
+    test("not equal for different int literals") {
+      assert(Lit.Int(5) =!= Lit.Int(6))
+    }
+
+    test("not equal for different string literals") {
+      assert(Lit.String("a") =!= Lit.String("b"))
+    }
+
+    test("not equal for different boolean literals") {
+      assert(Lit.Boolean(true) =!= Lit.Boolean(false))
+    }
+
+    test("not equal for different operators") {
+      assert("a + b".parseTerm =!= "a - b".parseTerm)
+    }
+
+    test("not equal for different operands") {
+      assert("a + b".parseTerm =!= "a + c".parseTerm)
+    }
+
+    test("not equal for different child count") {
+      assert("f(a)".parseTerm =!= "f(a, b)".parseTerm)
+    }
+
+    test("not equal for nested difference") {
+      assert("a + (b * c)".parseTerm =!= "a + (b * d)".parseTerm)
     }
   }
 

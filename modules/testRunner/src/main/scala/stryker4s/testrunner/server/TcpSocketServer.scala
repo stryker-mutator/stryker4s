@@ -1,7 +1,7 @@
 package stryker4s.testrunner.server
 
 import stryker4s.testrunner.TestRunnerMessageHandler
-import stryker4s.testrunner.api.RequestMessage
+import stryker4s.testrunner.api.{RequestMessage, StartTestRun}
 
 import java.net.{InetAddress, ServerSocket}
 import scala.util.Using
@@ -23,7 +23,11 @@ object TcpSocketServer {
         RequestMessage.parseDelimitedFrom(inputStream) match {
           case Some(requestMsg) =>
             val request = requestMsg.toRequest
-            println(s"Received message $request")
+            // Don't log StartTestRun messages, they happen for every mutant and rendering them is relatively expensive
+            request match {
+              case _: StartTestRun => ()
+              case other           => println(s"Received message $other")
+            }
             val response = messageHandler.handleMessage(request)
             response.asMessage.writeDelimitedTo(outputStream)
           case None =>

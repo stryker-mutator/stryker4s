@@ -1,19 +1,18 @@
 package stryker4s.maven.runner
 
 import cats.effect.IO
+import fs2.io.file.Path
 import stryker4s.testkit.Stryker4sIOSuite
-
-import java.io.File
 
 class ZincCompilerTest extends Stryker4sIOSuite {
 
   private val jars = Seq(
-    new File("scala-library-2.13.18.jar"),
-    new File("scala3-library_3-3.3.4.jar"),
-    new File("scala-reflect-2.13.18.jar"),
-    new File("scala-compiler-2.13.18.jar"),
-    new File("compiler-interface-2.0.0.jar"),
-    new File("util-interface-2.0.0.jar")
+    Path("scala-library-2.13.18.jar"),
+    Path("scala3-library_3-3.3.4.jar"),
+    Path("scala-reflect-2.13.18.jar"),
+    Path("scala-compiler-2.13.18.jar"),
+    Path("compiler-interface-2.0.0.jar"),
+    Path("util-interface-2.0.0.jar")
   )
 
   test("makeScalaInstance excludes the compiler-interface and util-interface jars from allJars") {

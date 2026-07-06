@@ -194,8 +194,11 @@ class MutantRunnerTest extends Stryker4sIOSuite with LogMatchers with TestData {
     val mutants = NonEmptyVector.one(mutant)
     val mutatedFile = MutatedFile(file, "def foo = 4".parseDef, mutants)
 
+    val metadata = mutant.mutatedCode.metadata
     sut(Vector(mutatedFile))
-      .assertLoggedDebug(s"Running mutant $mutant")
+      .assertLoggedDebug(
+        s"Running mutant ${mutant.id.value} (${metadata.mutatorName} at ${metadata.location.show})"
+      )
       .assertLoggedDebug("Mutant 1 tested in")
   }
 

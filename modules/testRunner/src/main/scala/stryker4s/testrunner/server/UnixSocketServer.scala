@@ -1,7 +1,7 @@
 package stryker4s.testrunner.server
 
 import com.google.protobuf.{CodedInputStream, CodedOutputStream}
-import stryker4s.testrunner.api.{Request, RequestMessage, Response}
+import stryker4s.testrunner.api.{Request, RequestMessage, Response, StartTestRun}
 import stryker4s.testrunner.{MessageHandler, TestRunnerMessageHandler}
 
 import java.io.{ByteArrayOutputStream, File, IOException}
@@ -82,7 +82,11 @@ final class ClientActor(channel: SocketChannel, messageHandler: MessageHandler) 
   override def rxready(): Boolean = {
     try {
       read().foreach { request =>
-        println(s"Received message $request")
+        // Don't log StartTestRun messages, they happen for every mutant and rendering them is relatively expensive
+        request match {
+          case _: StartTestRun => ()
+          case other           => println(s"Received message $other")
+        }
         val response = messageHandler.handleMessage(request)
         write(response)
       }

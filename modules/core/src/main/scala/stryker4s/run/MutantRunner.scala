@@ -132,7 +132,7 @@ class MutantRunner(
 
   def writeOriginalFile(tmpDir: Path): Pipe[IO, Path, Unit] =
     in =>
-      in.parEvalMapUnordered(config.concurrency) { file =>
+      in.parEvalMapUnordered(Config.cpuParallelism) { file =>
         val newSubPath = file.inSubDir(tmpDir)
 
         IO(log.debug(s"Copying $file to $newSubPath")) *>
@@ -141,17 +141,16 @@ class MutantRunner(
       }
 
   def writeMutatedFile(tmpDir: Path): Pipe[IO, MutatedFile, Unit] =
-    _.parEvalMap(config.concurrency) { mutatedFile =>
+    _.parEvalMapUnordered(Config.cpuParallelism) { mutatedFile =>
       val targetPath = mutatedFile.fileOrigin.inSubDir(tmpDir)
       IO(log.debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
-        Files[IO]
-          .createDirectories(targetPath.parent.get)
-          .as((mutatedFile, targetPath))
-    }.map { case (mutatedFile, targetPath) =>
-      Stream(mutatedFile.mutatedSource.text)
-        .covary[IO]
-        .through(Files[IO].writeUtf8(targetPath))
-    }.parJoin(config.concurrency)
+        Files[IO].createDirectories(targetPath.parent.get) *>
+        Stream
+          .eval(IO(mutatedFile.mutatedSource.text))
+          .through(Files[IO].writeUtf8(targetPath))
+          .compile
+          .drain
+    }
 
   private def runMutants(
       mutatedFiles: Seq[MutatedFile],
@@ -202,7 +201,12 @@ class MutantRunner(
       .emits(testableMutants)
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
         val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id, Seq.empty)
-        IO(log.debug(s"Running mutant $mutant")) *>
+        IO(
+          log.debug {
+            val metadata = mutant.mutatedCode.metadata
+            s"Running mutant ${mutant.id.value} (${metadata.mutatorName} at ${metadata.location.show})"
+          }
+        ) *>
           testRunner.runMutant(mutant, coverageForMutant).timed.flatMap { case (duration, result) =>
             IO(log.debug(s"Mutant ${mutant.id} tested in ${duration.toHumanReadable}")).as(path -> result)
           }

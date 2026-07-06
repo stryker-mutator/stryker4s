@@ -44,6 +44,11 @@ object Config {
     (cpuCoreCount.toDouble / 4).round.toInt + 1
   }
 
+  /** Parallelism for local CPU-bound work (parsing, mutating and writing files). Uses all available cores, unlike the
+    * `concurrency` setting, which is sized for the (much heavier) test-runner processes.
+    */
+  def cpuParallelism: Int = Runtime.getRuntime().availableProcessors()
+
   // Only used in tests
   lazy val default: Config = {
     import cats.effect.unsafe.implicits.global
