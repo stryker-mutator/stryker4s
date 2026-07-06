@@ -117,6 +117,10 @@ class CirisConfigDecodersTest extends Stryker4sSuite with CirisConfigDecoders {
       "scala3.8" -> Scala38,
       "3.8" -> Scala38,
       "38" -> Scala38,
+      "scala39" -> Scala39,
+      "scala3.9" -> Scala39,
+      "3.9" -> Scala39,
+      "39" -> Scala39,
       "scala3" -> Scala3,
       "3" -> Scala3
     )

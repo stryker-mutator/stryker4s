@@ -214,7 +214,7 @@ Settings for the dashboard [reporter](#reporters-seqstring). See the [dashboard 
 
 Set the Scala dialect that should be used for parsing Scala files. The sbt, Mill and Maven plugins derive this from the project's Scala version (and `-Xsource:3` flag) automatically, so you normally don't need to set it. When it can't be derived (for example in the command runner), it falls back to Scala 2.13 with `-Xsource:3`, as this has the widest compatibility. If you are running into issues with parsing Scala syntax, you can override this value.
 
-Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/modules/core/src/main/scala/stryker4s/config/codec/CirisConfigDecoders.scala#L109-L121).
+Valid values are Scala-versions without a patch version (`scala2.12`, `212`, `2.12`, `2`, `3`, `3.2`). If you use `-Xsource:3` you can use `scala212source3` or `scala213source3`. The full list can be found [here](https://github.com/stryker-mutator/stryker4s/blob/master/modules/core/src/main/scala/stryker4s/config/codec/CirisConfigDecoders.scala#L109-L124).
 
 ### `static-tmp-dir` (`Boolean`)
 

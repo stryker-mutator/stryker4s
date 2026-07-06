@@ -46,7 +46,7 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.8.3"
 
-    val scalameta = "4.17.0"
+    val scalameta = "4.17.1"
 
     val scopt = "4.1.0"
 
@@ -81,10 +81,7 @@ object Dependencies {
     "io.stryker-mutator" %% "mutation-testing-metrics-circe" % versions.mutationTestingMetrics,
     "io.stryker-mutator" %% "mutation-testing-metrics-cats" % versions.mutationTestingMetrics
   )
-  // Exclude some 2.13 dependencies when on scala 3 to avoid conflicts
-  val scalameta = ("org.scalameta" %% "scalameta" % versions.scalameta)
-    .cross(CrossVersion.for3Use2_13)
-    .exclude("com.lihaoyi", "sourcecode_2.13")
+  val scalameta = "org.scalameta" %% "scalameta" % versions.scalameta
   val scalapbRuntime =
     "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val scopt = "com.github.scopt" %% "scopt" % versions.scopt
