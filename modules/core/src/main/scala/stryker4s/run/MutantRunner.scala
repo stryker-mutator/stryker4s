@@ -201,7 +201,12 @@ class MutantRunner(
       .emits(testableMutants)
       .through(testRunnerPool.run { case (testRunner, (path, mutant)) =>
         val coverageForMutant = coverageExclusions.coveredMutants.getOrElse(mutant.id, Seq.empty)
-        IO(log.debug(s"Running mutant $mutant")) *>
+        IO(
+          log.debug {
+            val metadata = mutant.mutatedCode.metadata
+            s"Running mutant ${mutant.id.value} (${metadata.mutatorName} at ${metadata.location.show})"
+          }
+        ) *>
           testRunner.runMutant(mutant, coverageForMutant).timed.flatMap { case (duration, result) =>
             IO(log.debug(s"Mutant ${mutant.id} tested in ${duration.toHumanReadable}")).as(path -> result)
           }
