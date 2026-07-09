@@ -13,6 +13,7 @@ import org.eclipse.aether.util.artifact.JavaScopes
 import org.eclipse.aether.util.filter.DependencyFilterUtils
 import stryker4s.log.Logger
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.*
 
 /** Resolves Maven artifacts (and their transitive runtime dependencies) at plugin runtime via Aether, against the
@@ -28,14 +29,16 @@ class ArtifactResolver(project: MavenProject, session: MavenSession, repoSystem:
     * @param coordinates
     *   `groupId:artifactId[:extension[:classifier]]:version`
     */
+  @nowarn()
   def resolveArtifact(coordinates: String): IO[Path] = {
     log.debug(s"Resolving artifact $coordinates")
     val request = new ArtifactRequest(new DefaultArtifact(coordinates), repositories, null)
     IO.blocking:
-      Path.fromNioPath(repoSystem.resolveArtifact(repoSession, request).getArtifact().getPath())
+      Path.fromNioPath(repoSystem.resolveArtifact(repoSession, request).getArtifact().getFile().toPath())
   }
 
   /** Resolve an artifact together with all of its transitive runtime dependencies. */
+  @nowarn
   def resolveTransitively(coordinates: String): IO[Seq[Path]] = {
     log.debug(s"Resolving $coordinates with transitive dependencies")
     val root = new Dependency(new DefaultArtifact(coordinates), JavaScopes.RUNTIME)
@@ -49,6 +52,6 @@ class ArtifactResolver(project: MavenProject, session: MavenSession, repoSystem:
         .getArtifactResults()
         .asScala
         .toSeq
-        .map(a => Path.fromNioPath(a.getArtifact().getPath()))
+        .map(a => Path.fromNioPath(a.getArtifact().getFile().toPath()))
   }
 }
