@@ -15,6 +15,6 @@ object foo extends ScalaModule with Stryker4sModule {
 
   object test extends ScalaTests {
     def testFramework = "munit.Framework"
-    def mvnDeps = Seq(mvn"org.scalameta::munit:1.3.3")
+    def mvnDeps = Seq(mvn"org.scalameta::munit:1.3.4")
   }
 }
