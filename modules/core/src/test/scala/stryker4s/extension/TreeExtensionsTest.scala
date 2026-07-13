@@ -67,6 +67,70 @@ class TreeExtensionsTest extends Stryker4sSuite {
     }
   }
 
+  describe("ancestorsUpTo") {
+    test("returns the parent chain from the immediate parent up to and including root") {
+      val tree = "a + b * c".parseTerm
+      val b = tree.find(Term.Name("b")).value
+
+      val result = b.ancestorsUpTo(tree)
+
+      assert(result.nonEmpty)
+      assert(result.head eq b.parent.value, "should start at the immediate parent")
+      assert(result.last eq tree, "should end at root")
+      // consecutive elements should form a parent chain
+      result.sliding(2).foreach {
+        case Seq(child, parent) => assert(child.parent.value eq parent)
+        case _                  => ()
+      }
+    }
+
+    test("does not include the tree itself") {
+      val tree = "a + b".parseTerm
+      val b = tree.find(Term.Name("b")).value
+
+      val result = b.ancestorsUpTo(tree)
+
+      assert(!result.exists(_ eq b))
+    }
+
+    test("returns only the root when the tree is a direct child of root") {
+      val tree = "a + b".parseTerm
+      val a = tree.find(Term.Name("a")).value
+
+      val result = a.ancestorsUpTo(tree)
+
+      assert(result.loneElement eq tree)
+    }
+
+    test("does not include ancestors above root") {
+      val tree = "def foo = a + b * c".parseDef
+      val mul = tree.find("b * c".parseTerm).value
+      val b = tree.find(Term.Name("b")).value
+
+      val result = b.ancestorsUpTo(mul)
+
+      assert(result.last eq mul, "should stop at root")
+      assert(!result.exists(_ eq tree), "should not walk above root")
+    }
+
+    test("walks up to the top of the tree when root is not an ancestor") {
+      val tree = "a + b * c".parseTerm
+      val unrelated = "x".parseTerm
+      val b = tree.find(Term.Name("b")).value
+
+      val result = b.ancestorsUpTo(unrelated)
+
+      assert(result.head eq b.parent.value)
+      assert(result.last eq tree, "should reach the top of the tree")
+    }
+
+    test("returns empty when the tree has no parent") {
+      val tree = "a + b".parseTerm
+
+      assert(tree.ancestorsUpTo(tree).isEmpty)
+    }
+  }
+
   describe("treeEq") {
     test("equal for same instance") {
       val tree = "a + b".parseTerm
