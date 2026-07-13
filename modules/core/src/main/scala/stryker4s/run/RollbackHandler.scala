@@ -70,7 +70,10 @@ object RollbackHandler {
             case Both(mutants, results) =>
               // If not all errors were removed, we can't continue (return a Left)
               errorsWithoutIds.toLeft(
-                mutatedFile.copy(mutatedSource = treeWithoutErrors, mutants = mutants.toNev).asRight -> results
+                // Drop the splice info: it describes the pre-rollback tree, so the rewritten tree must be rendered whole
+                mutatedFile
+                  .copy(mutatedSource = treeWithoutErrors, mutants = mutants.toNev, splice = none)
+                  .asRight -> results
               )
             // All mutants were removed
             case Ior.Right(results) => (mutatedFile.fileOrigin.asLeft, results).asRight
