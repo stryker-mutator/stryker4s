@@ -1,8 +1,7 @@
 package stryker4s.extension
 
-import cats.data.{Chain, State}
+import cats.Eq
 import cats.syntax.all.*
-import cats.{Eq, Eval}
 import mutationtesting.Location
 import mutationtesting.cats.*
 
@@ -134,21 +133,19 @@ object TreeExtensions {
     )(collectFn: PartialFunction[Tree, C => T]): Seq[T] = {
       val collectFnLifted = collectFn.lift
       val buildContextLifted = buildContext.lift
+      val builder = Vector.newBuilder[T]
 
-      def traverse(tree: Tree): State[Eval[Option[C]], Chain[T]] =
-        State.get[Eval[Option[C]]].flatMap { inherited =>
-          // The context for this node and its descendants
-          val contextEval = Eval.defer(buildContextLifted(tree).fold(inherited)(_.some.pure[Eval])).memoize
-
-          // Only read the context when this node actually collects something.
-          val collected = collectFnLifted(tree).foldMap(collect => Chain.fromOption(contextEval.value.map(collect)))
-
-          // Each child starts from this node's context, independent of its siblings.
-          tree.children.foldMapM(child => State.set(contextEval) *> traverse(child)).map(collected ++ _)
-        }
+      def traverse(tree: Tree, inherited: () => Option[C]): Unit = {
+        // The context for this node and its descendants, only computed when a node actually collects something
+        lazy val context: Option[C] = buildContextLifted(tree).orElse(inherited())
+        collectFnLifted(tree).foreach(collect => context.foreach(c => builder += collect(c)))
+        val contextFn = () => context
+        tree.children.foreach(traverse(_, contextFn))
+      }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree).runA(none.pure[Eval]).value.toVector
+      traverse(tree, () => None)
+      builder.result()
     }
 
   }

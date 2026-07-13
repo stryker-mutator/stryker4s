@@ -141,7 +141,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     */
   private def compileErrorIsInCaseStatement(caze: Case, error: CompilerErrMsg): Boolean = {
     error.offset match {
-      case Some(offset) => caze.pos.start <= offset && caze.pos.end >= offset
+      case Some(offset) => caze.begOffset <= offset && caze.endOffset >= offset
       case None         => (caze.pos.startLine + 1) <= error.line && (caze.pos.endLine + 1) >= error.line
     }
   }
