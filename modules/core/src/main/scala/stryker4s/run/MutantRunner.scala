@@ -145,8 +145,7 @@ class MutantRunner(
       val targetPath = mutatedFile.fileOrigin.inSubDir(tmpDir)
       IO(log.debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
         Files[IO].createDirectories(targetPath.parent.get) *>
-        Stream
-          .eval(IO(mutatedFile.mutatedSource.text))
+        mutatedFile.mutatedSourceText
           .through(Files[IO].writeUtf8(targetPath))
           .compile
           .drain
