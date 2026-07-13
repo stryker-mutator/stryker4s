@@ -80,6 +80,26 @@ object TreeExtensions {
       parentOfType[T](thisTree).isDefined
   }
 
+  implicit final class AncestorsExtension(val thisTree: Tree) extends AnyVal {
+
+    /** The ancestors of this tree, from the immediate parent up to (and including) `root`. This tree itself is not
+      * included.
+      */
+    final def ancestorsUpTo(root: Tree): Seq[Tree] = {
+      val builder = Vector.newBuilder[Tree]
+      @tailrec
+      def loop(tree: Tree): Unit = {
+        builder += tree
+        tree.parent match {
+          case Some(parent) if tree ne root => loop(parent)
+          case _                            => ()
+        }
+      }
+      thisTree.parent.foreach(loop)
+      builder.result()
+    }
+  }
+
   implicit final class GetMods(val tree: Tree) extends AnyVal {
     final def getMods: List[Mod] =
       tree match {

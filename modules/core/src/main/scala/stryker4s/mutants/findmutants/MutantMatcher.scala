@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import mutationtesting.cats.*
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
-import stryker4s.extension.TreeExtensions.{treeEq, PositionExtension, TransformOnceExtension}
+import stryker4s.extension.TreeExtensions.{treeEq, AncestorsExtension, CollectFirstExtension, PositionExtension}
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 import stryker4s.mutation.*
@@ -143,6 +143,18 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       replacements: NonEmptyVector[T],
       mutationToTerm: T => Term
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = placeableTree => {
+    // Find the node to replace once, so each replacement only rebuilds the path to that node
+    val target = placeableTree.tree
+      .collectFirst {
+        case t if (t eq original) || (t.pos == original.pos && t === original) => t
+      }
+      .getOrElse(
+        throw new RuntimeException(
+          show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${original.pos.toLocation})"
+        )
+      )
+    val pathToTarget = target.ancestorsUpTo(placeableTree.tree)
+
     val mutations = replacements.map { mutations =>
       val tree = mutationToTerm(mutations)
 
@@ -159,18 +171,18 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         location,
         description
       )
-      val mutatedTopStatement = placeableTree.tree
-        .transformExactlyOnce {
-          case t if (t eq original) || (t.pos == original.pos && t === original) =>
-            tree
-        }
-        .getOrElse(
+      val transformer = new Transformer {
+        override def apply(t: Tree): Tree =
+          if (t eq target) tree
+          else if (pathToTarget.exists(_ eq t)) super.apply(t)
+          else t
+      }
+
+      transformer(placeableTree.tree) match {
+        case t if t eq placeableTree.tree =>
           throw new RuntimeException(
             show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${metadata.location})"
           )
-        )
-
-      mutatedTopStatement match {
         case t: Term => MutatedCode(t, metadata)
         case t       =>
           throw new RuntimeException(
