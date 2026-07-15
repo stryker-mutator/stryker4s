@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/stryker-mutator/stryker4s/compare/v1.0.0...v1.0.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* **rollback:** fix line-offset handling for compile error rollback ([#2088](https://github.com/stryker-mutator/stryker4s/issues/2088)) ([71c370a](https://github.com/stryker-mutator/stryker4s/commit/71c370a3900e354b7048c0e7abcbfd0ad5682760))
+
 ## [1.0.0](https://github.com/stryker-mutator/stryker4s/compare/v0.21.0...v1.0.0) (2026-07-15)
 
 See https://stryker-mutator.io/blog/stryker4s-v1/
