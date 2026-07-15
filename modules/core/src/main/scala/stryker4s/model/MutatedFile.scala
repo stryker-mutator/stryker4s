@@ -2,7 +2,6 @@ package stryker4s.model
 
 import cats.Order
 import cats.data.NonEmptySet
-import cats.effect.IO
 import fs2.Stream
 import fs2.io.file.Path
 import stryker4s.mutants.tree.MutantsWithId
@@ -17,8 +16,8 @@ final case class MutatedFile(
     splice: Option[SourceSplice] = None
 ) {
 
-  def mutatedSourceText: Stream[IO, String] =
-    splice.fold(Stream.eval(IO(mutatedSource.text)))(_.render)
+  def mutatedSourceText[F[_]]: Stream[F, String] =
+    splice.fold(Stream(mutatedSource.text))(_.render)
 }
 
 /** Segments needed to serialize a mutated file
@@ -31,10 +30,10 @@ final case class SourceSplice(originalText: String, replacements: NonEmptySet[So
     *   2. then the rendered switch
     *   3. finally the trailing original slice.
     */
-  def render: Stream[IO, String] = {
+  def render[F[_]]: Stream[F, String] = {
     val switches = Stream.emits(replacements.toNonEmptyList.toList).zipWithPrevious.flatMap { case (prev, r) =>
       val sliceStart = prev.fold(0)(_.endOffset)
-      Stream.emit(originalText.substring(sliceStart, r.begOffset)) ++ Stream.eval(IO(r.tree.reprint()))
+      Stream.emit(originalText.substring(sliceStart, r.begOffset)) ++ Stream(r.tree.reprint())
     }
     switches ++ Stream.emit(originalText.substring(replacements.last.endOffset))
   }
