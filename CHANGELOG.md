@@ -2,6 +2,7 @@
 
 ## [1.0.0](https://github.com/stryker-mutator/stryker4s/compare/v0.21.0...v1.0.0) (2026-07-15)
 
+See https://stryker-mutator.io/blog/stryker4s-v1/
 
 ### Features
 
