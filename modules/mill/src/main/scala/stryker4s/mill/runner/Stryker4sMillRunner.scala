@@ -77,7 +77,7 @@ class Stryker4sMillRunner(
         else {
           val testFilter = new TestFilter()
           ctx.testGroups.map(group =>
-            group.copy(taskDefs = group.taskDefs.filter(taskDef => testFilter.filter(taskDef.fullyQualifiedName)))
+            group.copy(taskDefs = group.taskDefs.filter(taskDef => testFilter(taskDef.fullyQualifiedName)))
           )
         }
 

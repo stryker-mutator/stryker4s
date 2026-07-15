@@ -17,7 +17,7 @@ class TestFilter()(implicit config: Config) {
       )
   }
 
-  def filter(testName: String): Boolean = {
+  def apply(testName: String): Boolean = {
     def matches(regexSeq: Seq[Regex]): Boolean =
       regexSeq.foldLeft(false)((acc, regex) => acc || regex.matches(testName))
 
