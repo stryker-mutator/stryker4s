@@ -71,7 +71,7 @@ class Stryker4sMavenRunner(
           else {
             val testFilter = new TestFilter()
             selected.map(group =>
-              group.copy(taskDefs = group.taskDefs.filter(taskDef => testFilter.filter(taskDef.fullyQualifiedName)))
+              group.copy(taskDefs = group.taskDefs.filter(taskDef => testFilter(taskDef.fullyQualifiedName)))
             )
           }
           val concurrency = if config.debug.debugTestRunner then {

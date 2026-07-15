@@ -105,6 +105,7 @@ trait CirisConfigDecoders {
   implicit def dialectReader: ConfigDecoder[String, Dialect] = {
     val deprecatedVersions = List("scala211", "scala2.11", "2.11", "211")
 
+    @SuppressWarnings(Array("stryker4s.mutation.StringLiteral"))
     val scalaVersions = Map(
       List("scala212", "scala2.12", "2.12", "212") -> dialects.Scala212,
       List("scala212source3") -> dialects.Scala212Source3,

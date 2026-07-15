@@ -144,7 +144,7 @@ class Stryker4sSbtRunner(
           if (config.testFilter.isEmpty) group
           else {
             val testFilter = new TestFilter()
-            val filteredTests = group.tests.filter(t => testFilter.filter(t.name))
+            val filteredTests = group.tests.filter(t => testFilter(t.name))
             new Tests.Group(name = group.name, tests = filteredTests, runPolicy = group.runPolicy)
           }
         }
@@ -205,7 +205,7 @@ class Stryker4sSbtRunner(
       ) ++ {
         if (config.testFilter.nonEmpty) {
           val testFilter = new TestFilter()
-          Seq(ctx.targetProject / Test / testOptions := Seq(Tests.Filter(testFilter.filter)))
+          Seq(ctx.targetProject / Test / testOptions := Seq(Tests.Filter(testFilter(_))))
         } else
           Nil
       }
