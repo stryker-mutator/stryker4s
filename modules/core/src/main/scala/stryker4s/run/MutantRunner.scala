@@ -144,8 +144,9 @@ class MutantRunner(
     _.parEvalMapUnordered(Config.cpuParallelism) { mutatedFile =>
       val targetPath = mutatedFile.fileOrigin.inSubDir(tmpDir)
       IO(log.debug(s"Writing ${mutatedFile.fileOrigin} file to $targetPath")) *>
-        Files[IO].createDirectories(targetPath.parent.get) *>
-        mutatedFile.mutatedSourceText
+        Files[IO].createDirectories(targetPath.parent.get) >>
+        mutatedFile
+          .mutatedSourceText[IO]
           .through(Files[IO].writeUtf8(targetPath))
           .compile
           .drain

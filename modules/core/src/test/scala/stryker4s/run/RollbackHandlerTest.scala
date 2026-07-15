@@ -3,6 +3,7 @@ package stryker4s.run
 import cats.data.{NonEmptyList, NonEmptyVector}
 import cats.syntax.option.*
 import fansi.Color
+import fs2.Pure
 import fs2.io.file.Path
 import mutationtesting.MutantStatus
 import stryker4s.config.Config
@@ -197,6 +198,49 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
         )
         assertEquals(result.newFiles, Seq.empty)
       }
+    }
+    test("should remove non-compiling mutants when the on-disk splice differs from the pretty-printed tree") {
+      val blankLines = "\n" * 20
+      val source = s"""object Foo {$blankLines
+                      |  def bar(a: String): Boolean = {
+                      |    val p = a.trim
+                      |    x >= 15
+                      |  }
+                      |}""".stripMargin.parseSource
+      val original = source.find("x >= 15".parseTerm).value
+      val mutants = NonEmptyVector.of(
+        MutantWithId(
+          MutantId(0),
+          MutatedCode("x > 15".parseTerm, MutantMetadata(original.syntax, "x > 15", "GreaterThan", original.pos, none))
+        ),
+        MutantWithId(
+          MutantId(1),
+          MutatedCode(
+            "x <= 15".parseTerm,
+            MutantMetadata(original.syntax, "x <= 15", "GreaterThan", original.pos, none)
+          )
+        )
+      )
+      val path = Path("foo/bar.scala")
+      val instrumenter = new MutantInstrumenter(InstrumenterOptions.testRunner)
+      val mutatedFile =
+        instrumenter.instrumentFile(SourceContext(source, path), Map(PlaceableTree(original) -> mutants))
+
+      assertNotEquals(mutatedFile.mutatedSourceText[Pure].compile.string, mutatedFile.mutatedSource.text)
+
+      val onDisk = mutatedFile.mutatedSourceText[Pure].compile.string
+      val errors = NonEmptyList.of(
+        CompilerErrMsg("error0", path.toString, 1, onDisk.indexOf("x > 15").some),
+        CompilerErrMsg("error1", path.toString, 1, onDisk.indexOf("x <= 15").some)
+      )
+
+      val result = sut.rollbackFiles(errors, Vector(mutatedFile)).value
+
+      assertEquals(result.newFiles, Seq.empty)
+      assertEquals(
+        result.compileErrors.loneElement._2.map(_.status),
+        mutants.map(_ => MutantStatus.CompileError).toVector
+      )
     }
   }
 
