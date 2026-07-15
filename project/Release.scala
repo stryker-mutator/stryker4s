@@ -10,12 +10,13 @@ object Release {
   // Helper command names
   private val stryker4sMvnDeploy = "stryker4sMvnDeploy"
   private val publishM2Core = "core3/publishM2"
+  private val publishM2Testkit = "testkit3/publishM2"
   private val crossPublishSigned = "publishSigned"
 
   lazy val releaseCommands: Setting[Seq[Command]] = commands ++= Seq(
     // Called by sbt-ci-release
     Command.command(stryker4sPublishSigned)(
-      crossPublishSigned :: publishM2Core :: stryker4sMvnDeploy :: _
+      crossPublishSigned :: publishM2Core :: publishM2Testkit :: stryker4sMvnDeploy :: _
     ),
     // Called by stryker4sPublish(signed)
     Command.command(stryker4sMvnDeploy)(mvnDeploy(baseDirectory.value, version.value))

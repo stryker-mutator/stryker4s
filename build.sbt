@@ -88,7 +88,7 @@ lazy val api = (projectMatrix in file("modules") / "api")
   .jvmPlatform(scalaVersions = versions.fullCrossScalaVersions)
 
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
-  .settings(commonSettings, testkitSettings, publishLocalDependsOn(api))
+  .settings(commonSettings, testkitSettings)
   .dependsOn(api)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 

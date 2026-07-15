@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.0.0](https://github.com/stryker-mutator/stryker4s/compare/v0.21.0...v1.0.0) (2026-07-15)
+
+See https://stryker-mutator.io/blog/stryker4s-v1/
+
+### Features
+
+* **maven:** rewrite Maven plugin with testrunner and rollback support ([#2044](https://github.com/stryker-mutator/stryker4s/issues/2044)) ([053b3ce](https://github.com/stryker-mutator/stryker4s/commit/053b3ce6eaff1711fe5ef9642a22bca600e7eb44))
+* **mill:** add Mill plugin ([#2042](https://github.com/stryker-mutator/stryker4s/issues/2042)) ([d18cbf7](https://github.com/stryker-mutator/stryker4s/commit/d18cbf73080d5eb0882a5849fce3e04020099c02))
+
+
+### Bug Fixes
+
+* always preserve original statement in mutation switch case ([#2045](https://github.com/stryker-mutator/stryker4s/issues/2045)) ([fff3a4a](https://github.com/stryker-mutator/stryker4s/commit/fff3a4aeebdaa5d255c651a11c4f0429060011d6))
+* improve exclude-annotation matching ([#2063](https://github.com/stryker-mutator/stryker4s/issues/2063)) ([20059f0](https://github.com/stryker-mutator/stryker4s/commit/20059f075ab9f830490e4ce9fe7bd045bda14d00))
+* **scala-dialect:** support Scala 3.9 ([#2039](https://github.com/stryker-mutator/stryker4s/issues/2039)) ([69afb80](https://github.com/stryker-mutator/stryker4s/commit/69afb8081896f9dba3dcb1e50dbe850809d59a1a))
+* target java-output-version 17 ([#2040](https://github.com/stryker-mutator/stryker4s/issues/2040)) ([a82c4ae](https://github.com/stryker-mutator/stryker4s/commit/a82c4ae301be37eb40458693dca91ecae7cca535))
+* **testrunner:** handle messages larger than socket buffer ([#2068](https://github.com/stryker-mutator/stryker4s/issues/2068)) ([86aa9ed](https://github.com/stryker-mutator/stryker4s/commit/86aa9ed1469dadae41d543874fdc2625e68d93b2))
+
+
+### Performance Improvements
+
+* multiple performance improvements during pre-testing stages ([#2070](https://github.com/stryker-mutator/stryker4s/issues/2070)) ([dba0f6a](https://github.com/stryker-mutator/stryker4s/commit/dba0f6a9acb9d592ebe270b3debcb6f8b412ae9e))
+* only traverse tree once when building new mutated tree ([#2084](https://github.com/stryker-mutator/stryker4s/issues/2084)) ([a66af9b](https://github.com/stryker-mutator/stryker4s/commit/a66af9b8959da4266bb5d25b249c26f2b682cb15))
+* splice mutated file instead of re-printing entire source tree ([#2083](https://github.com/stryker-mutator/stryker4s/issues/2083)) ([f8cb694](https://github.com/stryker-mutator/stryker4s/commit/f8cb694179d405ba6c9803d3a47004b7cf41c1b7))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([18d2660](https://github.com/stryker-mutator/stryker4s/commit/18d26606125f739fb595575c7863d3819f23d1bf))
+
 ## [0.21.0](https://github.com/stryker-mutator/stryker4s/compare/v0.20.4...v0.21.0) (2026-06-05)
 
 
