@@ -1,5 +1,5 @@
 addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.12.0")
-addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "0.21.0")
+addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "1.0.1")
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.7")
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.11.0")
 
