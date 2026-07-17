@@ -18,44 +18,55 @@ private[stryker4s] case class TestRunResult(status: Status, testsCompleted: Int,
 
 class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner with TestInterfaceMapper {
 
-  val testFunctions: Option[(MutantId, Seq[String])] => TestRunResult = {
-    val tasks = {
-      val cl = getClass().getClassLoader()
-      context.testGroups.flatMap { testGroup =>
+  private val classLoader = getClass().getClassLoader()
+
+  /** Create a new Test framework instance, create task definitions (filtered for coverage), and runs the tests for a
+    * mutation (or the initial test-run when `mutation` is `None`).
+    */
+  private def runTestFunction(mutation: Option[(MutantId, Seq[String])]): TestRunResult = {
+    val testsCompleted = new AtomicInteger(0)
+    val statusRef = new AtomicReference[Status](Status.Success)
+    val failedTestsRef = new AtomicReference[Seq[FailedTestDefinition]](Vector.empty)
+
+    val eventHandler = mutation match {
+      case Some(_) => new MutantRunEventHandler(statusRef, testsCompleted, failedTestsRef)
+      case None    => new InitialTestRunEventHandler(statusRef)
+    }
+
+    mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId.value }
+
+    val coveredTestNames: Option[Set[String]] = mutation.map(_._2.toSet)
+
+    context.testGroups.foreach { testGroup =>
+      val taskDefs =
+        testGroup.taskDefs.filter(td => coveredTestNames.forall(_.contains(td.fullyQualifiedName)))
+
+      // Skip running if there are no tests to run, or if another test group has already failed
+      if (taskDefs.nonEmpty && statusRef.get() != Status.Failure && statusRef.get() != Status.Error) {
         val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
-        val framework = cl.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
-        val runner = framework.runner(args.toArray, remoteArgs.toArray, cl)
-        runner.tasks(testGroup.taskDefs.map(toSbtTaskDef).toArray)
+        val framework =
+          classLoader.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
+        val runner = framework.runner(args.toArray, remoteArgs.toArray, classLoader)
+        try {
+          val tasks = runner.tasks(taskDefs.map(toSbtTaskDef).toArray)
+          val _ = runTests(tasks.toIndexedSeq, statusRef, eventHandler)
+        } finally {
+          // Signal the framework that the run is done so it can release any (background) resources it allocated.
+          val doneMessage = runner.done()
+          if (doneMessage.nonEmpty) println(doneMessage)
+        }
       }
     }
-    (mutation: Option[(MutantId, Seq[String])]) => {
-      val tasksToRun = mutation match {
-        case Some((_, testNames)) =>
-          tasks.filter(t => testNames.contains(t.taskDef().fullyQualifiedName()))
-        case None => tasks
-      }
-      val testsCompleted = new AtomicInteger(0)
-      val statusRef = new AtomicReference[Status](Status.Success)
-      val failedTestsRef = new AtomicReference[Seq[FailedTestDefinition]](Vector.empty)
 
-      val eventHandler = mutation match {
-        case Some(_) => new MutantRunEventHandler(statusRef, testsCompleted, failedTestsRef)
-        case None    => new InitialTestRunEventHandler(statusRef)
-      }
-
-      mutation.foreach { case (mutantId, _) => stryker4s.activeMutation = mutantId.value }
-      val status = runTests(tasksToRun, statusRef, eventHandler)
-
-      TestRunResult(status, testsCompleted.get(), failedTestsRef.get())
-    }
+    TestRunResult(statusRef.get(), testsCompleted.get(), failedTestsRef.get())
   }
 
   override def runMutation(mutation: MutantId, testNames: Seq[String]): TestRunResult = {
-    testFunctions(Some((mutation, testNames)))
+    runTestFunction(Some((mutation, testNames)))
   }
 
   override def initialTestRun(): TestRunResult = {
-    testFunctions(None)
+    runTestFunction(None)
   }
 
   private def runTests(
