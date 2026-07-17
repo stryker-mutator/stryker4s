@@ -2,8 +2,9 @@ import stryker4s.model.MutantId
 import stryker4s.testrunner.TestInterfaceMapper
 import stryker4s.testrunner.api.{CoverageTestNameMap, TestDefinition, TestFile, TestFileId}
 
+import java.util.Collections
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
-import java.util.concurrent.{ConcurrentLinkedQueue, TimeUnit}
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.duration.FiniteDuration
 
@@ -15,7 +16,7 @@ package object stryker4s {
 
     /** We have no idea how tests will run their code, so the coverage analysis needs to be able to handle concurrency
       */
-    private val mutantCoverage = TrieMap.empty[MutantId, ConcurrentLinkedQueue[TestFileId]]
+    private val mutantCoverage = TrieMap.empty[MutantId, java.util.Set[TestFileId]]
 
     private val tests = TrieMap.empty[TestFileId, TestFile]
 
@@ -32,11 +33,10 @@ package object stryker4s {
         val currentTest = activeTest.get
         if (currentTest.value != -1) {
           ids.foreach { id =>
-            val currentCovered = mutantCoverage.getOrElseUpdate(MutantId(id), new ConcurrentLinkedQueue())
-            if (!currentCovered.contains(currentTest)) {
-              currentCovered.add(currentTest)
-              ()
-            }
+            val currentCovered =
+              mutantCoverage.getOrElseUpdate(MutantId(id), Collections.newSetFromMap(new ConcurrentHashMap()))
+            currentCovered.add(currentTest)
+            ()
           }
         }
       }
@@ -50,8 +50,9 @@ package object stryker4s {
       if (collectCoverage.get()) {
         val currentTestId = activeTest.get
         synchronized {
-          val test = tests(currentTestId)
-          tests.update(currentTestId, test.addDefinitions(definition))
+          tests.get(currentTestId).foreach { test =>
+            tests.update(currentTestId, test.addDefinitions(definition))
+          }
         }
       }
 
@@ -65,8 +66,8 @@ package object stryker4s {
       if (collectCoverage.get()) {
         val testId = TestFileId(testIds.getAndIncrement())
         val test = TestFile(testName, Seq.empty)
-        activeTest.set(testId)
         tests.update(testId, test)
+        activeTest.set(testId)
       }
 
     /** Collect coverage analysis during the provided function and return it in a tuple
