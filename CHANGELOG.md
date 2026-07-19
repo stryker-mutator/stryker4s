@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/stryker-mutator/stryker4s/compare/v1.0.1...v1.0.2) (2026-07-19)
+
+
+### Bug Fixes
+
+* **testrunner:** create new framework instance for each run (fixing Weaver compatibility) ([#2091](https://github.com/stryker-mutator/stryker4s/issues/2091)) ([4bdb2de](https://github.com/stryker-mutator/stryker4s/commit/4bdb2debde2d98d2184076df6574809aa5357bdf))
+
 ## [1.0.1](https://github.com/stryker-mutator/stryker4s/compare/v1.0.0...v1.0.1) (2026-07-15)
 
 
