@@ -23,7 +23,7 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
       - name: Run tests
-        run: sbt 'compile; ++ 3 test'
+        run: sbt 'compile; ...@scalaBinaryVersion=3/test'
   sbt-integration:
     strategy:
       matrix:

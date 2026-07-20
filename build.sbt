@@ -1,9 +1,9 @@
 import Dependencies.*
 import MillScripted.*
 import Settings.*
-import sbt.internal.ProjectMatrix
+import sbt.ProjectMatrix
 
-lazy val root = (project withId "stryker4s" in file("."))
+lazy val root = rootProject
   .settings(
     buildLevelSettings,
     publish / skip := true,
@@ -15,7 +15,7 @@ lazy val root = (project withId "stryker4s" in file("."))
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core3/publishM2; testkit3/publishM2"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core/publishM2; testkit/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(
@@ -28,18 +28,7 @@ lazy val root = (project withId "stryker4s" in file("."))
       "set ThisBuild / version := \"0.0.0-TEST-SNAPSHOT\"; millPlugin/publishLocal"
     )
   )
-  .aggregate(
-    (
-      api.projectRefs ++
-        commandRunner.projectRefs ++
-        core.projectRefs ++
-        millPlugin.projectRefs ++
-        sbtPlugin.projectRefs ++
-        testRunner.projectRefs ++
-        testkit.projectRefs ++
-        testRunnerApi.projectRefs
-    ) *
-  )
+  .autoAggregate
 
 lazy val core = (projectMatrix in file("modules") / "core")
   .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testRunner))
@@ -47,7 +36,6 @@ lazy val core = (projectMatrix in file("modules") / "core")
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
-  .defaultAxes(VirtualAxis.scalaABIVersion(versions.scala3), VirtualAxis.jvm)
   .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core))
   .dependsOn(core, testkit % Test)
   .jvmPlatform(scalaVersions = Seq(versions.scala3))
@@ -62,7 +50,6 @@ lazy val sbtPlugin = (projectMatrix in file("modules") / "sbt")
 
 // Mill plugins are compiled with the Scala version of the minimum supported Mill version
 lazy val millPlugin = (projectMatrix in file("modules") / "mill")
-  .defaultAxes(VirtualAxis.scalaABIVersion(versions.scalaMill), VirtualAxis.jvm)
   .settings(
     commonSettings,
     millPluginSettings,
