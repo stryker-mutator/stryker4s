@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/stryker-mutator/stryker4s/compare/v1.0.2...v1.0.3) (2026-07-20)
+
+
+### Bug Fixes
+
+* **sbt2:** detach state when running tasks to avoid errors bubbling up ([#2095](https://github.com/stryker-mutator/stryker4s/issues/2095)) ([1b8f383](https://github.com/stryker-mutator/stryker4s/commit/1b8f3832b4e977b521e0cf2ad42bc17f3d553af0))
+
 ## [1.0.2](https://github.com/stryker-mutator/stryker4s/compare/v1.0.1...v1.0.2) (2026-07-19)
 
 
