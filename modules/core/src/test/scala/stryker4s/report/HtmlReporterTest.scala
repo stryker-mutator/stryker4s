@@ -16,151 +16,145 @@ class HtmlReporterTest extends Stryker4sIOSuite with LogMatchers {
 
   private val elementsLocation = "/elements/mutation-test-elements.js"
 
-  describe("reportAsJsonStr") {
-    test("should return a JSON string representation of the report") {
-      val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+  test("reportAsJsonStr should return a JSON string representation of the report") {
+    val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
-      val result = sut.reportAsJsonStr(report)
+    val result = sut.reportAsJsonStr(report)
 
-      assertNoDiff(
-        result,
-        """app.report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}};"""
-      )
-    }
+    assertNoDiff(
+      result,
+      """app.report = {"$schema":"https://git.io/mutation-testing-schema","schemaVersion":"2","thresholds":{"high":100,"low":0},"files":{}};"""
+    )
+  }
 
-    test("escapes HTML inside the JSON") {
-      val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
-      val report = MutationTestResult(
-        thresholds = Thresholds(100, 0),
-        files = Map(
-          "Example.scala" -> mutationtesting.FileResult(
-            source = "<script>alert('boo')</script>",
-            mutants = Seq.empty
-          )
+  test("reportAsJsonStr escapes HTML inside the JSON") {
+    val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
+    val report = MutationTestResult(
+      thresholds = Thresholds(100, 0),
+      files = Map(
+        "Example.scala" -> mutationtesting.FileResult(
+          source = "<script>alert('boo')</script>",
+          mutants = Seq.empty
         )
       )
+    )
 
-      val result = sut.reportAsJsonStr(report)
+    val result = sut.reportAsJsonStr(report)
 
-      assert(result.contains("<\"+\"script>alert('boo')<\"+\"/script>"))
-      assert(!result.contains("<script>alert('boo')</script>"))
-    }
+    assert(result.contains("<\"+\"script>alert('boo')<\"+\"/script>"))
+    assert(!result.contains("<script>alert('boo')</script>"))
   }
 
-  describe("createHtmlReportStream") {
-    test("should create a stream containing the HTML report") {
-      val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+  test("createHtmlReportStream should create a stream containing the HTML report") {
+    val sut = new HtmlReporter(FileIOStub(), DesktopIOStub())
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
 
-      val resultStream = sut.createHtmlReportStream(report)
+    val resultStream = sut.createHtmlReportStream(report)
 
-      resultStream
-        .through(text.utf8.decode)
-        .compile
-        .string
-        .asserting { resultString =>
-          assert(resultString.startsWith("<!DOCTYPE html>"))
-          assert(resultString.endsWith("</html>\n"))
-          assert(resultString.contains(""""files":{}"""))
-          assert(resultString.contains("""<mutation-test-report-app title-postfix="Stryker4s report">"""))
-        }
-    }
+    resultStream
+      .through(text.utf8.decode)
+      .compile
+      .string
+      .asserting { resultString =>
+        assert(resultString.startsWith("<!DOCTYPE html>"))
+        assert(resultString.endsWith("</html>\n"))
+        assert(resultString.contains(""""files":{}"""))
+        assert(resultString.contains("""<mutation-test-report-app title-postfix="Stryker4s report">"""))
+      }
   }
 
-  describe("onRunFinished") {
-    val fileLocation = Path("target") / "stryker4s-report"
+  val fileLocation = Path("target") / "stryker4s-report"
 
-    test("should write the report files to the report directory") {
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
-      val metrics = Metrics.calculateMetrics(report)
+  test("onRunFinished should write the report files to the report directory") {
+    val fileIOStub = FileIOStub()
+    val desktopIOStub = DesktopIOStub()
+    val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+    val metrics = Metrics.calculateMetrics(report)
 
-      sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, fileLocation)) >>
-        (fileIOStub.resourceAsStreamCalls, fileIOStub.createAndWriteCalls).tupled.asserting {
-          case (resourceCalls, createAndWriteCalls) =>
-            createAndWriteCalls
-              .map(_._1.toString)
-              .foreach(fileName => assert(fileName.contains(fileLocation.toString), fileName))
-            assertEquals(createAndWriteCalls.loneElement._1.fileName.toString, "index.html")
-            assertEquals(resourceCalls.loneElement, elementsLocation)
-        }
-    }
+    sut
+      .onRunFinished(FinishedRunEvent(report, metrics, 0.seconds, fileLocation)) >>
+      (fileIOStub.resourceAsStreamCalls, fileIOStub.createAndWriteCalls).tupled.asserting {
+        case (resourceCalls, createAndWriteCalls) =>
+          createAndWriteCalls
+            .map(_._1.toString)
+            .foreach(fileName => assert(fileName.contains(fileLocation.toString), fileName))
+          assertEquals(createAndWriteCalls.loneElement._1.fileName.toString, "index.html")
+          assertEquals(resourceCalls.loneElement, elementsLocation)
+      }
+  }
 
-    test("should write the mutation-test-elements.js file to the report directory") {
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
-      val metrics = Metrics.calculateMetrics(report)
+  test("onRunFinished should write the mutation-test-elements.js file to the report directory") {
+    val fileIOStub = FileIOStub()
+    val desktopIOStub = DesktopIOStub()
+    val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+    val metrics = Metrics.calculateMetrics(report)
 
-      sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        fileIOStub.resourceAsStreamCalls.asserting { calls =>
-          assertEquals(calls.loneElement, elementsLocation)
-        }
-    }
+    sut
+      .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+      fileIOStub.resourceAsStreamCalls.asserting { calls =>
+        assertEquals(calls.loneElement, elementsLocation)
+      }
+  }
 
-    test("should info log a message") {
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
-      val metrics = Metrics.calculateMetrics(report)
+  test("onRunFinished should info log a message") {
+    val fileIOStub = FileIOStub()
+    val desktopIOStub = DesktopIOStub()
+    val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+    val metrics = Metrics.calculateMetrics(report)
 
-      sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation))
-        .assertLoggedInfo(s"Written HTML report to ${(fileLocation / "index.html").toString}")
-    }
+    sut
+      .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation))
+      .assertLoggedInfo(s"Written HTML report to ${(fileLocation / "index.html").toString}")
+  }
 
-    test("should open the report when openReport is true") {
-      implicit val config: Config = Config.default.copy(openReport = true)
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
+  test("onRunFinished should open the report when openReport is true") {
+    implicit val config: Config = Config.default.copy(openReport = true)
+    val fileIOStub = FileIOStub()
+    val desktopIOStub = DesktopIOStub()
 
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
-      val metrics = Metrics.calculateMetrics(report)
+    val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+    val metrics = Metrics.calculateMetrics(report)
 
-      val expectedFileLocation = fileLocation / "index.html"
+    val expectedFileLocation = fileLocation / "index.html"
 
-      sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        desktopIOStub.openCalls.asserting { calls =>
-          assertEquals(calls.loneElement, expectedFileLocation)
-        }
-    }
+    sut
+      .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+      desktopIOStub.openCalls.asserting { calls =>
+        assertEquals(calls.loneElement, expectedFileLocation)
+      }
+  }
 
-    test("should not open the report when openReport is false") {
-      implicit val config: Config = Config.default.copy(openReport = false)
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub()
+  test("onRunFinished should not open the report when openReport is false") {
+    implicit val config: Config = Config.default.copy(openReport = false)
+    val fileIOStub = FileIOStub()
+    val desktopIOStub = DesktopIOStub()
 
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
-      val metrics = Metrics.calculateMetrics(report)
+    val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+    val metrics = Metrics.calculateMetrics(report)
 
-      sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        desktopIOStub.openCalls.assertEquals(Seq.empty)
-    }
+    sut
+      .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+      desktopIOStub.openCalls.assertEquals(Seq.empty)
+  }
 
-    test("logs when opening the report fails") {
-      implicit val config: Config = Config.default.copy(openReport = true)
-      val fileIOStub = FileIOStub()
-      val desktopIOStub = DesktopIOStub.throws()
+  test("onRunFinished logs when opening the report fails") {
+    implicit val config: Config = Config.default.copy(openReport = true)
+    val fileIOStub = FileIOStub()
+    val desktopIOStub = DesktopIOStub.throws()
 
-      val sut = new HtmlReporter(fileIOStub, desktopIOStub)
-      val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
-      val metrics = Metrics.calculateMetrics(report)
+    val sut = new HtmlReporter(fileIOStub, desktopIOStub)
+    val report = MutationTestResult(thresholds = Thresholds(100, 0), files = Map.empty)
+    val metrics = Metrics.calculateMetrics(report)
 
-      sut
-        .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
-        desktopIOStub.openCalls
-          .assertLoggedError("Error opening report in browser")
-    }
+    sut
+      .onRunFinished(FinishedRunEvent(report, metrics, 10.seconds, fileLocation)) >>
+      desktopIOStub.openCalls
+        .assertLoggedError("Error opening report in browser")
   }
 }

@@ -12,18 +12,6 @@ sealed trait Stryker4sAssertions {
 
   implicit def dialect: Dialect = dialects.Scala213Source3
 
-  def describe(description: String)(body: => Unit): Unit = {
-    val start = munitTestsBuffer.size
-    body
-    val end = munitTestsBuffer.size
-    (start until end).foreach { i =>
-      munitTestsBuffer(i) = {
-        val t = munitTestsBuffer(i)
-        t.withName(s"$description > ${t.name}")
-      }
-    }
-  }
-
   def assertSameElements[A](
       obtained: Iterable[A],
       expected: Iterable[A]

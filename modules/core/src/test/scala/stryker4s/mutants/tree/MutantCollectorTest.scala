@@ -15,55 +15,50 @@ import scala.meta.*
 
 class MutantCollectorTest extends Stryker4sSuite with LogMatchers {
 
-  describe("onEnter") {
-    test("should only call 'isDefinedAt' on the PartialFunction once") {
-      val onEnterCounter = new AtomicInteger(0)
-      val matcher = new MutantMatcher {
-        // if-guard is always true and counts how many times it is called
-        override def allMatchers = {
-          case _ if onEnterCounter.incrementAndGet() != -1 =>
-            (_: PlaceableTree) =>
-              NonEmptyVector
-                .one(
-                  MutatedCode(
-                    Term.Name("foo"),
-                    MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)), none)
-                  )
+  test("onEnter should only call 'isDefinedAt' on the PartialFunction once") {
+    val onEnterCounter = new AtomicInteger(0)
+    val matcher = new MutantMatcher {
+      // if-guard is always true and counts how many times it is called
+      override def allMatchers = {
+        case _ if onEnterCounter.incrementAndGet() != -1 =>
+          (_: PlaceableTree) =>
+            NonEmptyVector
+              .one(
+                MutatedCode(
+                  Term.Name("foo"),
+                  MutantMetadata("<", ">", "GreaterThan", Location(Position(0, 7), Position(0, 8)), none)
                 )
-                .asRight[IgnoredMutations]
-        }
+              )
+              .asRight[IgnoredMutations]
       }
-      val sut = new MutantCollector(new TraverserStub(Term.Name("foo")), matcher)
-      val tree = "def bar = 15 > 14".parseDef
-
-      val (_, results) = sut(tree)
-      val onEnterCalled = onEnterCounter.get()
-
-      def lengthOfTree(t: Tree): Int = 1 + t.children.map(lengthOfTree(_)).sum
-      assertEquals(onEnterCalled, lengthOfTree(tree))
-      assert(onEnterCalled > 1)
-      assertEquals(results.size, 1)
     }
-    class TraverserStub(
-        termToMatch: Term
-    ) extends TreeTraverser {
-      override def canPlace(currentTree: Tree): Option[Term] = termToMatch.some
-    }
+    val sut = new MutantCollector(new TraverserStub(Term.Name("foo")), matcher)
+    val tree = "def bar = 15 > 14".parseDef
+
+    val (_, results) = sut(tree)
+    val onEnterCalled = onEnterCounter.get()
+
+    def lengthOfTree(t: Tree): Int = 1 + t.children.map(lengthOfTree(_)).sum
+    assertEquals(onEnterCalled, lengthOfTree(tree))
+    assert(onEnterCalled > 1)
+    assertEquals(results.size, 1)
+  }
+  class TraverserStub(
+      termToMatch: Term
+  ) extends TreeTraverser {
+    override def canPlace(currentTree: Tree): Option[Term] = termToMatch.some
   }
 
-  describe("apply") {
-    implicit val config: Config = Config.default
+  implicit val config: Config = Config.default
 
-    test("should return the mutated code") {
+  test("apply should return the mutated code") {
 
-      val sut = new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl())
-      val tree = "def bar = 15 > 14".parseStat
+    val sut = new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl())
+    val tree = "def bar = 15 > 14".parseStat
 
-      val (ignored, found) = sut(tree)
-      assertEquals(ignored, Vector.empty)
-      assertEquals(found.size, 1)
-    }
-
+    val (ignored, found) = sut(tree)
+    assertEquals(ignored, Vector.empty)
+    assertEquals(found.size, 1)
   }
 
 }

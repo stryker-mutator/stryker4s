@@ -13,59 +13,56 @@ import scala.meta.{Lit, Term}
 import scala.util.Properties
 
 class MutantRunResultMapperTest extends Stryker4sSuite {
-  describe("mapper") {
-    test("should map 4 files to valid MutationTestResult") {
-      val sut = new MutantRunResultMapper {}
-      implicit val config: Config =
-        Config.default.copy(thresholds = Config.default.thresholds.copy(high = 60, low = 40))
+  test("mapper should map 4 files to valid MutationTestResult") {
+    val sut = new MutantRunResultMapper {}
+    implicit val config: Config =
+      Config.default.copy(thresholds = Config.default.thresholds.copy(high = 60, low = 40))
 
-      val result = sut.toReport(mutationRunResults, testFiles.some)
+    val result = sut.toReport(mutationRunResults, testFiles.some)
 
-      assertEquals(result.thresholds, Thresholds(high = 60, low = 40))
-      assertEquals(result.files.size, 2)
-      val firstResult = result.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
-      assert(result.files.exists(_._1.endsWith("scalaFiles/simpleFile.scala")))
-      val FileResult(source, mutants, language) = firstResult._2
-      assertEquals(language, "scala")
-      assertEquals(
-        mutants,
-        List(
-          MutantResult(
-            "0",
-            "EqualityOperator",
-            "!=",
-            Location(Position(4, 27), Position(4, 29)),
-            MutantStatus.Killed
-          ),
-          MutantResult(
-            "1",
-            "StringLiteral",
-            "\"\"",
-            Location(Position(6, 31), Position(6, 37)),
-            MutantStatus.Survived
-          )
+    assertEquals(result.thresholds, Thresholds(high = 60, low = 40))
+    assertEquals(result.files.size, 2)
+    val firstResult = result.files.find(_._1.endsWith("scalaFiles/ExampleClass.scala")).value
+    assert(result.files.exists(_._1.endsWith("scalaFiles/simpleFile.scala")))
+    val FileResult(source, mutants, language) = firstResult._2
+    assertEquals(language, "scala")
+    assertEquals(
+      mutants,
+      List(
+        MutantResult(
+          "0",
+          "EqualityOperator",
+          "!=",
+          Location(Position(4, 27), Position(4, 29)),
+          MutantStatus.Killed
+        ),
+        MutantResult(
+          "1",
+          "StringLiteral",
+          "\"\"",
+          Location(Position(6, 31), Position(6, 37)),
+          MutantStatus.Survived
         )
       )
-      assertEquals(
-        source,
-        new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
-      )
-      val framework = result.framework.value
-      assertEquals(result.config.value, config)
-      assertEquals(framework.name, "Stryker4s")
-      assertEquals(framework.branding.value.homepageUrl, "https://stryker-mutator.io")
-      assert(framework.branding.value.imageUrl.value.nonEmpty)
+    )
+    assertEquals(
+      source,
+      new String(Files.readAllBytes(FileUtil.getResource("scalaFiles/ExampleClass.scala").toNioPath))
+    )
+    val framework = result.framework.value
+    assertEquals(result.config.value, config)
+    assertEquals(framework.name, "Stryker4s")
+    assertEquals(framework.branding.value.homepageUrl, "https://stryker-mutator.io")
+    assert(framework.branding.value.imageUrl.value.nonEmpty)
 
-      val system = result.system.value
-      assertEquals(system.ci, sys.env.contains("CI"))
-      assertEquals(
-        system.os.value,
-        OSInformation(platform = Properties.osName, version = sys.props("os.version").some)
-      )
-      assertEquals(system.cpu.value, CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors()))
-      assertEquals(system.ram.value, RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024))
-
-    }
+    val system = result.system.value
+    assertEquals(system.ci, sys.env.contains("CI"))
+    assertEquals(
+      system.os.value,
+      OSInformation(platform = Properties.osName, version = sys.props("os.version").some)
+    )
+    assertEquals(system.cpu.value, CpuInformation(logicalCores = Runtime.getRuntime().availableProcessors()))
+    assertEquals(system.ram.value, RamInformation(total = Runtime.getRuntime().totalMemory() / 1024 / 1024))
 
   }
 

@@ -21,130 +21,126 @@ import sttp.model.{Header, MediaType, Method}
 import scala.concurrent.duration.*
 
 class DashboardReporterTest extends Stryker4sIOSuite with LogMatchers with CirceConfigEncoder {
-  describe("buildRequest") {
-    test("should compose the request") {
-      implicit val backend = backendStub
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val dashConfig = baseDashConfig
-      val FinishedRunEvent(report, metrics, _, _) = baseResults
+  test("buildRequest should compose the request") {
+    implicit val backend = backendStub
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val dashConfig = baseDashConfig
+    val FinishedRunEvent(report, metrics, _, _) = baseResults
 
-      val request = sut.buildRequest(dashConfig, report, metrics)
-      assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
-      val jsonBody = report.asJson.noSpaces
+    val request = sut.buildRequest(dashConfig, report, metrics)
+    assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
+    val jsonBody = report.asJson.noSpaces
 
-      assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
-      assertEquals(request.method, Method.PUT)
-      assertSameElements(
-        request.headers,
-        List(
-          Header.acceptEncoding("gzip, deflate"),
-          new Header("X-Api-Key", "apiKeyHere"),
-          Header.contentType(MediaType.ApplicationJson),
-          Header.contentLength(jsonBody.length().toLong)
-        )
+    assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
+    assertEquals(request.method, Method.PUT)
+    assertSameElements(
+      request.headers,
+      List(
+        Header.acceptEncoding("gzip, deflate"),
+        new Header("X-Api-Key", "apiKeyHere"),
+        Header.contentType(MediaType.ApplicationJson),
+        Header.contentLength(jsonBody.length().toLong)
       )
-    }
-
-    test("should make a score-only request when score-only is configured") {
-      implicit val backend = backendStub
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val dashConfig = baseDashConfig.copy(reportType = MutationScoreOnly)
-      val FinishedRunEvent(report, metrics, _, _) = baseResults
-
-      val request = sut.buildRequest(dashConfig, report, metrics)
-      assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
-      val jsonBody = """{"mutationScore":100.0}"""
-      assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
-    }
-
-    test("should add the module if it is present") {
-      implicit val backend = backendStub
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val dashConfig = baseDashConfig.copy(module = "myModule".some)
-      val FinishedRunEvent(report, metrics, _, _) = baseResults
-
-      val request = sut.buildRequest(dashConfig, report, metrics)
-
-      assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar?module=myModule")
-    }
+    )
   }
 
-  describe("onRunFinished") {
-    test("should send the request") {
-      implicit val backend = backendStub.map(
-        _.whenAnyRequest
-          .thenRespondAdjust(Json.obj(("href", Json.fromString("https://hrefHere.com"))).noSpaces)
+  test("buildRequest should make a score-only request when score-only is configured") {
+    implicit val backend = backendStub
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val dashConfig = baseDashConfig.copy(reportType = MutationScoreOnly)
+    val FinishedRunEvent(report, metrics, _, _) = baseResults
+
+    val request = sut.buildRequest(dashConfig, report, metrics)
+    assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar")
+    val jsonBody = """{"mutationScore":100.0}"""
+    assertEquals(request.body, StringBody(jsonBody, "utf-8", MediaType.ApplicationJson))
+  }
+
+  test("buildRequest should add the module if it is present") {
+    implicit val backend = backendStub
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val dashConfig = baseDashConfig.copy(module = "myModule".some)
+    val FinishedRunEvent(report, metrics, _, _) = baseResults
+
+    val request = sut.buildRequest(dashConfig, report, metrics)
+
+    assertEquals(request.uri, uri"https://baseurl.com/api/reports/project/foo/version/bar?module=myModule")
+  }
+
+  test("onRunFinished should send the request") {
+    implicit val backend = backendStub.map(
+      _.whenAnyRequest
+        .thenRespondAdjust(Json.obj(("href", Json.fromString("https://hrefHere.com"))).noSpaces)
+    )
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val runReport = baseResults
+
+    sut
+      .onRunFinished(runReport)
+      .assertLoggedInfo("Sent report to dashboard. Available at https://hrefHere.com")
+  }
+
+  test("onRunFinished log when not being able to resolve dashboard config") {
+    implicit val backend = backendStub
+    val dashConfigProvider = DashboardConfigProviderStub.invalid(NonEmptyChain("fooConfigKey", "barConfigKey"))
+    val sut = new DashboardReporter(dashConfigProvider)
+    val runReport = baseResults
+
+    sut
+      .onRunFinished(runReport)
+      .assertLoggedWarn(
+        s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report."
       )
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val runReport = baseResults
+  }
 
-      sut
-        .onRunFinished(runReport)
-        .assertLoggedInfo("Sent report to dashboard. Available at https://hrefHere.com")
-    }
+  test("onRunFinished should log when a response can't be parsed to a href") {
+    implicit val backend = backendStub.map(_.whenAnyRequest.thenRespondAdjust("some other response"))
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val runReport = baseResults
 
-    test("log when not being able to resolve dashboard config") {
-      implicit val backend = backendStub
-      val dashConfigProvider = DashboardConfigProviderStub.invalid(NonEmptyChain("fooConfigKey", "barConfigKey"))
-      val sut = new DashboardReporter(dashConfigProvider)
-      val runReport = baseResults
-
-      sut
-        .onRunFinished(runReport)
-        .assertLoggedWarn(
-          s"Could not resolve dashboard configuration key(s) '${Bold.On("fooConfigKey")}', '${Bold.On("barConfigKey")}'. Not sending report."
-        )
-    }
-
-    test("should log when a response can't be parsed to a href") {
-      implicit val backend = backendStub.map(_.whenAnyRequest.thenRespondAdjust("some other response"))
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val runReport = baseResults
-
-      sut
-        .onRunFinished(runReport)
-        .assertLoggedWarn(
-          "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:"
-        )
-    }
-
-    test("should log when a 401 is returned by the API") {
-      implicit val backend = backendStub.map(
-        _.whenAnyRequest
-          .thenRespondUnauthorized()
+    sut
+      .onRunFinished(runReport)
+      .assertLoggedWarn(
+        "Dashboard report was sent successfully, but could not decode the response: 'some other response'. Error:"
       )
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val runReport = baseResults
+  }
 
-      sut
-        .onRunFinished(runReport)
-        .assertLoggedError(
-          s"Error HTTP PUT 'Unauthorized'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
-              .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
-        )
-    }
+  test("onRunFinished should log when a 401 is returned by the API") {
+    implicit val backend = backendStub.map(
+      _.whenAnyRequest
+        .thenRespondUnauthorized()
+    )
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val runReport = baseResults
 
-    test("should log when a error code is returned by the API") {
-      implicit val backend =
-        backendStub.map(
-          _.whenAnyRequest.thenRespondServerError()
-        )
-      val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
-      val sut = new DashboardReporter(dashConfigProvider)
-      val runReport = baseResults
+    sut
+      .onRunFinished(runReport)
+      .assertLoggedError(
+        s"Error HTTP PUT 'Unauthorized'. Status code ${Red("401 Unauthorized")}. Did you provide the correct api key in the '${Bold
+            .On("STRYKER_DASHBOARD_API_KEY")}' environment variable?"
+      )
+  }
 
-      sut
-        .onRunFinished(runReport)
-        .assertLoggedError(
-          s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'Internal Server Error'"
-        )
-    }
+  test("onRunFinished should log when a error code is returned by the API") {
+    implicit val backend =
+      backendStub.map(
+        _.whenAnyRequest.thenRespondServerError()
+      )
+    val dashConfigProvider = DashboardConfigProviderStub(baseDashConfig)
+    val sut = new DashboardReporter(dashConfigProvider)
+    val runReport = baseResults
+
+    sut
+      .onRunFinished(runReport)
+      .assertLoggedError(
+        s"Failed to PUT report to dashboard. Response status code: ${Red("500")}. Response body: 'Internal Server Error'"
+      )
   }
 
   def backendStub =

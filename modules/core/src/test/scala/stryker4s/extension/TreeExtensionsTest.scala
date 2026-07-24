@@ -10,30 +10,27 @@ import scala.collection.mutable.ListBuffer
 import scala.meta.*
 
 class TreeExtensionsTest extends Stryker4sSuite {
-  describe("isIn") {
-    test("should be false for annotations") {
-      val tree = """
+  test("isIn should be false for annotations") {
+    val tree = """
         @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
         def quantifierLong[A: P]: P[Quantifier] = ???
         """.parseDef
-      val subTree = tree.find(Lit.String("stryker4s.mutation.MethodExpression")).value
+    val subTree = tree.find(Lit.String("stryker4s.mutation.MethodExpression")).value
 
-      assert(subTree.isIn[Mod.Annot])
-    }
+    assert(subTree.isIn[Mod.Annot])
   }
 
-  describe("find") {
-    test("should find statement in simple tree") {
-      val tree = "val x = y >= 5".parseStat
+  test("find should find statement in simple tree") {
+    val tree = "val x = y >= 5".parseStat
 
-      val result = tree.find(Term.Name(">=")).value
+    val result = tree.find(Term.Name(">=")).value
 
-      assertEquals(result, Term.Name(">="))
-    }
+    assertEquals(result, Term.Name(">="))
+  }
 
-    test("should find statement in large tree") {
-      val tree =
-        """def foo(list: List[Int], otherList: List[Int]) = {
+  test("find should find statement in large tree") {
+    val tree =
+      """def foo(list: List[Int], otherList: List[Int]) = {
         val firstResult = list
           .filter(_ % 2 == 0)
           .map(_ * 5)
@@ -45,332 +42,320 @@ class TreeExtensionsTest extends Stryker4sSuite {
         (firstResult, secondResult)
       }""".parseDef
 
-      val result = tree.find("_ * 5".parseTerm).value
+    val result = tree.find("_ * 5".parseTerm).value
 
-      assertEquals(result, "_ * 5".parseTerm)
-    }
+    assertEquals(result, "_ * 5".parseTerm)
+  }
 
-    test("should return none if statement is not in tree") {
-      val tree = "def four: Int = x < 5".parseDef
+  test("find should return none if statement is not in tree") {
+    val tree = "def four: Int = x < 5".parseDef
 
-      val result = tree.find("x >= 5".parseTerm)
+    val result = tree.find("x >= 5".parseTerm)
 
-      assertEquals(result, none)
-    }
+    assertEquals(result, none)
+  }
 
-    test("should still have parents when statement is found") {
-      val original = "x > 5".parseTerm
+  test("find should still have parents when statement is found") {
+    val original = "x > 5".parseTerm
 
-      val result = original.find(Term.Name(">")).value
+    val result = original.find(Term.Name(">")).value
 
-      assert(result.parent.value eq original)
+    assert(result.parent.value eq original)
+  }
+
+  test("ancestorsUpTo returns the parent chain from the immediate parent up to and including root") {
+    val tree = "a + b * c".parseTerm
+    val b = tree.find(Term.Name("b")).value
+
+    val result = b.ancestorsUpTo(tree)
+
+    assert(result.nonEmpty)
+    assert(result.head eq b.parent.value, "should start at the immediate parent")
+    assert(result.last eq tree, "should end at root")
+    // consecutive elements should form a parent chain
+    result.sliding(2).foreach {
+      case Seq(child, parent) => assert(child.parent.value eq parent)
+      case _                  => ()
     }
   }
 
-  describe("ancestorsUpTo") {
-    test("returns the parent chain from the immediate parent up to and including root") {
-      val tree = "a + b * c".parseTerm
-      val b = tree.find(Term.Name("b")).value
+  test("ancestorsUpTo does not include the tree itself") {
+    val tree = "a + b".parseTerm
+    val b = tree.find(Term.Name("b")).value
 
-      val result = b.ancestorsUpTo(tree)
+    val result = b.ancestorsUpTo(tree)
 
-      assert(result.nonEmpty)
-      assert(result.head eq b.parent.value, "should start at the immediate parent")
-      assert(result.last eq tree, "should end at root")
-      // consecutive elements should form a parent chain
-      result.sliding(2).foreach {
-        case Seq(child, parent) => assert(child.parent.value eq parent)
-        case _                  => ()
-      }
-    }
-
-    test("does not include the tree itself") {
-      val tree = "a + b".parseTerm
-      val b = tree.find(Term.Name("b")).value
-
-      val result = b.ancestorsUpTo(tree)
-
-      assert(!result.exists(_ eq b))
-    }
-
-    test("returns only the root when the tree is a direct child of root") {
-      val tree = "a + b".parseTerm
-      val a = tree.find(Term.Name("a")).value
-
-      val result = a.ancestorsUpTo(tree)
-
-      assert(result.loneElement eq tree)
-    }
-
-    test("does not include ancestors above root") {
-      val tree = "def foo = a + b * c".parseDef
-      val mul = tree.find("b * c".parseTerm).value
-      val b = tree.find(Term.Name("b")).value
-
-      val result = b.ancestorsUpTo(mul)
-
-      assert(result.last eq mul, "should stop at root")
-      assert(!result.exists(_ eq tree), "should not walk above root")
-    }
-
-    test("walks up to the top of the tree when root is not an ancestor") {
-      val tree = "a + b * c".parseTerm
-      val unrelated = "x".parseTerm
-      val b = tree.find(Term.Name("b")).value
-
-      val result = b.ancestorsUpTo(unrelated)
-
-      assert(result.head eq b.parent.value)
-      assert(result.last eq tree, "should reach the top of the tree")
-    }
-
-    test("returns empty when the tree has no parent") {
-      val tree = "a + b".parseTerm
-
-      assert(tree.ancestorsUpTo(tree).isEmpty)
-    }
+    assert(!result.exists(_ eq b))
   }
 
-  describe("treeEq") {
-    test("equal for same instance") {
-      val tree = "a + b".parseTerm
-      assert(tree === tree)
-    }
+  test("ancestorsUpTo returns only the root when the tree is a direct child of root") {
+    val tree = "a + b".parseTerm
+    val a = tree.find(Term.Name("a")).value
 
-    test("equal for identical trees") {
-      assert("a + b".parseTerm === "a + b".parseTerm)
-    }
+    val result = a.ancestorsUpTo(tree)
 
-    test("equal ignoring positions") {
-      assert("a + b".parseTerm === "a  +  b".parseTerm)
-    }
-
-    test("equal for nested trees") {
-      assert("a + (b * c)".parseTerm === "a + (b * c)".parseTerm)
-    }
-
-    test("not equal for different node types") {
-      assert("5".parseTerm =!= "x".parseTerm)
-    }
-
-    test("not equal for different name types") {
-      assert((Term.Name("a"): Tree) =!= (Type.Name("a"): Tree))
-    }
-
-    test("not equal for different literal types") {
-      assert("5".parseTerm =!= "\"5\"".parseTerm)
-    }
-
-    test("not equal for different name values") {
-      assert(Term.Name("a") =!= Term.Name("b"))
-    }
-
-    test("not equal for different int literals") {
-      assert(Lit.Int(5) =!= Lit.Int(6))
-    }
-
-    test("not equal for different string literals") {
-      assert(Lit.String("a") =!= Lit.String("b"))
-    }
-
-    test("not equal for different boolean literals") {
-      assert(Lit.Boolean(true) =!= Lit.Boolean(false))
-    }
-
-    test("not equal for different operators") {
-      assert("a + b".parseTerm =!= "a - b".parseTerm)
-    }
-
-    test("not equal for different operands") {
-      assert("a + b".parseTerm =!= "a + c".parseTerm)
-    }
-
-    test("not equal for different child count") {
-      assert("f(a)".parseTerm =!= "f(a, b)".parseTerm)
-    }
-
-    test("not equal for nested difference") {
-      assert("a + (b * c)".parseTerm =!= "a + (b * d)".parseTerm)
-    }
+    assert(result.loneElement eq tree)
   }
 
-  describe("transformOnce") {
+  test("ancestorsUpTo does not include ancestors above root") {
+    val tree = "def foo = a + b * c".parseDef
+    val mul = tree.find("b * c".parseTerm).value
+    val b = tree.find(Term.Name("b")).value
 
-    test("should transform does not recursively transform new subtree") {
-      val sut = "def foo = 5".parseDef
+    val result = b.ancestorsUpTo(mul)
 
-      val result = sut.transformOnce { case Lit.Int(5) => "5 + 1".parseTerm }
-
-      assertEquals(result, "def foo = 5 + 1".parseDef)
-    }
-
-    test("should transform both appearances in the tree only once") {
-      val sut = "def foo = 5 + 5".parseDef
-
-      val result = sut.transformOnce { case Lit.Int(5) => "(5 * 2)".parseTerm }
-
-      assertEquals(result, "def foo = (5 * 2) + (5 * 2)".parseDef)
-    }
-
-    test("should return the same tree if no transformation is applied") {
-      val sut = "def foo = 5".parseDef
-
-      val result = sut.transformOnce { case Lit.Int(6) => "6 + 1".parseTerm }
-
-      assert(result eq sut)
-    }
-
-    test("should transform a parsed string and have changed syntax") {
-      val sut = "val x: Int = 5".parse[Stat].get
-
-      val result = sut.transformOnce { case Lit.Int(5) => Lit.Int(6) }
-
-      val expected = "val x: Int = 6".parseStat
-      assertEquals(result, expected)
-      assertEquals(result.syntax, expected.syntax)
-    }
+    assert(result.last eq mul, "should stop at root")
+    assert(!result.exists(_ eq tree), "should not walk above root")
   }
 
-  describe("collectWithContext") {
-    test("should collect all statements without context") {
-      val tree = "def foo = 5".parseDef
+  test("ancestorsUpTo walks up to the top of the tree when root is not an ancestor") {
+    val tree = "a + b * c".parseTerm
+    val unrelated = "x".parseTerm
+    val b = tree.find(Term.Name("b")).value
 
-      val result = tree.collectWithContext { case _ => () } { case Lit.Int(5) =>
-        _ => 6
-      }
+    val result = b.ancestorsUpTo(unrelated)
 
-      assertEquals(result.loneElement, 6)
+    assert(result.head eq b.parent.value)
+    assert(result.last eq tree, "should reach the top of the tree")
+  }
+
+  test("ancestorsUpTo returns empty when the tree has no parent") {
+    val tree = "a + b".parseTerm
+
+    assert(tree.ancestorsUpTo(tree).isEmpty)
+  }
+
+  test("treeEq equal for same instance") {
+    val tree = "a + b".parseTerm
+    assert(tree === tree)
+  }
+
+  test("treeEq equal for identical trees") {
+    assert("a + b".parseTerm === "a + b".parseTerm)
+  }
+
+  test("treeEq equal ignoring positions") {
+    assert("a + b".parseTerm === "a  +  b".parseTerm)
+  }
+
+  test("treeEq equal for nested trees") {
+    assert("a + (b * c)".parseTerm === "a + (b * c)".parseTerm)
+  }
+
+  test("treeEq not equal for different node types") {
+    assert("5".parseTerm =!= "x".parseTerm)
+  }
+
+  test("treeEq not equal for different name types") {
+    assert((Term.Name("a"): Tree) =!= (Type.Name("a"): Tree))
+  }
+
+  test("treeEq not equal for different literal types") {
+    assert("5".parseTerm =!= "\"5\"".parseTerm)
+  }
+
+  test("treeEq not equal for different name values") {
+    assert(Term.Name("a") =!= Term.Name("b"))
+  }
+
+  test("treeEq not equal for different int literals") {
+    assert(Lit.Int(5) =!= Lit.Int(6))
+  }
+
+  test("treeEq not equal for different string literals") {
+    assert(Lit.String("a") =!= Lit.String("b"))
+  }
+
+  test("treeEq not equal for different boolean literals") {
+    assert(Lit.Boolean(true) =!= Lit.Boolean(false))
+  }
+
+  test("treeEq not equal for different operators") {
+    assert("a + b".parseTerm =!= "a - b".parseTerm)
+  }
+
+  test("treeEq not equal for different operands") {
+    assert("a + b".parseTerm =!= "a + c".parseTerm)
+  }
+
+  test("treeEq not equal for different child count") {
+    assert("f(a)".parseTerm =!= "f(a, b)".parseTerm)
+  }
+
+  test("treeEq not equal for nested difference") {
+    assert("a + (b * c)".parseTerm =!= "a + (b * d)".parseTerm)
+  }
+
+  test("transformOnce should transform does not recursively transform new subtree") {
+    val sut = "def foo = 5".parseDef
+
+    val result = sut.transformOnce { case Lit.Int(5) => "5 + 1".parseTerm }
+
+    assertEquals(result, "def foo = 5 + 1".parseDef)
+  }
+
+  test("transformOnce should transform both appearances in the tree only once") {
+    val sut = "def foo = 5 + 5".parseDef
+
+    val result = sut.transformOnce { case Lit.Int(5) => "(5 * 2)".parseTerm }
+
+    assertEquals(result, "def foo = (5 * 2) + (5 * 2)".parseDef)
+  }
+
+  test("transformOnce should return the same tree if no transformation is applied") {
+    val sut = "def foo = 5".parseDef
+
+    val result = sut.transformOnce { case Lit.Int(6) => "6 + 1".parseTerm }
+
+    assert(result eq sut)
+  }
+
+  test("transformOnce should transform a parsed string and have changed syntax") {
+    val sut = "val x: Int = 5".parse[Stat].get
+
+    val result = sut.transformOnce { case Lit.Int(5) => Lit.Int(6) }
+
+    val expected = "val x: Int = 6".parseStat
+    assertEquals(result, expected)
+    assertEquals(result.syntax, expected.syntax)
+  }
+
+  test("collectWithContext should collect all statements without context") {
+    val tree = "def foo = 5".parseDef
+
+    val result = tree.collectWithContext { case _ => () } { case Lit.Int(5) =>
+      _ => 6
     }
 
-    test("should collect and pass context") {
-      val tree = "def foo = 5".parseDef
-      var context = 0
+    assertEquals(result.loneElement, 6)
+  }
 
-      val result = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
-        c =>
-          assertEquals(c, 1)
-          6
-      }
+  test("collectWithContext should collect and pass context") {
+    val tree = "def foo = 5".parseDef
+    var context = 0
 
-      assertEquals(context, 1)
-      assertEquals(result.loneElement, 6)
+    val result = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
+      c =>
+        assertEquals(c, 1)
+        6
     }
 
-    test("should only evaluate functions once") {
-      val tree = "def foo = 5".parseDef
-      var context = 0
-      var result = 5 // offset to have different comparisons
+    assertEquals(context, 1)
+    assertEquals(result.loneElement, 6)
+  }
 
-      val _ = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
-        c =>
-          assertEquals(c, 1)
-          result += 1
-      }
+  test("collectWithContext should only evaluate functions once") {
+    val tree = "def foo = 5".parseDef
+    var context = 0
+    var result = 5 // offset to have different comparisons
 
-      assertEquals(context, 1)
-      assertEquals(result, 6)
+    val _ = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
+      c =>
+        assertEquals(c, 1)
+        result += 1
     }
 
-    test("should not search upwards for context if one has already been found") {
-      val tree = "def foo = { 4 + 2 }".parseDef
-      val context = ListBuffer.empty[Tree]
+    assertEquals(context, 1)
+    assertEquals(result, 6)
+  }
 
-      val _ = tree.collectWithContext { case t => context += t; context } { case Lit.Int(2) =>
-        _ => ()
-      }
+  test("collectWithContext should not search upwards for context if one has already been found") {
+    val tree = "def foo = { 4 + 2 }".parseDef
+    val context = ListBuffer.empty[Tree]
 
-      assertEquals(context.loneElement.syntax, "2")
+    val _ = tree.collectWithContext { case t => context += t; context } { case Lit.Int(2) =>
+      _ => ()
     }
 
-    test("should not call context-building function if no collector is found") {
-      val tree = "def foo = 5".parseDef
-      var called = false
+    assertEquals(context.loneElement.syntax, "2")
+  }
 
-      val _ = tree.collectWithContext { case _ => called = true } { case Lit.Int(6) => _ => 6 }
+  test("collectWithContext should not call context-building function if no collector is found") {
+    val tree = "def foo = 5".parseDef
+    var called = false
 
-      assert(!called)
+    val _ = tree.collectWithContext { case _ => called = true } { case Lit.Int(6) => _ => 6 }
+
+    assert(!called)
+  }
+
+  test("collectWithContext should call with older context if not found on the currently-visiting tree") {
+    val tree = "def foo = 5 + 2".parseDef
+    var context = 0
+
+    val _ = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
+      c => assertEquals(c, 1)
     }
 
-    test("should call with older context if not found on the currently-visiting tree") {
-      val tree = "def foo = 5 + 2".parseDef
-      var context = 0
+    assertEquals(context, 1)
+  }
 
-      val _ = tree.collectWithContext { case Lit.Int(5) => context += 1; context } { case Lit.Int(5) =>
-        c => assertEquals(c, 1)
-      }
-
-      assertEquals(context, 1)
-    }
-
-    test("should pass down each collector its own context") {
-      val tree = """def foo = {
+  test("collectWithContext should pass down each collector its own context") {
+    val tree = """def foo = {
         1 + 2
         3 - 4
       }""".parseDef
-      var calls = 0
+    var calls = 0
 
-      val _ = tree.collectWithContext {
-        case t if t.syntax == "1 + 2" => "firstContext"
-        case t if t.syntax == "3 - 4" => "secondContext"
-      } {
-        case Lit.Int(1) =>
-          c =>
-            calls += 1
-            assertEquals(c, "firstContext")
-        case Lit.Int(3) =>
-          c =>
-            calls += 1
-            assertEquals(c, "secondContext")
-      }
-
-      assertEquals(calls, 2)
+    val _ = tree.collectWithContext {
+      case t if t.syntax == "1 + 2" => "firstContext"
+      case t if t.syntax == "3 - 4" => "secondContext"
+    } {
+      case Lit.Int(1) =>
+        c =>
+          calls += 1
+          assertEquals(c, "firstContext")
+      case Lit.Int(3) =>
+        c =>
+          calls += 1
+          assertEquals(c, "secondContext")
     }
 
-    test("should not pass context from separate trees") {
-      val tree = """def foo = {
+    assertEquals(calls, 2)
+  }
+
+  test("collectWithContext should not pass context from separate trees") {
+    val tree = """def foo = {
             1 + 2
             3 - 4
           }""".parseDef
-      var calls = 0
+    var calls = 0
 
-      val _ = tree.collectWithContext {
-        // Only match context on the first statement
-        case t if t.syntax == "1" => "firstContext"
-      } {
-        case Lit.Int(1) =>
-          c =>
-            calls += 1
-            assertEquals(c, "firstContext")
-        case Lit.Int(3) =>
-          c => fail(s"Should not be called, context was $c")
-      }
-      assertEquals(calls, 1)
+    val _ = tree.collectWithContext {
+      // Only match context on the first statement
+      case t if t.syntax == "1" => "firstContext"
+    } {
+      case Lit.Int(1) =>
+        c =>
+          calls += 1
+          assertEquals(c, "firstContext")
+      case Lit.Int(3) =>
+        c => fail(s"Should not be called, context was $c")
     }
-
-    test("should collect multiple values") {
-      val tree = "def foo = 5 + 2".parseDef
-      val result = tree.collectWithContext { case _ => () } { case Lit.Int(n) => _ => n }
-
-      assertEquals(result, Seq(5, 2))
-    }
+    assertEquals(calls, 1)
   }
 
-  describe("withOffset") {
-    val wrxLocation = Location(Position(1, 2), Position(3, 4))
-    val offset = Location(Position(5, 6), Position(7, 8))
-    test("uses correct offset for regular string") {
-      val result = wrxLocation.withOffset(offset, Lit.String("foo")) // single double-quote string "foo"
+  test("collectWithContext should collect multiple values") {
+    val tree = "def foo = 5 + 2".parseDef
+    val result = tree.collectWithContext { case _ => () } { case Lit.Int(n) => _ => n }
 
-      assertEquals(result, mutationtesting.Location(mutationtesting.Position(6, 9), mutationtesting.Position(8, 11)))
-    }
+    assertEquals(result, Seq(5, 2))
+  }
 
-    test("uses correct offset for triple double-quote strings") {
-      val result = wrxLocation.withOffset(
-        offset,
-        "\"\"\"foo\"\"\"".parse[Term].get.asInstanceOf[Lit.String]
-      ) // triple double-quote string """foo"""
+  val wrxLocation = Location(Position(1, 2), Position(3, 4))
+  val offset = Location(Position(5, 6), Position(7, 8))
+  test("withOffset uses correct offset for regular string") {
+    val result = wrxLocation.withOffset(offset, Lit.String("foo")) // single double-quote string "foo"
 
-      assertEquals(result, mutationtesting.Location(mutationtesting.Position(6, 11), mutationtesting.Position(8, 13)))
-    }
+    assertEquals(result, mutationtesting.Location(mutationtesting.Position(6, 9), mutationtesting.Position(8, 11)))
+  }
+
+  test("withOffset uses correct offset for triple double-quote strings") {
+    val result = wrxLocation.withOffset(
+      offset,
+      "\"\"\"foo\"\"\"".parse[Term].get.asInstanceOf[Lit.String]
+    ) // triple double-quote string """foo"""
+
+    assertEquals(result, mutationtesting.Location(mutationtesting.Position(6, 11), mutationtesting.Position(8, 13)))
   }
 }
