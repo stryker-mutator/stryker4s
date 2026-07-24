@@ -21,41 +21,36 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
   def processTestRunner(processRunner: ProcessRunner) =
     new ProcessTestRunner(Command("foo", "test"), processRunner, Path("."))
 
-  describe("runMutant") {
-
-    test("should return a Survived mutant on an exitcode 0 process") {
-      val testProcessRunner = TestProcessRunner(Success(0))
-      processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
-        assertEquals(result.status, MutantStatus.Survived)
-        assertEquals(testProcessRunner.timesCalled.next(), 1)
-      }
-    }
-
-    test("should return a Killed mutant on an exitcode 1 process") {
-      val testProcessRunner = TestProcessRunner(Success(1))
-      processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
-        assertEquals(result.status, MutantStatus.Killed)
-        assertEquals(testProcessRunner.timesCalled.next(), 1)
-      }
-    }
-
-    test("should return a TimedOut mutant on a TimedOut process") {
-      val exception = new TimeoutException("Test")
-      val testProcessRunner = TestProcessRunner(Failure(exception))
-      processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
-        assertEquals(result.status, MutantStatus.Timeout)
-        assertEquals(testProcessRunner.timesCalled.next(), 1)
-      }
+  test("runMutant should return a Survived mutant on an exitcode 0 process") {
+    val testProcessRunner = TestProcessRunner(Success(0))
+    processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
+      assertEquals(result.status, MutantStatus.Survived)
+      assertEquals(testProcessRunner.timesCalled.next(), 1)
     }
   }
 
-  describe("initialTestRun") {
-    test("should have isSuccessful false when the initial test run fails") {
-      val testProcessRunner = TestProcessRunner.failInitialTestRun()
-      processTestRunner(testProcessRunner)
-        .initialTestRun()
-        .assertEquals(NoCoverageInitialTestRun(false))
+  test("runMutant should return a Killed mutant on an exitcode 1 process") {
+    val testProcessRunner = TestProcessRunner(Success(1))
+    processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
+      assertEquals(result.status, MutantStatus.Killed)
+      assertEquals(testProcessRunner.timesCalled.next(), 1)
     }
+  }
+
+  test("runMutant should return a TimedOut mutant on a TimedOut process") {
+    val exception = new TimeoutException("Test")
+    val testProcessRunner = TestProcessRunner(Failure(exception))
+    processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
+      assertEquals(result.status, MutantStatus.Timeout)
+      assertEquals(testProcessRunner.timesCalled.next(), 1)
+    }
+  }
+
+  test("initialTestRun should have isSuccessful false when the initial test run fails") {
+    val testProcessRunner = TestProcessRunner.failInitialTestRun()
+    processTestRunner(testProcessRunner)
+      .initialTestRun()
+      .assertEquals(NoCoverageInitialTestRun(false))
   }
 
   def createMutant =

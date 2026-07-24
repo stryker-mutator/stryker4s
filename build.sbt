@@ -82,7 +82,7 @@ lazy val testkit = (projectMatrix in file("modules") / "testkit")
 def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
   val projectRefs = matrixes.flatMap(_.projectRefs)
   Seq(
-    publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal) *).value,
-    publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2) *).value
+    publishLocal := publishLocal.dependsOn(projectRefs.map(_ / publishLocal)*).value,
+    publishM2 := publishM2.dependsOn(projectRefs.map(_ / publishM2)*).value
   )
 }

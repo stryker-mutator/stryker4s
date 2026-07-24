@@ -11,66 +11,64 @@ import stryker4s.testkit.Stryker4sSuite
 
 class ConfigEncoderTest extends Stryker4sSuite with CirceConfigEncoder {
   val workspaceLocation = "workspace"
-  describe("configEncoder") {
-    test("should be able to encode a minimal config") {
-      expectJsonConfig(
-        defaultConfig,
-        defaultConfigJson,
-        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation.replace(
-            "\\",
-            "\\\\"
-          )}","reporters":["console","html"],"files":["**","!target/**","!project/**","!.metals/**","!.bloop/**","!.idea/**"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
-      )
-    }
+  test("configEncoder should be able to encode a minimal config") {
+    expectJsonConfig(
+      defaultConfig,
+      defaultConfigJson,
+      s"""{"mutate":["**/main/scala/**.scala"],"test-filter":[],"base-dir":"${workspaceLocation.replace(
+          "\\",
+          "\\\\"
+        )}","reporters":["console","html"],"files":["**","!target/**","!project/**","!.metals/**","!.bloop/**","!.idea/**"],"excluded-mutations":[],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full"},"timeout":5000,"timeout-factor":1.5,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":false,"debug-test-runner":false}}"""
+    )
+  }
 
-    test("should be able to encode a filled config") {
-      expectJsonConfig(
-        defaultConfig.copy(
-          mutate = Seq("**/main/scala/**.scala"),
-          testFilter = Seq("foo.scala"),
-          files = Seq("file.scala"),
-          excludedMutations = Seq(ExcludedMutation("bar.scala")),
-          maxTestRunnerReuse = 2.some,
-          dashboard = Config.default.dashboard.copy(
-            project = "myProject".some,
-            version = "1.3.3.7".some,
-            module = "myModule".some
-          ),
-          debug = DebugOptions(
-            logTestRunnerStdout = true,
-            debugTestRunner = true
+  test("configEncoder should be able to encode a filled config") {
+    expectJsonConfig(
+      defaultConfig.copy(
+        mutate = Seq("**/main/scala/**.scala"),
+        testFilter = Seq("foo.scala"),
+        files = Seq("file.scala"),
+        excludedMutations = Seq(ExcludedMutation("bar.scala")),
+        maxTestRunnerReuse = 2.some,
+        dashboard = Config.default.dashboard.copy(
+          project = "myProject".some,
+          version = "1.3.3.7".some,
+          module = "myModule".some
+        ),
+        debug = DebugOptions(
+          logTestRunnerStdout = true,
+          debugTestRunner = true
+        )
+      ),
+      defaultConfigJson.mapObject(
+        _.add("mutate", arr(fromString("**/main/scala/**.scala")))
+          .add("test-filter", arr(fromString("foo.scala")))
+          .add("files", arr(fromString("file.scala")))
+          .add("excluded-mutations", arr(fromString("bar.scala")))
+          .add("max-test-runner-reuse", fromInt(2))
+          .add(
+            "dashboard",
+            obj(
+              "base-url" -> fromString(defaultConfig.dashboard.baseUrl.toString()),
+              "report-type" -> fromString("full"),
+              "project" -> fromString("myProject"),
+              "version" -> fromString("1.3.3.7"),
+              "module" -> fromString("myModule")
+            )
           )
-        ),
-        defaultConfigJson.mapObject(
-          _.add("mutate", arr(fromString("**/main/scala/**.scala")))
-            .add("test-filter", arr(fromString("foo.scala")))
-            .add("files", arr(fromString("file.scala")))
-            .add("excluded-mutations", arr(fromString("bar.scala")))
-            .add("max-test-runner-reuse", fromInt(2))
-            .add(
-              "dashboard",
-              obj(
-                "base-url" -> fromString(defaultConfig.dashboard.baseUrl.toString()),
-                "report-type" -> fromString("full"),
-                "project" -> fromString("myProject"),
-                "version" -> fromString("1.3.3.7"),
-                "module" -> fromString("myModule")
-              )
+          .add(
+            "debug",
+            obj(
+              "log-test-runner-stdout" -> fromBoolean(true),
+              "debug-test-runner" -> fromBoolean(true)
             )
-            .add(
-              "debug",
-              obj(
-                "log-test-runner-stdout" -> fromBoolean(true),
-                "debug-test-runner" -> fromBoolean(true)
-              )
-            )
-        ),
-        s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation.replace(
-            "\\",
-            "\\\\"
-          )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":true,"debug-test-runner":true}}"""
-      )
-    }
+          )
+      ),
+      s"""{"mutate":["**/main/scala/**.scala"],"test-filter":["foo.scala"],"base-dir":"${workspaceLocation.replace(
+          "\\",
+          "\\\\"
+        )}","reporters":["console","html"],"files":["file.scala"],"excluded-mutations":["bar.scala"],"thresholds":{"high":80,"low":60,"break":0},"dashboard":{"base-url":"https://dashboard.stryker-mutator.io","report-type":"full","project":"myProject","version":"1.3.3.7","module":"myModule"},"timeout":5000,"timeout-factor":1.5,"max-test-runner-reuse":2,"legacy-test-runner":false,"scala-dialect":"scala213source3","debug":{"log-test-runner-stdout":true,"debug-test-runner":true}}"""
+    )
   }
 
   def expectJsonConfig(config: Config, json: io.circe.Json, jsonString: String)(implicit loc: Location) = {

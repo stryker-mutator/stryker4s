@@ -109,14 +109,12 @@ class FileConfigSourceTest extends Stryker4sIOSuite with LogMatchers {
       )
   }
 
-  describe("logs") {
-    test("should log where the config is read from") {
-      val path = "thispathdoesnotexist.conf"
-      for {
-        configSource <- FileConfigSource.load[IO](Path(path))
-        _ <- configSource.baseDir.attempt
-      } yield assertLoggedDebug(s"Attempting to read config from ${Underlined.On(path)}")
-    }
+  test("should log where the config is read from") {
+    val path = "thispathdoesnotexist.conf"
+    for {
+      configSource <- FileConfigSource.load[IO](Path(path))
+      _ <- configSource.baseDir.attempt
+    } yield assertLoggedDebug(s"Attempting to read config from ${Underlined.On(path)}")
   }
 
   def newConfigSource(hocon: Hocon.HoconAt): FileConfigSource[IO] = new FileConfigSource[IO](

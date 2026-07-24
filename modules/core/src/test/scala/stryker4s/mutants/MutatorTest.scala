@@ -11,149 +11,145 @@ import scala.meta.*
 
 class MutatorTest extends Stryker4sIOSuite with LogMatchers {
 
-  describe("run") {
-    implicit val conf: Config = Config.default
-    val sut = new Mutator(
-      new MutantFinder(),
-      new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
-      new MutantInstrumenter(InstrumenterOptions.testRunner)
-    )
+  implicit val conf: Config = Config.default
+  val sut = new Mutator(
+    new MutantFinder(),
+    new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
+    new MutantInstrumenter(InstrumenterOptions.testRunner)
+  )
 
-    test("should return a single Tree with changed pattern match") {
-      val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
+  test("run should return a single Tree with changed pattern match") {
+    val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
-      sut.go(files).asserting { case (_, result) =>
-        val expected =
-          """object Foo {
-            |  def bar = _root_.stryker4s.activeMutation match {
-            |    case 0 =>
-            |      15 >= 14
-            |    case 1 =>
-            |      15 < 14
-            |    case 2 =>
-            |      15 == 14
-            |    case _ =>
-            |      _root_.stryker4s.coverage.coverMutant(0, 1, 2)
-            |      15 > 14
-            |  }
-            |  def foobar = _root_.stryker4s.activeMutation match {
-            |    case 3 =>
-            |      ""
-            |    case _ =>
-            |      _root_.stryker4s.coverage.coverMutant(3)
-            |      s"${bar}foo"
-            |  }
-            |}""".stripMargin.parse[Source].get
+    sut.go(files).asserting { case (_, result) =>
+      val expected =
+        """object Foo {
+          |  def bar = _root_.stryker4s.activeMutation match {
+          |    case 0 =>
+          |      15 >= 14
+          |    case 1 =>
+          |      15 < 14
+          |    case 2 =>
+          |      15 == 14
+          |    case _ =>
+          |      _root_.stryker4s.coverage.coverMutant(0, 1, 2)
+          |      15 > 14
+          |  }
+          |  def foobar = _root_.stryker4s.activeMutation match {
+          |    case 3 =>
+          |      ""
+          |    case _ =>
+          |      _root_.stryker4s.coverage.coverMutant(3)
+          |      s"${bar}foo"
+          |  }
+          |}""".stripMargin.parse[Source].get
 
-        assertEquals(result.loneElement.mutatedSource, expected)
-      }
-    }
-
-    test("should run go") {
-      val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
-
-      sut.go(files).asserting { case (_, result) =>
-        val expected =
-          """object Foo {
-            |  def bar = _root_.stryker4s.activeMutation match {
-            |    case 0 =>
-            |      15 >= 14
-            |    case 1 =>
-            |      15 < 14
-            |    case 2 =>
-            |      15 == 14
-            |    case _ =>
-            |      _root_.stryker4s.coverage.coverMutant(0, 1, 2)
-            |      15 > 14
-            |  }
-            |  def foobar = _root_.stryker4s.activeMutation match {
-            |    case 3 =>
-            |      ""
-            |    case _ =>
-            |      _root_.stryker4s.coverage.coverMutant(3)
-            |      s"${bar}foo"
-            |  }
-            |}""".stripMargin.parse[Source].get
-        assertEquals(result.loneElement.mutatedSource, expected)
-      }
+      assertEquals(result.loneElement.mutatedSource, expected)
     }
   }
-  describe("logs") {
 
-    test("should log the amount of mutants found") {
-      implicit val conf: Config = Config.default
-      def sut = new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
-        new MutantInstrumenter(InstrumenterOptions.testRunner)
-      )
-      val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
+  test("run should run go") {
+    val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
-      sut.go(files).asserting { files =>
-        val fileOrigin = files._2.loneElement.fileOrigin
-        assertLoggedDebug(s"Instrumenting mutations in 2 places for $fileOrigin")
-        assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        assertNotLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated. Of which")
-        assertLoggedInfo(s"${Cyan("4")} mutant(s) generated")
-      }
+    sut.go(files).asserting { case (_, result) =>
+      val expected =
+        """object Foo {
+          |  def bar = _root_.stryker4s.activeMutation match {
+          |    case 0 =>
+          |      15 >= 14
+          |    case 1 =>
+          |      15 < 14
+          |    case 2 =>
+          |      15 == 14
+          |    case _ =>
+          |      _root_.stryker4s.coverage.coverMutant(0, 1, 2)
+          |      15 > 14
+          |  }
+          |  def foobar = _root_.stryker4s.activeMutation match {
+          |    case 3 =>
+          |      ""
+          |    case _ =>
+          |      _root_.stryker4s.coverage.coverMutant(3)
+          |      s"${bar}foo"
+          |  }
+          |}""".stripMargin.parse[Source].get
+      assertEquals(result.loneElement.mutatedSource, expected)
     }
+  }
 
-    test("should log the amount of excluded mutants") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("EqualityOperator")))
-      val sut = new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
-        new MutantInstrumenter(InstrumenterOptions.testRunner)
-      )
-      val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
+  test("logs should log the amount of mutants found") {
+    implicit val conf: Config = Config.default
+    def sut = new Mutator(
+      new MutantFinder(),
+      new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
+      new MutantInstrumenter(InstrumenterOptions.testRunner)
+    )
+    val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
 
-      sut
-        .go(files)
-        .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        .assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("3")} mutant(s) are excluded.")
-        .assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
-        .assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
-
+    sut.go(files).asserting { files =>
+      val fileOrigin = files._2.loneElement.fileOrigin
+      assertLoggedDebug(s"Instrumenting mutations in 2 places for $fileOrigin")
+      assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+      assertNotLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated. Of which")
+      assertLoggedInfo(s"${Cyan("4")} mutant(s) generated")
     }
+  }
 
-    test("should log a warning if no mutants are found") {
-      implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("EqualityOperator")))
-      val sut = new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
-        new MutantInstrumenter(InstrumenterOptions.testRunner)
+  test("logs should log the amount of excluded mutants") {
+    implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("EqualityOperator")))
+    val sut = new Mutator(
+      new MutantFinder(),
+      new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
+      new MutantInstrumenter(InstrumenterOptions.testRunner)
+    )
+    val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
+
+    sut
+      .go(files)
+      .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+      .assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("3")} mutant(s) are excluded.")
+      .assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+      .assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
+
+  }
+
+  test("logs should log a warning if no mutants are found") {
+    implicit val conf: Config = Config.default.copy(excludedMutations = Seq(ExcludedMutation("EqualityOperator")))
+    val sut = new Mutator(
+      new MutantFinder(),
+      new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
+      new MutantInstrumenter(InstrumenterOptions.testRunner)
+    )
+    val files = Stream(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala"))
+
+    sut
+      .go(files)
+      .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+      .assertLoggedInfo(s"${Cyan("0")} mutant(s) generated.")
+      .assertLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+      .assertLoggedWarn("If this is not intended, please check your configuration and try again.")
+  }
+
+  test("logs should log if all mutations are excluded") {
+    implicit val conf: Config = Config.default.copy(excludedMutations =
+      Seq(ExcludedMutation("EqualityOperator"), ExcludedMutation("StringLiteral"))
+    )
+    val sut = new Mutator(
+      new MutantFinder(),
+      new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
+      new MutantInstrumenter(InstrumenterOptions.testRunner)
+    )
+    val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
+
+    sut
+      .go(files)
+      .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
+      .assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("4")} mutant(s) are excluded.")
+      .assertLoggedWarn(
+        s"""All found mutations are excluded. Stryker4s will perform a dry-run without actually mutating anything.
+           |You can configure the `mutate` or `excluded-mutations` property in your configuration""".stripMargin
       )
-      val files = Stream(FileUtil.getResource("fileTests/filledDir/src/main/scala/package/someFile.scala"))
-
-      sut
-        .go(files)
-        .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        .assertLoggedInfo(s"${Cyan("0")} mutant(s) generated.")
-        .assertLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
-        .assertLoggedWarn("If this is not intended, please check your configuration and try again.")
-    }
-
-    test("should log if all mutations are excluded") {
-      implicit val conf: Config = Config.default.copy(excludedMutations =
-        Seq(ExcludedMutation("EqualityOperator"), ExcludedMutation("StringLiteral"))
-      )
-      val sut = new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl, new MutantMatcherImpl),
-        new MutantInstrumenter(InstrumenterOptions.testRunner)
-      )
-      val files = Stream(FileUtil.getResource("scalaFiles/simpleFile.scala"))
-
-      sut
-        .go(files)
-        .assertLoggedInfo(s"Found ${Cyan("1")} file(s) to be mutated.")
-        .assertLoggedInfo(s"${Cyan("4")} mutant(s) generated. Of which ${LightRed("4")} mutant(s) are excluded.")
-        .assertLoggedWarn(
-          s"""All found mutations are excluded. Stryker4s will perform a dry-run without actually mutating anything.
-             |You can configure the `mutate` or `excluded-mutations` property in your configuration""".stripMargin
-        )
-        .assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
-        .assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
-    }
+      .assertNotLoggedWarn("Files to be mutated are found, but no mutations were found in those files.")
+      .assertNotLoggedWarn("If this is not intended, please check your configuration and try again.")
   }
 }

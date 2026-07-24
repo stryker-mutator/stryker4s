@@ -14,67 +14,66 @@ import scala.meta.*
 
 class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
 
-  describe("failed to add mutations") {
-    implicit val config: Config = Config.default
+  implicit val config: Config = Config.default
 
-    test("#585 (if-statement in Term.Apply)") {
-      checkAllMutationsAreAdded(
-        """SomeExecutor.createSomething(
+  test("failed to add mutations #585 (if-statement in Term.Apply)") {
+    checkAllMutationsAreAdded(
+      """SomeExecutor.createSomething(
         if (c.i.isDefined) "foo" else "bar",
         false,
       )""".parseTerm,
-        5
-      )
-    }
+      5
+    )
+  }
 
-    test("#586 (second function call with `case`)") {
-      checkAllMutationsAreAdded(
-        """serviceProvider
+  test("failed to add mutations #586 (second function call with `case`)") {
+    checkAllMutationsAreAdded(
+      """serviceProvider
               .request { _ => 4 > 5 }
               .recoverWith {
                 case e: Throwable =>
                   logger.info(s"Something failed")
               }""".parseTerm,
-        4
-      )
-    }
+      4
+    )
+  }
 
-    test("#587 (string literal in getOrElse at end of method chain)") {
-      checkAllMutationsAreAdded(
-        """serviceProvider
+  test("failed to add mutations #587 (string literal in getOrElse at end of method chain)") {
+    checkAllMutationsAreAdded(
+      """serviceProvider
               .request { _ => "foo" }
               .getOrElse("bar")""".parseTerm,
-        2
-      )
-    }
+      2
+    )
+  }
 
-    test("#587 (string interpolation inside method chain with getOrElse)") {
-      val interp = Term.Interpolate(
-        Term.Name("s"),
-        List(Lit.String("<li>"), Lit.String("</li>")),
-        List("a.areaName.getOrElse(\"Unknown\")".parseTerm)
-      )
-      checkAllMutationsAreAdded(
-        s"""e.rules
+  test("failed to add mutations #587 (string interpolation inside method chain with getOrElse)") {
+    val interp = Term.Interpolate(
+      Term.Name("s"),
+      List(Lit.String("<li>"), Lit.String("</li>")),
+      List("a.areaName.getOrElse(\"Unknown\")".parseTerm)
+    )
+    checkAllMutationsAreAdded(
+      s"""e.rules
               .map { r => $interp }
               .getOrElse("")""".parseTerm,
-        3
-      )
-    }
+      3
+    )
+  }
 
-    test("#776 (if-else block statement)") {
-      checkAllMutationsAreAdded(
-        """
+  test("failed to add mutations #776 (if-else block statement)") {
+    checkAllMutationsAreAdded(
+      """
         if (foo) bar
         else { 4 > 5 }
       """.parseTerm,
-        5
-      )
-    }
+      5
+    )
+  }
 
-    test("#776 2") {
-      checkAllMutationsAreAdded(
-        """
+  test("failed to add mutations #776 2") {
+    checkAllMutationsAreAdded(
+      """
         try {
           val (p1, s, rs1) = runSeqCmds(sut, as.s, as.seqCmds)
           val l1 = s"Initial State:\n \nSequential Commands:\n"
@@ -91,24 +90,24 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
             )
         } finally if (as.parCmds.isEmpty) finalize
       """.parseTerm,
-        11
-      )
-    }
+      11
+    )
+  }
 
-    test("each case of pattern match") {
-      checkAllMutationsAreAdded(
-        """
+  test("failed to add mutations each case of pattern match") {
+    checkAllMutationsAreAdded(
+      """
         foo match {
           case _ => "break"
           case _ if high == low => baz
         }""".parseStat,
-        2
-      )
-    }
+      2
+    )
+  }
 
-    test("try-catch-finally") {
-      checkAllMutationsAreAdded(
-        """
+  test("failed to add mutations try-catch-finally") {
+    checkAllMutationsAreAdded(
+      """
         def foo =
           try {
             runAndContinue("task.run")
@@ -117,39 +116,38 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
           } finally {
             logger.info("Done")
           }""".parseStat,
-        3
-      )
-    }
+      3
+    )
+  }
 
-    def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit loc: Location) = {
-      val source = s"class Foo { ${tree.syntax} }".parseSource
+  def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit loc: Location) = {
+    val source = s"class Foo { ${tree.syntax} }".parseSource
 
-      val mutator = new Mutator(
-        new MutantFinderStub(source),
-        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
-        new MutantInstrumenter(InstrumenterOptions.testRunner)
-      )
+    val mutator = new Mutator(
+      new MutantFinderStub(source),
+      new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
+      new MutantInstrumenter(InstrumenterOptions.testRunner)
+    )
 
-      mutator
-        .go(Stream.emit(Path("Foo.scala")))
-        .asserting { case (ignored, files) =>
-          assertEquals(ignored, Map(Path("Foo.scala") -> Vector.empty))
+    mutator
+      .go(Stream.emit(Path("Foo.scala")))
+      .asserting { case (ignored, files) =>
+        assertEquals(ignored, Map(Path("Foo.scala") -> Vector.empty))
 
-          val file = files.loneElement
-          file.mutants.toVector.foreach { mutant =>
-            file.mutatedSource
-              .find(mutant.mutatedCode.mutatedStatement)
-              .flatMap(_ => file.mutatedSource.find(Lit.Int(mutant.id.value)))
-              .getOrElse(
-                fail(
-                  s"Could not find mutant ${mutant.id} `${mutant.mutatedCode.metadata.replacement}` (original `${mutant.mutatedCode.metadata.original}`) in mutated tree ${file.mutatedSource}"
-                )
+        val file = files.loneElement
+        file.mutants.toVector.foreach { mutant =>
+          file.mutatedSource
+            .find(mutant.mutatedCode.mutatedStatement)
+            .flatMap(_ => file.mutatedSource.find(Lit.Int(mutant.id.value)))
+            .getOrElse(
+              fail(
+                s"Could not find mutant ${mutant.id} `${mutant.mutatedCode.metadata.replacement}` (original `${mutant.mutatedCode.metadata.original}`) in mutated tree ${file.mutatedSource}"
               )
-          }
-          assertEquals(file.mutants.length, expectedMutations)
-          assertNotLoggedWarn("Failed to instrument mutants")
+            )
         }
-    }
+        assertEquals(file.mutants.length, expectedMutations)
+        assertNotLoggedWarn("Failed to instrument mutants")
+      }
   }
 
 }
