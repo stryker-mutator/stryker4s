@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/stryker-mutator/stryker4s/compare/v1.0.3...v1.1.0) (2026-07-27)
+
+
+### Features
+
+* **report:** support ANSII escape codes in report ([#2105](https://github.com/stryker-mutator/stryker4s/issues/2105)) ([cea39a5](https://github.com/stryker-mutator/stryker4s/commit/cea39a5a269e174f6912ee42b0bbb6521de99be8))
+
 ## [1.0.3](https://github.com/stryker-mutator/stryker4s/compare/v1.0.2...v1.0.3) (2026-07-20)
 
 
