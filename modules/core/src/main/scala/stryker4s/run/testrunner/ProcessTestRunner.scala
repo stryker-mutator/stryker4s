@@ -64,12 +64,7 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
     NonEmptyList
       .fromList(
         failedTests
-          .flatMap(test =>
-            test.message.map(msg =>
-              // TODO: change `.plainText` to `.render` when mutation-testing-elements supports rendering ansi-codes https://github.com/stryker-mutator/mutation-testing-elements/issues/2925
-              fansi.Str(test.name, ": ", msg).plainText
-            )
-          )
+          .flatMap(test => test.message.map(msg => fansi.Str(test.name, ": ", msg).render))
           .toList
       )
       .map(_.mkString_("\n\n"))
