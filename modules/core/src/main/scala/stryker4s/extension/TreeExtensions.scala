@@ -47,7 +47,7 @@ object TreeExtensions {
       */
     final def transformOnce(fn: PartialFunction[Tree, Tree]): Tree = {
       val onceTransformer = new OnceTransformer(fn)
-      onceTransformer(thisTree)
+      onceTransformer.transform(thisTree)
     }
 
     /** Tries to transform a tree exactly once, returning None if the transformation was never applied
@@ -59,7 +59,7 @@ object TreeExtensions {
         t
       }
       val onceTransformer = new OnceTransformer(checkFn)
-      val result = onceTransformer(thisTree)
+      val result = onceTransformer.transform(thisTree)
 
       isTransformed.guard[Option].as(result)
     }

@@ -178,7 +178,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
           else t
       }
 
-      transformer(placeableTree.tree) match {
+      transformer.transform(placeableTree.tree) match {
         case t if t eq placeableTree.tree =>
           throw new RuntimeException(
             show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${metadata.location})"
