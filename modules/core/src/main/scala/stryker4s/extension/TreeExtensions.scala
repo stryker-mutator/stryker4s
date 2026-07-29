@@ -49,26 +49,10 @@ object TreeExtensions {
       val onceTransformer = new OnceTransformer(fn)
       onceTransformer.transform(thisTree)
     }
-
-    /** Tries to transform a tree exactly once, returning None if the transformation was never applied
-      */
-    final def transformExactlyOnce(fn: PartialFunction[Tree, Tree]): Option[Tree] = {
-      var isTransformed = false
-      val checkFn = fn.andThen { t =>
-        isTransformed = true
-        t
-      }
-      val onceTransformer = new OnceTransformer(checkFn)
-      val result = onceTransformer.transform(thisTree)
-
-      isTransformed.guard[Option].as(result)
-    }
   }
 
   private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
-    override def apply(tree: Tree): Tree = {
-      fn.applyOrElse(tree, super.apply)
-    }
+    override def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
   }
 
   implicit final class TreeIsInExtension(val thisTree: Tree) extends AnyVal {
@@ -155,16 +139,15 @@ object TreeExtensions {
       val buildContextLifted = buildContext.lift
       val builder = Vector.newBuilder[T]
 
-      def traverse(tree: Tree, inherited: () => Option[C]): Unit = {
+      def traverse(tree: Tree, inherited: => Option[C]): Unit = {
         // The context for this node and its descendants, only computed when a node actually collects something
-        lazy val context: Option[C] = buildContextLifted(tree).orElse(inherited())
+        lazy val context: Option[C] = buildContextLifted(tree).orElse(inherited)
         collectFnLifted(tree).foreach(collect => context.foreach(c => builder += collect(c)))
-        val contextFn = () => context
-        tree.children.foreach(traverse(_, contextFn))
+        tree.foreachChild(traverse(_, context))
       }
 
       // Traverse the tree, starting with an empty context
-      traverse(tree, () => None)
+      traverse(tree, None)
       builder.result()
     }
 
