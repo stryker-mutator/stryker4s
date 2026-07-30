@@ -513,6 +513,15 @@ class MutantMatcherTest extends Stryker4sSuite {
     )(regexMutatorName)
   }
 
+  test("regexMutator should match postfix Regex String ops") {
+    expectMutations(
+      sut.matchRegex,
+      """def foo = ".*" r""".parseDef,
+      regex,
+      Lit.String(".")
+    )(regexMutatorName)
+  }
+
   test("regexMutator should match Pattern.compile Regex constructor") {
     expectMutations(
       sut.matchRegex,

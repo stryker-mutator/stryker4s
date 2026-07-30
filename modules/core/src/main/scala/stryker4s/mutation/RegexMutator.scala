@@ -18,20 +18,14 @@ case object RegexConstructor {
     .flatMap(_.parent)
     .collect {
       // new Regex(_)
-      case Term.New(Init.After_4_6_0(Type.Name("Regex"), _, exprss)) => exprss
+      case Term.New(Init.After_4_6_0(Name("Regex"), _, exprss)) => exprss
 
       // new scala.util.matching.Regex(_)
       case Term.New(
             Init.After_4_6_0(
               Type.Select(
-                Term.Select(
-                  Term.Select(
-                    Term.Name("scala"),
-                    Term.Name("util")
-                  ),
-                  Term.Name("matching")
-                ),
-                Type.Name("Regex")
+                Term.Select(Term.Select(Name("scala"), Name("util")), Name("matching")),
+                Name("Regex")
               ),
               _,
               exprss
@@ -47,7 +41,7 @@ case object RegexConstructor {
 case object RegexStringOps {
 
   def unapply(arg: Lit.String): Option[Lit.String] = arg.parent
-    .collect { case Term.Select(`arg`, Term.Name("r")) => arg }
+    .collect { case Term.SelectLike(`arg`, Name("r")) => arg }
 
 }
 
@@ -56,23 +50,13 @@ case object RegexStringOps {
 case object PatternConstructor {
   def unapply(arg: Lit.String): Option[Lit.String] = arg.parent.flatMap(_.parent).collect {
     // Pattern.compile(_)
-    case Term.Apply
-          .After_4_6_0(Term.Select(Term.Name("Pattern"), Term.Name("compile")), Term.ArgClause(`arg` :: _, _)) =>
+    case Member.Apply(Term.Select(Name("Pattern"), Name("compile")), Term.ArgClause(`arg` :: _, _)) =>
       arg
     // java.util.regex.Pattern.compile(_)
-    case Term.Apply.After_4_6_0(
+    case Member.Apply(
           Term.Select(
-            Term.Select(
-              Term.Select(
-                Term.Select(
-                  Term.Name("java"),
-                  Term.Name("util")
-                ),
-                Term.Name("regex")
-              ),
-              Term.Name("Pattern")
-            ),
-            Term.Name("compile")
+            Term.Select(Term.Select(Term.Select(Name("java"), Name("util")), Name("regex")), Name("Pattern")),
+            Name("compile")
           ),
           Term.ArgClause(`arg` :: _, _)
         ) =>
