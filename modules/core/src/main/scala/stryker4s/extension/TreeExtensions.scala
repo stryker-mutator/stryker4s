@@ -7,7 +7,6 @@ import mutationtesting.cats.*
 
 import scala.annotation.tailrec
 import scala.meta.*
-import scala.meta.transversers.SimpleTraverser
 import scala.reflect.ClassTag
 
 object TreeExtensions {
@@ -31,7 +30,7 @@ object TreeExtensions {
       *   A <code>Some(Tree)</code> if the statement has been found, otherwise None
       */
     final def find[T <: Tree](toFind: T)(implicit classTag: ClassTag[T]): Option[T] =
-      thisTree.collectFirst {
+      thisTree.dfsCollectFirst {
         case found: T if found === toFind => found
       }
 
@@ -55,7 +54,7 @@ object TreeExtensions {
   }
 
   private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
-    override def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
+    override protected def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
   }
 
   implicit final class TreeIsInExtension(val thisTree: Tree) extends AnyVal {
@@ -74,16 +73,19 @@ object TreeExtensions {
       */
     final def ancestorsUpTo(root: Tree): Seq[Tree] = {
       val builder = Vector.newBuilder[Tree]
-      @tailrec
-      def loop(tree: Tree): Unit = {
-        builder += tree
-        tree.parent match {
-          case Some(parent) if tree ne root => loop(parent)
-          case _                            => ()
-        }
-      }
-      thisTree.parent.foreach(loop)
+      val _ = existsAncestorUpTo(root) { ancestor => builder += ancestor; false }
       builder.result()
+    }
+
+    /** Whether any ancestor up to (and including) `root` matches `f`, without building the ancestor chain. */
+    final def existsAncestorUpTo(root: Tree)(f: Tree => Boolean): Boolean = {
+      @tailrec
+      def loop(tree: Tree, root: Tree, f: Tree => Boolean): Boolean =
+        tree.parent match {
+          case Some(parent) => f(parent) || (parent ne root) && loop(parent, root, f)
+          case None         => false
+        }
+      loop(thisTree, root, f)
     }
   }
 
@@ -113,21 +115,15 @@ object TreeExtensions {
           case (x: Name, y: Name) => x.value == y.value
           case (x: Lit, y: Lit)   => x.value == y.value
           case _                  => true
-        }) && x.children.corresponds(y.children)(structurallyEqual(_, _)))
+        }) && childrenStructurallyEqual(x, y))
 
-  implicit final class CollectFirstExtension(tree: Tree) {
-    final def collectFirst[T](pf: PartialFunction[Tree, T]): Option[T] = {
-      var result = Option.empty[T]
-      val fn = pf.lift
-      object traverser extends SimpleTraverser {
-        override def apply(t: Tree): Unit = {
-          result = result.orElse(fn(t))
-          super.apply(t)
-        }
-      }
-      traverser(tree)
-      result
-    }
+  /** `childrenCount` is allocation-free, so comparing it first avoids building the `children` lists of the (many) leaf
+    * nodes and of nodes that can't match anyway
+    */
+  private def childrenStructurallyEqual(x: Tree, y: Tree): Boolean = {
+    val childCount = x.childrenCount
+    childCount == y.childrenCount &&
+    (childCount == 0 || x.children.corresponds(y.children)(structurallyEqual(_, _)))
   }
 
   implicit final class CollectWithContextExtension(val tree: Tree) extends AnyVal {

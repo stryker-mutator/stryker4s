@@ -12,10 +12,9 @@ import scala.meta.*
 /** Matches on `new scala.util.matching.Regex("[a-z]", _*)`
   */
 case object RegexConstructor {
-  // Two parents up is the full constructor
-  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent
-    .flatMap(_.parent)
-    .flatMap(_.parent)
+  // Two parents above the immediate parent is the full constructor
+  def unapply(arg: Lit.String): Option[Lit.String] = arg
+    .ancestor(2)
     .collect {
       // new Regex(_)
       case Term.New(Init.After_4_6_0(Name("Regex"), _, exprss)) => exprss
@@ -48,7 +47,7 @@ case object RegexStringOps {
 /** Matches on `Pattern.compile("[a-z]", _*)`
   */
 case object PatternConstructor {
-  def unapply(arg: Lit.String): Option[Lit.String] = arg.parent.flatMap(_.parent).collect {
+  def unapply(arg: Lit.String): Option[Lit.String] = arg.ancestor(1).collect {
     // Pattern.compile(_)
     case Member.Apply(Term.Select(Name("Pattern"), Name("compile")), Term.ArgClause(`arg` :: _, _)) =>
       arg

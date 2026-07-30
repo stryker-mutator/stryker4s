@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import mutationtesting.cats.*
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
-import stryker4s.extension.TreeExtensions.{treeEq, AncestorsExtension, CollectFirstExtension, PositionExtension}
+import stryker4s.extension.TreeExtensions.{treeEq, PositionExtension}
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 import stryker4s.mutation.*
@@ -143,9 +143,9 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       replacements: NonEmptyVector[T],
       mutationToTerm: T => Term
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = placeableTree => {
-    // Find the node to replace once, so each replacement only rebuilds the path to that node
+    // Find the node to replace once, so each replacement only has to look it up by reference
     val target = placeableTree.tree
-      .collectFirst {
+      .dfsCollectFirst {
         case t if (t eq original) || (t.pos == original.pos && t === original) => t
       }
       .getOrElse(
@@ -153,7 +153,6 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
           show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${original.pos.toLocation})"
         )
       )
-    val pathToTarget = target.ancestorsUpTo(placeableTree.tree)
 
     val mutations = replacements.map { mutations =>
       val tree = mutationToTerm(mutations)
@@ -172,10 +171,8 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         description
       )
       val transformer = new Transformer {
-        override def apply(t: Tree): Tree =
-          if (t eq target) tree
-          else if (pathToTarget.exists(_ eq t)) super.apply(t)
-          else t
+        override protected def apply(t: Tree): Tree = if (t eq target) tree
+        else super.apply(t)
       }
 
       transformer.transform(placeableTree.tree) match {
