@@ -4,14 +4,13 @@ import cats.data.Ior.Both
 import cats.data.{Ior, NonEmptyList, NonEmptyVector}
 import cats.syntax.all.*
 import stryker4s.exception.{Stryker4sException, UnableToBuildPatternMatchException}
-import stryker4s.extension.TreeExtensions.{treeEq, TransformOnceExtension}
+import stryker4s.extension.TreeExtensions.{treeEq, AncestorsExtension, TransformOnceExtension}
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.model.SourceReplacement.*
 
 import scala.collection.immutable.SortedSet
 import scala.meta.*
-import scala.util.{Failure, Success, Try}
 
 /** Instrument (place) mutants in a tree
   *
@@ -26,9 +25,14 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     // Rendered mutation switches for each outermost mutated statement, used to splice the file together
     val spliceReplacements = SortedSet.newBuilder[SourceReplacement]
 
+    // Statements that are not inside another mutated statement. Nested mutated statements are rendered as part of their
+    // outermost statement's mutation switch, so splicing them in separately would duplicate (overlapping) source ranges
+    val outermostTrees = mutantMap.keySet.filterNot(
+      _.tree.ancestorsUpTo(context.source).exists(ancestor => mutantMap.contains(PlaceableTree(ancestor)))
+    )
+
     def instrumentWithMutants(
-        mutantMap: Map[PlaceableTree, MutantsWithId],
-        record: Boolean
+        mutantMap: Map[PlaceableTree, MutantsWithId]
     ): PartialFunction[Tree, Tree] = {
 
       Function.unlift { originalTree =>
@@ -38,7 +42,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
           // Continue deeper into the tree (without the currently placed mutants)
           val withDefaultsTransformed =
-            PlaceableTree(p.tree.transformOnce(instrumentWithMutants(mutantMap - p, record = false)))
+            PlaceableTree(p.tree.transformOnce(instrumentWithMutants(mutantMap - p)))
           val default = defaultCase(withDefaultsTransformed, mutations.map(_.id).toNonEmptyList)
 
           val cases = mutableCases :+ default
@@ -59,7 +63,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
               throw UnableToBuildPatternMatchException(context.path)
             }
 
-          if (record)
+          if (outermostTrees.contains(p))
             spliceReplacements += SourceReplacement(p.tree.begOffset, p.tree.endOffset, mutationSwitch)
 
           mutationSwitch
@@ -67,10 +71,9 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
       }
     }
 
-    val newTree = Try(context.source.transformOnce(instrumentWithMutants(mutantMap, record = true))) match {
-      case Success(tree)                  => tree
-      case Failure(e: Stryker4sException) => throw e
-      case Failure(e)                     =>
+    val newTree = Either.catchNonFatal(context.source.transformOnce(instrumentWithMutants(mutantMap))).valueOr {
+      case e: Stryker4sException => throw e
+      case e                     =>
         log.error(s"Failed to instrument mutants in `${context.path}`.", e)
         throw new UnableToBuildPatternMatchException(context.path)
     }

@@ -6,9 +6,7 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.run.process.{Command, ProcessRunner}
 
-import scala.util.{Success, Try}
-
-class TestProcessRunner(commandSuccess: Boolean, testRunExitCode: Try[Int]*)(implicit
+class TestProcessRunner(commandSuccess: Boolean, testRunExitCode: Either[Throwable, Int]*)(implicit
     log: Logger
 ) extends ProcessRunner {
   val timesCalled: Iterator[Int] = Iterator.from(0)
@@ -19,9 +17,9 @@ class TestProcessRunner(commandSuccess: Boolean, testRunExitCode: Try[Int]*)(imp
     */
   override def apply(command: Command, workingDir: Path, envVar: (String, String)*)(implicit
       config: Config
-  ): IO[Try[Int]] = {
+  ): IO[Either[Throwable, Int]] = {
     if (envVar.isEmpty) {
-      IO.pure(Success(if (commandSuccess) 0 else 1))
+      IO.pure(Right(if (commandSuccess) 0 else 1))
     } else {
       val _ = timesCalled.next()
       IO.pure(testRunExitCode(envVar.map(_._2).head.toInt))

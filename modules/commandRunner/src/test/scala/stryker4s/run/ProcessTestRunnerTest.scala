@@ -13,7 +13,6 @@ import stryker4s.testutil.stubs.TestProcessRunner
 
 import scala.concurrent.TimeoutException
 import scala.meta.Term
-import scala.util.{Failure, Success}
 
 class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
 
@@ -22,7 +21,7 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
     new ProcessTestRunner(Command("foo", "test"), processRunner, Path("."))
 
   test("runMutant should return a Survived mutant on an exitcode 0 process") {
-    val testProcessRunner = TestProcessRunner(Success(0))
+    val testProcessRunner = TestProcessRunner(Right(0))
     processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
       assertEquals(result.status, MutantStatus.Survived)
       assertEquals(testProcessRunner.timesCalled.next(), 1)
@@ -30,7 +29,7 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
   }
 
   test("runMutant should return a Killed mutant on an exitcode 1 process") {
-    val testProcessRunner = TestProcessRunner(Success(1))
+    val testProcessRunner = TestProcessRunner(Right(1))
     processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
       assertEquals(result.status, MutantStatus.Killed)
       assertEquals(testProcessRunner.timesCalled.next(), 1)
@@ -39,7 +38,7 @@ class ProcessTestRunnerTest extends Stryker4sIOSuite with LogMatchers {
 
   test("runMutant should return a TimedOut mutant on a TimedOut process") {
     val exception = new TimeoutException("Test")
-    val testProcessRunner = TestProcessRunner(Failure(exception))
+    val testProcessRunner = TestProcessRunner(Left(exception))
     processTestRunner(testProcessRunner).runMutant(createMutant, Seq.empty).asserting { result =>
       assertEquals(result.status, MutantStatus.Timeout)
       assertEquals(testProcessRunner.timesCalled.next(), 1)
