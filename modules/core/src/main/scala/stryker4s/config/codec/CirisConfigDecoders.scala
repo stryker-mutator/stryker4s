@@ -64,9 +64,8 @@ trait CirisConfigDecoders {
     }
 
   implicit def uriDecoder: ConfigDecoder[String, Uri] = ConfigDecoder[String].mapEither { case (key, str) =>
-    Uri.parse(str) match {
-      case Right(uri) => uri.asRight
-      case Left(msg)  => ConfigError.decode("uri", key, str).and(ConfigError(msg)).asLeft
+    Uri.parse(str).leftMap { msg =>
+      ConfigError.decode("uri", key, str).and(ConfigError(msg))
     }
   }
 

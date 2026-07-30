@@ -118,6 +118,37 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     assertEquals(mutatedSource, expected)
   }
 
+  test("instrumentFile should only splice the outermost statement of nested mutations") {
+    val source = """class Foo {
+        def foo = if (cond) bar(true) else 15
+      }""".parseSource
+    val outerStatement = source.collectFirst { case t: Term.If => t }.value
+    val innerStatement = source.find("bar(true)".parseTerm).value
+
+    val context = SourceContext(source, path)
+    val mutants = Map(
+      PlaceableTree(outerStatement) -> toMutations(
+        outerStatement,
+        ConditionalTrue,
+        "if (true) bar(true) else 15".parseTerm
+      ),
+      PlaceableTree(innerStatement) -> toMutations(innerStatement, True, "bar(false)".parseTerm)
+    )
+    val sut = new MutantInstrumenter(InstrumenterOptions.testRunner)
+
+    // Act
+    val result = sut.instrumentFile(context, mutants)
+
+    // Assert
+    assertEquals(
+      result.splice.value.replacements.toNonEmptyList.toList.map(r => (r.begOffset, r.endOffset)),
+      List((outerStatement.begOffset, outerStatement.endOffset))
+    )
+    // The spliced text contains both switches, just like rendering the whole tree does
+    val splicedText = result.mutatedSourceText[fs2.Pure].compile.string
+    assertNoDiff(splicedText.parseSource.structure, result.mutatedSource.structure)
+  }
+
   test("instrumentFile should apply the correct instrumenter options") {
     val source = """class Foo { def foo = x >= 15 }""".parseSource
     val originalStatement = source.find("x >= 15".parseTerm).value

@@ -10,11 +10,9 @@ import stryker4s.config.{ConfigOrder, DashboardReportType, ExcludedMutation, Rep
 import stryker4s.maven.runner.ScalaVersions
 import sttp.model.Uri
 
-import java.net.URI
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.*
 import scala.meta.{dialects, Dialect}
-import scala.util.Try
 
 class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] with CirisConfigDecoders {
 
@@ -121,14 +119,13 @@ class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] wit
       .flatMap { scmUrl =>
         // Strip an `scm:<provider>:` prefix and any `.git` suffix, then read host + path
         val cleaned = scmUrl.replaceFirst("^scm:[a-z]+:", "").stripSuffix(".git")
-        Try(new URI(cleaned)).toOption.flatMap { uri =>
-          for {
-            host <- Option(uri.getHost)
-            if host.startsWith("github.com")
-            path = Option(uri.getPath).getOrElse("").stripPrefix("/").stripSuffix("/")
-            if path.nonEmpty
-          } yield s"$host/$path"
-        }
+        for {
+          uri <- Uri.parse(cleaned).toOption
+          base <- uri.host
+          if base.startsWith("github.com")
+          path = uri.path.mkString("/").stripPrefix("/").stripSuffix("/")
+          if !path.isBlank()
+        } yield s"$base/$path"
       }
 
 }

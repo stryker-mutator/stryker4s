@@ -44,11 +44,14 @@ object TreeExtensions {
       * transformed tree.
       *
       * This function does not recursively go into the transformed tree
+      *
+      * Note that scalameta's `Transformer` visits children before their parents, so `fn` is also called for nested
+      * trees of a tree it transforms. Only the outermost transformation ends up in the resulting tree, but `fn` should
+      * not assume it is only called for outermost trees (for example when it has side effects).
       */
-    final def transformOnce(fn: PartialFunction[Tree, Tree]): Tree = {
-      val onceTransformer = new OnceTransformer(fn)
-      onceTransformer.transform(thisTree)
-    }
+    final def transformOnce(fn: PartialFunction[Tree, Tree]): Tree =
+      new OnceTransformer(fn).transform(thisTree)
+
   }
 
   private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {

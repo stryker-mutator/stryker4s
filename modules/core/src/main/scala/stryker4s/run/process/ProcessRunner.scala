@@ -7,10 +7,12 @@ import fs2.io.process.ProcessBuilder
 import stryker4s.config.Config
 import stryker4s.log.Logger
 
-import scala.util.{Properties, Try}
+import scala.util.Properties
 
 abstract class ProcessRunner(implicit log: Logger) {
-  def apply(command: Command, workingDir: Path, envVar: (String, String)*)(implicit config: Config): IO[Try[Int]] = {
+  def apply(command: Command, workingDir: Path, envVar: (String, String)*)(implicit
+      config: Config
+  ): IO[Either[Throwable, Int]] = {
     val logger = config.debug.logTestRunnerStdout
       .guard[Option]
       .as((m: String) => IO(log.debug(s"testrunner: $m")))
@@ -24,7 +26,6 @@ abstract class ProcessRunner(implicit log: Logger) {
       )
       .use(_.exitValue)
       .attempt
-      .map(_.toTry)
   }
 }
 
