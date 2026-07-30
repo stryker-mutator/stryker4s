@@ -28,7 +28,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     // Statements that are not inside another mutated statement. Nested mutated statements are rendered as part of their
     // outermost statement's mutation switch, so splicing them in separately would duplicate (overlapping) source ranges
     val outermostTrees = mutantMap.keySet.filterNot(
-      _.tree.ancestorsUpTo(context.source).exists(ancestor => mutantMap.contains(PlaceableTree(ancestor)))
+      _.tree.existsAncestorUpTo(context.source)(ancestor => mutantMap.contains(PlaceableTree(ancestor)))
     )
 
     def instrumentWithMutants(
@@ -158,7 +158,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   private def compileErrorIsInCaseStatement(caze: Case, error: CompilerErrMsg): Boolean = {
     error.offset match {
       case Some(offset) => caze.begOffset <= offset && caze.endOffset >= offset
-      case None         => (caze.pos.startLine + 1) <= error.line && (caze.pos.endLine + 1) >= error.line
+      case None         => (caze.pos.startLine + 1) <= error.line && (caze.pos.lastLine + 1) >= error.line
     }
   }
 }

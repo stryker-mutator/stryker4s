@@ -6,6 +6,7 @@ import munit.diff.Diff
 import munit.{CatsEffectSuite, Compare, FunSuite, Location}
 
 import scala.meta.*
+import scala.meta.contrib.*
 
 sealed trait Stryker4sAssertions {
   this: FunSuite =>
@@ -88,7 +89,7 @@ sealed trait Stryker4sAssertions {
   /** Compare 2 trees by structure.
     */
   implicit def treeCompare[A <: Tree, B <: Tree]: Compare[A, B] = (obtained, expected) =>
-    obtained == expected || obtained.structure == expected.structure
+    obtained.isEqual(expected.asInstanceOf[A])
 
   implicit def listCompare[A, B](implicit compare: Compare[A, B]): Compare[List[A], List[B]] =
     (obtained, expected) =>

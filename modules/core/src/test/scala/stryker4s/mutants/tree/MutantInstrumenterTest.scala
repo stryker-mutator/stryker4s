@@ -31,7 +31,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
 
     // Act
     val mutatedSource = sut.instrumentFile(context, mutants).mutatedSource
-    val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
+    val result = mutatedSource.dfsCollectFirst { case t: Term.Match => t }.value
 
     // Assert
     assertEquals(result.expr, "_root_.stryker4s.activeMutation".parseTerm)
@@ -84,7 +84,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
 
     //   // Act
     val mutatedSource = sut.instrumentFile(context, mutants).mutatedSource
-    val result = mutatedSource.collectFirst { case t: Term.Match => t }.value
+    val result = mutatedSource.dfsCollectFirst { case t: Term.Match => t }.value
 
     //   // Assert
     assertEquals(result.expr, "_root_.stryker4s.activeMutation".parseTerm)
@@ -122,7 +122,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     val source = """class Foo {
         def foo = if (cond) bar(true) else 15
       }""".parseSource
-    val outerStatement = source.collectFirst { case t: Term.If => t }.value
+    val outerStatement = source.dfsCollectFirst { case t: Term.If => t }.value
     val innerStatement = source.find("bar(true)".parseTerm).value
 
     val context = SourceContext(source, path)
@@ -160,7 +160,7 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     val sut = new MutantInstrumenter(InstrumenterOptions.sysContext(ActiveMutationContext.envVar))
 
     //   // Act
-    val result = sut.instrumentFile(context, mutants).mutatedSource.collectFirst { case t: Term.Match => t }.value
+    val result = sut.instrumentFile(context, mutants).mutatedSource.dfsCollectFirst { case t: Term.Match => t }.value
 
     //   // Assert
     assertEquals(result.expr, "_root_.scala.sys.env.get(\"ACTIVE_MUTATION\")".parseTerm)

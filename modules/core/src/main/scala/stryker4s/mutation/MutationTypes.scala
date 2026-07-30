@@ -103,7 +103,7 @@ protected trait NoInvalidPlacement[T <: Tree] {
 }
 
 private[stryker4s] case object ParentIsTypeLiteral {
-  def unapply(t: Tree): Boolean = t.parent.exists {
+  def unapply(t: Tree): Boolean = t.parentOrNoTree match {
     case Type.ArgClause(expprs) if expprs.contains(t) => true
     case Defn.Val(_, _, Some(`t`), _)                 => true
     case Defn.Var.Initial(_, _, Some(`t`), _)         => true

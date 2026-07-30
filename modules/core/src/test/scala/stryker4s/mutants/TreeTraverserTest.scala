@@ -33,7 +33,7 @@ class TreeTraverserTest extends Stryker4sSuite with LogMatchers {
       @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
       val x = foo()
         """.parseStat
-    val annotation = code.collectFirst { case t: Mod.Annot => t }.value.init
+    val annotation = code.dfsCollectFirst { case t: Mod.Annot => t }.value.init
 
     assertCannotPlaceInside(annotation)
   }
