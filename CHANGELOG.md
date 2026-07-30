@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.1](https://github.com/stryker-mutator/stryker4s/compare/v1.1.0...v1.1.1) (2026-07-30)
+
+
+### Bug Fixes
+
+* **regex:** fix regex matching for postfix calls ([#2113](https://github.com/stryker-mutator/stryker4s/issues/2113)) ([17cebd2](https://github.com/stryker-mutator/stryker4s/commit/17cebd2771ccd7fa7370c21529927ab38c5dc61c))
+* splice only outermost mutated statements (fixes IndexOutOfBoundsException) ([#2115](https://github.com/stryker-mutator/stryker4s/issues/2115)) ([613d1d8](https://github.com/stryker-mutator/stryker4s/commit/613d1d815ac9d66bc3c12a4d9043d8e906a003ae))
+
+
+### Performance Improvements
+
+* use `dfsCollectFirst` and other scalameta tree traversal improvements ([#2117](https://github.com/stryker-mutator/stryker4s/issues/2117)) ([a92a860](https://github.com/stryker-mutator/stryker4s/commit/a92a86009fae66b779a7077800170f8328744509))
+
 ## [1.1.0](https://github.com/stryker-mutator/stryker4s/compare/v1.0.3...v1.1.0) (2026-07-27)
 
 
