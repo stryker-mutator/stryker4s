@@ -228,7 +228,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
             Init.After_4_6_0(
               Type.Name("SuppressWarnings"),
               _,
-              List(Term.ArgClause(List(Term.Apply.After_4_6_0(Name("Array"), Term.ArgClause(params, _))), _))
+              List(Term.ArgClause(List(Member.Apply(Name("Array"), Term.ArgClause(params, _))), _))
             )
           ) =>
         params.exists {

@@ -4,7 +4,7 @@ import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.treeEq
 
 import scala.meta.Term.*
-import scala.meta.{Lit, Term, Type}
+import scala.meta.{Lit, Member, Term, Type}
 
 /** Base trait for method calls with one or multiple argument(s)
   */
@@ -12,14 +12,14 @@ sealed trait ArgMethodExpression extends MethodExpression {
   def unapply(term: Term): Option[(Term, String => Term)] =
     term match {
       // foo.filter { (a,b) => a > b }
-      case Apply.After_4_6_0(
+      case Member.Apply(
             Select(_, Name(`methodName`)),
             ArgClause(Block(Function.Initial(_ :: _ :: _, _) :: Nil) :: Nil, _)
           ) =>
         none
 
       // foo.filter((a,b) => a > b)
-      case Apply.After_4_6_0(Select(_, Name(`methodName`)), ArgClause(Function.Initial(_ :: _ :: _, _) :: Nil, _)) =>
+      case Member.Apply(Select(_, Name(`methodName`)), ArgClause(Function.Initial(_ :: _ :: _, _) :: Nil, _)) =>
         none
 
       // foo filter { (a,b) => a > b }
