@@ -67,7 +67,7 @@ class Mutator(
       }
 
     def mapRight(rights: Map[PlaceableTree, Mutations], i: AtomicInteger) =
-      //   // Functor to use a deep map instead of .map(_.map...)
+      // Functor to use a deep map instead of .map(_.map...)
       Functor[Map[PlaceableTree, *]]
         .compose[NonEmptyVector]
         .map(rights)(m => MutantWithId(MutantId(i.getAndIncrement()), m))

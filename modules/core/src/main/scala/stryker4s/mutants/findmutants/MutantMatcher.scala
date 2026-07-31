@@ -108,7 +108,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
     case PatternConstructor(orig) => createMutations(orig, RegexMutations(orig))
   }
 
-  private def createMutations[T <: Tree](
+  private def createMutations(
       original: Term,
       f: String => Term,
       mutated: MethodExpression
@@ -117,7 +117,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
     buildMutations[MethodExpression](original, replacements, _(f))
   }
 
-  private def createMutations[T <: Term](
+  private def createMutations(
       original: Term,
       mutated: Either[IgnoredMutation, NonEmptyVector[RegularExpression]]
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = { placeableTree =>

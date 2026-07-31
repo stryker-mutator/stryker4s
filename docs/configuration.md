@@ -9,8 +9,8 @@ Stryker4s can be configured in multiple ways. You can use a configuration file, 
 Configuration methods can be combined seamlessly. The priority is as follows:
 
 1. Command-line arguments
-2. Build tool settings
-3. Configuration file
+2. Configuration file
+3. Build tool settings
 
 | Source         | [CLI args](#cli-args) | [Build tool settings](#build-tool-settings-sbt) | [Config file](#config-file) |
 | -------------- | --------------------- | ----------------------------------------------- | --------------------------- |

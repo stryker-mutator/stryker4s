@@ -269,7 +269,7 @@ object ProcessTestRunner {
   implicit final class ResourceOps[A](val resource: Resource[IO, A]) extends AnyVal {
 
     /** Retry creating the resource, with an increasing (doubling) backoff until the resource is created, or fails
-      * @param maxRetries
+      * @param maxAttempts
       *   times.
       */
     final def retryWithBackoff(

@@ -26,16 +26,10 @@ class MutantRunner(
     reporter: Reporter
 )(implicit config: Config, log: Logger) {
 
-  def apply(mutatedFiles: Vector[MutatedFile]): IO[RunResult] = {
-
-    val withRollback = handleRollback(mutatedFiles)
-
-    withRollback
-
-  }
-
-  def handleRollback(mutatedFiles: Vector[MutatedFile]) =
+  def apply(mutatedFiles: Vector[MutatedFile]): IO[RunResult] =
+    // Run mutants, or:
     EitherT(run(mutatedFiles))
+      // Handle compile errors and run again
       .leftFlatMap { errors =>
         log.info(s"Attempting to remove ${errors.size} mutant(s) that gave a compile error...")
         // Retry once with the non-compiling mutants removed

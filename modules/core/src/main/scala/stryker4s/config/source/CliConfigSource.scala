@@ -93,7 +93,7 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
   override def showHelpMessage: ConfigValue[F, Option[String]] =
     parseOpt(opts.help).map(_ => opts.helpText.some)
 
-  /* All decline Opts for the CLI.
+  /* All scopt Opts for the CLI.
    * Separately defined so we can build a CLI help message with all options.
    */
   private object opts {
