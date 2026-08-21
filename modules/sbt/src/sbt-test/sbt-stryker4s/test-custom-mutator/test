@@ -1,0 +1,2 @@
+> stryker
+$ exec bash check-report.sh

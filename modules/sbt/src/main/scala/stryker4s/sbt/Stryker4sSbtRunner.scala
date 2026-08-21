@@ -231,11 +231,25 @@ class Stryker4sSbtRunner(
       InstrumenterOptions.testRunner
     }
 
-  override def customMutatorClassLoader: ClassLoader =
-    PluginCompat.runTask(ctx.targetProject / Test / testLoader, ctx.state) match {
-      case Some(Right(loader)) => loader
+  /** Loads the target project's `Test` classpath into a `URLClassLoader` whose **parent is Stryker4s's own
+    * classloader** (rather than the project's isolated `testLoader`). This ensures that
+    * `stryker4s.mutatorapi.CustomMutator` (and its dependencies) always resolve to the same `Class` instance that
+    * Stryker4s itself uses, so `isAssignableFrom` checks in `CustomMutatorLoader` succeed even though the project may
+    * also have `stryker4s-mutator-api` on its own compile classpath (e.g. to compile against the `CustomMutator`
+    * trait).
+    */
+  override def customMutatorClassLoader: ClassLoader = {
+    val classpath =
+      PluginCompat.toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath, ctx.state))
+    val urls = classpath.map(_.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  }
+
+  private def extractTaskValue[T](task: TaskKey[T], state: State): T =
+    PluginCompat.runTask(task, state) match {
+      case Some(Right(result)) => result
       case other               =>
-        log.debug(s"Expected task '${(Test / testLoader).key.label}' to succeed, but got: $other")
-        throw TestSetupException((Test / testLoader).key.label)
+        log.debug(s"Expected task '${task.key.label}' to succeed, but got: $other")
+        throw TestSetupException(task.key.label)
     }
 }
