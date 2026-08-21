@@ -2,8 +2,8 @@ package stryker4s.mutatorapi
 
 /** Public extension point for third-party mutators.
   *
-  * Implementations are registered by fully-qualified class name via the `customMutators` configuration option, and
-  * must have a public no-argument constructor so Stryker4s can instantiate them reflectively.
+  * Implementations are registered by fully-qualified class name via the `customMutators` configuration option, and must
+  * have a public no-argument constructor so Stryker4s can instantiate them reflectively.
   *
   * Example:
   * {{{

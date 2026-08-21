@@ -1,6 +1,6 @@
 package stryker4s.mutatorapi
 
-import mutationtesting.{Location, Position => MTPosition}
+import mutationtesting.{Location, Position as MTPosition}
 import stryker4s.testkit.Stryker4sSuite
 
 class MutantMetadataTest extends Stryker4sSuite {

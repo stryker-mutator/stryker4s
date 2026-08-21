@@ -9,6 +9,7 @@ import stryker4s.extension.TreeExtensions.{treeEq, PositionExtension}
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 import stryker4s.mutation.*
+import stryker4s.mutatorapi.CustomMutator
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -34,6 +35,15 @@ object MutantMatcher {
     * [[stryker4s.mutatorapi.CustomMutator]]s implement the same type.
     */
   type MutationMatcher = stryker4s.mutatorapi.MutationMatcher
+
+  /** Combines a `MutationMatcher` with the matchers of any configured [[stryker4s.mutatorapi.CustomMutator]]s.
+    *
+    * Like `matchStringsAndRegex` below, matching is combined rather than short-circuited: if a custom mutator matches a
+    * tree that a built-in matcher (or another custom mutator) also matches, the mutations of both are combined instead
+    * of only the first match being used.
+    */
+  def withCustomMutators(matcher: MutationMatcher, customMutators: Seq[CustomMutator]): MutationMatcher =
+    customMutators.foldLeft(matcher)(_ combine _.matcher)
 
 }
 
