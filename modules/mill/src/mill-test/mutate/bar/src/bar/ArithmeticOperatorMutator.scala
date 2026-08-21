@@ -1,4 +1,4 @@
-package example
+package bar
 
 import cats.data.NonEmptyVector
 import stryker4s.mutatorapi.*
@@ -7,8 +7,8 @@ import scala.meta.*
 
 /** Example custom mutator: swaps `+` for `-` (and vice versa) in `Int` arithmetic expressions.
   *
-  * This demonstrates the "Arithmetic Operator" mutator category that Stryker4s does not ship built-in, registered here
-  * via the `strykerCustomMutators` sbt setting.
+  * Demonstrates the "Arithmetic Operator" mutator category that Stryker4s does not ship built-in, registered here
+  * via the `strykerCustomMutators` Mill setting.
   */
 class ArithmeticOperatorMutator extends CustomMutator {
   def matcher: MutationMatcher = {
