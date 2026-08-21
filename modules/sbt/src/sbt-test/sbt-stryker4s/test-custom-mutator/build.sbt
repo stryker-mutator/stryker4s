@@ -9,7 +9,13 @@ libraryDependencies ++= Seq(
 
 strykerDebugLogTestRunnerStdout := true
 stryker / logLevel := Level.Debug
-strykerCustomMutators := Seq("example.ArithmeticOperatorMutator")
+
+strykerCustomMutators := Seq(
+  "example.ArithmeticOperatorMutator",
+  "example.NumericLiteralMutator",
+  "example.CollectionLiteralMutator"
+)
+
 strykerMutate := Seq("src/main/scala/example/Calculator.scala")
 strykerReporters := Seq("json")
 strykerThresholdsBreak := 50
