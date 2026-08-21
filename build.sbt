@@ -15,7 +15,7 @@ lazy val root = rootProject
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; core/publishM2; testkit/publishM2"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; mutatorApi/publishM2; core/publishM2; testkit/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(

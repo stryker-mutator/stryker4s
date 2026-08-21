@@ -38,6 +38,19 @@ class Stryker4sMavenRunner(
 
   override def extraConfigSources: List[ConfigSource[IO]] = List(new MavenConfigSource[IO](project))
 
+  /** Builds a classloader from the project's compile classpath so `--custom-mutators` classes (and their dependencies,
+    * e.g. `stryker4s-mutator-api`) can be reflectively loaded from wherever the user's project puts them, while keeping
+    * Stryker4s's own classloader as the parent. Parent-first delegation ensures `stryker4s.mutatorapi.*` classes always
+    * resolve to Stryker4s's own copy (satisfying `CustomMutatorLoader`'s `isAssignableFrom` check) rather than a second
+    * copy loaded from the project's own classpath (which would also include `stryker4s-mutator-api` as a compile-time
+    * dependency of the custom mutator), avoiding a classloader-identity mismatch analogous to the one found in the
+    * sbt/Mill runners.
+    */
+  override def customMutatorClassLoader: ClassLoader = {
+    val urls = project.getTestClasspathElements().asScala.map(Path(_).toNioPath.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  }
+
   override def resolveTestRunners(
       tmpDir: Path
   )(using config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
