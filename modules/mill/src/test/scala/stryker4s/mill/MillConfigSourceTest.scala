@@ -20,6 +20,7 @@ class MillConfigSourceTest extends Stryker4sIOSuite {
     testFilterValue = None,
     reportersValue = None,
     excludedMutationsValue = None,
+    customMutatorsValue = None,
     thresholdsHighValue = None,
     thresholdsLowValue = None,
     thresholdsBreakValue = None,
@@ -48,6 +49,7 @@ class MillConfigSourceTest extends Stryker4sIOSuite {
       testFilterValue = Some(Seq("*MyTest")),
       reportersValue = Some(Seq("html", "console")),
       excludedMutationsValue = Some(Seq("BooleanLiteral")),
+      customMutatorsValue = Some(Seq("com.example.MyCustomMutator")),
       thresholdsHighValue = Some(85),
       thresholdsLowValue = Some(60),
       thresholdsBreakValue = Some(0),
@@ -74,6 +76,7 @@ class MillConfigSourceTest extends Stryker4sIOSuite {
       _ <- config.testFilter.load.assertEquals(Seq("*MyTest"))
       _ <- config.reporters.load.assertEquals(Seq[ReporterType](Html, Console))
       _ <- config.excludedMutations.load.assertEquals(Seq(ExcludedMutation("BooleanLiteral")))
+      _ <- config.customMutators.load.assertEquals(Seq("com.example.MyCustomMutator"))
       _ <- config.thresholdsHigh.load.assertEquals(85)
       _ <- config.thresholdsLow.load.assertEquals(60)
       _ <- config.thresholdsBreak.load.assertEquals(0)
@@ -108,6 +111,7 @@ class MillConfigSourceTest extends Stryker4sIOSuite {
       source.testFilter -> "strykerTestFilter",
       source.reporters -> "strykerReporters",
       source.excludedMutations -> "strykerExcludedMutations",
+      source.customMutators -> "strykerCustomMutators",
       source.thresholdsHigh -> "strykerThresholdsHigh",
       source.thresholdsLow -> "strykerThresholdsLow",
       source.thresholdsBreak -> "strykerThresholdsBreak",
