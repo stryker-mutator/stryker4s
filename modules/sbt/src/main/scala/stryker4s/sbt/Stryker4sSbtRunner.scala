@@ -230,4 +230,12 @@ class Stryker4sSbtRunner(
     } else {
       InstrumenterOptions.testRunner
     }
+
+  override def customMutatorClassLoader: ClassLoader =
+    PluginCompat.runTask(ctx.targetProject / Test / testLoader, ctx.state) match {
+      case Some(Right(loader)) => loader
+      case other               =>
+        log.debug(s"Expected task '${(Test / testLoader).key.label}' to succeed, but got: $other")
+        throw TestSetupException((Test / testLoader).key.label)
+    }
 }

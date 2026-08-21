@@ -32,3 +32,18 @@ final case class UnableToFixCompilerErrorsException(errs: NonEmptyList[CompilerE
           .map(err => s"${err.path}: '${err.msg}'")
           .mkString_("\n")
     )
+
+final case class CustomMutatorClassNotFoundException(className: String)
+    extends Stryker4sException(
+      s"Could not find custom mutator class '$className'. Make sure it is fully-qualified and present on the project's classpath."
+    )
+
+final case class CustomMutatorNotAssignableException(className: String)
+    extends Stryker4sException(
+      s"Custom mutator class '$className' does not extend stryker4s.mutatorapi.CustomMutator."
+    )
+
+final case class CustomMutatorInstantiationException(className: String, cause: Throwable)
+    extends Stryker4sException(
+      s"Could not instantiate custom mutator class '$className'. It must have a public no-argument constructor. Cause: ${cause.getMessage}"
+    )

@@ -66,4 +66,26 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
         |/src/main/scala/com/company/strykerTest/TestObj2.scala: 'yet another error with symbols $#'%%$~@1'""".stripMargin
     )
   }
+
+  test("CustomMutatorClassNotFoundException should have the correct message") {
+    assertNoDiff(
+      CustomMutatorClassNotFoundException("com.example.MyMutator").getMessage,
+      "Could not find custom mutator class 'com.example.MyMutator'. Make sure it is fully-qualified and present on the project's classpath."
+    )
+  }
+
+  test("CustomMutatorNotAssignableException should have the correct message") {
+    assertNoDiff(
+      CustomMutatorNotAssignableException("com.example.MyMutator").getMessage,
+      "Custom mutator class 'com.example.MyMutator' does not extend stryker4s.mutatorapi.CustomMutator."
+    )
+  }
+
+  test("CustomMutatorInstantiationException should have the correct message") {
+    val cause = new RuntimeException("no default constructor")
+    assertNoDiff(
+      CustomMutatorInstantiationException("com.example.MyMutator", cause).getMessage,
+      "Could not instantiate custom mutator class 'com.example.MyMutator'. It must have a public no-argument constructor. Cause: no default constructor"
+    )
+  }
 }
