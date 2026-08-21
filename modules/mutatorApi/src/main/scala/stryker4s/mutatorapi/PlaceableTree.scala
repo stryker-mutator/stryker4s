@@ -1,4 +1,4 @@
-package stryker4s.model
+package stryker4s.mutatorapi
 
 import scala.meta.Tree
 

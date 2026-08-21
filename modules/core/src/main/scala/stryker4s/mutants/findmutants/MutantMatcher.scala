@@ -29,8 +29,11 @@ object MutantMatcher {
     *
     * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
     * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
+    *
+    * Re-exported from the public `stryker4s-mutator-api` module, where third-party
+    * [[stryker4s.mutatorapi.CustomMutator]]s implement the same type.
     */
-  type MutationMatcher = PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
+  type MutationMatcher = stryker4s.mutatorapi.MutationMatcher
 
 }
 

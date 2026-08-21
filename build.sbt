@@ -31,8 +31,14 @@ lazy val root = rootProject
   .autoAggregate
 
 lazy val core = (projectMatrix in file("modules") / "core")
-  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, testRunner))
-  .dependsOn(api, testRunnerApi, testkit % Test)
+  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, mutatorApi, testRunner))
+  .dependsOn(api, testRunnerApi, mutatorApi, testkit % Test)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+
+// Public SPI for custom mutators, depended on by both `core` and third-party mutator authors
+lazy val mutatorApi = (projectMatrix in file("modules") / "mutatorApi")
+  .settings(commonSettings, mutatorApiSettings)
+  .dependsOn(testkit % Test)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
