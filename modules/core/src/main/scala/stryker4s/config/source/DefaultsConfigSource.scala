@@ -39,6 +39,8 @@ class DefaultsConfigSource[F[_]]() extends ConfigSource[F] {
 
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] = ConfigValue.default(Seq.empty)
 
+  override def customMutators: ConfigValue[F, Seq[String]] = ConfigValue.default(Seq.empty)
+
   override def thresholdsHigh: ConfigValue[F, Int] = ConfigValue.default(80)
 
   override def thresholdsLow: ConfigValue[F, Int] = ConfigValue.default(60)

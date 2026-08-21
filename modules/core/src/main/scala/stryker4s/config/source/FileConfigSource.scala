@@ -39,6 +39,9 @@ class FileConfigSource[F[_]](h: ConfigValue[F, Hocon.HoconAt])
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
     read("excluded-mutations").as[Seq[ExcludedMutation]]
 
+  override def customMutators: ConfigValue[F, Seq[String]] =
+    read("custom-mutators").as[Seq[String]]
+
   override def thresholdsHigh: ConfigValue[F, Int] = read("thresholds.high").as[Int]
   override def thresholdsLow: ConfigValue[F, Int] = read("thresholds.low").as[Int]
   override def thresholdsBreak: ConfigValue[F, Int] = read("thresholds.break").as[Int]

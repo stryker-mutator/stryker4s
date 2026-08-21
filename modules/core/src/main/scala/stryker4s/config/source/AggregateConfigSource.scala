@@ -34,6 +34,9 @@ class AggregateConfigSource[F[_]: Sync](sources: NonEmptyList[ConfigSource[F]])(
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
     loadAndLog(_.excludedMutations)
 
+  override def customMutators: ConfigValue[F, Seq[String]] =
+    loadAndLog(_.customMutators)
+
   override def thresholdsHigh: ConfigValue[F, Int] = loadAndLog(_.thresholdsHigh)
   override def thresholdsLow: ConfigValue[F, Int] = loadAndLog(_.thresholdsLow)
   override def thresholdsBreak: ConfigValue[F, Int] = loadAndLog(_.thresholdsBreak)
