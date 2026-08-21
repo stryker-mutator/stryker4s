@@ -172,7 +172,47 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 - `StringLiteral`
 - `MethodExpression`
 
-### `thresholds` (`object`)
+### `custom-mutators` (`Seq[String]`)
+
+**Config file:** `custom-mutators: ["com.example.MyCustomMutator"]`  
+**Sbt:** `strykerCustomMutators := Seq("com.example.MyCustomMutator")`  
+**Mill:** `override def strykerCustomMutators = Some(Seq("com.example.MyCustomMutator"))`  
+**Maven:** `<config><custom-mutators><custom-mutator>com.example.MyCustomMutator</custom-mutator></custom-mutators></config>`  
+**CLI:** `--custom-mutators com.example.MyCustomMutator`  
+**Default value:** `[]`
+
+With `custom-mutators`, you can register additional, project-specific mutators alongside
+Stryker4s's built-in ones. Each entry is the fully-qualified class name of a class implementing
+`stryker4s.mutatorapi.CustomMutator` (from the `stryker4s-mutator-api` artifact), with a public
+no-argument constructor. The class must be present on the project's own compile/test classpath —
+Stryker4s does not fetch or compile it for you.
+
+```scala
+// build.sbt
+libraryDependencies += "io.stryker-mutator" %% "stryker4s-mutator-api" % strykerVersion % Provided
+strykerCustomMutators := Seq("com.example.ArithmeticOperatorMutator")
+```
+
+```scala
+// com/example/ArithmeticOperatorMutator.scala
+package com.example
+
+import stryker4s.mutatorapi.*
+
+class ArithmeticOperatorMutator extends CustomMutator {
+  def matcher: MutationMatcher = {
+    // Match a scalameta Tree and return Either[IgnoredMutations, Mutations] describing the
+    // mutated replacement(s) for that node.
+    case ???
+  }
+}
+```
+
+A custom mutator's replacement(s) must always produce code that still compiles alongside the
+built-in mutants for the same statement (mutation switching compiles every mutant for a given
+line into one pattern match) — the same constraint the built-in mutators already satisfy.
+
+
 
 **Config file:** `thresholds{ high=80, low=60, break=0 }`  
 **Sbt:** `strykerThresholdsHigh := 80; strykerThresholdsLow := 60; strykerThresholdsBreak := 0`  
