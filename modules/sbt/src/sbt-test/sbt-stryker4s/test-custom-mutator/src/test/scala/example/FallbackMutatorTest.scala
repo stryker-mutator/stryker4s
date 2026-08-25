@@ -2,8 +2,8 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for fallback-path mutators, written first (TDD) before the mutator implementations.
-  * These cover the high-feasibility cats-effect fallback shape `primary.orElse(fallback)`.
+/** Unit tests for fallback-path mutators, written first (TDD) before the mutator implementations. These cover the
+  * high-feasibility cats-effect fallback shape `primary.orElse(fallback)`.
   */
 class FallbackMutatorTest extends munit.FunSuite {
   private val removalMutator = new FallbackRemovalMutator

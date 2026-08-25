@@ -1,6 +1,7 @@
 package example
 
 import cats.effect.IO
+import cats.syntax.all.*
 
 object Calculator {
   def add(a: Int, b: Int): Int = a + b
@@ -30,4 +31,10 @@ object Calculator {
     (if (primaryAvailable) IO.pure(7)
      else IO.raiseError(new IllegalStateException("primary unavailable")))
       .orElse(IO.pure(42))
+
+  // Exercises SequencingSwapMutator and SequencingRemovalMutator.
+  def auditedOrderTotal: IO[Int] =
+    IO.ref(0).flatMap { auditCount =>
+      auditCount.update(_ + 1).as(1) *> auditCount.get.map(_ + 10)
+    }
 }

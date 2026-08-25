@@ -52,4 +52,8 @@ class CalculatorTest extends munit.CatsEffectSuite {
   test("orderTotalWithFallback uses the fallback result when the primary fails") {
     Calculator.orderTotalWithFallback(primaryAvailable = false).map(result => assertEquals(result, 42))
   }
+
+  test("auditedOrderTotal runs the audit effect before computing the result") {
+    Calculator.auditedOrderTotal.map(result => assertEquals(result, 11))
+  }
 }

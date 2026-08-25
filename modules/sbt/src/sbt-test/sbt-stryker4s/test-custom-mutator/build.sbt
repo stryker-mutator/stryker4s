@@ -19,7 +19,9 @@ strykerCustomMutators := Seq(
   "example.ErrorHandlingMutator",
   "example.ConditionalEffectMutator",
   "example.FallbackRemovalMutator",
-  "example.FallbackInversionMutator"
+  "example.FallbackInversionMutator",
+  "example.SequencingSwapMutator",
+  "example.SequencingRemovalMutator"
 )
 
 strykerMutate := Seq("src/main/scala/example/Calculator.scala")
