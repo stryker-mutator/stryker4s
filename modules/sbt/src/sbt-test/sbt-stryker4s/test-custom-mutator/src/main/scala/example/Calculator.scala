@@ -37,4 +37,14 @@ object Calculator {
     IO.ref(0).flatMap { auditCount =>
       auditCount.update(_ + 1).as(1) *> auditCount.get.map(_ + 10)
     }
+
+  // Exercises TimeoutRemovalMutator (removing .timeout lets the slow work finish, so the
+  // quantity is returned instead of the -1 sentinel produced by the timeout recovery).
+  def strictOrderTotal(quantity: Int): IO[Int] =
+    IO.sleep(Deadlines.slowWork).as(quantity).timeout(Deadlines.limit).handleError(_ => -1)
+
+  // Exercises TimeoutRemovalMutator (removing .timeoutTo discards the fallback effect, so the
+  // quantity is returned instead of the -2 sentinel).
+  def orderTotalWithDeadline(quantity: Int): IO[Int] =
+    IO.sleep(Deadlines.slowWork).as(quantity).timeoutTo(Deadlines.limit, IO.pure(-2))
 }

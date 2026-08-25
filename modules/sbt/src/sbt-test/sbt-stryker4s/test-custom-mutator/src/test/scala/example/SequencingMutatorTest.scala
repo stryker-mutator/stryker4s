@@ -2,8 +2,8 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for cats-effect sequencing mutators, written first (TDD) before the mutator
-  * implementations. These cover the common effect-sequencing operators `*>` and `<*`.
+/** Unit tests for cats-effect sequencing mutators, written first (TDD) before the mutator implementations. These cover
+  * the common effect-sequencing operators `*>` and `<*`.
   */
 class SequencingMutatorTest extends munit.FunSuite {
   private val swapMutator = new SequencingSwapMutator

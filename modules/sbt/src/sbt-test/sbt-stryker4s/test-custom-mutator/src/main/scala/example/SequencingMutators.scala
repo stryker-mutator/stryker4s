@@ -7,9 +7,8 @@ import scala.meta.*
 
 /** Example custom mutator: swaps cats-effect sequencing operators `*>` and `<*`.
   *
-  * Both effects still run, but the returned value changes from the right side to the left side (or
-  * vice versa). This tests whether suites assert the result of sequencing, not only that it
-  * completed.
+  * Both effects still run, but the returned value changes from the right side to the left side (or vice versa). This
+  * tests whether suites assert the result of sequencing, not only that it completed.
   */
 class SequencingSwapMutator extends CustomMutator {
   def matcher: MutationMatcher = {
@@ -35,9 +34,8 @@ class SequencingSwapMutator extends CustomMutator {
 
 /** Example custom mutator: removes the effect whose result is discarded by cats-effect sequencing.
   *
-  * `fa *> fb` becomes `fb`, removing the left effect. `fa <* fb` becomes `fa`, removing the right
-  * effect. This keeps the original result type while testing whether discarded-result effects are
-  * nevertheless behaviorally important.
+  * `fa *> fb` becomes `fb`, removing the left effect. `fa <* fb` becomes `fa`, removing the right effect. This keeps
+  * the original result type while testing whether discarded-result effects are nevertheless behaviorally important.
   */
 class SequencingRemovalMutator extends CustomMutator {
   def matcher: MutationMatcher = {

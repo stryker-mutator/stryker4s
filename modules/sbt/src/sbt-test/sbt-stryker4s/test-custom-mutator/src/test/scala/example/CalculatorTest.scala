@@ -56,4 +56,12 @@ class CalculatorTest extends munit.CatsEffectSuite {
   test("auditedOrderTotal runs the audit effect before computing the result") {
     Calculator.auditedOrderTotal.map(result => assertEquals(result, 11))
   }
+
+  test("strictOrderTotal recovers to a sentinel when the work exceeds its deadline") {
+    Calculator.strictOrderTotal(5).map(result => assertEquals(result, -1))
+  }
+
+  test("orderTotalWithDeadline substitutes the fallback effect at the deadline") {
+    Calculator.orderTotalWithDeadline(5).map(result => assertEquals(result, -2))
+  }
 }
