@@ -24,4 +24,10 @@ object Calculator {
   // Exercises ConditionalEffectMutator (flipping IO.raiseUnless to IO.raiseWhen inverts the guard).
   def requirePositive(value: Int): IO[Int] =
     IO.raiseUnless(value > 0)(new IllegalArgumentException("non-positive")).as(value)
+
+  // Exercises FallbackRemovalMutator and FallbackInversionMutator.
+  def orderTotalWithFallback(primaryAvailable: Boolean): IO[Int] =
+    (if (primaryAvailable) IO.pure(7)
+     else IO.raiseError(new IllegalStateException("primary unavailable")))
+      .orElse(IO.pure(42))
 }

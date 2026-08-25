@@ -2,9 +2,8 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for [[ConditionalEffectMutator]]'s matcher logic, written first (TDD) before the
-  * mutator implementation. These cover cats-effect conditional-effect helpers that encode
-  * side-effecting boolean guards.
+/** Unit tests for [[ConditionalEffectMutator]]'s matcher logic, written first (TDD) before the mutator implementation.
+  * These cover cats-effect conditional-effect helpers that encode side-effecting boolean guards.
   */
 class ConditionalEffectMutatorTest extends munit.FunSuite {
   private val mutator = new ConditionalEffectMutator

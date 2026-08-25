@@ -10,11 +10,11 @@ if [ -z "$report" ]; then
   exit 1
 fi
 
-for mutator in ArithmeticOperator NumericLiteral CollectionLiteral ErrorHandling ConditionalEffect; do
+for mutator in ArithmeticOperator NumericLiteral CollectionLiteral ErrorHandling ConditionalEffect FallbackRemoval FallbackInversion; do
   if ! grep -q "$mutator" "$report"; then
     echo "report.json does not contain any $mutator mutants: $report" >&2
     exit 1
   fi
 done
 
-echo "Found ArithmeticOperator, NumericLiteral, CollectionLiteral, ErrorHandling, and ConditionalEffect mutant(s) in $report"
+echo "Found ArithmeticOperator, NumericLiteral, CollectionLiteral, ErrorHandling, ConditionalEffect, FallbackRemoval, and FallbackInversion mutant(s) in $report"

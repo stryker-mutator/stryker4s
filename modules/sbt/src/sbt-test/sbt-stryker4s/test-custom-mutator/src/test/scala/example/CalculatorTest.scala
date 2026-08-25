@@ -44,4 +44,12 @@ class CalculatorTest extends munit.CatsEffectSuite {
   test("requirePositive rejects non-positive values") {
     Calculator.requirePositive(0).attempt.map(result => assert(result.isLeft))
   }
+
+  test("orderTotalWithFallback uses the primary result when it is available") {
+    Calculator.orderTotalWithFallback(primaryAvailable = true).map(result => assertEquals(result, 7))
+  }
+
+  test("orderTotalWithFallback uses the fallback result when the primary fails") {
+    Calculator.orderTotalWithFallback(primaryAvailable = false).map(result => assertEquals(result, 42))
+  }
 }

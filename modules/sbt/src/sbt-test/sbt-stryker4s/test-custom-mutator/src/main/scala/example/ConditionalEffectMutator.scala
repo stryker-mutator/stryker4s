@@ -8,13 +8,13 @@ import scala.meta.*
 /** Example custom mutator: flips cats-effect conditional effect helpers (`IO.whenA`/`IO.unlessA`,
   * `IO.raiseWhen`/`IO.raiseUnless`).
   *
-  * These helpers encode side-effecting boolean guards, so flipping the guard helper tests whether
-  * the suite distinguishes "run this effect when the condition is true" from "run this effect when
-  * the condition is false". This is a cats-effect-specific equivalent of a conditional-boundary
-  * mutator, but targeted at pure-FP effect construction rather than imperative `if` statements.
+  * These helpers encode side-effecting boolean guards, so flipping the guard helper tests whether the suite
+  * distinguishes "run this effect when the condition is true" from "run this effect when the condition is false". This
+  * is a cats-effect-specific equivalent of a conditional-boundary mutator, but targeted at pure-FP effect construction
+  * rather than imperative `if` statements.
   *
-  * Purely syntactic: only matches two-argument-list calls on an `IO` receiver, such as
-  * `IO.whenA(flag)(effect)` or `cats.effect.IO.raiseUnless(flag)(error)`.
+  * Purely syntactic: only matches two-argument-list calls on an `IO` receiver, such as `IO.whenA(flag)(effect)` or
+  * `cats.effect.IO.raiseUnless(flag)(error)`.
   */
 class ConditionalEffectMutator extends CustomMutator {
   def matcher: MutationMatcher = {
@@ -32,16 +32,16 @@ class ConditionalEffectMutator extends CustomMutator {
 
   private def isIoReceiver(receiver: Term): Boolean =
     receiver match {
-      case Term.Name("IO") => true
+      case Term.Name("IO")                 => true
       case Term.Select(_, Term.Name("IO")) => true
-      case _ => false
+      case _                               => false
     }
 
   private def flippedName(name: String): String =
     name match {
-      case "whenA" => "unlessA"
-      case "unlessA" => "whenA"
-      case "raiseWhen" => "raiseUnless"
+      case "whenA"       => "unlessA"
+      case "unlessA"     => "whenA"
+      case "raiseWhen"   => "raiseUnless"
       case "raiseUnless" => "raiseWhen"
     }
 
