@@ -28,4 +28,20 @@ class CalculatorTest extends munit.CatsEffectSuite {
   test("safeDivide passes through a successful division") {
     Calculator.safeDivide(10, 2).map(result => assertEquals(result, 5))
   }
+
+  test("rejectOversizedOrder fails for quantities above the limit") {
+    Calculator.rejectOversizedOrder(101).attempt.map(result => assert(result.isLeft))
+  }
+
+  test("rejectOversizedOrder accepts quantities at the limit") {
+    Calculator.rejectOversizedOrder(100)
+  }
+
+  test("requirePositive accepts positive values") {
+    Calculator.requirePositive(1).map(result => assertEquals(result, 1))
+  }
+
+  test("requirePositive rejects non-positive values") {
+    Calculator.requirePositive(0).attempt.map(result => assert(result.isLeft))
+  }
 }

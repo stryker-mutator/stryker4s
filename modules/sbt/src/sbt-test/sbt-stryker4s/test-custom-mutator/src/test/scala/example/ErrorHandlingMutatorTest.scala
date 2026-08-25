@@ -2,10 +2,9 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for [[ErrorHandlingMutator]]'s matcher logic, written first (TDD) before the mutator
-  * implementation. These test the `MutationMatcher` in isolation (parsing small snippets with
-  * scalameta, invoking the matcher directly) rather than running a full mutation-testing pass,
-  * mirroring the style of `stryker4s.mutatorapi.CustomMutatorTest`.
+/** Unit tests for [[ErrorHandlingMutator]]'s matcher logic, written first (TDD) before the mutator implementation.
+  * These test the `MutationMatcher` in isolation (parsing small snippets with scalameta, invoking the matcher directly)
+  * rather than running a full mutation-testing pass, mirroring the style of `stryker4s.mutatorapi.CustomMutatorTest`.
   */
 class ErrorHandlingMutatorTest extends munit.FunSuite {
   private val mutator = new ErrorHandlingMutator

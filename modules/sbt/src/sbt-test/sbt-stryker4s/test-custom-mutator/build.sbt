@@ -16,7 +16,8 @@ strykerCustomMutators := Seq(
   "example.ArithmeticOperatorMutator",
   "example.NumericLiteralMutator",
   "example.CollectionLiteralMutator",
-  "example.ErrorHandlingMutator"
+  "example.ErrorHandlingMutator",
+  "example.ConditionalEffectMutator"
 )
 
 strykerMutate := Seq("src/main/scala/example/Calculator.scala")

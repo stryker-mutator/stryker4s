@@ -16,4 +16,12 @@ object Calculator {
   // recovery, causing the ArithmeticException to propagate instead of being recovered to 0).
   def safeDivide(a: Int, b: Int): IO[Int] =
     IO(a / b).handleErrorWith(_ => IO.pure(0))
+
+  // Exercises ConditionalEffectMutator (flipping IO.whenA to IO.unlessA inverts the guard).
+  def rejectOversizedOrder(quantity: Int): IO[Unit] =
+    IO.whenA(quantity > 100)(IO.raiseError(new IllegalArgumentException("oversized order")))
+
+  // Exercises ConditionalEffectMutator (flipping IO.raiseUnless to IO.raiseWhen inverts the guard).
+  def requirePositive(value: Int): IO[Int] =
+    IO.raiseUnless(value > 0)(new IllegalArgumentException("non-positive")).as(value)
 }
