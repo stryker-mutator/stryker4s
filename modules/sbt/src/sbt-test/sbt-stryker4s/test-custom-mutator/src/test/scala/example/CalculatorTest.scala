@@ -1,6 +1,6 @@
 package example
 
-class CalculatorTest extends munit.FunSuite {
+class CalculatorTest extends munit.CatsEffectSuite {
   test("add sums two numbers") {
     assertEquals(Calculator.add(2, 3), 5)
     assertEquals(Calculator.add(-1, 1), 0)
@@ -19,5 +19,13 @@ class CalculatorTest extends munit.FunSuite {
 
   test("defaultDiscounts has exactly the expected three tiers") {
     assertEquals(Calculator.defaultDiscounts, List(5, 10, 15))
+  }
+
+  test("safeDivide recovers from division-by-zero errors back to a default of 0") {
+    Calculator.safeDivide(10, 0).map(result => assertEquals(result, 0))
+  }
+
+  test("safeDivide passes through a successful division") {
+    Calculator.safeDivide(10, 2).map(result => assertEquals(result, 5))
   }
 }

@@ -7,12 +7,12 @@ import scala.meta.*
 
 /** Example custom mutator: increments integer literals by 1 (e.g. `10` -> `11`).
   *
-  * Demonstrates the "Numeric Literal" mutator category that Stryker4s does not ship built-in, registered here via
-  * the `strykerCustomMutators` sbt setting. Purely syntactic (operates on `Lit.Int` nodes), with no dependency on
-  * type information — matching the same style as Stryker4s's built-in `StringLiteral`/`BooleanLiteral` mutators.
-  * Only produces a single (+1) mutant per literal, since scalameta trees created reflectively across a
-  * classloader boundary can't safely use varargs-based collection construction (e.g. `NonEmptyVector.of`,
-  * `Vector(...)`) — see the classloader-identity notes in `docs/configuration.md`.
+  * Demonstrates the "Numeric Literal" mutator category that Stryker4s does not ship built-in, registered here via the
+  * `strykerCustomMutators` sbt setting. Purely syntactic (operates on `Lit.Int` nodes), with no dependency on type
+  * information — matching the same style as Stryker4s's built-in `StringLiteral`/`BooleanLiteral` mutators. Only
+  * produces a single (+1) mutant per literal, since scalameta trees created reflectively across a classloader boundary
+  * can't safely use varargs-based collection construction (e.g. `NonEmptyVector.of`, `Vector(...)`) — see the
+  * classloader-identity notes in `docs/configuration.md`.
   */
 class NumericLiteralMutator extends CustomMutator {
   def matcher: MutationMatcher = { case lit @ Lit.Int(value) =>

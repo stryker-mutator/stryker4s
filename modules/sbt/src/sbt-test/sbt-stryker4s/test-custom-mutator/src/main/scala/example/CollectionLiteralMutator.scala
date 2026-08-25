@@ -6,13 +6,13 @@ import stryker4s.mutatorapi.*
 import scala.meta.*
 import scala.meta.prettyprinters.XtensionReprint
 
-/** Example custom mutator: replaces non-empty `List(...)`/`Seq(...)`/`Vector(...)` literal construction with the
-  * type's `.empty` collection.
+/** Example custom mutator: replaces non-empty `List(...)`/`Seq(...)`/`Vector(...)` literal construction with the type's
+  * `.empty` collection.
   *
-  * Demonstrates the "Array/Collection Literal" mutator category that Stryker4s does not ship built-in, registered
-  * here via the `strykerCustomMutators` sbt setting. Restricted to a small, explicit allow-list of collection
-  * factory names to avoid false-positive matches on user-defined `apply` methods with the same name (this codebase
-  * has no type information available at match time, so this syntactic restriction is the safest we can do).
+  * Demonstrates the "Array/Collection Literal" mutator category that Stryker4s does not ship built-in, registered here
+  * via the `strykerCustomMutators` sbt setting. Restricted to a small, explicit allow-list of collection factory names
+  * to avoid false-positive matches on user-defined `apply` methods with the same name (this codebase has no type
+  * information available at match time, so this syntactic restriction is the safest we can do).
   */
 class CollectionLiteralMutator extends CustomMutator {
   private def isCollectionName(name: String): Boolean =
