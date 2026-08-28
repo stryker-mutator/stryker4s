@@ -12,7 +12,7 @@ if [ -z "$report" ]; then
   exit 1
 fi
 
-for mutator in ArithmeticOperator NumericLiteral CollectionLiteral ErrorHandling ConditionalEffect FallbackRemoval FallbackInversion SequencingSwap SequencingRemoval TimeoutRemoval GetOrElse ParallelSequentialSwap ResourceFinalizer RefUpdate SleepRemoval; do
+for mutator in ArithmeticOperator NumericLiteral CollectionLiteral ErrorHandling ConditionalEffect FallbackRemoval FallbackInversion SequencingSwap SequencingRemoval TimeoutRemoval GetOrElse ParallelSequentialSwap ResourceFinalizer RefUpdate SleepRemoval CollectionOrder StringNormalization HeadLastSwap; do
   if ! grep -q "$mutator" "$report"; then
     echo "report.json does not contain any $mutator mutants: $report" >&2
     exit 1

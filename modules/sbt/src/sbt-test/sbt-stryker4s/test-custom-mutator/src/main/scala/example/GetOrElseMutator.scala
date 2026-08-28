@@ -7,13 +7,12 @@ import scala.meta.*
 
 /** Example custom mutator: forces the default branch of `getOrElse`.
   *
-  * `maybeQuantity.getOrElse(0)` becomes `0`, so the value carried by a `Some`/`Right` is never
-  * used. This tests whether a suite covers the present case at all, or only ever exercises the
-  * empty case where the default is returned anyway.
+  * `maybeQuantity.getOrElse(0)` becomes `0`, so the value carried by a `Some`/`Right` is never used. This tests whether
+  * a suite covers the present case at all, or only ever exercises the empty case where the default is returned anyway.
   *
-  * Both the one-argument form (`Option`, `Either`, `IO`-like) and the two-argument `Map` form
-  * (`map.getOrElse(key, default)`) are handled by always taking the last argument, which is the
-  * default in both. `getOrElseF` is covered as well, since cats uses it for the effectful variant.
+  * Both the one-argument form (`Option`, `Either`, `IO`-like) and the two-argument `Map` form (`map.getOrElse(key,
+  * default)`) are handled by always taking the last argument, which is the default in both. `getOrElseF` is covered as
+  * well, since cats uses it for the effectful variant.
   */
 class GetOrElseMutator extends CustomMutator {
   def matcher: MutationMatcher = {

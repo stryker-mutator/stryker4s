@@ -11,14 +11,13 @@ import scala.meta.*
   *   - `fa.bracket(use)(release)` becomes `fa.flatMap(use)`
   *   - `fa.guarantee(cleanup)` (and `guaranteeCase`, `onCancel`) becomes `fa`
   *
-  * In every case the acquisition and the use of the resource are preserved and only the cleanup is
-  * dropped, so the mutant is behaviourally identical unless a test actually observes the release —
-  * by asserting a connection was returned to the pool, a file handle closed, a lock freed, and so
-  * on. Finalizers are some of the least-tested code in an effectful codebase, so surviving mutants
-  * here are usually genuine coverage gaps rather than noise.
+  * In every case the acquisition and the use of the resource are preserved and only the cleanup is dropped, so the
+  * mutant is behaviourally identical unless a test actually observes the release — by asserting a connection was
+  * returned to the pool, a file handle closed, a lock freed, and so on. Finalizers are some of the least-tested code in
+  * an effectful codebase, so surviving mutants here are usually genuine coverage gaps rather than noise.
   *
-  * `Resource.make` is only matched when its qualifier is literally `Resource` (bare or as the last
-  * segment of a qualified path), so unrelated `Foo.make(a)(b)` builders are left alone.
+  * `Resource.make` is only matched when its qualifier is literally `Resource` (bare or as the last segment of a
+  * qualified path), so unrelated `Foo.make(a)(b)` builders are left alone.
   */
 class ResourceFinalizerMutator extends CustomMutator {
   def matcher: MutationMatcher = {
@@ -46,9 +45,9 @@ class ResourceFinalizerMutator extends CustomMutator {
 
   private def isResourceQualifier(qualifier: Term): Boolean =
     qualifier match {
-      case Term.Name("Resource")              => true
+      case Term.Name("Resource")                 => true
       case Term.Select(_, Term.Name("Resource")) => true
-      case _                                  => false
+      case _                                     => false
     }
 
   private def isResourceMake(name: String): Boolean =

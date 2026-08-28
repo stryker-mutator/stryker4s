@@ -68,4 +68,21 @@ object Calculator {
         .use(IO.pure)
         .flatMap(used => releases.get.map(_ + used))
     }
+
+  // Exercises CollectionOrderMutator three times over: dropping any one of .distinct, .sorted or
+  // .reverse leaves a list that differs from the expected one.
+  def descendingDiscounts(discounts: List[Int]): List[Int] =
+    discounts.distinct.sorted.reverse
+
+  // Exercises StringNormalizationMutator three times over (.trim, .toUpperCase, .stripPrefix).
+  def normalizeCode(code: String): String =
+    code.trim.toUpperCase.stripPrefix("SKU-")
+
+  // Exercises HeadLastSwapMutator (.headOption swapped for .lastOption).
+  def firstDiscount(discounts: List[Int]): Option[Int] =
+    discounts.headOption
+
+  // Exercises HeadLastSwapMutator (.tail swapped for .init).
+  def remainingDiscounts(discounts: List[Int]): List[Int] =
+    discounts.tail
 }

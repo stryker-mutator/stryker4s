@@ -92,4 +92,32 @@ class CalculatorTest extends munit.CatsEffectSuite {
   test("trackedResource releases the resource exactly once") {
     Calculator.trackedResource.map(result => assertEquals(result, 8))
   }
+
+  test("descendingDiscounts orders the discounts from largest to smallest") {
+    assertEquals(Calculator.descendingDiscounts(List(5, 15, 10)), List(15, 10, 5))
+  }
+
+  test("descendingDiscounts collapses repeated discounts") {
+    assertEquals(Calculator.descendingDiscounts(List(10, 5, 10)), List(10, 5))
+  }
+
+  test("normalizeCode trims, upper-cases and strips the prefix from a code") {
+    assertEquals(Calculator.normalizeCode("  sku-ab "), "AB")
+  }
+
+  test("normalizeCode leaves a code that does not carry the prefix intact") {
+    assertEquals(Calculator.normalizeCode("ab"), "AB")
+  }
+
+  test("firstDiscount reads the discount at the front of the list") {
+    assertEquals(Calculator.firstDiscount(List(5, 10, 15)), Some(5))
+  }
+
+  test("firstDiscount has no discount to read for an empty list") {
+    assertEquals(Calculator.firstDiscount(Nil), None)
+  }
+
+  test("remainingDiscounts drops the discount at the front of the list") {
+    assertEquals(Calculator.remainingDiscounts(List(5, 10, 15)), List(10, 15))
+  }
 }

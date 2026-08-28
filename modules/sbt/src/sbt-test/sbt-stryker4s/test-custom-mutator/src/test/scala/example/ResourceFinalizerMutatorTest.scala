@@ -2,8 +2,7 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for [[ResourceFinalizerMutator]], written first (TDD) before the mutator
-  * implementation.
+/** Unit tests for [[ResourceFinalizerMutator]], written first (TDD) before the mutator implementation.
   */
 class ResourceFinalizerMutatorTest extends munit.FunSuite {
   private val mutator = new ResourceFinalizerMutator

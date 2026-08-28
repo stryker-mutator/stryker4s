@@ -7,22 +7,20 @@ import scala.meta.*
 
 /** Example custom mutator: swaps sequential and parallel cats combinators.
   *
-  * `orders.traverse(f)` becomes `orders.parTraverse(f)` and vice versa, likewise for `traverse_`,
-  * `flatTraverse`, `sequence`, `sequence_` and `mapN`.
+  * `orders.traverse(f)` becomes `orders.parTraverse(f)` and vice versa, likewise for `traverse_`, `flatTraverse`,
+  * `sequence`, `sequence_` and `mapN`.
   *
-  * Making sequential code parallel is the more interesting direction: it survives only if nothing
-  * depends on the effects running in order, so a killed mutant is evidence that ordering is
-  * actually asserted somewhere. The reverse direction catches code that is parallel by habit
-  * rather than by need.
+  * Making sequential code parallel is the more interesting direction: it survives only if nothing depends on the
+  * effects running in order, so a killed mutant is evidence that ordering is actually asserted somewhere. The reverse
+  * direction catches code that is parallel by habit rather than by need.
   *
-  * Note that `parTraverse` and friends require a `Parallel` instance, so the sequential-to-parallel
-  * direction can produce compile errors for effect types that have none (`Either`, `Try`, plain
-  * `Option`). Those surface as `CompileError` mutants, which Stryker4s reports but excludes from
-  * the mutation score.
+  * Note that `parTraverse` and friends require a `Parallel` instance, so the sequential-to-parallel direction can
+  * produce compile errors for effect types that have none (`Either`, `Try`, plain `Option`). Those surface as
+  * `CompileError` mutants, which Stryker4s reports but excludes from the mutation score.
   *
-  * The applied combinators (`traverse`) and the no-argument ones (`sequence`) are kept in separate
-  * groups on purpose: matching a bare `Term.Select` for an applied combinator would emit a second,
-  * duplicate mutant for the inner selection of `xs.traverse(f)`.
+  * The applied combinators (`traverse`) and the no-argument ones (`sequence`) are kept in separate groups on purpose:
+  * matching a bare `Term.Select` for an applied combinator would emit a second, duplicate mutant for the inner
+  * selection of `xs.traverse(f)`.
   */
 class ParallelSequentialSwapMutator extends CustomMutator {
   def matcher: MutationMatcher = {

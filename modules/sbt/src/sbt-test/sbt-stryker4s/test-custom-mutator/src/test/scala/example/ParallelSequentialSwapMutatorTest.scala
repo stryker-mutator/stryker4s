@@ -2,8 +2,7 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for [[ParallelSequentialSwapMutator]], written first (TDD) before the mutator
-  * implementation.
+/** Unit tests for [[ParallelSequentialSwapMutator]], written first (TDD) before the mutator implementation.
   */
 class ParallelSequentialSwapMutatorTest extends munit.FunSuite {
   private val mutator = new ParallelSequentialSwapMutator

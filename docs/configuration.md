@@ -231,6 +231,24 @@ inner `expr.foo` selection emits **two** mutants for one combinator. The second 
 selection and leaves the argument list behind — `IO(a / b)(_ => IO.pure(0))` — which cannot
 compile. Keep the applied and no-argument method names in disjoint sets.
 
+#### Dropping a selection needs a parent guard; renaming one does not
+
+Disjoint name sets are not quite enough for a mutator that *drops* a selection, because a
+no-argument method can still be applied explicitly: `xs.sorted(ordering)`,
+`code.toLowerCase(locale)`. The inner `xs.sorted` selection matches, and dropping it strands the
+argument list as `xs(ordering)`. Guard against being the function of an enclosing call:
+
+```scala
+private def isAppliedTo(term: Term): Boolean =
+  term.parent.exists {
+    case Term.Apply.After_4_6_0(fun, _) => fun eq term
+    case _                              => false
+  }
+```
+
+A mutator that only *renames* a selection — `.head` to `.last`, say — needs no such guard, since
+`xs.last(i)` compiles exactly as `xs.head(i)` does.
+
 A custom mutator's replacement(s) must always produce code that still compiles alongside the
 built-in mutants for the same statement (mutation switching compiles every mutant for a given
 line into one pattern match) — the same constraint the built-in mutators already satisfy.
