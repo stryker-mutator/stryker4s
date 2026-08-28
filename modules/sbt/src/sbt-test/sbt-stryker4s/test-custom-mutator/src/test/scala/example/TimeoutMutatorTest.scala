@@ -2,8 +2,8 @@ package example
 
 import scala.meta.*
 
-/** Unit tests for the cats-effect timeout mutator, written first (TDD) before the mutator
-  * implementation. These cover the `timeout`, `timeoutTo` and `timeoutAndForget` combinators.
+/** Unit tests for the cats-effect timeout mutator, written first (TDD) before the mutator implementation. These cover
+  * the `timeout`, `timeoutTo` and `timeoutAndForget` combinators.
   */
 class TimeoutMutatorTest extends munit.FunSuite {
   private val mutator = new TimeoutRemovalMutator

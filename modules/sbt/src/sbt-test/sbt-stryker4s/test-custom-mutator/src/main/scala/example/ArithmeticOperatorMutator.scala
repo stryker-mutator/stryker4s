@@ -24,6 +24,6 @@ class ArithmeticOperatorMutator extends CustomMutator {
     val from = term.op.value
     val mutated = term.copyWithComments(op = term.op.copyWithComments(value = to))
     val metadata = MutantMetadata(from, to, "ArithmeticOperator", term.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(mutated, metadata)))
+    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, mutated), metadata)))
   }
 }

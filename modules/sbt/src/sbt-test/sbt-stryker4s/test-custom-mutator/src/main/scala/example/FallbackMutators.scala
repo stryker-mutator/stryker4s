@@ -25,7 +25,7 @@ class FallbackRemovalMutator extends CustomMutator {
       mutatorName: String
   )(placeableTree: PlaceableTree): Either[IgnoredMutations, Mutations] = {
     val metadata = MutantMetadata(original, replacementDescription, mutatorName, term.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(replacement, metadata)))
+    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, replacement), metadata)))
   }
 }
 
@@ -50,6 +50,6 @@ class FallbackInversionMutator extends CustomMutator {
       mutatorName: String
   )(placeableTree: PlaceableTree): Either[IgnoredMutations, Mutations] = {
     val metadata = MutantMetadata(original, replacementDescription, mutatorName, term.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(replacement, metadata)))
+    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, replacement), metadata)))
   }
 }

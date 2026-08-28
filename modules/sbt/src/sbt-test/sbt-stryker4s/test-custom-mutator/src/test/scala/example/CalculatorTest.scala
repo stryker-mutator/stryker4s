@@ -30,7 +30,9 @@ class CalculatorTest extends munit.CatsEffectSuite {
   }
 
   test("rejectOversizedOrder fails for quantities above the limit") {
-    Calculator.rejectOversizedOrder(101).attempt.map(result => assert(result.isLeft))
+    Calculator.rejectOversizedOrder(101).attempt.map { result =>
+      assertEquals(result.left.toOption.map(_.getMessage), Some("oversized order"))
+    }
   }
 
   test("rejectOversizedOrder accepts quantities at the limit") {
@@ -42,7 +44,9 @@ class CalculatorTest extends munit.CatsEffectSuite {
   }
 
   test("requirePositive rejects non-positive values") {
-    Calculator.requirePositive(0).attempt.map(result => assert(result.isLeft))
+    Calculator.requirePositive(0).attempt.map { result =>
+      assertEquals(result.left.toOption.map(_.getMessage), Some("non-positive"))
+    }
   }
 
   test("orderTotalWithFallback uses the primary result when it is available") {
@@ -63,5 +67,29 @@ class CalculatorTest extends munit.CatsEffectSuite {
 
   test("orderTotalWithDeadline substitutes the fallback effect at the deadline") {
     Calculator.orderTotalWithDeadline(5).map(result => assertEquals(result, -2))
+  }
+
+  test("quantityOrDefault uses the supplied quantity when one is present") {
+    assertEquals(Calculator.quantityOrDefault(Some(9)), 9)
+  }
+
+  test("quantityOrDefault falls back to a single unit when no quantity is present") {
+    assertEquals(Calculator.quantityOrDefault(None), 1)
+  }
+
+  test("validateAll short-circuits at the first invalid value") {
+    assertEquals(Calculator.validateAll(List(1, -1, -2)), Left(List(-1)))
+  }
+
+  test("validateAll returns every value when all of them are valid") {
+    assertEquals(Calculator.validateAll(List(1, 2)), Right(List(1, 2)))
+  }
+
+  test("validateAll rejects zero, which is the boundary of the validity check") {
+    assertEquals(Calculator.validateAll(List(0)), Left(List(0)))
+  }
+
+  test("trackedResource releases the resource exactly once") {
+    Calculator.trackedResource.map(result => assertEquals(result, 8))
   }
 }

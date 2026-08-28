@@ -7,15 +7,16 @@ import scala.meta.*
 
 class CustomMutatorTest extends Stryker4sSuite {
 
-  /** A minimal example custom mutator, as a third-party implementation would write one: matching on `Term.Name("<")`
-    * and mutating it to `Term.Name(">")`.
+  /** A minimal example custom mutator, written the way a third-party implementation should be: matching a sub-term
+    * (here `Term.Name("<")`) and building the mutated statement with `PlaceableTree.substitute`, so the mutation is
+    * applied in place and the surrounding statement is preserved.
     */
   private class SwapLessThanMutator extends CustomMutator {
     def matcher: MutationMatcher = { case orig @ Term.Name("<") =>
       placeableTree =>
-        val mutatedStatement = placeableTree.tree.asInstanceOf[Term]
+        val replacement = Term.Name(">")
         val metadata = MutantMetadata(orig.value, ">", "SwapLessThan", orig.pos, None)
-        Right(NonEmptyVector.one(MutatedCode(mutatedStatement, metadata)))
+        Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(orig, replacement), metadata)))
     }
   }
 
@@ -30,6 +31,16 @@ class CustomMutatorTest extends Stryker4sSuite {
     val mutations = result.value
     assertEquals(mutations.head.metadata.mutatorName, "SwapLessThan")
     assertEquals(mutations.head.metadata.replacement, ">")
+  }
+
+  test("a CustomMutator's matcher should keep the statement surrounding the matched sub-term") {
+    val mutator = new SwapLessThanMutator
+    val statement = "a < b".parseTerm
+    val op = statement.collect { case t @ Term.Name("<") => t }.head
+
+    val mutations = mutator.matcher(op)(PlaceableTree(statement)).value
+
+    assertEquals(mutations.head.mutatedStatement.syntax, "a > b")
   }
 
   test("a CustomMutator's matcher should not match unrelated trees") {

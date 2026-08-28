@@ -22,7 +22,12 @@ strykerCustomMutators := Seq(
   "example.FallbackInversionMutator",
   "example.SequencingSwapMutator",
   "example.SequencingRemovalMutator",
-  "example.TimeoutRemovalMutator"
+  "example.TimeoutRemovalMutator",
+  "example.GetOrElseMutator",
+  "example.ParallelSequentialSwapMutator",
+  "example.ResourceFinalizerMutator",
+  "example.RefUpdateMutator",
+  "example.SleepRemovalMutator"
 )
 
 strykerMutate := Seq("src/main/scala/example/Calculator.scala")

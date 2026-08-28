@@ -29,6 +29,6 @@ class CollectionLiteralMutator extends CustomMutator {
   ): Either[IgnoredMutations, Mutations] = {
     val mutated = Term.Select(Term.Name(collectionName), Term.Name("empty"))
     val metadata = MutantMetadata(term.reprint(), mutated.reprint(), "CollectionLiteral", term.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(mutated, metadata)))
+    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, mutated), metadata)))
   }
 }

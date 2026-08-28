@@ -77,4 +77,30 @@ class ErrorHandlingMutatorTest extends munit.FunSuite {
   test("does not match a bare identifier") {
     assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect")))
   }
+
+  test("does not match the bare selection of an applied combinator") {
+    // Guards against emitting a duplicate mutant for the inner Select of `effect.handleErrorWith(f)`.
+    // That mutant would drop only the selection and leave the argument list dangling, as in
+    // `IO(a / b)(_ => IO.pure(0))`, which cannot compile.
+    assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.handleErrorWith")))
+    assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.handleError")))
+    assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.recover")))
+    assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.recoverWith")))
+  }
+
+  test("does not match an applied no-argument combinator") {
+    // `attempt` and `rethrow` take no arguments, so an applied one is something else entirely.
+    assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.attempt(arg)")))
+    assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.rethrow(arg)")))
+  }
+
+  test("produces exactly one mutant for a whole applied combinator, keeping surrounding context") {
+    val statement = parseTerm("IO(a / b).handleErrorWith(_ => IO.pure(0)).map(double)")
+    val term = statement.collect { case t: Term if t.syntax == "IO(a / b).handleErrorWith(_ => IO.pure(0))" => t }.head
+
+    val Right(mutations) =
+      mutator.matcher(term)(stryker4s.mutatorapi.PlaceableTree(statement)): @unchecked
+    assertEquals(mutations.length, 1)
+    assertEquals(mutations.head.mutatedStatement.syntax, "IO(a / b).map(double)")
+  }
 }

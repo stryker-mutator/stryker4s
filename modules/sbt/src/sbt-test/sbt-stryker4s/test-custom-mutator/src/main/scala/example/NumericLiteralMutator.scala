@@ -24,6 +24,6 @@ class NumericLiteralMutator extends CustomMutator {
   ): Either[IgnoredMutations, Mutations] = {
     val from = lit.value.toString
     val metadata = MutantMetadata(from, incremented.toString, "NumericLiteral", lit.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(Lit.Int(incremented), metadata)))
+    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(lit, Lit.Int(incremented)), metadata)))
   }
 }

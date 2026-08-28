@@ -53,6 +53,6 @@ class ConditionalEffectMutator extends CustomMutator {
   ): Either[IgnoredMutations, Mutations] = {
     val metadata =
       MutantMetadata(s".$originalName", s".$replacementName", "ConditionalEffect", term.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(replacement, metadata)))
+    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, replacement), metadata)))
   }
 }

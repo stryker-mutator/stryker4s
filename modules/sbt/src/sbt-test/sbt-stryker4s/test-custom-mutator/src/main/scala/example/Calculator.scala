@@ -1,6 +1,7 @@
 package example
 
 import cats.effect.IO
+import cats.effect.Resource
 import cats.syntax.all.*
 
 object Calculator {
@@ -29,13 +30,13 @@ object Calculator {
   // Exercises FallbackRemovalMutator and FallbackInversionMutator.
   def orderTotalWithFallback(primaryAvailable: Boolean): IO[Int] =
     (if (primaryAvailable) IO.pure(7)
-     else IO.raiseError(new IllegalStateException("primary unavailable")))
+     else IO.raiseError(new IllegalStateException(Sentinels.primaryUnavailable)))
       .orElse(IO.pure(42))
 
   // Exercises SequencingSwapMutator and SequencingRemovalMutator.
   def auditedOrderTotal: IO[Int] =
     IO.ref(0).flatMap { auditCount =>
-      auditCount.update(_ + 1).as(1) *> auditCount.get.map(_ + 10)
+      auditCount.update(_ + 1).as(Sentinels.discardedAudit) *> auditCount.get.map(_ + 10)
     }
 
   // Exercises TimeoutRemovalMutator (removing .timeout lets the slow work finish, so the
@@ -47,4 +48,24 @@ object Calculator {
   // quantity is returned instead of the -2 sentinel).
   def orderTotalWithDeadline(quantity: Int): IO[Int] =
     IO.sleep(Deadlines.slowWork).as(quantity).timeoutTo(Deadlines.limit, IO.pure(-2))
+
+  // Exercises GetOrElseMutator (forcing the default discards the supplied quantity).
+  def quantityOrDefault(maybeQuantity: Option[Int]): Int =
+    maybeQuantity.getOrElse(1)
+
+  // Exercises ParallelSequentialSwapMutator. `traverse` over Either short-circuits at the first
+  // Left, whereas `parTraverse` goes through Validated and accumulates every Left, so swapping
+  // the two is observable without depending on timing or thread scheduling.
+  def validateAll(values: List[Int]): Either[List[Int], List[Int]] =
+    values.traverse(value => Either.cond(value > 0, value, value :: Nil))
+
+  // Exercises ResourceFinalizerMutator (dropping the release leaves the counter at zero) and
+  // RefUpdateMutator (neutralising the update does the same).
+  def trackedResource: IO[Int] =
+    IO.ref(0).flatMap { releases =>
+      Resource
+        .make(IO.pure(7))(_ => releases.update(_ + 1))
+        .use(IO.pure)
+        .flatMap(used => releases.get.map(_ + used))
+    }
 }
