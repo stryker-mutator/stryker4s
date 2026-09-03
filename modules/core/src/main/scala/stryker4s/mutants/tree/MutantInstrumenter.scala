@@ -49,6 +49,9 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
           val mutationSwitch = Either
             .catchNonFatal(buildMatch(cases))
+            // Also done on the final tree, but has to happen here too: this is the tree that is recorded for splicing,
+            // so a marker left inside it is reprinted into the file verbatim
+            .map(removeDanglingEndMarkers)
             .valueOr { e =>
               log.error(
                 s"Failed to instrument mutants in `${context.path}`. Original statement: [${originalTree.text}]"
@@ -64,24 +67,84 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
             }
 
           if (outermostTrees.contains(p))
-            spliceReplacements += SourceReplacement(p.tree.begOffset, p.tree.endOffset, mutationSwitch)
+            // A displaced `end` marker sits outside the replaced range, so widen over it
+            spliceReplacements += SourceReplacement(
+              p.tree.begOffset,
+              displacedEndMarker(p.tree).fold(p.tree.endOffset)(_.endOffset),
+              mutationSwitch
+            )
 
           mutationSwitch
         }
       }
     }
 
-    val newTree = Either.catchNonFatal(context.source.transformOnce(instrumentWithMutants(mutantMap))).valueOr {
-      case e: Stryker4sException => throw e
-      case e                     =>
-        log.error(s"Failed to instrument mutants in `${context.path}`.", e)
-        throw new UnableToBuildPatternMatchException(context.path)
-    }
+    val newTree = Either
+      .catchNonFatal(context.source.transformOnce(instrumentWithMutants(mutantMap)))
+      .map(removeDanglingEndMarkers)
+      .valueOr {
+        case e: Stryker4sException => throw e
+        case e                     =>
+          log.error(s"Failed to instrument mutants in `${context.path}`.", e)
+          throw new UnableToBuildPatternMatchException(context.path)
+      }
 
     val mutations: MutantsWithId = mutantMap.map(_._2).toVector.toNev.get.flatten
     val splice = spliceReplacements.result().toNes.map(SourceSplice(context.source.pos.input.text, _))
 
     MutatedFile(context.path, newTree, mutations, splice)
+  }
+
+  /** Removes `end` markers that no longer directly follow the construct they close
+    */
+  private def removeDanglingEndMarkers[T <: Tree](tree: T): T = tree
+    .transform {
+      case b: Term.Block if hasEndMarker(b.stats)    => b.copyWithComments(stats = retainBoundEndMarkers(b.stats))
+      case b: Template.Body if hasEndMarker(b.stats) => b.copyWithComments(stats = retainBoundEndMarkers(b.stats))
+      case b: Ctor.Block if hasEndMarker(b.stats)    => b.copyWithComments(stats = retainBoundEndMarkers(b.stats))
+      case b: Pkg.Body if hasEndMarker(b.stats)      => b.copyWithComments(stats = retainBoundEndMarkers(b.stats))
+      case s: Source if hasEndMarker(s.stats)        => s.copyWithComments(stats = retainBoundEndMarkers(s.stats))
+    }
+    .asInstanceOf[T]
+
+  private def hasEndMarker(stats: List[Stat]): Boolean = stats.exists(_.is[Term.EndMarker])
+
+  /** The `end` marker directly following `tree`, displaced by the switch that replaces `tree`
+    */
+  private def displacedEndMarker(tree: Tree): Option[Term.EndMarker] = tree.parent
+    .flatMap(statsOf)
+    .flatMap(_.dropWhile(_ ne tree) match {
+      case _ :: (marker: Term.EndMarker) :: _ if !stillBinds(marker) => marker.some
+      case _                                                         => none
+    })
+
+  /** The direct statements of every tree that can hold an `end` marker as a sibling of a placeable statement
+    */
+  private def statsOf(tree: Tree): Option[List[Stat]] = tree match {
+    case b: Term.Block    => b.stats.some
+    case b: Template.Body => b.stats.some
+    case b: Ctor.Block    => b.stats.some
+    case b: Pkg.Body      => b.stats.some
+    case s: Source        => s.stats.some
+    case _                => none
+  }
+
+  /** Drops every `end` marker directly preceded by a mutation switch, keeping all others
+    */
+  private def retainBoundEndMarkers(stats: List[Stat]): List[Stat] = stats
+    .foldLeft(List.empty[Stat]) {
+      case (acc, marker: Term.EndMarker) if !stillBinds(marker) && acc.headOption.exists(isMutationSwitch) => acc
+      case (acc, stat) => stat :: acc
+    }
+    .reverse
+
+  /** `end match` still binds after its construct is replaced, as the mutation switch is itself a `Term.Match`
+    */
+  private def stillBinds(marker: Term.EndMarker): Boolean = marker.name.value == "match"
+
+  private def isMutationSwitch(tree: Tree): Boolean = tree match {
+    case t: Term.Match => t.expr === options.mutationContext
+    case _             => false
   }
 
   def mutantToCase(mutant: MutantWithId): Case = {
@@ -112,8 +175,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
   /** Removes any mutants that are in the same range as a compile error
     */
   def attemptRemoveMutant(errors: NonEmptyList[CompilerErrMsg]): PartialFunction[Tree, Tree] = {
-    // Match on mutation switching trees
-    case tree: Term.Match if tree.expr === options.mutationContext =>
+    case tree: Term.Match if isMutationSwitch(tree) =>
       // Filter out any cases that are in the same range as a compile error
       val newCases = tree.casesBlock.cases.filterNot(caze =>
         (caze.pat =!= Pat.Wildcard()) && errors.exists(compileErrorIsInCaseStatement(caze, _))
@@ -124,8 +186,7 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
 
   def mutantIdsForCompileErrors(tree: Tree, errors: NonEmptyList[CompilerErrMsg]) = {
     val mutationSwitchingCases: List[Case] = tree.collect {
-      // Match on mutation switching trees
-      case tree: Term.Match if tree.expr === options.mutationContext =>
+      case tree: Term.Match if isMutationSwitch(tree) =>
         // Filter out default case as it's not mutated
         tree.casesBlock.cases.filterNot(_.pat === Pat.Wildcard())
     }.flatten
