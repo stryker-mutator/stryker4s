@@ -7,9 +7,9 @@ import scala.meta.*
 
 /** Example custom mutator: removes collection ordering and de-duplication.
   *
-  * `discounts.sorted`, `discounts.reverse`, `discounts.distinct`, `discounts.sortBy(f)`,
-  * `discounts.sortWith(f)` and `discounts.distinctBy(f)` all become just `discounts`. The collection is still there;
-  * only the guarantee about its order or uniqueness is gone.
+  * `discounts.sorted`, `discounts.reverse`, `discounts.distinct`, `discounts.sortBy(f)`, `discounts.sortWith(f)` and
+  * `discounts.distinctBy(f)` all become just `discounts`. The collection is still there; only the guarantee about its
+  * order or uniqueness is gone.
   *
   * This targets a bug class that is easy to under-test because the input often happens to be sorted or duplicate-free
   * already. A test that builds its fixture in the order it expects back cannot tell whether the sort runs, and neither
