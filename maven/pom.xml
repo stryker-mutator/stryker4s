@@ -150,7 +150,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.15.2</version>
+                <version>3.16.0</version>
             </plugin>
             <!-- Add Implementation-Version to the manifest so the plugin can resolve its own
             stryker4s version at runtime (used to fetch the matching stryker4s-testrunner artifact) -->
