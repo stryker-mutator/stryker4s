@@ -142,6 +142,16 @@ class Stryker4sMillRunner(
 
   override def instrumenterOptions(using Config): InstrumenterOptions =
     InstrumenterOptions.testRunner
+
+  /** Builds a `URLClassLoader` from the module's test-run classpath, with Stryker4s's own classloader as parent, so
+    * `stryker4s.mutatorapi.CustomMutator` always resolves to the same `Class` instance Stryker4s uses (avoiding a
+    * classloader-identity mismatch if the project also depends on `stryker4s-mutator-api` to compile against
+    * `CustomMutator`), while user-defined custom mutator classes still load from the project's classpath.
+    */
+  override def customMutatorClassLoader: ClassLoader = {
+    val urls = ctx.testRunClasspath.map(_.toNIO.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  }
 }
 
 /** Collects compile errors, relativized to the mutation tmpDir, so failing mutants can be rolled back.

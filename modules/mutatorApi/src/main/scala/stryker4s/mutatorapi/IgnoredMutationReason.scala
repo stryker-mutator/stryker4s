@@ -1,4 +1,4 @@
-package stryker4s.model
+package stryker4s.mutatorapi
 
 /** Reason why a mutator did not produce a mutant
   */

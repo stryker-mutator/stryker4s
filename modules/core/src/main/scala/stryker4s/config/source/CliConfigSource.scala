@@ -55,6 +55,9 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
     parseOpt(opts.excludedMutations).as[Seq[ExcludedMutation]]
 
+  override def customMutators: ConfigValue[F, Seq[String]] =
+    parseOpt(opts.customMutators)
+
   override def thresholdsHigh: ConfigValue[F, Int] = parseOpt(opts.thresholdsHigh)
   override def thresholdsLow: ConfigValue[F, Int] = parseOpt(opts.thresholdsLow)
   override def thresholdsBreak: ConfigValue[F, Int] = parseOpt(opts.thresholdsBreak)
@@ -119,6 +122,11 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
     val excludedMutations =
       makeRepeatOpt[String](_.opt[String]('e', "excluded-mutations").text("The mutations to exclude."))
 
+    val customMutators =
+      makeRepeatOpt[String](
+        _.opt[String]("custom-mutators").text("Fully-qualified class names of custom mutators to load.")
+      )
+
     val thresholdsHigh = makeOpt[Int](_.opt[Int]("thresholds.high").text("The high threshold."))
     val thresholdsLow = makeOpt[Int](_.opt[Int]("thresholds.low").text("The low threshold."))
     val thresholdsBreak = makeOpt[Int](_.opt[Int]("thresholds.break").text("The break threshold."))
@@ -175,6 +183,7 @@ class CliConfigSource[F[_]](args: Seq[String]) extends ConfigSource[F] with Ciri
             asAnyP(reporters),
             asAnyP(files),
             asAnyP(excludedMutations),
+            asAnyP(customMutators),
             asAnyP(thresholdsHigh),
             asAnyP(thresholdsLow),
             asAnyP(thresholdsBreak),
