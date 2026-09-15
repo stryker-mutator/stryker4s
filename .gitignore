@@ -79,3 +79,4 @@ project/project/
 !.vscode/settings.json
 
 pom.xml.versionsBackup
+build.sbt.semanticdb
