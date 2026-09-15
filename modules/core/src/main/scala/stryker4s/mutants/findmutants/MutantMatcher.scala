@@ -171,8 +171,7 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         description
       )
       val transformer = new Transformer {
-        override protected def apply(t: Tree): Tree = if (t eq target) tree
-        else super.apply(t)
+        override protected def replaceSubtree(t: Tree): Tree = if (t eq target) tree else null
       }
 
       transformer.transform(placeableTree.tree) match {
