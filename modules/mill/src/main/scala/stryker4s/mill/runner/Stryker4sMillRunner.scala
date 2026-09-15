@@ -153,7 +153,7 @@ class Stryker4sMillRunner(
     * incompatible Scala/scalameta binary version can still fail to link; such failures now surface as a
     * `stryker4s.exception.CustomMutatorIncompatibleException` from `CustomMutatorLoader`.
     */
-  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO {
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO.blocking {
     val urls = ctx.testRunClasspath.map(_.toNIO.toUri.toURL).toArray
     new java.net.URLClassLoader(urls, getClass.getClassLoader)
   })

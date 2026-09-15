@@ -67,10 +67,16 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     * again once the mutation run completes. Short-circuits to an empty list without creating a classloader at all when
     * no custom mutators are configured, avoiding the classpath-resolution work that would otherwise happen on every
     * default (no-custom-mutators) run.
+    *
+    * The load itself is `IO.blocking` because reflectively resolving, linking and initializing the mutator classes
+    * reads from the project's classpath (JARs and class files on disk).
     */
   private def resolveCustomMutators(implicit config: Config): Resource[IO, List[stryker4s.mutatorapi.CustomMutator]] =
     if (config.customMutators.isEmpty) Resource.pure(Nil)
-    else customMutatorClassLoader.map(CustomMutatorLoader.load(config.customMutators, _))
+    else
+      customMutatorClassLoader.evalMap(classLoader =>
+        IO.blocking(CustomMutatorLoader.load(config.customMutators, classLoader))
+      )
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {

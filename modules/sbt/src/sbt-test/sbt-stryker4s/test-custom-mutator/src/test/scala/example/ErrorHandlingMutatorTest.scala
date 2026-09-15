@@ -107,6 +107,15 @@ class ErrorHandlingMutatorTest extends munit.FunSuite {
     assert(!mutator.matcher.isDefinedAt(rethrowSelect))
   }
 
+  test("does not match the inner selection of a type-applied no-argument combinator") {
+    // Guards against matching the `someEffect.rethrow` selection nested inside `someEffect.rethrow[Int]`.
+    // Dropping only that selection would strand the type arguments on the bare receiver, as in
+    // `someEffect[Int]`, which cannot compile.
+    val statement = parseTerm("someEffect.rethrow[Int]")
+    val select = statement.collect { case t: Term.Select => t }.head
+    assert(!mutator.matcher.isDefinedAt(select))
+  }
+
   test("produces exactly one mutant for a whole applied combinator, keeping surrounding context") {
     val statement = parseTerm("IO(a / b).handleErrorWith(_ => IO.pure(0)).map(double)")
     val term = statement.collect { case t: Term if t.syntax == "IO(a / b).handleErrorWith(_ => IO.pure(0))" => t }.head

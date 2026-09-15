@@ -51,7 +51,7 @@ class Stryker4sMavenRunner(
     * fail to link; such failures now surface as a `stryker4s.exception.CustomMutatorIncompatibleException` from
     * `CustomMutatorLoader`.
     */
-  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO {
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO.blocking {
     val urls = project.getTestClasspathElements().asScala.map(Path(_).toNioPath.toUri.toURL).toArray
     new java.net.URLClassLoader(urls, getClass.getClassLoader)
   })

@@ -43,10 +43,17 @@ class ErrorHandlingMutator extends CustomMutator {
   /** Guards against matching the inner `Term.Select` of an applied call such as `effect.attempt(arg)`: dropping only
     * that selection would leave the argument list dangling behind the bare receiver, as in `effect(arg)`, which cannot
     * compile.
+    *
+    * A type application (`effect.rethrow[Int]`) is treated the same way, since dropping only the selection would
+    * likewise strand the type arguments, as in `effect[Int]`. Suppressing the mutant loses a little mutation coverage
+    * for explicitly type-applied combinators, which is preferable to emitting one that cannot compile. Note this is
+    * only a hazard because this mutator *removes* the combinator; a mutator that renames it in place (as
+    * `ParallelSequentialSwapMutator` does) leaves the type application correctly attached and needs no such guard.
     */
   private def isAppliedTo(term: Term): Boolean =
     term.parent.exists {
       case Term.Apply.After_4_6_0(fun, _) => fun eq term
+      case applyType: Term.ApplyType      => applyType.fun eq term
       case _                              => false
     }
 
