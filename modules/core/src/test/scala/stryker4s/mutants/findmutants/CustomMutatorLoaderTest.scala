@@ -2,6 +2,7 @@ package stryker4s.mutants.findmutants
 
 import stryker4s.exception.{
   CustomMutatorClassNotFoundException,
+  CustomMutatorIncompatibleException,
   CustomMutatorInstantiationException,
   CustomMutatorNotAssignableException
 }
@@ -49,6 +50,14 @@ class CustomMutatorLoaderTest extends Stryker4sSuite {
       CustomMutatorLoader.load(Seq(classOf[NoNoArgConstructorFixture].getName), classLoader)
     }
   }
+
+  test("load should throw CustomMutatorIncompatibleException when instantiation fails with a LinkageError") {
+    // Simulates a custom mutator compiled against an incompatible Scala/scalameta binary version: the class loads
+    // fine, but linking one of its dependencies at construction time fails with a `LinkageError` subtype.
+    intercept[CustomMutatorIncompatibleException] {
+      CustomMutatorLoader.load(Seq(classOf[IncompatibleBinaryFixture].getName), classLoader)
+    }
+  }
 }
 
 /** Fixture: a valid, no-arg-constructible [[CustomMutator]]. */
@@ -65,4 +74,14 @@ class NoNoArgConstructorFixture(unused: String) extends CustomMutator {
     val _ = unused
     PartialFunction.empty
   }
+}
+
+/** Fixture: simulates a mutator compiled against an incompatible binary version by throwing a `LinkageError` subtype
+  * from its constructor, mirroring what the JVM itself would throw if a referenced class/method were missing or
+  * changed-incompatibly at runtime.
+  */
+class IncompatibleBinaryFixture extends CustomMutator {
+  throw new NoSuchMethodError("scala.meta.Tree.someRemovedMethod()")
+
+  def matcher: stryker4s.mutatorapi.MutationMatcher = PartialFunction.empty
 }

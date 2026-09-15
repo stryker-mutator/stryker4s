@@ -147,11 +147,16 @@ class Stryker4sMillRunner(
     * `stryker4s.mutatorapi.CustomMutator` always resolves to the same `Class` instance Stryker4s uses (avoiding a
     * classloader-identity mismatch if the project also depends on `stryker4s-mutator-api` to compile against
     * `CustomMutator`), while user-defined custom mutator classes still load from the project's classpath.
+    *
+    * Scoped as a `Resource` so the classloader is closed again once the mutation run completes rather than retained for
+    * the lifetime of the Mill daemon. Because parent-first delegation is used, a custom mutator compiled against an
+    * incompatible Scala/scalameta binary version can still fail to link; such failures now surface as a
+    * `stryker4s.exception.CustomMutatorIncompatibleException` from `CustomMutatorLoader`.
     */
-  override def customMutatorClassLoader: ClassLoader = {
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO {
     val urls = ctx.testRunClasspath.map(_.toNIO.toUri.toURL).toArray
     new java.net.URLClassLoader(urls, getClass.getClassLoader)
-  }
+  })
 }
 
 /** Collects compile errors, relativized to the mutation tmpDir, so failing mutants can be rolled back.

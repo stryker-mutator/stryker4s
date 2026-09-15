@@ -88,4 +88,12 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
       "Could not instantiate custom mutator class 'com.example.MyMutator'. It must have a public no-argument constructor. Cause: no default constructor"
     )
   }
+
+  test("CustomMutatorIncompatibleException should have the correct message") {
+    val cause = new NoSuchMethodError("scala.meta.Tree.someMethod()")
+    assertNoDiff(
+      CustomMutatorIncompatibleException("com.example.MyMutator", cause).getMessage,
+      "Could not load custom mutator class 'com.example.MyMutator'. This usually means it was compiled against a Scala or stryker4s-mutator-api binary version incompatible with the one Stryker4s is running with. Cause: scala.meta.Tree.someMethod()"
+    )
+  }
 }

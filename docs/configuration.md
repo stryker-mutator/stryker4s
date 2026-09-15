@@ -177,9 +177,11 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 **Config file:** `custom-mutators: ["com.example.MyCustomMutator"]`  
 **Sbt:** `strykerCustomMutators := Seq("com.example.MyCustomMutator")`  
 **Mill:** `override def strykerCustomMutators = Some(Seq("com.example.MyCustomMutator"))`  
-**Maven:** `<config><custom-mutators><custom-mutator>com.example.MyCustomMutator</custom-mutator></custom-mutators></config>`  
 **CLI:** `--custom-mutators com.example.MyCustomMutator`  
 **Default value:** `[]`
+
+Not configurable from the Maven plugin directly (as with `excluded-mutations` and other options); use the
+`custom-mutators` key in a `stryker4s.conf` config file instead.
 
 With `custom-mutators`, you can register additional, project-specific mutators alongside
 Stryker4s's built-in ones. Each entry is the fully-qualified class name of a class implementing

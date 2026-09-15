@@ -20,7 +20,8 @@ import scala.meta.*
   *
   * The applied combinators (`traverse`) and the no-argument ones (`sequence`) are kept in separate groups on purpose:
   * matching a bare `Term.Select` for an applied combinator would emit a second, duplicate mutant for the inner
-  * selection of `xs.traverse(f)`.
+  * selection of `xs.traverse(f)`. Symmetrically, the no-argument case must not match the inner selection of an applied
+  * call such as `xs.sequence(arg)`.
   */
 class ParallelSequentialSwapMutator extends CustomMutator {
   def matcher: MutationMatcher = {
@@ -31,10 +32,20 @@ class ParallelSequentialSwapMutator extends CustomMutator {
         term.copyWithComments(fun = select.copyWithComments(name = name.copyWithComments(value = swapped)))
       mutate(term, replacement, method, swapped)
 
-    case term @ Term.Select(_, name @ Term.Name(method)) if isNoArgCombinator(method) =>
+    case term @ Term.Select(_, name @ Term.Name(method)) if isNoArgCombinator(method) && !isAppliedTo(term) =>
       val swapped = swap(method)
       mutate(term, term.copyWithComments(name = name.copyWithComments(value = swapped)), method, swapped)
   }
+
+  /** Guards against matching the inner `Term.Select` of an applied call such as `xs.sequence(arg)`: substituting only
+    * that selection would leave the surrounding argument list attached to the renamed receiver rather than to the
+    * combinator, which can produce a mutant that no longer reflects the intended swap.
+    */
+  private def isAppliedTo(term: Term): Boolean =
+    term.parent.exists {
+      case Term.Apply.After_4_6_0(fun, _) => fun eq term
+      case _                              => false
+    }
 
   private def isAppliedCombinator(name: String): Boolean =
     name == "traverse" || name == "parTraverse" ||

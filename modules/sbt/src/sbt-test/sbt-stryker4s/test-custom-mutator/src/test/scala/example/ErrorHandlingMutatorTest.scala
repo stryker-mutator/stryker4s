@@ -94,6 +94,19 @@ class ErrorHandlingMutatorTest extends munit.FunSuite {
     assert(!mutator.matcher.isDefinedAt(parseTerm("someEffect.rethrow(arg)")))
   }
 
+  test("does not match the inner selection of an applied no-argument combinator") {
+    // Guards against matching the `someEffect.attempt` selection nested inside `someEffect.attempt(arg)`.
+    // Dropping only that selection would leave the argument list dangling behind the bare receiver, as in
+    // `someEffect(arg)`, which cannot compile.
+    val attemptStatement = parseTerm("someEffect.attempt(arg)")
+    val attemptSelect = attemptStatement.collect { case t: Term.Select => t }.head
+    assert(!mutator.matcher.isDefinedAt(attemptSelect))
+
+    val rethrowStatement = parseTerm("someEffect.rethrow(arg)")
+    val rethrowSelect = rethrowStatement.collect { case t: Term.Select => t }.head
+    assert(!mutator.matcher.isDefinedAt(rethrowSelect))
+  }
+
   test("produces exactly one mutant for a whole applied combinator, keeping surrounding context") {
     val statement = parseTerm("IO(a / b).handleErrorWith(_ => IO.pure(0)).map(double)")
     val term = statement.collect { case t: Term if t.syntax == "IO(a / b).handleErrorWith(_ => IO.pure(0))" => t }.head

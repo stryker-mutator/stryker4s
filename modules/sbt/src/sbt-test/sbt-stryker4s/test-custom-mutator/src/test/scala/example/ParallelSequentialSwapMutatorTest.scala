@@ -66,6 +66,13 @@ class ParallelSequentialSwapMutatorTest extends munit.FunSuite {
     assert(!mutator.matcher.isDefinedAt(parseTerm("effects.sequence(arg)")))
   }
 
+  test("ParallelSequentialSwapMutator does not match the inner selection of an applied sequence combinator") {
+    // Guards against matching the `effects.sequence` selection nested inside `effects.sequence(arg)`.
+    val statement = parseTerm("effects.sequence(arg)")
+    val select = statement.collect { case t: Term.Select => t }.head
+    assert(!mutator.matcher.isDefinedAt(select))
+  }
+
   test("ParallelSequentialSwapMutator does not match a bare traverse selection") {
     // Guards against emitting a duplicate mutant for the inner Select of `xs.traverse(f)`.
     assert(!mutator.matcher.isDefinedAt(parseTerm("orders.traverse")))

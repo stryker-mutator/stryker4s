@@ -47,3 +47,9 @@ final case class CustomMutatorInstantiationException(className: String, cause: T
     extends Stryker4sException(
       s"Could not instantiate custom mutator class '$className'. It must have a public no-argument constructor. Cause: ${cause.getMessage}"
     )
+
+final case class CustomMutatorIncompatibleException(className: String, cause: Throwable)
+    extends Stryker4sException(
+      s"Could not load custom mutator class '$className'. This usually means it was compiled against a Scala or " +
+        s"stryker4s-mutator-api binary version incompatible with the one Stryker4s is running with. Cause: ${cause.getMessage}"
+    )

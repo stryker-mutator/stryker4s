@@ -36,9 +36,19 @@ class ErrorHandlingMutator extends CustomMutator {
   def matcher: MutationMatcher = {
     case term @ Term.Apply.After_4_6_0(Term.Select(receiver, Term.Name(name)), _) if isAppliedCombinator(name) =>
       mutate(term, receiver, name)
-    case term @ Term.Select(receiver, Term.Name(name)) if isNoArgCombinator(name) =>
+    case term @ Term.Select(receiver, Term.Name(name)) if isNoArgCombinator(name) && !isAppliedTo(term) =>
       mutate(term, receiver, name)
   }
+
+  /** Guards against matching the inner `Term.Select` of an applied call such as `effect.attempt(arg)`: dropping only
+    * that selection would leave the argument list dangling behind the bare receiver, as in `effect(arg)`, which cannot
+    * compile.
+    */
+  private def isAppliedTo(term: Term): Boolean =
+    term.parent.exists {
+      case Term.Apply.After_4_6_0(fun, _) => fun eq term
+      case _                              => false
+    }
 
   private def mutate(term: Term, receiver: Term, combinatorName: String)(
       placeableTree: PlaceableTree

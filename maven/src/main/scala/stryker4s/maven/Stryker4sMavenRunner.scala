@@ -45,11 +45,16 @@ class Stryker4sMavenRunner(
     * copy loaded from the project's own classpath (which would also include `stryker4s-mutator-api` as a compile-time
     * dependency of the custom mutator), avoiding a classloader-identity mismatch analogous to the one found in the
     * sbt/Mill runners.
+    *
+    * Scoped as a `Resource` so the classloader is closed again once the mutation run completes. Because parent-first
+    * delegation is used, a custom mutator compiled against an incompatible Scala/scalameta binary version can still
+    * fail to link; such failures now surface as a `stryker4s.exception.CustomMutatorIncompatibleException` from
+    * `CustomMutatorLoader`.
     */
-  override def customMutatorClassLoader: ClassLoader = {
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO {
     val urls = project.getTestClasspathElements().asScala.map(Path(_).toNioPath.toUri.toURL).toArray
     new java.net.URLClassLoader(urls, getClass.getClassLoader)
-  }
+  })
 
   override def resolveTestRunners(
       tmpDir: Path
