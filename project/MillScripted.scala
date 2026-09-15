@@ -74,6 +74,25 @@ object MillScripted {
       "Expected a threshold-break message when the score is below the configured break threshold"
     )
 
+    // Scenario 3: custom mutators. `bar` registers bar.ArithmeticOperatorMutator via
+    // strykerCustomMutators, and should kill both of its mutants (100% score, since strykerMutate
+    // is scoped to just Calc.scala) and write them to the JSON report.
+    val (exit3, out3) = runMill("bar.stryker")
+    assert(exit3 == 0, s"Expected 'bar.stryker' to succeed, but it exited with $exit3")
+    assert(out3.contains("2 mutant(s) generated"), "Expected the custom mutator's 2 mutants to be generated")
+    val reportDir = mutate / "bar" / "target" / "stryker4s-report"
+    val reportJson = IO.listFiles(reportDir).flatMap(dir => IO.listFiles(dir)).find(_.getName == "report.json")
+    assert(reportJson.isDefined, s"Expected a report.json to be written under $reportDir")
+    val reportContents = IO.read(reportJson.get)
+    assert(
+      reportContents.contains("ArithmeticOperator"),
+      "Expected the JSON report to contain mutants produced by the custom ArithmeticOperatorMutator"
+    )
+    assert(
+      !reportContents.contains("\"status\":\"Survived\""),
+      "Expected both custom mutants to be killed by the test suite"
+    )
+
     log.info("Mill plugin integration test passed")
   }
 }

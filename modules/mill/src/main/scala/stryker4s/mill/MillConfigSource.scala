@@ -21,6 +21,7 @@ class MillConfigSource[F[_]](
     testFilterValue: Option[Seq[String]],
     reportersValue: Option[Seq[String]],
     excludedMutationsValue: Option[Seq[String]],
+    customMutatorsValue: Option[Seq[String]],
     thresholdsHighValue: Option[Int],
     thresholdsLowValue: Option[Int],
     thresholdsBreakValue: Option[Int],
@@ -68,6 +69,9 @@ class MillConfigSource[F[_]](
 
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
     millValue(excludedMutationsValue, "strykerExcludedMutations").as[Seq[ExcludedMutation]]
+
+  override def customMutators: ConfigValue[F, Seq[String]] =
+    millValue(customMutatorsValue, "strykerCustomMutators")
 
   override def thresholdsHigh: ConfigValue[F, Int] = millValue(thresholdsHighValue, "strykerThresholdsHigh")
   override def thresholdsLow: ConfigValue[F, Int] = millValue(thresholdsLowValue, "strykerThresholdsLow")

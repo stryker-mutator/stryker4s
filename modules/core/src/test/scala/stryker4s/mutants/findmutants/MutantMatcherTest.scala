@@ -1,12 +1,21 @@
 package stryker4s.mutants.findmutants
 
 import munit.Location
+import cats.data.NonEmptyVector
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.TreeExtensions.FindExtension
-import stryker4s.model.{MutationExcluded, NoRegexMutationsFound, PlaceableTree, RegexParseError}
+import stryker4s.model.{
+  MutantMetadata,
+  MutatedCode,
+  MutationExcluded,
+  NoRegexMutationsFound,
+  PlaceableTree,
+  RegexParseError
+}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 import stryker4s.mutation.*
+import stryker4s.mutatorapi.CustomMutator
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*
@@ -769,5 +778,38 @@ class MutantMatcherTest extends Stryker4sSuite {
 
     assertEquals(reason.pattern, "[[]]")
     assert(reason.message.contains("expectations:"))
+  }
+
+  test("withCustomMutators should add mutations from a custom mutator to the built-in matcher") {
+    val tree = "def foo = y <= 5".parseStat
+    val original = tree.find(Term.Name("<=")).value
+
+    val customMutator = new CustomMutator {
+      override def matcher: MutationMatcher = { case orig @ Term.Name("<=") =>
+        placeableTree =>
+          val target = placeableTree.tree.find(orig).value
+          val transformer = new Transformer {
+            override protected def apply(t: Tree): Tree =
+              if (t eq target) Term.Name("!=") else super.apply(t)
+          }
+          val mutatedStatement = transformer.transform(placeableTree.tree).asInstanceOf[Term]
+          Right(
+            NonEmptyVector.one(
+              MutatedCode(mutatedStatement, MutantMetadata(orig.value, "!=", "CustomNotEqual", orig.pos, None))
+            )
+          )
+      }
+    }
+
+    val combinedMatcher = MutantMatcher.withCustomMutators(sut.allMatchers, List(customMutator))
+
+    expectMutations(combinedMatcher, tree.asInstanceOf[Defn.Def], original, "y != 5".parseTerm)("CustomNotEqual")
+    // The built-in EqualityOperator mutations for `<=` should still be present alongside the custom one
+    expectMutations(combinedMatcher, tree.asInstanceOf[Defn.Def], original, "y < 5".parseTerm)("EqualityOperator")
+  }
+
+  test("withCustomMutators should return the original matcher unchanged when there are no custom mutators") {
+    val matcher = sut.allMatchers
+    assertEquals(MutantMatcher.withCustomMutators(matcher, Nil), matcher)
   }
 }

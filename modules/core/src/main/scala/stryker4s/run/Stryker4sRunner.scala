@@ -9,7 +9,7 @@ import stryker4s.config.source.ConfigSource
 import stryker4s.files.*
 import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
+import stryker4s.mutants.findmutants.{CustomMutatorLoader, MutantFinder, MutantMatcher, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.report.*
@@ -35,11 +35,20 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
     val instrumenter = new MutantInstrumenter(instrumenterOptions)
 
+    val customMutators = CustomMutatorLoader.load(config.customMutators, customMutatorClassLoader)
+    val matcher: MutantMatcher.MutationMatcher =
+      MutantMatcher.withCustomMutators(new MutantMatcherImpl().allMatchers, customMutators)
+
     val stryker4s = new Stryker4s(
       GlobFileResolver.forMutate(),
       new Mutator(
         new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
+        new MutantCollector(
+          new TreeTraverserImpl(),
+          new MutantMatcher {
+            override def allMatchers: MutantMatcher.MutationMatcher = matcher
+          }
+        ),
         instrumenter
       ),
       new MutantRunner(
@@ -95,4 +104,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
   def instrumenterOptions(implicit config: Config): InstrumenterOptions
 
   def extraConfigSources: List[ConfigSource[IO]]
+
+  /** The `ClassLoader` used to reflectively load [[stryker4s.mutatorapi.CustomMutator]]s configured via
+    * `Config.customMutators`. Must be able to resolve classes on the target project's classpath.
+    */
+  def customMutatorClassLoader: ClassLoader = getClass.getClassLoader
 }
