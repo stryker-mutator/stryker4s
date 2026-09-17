@@ -9,7 +9,7 @@ object Dependencies {
     // sbt-test-runner uses LTS to ensure compatibility with any project it runs in
     val scala3Lts = "3.3.8"
 
-    val scala3 = "3.8.4"
+    val scala3 = "3.9.0"
 
     // Mill plugins must be compiled with the same Scala version as the minimum supported Mill version
     val scalaMill = "3.8.2"
