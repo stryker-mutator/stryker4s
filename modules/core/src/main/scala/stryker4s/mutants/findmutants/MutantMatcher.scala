@@ -172,7 +172,6 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         location,
         description
       )
-
       MutatedCode(placeableTree.substitute(original, tree), metadata)
     }
     filterExclusions(mutations, replacements.head, original)

@@ -28,7 +28,7 @@ final case class PlaceableTree(tree: Tree) extends AnyVal {
       )
 
     val transformer = new Transformer {
-      override protected def apply(t: Tree): Tree = if (t eq target) replacement else super.apply(t)
+      override protected def replaceSubtree(t: Tree): Tree = if (t eq target) replacement else null
     }
 
     transformer.transform(tree) match {

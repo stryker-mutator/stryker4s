@@ -54,7 +54,7 @@ object TreeExtensions {
   }
 
   private class OnceTransformer(fn: PartialFunction[Tree, Tree]) extends Transformer {
-    override protected def apply(tree: Tree): Tree = fn.applyOrElse(tree, super.apply)
+    override protected def replaceSubtree(tree: Tree): Tree = fn.lift(tree).orNull
   }
 
   implicit final class TreeIsInExtension(val thisTree: Tree) extends AnyVal {

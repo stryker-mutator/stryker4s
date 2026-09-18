@@ -98,19 +98,19 @@
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.15.2</version>
+            <version>3.16.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-api</artifactId>
-            <version>2.0.22</version>
+            <version>2.0.23</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-util</artifactId>
-            <version>2.0.22</version>
+            <version>2.0.23</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -150,7 +150,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.15.2</version>
+                <version>3.16.0</version>
             </plugin>
             <!-- Add Implementation-Version to the manifest so the plugin can resolve its own
             stryker4s version at runtime (used to fetch the matching stryker4s-testrunner artifact) -->
@@ -307,7 +307,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
-                        <version>3.1.4</version>
+                        <version>3.2.0</version>
                         <configuration>
                             <skip>true</skip>
                         </configuration>

@@ -32,7 +32,7 @@ object Dependencies {
 
     val circe = "0.14.16"
 
-    val ciris = "3.15.0"
+    val ciris = "3.15.1"
 
     val fansi = "0.5.1"
 
@@ -46,7 +46,7 @@ object Dependencies {
 
     val mutationTestingMetrics = "3.9.0"
 
-    val scalameta = "4.17.3"
+    val scalameta = "4.17.4"
 
     val scopt = "4.1.0"
 
