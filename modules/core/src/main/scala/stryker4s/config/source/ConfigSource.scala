@@ -35,6 +35,11 @@ trait ConfigSource[+F[_]] {
 
   def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]]
 
+  /** Fully-qualified class names of custom [[stryker4s.mutatorapi.CustomMutator]] implementations to load, in addition
+    * to the built-in mutators.
+    */
+  def customMutators: ConfigValue[F, Seq[String]]
+
   def thresholdsHigh: ConfigValue[F, Int]
   def thresholdsLow: ConfigValue[F, Int]
   def thresholdsBreak: ConfigValue[F, Int]

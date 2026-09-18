@@ -67,6 +67,9 @@ trait Stryker4sModule extends ScalaModule {
   /** Mutations to exclude from mutation testing */
   def strykerExcludedMutations: T[Option[Seq[String]]] = None
 
+  /** Fully-qualified class names of custom mutators to load, in addition to the built-in mutators */
+  def strykerCustomMutators: T[Option[Seq[String]]] = None
+
   /** Threshold for high mutation score */
   def strykerThresholdsHigh: T[Option[Int]] = None
 
@@ -161,6 +164,7 @@ trait Stryker4sModule extends ScalaModule {
       testFilterValue = strykerTestFilter(),
       reportersValue = strykerReporters(),
       excludedMutationsValue = strykerExcludedMutations(),
+      customMutatorsValue = strykerCustomMutators(),
       thresholdsHighValue = strykerThresholdsHigh(),
       thresholdsLowValue = strykerThresholdsLow(),
       thresholdsBreakValue = strykerThresholdsBreak(),

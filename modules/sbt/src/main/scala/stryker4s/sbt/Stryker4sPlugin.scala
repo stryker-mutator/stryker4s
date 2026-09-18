@@ -40,6 +40,10 @@ object Stryker4sPlugin extends AutoPlugin {
     val strykerReporters = settingKey[Seq[String]]("Reporter(s) to use")
     val strykerFiles = settingKey[Seq[String]]("Pattern(s) of files to include in mutation testing")
     val strykerExcludedMutations = settingKey[Seq[String]]("Mutations to exclude from mutation testing")
+    val strykerCustomMutators =
+      settingKey[Seq[String]](
+        "Fully-qualified class names of custom mutators to load, in addition to the built-in mutators"
+      )
     val strykerThresholdsHigh = settingKey[Int]("Threshold for high mutation score")
     val strykerThresholdsLow = settingKey[Int]("Threshold for low mutation score")
     val strykerThresholdsBreak = settingKey[Int]("Threshold score for breaking the build")

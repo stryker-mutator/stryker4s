@@ -230,4 +230,32 @@ class Stryker4sSbtRunner(
     } else {
       InstrumenterOptions.testRunner
     }
+
+  /** Loads the target project's `Test` classpath into a `URLClassLoader` whose **parent is Stryker4s's own
+    * classloader** (rather than the project's isolated `testLoader`). This ensures that
+    * `stryker4s.mutatorapi.CustomMutator` (and its dependencies) always resolve to the same `Class` instance that
+    * Stryker4s itself uses, so `isAssignableFrom` checks in `CustomMutatorLoader` succeed even though the project may
+    * also have `stryker4s-mutator-api` on its own compile classpath (e.g. to compile against the `CustomMutator`
+    * trait).
+    *
+    * Scoped as a `Resource` so the classloader (and the JAR file handles it opens) is closed again once the mutation
+    * run completes, rather than being retained for the lifetime of the sbt session. Because parent-first delegation is
+    * used, a custom mutator compiled against a Scala/scalameta binary version incompatible with Stryker4s's own can
+    * still fail to link; such failures now surface as a `stryker4s.exception.CustomMutatorIncompatibleException` from
+    * `CustomMutatorLoader`.
+    */
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO.blocking {
+    val classpath =
+      PluginCompat.toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath, ctx.state))
+    val urls = classpath.map(_.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  })
+
+  private def extractTaskValue[T](task: TaskKey[T], state: State): T =
+    PluginCompat.runTask(task, state) match {
+      case Some(Right(result)) => result
+      case other               =>
+        log.debug(s"Expected task '${task.key.label}' to succeed, but got: $other")
+        throw TestSetupException(task.key.label)
+    }
 }
