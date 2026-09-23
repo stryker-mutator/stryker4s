@@ -23,7 +23,7 @@ object Dependencies {
     // Test dependencies
     val munit = "1.3.6"
 
-    val munitCatsEffect = "2.2.0"
+    val munitCatsEffect = "2.2.1"
 
     // Direct dependencies
     val catsCore = "2.13.0"
