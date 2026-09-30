@@ -33,23 +33,10 @@ final case class UnableToFixCompilerErrorsException(errs: NonEmptyList[CompilerE
           .mkString_("\n")
     )
 
-final case class CustomMutatorClassNotFoundException(className: String)
+final case class CustomMutatorPluginLoadException(cause: Throwable)
     extends Stryker4sException(
-      s"Could not find custom mutator class '$className'. Make sure it is fully-qualified and present on the project's classpath."
-    )
-
-final case class CustomMutatorNotAssignableException(className: String)
-    extends Stryker4sException(
-      s"Custom mutator class '$className' does not extend stryker4s.mutatorapi.CustomMutator."
-    )
-
-final case class CustomMutatorInstantiationException(className: String, cause: Throwable)
-    extends Stryker4sException(
-      s"Could not instantiate custom mutator class '$className'. It must have a public no-argument constructor. Cause: ${cause.getMessage}"
-    )
-
-final case class CustomMutatorIncompatibleException(className: String, cause: Throwable)
-    extends Stryker4sException(
-      s"Could not load custom mutator class '$className'. This usually means it was compiled against a Scala or " +
-        s"stryker4s-mutator-api binary version incompatible with the one Stryker4s is running with. Cause: ${cause.getMessage}"
-    )
+      s"Could not load a custom mutator plugin. Make sure its service provider is valid and compatible with this " +
+        s"version of Stryker4s. Cause: ${cause.getMessage}"
+    ) {
+  initCause(cause)
+}

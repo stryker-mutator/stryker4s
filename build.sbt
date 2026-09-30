@@ -15,7 +15,7 @@ lazy val root = rootProject
     // Publish to .m2 folder for Maven plugin testing
     addCommandAlias(
       "publishM2Local",
-      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; mutatorApi/publishM2; core/publishM2; testkit/publishM2"
+      "set ThisBuild / version := \"SET-BY-SBT-SNAPSHOT\"; pluginApi/publishM2; core/publishM2; testkit/publishM2"
     ),
     // Publish to .ivy folder for command runner local testing
     addCommandAlias(
@@ -31,15 +31,15 @@ lazy val root = rootProject
   .autoAggregate
 
 lazy val core = (projectMatrix in file("modules") / "core")
-  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, mutatorApi, testRunner))
-  .dependsOn(api, testRunnerApi, mutatorApi, testkit % Test)
+  .settings(commonSettings, coreSettings, publishLocalDependsOn(api, testRunnerApi, pluginApi, testRunner))
+  .dependsOn(api, testRunnerApi, pluginApi, testkit % Test)
   .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 // Public SPI for custom mutators, depended on by both `core` and third-party mutator authors
-lazy val mutatorApi = (projectMatrix in file("modules") / "mutatorApi")
-  .settings(commonSettings, mutatorApiSettings)
+lazy val pluginApi = (projectMatrix in file("modules") / "pluginApi")
+  .settings(commonSettings, pluginApiSettings)
   .dependsOn(testkit % Test)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = (versions.crossScalaVersions ++ versions.fullCrossScalaVersions).distinct)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
   .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core))
@@ -83,7 +83,7 @@ lazy val api = (projectMatrix in file("modules") / "api")
 lazy val testkit = (projectMatrix in file("modules") / "testkit")
   .settings(commonSettings, testkitSettings)
   .dependsOn(api)
-  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
+  .jvmPlatform(scalaVersions = (versions.crossScalaVersions ++ versions.fullCrossScalaVersions).distinct)
 
 def publishLocalDependsOn(matrixes: ProjectMatrix*) = {
   val projectRefs = matrixes.flatMap(_.projectRefs)

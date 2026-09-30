@@ -12,14 +12,13 @@ import scala.meta.Dialect
   */
 trait CirceConfigEncoder {
   implicit def configEncoder: Encoder[Config] = Encoder
-    .forProduct15(
+    .forProduct14(
       "mutate",
       "test-filter",
       "base-dir",
       "reporters",
       "files",
       "excluded-mutations",
-      "custom-mutators",
       "thresholds",
       "dashboard",
       "timeout",
@@ -36,7 +35,6 @@ trait CirceConfigEncoder {
         c.reporters,
         c.files,
         c.excludedMutations,
-        c.customMutators,
         c.thresholds,
         c.dashboard,
         c.timeout,

@@ -19,7 +19,6 @@ final case class Config(
     reporters: Seq[ReporterType],
     files: Seq[String],
     excludedMutations: Seq[ExcludedMutation],
-    customMutators: Seq[String],
     thresholds: Thresholds,
     dashboard: DashboardOptions,
     timeout: FiniteDuration,

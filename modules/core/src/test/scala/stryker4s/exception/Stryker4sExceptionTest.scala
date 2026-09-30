@@ -67,33 +67,16 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
     )
   }
 
-  test("CustomMutatorClassNotFoundException should have the correct message") {
+  test("CustomMutatorPluginLoadException should have the correct message") {
+    val cause = new RuntimeException("invalid provider")
     assertNoDiff(
-      CustomMutatorClassNotFoundException("com.example.MyMutator").getMessage,
-      "Could not find custom mutator class 'com.example.MyMutator'. Make sure it is fully-qualified and present on the project's classpath."
+      CustomMutatorPluginLoadException(cause).getMessage,
+      "Could not load a custom mutator plugin. Make sure its service provider is valid and compatible with this version of Stryker4s. Cause: invalid provider"
     )
   }
 
-  test("CustomMutatorNotAssignableException should have the correct message") {
-    assertNoDiff(
-      CustomMutatorNotAssignableException("com.example.MyMutator").getMessage,
-      "Custom mutator class 'com.example.MyMutator' does not extend stryker4s.mutatorapi.CustomMutator."
-    )
-  }
-
-  test("CustomMutatorInstantiationException should have the correct message") {
-    val cause = new RuntimeException("no default constructor")
-    assertNoDiff(
-      CustomMutatorInstantiationException("com.example.MyMutator", cause).getMessage,
-      "Could not instantiate custom mutator class 'com.example.MyMutator'. It must have a public no-argument constructor. Cause: no default constructor"
-    )
-  }
-
-  test("CustomMutatorIncompatibleException should have the correct message") {
-    val cause = new NoSuchMethodError("scala.meta.Tree.someMethod()")
-    assertNoDiff(
-      CustomMutatorIncompatibleException("com.example.MyMutator", cause).getMessage,
-      "Could not load custom mutator class 'com.example.MyMutator'. This usually means it was compiled against a Scala or stryker4s-mutator-api binary version incompatible with the one Stryker4s is running with. Cause: scala.meta.Tree.someMethod()"
-    )
+  test("CustomMutatorPluginLoadException should retain its cause") {
+    val cause = new RuntimeException("invalid provider")
+    assertEquals(CustomMutatorPluginLoadException(cause).getCause, cause)
   }
 }

@@ -26,9 +26,8 @@ object foo extends ScalaModule with Stryker4sModule {
 object bar extends ScalaModule with Stryker4sModule {
   def scalaVersion = "3.3.8"
 
-  def mvnDeps = Seq(mvn"io.stryker-mutator::stryker4s-mutator-api::@STRYKER4S_VERSION@")
+  def mvnDeps = Seq(mvn"io.stryker-mutator::stryker4s-plugin-api::@STRYKER4S_VERSION@")
 
-  def strykerCustomMutators = Some(Seq("bar.ArithmeticOperatorMutator"))
   def strykerMutate = Some(Seq("src/bar/Calc.scala"))
   def strykerReporters = Some(Seq("json"))
   def strykerThresholdsBreak = Some(50)

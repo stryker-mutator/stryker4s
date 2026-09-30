@@ -63,20 +63,9 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       stryker4s.run()
     }
 
-  /** Loads `config.customMutators`, scoping the project classloader (if any is needed) as a `Resource` so it is closed
-    * again once the mutation run completes. Short-circuits to an empty list without creating a classloader at all when
-    * no custom mutators are configured, avoiding the classpath-resolution work that would otherwise happen on every
-    * default (no-custom-mutators) run.
-    *
-    * The load itself is `IO.blocking` because reflectively resolving, linking and initializing the mutator classes
-    * reads from the project's classpath (JARs and class files on disk).
-    */
-  private def resolveCustomMutators(implicit config: Config): Resource[IO, List[stryker4s.mutatorapi.CustomMutator]] =
-    if (config.customMutators.isEmpty) Resource.pure(Nil)
-    else
-      customMutatorClassLoader.evalMap(classLoader =>
-        IO.blocking(CustomMutatorLoader.load(config.customMutators, classLoader))
-      )
+  /** Loads service-provided mutators while scoping the project classloader to the mutation run. */
+  private def resolveCustomMutators: Resource[IO, List[stryker4s.pluginapi.CustomMutator]] =
+    customMutatorClassLoader.evalMap(classLoader => IO.blocking(CustomMutatorLoader.load(classLoader)))
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
@@ -120,8 +109,8 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def extraConfigSources: List[ConfigSource[IO]]
 
-  /** The `ClassLoader` used to reflectively load [[stryker4s.mutatorapi.CustomMutator]]s configured via
-    * `Config.customMutators`. Must be able to resolve classes on the target project's classpath.
+  /** The `ClassLoader` used to load [[stryker4s.pluginapi.CustomMutatorPlugin]] service providers. Must be able to
+    * resolve plugin classes on the target project's classpath.
     *
     * Scoped as a `Resource` so build-tool overrides that allocate a dedicated `URLClassLoader` per run (to expose the
     * project's own classpath) can release it — closing its underlying JAR/classpath file handles — once the mutation

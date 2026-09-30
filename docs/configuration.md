@@ -172,37 +172,33 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 - `StringLiteral`
 - `MethodExpression`
 
-### `custom-mutators` (`Seq[String]`)
+### Custom mutator plugins
 
-**Config file:** `custom-mutators: ["com.example.MyCustomMutator"]`  
-**Sbt:** `strykerCustomMutators := Seq("com.example.MyCustomMutator")`  
-**Mill:** `override def strykerCustomMutators = Some(Seq("com.example.MyCustomMutator"))`  
-**CLI:** `--custom-mutators com.example.MyCustomMutator`  
-**Default value:** `[]`
-
-Not configurable from the Maven plugin directly (as with `excluded-mutations` and other options); use the
-`custom-mutators` key in a `stryker4s.conf` config file instead.
-
-With `custom-mutators`, you can register additional, project-specific mutators alongside
-Stryker4s's built-in ones. Each entry is the fully-qualified class name of a class implementing
-`stryker4s.mutatorapi.CustomMutator` (from the `stryker4s-mutator-api` artifact), with a public
-no-argument constructor. The class must be present on the project's own compile/test classpath —
-Stryker4s does not fetch or compile it for you.
+Third-party mutators are discovered automatically through Java's `ServiceLoader`. Add the
+`stryker4s-plugin-api` artifact to the project that provides the mutators, implement
+`stryker4s.pluginapi.CustomMutatorPlugin`, and register the provider in
+`META-INF/services/stryker4s.pluginapi.CustomMutatorPlugin`.
 
 ```scala
-// build.sbt
-libraryDependencies += "io.stryker-mutator" %% "stryker4s-mutator-api" % strykerVersion % Provided
-strykerCustomMutators := Seq("com.example.ArithmeticOperatorMutator")
+libraryDependencies += "io.stryker-mutator" %% "stryker4s-plugin-api" % strykerVersion % Provided
+```
+
+```text
+# src/main/resources/META-INF/services/stryker4s.pluginapi.CustomMutatorPlugin
+com.example.ExampleMutatorPlugin
 ```
 
 ```scala
-// com/example/ArithmeticOperatorMutator.scala
 package com.example
 
 import cats.data.NonEmptyVector
-import stryker4s.mutatorapi.*
+import stryker4s.pluginapi.*
 
 import scala.meta.*
+
+class ExampleMutatorPlugin extends CustomMutatorPlugin {
+  def mutators: List[CustomMutator] = List(new ArithmeticOperatorMutator)
+}
 
 class ArithmeticOperatorMutator extends CustomMutator {
   def matcher: MutationMatcher = {
@@ -214,6 +210,14 @@ class ArithmeticOperatorMutator extends CustomMutator {
   }
 }
 ```
+
+#### Scala binary compatibility
+
+Plugins are loaded into the JVM that runs Stryker4s, and Stryker4s's own Scala library takes
+precedence. With the sbt 1.x plugin that library is Scala 2.12, so a plugin compiled for Scala 2.13
+or 3 only links if it avoids standard-library APIs whose signatures changed in 2.13. For example,
+return `List(...)` from `mutators`, not `Seq(...)` or `Vector(...)`. The sbt 2.x, Mill, Maven, and
+command runner integrations use a Scala 3 standard library and are not affected.
 
 #### Returning the whole statement, not just the replacement
 

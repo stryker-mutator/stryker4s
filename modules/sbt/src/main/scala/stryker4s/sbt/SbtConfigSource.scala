@@ -65,11 +65,6 @@ object SbtConfigSource {
         strykerExcludedMutations.key.label
       ).as[Seq[ExcludedMutation]]
 
-      override def customMutators: ConfigValue[F, Seq[String]] = sbtSetting(
-        strykerCustomMutators.?.value,
-        strykerCustomMutators.key.label
-      )
-
       override def thresholdsHigh: ConfigValue[F, Int] = sbtSetting(
         strykerThresholdsHigh.?.value,
         strykerThresholdsHigh.key.label

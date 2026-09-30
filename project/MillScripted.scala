@@ -75,7 +75,7 @@ object MillScripted {
     )
 
     // Scenario 3: custom mutators. `bar` registers bar.ArithmeticOperatorMutator via
-    // strykerCustomMutators, and should kill both of its mutants (100% score, since strykerMutate
+    // the CustomMutatorPlugin service provider, and should kill both of its mutants (100% score, since strykerMutate
     // is scoped to just Calc.scala) and write them to the JSON report.
     val (exit3, out3) = runMill("bar.stryker")
     assert(exit3 == 0, s"Expected 'bar.stryker' to succeed, but it exited with $exit3")

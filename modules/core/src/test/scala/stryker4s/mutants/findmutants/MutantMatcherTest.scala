@@ -15,7 +15,7 @@ import stryker4s.model.{
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
 import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 import stryker4s.mutation.*
-import stryker4s.mutatorapi.CustomMutator
+import stryker4s.pluginapi.CustomMutator
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*

@@ -1,87 +1,55 @@
 package stryker4s.mutants.findmutants
 
-import stryker4s.exception.{
-  CustomMutatorClassNotFoundException,
-  CustomMutatorIncompatibleException,
-  CustomMutatorInstantiationException,
-  CustomMutatorNotAssignableException
-}
-import stryker4s.mutatorapi.CustomMutator
+import stryker4s.exception.CustomMutatorPluginLoadException
+import stryker4s.pluginapi.{CustomMutator, CustomMutatorPlugin}
 import stryker4s.testkit.Stryker4sSuite
 
+import java.net.URLClassLoader
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+
 class CustomMutatorLoaderTest extends Stryker4sSuite {
-  private def classLoader = getClass.getClassLoader
+  test("load should discover mutators from service providers") {
+    val result = CustomMutatorLoader.load(getClass.getClassLoader)
 
-  test("load should instantiate a valid CustomMutator by fully-qualified class name") {
-    val result =
-      CustomMutatorLoader.load(Seq(classOf[CustomMutatorLoaderTestFixture].getName), classLoader)
-
-    assertEquals(result.length, 1)
-    assert(result.head.isInstanceOf[CustomMutatorLoaderTestFixture])
+    assertEquals(result.map(_.getClass), List(classOf[CustomMutatorLoaderTestFixture]))
   }
 
-  test("load should return an empty list when given no class names") {
-    assertEquals(CustomMutatorLoader.load(Seq.empty, classLoader), Nil)
+  test("load should wrap a provider that cannot be found") {
+    withProviders("does.not.Exist") { classLoader =>
+      val e = intercept[CustomMutatorPluginLoadException](CustomMutatorLoader.load(classLoader))
+      assert(e.getCause.isInstanceOf[java.util.ServiceConfigurationError], e.getCause)
+    }
   }
 
-  test("load should instantiate multiple CustomMutators in order") {
-    val result = CustomMutatorLoader.load(
-      Seq(classOf[CustomMutatorLoaderTestFixture].getName, classOf[CustomMutatorLoaderTestFixture].getName),
-      classLoader
+  test("load should wrap a linkage error raised while providing mutators") {
+    withProviders(classOf[LinkageErrorTestPlugin].getName) { classLoader =>
+      val e = intercept[CustomMutatorPluginLoadException](CustomMutatorLoader.load(classLoader))
+      assert(e.getCause.isInstanceOf[NoClassDefFoundError], e.getCause)
+    }
+  }
+
+  private def withProviders(providers: String*)(body: ClassLoader => Unit): Unit = {
+    val root = Files.createTempDirectory("custom-mutator-loader")
+    val services = Files.createDirectories(root.resolve("META-INF/services"))
+    Files.write(
+      services.resolve(classOf[CustomMutatorPlugin].getName),
+      providers.mkString("\n").getBytes(StandardCharsets.UTF_8)
     )
-
-    assertEquals(result.length, 2)
-  }
-
-  test("load should throw CustomMutatorClassNotFoundException for an unknown class name") {
-    intercept[CustomMutatorClassNotFoundException] {
-      CustomMutatorLoader.load(Seq("com.example.DoesNotExist"), classLoader)
-    }
-  }
-
-  test("load should throw CustomMutatorNotAssignableException for a class not extending CustomMutator") {
-    intercept[CustomMutatorNotAssignableException] {
-      CustomMutatorLoader.load(Seq(classOf[NotACustomMutatorFixture].getName), classLoader)
-    }
-  }
-
-  test("load should throw CustomMutatorInstantiationException for a class without a no-arg constructor") {
-    intercept[CustomMutatorInstantiationException] {
-      CustomMutatorLoader.load(Seq(classOf[NoNoArgConstructorFixture].getName), classLoader)
-    }
-  }
-
-  test("load should throw CustomMutatorIncompatibleException when instantiation fails with a LinkageError") {
-    // Simulates a custom mutator compiled against an incompatible Scala/scalameta binary version: the class loads
-    // fine, but linking one of its dependencies at construction time fails with a `LinkageError` subtype.
-    intercept[CustomMutatorIncompatibleException] {
-      CustomMutatorLoader.load(Seq(classOf[IncompatibleBinaryFixture].getName), classLoader)
-    }
+    val classLoader = new URLClassLoader(Array(root.toUri.toURL), getClass.getClassLoader)
+    try body(classLoader)
+    finally classLoader.close()
   }
 }
 
-/** Fixture: a valid, no-arg-constructible [[CustomMutator]]. */
+class CustomMutatorLoaderTestPlugin extends CustomMutatorPlugin {
+  override def mutators: List[CustomMutator] = List(new CustomMutatorLoaderTestFixture)
+}
+
+class LinkageErrorTestPlugin extends CustomMutatorPlugin {
+  override def mutators: List[CustomMutator] = throw new NoClassDefFoundError("scala/meta/Tree")
+}
+
 class CustomMutatorLoaderTestFixture extends CustomMutator {
-  def matcher: stryker4s.mutatorapi.MutationMatcher = PartialFunction.empty
-}
-
-/** Fixture: a class that does not extend [[CustomMutator]]. */
-class NotACustomMutatorFixture
-
-/** Fixture: extends [[CustomMutator]] but has no no-argument constructor. */
-class NoNoArgConstructorFixture(unused: String) extends CustomMutator {
-  def matcher: stryker4s.mutatorapi.MutationMatcher = {
-    val _ = unused
-    PartialFunction.empty
-  }
-}
-
-/** Fixture: simulates a mutator compiled against an incompatible binary version by throwing a `LinkageError` subtype
-  * from its constructor, mirroring what the JVM itself would throw if a referenced class/method were missing or
-  * changed-incompatibly at runtime.
-  */
-class IncompatibleBinaryFixture extends CustomMutator {
-  throw new NoSuchMethodError("scala.meta.Tree.someRemovedMethod()")
-
-  def matcher: stryker4s.mutatorapi.MutationMatcher = PartialFunction.empty
+  def matcher: stryker4s.pluginapi.MutationMatcher = PartialFunction.empty
 }

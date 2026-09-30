@@ -44,7 +44,6 @@ private class ConfigLoader[F[_]](source: ConfigSource[F]) extends CirisConfigDec
     source.reporters,
     source.files,
     source.excludedMutations,
-    source.customMutators,
     thresholds,
     dashboard,
     source.timeout,

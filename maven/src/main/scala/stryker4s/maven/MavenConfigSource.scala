@@ -42,8 +42,6 @@ class MavenConfigSource[F[_]](project: MavenProject) extends ConfigSource[F] wit
   override def excludedMutations: ConfigValue[F, Seq[ExcludedMutation]] =
     notSupported
 
-  override def customMutators: ConfigValue[F, Seq[String]] = notSupported
-
   override def thresholdsHigh: ConfigValue[F, Int] = notSupported
 
   override def thresholdsLow: ConfigValue[F, Int] = notSupported

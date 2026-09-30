@@ -118,8 +118,8 @@ object Settings {
     )
   )
 
-  lazy val mutatorApiSettings: Seq[Setting[?]] = Seq(
-    moduleName := "stryker4s-mutator-api",
+  lazy val pluginApiSettings: Seq[Setting[?]] = Seq(
+    moduleName := "stryker4s-plugin-api",
     libraryDependencies ++= Seq(
       Dependencies.catsCore,
       Dependencies.scalameta
