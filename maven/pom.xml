@@ -184,24 +184,13 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <scaladocClassName>dotty.tools.scaladoc.Main</scaladocClassName>
-                            <sourceDir>${project.build.outputDirectory}</sourceDir>
-                            <args>-nobootcp</args>
-                            <includes>
-                                <include>**/*.tasty</include>
-                            </includes>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>org.scala-lang</groupId>
-                                    <artifactId>scaladoc_3</artifactId>
-                                    <version>${scala.version}</version>
-                                </dependency>
-                                <dependency>
+                            <additionalDependencies>
+                                <additionalDependency>
                                     <groupId>com.fasterxml.jackson.core</groupId>
-                                    <artifactId>jackson-databind</artifactId>
-                                    <version>2.22.3</version>
-                                </dependency>
-                            </dependencies>
+                                    <artifactId>jackson-annotations</artifactId>
+                                    <version>2.22</version>
+                                </additionalDependency>
+                            </additionalDependencies>
                         </configuration>
                     </execution>
                 </executions>
