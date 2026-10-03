@@ -32,3 +32,11 @@ final case class UnableToFixCompilerErrorsException(errs: NonEmptyList[CompilerE
           .map(err => s"${err.path}: '${err.msg}'")
           .mkString_("\n")
     )
+
+final case class CustomMutatorPluginLoadException(cause: Throwable)
+    extends Stryker4sException(
+      s"Could not load a custom mutator plugin. Make sure its service provider is valid and compatible with this " +
+        s"version of Stryker4s. Cause: ${cause.getMessage}"
+    ) {
+  initCause(cause)
+}
