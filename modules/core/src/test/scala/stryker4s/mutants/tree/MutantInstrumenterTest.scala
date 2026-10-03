@@ -1,13 +1,12 @@
 package stryker4s.mutants.tree
 
 import cats.data.{NonEmptyList, NonEmptyVector}
-import cats.syntax.option.*
 import fs2.io.file.Path
 import stryker4s.exception.UnableToBuildPatternMatchException
 import stryker4s.extension.TreeExtensions.*
 import stryker4s.model.*
 import stryker4s.mutants.applymutants.ActiveMutationContext
-import stryker4s.mutation.{ConditionalTrue, GreaterThan, Mutation, True}
+import stryker4s.mutation.{ConditionalTrue, GreaterThan, True}
 import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
 import stryker4s.testutil.TestData
 
@@ -213,25 +212,5 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     // Act
     val result = intercept[UnableToBuildPatternMatchException](sut.instrumentFile(context, mutants))
     assertEquals(result, expectedException)
-  }
-
-  def toMutations[T <: Tree](
-      original: Term,
-      category: Mutation[T],
-      firstReplacement: Term,
-      replacements: Term*
-  ): MutantsWithId = {
-    NonEmptyVector
-      .of(firstReplacement, replacements*)
-      .zipWithIndex
-      .map { case (replacement, id) =>
-        MutantWithId(
-          MutantId(id),
-          MutatedCode(
-            replacement,
-            MutantMetadata(original.toString(), replacement.toString, category.mutationName, original.pos, none)
-          )
-        )
-      }
   }
 }
