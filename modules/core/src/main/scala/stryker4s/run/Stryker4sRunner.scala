@@ -9,7 +9,7 @@ import stryker4s.config.source.ConfigSource
 import stryker4s.files.*
 import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.findmutants.{MutantFinder, MutantMatcherImpl}
+import stryker4s.mutants.findmutants.{CustomMutatorLoader, MutantFinder, MutantMatcher, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.report.*
@@ -29,30 +29,43 @@ abstract class Stryker4sRunner(implicit log: Logger) {
       }
     }
 
-  private def executeStryker(implicit config: Config): IO[ScoreStatus] = {
-    val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
-    val reporter = new AggregateReporter(resolveReporters())
+  private def executeStryker(implicit config: Config): IO[ScoreStatus] =
+    resolveCustomMutators.use { customMutators =>
+      val createTestRunnerPool = (path: Path) => resolveTestRunners(path).map(ResourcePool(_))
+      val reporter = new AggregateReporter(resolveReporters())
 
-    val instrumenter = new MutantInstrumenter(instrumenterOptions)
+      val instrumenter = new MutantInstrumenter(instrumenterOptions)
 
-    val stryker4s = new Stryker4s(
-      GlobFileResolver.forMutate(),
-      new Mutator(
-        new MutantFinder(),
-        new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl()),
-        instrumenter
-      ),
-      new MutantRunner(
-        createTestRunnerPool,
-        GlobFileResolver.forFiles(),
-        RollbackHandler(instrumenter),
+      val matcher: MutantMatcher.MutationMatcher =
+        MutantMatcher.withCustomMutators(new MutantMatcherImpl().allMatchers, customMutators)
+
+      val stryker4s = new Stryker4s(
+        GlobFileResolver.forMutate(),
+        new Mutator(
+          new MutantFinder(),
+          new MutantCollector(
+            new TreeTraverserImpl(),
+            new MutantMatcher {
+              override def allMatchers: MutantMatcher.MutationMatcher = matcher
+            }
+          ),
+          instrumenter
+        ),
+        new MutantRunner(
+          createTestRunnerPool,
+          GlobFileResolver.forFiles(),
+          RollbackHandler(instrumenter),
+          reporter
+        ),
         reporter
-      ),
-      reporter
-    )
+      )
 
-    stryker4s.run()
-  }
+      stryker4s.run()
+    }
+
+  /** Loads service-provided mutators while scoping the project classloader to the mutation run. */
+  private def resolveCustomMutators: Resource[IO, List[stryker4s.pluginapi.CustomMutator]] =
+    customMutatorClassLoader.evalMap(classLoader => IO.blocking(CustomMutatorLoader.load(classLoader)))
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
@@ -95,4 +108,14 @@ abstract class Stryker4sRunner(implicit log: Logger) {
   def instrumenterOptions(implicit config: Config): InstrumenterOptions
 
   def extraConfigSources: List[ConfigSource[IO]]
+
+  /** The `ClassLoader` used to load [[stryker4s.pluginapi.CustomMutatorPlugin]] service providers. Must be able to
+    * resolve plugin classes on the target project's classpath.
+    *
+    * Scoped as a `Resource` so build-tool overrides that allocate a dedicated `URLClassLoader` per run (to expose the
+    * project's own classpath) can release it — closing its underlying JAR/classpath file handles — once the mutation
+    * run using it has completed, rather than leaking it for the lifetime of the (potentially long-lived) build-tool
+    * process.
+    */
+  def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.pure(getClass.getClassLoader)
 }

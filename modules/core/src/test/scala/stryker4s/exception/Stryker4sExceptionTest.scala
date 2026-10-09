@@ -66,4 +66,17 @@ class Stryker4sExceptionTest extends Stryker4sSuite {
         |/src/main/scala/com/company/strykerTest/TestObj2.scala: 'yet another error with symbols $#'%%$~@1'""".stripMargin
     )
   }
+
+  test("CustomMutatorPluginLoadException should have the correct message") {
+    val cause = new RuntimeException("invalid provider")
+    assertNoDiff(
+      CustomMutatorPluginLoadException(cause).getMessage,
+      "Could not load a custom mutator plugin. Make sure its service provider is valid and compatible with this version of Stryker4s. Cause: invalid provider"
+    )
+  }
+
+  test("CustomMutatorPluginLoadException should retain its cause") {
+    val cause = new RuntimeException("invalid provider")
+    assertEquals(CustomMutatorPluginLoadException(cause).getCause, cause)
+  }
 }
