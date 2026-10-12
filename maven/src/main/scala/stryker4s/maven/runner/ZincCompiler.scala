@@ -4,7 +4,8 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.io.file.Path
 import org.apache.maven.project.MavenProject
-import sbt.internal.inc.{PlainVirtualFileConverter, ScalaInstance, ZincUtil}
+import sbt.internal.inc.{IncrementalCompilerImpl, PlainVirtualFileConverter, ScalaInstance, ZincUtil}
+import stryker4s.exception.TestSetupFailedException
 import stryker4s.log.{Logger, XsbtiLogger}
 import xsbti.*
 import xsbti.compile.*
@@ -12,7 +13,9 @@ import xsbti.compile.analysis.ReadStamps
 
 import java.io.File
 import java.net.URLClassLoader
+import java.nio.file.Paths
 import java.util.Optional
+import java.util.jar.JarFile
 import scala.collection.mutable.ListBuffer
 
 /** Compiles Scala sources directly via zinc, for the target project's Scala version, collecting structured compiler
@@ -94,8 +97,21 @@ class ZincCompiler(scalaInstance: ScalaInstance, compilers: Compilers)(using Log
 
 object ZincCompiler {
 
-  // must match the zinc version in pom.xml
-  private val zincVersion = "2.0.0"
+  /** Zinc version, read from the jar manifest.
+    */
+  private[runner] def zincVersion: IO[String] =
+    Resource
+      .fromAutoCloseable(IO.blocking {
+        val jar =
+          Paths.get(classOf[IncrementalCompilerImpl].getProtectionDomain().getCodeSource().getLocation().toURI())
+        new JarFile(jar.toFile())
+      })
+      .use(jar =>
+        IO.blocking(
+          Option(jar.getManifest()).flatMap(m => Option(m.getMainAttributes().getValue("Implementation-Version")))
+        )
+      )
+      .flatMap(_.liftTo[IO](TestSetupFailedException("Could not resolve the zinc version from the zinc jar manifest")))
 
   def make(project: MavenProject, resolver: ArtifactResolver)(using log: Logger): Resource[IO, ZincCompiler] = {
     val scalaVersion = ScalaVersions.fullVersionUnsafe(project)
@@ -105,13 +121,15 @@ object ZincCompiler {
     val compilerCoords =
       if isScala3 then s"org.scala-lang:scala3-compiler_3:$scalaVersion"
       else s"org.scala-lang:scala-compiler:$scalaVersion"
-    val bridgeCoords =
-      if isScala3 then s"org.scala-lang:scala3-sbt-bridge:$scalaVersion"
-      else s"org.scala-sbt:compiler-bridge_$binaryVersion:$zincVersion"
-
-    log.debug(s"Resolving Scala $scalaVersion compiler ($compilerCoords) and bridge ($bridgeCoords)")
+    val bridgeCoordsF =
+      if isScala3 then IO.pure(s"org.scala-lang:scala3-sbt-bridge:$scalaVersion")
+      else zincVersion.map(v => s"org.scala-sbt:compiler-bridge_$binaryVersion:$v")
 
     for {
+      bridgeCoords <- bridgeCoordsF.toResource
+      _ <- IO(
+        log.debug(s"Resolving Scala $scalaVersion compiler ($compilerCoords) and bridge ($bridgeCoords)")
+      ).toResource
       scalaInstance <- resolver
         .resolveTransitively(compilerCoords)
         .toResource
