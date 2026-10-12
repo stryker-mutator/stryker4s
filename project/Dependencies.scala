@@ -40,7 +40,7 @@ object Dependencies {
 
     val hocon = "1.4.9"
 
-    val mill = "1.1.10"
+    val mill = "1.3.0"
 
     val mutationTestingElements = "3.9.0"
 
