@@ -2,6 +2,7 @@ package stryker4s.run
 
 import cats.data.NonEmptyList
 import cats.effect.{IO, Resource}
+import cats.syntax.all.*
 import fs2.io.file.Path
 import stryker4s.Stryker4s
 import stryker4s.config.*
@@ -12,6 +13,7 @@ import stryker4s.model.CompilerErrMsg
 import stryker4s.mutants.findmutants.{CustomMutatorLoader, MutantFinder, MutantMatcher, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TreeTraverserImpl}
+import stryker4s.plugin.api.CustomMutator
 import stryker4s.report.*
 import stryker4s.report.dashboard.DashboardConfigProvider
 import stryker4s.run.threshold.{ScoreStatus, SuccessStatus}
@@ -64,8 +66,14 @@ abstract class Stryker4sRunner(implicit log: Logger) {
     }
 
   /** Loads service-provided mutators while scoping the project classloader to the mutation run. */
-  private def resolveCustomMutators: Resource[IO, List[stryker4s.plugin.api.CustomMutator]] =
-    customMutatorClassLoader.evalMap(classLoader => IO.blocking(CustomMutatorLoader.load(classLoader)))
+  private def resolveCustomMutators: Resource[IO, List[CustomMutator]] =
+    customMutatorClassLoader.evalMap(classLoader =>
+      CustomMutatorLoader.load(classLoader).flatMap {
+        case Right(mutators) => IO.pure(mutators)
+        case Left(errors)    =>
+          errors.tail.traverse_(e => IO(log.error(e.getMessage))) *> IO.raiseError(errors.head)
+      }
+    )
 
   private def resolveReporters()(implicit config: Config): List[Reporter] =
     config.reporters.toList.map {
