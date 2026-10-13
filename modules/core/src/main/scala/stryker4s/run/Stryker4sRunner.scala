@@ -10,7 +10,7 @@ import stryker4s.config.source.ConfigSource
 import stryker4s.files.*
 import stryker4s.log.{Logger, SttpLogWrapper}
 import stryker4s.model.CompilerErrMsg
-import stryker4s.mutants.findmutants.{CustomMutatorLoader, MutantFinder, MutantMatcher, MutantMatcherImpl}
+import stryker4s.mutants.findmutants.{CustomMutatorLoader, MutantFinder, MutantMatcherImpl}
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantCollector, MutantInstrumenter}
 import stryker4s.mutants.{Mutator, TreeTraverserImpl}
 import stryker4s.plugin.api.CustomMutator
@@ -38,19 +38,11 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
       val instrumenter = new MutantInstrumenter(instrumenterOptions)
 
-      val matcher: MutantMatcher.MutationMatcher =
-        MutantMatcher.withCustomMutators(new MutantMatcherImpl().allMatchers, customMutators)
-
       val stryker4s = new Stryker4s(
         GlobFileResolver.forMutate(),
         new Mutator(
           new MutantFinder(),
-          new MutantCollector(
-            new TreeTraverserImpl(),
-            new MutantMatcher {
-              override def allMatchers: MutantMatcher.MutationMatcher = matcher
-            }
-          ),
+          new MutantCollector(new TreeTraverserImpl(), new MutantMatcherImpl(customMutators)),
           instrumenter
         ),
         new MutantRunner(

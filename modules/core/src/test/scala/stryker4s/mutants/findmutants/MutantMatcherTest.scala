@@ -771,7 +771,7 @@ class MutantMatcherTest extends Stryker4sSuite {
     assert(reason.message.contains("expectations:"))
   }
 
-  test("withCustomMutators should add mutations from a custom mutator to the built-in matcher") {
+  test("custom mutators should add mutations from a custom mutator to the built-in matcher") {
     val tree = "def foo = y <= 5".parseStat
     val original = tree.find(Term.Name("<=")).value
 
@@ -792,15 +792,19 @@ class MutantMatcherTest extends Stryker4sSuite {
       }
     }
 
-    val combinedMatcher = MutantMatcher.withCustomMutators(sut.allMatchers, List(customMutator))
+    val combinedMatcher = new MutantMatcherImpl(List(customMutator)).allMatchers
 
     expectMutations(combinedMatcher, tree.asInstanceOf[Defn.Def], original, "y != 5".parseTerm)("CustomNotEqual")
     // The built-in EqualityOperator mutations for `<=` should still be present alongside the custom one
     expectMutations(combinedMatcher, tree.asInstanceOf[Defn.Def], original, "y < 5".parseTerm)("EqualityOperator")
   }
 
-  test("withCustomMutators should return the original matcher unchanged when there are no custom mutators") {
-    val matcher = sut.allMatchers
-    assertEquals(MutantMatcher.withCustomMutators(matcher, Nil), matcher)
+  test("allMatchers should be the built-in matcher when there are no custom mutators") {
+    val tree = "def foo = y <= 5".parseStat
+
+    val found = tree.collect(sut.allMatchers).size
+    val foundWithEmpty = tree.collect(new MutantMatcherImpl(Nil).allMatchers).size
+
+    assertEquals(foundWithEmpty, found)
   }
 }

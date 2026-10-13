@@ -33,21 +33,15 @@ object MutantMatcher {
     * [[stryker4s.plugin.api.CustomMutator]]s implement the same type.
     */
   type MutationMatcher = stryker4s.plugin.api.MutationMatcher
-
-  /** Combines a `MutationMatcher` with the matchers of any configured [[stryker4s.plugin.api.CustomMutator]]s.
-    *
-    * Like `matchStringsAndRegex` below, matching is combined rather than short-circuited: if a custom mutator matches a
-    * tree that a built-in matcher (or another custom mutator) also matches, the mutations of both are combined instead
-    * of only the first match being used.
-    */
-  def withCustomMutators(matcher: MutationMatcher, customMutators: Seq[CustomMutator]): MutationMatcher =
-    customMutators.foldLeft(matcher)(_ combine _.matcher)
-
 }
 
-class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
+class MutantMatcherImpl(customMutators: Seq[CustomMutator] = Nil)(implicit config: Config) extends MutantMatcher {
 
+  /** Custom matchers are combined, not short-circuited, so mutations of overlapping matchers are all kept */
   override def allMatchers: MutationMatcher =
+    customMutators.foldLeft(builtInMatchers)(_ combine _.matcher)
+
+  private def builtInMatchers: MutationMatcher =
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
       matchLogicalOperator orElse
