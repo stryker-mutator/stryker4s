@@ -2,6 +2,7 @@ package stryker4s.model
 
 import cats.syntax.all.*
 import mutationtesting.{MutantResult, MutantStatus}
+import stryker4s.plugin.api.MutatedCode
 import stryker4s.testrunner.api.TestDefinitionId
 
 final case class MutantWithId(id: MutantId, mutatedCode: MutatedCode) {

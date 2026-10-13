@@ -2,6 +2,7 @@ package stryker4s.mutation
 
 import cats.syntax.all.*
 import stryker4s.extension.TreeExtensions.treeEq
+import stryker4s.plugin.api.*
 
 import scala.meta.*
 

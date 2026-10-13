@@ -6,10 +6,8 @@ import cats.syntax.all.*
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
 import stryker4s.extension.TreeExtensions.PositionExtension
-import stryker4s.model.*
-import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 import stryker4s.mutation.*
-import stryker4s.plugin.api.CustomMutator
+import stryker4s.plugin.api.*
 
 import scala.annotation.tailrec
 import scala.meta.*

@@ -4,18 +4,9 @@ import munit.Location
 import cats.data.NonEmptyVector
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.TreeExtensions.FindExtension
-import stryker4s.model.{
-  MutantMetadata,
-  MutatedCode,
-  MutationExcluded,
-  NoRegexMutationsFound,
-  PlaceableTree,
-  RegexParseError
-}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
-import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 import stryker4s.mutation.*
-import stryker4s.plugin.api.CustomMutator
+import stryker4s.plugin.api.*
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*
