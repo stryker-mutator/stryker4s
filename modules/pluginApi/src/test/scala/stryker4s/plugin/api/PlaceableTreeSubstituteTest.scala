@@ -47,6 +47,17 @@ class PlaceableTreeSubstituteTest extends Stryker4sSuite {
     assertEquals(result.syntax, "b + f(a)")
   }
 
+  test("substitute should find a re-created equivalent of the original") {
+    val tree = "f(a) + f(a)".parseTerm
+    val original = tree.collect { case t: Term.Apply => t }.head
+    val recreated = "f(a) + f(a)".parseTerm.collect { case t: Term.Apply => t }.head
+
+    val result = PlaceableTree(tree).substitute(recreated, "b".parseTerm)
+
+    assertEquals(result.syntax, "b + f(a)")
+    assert(original ne recreated)
+  }
+
   test("substitute should find the original by reference identity") {
     val tree = "wrap(inner)".parseTerm
     val original = tree.collect { case t @ Term.Name("inner") => t }.head

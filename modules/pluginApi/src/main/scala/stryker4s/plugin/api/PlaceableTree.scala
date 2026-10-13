@@ -1,7 +1,9 @@
 package stryker4s.plugin.api
 
+import stryker4s.plugin.api.internal.TreeEquality
+
+import scala.meta.prettyprinters.XtensionSyntax
 import scala.meta.{Term, Transformer, Tree}
-import scala.meta.prettyprinters.{XtensionStructure, XtensionSyntax}
 
 /** A `Tree` where a mutation can be placed
   */
@@ -47,6 +49,6 @@ object PlaceableTree {
     * matcher may hand back a re-created, but equivalent, term).
     */
   private def find(tree: Tree, original: Term): Option[Tree] =
-    if ((tree eq original) || (tree.pos == original.pos && tree.structure == original.structure)) Some(tree)
+    if ((tree eq original) || (tree.pos == original.pos && TreeEquality.structurallyEqual(tree, original))) Some(tree)
     else tree.children.iterator.map(find(_, original)).collectFirst { case Some(found) => found }
 }
