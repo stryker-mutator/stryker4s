@@ -1,4 +1,4 @@
-package stryker4s.pluginapi
+package stryker4s.plugin.api
 
 /** Public extension point for third-party mutators.
   *

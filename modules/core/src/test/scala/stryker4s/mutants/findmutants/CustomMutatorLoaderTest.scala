@@ -1,7 +1,8 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.exception.CustomMutatorPluginLoadException
-import stryker4s.pluginapi.{CustomMutator, CustomMutatorPlugin}
+import stryker4s.plugin.CustomMutatorPlugin
+import stryker4s.plugin.api.CustomMutator
 import stryker4s.testkit.Stryker4sSuite
 
 import java.net.URLClassLoader
@@ -51,5 +52,5 @@ class LinkageErrorTestPlugin extends CustomMutatorPlugin {
 }
 
 class CustomMutatorLoaderTestFixture extends CustomMutator {
-  def matcher: stryker4s.pluginapi.MutationMatcher = PartialFunction.empty
+  def matcher: stryker4s.plugin.api.MutationMatcher = PartialFunction.empty
 }

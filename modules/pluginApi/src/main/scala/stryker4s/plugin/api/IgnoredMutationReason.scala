@@ -1,4 +1,4 @@
-package stryker4s.pluginapi
+package stryker4s.plugin.api
 
 /** Reason why a mutator did not produce a mutant
   */

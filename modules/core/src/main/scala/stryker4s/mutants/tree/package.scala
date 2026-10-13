@@ -8,9 +8,9 @@ import scala.meta.Term
 package object tree {
 
   // Re-exported from the public `stryker4s-plugin-api` module (see `stryker4s.model.package` for the same pattern)
-  type Mutations = stryker4s.pluginapi.Mutations
-  type IgnoredMutation = stryker4s.pluginapi.IgnoredMutation
-  type IgnoredMutations = stryker4s.pluginapi.IgnoredMutations
+  type Mutations = stryker4s.plugin.api.Mutations
+  type IgnoredMutation = stryker4s.plugin.api.IgnoredMutation
+  type IgnoredMutations = stryker4s.plugin.api.IgnoredMutations
 
   type MutantsWithId = NonEmptyVector[MutantWithId]
 

@@ -9,7 +9,7 @@ import stryker4s.extension.TreeExtensions.PositionExtension
 import stryker4s.model.*
 import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
 import stryker4s.mutation.*
-import stryker4s.pluginapi.CustomMutator
+import stryker4s.plugin.api.CustomMutator
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -32,11 +32,11 @@ object MutantMatcher {
     * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
     *
     * Re-exported from the public `stryker4s-plugin-api` module, where third-party
-    * [[stryker4s.pluginapi.CustomMutator]]s implement the same type.
+    * [[stryker4s.plugin.api.CustomMutator]]s implement the same type.
     */
-  type MutationMatcher = stryker4s.pluginapi.MutationMatcher
+  type MutationMatcher = stryker4s.plugin.api.MutationMatcher
 
-  /** Combines a `MutationMatcher` with the matchers of any configured [[stryker4s.pluginapi.CustomMutator]]s.
+  /** Combines a `MutationMatcher` with the matchers of any configured [[stryker4s.plugin.api.CustomMutator]]s.
     *
     * Like `matchStringsAndRegex` below, matching is combined rather than short-circuited: if a custom mutator matches a
     * tree that a built-in matcher (or another custom mutator) also matches, the mutations of both are combined instead

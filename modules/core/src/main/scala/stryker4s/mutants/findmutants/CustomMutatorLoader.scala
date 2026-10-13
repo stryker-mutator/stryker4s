@@ -1,12 +1,13 @@
 package stryker4s.mutants.findmutants
 
 import stryker4s.exception.CustomMutatorPluginLoadException
-import stryker4s.pluginapi.{CustomMutator, CustomMutatorPlugin}
+import stryker4s.plugin.CustomMutatorPlugin
+import stryker4s.plugin.api.CustomMutator
 
 import java.util.ServiceLoader
 import scala.jdk.CollectionConverters.*
 
-/** Loads [[stryker4s.pluginapi.CustomMutator]]s provided through the plugin API service.
+/** Loads [[stryker4s.plugin.api.CustomMutator]]s provided through the plugin API service.
   */
 object CustomMutatorLoader {
 

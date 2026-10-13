@@ -233,7 +233,7 @@ class Stryker4sSbtRunner(
 
   /** Loads the target project's `Test` classpath into a `URLClassLoader` whose **parent is Stryker4s's own
     * classloader** (rather than the project's isolated `testLoader`). This ensures that
-    * `stryker4s.pluginapi.CustomMutator` (and its dependencies) always resolve to the same `Class` instance that
+    * `stryker4s.plugin.api.CustomMutator` (and its dependencies) always resolve to the same `Class` instance that
     * Stryker4s itself uses, so `isAssignableFrom` checks in `CustomMutatorLoader` succeed even though the project may
     * also have `stryker4s-plugin-api` on its own compile classpath (e.g. to compile against the `CustomMutator` trait).
     *

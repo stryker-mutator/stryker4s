@@ -1,10 +1,10 @@
-package stryker4s.pluginapi
+package stryker4s.plugin.api
 
 import mutationtesting.{Location, Position as MTPosition}
 
 import scala.meta.Position
 
-/** Metadata of a [[stryker4s.pluginapi.MutatedCode]]
+/** Metadata of a [[stryker4s.plugin.api.MutatedCode]]
   *
   * @param original
   *   Original code

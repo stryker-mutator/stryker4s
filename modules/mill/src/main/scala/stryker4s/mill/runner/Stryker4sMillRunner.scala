@@ -144,7 +144,7 @@ class Stryker4sMillRunner(
     InstrumenterOptions.testRunner
 
   /** Builds a `URLClassLoader` from the module's test-run classpath, with Stryker4s's own classloader as parent, so
-    * `stryker4s.pluginapi.CustomMutator` always resolves to the same `Class` instance Stryker4s uses (avoiding a
+    * `stryker4s.plugin.api.CustomMutator` always resolves to the same `Class` instance Stryker4s uses (avoiding a
     * classloader-identity mismatch if the project also depends on `stryker4s-plugin-api` to compile against
     * `CustomMutator`), while user-defined custom mutator classes still load from the project's classpath.
     *

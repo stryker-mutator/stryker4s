@@ -1,4 +1,4 @@
-package stryker4s.pluginapi
+package stryker4s.plugin.api
 
 import mutationtesting.{Location, Position as MTPosition}
 import stryker4s.testkit.Stryker4sSuite

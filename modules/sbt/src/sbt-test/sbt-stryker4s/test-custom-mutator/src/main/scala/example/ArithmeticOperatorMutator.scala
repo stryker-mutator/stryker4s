@@ -1,7 +1,7 @@
 package example
 
 import cats.data.NonEmptyVector
-import stryker4s.pluginapi.*
+import stryker4s.plugin.api.*
 
 import scala.meta.*
 

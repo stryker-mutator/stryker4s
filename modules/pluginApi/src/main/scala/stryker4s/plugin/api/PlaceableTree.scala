@@ -1,4 +1,4 @@
-package stryker4s.pluginapi
+package stryker4s.plugin.api
 
 import scala.meta.{Term, Transformer, Tree}
 import scala.meta.prettyprinters.{XtensionStructure, XtensionSyntax}

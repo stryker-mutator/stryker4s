@@ -176,15 +176,15 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 
 Third-party mutators are discovered automatically through Java's `ServiceLoader`. Add the
 `stryker4s-plugin-api` artifact to the project that provides the mutators, implement
-`stryker4s.pluginapi.CustomMutatorPlugin`, and register the provider in
-`META-INF/services/stryker4s.pluginapi.CustomMutatorPlugin`.
+`stryker4s.plugin.CustomMutatorPlugin`, and register the provider in
+`META-INF/services/stryker4s.plugin.CustomMutatorPlugin`.
 
 ```scala
 libraryDependencies += "io.stryker-mutator" %% "stryker4s-plugin-api" % strykerVersion % Provided
 ```
 
 ```text
-# src/main/resources/META-INF/services/stryker4s.pluginapi.CustomMutatorPlugin
+# src/main/resources/META-INF/services/stryker4s.plugin.CustomMutatorPlugin
 com.example.ExampleMutatorPlugin
 ```
 
@@ -192,7 +192,8 @@ com.example.ExampleMutatorPlugin
 package com.example
 
 import cats.data.NonEmptyVector
-import stryker4s.pluginapi.*
+import stryker4s.plugin.CustomMutatorPlugin
+import stryker4s.plugin.api.*
 
 import scala.meta.*
 

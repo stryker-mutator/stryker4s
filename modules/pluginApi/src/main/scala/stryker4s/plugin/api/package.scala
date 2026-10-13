@@ -1,10 +1,10 @@
-package stryker4s
+package stryker4s.plugin
 
 import cats.data.NonEmptyVector
 
 import scala.meta.Tree
 
-package object pluginapi {
+package object api {
 
   /** All mutations found for a single [[PlaceableTree]].
     */
