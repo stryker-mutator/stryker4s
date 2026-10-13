@@ -12,10 +12,7 @@ final case class PlaceableTree(tree: Tree) extends AnyVal {
 
   /** Builds the full mutated statement for a mutation, by replacing `original` with `replacement` inside this tree.
     *
-    * A [[CustomMutator]] usually matches on a small sub-term (say the `IO.sleep(d)` inside
-    * `IO.sleep(d).as(q).timeout(l)`), but a [[MutatedCode]] must carry the *whole* placeable statement, with the
-    * mutation applied in place. Returning only the replacement sub-term produces a mutant that does not compile
-    * whenever the matched term is not the entire placeable tree.
+    * Matchers usually match a sub-term, but a [[MutatedCode]] must carry the whole statement with the mutation applied.
     *
     * @throws IllegalArgumentException
     *   if `original` cannot be found inside this tree, or if substituting into it does not yield a `Term`.

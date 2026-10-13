@@ -109,13 +109,6 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def extraConfigSources: List[ConfigSource[IO]]
 
-  /** The `ClassLoader` used to load [[stryker4s.plugin.CustomMutatorPlugin]] service providers. Must be able to resolve
-    * plugin classes on the target project's classpath.
-    *
-    * Scoped as a `Resource` so build-tool overrides that allocate a dedicated `URLClassLoader` per run (to expose the
-    * project's own classpath) can release it — closing its underlying JAR/classpath file handles — once the mutation
-    * run using it has completed, rather than leaking it for the lifetime of the (potentially long-lived) build-tool
-    * process.
-    */
+  /** The `ClassLoader` used to load [[stryker4s.plugin.CustomMutatorPlugin]] providers, released when the run ends. */
   def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.pure(getClass.getClassLoader)
 }

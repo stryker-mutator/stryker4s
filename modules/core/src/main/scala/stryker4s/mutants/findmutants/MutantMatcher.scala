@@ -27,10 +27,7 @@ object MutantMatcher {
   /** A PartialFunction that can match on a ScalaMeta tree and return a `Either[IgnoredMutations, Mutations]`.
     *
     * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
-    * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
-    *
-    * Re-exported from the public `stryker4s-plugin-api` module, where third-party
-    * [[stryker4s.plugin.api.CustomMutator]]s implement the same type.
+    * [[stryker4s.plugin.api.IgnoredMutationReason]] shows the possible reasons.
     */
   type MutationMatcher = stryker4s.plugin.api.MutationMatcher
 }
