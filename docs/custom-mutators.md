@@ -22,6 +22,7 @@ com.example.ExampleMutatorPlugin
 package com.example
 
 import cats.data.NonEmptyVector
+import cats.syntax.all.*
 import stryker4s.plugin.CustomMutatorPlugin
 import stryker4s.plugin.api.*
 
@@ -37,7 +38,12 @@ class ArithmeticOperatorMutator extends CustomMutator {
       placeableTree =>
         val mutated = term.copy(op = op.copy(value = "-"))
         val metadata = MutantMetadata("+", "-", "ArithmeticOperator", term.pos, None)
-        Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, mutated), metadata)))
+        placeableTree
+          .substitute(term, mutated)
+          .bimap(
+            reason => NonEmptyVector.one(MutatedCode(term, metadata) -> reason),
+            code => NonEmptyVector.one(MutatedCode(code, metadata))
+          )
   }
 }
 ```
@@ -54,7 +60,8 @@ command runner integrations use a Scala 3 standard library and are not affected.
 
 A matcher usually matches a small sub-term, but a `MutatedCode` must carry the **entire placeable
 statement** with the mutation applied in place. `PlaceableTree.substitute(original, replacement)`
-does that for you, and is what the built-in mutators use.
+does that for you, and is what the built-in mutators use. It returns a `SubstitutionFailed` on the
+left if `original` is not inside the statement; report it as an ignored mutation, as above.
 
 Returning the bare replacement instead happens to work when the matched term *is* the whole
 placeable statement, and silently produces mutants that do not compile otherwise. Matching the

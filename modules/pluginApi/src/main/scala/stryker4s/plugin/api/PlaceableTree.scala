@@ -13,29 +13,18 @@ final case class PlaceableTree(tree: Tree) extends AnyVal {
   /** Builds the full mutated statement for a mutation, by replacing `original` with `replacement` inside this tree.
     *
     * Matchers usually match a sub-term, but a [[MutatedCode]] must carry the whole statement with the mutation applied.
-    *
-    * Throws `IllegalArgumentException` if `original` is not inside this tree, or the substitution does not yield a
-    * `Term`.
     */
-  def substitute(original: Term, replacement: Term): Term = {
-    val target = PlaceableTree
-      .find(tree, original)
-      .getOrElse(
-        throw new IllegalArgumentException(
-          s"Could not find '${original.syntax}' in '${tree.syntax}'"
-        )
-      )
+  def substitute(original: Term, replacement: Term): Either[SubstitutionFailed, Term] = {
+    def failed(message: String) = SubstitutionFailed(original.syntax, tree.syntax, message)
 
-    val transformer = new Transformer {
-      override protected def replaceSubtree(t: Tree): Tree = if (t eq target) replacement else null
-    }
-
-    transformer.transform(tree) match {
-      case t: Term => t
-      case t       =>
-        throw new IllegalArgumentException(
-          s"Replacing '${original.syntax}' with '${replacement.syntax}' in '${tree.syntax}' did not produce a Term, but a ${t.getClass.getSimpleName}"
-        )
+    PlaceableTree.find(tree, original).toRight(failed("original not found in statement")).flatMap { target =>
+      val transformer = new Transformer {
+        override protected def replaceSubtree(t: Tree): Tree = if (t eq target) replacement else null
+      }
+      transformer.transform(tree) match {
+        case t: Term => Right(t)
+        case t       => Left(failed(s"result is a ${t.getClass.getSimpleName}, not a Term"))
+      }
     }
   }
 }

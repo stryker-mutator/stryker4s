@@ -3,6 +3,7 @@ package stryker4s.plugin.api
 import stryker4s.testkit.Stryker4sSuite
 
 import cats.data.NonEmptyVector
+import cats.syntax.all.*
 import scala.meta.*
 
 class CustomMutatorTest extends Stryker4sSuite {
@@ -16,7 +17,12 @@ class CustomMutatorTest extends Stryker4sSuite {
       placeableTree =>
         val replacement = Term.Name(">")
         val metadata = MutantMetadata(orig.value, ">", "SwapLessThan", orig.pos, None)
-        Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(orig, replacement), metadata)))
+        placeableTree
+          .substitute(orig, replacement)
+          .bimap(
+            reason => NonEmptyVector.one(MutatedCode(orig, metadata) -> reason),
+            code => NonEmptyVector.one(MutatedCode(code, metadata))
+          )
     }
   }
 

@@ -161,10 +161,14 @@ class MutantMatcherImpl(customMutators: Seq[CustomMutator] = Nil)(implicit confi
         location,
         description
       )
-      MutatedCode(placeableTree.substitute(original, tree), metadata)
+      placeableTree
+        .substitute(original, tree)
+        .bimap(
+          reason => NonEmptyVector.one[IgnoredMutation](MutatedCode(original, metadata) -> reason),
+          MutatedCode(_, metadata)
+        )
     }
-    filterExclusions(mutations, replacements.head, original)
-
+    mutations.parSequence.flatMap(filterExclusions(_, replacements.head, original))
   }
 
   private def filterExclusions(

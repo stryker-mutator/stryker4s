@@ -1,6 +1,7 @@
 package bar
 
 import cats.data.NonEmptyVector
+import cats.syntax.all.*
 import stryker4s.plugin.api.*
 
 import scala.meta.*
@@ -24,6 +25,11 @@ class ArithmeticOperatorMutator extends CustomMutator {
     val from = term.op.value
     val mutated = term.copyWithComments(op = term.op.copyWithComments(value = to))
     val metadata = MutantMetadata(from, to, "ArithmeticOperator", term.pos, None)
-    Right(NonEmptyVector.one(MutatedCode(placeableTree.substitute(term, mutated), metadata)))
+    placeableTree
+      .substitute(term, mutated)
+      .bimap(
+        reason => NonEmptyVector.one(MutatedCode(term, metadata) -> reason),
+        code => NonEmptyVector.one(MutatedCode(code, metadata))
+      )
   }
 }

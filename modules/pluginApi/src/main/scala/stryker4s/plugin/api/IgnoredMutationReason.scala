@@ -22,3 +22,10 @@ final case class RegexParseError(pattern: String, message: String) extends Ignor
 final case class NoRegexMutationsFound(pattern: String) extends IgnoredMutationReason {
   def explanation: String = s"No mutations found in this regular expression: '$pattern'"
 }
+
+/** A mutation could not be placed inside its statement (see `PlaceableTree.substitute`)
+  */
+final case class SubstitutionFailed(original: String, statement: String, message: String)
+    extends IgnoredMutationReason {
+  def explanation: String = s"Could not substitute '$original' in '$statement': $message"
+}
