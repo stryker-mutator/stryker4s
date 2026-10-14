@@ -10,7 +10,7 @@ import stryker4s.plugin.api.CustomMutator
 import java.util.{Iterator as JIterator, ServiceConfigurationError, ServiceLoader}
 import scala.annotation.tailrec
 
-/** Loads [[stryker4s.plugin.api.CustomMutator]]s provided through the plugin API service.
+/** Loads `stryker4s.plugin.api.CustomMutator`s provided through the plugin API service.
   */
 object CustomMutatorLoader {
   private type Loaded = Either[CustomMutatorPluginLoadException, List[CustomMutator]]

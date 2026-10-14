@@ -14,8 +14,8 @@ final case class PlaceableTree(tree: Tree) extends AnyVal {
     *
     * Matchers usually match a sub-term, but a [[MutatedCode]] must carry the whole statement with the mutation applied.
     *
-    * @throws IllegalArgumentException
-    *   if `original` cannot be found inside this tree, or if substituting into it does not yield a `Term`.
+    * Throws `IllegalArgumentException` if `original` is not inside this tree, or the substitution does not yield a
+    * `Term`.
     */
   def substitute(original: Term, replacement: Term): Term = {
     val target = PlaceableTree

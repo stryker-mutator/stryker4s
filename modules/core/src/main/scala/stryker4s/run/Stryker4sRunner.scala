@@ -109,6 +109,6 @@ abstract class Stryker4sRunner(implicit log: Logger) {
 
   def extraConfigSources: List[ConfigSource[IO]]
 
-  /** The `ClassLoader` used to load [[stryker4s.plugin.CustomMutatorPlugin]] providers, released when the run ends. */
+  /** The `ClassLoader` used to load `stryker4s.plugin.CustomMutatorPlugin` providers, released when the run ends. */
   def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.pure(getClass.getClassLoader)
 }
