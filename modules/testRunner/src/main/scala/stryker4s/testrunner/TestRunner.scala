@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
 sealed trait TestRunner {
-  def runMutation(mutation: MutantId, fingerprints: Seq[String]): TestRunResult
+  def runMutation(mutantId: MutantId, testFileNames: Seq[String]): TestRunResult
   def initialTestRun(): TestRunResult
 }
 
@@ -43,7 +43,7 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
 
       // Skip running if there are no tests to run, or if another test group has already failed
       if (taskDefs.nonEmpty && statusRef.get() != Status.Failure && statusRef.get() != Status.Error) {
-        val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions.get
+        val RunnerOptions(args, remoteArgs) = testGroup.runnerOptions
         val framework =
           classLoader.loadClass(testGroup.frameworkClass).getConstructor().newInstance().asInstanceOf[Framework]
         val runner = framework.runner(args.toArray, remoteArgs.toArray, classLoader)
@@ -61,8 +61,8 @@ class SbtTestInterfaceRunner(context: TestProcessContext) extends TestRunner wit
     TestRunResult(statusRef.get(), testsCompleted.get(), failedTestsRef.get())
   }
 
-  override def runMutation(mutation: MutantId, testNames: Seq[String]): TestRunResult = {
-    runTestFunction(Some((mutation, testNames)))
+  override def runMutation(mutantId: MutantId, testFileNames: Seq[String]): TestRunResult = {
+    runTestFunction(Some((mutantId, testFileNames)))
   }
 
   override def initialTestRun(): TestRunResult = {

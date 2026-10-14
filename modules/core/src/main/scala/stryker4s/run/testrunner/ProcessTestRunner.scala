@@ -18,7 +18,6 @@ import stryker4s.testrunner.api.*
 
 import java.io.File
 import java.net.{ConnectException, SocketException, StandardProtocolFamily}
-import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.*
 
 /** A TestRunner that runs tests in a forked JVM (the `stryker4s-testrunner` process), communicating over a socket.
@@ -26,10 +25,10 @@ import scala.concurrent.duration.*
 class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
   override def runMutant(mutant: MutantWithId, testsToRun: Seq[TestFile]): IO[MutantResult] = {
-    val message = StartTestRun.of(mutant.id, testsToRun.map(_.fullyQualifiedName))
+    val request = StartTestRun.of(mutant.id, testsToRun.map(_.fullyQualifiedName))
     val coveredBy = testsToRun.flatMap(_.definitions).map(_.id).some
 
-    testProcess.sendMessage(message).map {
+    testProcess.sendMessage(request).map {
       case TestsSuccessful(testsCompleted) =>
         mutant.toMutantResult(MutantStatus.Survived, testsCompleted = testsCompleted.some, coveredBy = coveredBy)
       case TestsUnsuccessful(testsCompleted, failedTests) =>
@@ -40,8 +39,8 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
           killedBy = extractKilledBy(testsToRun, failedTests).some,
           statusReason = extractStatusReason(failedTests)
         )
-      case ErrorDuringTestRun(msg) =>
-        mutant.toMutantResult(MutantStatus.Killed, statusReason = msg.some, coveredBy = coveredBy)
+      case ErrorDuringTestRun(message) =>
+        mutant.toMutantResult(MutantStatus.Killed, statusReason = message.some, coveredBy = coveredBy)
       case _ => mutant.toMutantResult(MutantStatus.RuntimeError, coveredBy = coveredBy)
     }
   }
@@ -84,15 +83,14 @@ class ProcessTestRunner(testProcess: TestRunnerConnection) extends TestRunner {
 
     initialTestRun.map2(initialTestRun) {
       case (firstRun: CoverageTestRunResult, secondRun: CoverageTestRunResult) =>
-        val averageDuration =
-          FiniteDuration((firstRun.durationNanos + secondRun.durationNanos) / 2, TimeUnit.NANOSECONDS)
+        val averageDuration = (firstRun.duration + secondRun.duration) / 2
 
         InitialTestRunCoverageReport(
           firstRun.isSuccessful && secondRun.isSuccessful,
-          CoverageReport(firstRun.getCoverageTestNameMap),
-          CoverageReport(secondRun.getCoverageTestNameMap),
+          CoverageReport(firstRun.coverageTestNameMap),
+          CoverageReport(secondRun.coverageTestNameMap),
           averageDuration,
-          firstRun.getCoverageTestNameMap.testNameIds.values.toSeq
+          firstRun.coverageTestNameMap.testFiles.values.toSeq
         )
       case x => throw new MatchError(x)
     }

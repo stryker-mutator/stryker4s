@@ -6,8 +6,8 @@ case class CoverageReport(report: Map[MutantId, Seq[TestFile]]) extends AnyVal
 
 object CoverageReport {
   def apply(testRunMap: CoverageTestNameMap): CoverageReport = {
-    val map = testRunMap.testNames.map { case (id, TestNames(testNameIds)) =>
-      id -> testNameIds.map(testRunMap.testNameIds)
+    val map = testRunMap.testsByMutant.map { case (id, TestFileIds(testFileIds)) =>
+      id -> testFileIds.map(testRunMap.testFiles)
     }
     CoverageReport(map)
   }

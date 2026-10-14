@@ -1,6 +1,5 @@
 package stryker4s.model
 
-import cats.syntax.option.*
 import sbt.testing.Framework as SbtFramework
 import sbt.{TestDefinition as SbtTestDefinition, TestFramework as SbtTestFramework, Tests}
 import stryker4s.sbt.PluginCompat
@@ -13,8 +12,7 @@ trait TestInterfaceMapper {
     val mapped = testMap(frameworks, sbtTestGroups.flatMap(_.tests))
     mapped.map { case (framework, tests) =>
       val taskDefs: Seq[TaskDefinition] = tests.map(toTaskDefinition).toSeq
-      val runnerOptions = RunnerOptions(Seq.empty, Seq.empty)
-      TestGroup(framework.getClass.getCanonicalName(), taskDefs, runnerOptions.some)
+      TestGroup(framework.getClass.getName(), taskDefs)
     }.toSeq
   }
 

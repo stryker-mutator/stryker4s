@@ -64,7 +64,7 @@ object MavenTestDiscovery {
         } yield frameworks.flatMap { framework =>
           val taskDefs = discoverTaskDefs(framework, classNames, classLoader)
           if taskDefs.isEmpty then None
-          else TestGroup(framework.getClass().getName(), taskDefs, RunnerOptions(Seq.empty, Seq.empty).some).some
+          else TestGroup(framework.getClass().getName(), taskDefs).some
         }
       }
   }

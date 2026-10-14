@@ -9,6 +9,7 @@ option (scalapb.options) = {
   preserve_unknown_fields: false
 };
 
+// A message from core to the test-runner.
 message Request {
   oneof sealed_value {
     StartTestRun start_test_run = 1;
@@ -17,22 +18,32 @@ message Request {
   }
 }
 
+// Run the given test files with a mutant activated.
 message StartTestRun {
-  int32 mutation = 1 [(scalapb.field).type = "stryker4s.model.MutantId"];
-  repeated string test_names = 3;
+  reserved 2;
+  reserved "fingerprints";
+
+  int32 mutant_id = 1 [(scalapb.field).type = "stryker4s.model.MutantId"];
+  // Fully qualified names of the test files (suites) to run
+  repeated string test_file_names = 3;
 }
+
+// Run all tests without a mutant activated, collecting coverage.
 message StartInitialTestRun {}
 
+// Set up the test-runner with the tests to run. Sent once, before any test run.
 message TestProcessContext {
   repeated TestGroup test_groups = 1;
 }
 
+// A set of tests run by a single test framework. Mirrors `sbt.testing`.
 message TestGroup {
   string framework_class = 1;
   repeated TaskDefinition task_defs = 2;
-  RunnerOptions runner_options = 3;
+  RunnerOptions runner_options = 3 [(scalapb.field).no_box = true];
 }
 
+// Mirrors `sbt.testing.TaskDef`.
 message TaskDefinition {
   string fully_qualified_name = 1;
   Fingerprint fingerprint = 2;
@@ -40,11 +51,13 @@ message TaskDefinition {
   repeated Selector selectors = 4;
 }
 
+// Arguments passed to `sbt.testing.Framework.runner`.
 message RunnerOptions {
   repeated string args = 1;
   repeated string remote_args = 2;
 }
 
+// Mirrors `sbt.testing.Selector`.
 message Selector {
   oneof sealed_value {
     SuiteSelector suite_selector = 1;
@@ -69,63 +82,78 @@ message TestWildcardSelector {
   string test_wildcard = 1;
 }
 
+// A message from the test-runner to core, in reply to a `Request`.
 message Response {
   oneof sealed_value {
     TestsSuccessful tests_successful = 1;
     TestsUnsuccessful tests_unsuccessful = 2;
     ErrorDuringTestRun error_during_test_run = 3;
     CoverageTestRunResult coverage_test_run_result = 4;
-    SetupTestContextSuccessful setup_test_context_success = 5;
+    SetupTestContextSuccessful setup_test_context_successful = 5;
   }
 }
 
+// Reply to `TestProcessContext`.
 message SetupTestContextSuccessful {}
+
+// Reply to `StartTestRun` when all tests passed (the mutant survived).
 message TestsSuccessful {
   int32 tests_completed = 1;
 }
+
+// Reply to `StartTestRun` when at least one test failed (the mutant was killed).
 message TestsUnsuccessful {
   int32 tests_completed = 1;
   repeated FailedTestDefinition failed_tests = 2;
 }
+
+// Reply to `StartTestRun` when the test run threw an exception.
 message ErrorDuringTestRun {
-  string msg = 1;
+  string message = 1;
 }
+
+// Reply to `StartInitialTestRun`.
 message CoverageTestRunResult {
+  reserved 2;
+  reserved "coverageReport", "coverage_test_run_map";
+
   bool is_successful = 1;
-  CoverageTestNameMap coverage_test_name_map = 3;
-  int64 duration_nanos = 4;
+  CoverageTestNameMap coverage_test_name_map = 3 [(scalapb.field).no_box = true];
+  int64 duration = 4 [(scalapb.field).type = "scala.concurrent.duration.FiniteDuration"];
 }
 
-/** Convert to a flat structure to save space of duplicate test name items when serializing.
-  * Without it, the size grows exponentially with the number of tests and mutants
-  */
+// Which test files cover which mutants.
+// Test files are stored once and referenced by id, so the message doesn't grow with (number of tests * number of mutants).
 message CoverageTestNameMap {
-  map<int32, TestFile> test_name_ids = 1 [
-      (scalapb.field).key_type = "stryker4s.testrunner.api.TestFileId"];
-  map<int32, TestNames> test_names = 2 [
-      (scalapb.field).key_type = "stryker4s.model.MutantId"];
+  map<int32, TestFile> test_files = 1 [(scalapb.field).key_type = "stryker4s.testrunner.api.TestFileId"];
+  map<int32, TestFileIds> tests_by_mutant = 2 [(scalapb.field).key_type = "stryker4s.model.MutantId"];
 }
 
-message TestNames {
-  repeated int32 test_name = 1 [(scalapb.field).type = "stryker4s.testrunner.api.TestFileId"];
+// The test files that cover a mutant, as ids into `CoverageTestNameMap.test_files`.
+message TestFileIds {
+  repeated int32 test_file_ids = 1 [(scalapb.field).type = "stryker4s.testrunner.api.TestFileId"];
 }
 
+// A test file (suite) and the tests that were run in it.
 message TestFile {
   string fully_qualified_name = 1;
   repeated TestDefinition definitions = 2;
 }
 
+// A single test in a `TestFile`.
 message TestDefinition {
   int32 id = 1 [(scalapb.field).type = "stryker4s.testrunner.api.TestDefinitionId"];
   string name = 2;
 }
 
+// A test that failed during a `StartTestRun`.
 message FailedTestDefinition {
   string fully_qualified_name = 1;
   string name = 2;
   optional string message = 3;
 }
 
+// Mirrors `sbt.testing.Fingerprint`.
 message Fingerprint {
   oneof sealed_value {
     SubclassFingerprint subclass_fingerprint = 1;
