@@ -106,7 +106,7 @@ object Settings {
         scala3Sources = scalaBinaryVersion.value == "3"
       ) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime,
+    libraryDependencies ++= Seq(Dependencies.scalapbRuntime, Dependencies.test.munit % Test),
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
     Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
