@@ -47,7 +47,7 @@ class ScalaVersionsTest extends Stryker4sSuite {
 
   test("fullVersion detects the version from the scala-library dependency") {
     val project = new MavenProject()
-    project.setArtifacts(Set(artifact("scala-library", "2.13.18")).asJava)
+    project.setArtifacts(Set(artifact("scala-library", "3.10.0")).asJava)
 
     assertEquals(ScalaVersions.fullVersion(project), Some("2.13.18"))
   }
@@ -62,7 +62,7 @@ class ScalaVersionsTest extends Stryker4sSuite {
   test("fullVersion prefers the scala.version property over dependencies") {
     val project = new MavenProject()
     project.getProperties().setProperty("scala.version", "3.3.4")
-    project.setArtifacts(Set(artifact("scala-library", "2.13.18")).asJava)
+    project.setArtifacts(Set(artifact("scala-library", "3.10.0")).asJava)
 
     assertEquals(ScalaVersions.fullVersion(project), Some("3.3.4"))
   }
