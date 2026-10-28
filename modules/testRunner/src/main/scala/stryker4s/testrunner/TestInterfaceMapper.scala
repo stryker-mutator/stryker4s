@@ -43,13 +43,12 @@ protected[stryker4s] trait TestInterfaceMapper {
 
   def toCoverageMap(
       coverage: Iterable[(MutantId, Seq[TestFileId])],
-      testNameIds: Map[TestFileId, TestFile]
+      testFiles: Map[TestFileId, TestFile]
   ): CoverageTestNameMap = {
-    // Create a map of fingerprints to ids to efficiently send over the wire
-    val testNames: Map[MutantId, TestNames] = coverage.map { case (mutantId, testNames) =>
-      mutantId -> TestNames.of(testNames)
+    val testsByMutant: Map[MutantId, TestFileIds] = coverage.map { case (mutantId, testFileIds) =>
+      mutantId -> TestFileIds.of(testFileIds)
     }.toMap
-    CoverageTestNameMap.of(testNameIds, testNames)
+    CoverageTestNameMap.of(testFiles, testsByMutant)
   }
 
   def toFingerprint(fp: sbt.testing.Fingerprint): Fingerprint =

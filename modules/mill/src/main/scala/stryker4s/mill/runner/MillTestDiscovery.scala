@@ -47,8 +47,7 @@ object MillTestDiscovery {
           Seq(SuiteSelector())
         )
       }
-      val runnerOptions = RunnerOptions(Seq.empty, Seq.empty)
-      Seq(TestGroup(framework.getClass().getCanonicalName(), taskDefs, runnerOptions.some))
+      Seq(TestGroup(framework.getClass().getName(), taskDefs))
     }
   }
 

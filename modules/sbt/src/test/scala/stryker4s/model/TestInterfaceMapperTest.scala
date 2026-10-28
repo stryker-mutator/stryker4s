@@ -53,8 +53,8 @@ class TestInterfaceMapperTest extends Stryker4sSuite {
     val result = TestInterfaceMapper.toApiTestGroups(Seq(framework), Seq(group(Seq(testDef))))
 
     val testGroup = result.loneElement
-    assertEquals(testGroup.frameworkClass, classOf[FakeFramework].getCanonicalName())
-    assertEquals(testGroup.runnerOptions, Some(RunnerOptions(Seq.empty, Seq.empty)))
+    assertEquals(testGroup.frameworkClass, classOf[FakeFramework].getName())
+    assertEquals(testGroup.runnerOptions, RunnerOptions.defaultInstance)
     assertEquals(
       testGroup.taskDefs,
       Seq(

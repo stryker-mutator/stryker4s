@@ -58,7 +58,7 @@
         <!-- Scala versions -->
         <scala.version>3.9.0</scala.version>
         <scala.compat.version>3</scala.compat.version>
-        <scala-maven.version>4.9.10</scala-maven.version>
+        <scala-maven.version>4.10.0</scala-maven.version>
     </properties>
     <dependencies>
         <dependency>
@@ -80,19 +80,19 @@
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-shared-utils</artifactId>
-            <version>3.4.2</version>
+            <version>3.5.0</version>
         </dependency>
         <!-- Maven plugin -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>3.9.16</version>
+            <version>3.10.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.9.16</version>
+            <version>3.10.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -104,13 +104,13 @@
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-api</artifactId>
-            <version>2.0.23</version>
+            <version>2.0.24</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-util</artifactId>
-            <version>2.0.23</version>
+            <version>2.0.24</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -128,13 +128,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.19</version>
+            <version>2.0.20</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.19</version>
+            <version>2.0.20</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -184,24 +184,13 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <scaladocClassName>dotty.tools.scaladoc.Main</scaladocClassName>
-                            <sourceDir>${project.build.outputDirectory}</sourceDir>
-                            <args>-nobootcp</args>
-                            <includes>
-                                <include>**/*.tasty</include>
-                            </includes>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>org.scala-lang</groupId>
-                                    <artifactId>scaladoc_3</artifactId>
-                                    <version>${scala.version}</version>
-                                </dependency>
-                                <dependency>
+                            <additionalDependencies>
+                                <additionalDependency>
                                     <groupId>com.fasterxml.jackson.core</groupId>
-                                    <artifactId>jackson-databind</artifactId>
-                                    <version>2.22.2</version>
-                                </dependency>
-                            </dependencies>
+                                    <artifactId>jackson-annotations</artifactId>
+                                    <version>2.22</version>
+                                </additionalDependency>
+                            </additionalDependencies>
                         </configuration>
                     </execution>
                 </executions>
@@ -234,7 +223,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
             </plugin>
         </plugins>
     </build>
@@ -297,7 +286,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.11.0</version>
+                        <version>0.12.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>

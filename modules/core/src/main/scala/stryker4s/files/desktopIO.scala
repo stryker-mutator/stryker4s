@@ -17,8 +17,8 @@ class DesktopFileIO extends DesktopIO {
 
   @SuppressWarnings(Array("stryker4s.mutation.MethodExpression"))
   override def attemptOpen(path: Path): IO[Unit] = {
-    (isDesktopSupported, Files[IO].exists(path)).parTupled
-      .flatMap { case (desktopSupported, fileExists) =>
+    (isDesktopSupported, Files[IO].exists(path))
+      .parFlatMapN { (desktopSupported, fileExists) =>
         IO.whenA(desktopSupported && fileExists)(openFile(path.toNioPath.toFile()))
       }
   }

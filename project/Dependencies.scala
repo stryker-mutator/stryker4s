@@ -7,12 +7,12 @@ object Dependencies {
     val scala213 = "2.13.18"
 
     // sbt-test-runner uses LTS to ensure compatibility with any project it runs in
-    val scala3Lts = "3.3.8"
+    val scala3Lts = "3.9.0"
 
-    val scala3 = "3.8.4"
+    val scala3 = "3.9.0"
 
     // Mill plugins must be compiled with the same Scala version as the minimum supported Mill version
-    val scalaMill = "3.8.2"
+    val scalaMill = "3.9.0"
 
     // All supported Scala versions
     val fullCrossScalaVersions = Seq(scala3Lts, scala213, scala212)
@@ -23,16 +23,16 @@ object Dependencies {
     // Test dependencies
     val munit = "1.3.6"
 
-    val munitCatsEffect = "2.2.0"
+    val munitCatsEffect = "2.2.1"
 
     // Direct dependencies
     val catsCore = "2.13.0"
 
     val catsEffect = "3.7.1"
 
-    val circe = "0.14.16"
+    val circe = "0.14.17"
 
-    val ciris = "3.15.1"
+    val ciris = "3.15.2"
 
     val fansi = "0.5.1"
 
@@ -40,7 +40,7 @@ object Dependencies {
 
     val hocon = "1.4.9"
 
-    val mill = "1.1.9"
+    val mill = "1.3.1"
 
     val mutationTestingElements = "3.9.0"
 
@@ -48,15 +48,15 @@ object Dependencies {
 
     val scalameta = "4.17.4"
 
-    val scopt = "4.1.0"
+    val scopt = "4.2.0"
 
-    val slf4j = "2.0.19"
+    val slf4j = "2.0.20"
 
-    val sttp = "4.0.26"
+    val sttp = "4.1.0"
 
     val testInterface = "1.0"
 
-    val weaponRegeX = "2.0.5"
+    val weaponRegeX = "2.0.6"
 
   }
 

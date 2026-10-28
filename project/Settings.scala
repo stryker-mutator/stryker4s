@@ -70,7 +70,7 @@ object Settings {
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.11.2"
-        case _      => "2.0.0"
+        case _      => "2.1.0-RC1"
       }
     },
     scriptedBufferLog := false,
@@ -106,7 +106,7 @@ object Settings {
         scala3Sources = scalaBinaryVersion.value == "3"
       ) -> (Compile / sourceManaged).value / "scalapb"
     ),
-    libraryDependencies += Dependencies.scalapbRuntime,
+    libraryDependencies ++= Seq(Dependencies.scalapbRuntime, Dependencies.test.munit % Test),
     // Disable warnings for discarded non-Unit value results, as they are used in the generated code
     Compile / tpolecatExcludeOptions += ScalacOptions.warnValueDiscard
   )
