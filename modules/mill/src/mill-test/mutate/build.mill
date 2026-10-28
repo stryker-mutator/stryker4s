@@ -24,7 +24,7 @@ object foo extends ScalaModule with Stryker4sModule {
 // mutator matching the "Arithmetic Operator" category Stryker4s does not ship built-in) and
 // asserts the generated JSON report contains mutants it produced.
 object bar extends ScalaModule with Stryker4sModule {
-  def scalaVersion = "3.3.8"
+  def scalaVersion = "3.9.0"
 
   def mvnDeps = Seq(mvn"io.stryker-mutator::stryker4s-plugin-api::@STRYKER4S_VERSION@")
 

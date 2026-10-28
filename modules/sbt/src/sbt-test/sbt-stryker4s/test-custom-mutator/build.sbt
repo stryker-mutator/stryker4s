@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.3.8"
+ThisBuild / scalaVersion := "3.9.0"
 
 libraryDependencies ++= Seq(
   "org.scalameta" %% "munit" % "1.3.5" % Test,
