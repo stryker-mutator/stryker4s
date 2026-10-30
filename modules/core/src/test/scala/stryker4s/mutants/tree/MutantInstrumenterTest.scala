@@ -8,6 +8,7 @@ import stryker4s.extension.TreeExtensions.*
 import stryker4s.model.*
 import stryker4s.mutants.applymutants.ActiveMutationContext
 import stryker4s.mutation.{ConditionalTrue, GreaterThan, Mutation, True}
+import stryker4s.plugin.api.*
 import stryker4s.testkit.{LogMatchers, Stryker4sSuite}
 import stryker4s.testutil.TestData
 

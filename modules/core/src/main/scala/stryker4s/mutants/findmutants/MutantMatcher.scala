@@ -2,13 +2,12 @@ package stryker4s.mutants.findmutants
 
 import cats.data.NonEmptyVector
 import cats.syntax.all.*
-import mutationtesting.cats.*
+
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
-import stryker4s.extension.TreeExtensions.{treeEq, PositionExtension}
-import stryker4s.model.*
-import stryker4s.mutants.tree.{IgnoredMutation, IgnoredMutations, Mutations}
+import stryker4s.extension.TreeExtensions.PositionExtension
 import stryker4s.mutation.*
+import stryker4s.plugin.api.*
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -28,15 +27,18 @@ object MutantMatcher {
   /** A PartialFunction that can match on a ScalaMeta tree and return a `Either[IgnoredMutations, Mutations]`.
     *
     * If the result is a `Left`, it means a mutant was found, but ignored. The ADT
-    * [[stryker4s.model.IgnoredMutationReason]] shows the possible reasons.
+    * `stryker4s.plugin.api.IgnoredMutationReason` shows the possible reasons.
     */
-  type MutationMatcher = PartialFunction[Tree, PlaceableTree => Either[IgnoredMutations, Mutations]]
-
+  type MutationMatcher = stryker4s.plugin.api.MutationMatcher
 }
 
-class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
+class MutantMatcherImpl(customMutators: Seq[CustomMutator] = Nil)(implicit config: Config) extends MutantMatcher {
 
+  /** Custom matchers are combined, not short-circuited, so mutations of overlapping matchers are all kept */
   override def allMatchers: MutationMatcher =
+    customMutators.foldLeft(builtInMatchers)(_ combine _.matcher)
+
+  private def builtInMatchers: MutationMatcher =
     matchBooleanLiteral orElse
       matchEqualityOperator orElse
       matchLogicalOperator orElse
@@ -143,17 +145,6 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
       replacements: NonEmptyVector[T],
       mutationToTerm: T => Term
   ): PlaceableTree => Either[IgnoredMutations, Mutations] = placeableTree => {
-    // Find the node to replace once, so each replacement only has to look it up by reference
-    val target = placeableTree.tree
-      .dfsCollectFirst {
-        case t if (t eq original) || (t.pos == original.pos && t === original) => t
-      }
-      .getOrElse(
-        throw new RuntimeException(
-          show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${original.pos.toLocation})"
-        )
-      )
-
     val mutations = replacements.map { mutations =>
       val tree = mutationToTerm(mutations)
 
@@ -170,25 +161,14 @@ class MutantMatcherImpl()(implicit config: Config) extends MutantMatcher {
         location,
         description
       )
-      val transformer = new Transformer {
-        override protected def replaceSubtree(t: Tree): Tree = if (t eq target) tree else null
-      }
-
-      transformer.transform(placeableTree.tree) match {
-        case t if t eq placeableTree.tree =>
-          throw new RuntimeException(
-            show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${metadata.location})"
-          )
-        case t: Term => MutatedCode(t, metadata)
-        case t       =>
-          throw new RuntimeException(
-            show"Could not transform '${original.text}' in ${placeableTree.tree.text} (${metadata.location}). Expected a Term, but was a ${t.getClass().getSimpleName}"
-          )
-      }
-
+      placeableTree
+        .substitute(original, tree)
+        .bimap(
+          reason => NonEmptyVector.one[IgnoredMutation](MutatedCode(original, metadata) -> reason),
+          MutatedCode(_, metadata)
+        )
     }
-    filterExclusions(mutations, replacements.head, original)
-
+    mutations.parSequence.flatMap(filterExclusions(_, replacements.head, original))
   }
 
   private def filterExclusions(

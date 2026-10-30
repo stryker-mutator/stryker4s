@@ -142,6 +142,12 @@ class Stryker4sMillRunner(
 
   override def instrumenterOptions(using Config): InstrumenterOptions =
     InstrumenterOptions.testRunner
+
+  /** Parent-first, so `stryker4s.plugin.api` classes resolve to Stryker4s's own copy; closed when the run ends. */
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO.blocking {
+    val urls = ctx.testRunClasspath.map(_.toNIO.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  })
 }
 
 /** Collects compile errors, relativized to the mutation tmpDir, so failing mutants can be rolled back.

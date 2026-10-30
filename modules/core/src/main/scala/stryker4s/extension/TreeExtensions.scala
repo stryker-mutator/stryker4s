@@ -4,6 +4,7 @@ import cats.Eq
 import cats.syntax.all.*
 import mutationtesting.Location
 import mutationtesting.cats.*
+import stryker4s.plugin.api.internal.TreeEquality
 
 import scala.annotation.tailrec
 import scala.meta.*
@@ -104,27 +105,7 @@ object TreeExtensions {
 
   /** Structural equality for `Tree`s
     */
-  implicit def treeEq[A <: Tree]: Eq[A] = Eq.instance((x, y) => (x eq y) || structurallyEqual(x, y))
-
-  /** Compares two trees by their structure (class, leaf values and children, recursively)
-    */
-  private def structurallyEqual(x: Tree, y: Tree): Boolean =
-    (x eq y) ||
-      (x.getClass == y.getClass &&
-        ((x, y) match {
-          case (x: Name, y: Name) => x.value == y.value
-          case (x: Lit, y: Lit)   => x.value == y.value
-          case _                  => true
-        }) && childrenStructurallyEqual(x, y))
-
-  /** `childrenCount` is allocation-free, so comparing it first avoids building the `children` lists of the (many) leaf
-    * nodes and of nodes that can't match anyway
-    */
-  private def childrenStructurallyEqual(x: Tree, y: Tree): Boolean = {
-    val childCount = x.childrenCount
-    childCount == y.childrenCount &&
-    (childCount == 0 || x.children.corresponds(y.children)(structurallyEqual(_, _)))
-  }
+  implicit def treeEq[A <: Tree]: Eq[A] = TreeEquality.treeEq[A]
 
   implicit final class CollectWithContextExtension(val tree: Tree) extends AnyVal {
 
