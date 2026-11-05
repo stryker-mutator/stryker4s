@@ -4,8 +4,7 @@ import cats.data.{NonEmptySet, NonEmptyVector}
 import cats.syntax.all.*
 import mutationtesting.Location
 import stryker4s.extension.TreeExtensions.{LocationExtension, PositionExtension}
-import stryker4s.model.{MutantMetadata, MutatedCode, NoRegexMutationsFound, RegexParseError}
-import stryker4s.mutants.tree.IgnoredMutation
+import stryker4s.plugin.api.{IgnoredMutation, MutantMetadata, MutatedCode, NoRegexMutationsFound, RegexParseError}
 
 import scala.meta.*
 
