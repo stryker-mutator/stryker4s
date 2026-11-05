@@ -1,2 +1,12 @@
 > stryker
-$ exec bash check-report.sh
+> checkReport
+$ delete target/stryker4s-report
+-> checkReport
+> eval IO.write(file("target/stryker4s-report/check/report.json"), "{}")
+-> checkReport
+> eval IO.write(file("target/stryker4s-report/check/report.json"), "{\"mutatorName\":\"ArithmeticOperator\",\"status\":\"CompileError\"}")
+-> checkReport
+> eval IO.write(file("target/stryker4s-report/check/report.json"), "{\"mutatorName\":\"ArithmeticOperator\",\"status\":\"Survived\"}")
+-> checkReport
+> eval IO.write(file("target/stryker4s-report/check/report.json"), "{\"mutatorName\":\"ArithmeticOperator\",\"status\":\"Killed\"}")
+> checkReport
