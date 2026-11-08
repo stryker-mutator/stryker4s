@@ -38,7 +38,7 @@ object Dependencies {
 
     val fs2 = "3.14.0"
 
-    val hocon = "1.4.9"
+    val hocon = "1.4.10"
 
     val mill = "1.3.1"
 
