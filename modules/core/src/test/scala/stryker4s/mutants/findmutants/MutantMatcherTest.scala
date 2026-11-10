@@ -1,12 +1,12 @@
 package stryker4s.mutants.findmutants
 
 import munit.Location
+import cats.data.NonEmptyVector
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.TreeExtensions.FindExtension
-import stryker4s.model.{MutationExcluded, NoRegexMutationsFound, PlaceableTree, RegexParseError}
 import stryker4s.mutants.findmutants.MutantMatcher.MutationMatcher
-import stryker4s.mutants.tree.{IgnoredMutations, Mutations}
 import stryker4s.mutation.*
+import stryker4s.plugin.api.*
 import stryker4s.testkit.Stryker4sSuite
 
 import scala.meta.*
@@ -769,5 +769,42 @@ class MutantMatcherTest extends Stryker4sSuite {
 
     assertEquals(reason.pattern, "[[]]")
     assert(reason.message.contains("expectations:"))
+  }
+
+  test("custom mutators should add mutations from a custom mutator to the built-in matcher") {
+    val tree = "def foo = y <= 5".parseStat
+    val original = tree.find(Term.Name("<=")).value
+
+    val customMutator = new CustomMutator {
+      override def matcher: MutationMatcher = { case orig @ Term.Name("<=") =>
+        placeableTree =>
+          val target = placeableTree.tree.find(orig).value
+          val transformer = new Transformer {
+            override protected def apply(t: Tree): Tree =
+              if (t eq target) Term.Name("!=") else super.apply(t)
+          }
+          val mutatedStatement = transformer.transform(placeableTree.tree).asInstanceOf[Term]
+          Right(
+            NonEmptyVector.one(
+              MutatedCode(mutatedStatement, MutantMetadata(orig.value, "!=", "CustomNotEqual", orig.pos, None))
+            )
+          )
+      }
+    }
+
+    val combinedMatcher = new MutantMatcherImpl(List(customMutator)).allMatchers
+
+    expectMutations(combinedMatcher, tree.asInstanceOf[Defn.Def], original, "y != 5".parseTerm)("CustomNotEqual")
+    // The built-in EqualityOperator mutations for `<=` should still be present alongside the custom one
+    expectMutations(combinedMatcher, tree.asInstanceOf[Defn.Def], original, "y < 5".parseTerm)("EqualityOperator")
+  }
+
+  test("allMatchers should be the built-in matcher when there are no custom mutators") {
+    val tree = "def foo = y <= 5".parseStat
+
+    val found = tree.collect(sut.allMatchers).size
+    val foundWithEmpty = tree.collect(new MutantMatcherImpl(Nil).allMatchers).size
+
+    assertEquals(foundWithEmpty, found)
   }
 }

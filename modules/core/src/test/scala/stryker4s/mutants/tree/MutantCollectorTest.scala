@@ -5,7 +5,7 @@ import cats.syntax.either.*
 import cats.syntax.option.*
 import mutationtesting.{Location, Position}
 import stryker4s.config.Config
-import stryker4s.model.{MutantMetadata, MutatedCode, PlaceableTree}
+import stryker4s.plugin.api.{IgnoredMutations, MutantMetadata, MutatedCode, PlaceableTree}
 import stryker4s.mutants.findmutants.{MutantMatcher, MutantMatcherImpl}
 import stryker4s.mutants.{TreeTraverser, TreeTraverserImpl}
 import stryker4s.testkit.{LogMatchers, Stryker4sSuite}

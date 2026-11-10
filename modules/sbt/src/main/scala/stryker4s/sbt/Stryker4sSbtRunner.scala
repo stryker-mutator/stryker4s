@@ -83,15 +83,6 @@ class Stryker4sSbtRunner(
       )
       val newState = extracted.appendWithSession(fullSettings, ctx.state)
 
-      def extractTaskValue[T](task: TaskKey[T]): T = {
-        PluginCompat.runTask(task, newState) match {
-          case Some(Right(result)) => result
-          case other               =>
-            log.debug(s"Expected task '${task.key.label}' to succeed, but got: $other")
-            throw TestSetupException(task.key.label)
-        }
-      }
-
       // SBT returns any errors as a Incomplete case class, which can contain other Incomplete instances
       // You have to recursively search through them to get the real exception
       def getRootCause(i: Incomplete): Seq[Throwable] = {
@@ -129,18 +120,20 @@ class Stryker4sSbtRunner(
 
       compilerErrors.toLeft {
         val classpath =
-          PluginCompat.toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath)).map(Path.fromNioPath)
+          PluginCompat
+            .toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath, newState))
+            .map(Path.fromNioPath)
 
-        val javaOpts = extractTaskValue(ctx.targetProject / Test / javaOptions)
+        val javaOpts = extractTaskValue(ctx.targetProject / Test / javaOptions, newState)
 
-        val frameworks = extractTaskValue(ctx.targetProject / Test / loadedTestFrameworks).values.toSeq
+        val frameworks = extractTaskValue(ctx.targetProject / Test / loadedTestFrameworks, newState).values.toSeq
         if (frameworks.isEmpty)
           log.warn(
             "No test frameworks found via loadedTestFrameworks. " +
               "Will likely result in no tests being run and a NoCoverage result for all mutants."
           )
 
-        val testGroups = extractTaskValue(ctx.targetProject / Test / testGrouping).map { group =>
+        val testGroups = extractTaskValue(ctx.targetProject / Test / testGrouping, newState).map { group =>
           if (config.testFilter.isEmpty) group
           else {
             val testFilter = new TestFilter()
@@ -229,5 +222,21 @@ class Stryker4sSbtRunner(
       InstrumenterOptions.sysContext(ActiveMutationContext.sysProps)
     } else {
       InstrumenterOptions.testRunner
+    }
+
+  /** Parent-first, so `stryker4s.plugin.api` classes resolve to Stryker4s's own copy; closed when the run ends. */
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO.blocking {
+    val classpath =
+      PluginCompat.toNioPaths(extractTaskValue(ctx.targetProject / Test / fullClasspath, ctx.state))
+    val urls = classpath.map(_.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  })
+
+  private def extractTaskValue[T](task: TaskKey[T], state: State): T =
+    PluginCompat.runTask(task, state) match {
+      case Some(Right(result)) => result
+      case other               =>
+        log.debug(s"Expected task '${task.key.label}' to succeed, but got: $other")
+        throw TestSetupException(task.key.label)
     }
 }
