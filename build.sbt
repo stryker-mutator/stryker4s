@@ -39,7 +39,7 @@ lazy val core = (projectMatrix in file("modules") / "core")
 lazy val pluginApi = (projectMatrix in file("modules") / "pluginApi")
   .settings(commonSettings, pluginApiSettings)
   .dependsOn(testkit % Test)
-  .jvmPlatform(scalaVersions = (versions.crossScalaVersions ++ versions.fullCrossScalaVersions).distinct)
+  .jvmPlatform(scalaVersions = versions.crossScalaVersions)
 
 lazy val commandRunner = (projectMatrix in file("modules") / "commandRunner")
   .settings(commonSettings, commandRunnerSettings, publishLocalDependsOn(core))

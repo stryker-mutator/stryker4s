@@ -9,6 +9,11 @@ Third-party mutators are discovered automatically through Java's `ServiceLoader`
 `stryker4s.plugin.CustomMutatorPlugin`, and register the provider in
 `META-INF/services/stryker4s.plugin.CustomMutatorPlugin`.
 
+Compile the mutator-provider project for the Scala version of the Stryker4s runtime,
+as described in [Scala binary compatibility](#scala-binary-compatibility) below.
+The `%%` dependency uses that project's Scala binary version, not the version of the
+application being mutation-tested.
+
 ```scala
 libraryDependencies += "io.stryker-mutator" %% "stryker4s-plugin-api" % strykerVersion % Provided
 ```
@@ -50,11 +55,24 @@ class ArithmeticOperatorMutator extends CustomMutator {
 
 ## Scala binary compatibility
 
-Plugins are loaded into the JVM that runs Stryker4s, and Stryker4s's own Scala library takes
-precedence. With the sbt 1.x plugin that library is Scala 2.12, so a plugin compiled for Scala 2.13
-or 3 only links if it avoids standard-library APIs whose signatures changed in 2.13. For example,
-return `List(...)` from `mutators`, not `Seq(...)` or `Vector(...)`. The sbt 2.x, Mill, Maven, and
-command runner integrations use a Scala 3 standard library and are not affected.
+Custom mutators run in the JVM that runs Stryker4s, independently of the Scala version of
+the application being mutation-tested. Compile the mutator-provider library for that runtime
+and use the plugin API version corresponding to the Stryker4s version running it.
+
+| Stryker4s integration | Mutator-provider Scala version |
+| --- | --- |
+| sbt 1.x | Scala 2.12 |
+| sbt 2.x, Mill, Maven, command runner | The Scala 3 version supported by that Stryker4s integration |
+
+The plugin API is published for Stryker4s's supported runtime versions, not Scala 2.13.
+A Scala 2.13 application remains supported: build its custom mutators in a separate
+project or module targeting the appropriate runtime from the table above. The application
+does not need to change its Scala version.
+
+Do not rely on cross-version dependency overrides or a restricted choice of collection APIs
+to make a Scala 2.13 provider compatible with a Scala 2.12 or Scala 3 runtime. Matching the
+Scala 3 binary suffix alone also does not guarantee compiler or macro compatibility; use the
+Scala version supported by the integration.
 
 ## Returning the whole statement, not just the replacement
 
