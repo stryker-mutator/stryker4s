@@ -151,7 +151,8 @@ object MavenCompiler {
       "-Wdead-code",
       "-Ywarn-dead-code",
       "-Wvalue-discard",
-      "-Ywarn-value-discard"
+      "-Ywarn-value-discard",
+      "-new-syntax"
     )
 
   private val blocklistedScalacOptionPrefixes: Seq[String] = Seq("-Wunused", "-Ywarn-unused")
