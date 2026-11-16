@@ -149,6 +149,23 @@ class MutantInstrumenterTest extends Stryker4sSuite with TestData with LogMatche
     assertNoDiff(splicedText.parseSource.structure, result.mutatedSource.structure)
   }
 
+  test("instrumentFile should render spliced mutation switches with the dialect of the source") {
+    implicit val dialect: Dialect = dialects.Scala3
+    val source = """class Foo { def foo = if (x >= 15) bar(xs*) else 0 }""".parseSource
+    val originalStatement = source.dfsCollectFirst { case t: Term.If => t }.value
+    val context = SourceContext(source, path)
+    val mutants = Map(
+      PlaceableTree(originalStatement) ->
+        toMutations(originalStatement, GreaterThan, "if (x > 15) bar(xs*) else 0".parseTerm)
+    )
+    val sut = new MutantInstrumenter(InstrumenterOptions.testRunner)
+
+    val splicedText = sut.instrumentFile(context, mutants).mutatedSourceText[fs2.Pure].compile.string
+
+    assert(splicedText.contains("bar(xs*)"), splicedText)
+    assert(!splicedText.contains(": _*"), splicedText)
+  }
+
   test("instrumentFile should apply the correct instrumenter options") {
     val source = """class Foo { def foo = x >= 15 }""".parseSource
     val originalStatement = source.find("x >= 15".parseTerm).value

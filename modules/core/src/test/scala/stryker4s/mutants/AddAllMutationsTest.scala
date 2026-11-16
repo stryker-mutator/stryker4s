@@ -121,7 +121,7 @@ class AddAllMutationsTest extends Stryker4sIOSuite with LogMatchers {
   }
 
   def checkAllMutationsAreAdded(tree: Stat, expectedMutations: Int)(implicit loc: Location) = {
-    val source = s"class Foo { ${tree.syntax} }".parseSource
+    val source = s"class Foo { ${tree.text} }".parseSource
 
     val mutator = new Mutator(
       new MutantFinderStub(source),

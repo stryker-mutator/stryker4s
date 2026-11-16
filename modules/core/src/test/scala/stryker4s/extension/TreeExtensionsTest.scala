@@ -217,7 +217,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
     val expected = "val x: Int = 6".parseStat
     assertEquals(result, expected)
-    assertEquals(result.syntax, expected.syntax)
+    assertEquals(result.text, expected.text)
   }
 
   test("collectWithContext should collect all statements without context") {
@@ -267,7 +267,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
       _ => ()
     }
 
-    assertEquals(context.loneElement.syntax, "2")
+    assertEquals(context.loneElement.text, "2")
   }
 
   test("collectWithContext should not call context-building function if no collector is found") {
@@ -298,8 +298,8 @@ class TreeExtensionsTest extends Stryker4sSuite {
     var calls = 0
 
     val _ = tree.collectWithContext {
-      case t if t.syntax == "1 + 2" => "firstContext"
-      case t if t.syntax == "3 - 4" => "secondContext"
+      case t if t.text == "1 + 2" => "firstContext"
+      case t if t.text == "3 - 4" => "secondContext"
     } {
       case Lit.Int(1) =>
         c =>
@@ -323,7 +323,7 @@ class TreeExtensionsTest extends Stryker4sSuite {
 
     val _ = tree.collectWithContext {
       // Only match context on the first statement
-      case t if t.syntax == "1" => "firstContext"
+      case t if t.text == "1" => "firstContext"
     } {
       case Lit.Int(1) =>
         c =>
