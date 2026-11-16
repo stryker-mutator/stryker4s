@@ -146,6 +146,23 @@ class MutantMatcherTest extends Stryker4sSuite {
     )
   }
 
+  test("replacement should be printed with the configured scala dialect") {
+    implicit val dialect: Dialect = dialects.Scala3
+    implicit val config: Config = Config.default.copy(scalaDialect = dialect)
+    val scala3Sut = new MutantMatcherImpl()
+    val tree = "def foo = List(1, 2, 3).exists(_ => bar(xs*))".parseDef
+    val statement = tree.find("List(1, 2, 3).exists(_ => bar(xs*))".parseTerm).value
+
+    val found = tree
+      .collect(scala3Sut.allMatchers)
+      .map(_(PlaceableTree(statement)))
+      .loneElement
+      .value
+      .loneElement
+
+    assertNoDiff(found.metadata.replacement, "List(1, 2, 3).forall(_ => bar(xs*))")
+  }
+
   val equalityMutatorName = "EqualityOperator"
   test("matchEqualityOperator matcher should match >= sign with >, <, and ==") {
     val tree = "def foo = 18 >= 20".parseDef

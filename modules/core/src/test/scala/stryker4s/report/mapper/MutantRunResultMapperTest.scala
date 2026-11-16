@@ -87,7 +87,7 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
     * `Location` property
     */
   private def toMutant(id: Int, original: Term, category: SubstitutionMutation[? <: Term], file: Path) = {
-    import stryker4s.extension.TreeExtensions.FindExtension
+    import stryker4s.extension.TreeExtensions.{FindExtension, PrintExtension}
 
     import scala.meta.*
     val parsed = file.toNioPath.parse[Source]
@@ -96,7 +96,13 @@ class MutantRunResultMapperTest extends Stryker4sSuite {
       MutantId(id),
       MutatedCode(
         foundOrig,
-        MutantMetadata(foundOrig.syntax, category.treeSyntax, category.mutationName, foundOrig.pos, none)
+        MutantMetadata(
+          foundOrig.text,
+          category.tree.syntaxFor(Config.default.scalaDialect),
+          category.mutationName,
+          foundOrig.pos,
+          none
+        )
       )
     )
   }
