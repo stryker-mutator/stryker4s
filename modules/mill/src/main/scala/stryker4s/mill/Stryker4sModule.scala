@@ -244,7 +244,8 @@ trait Stryker4sModule extends ScalaModule {
       // Disable fatal warnings, as they will cause a lot of mutation switching statements to not compile
       "-Xfatal-warnings",
       "-Werror",
-      "-Ycheck-all-patmat"
+      "-Ycheck-all-patmat",
+      "-new-syntax"
     )
 
   given ReadWriter[Option[Dialect]] = upickle
