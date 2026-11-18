@@ -3,7 +3,7 @@ import org.typelevel.sbt.tpolecat.*
 import org.typelevel.scalacoptions.{ScalaVersion, *}
 import sbt.*
 import sbt.Keys.*
-import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts, scriptedSbt}
+import sbt.ScriptedPlugin.autoImport.{scriptedBufferLog, scriptedLaunchOpts}
 import sbtprotoc.ProtocPlugin.autoImport.PB
 
 import TpolecatPlugin.autoImport.*
@@ -66,10 +66,6 @@ object Settings {
 
   lazy val sbtPluginSettings: Seq[Setting[?]] = Seq(
     moduleName := "sbt-stryker4s",
-    scriptedSbt := (if scalaBinaryVersion.value == "2.12" then "1.13.1" else "2.1.0"),
-    scalacOptions ++= {
-      if scalaBinaryVersion.value == "2.12" then Seq("-Xsource:3") else Nil
-    },
     scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
