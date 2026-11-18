@@ -1,10 +1,12 @@
 package stryker4s.report
 
-import cats.effect.IO
-import fs2.Stream
+import cats.effect.{IO, Ref}
+import fs2.{CompositeFailure, Stream}
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.TestData
 import stryker4s.testutil.stubs.ReporterStub
+
+import scala.concurrent.duration.*
 
 class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestData {
 
@@ -40,10 +42,23 @@ class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestD
     Stream(MutantTestedEvent(1), MutantTestedEvent(2))
       .through(sut.mutantTested)
       .compile
-      .drain *> IO.cede
+      .drain
       .assertLoggedError(
-        "Reporter failed to report, java.lang.RuntimeException: Something happened"
+        "FailingReporter failed to report, java.lang.RuntimeException: Something happened"
       ) >> reporter1.mutantTestedCalls.assert(_.length == 2)
+  }
+
+  test("mutantTested should keep consuming the input when all reporters fail") {
+    val failingReporter = ReporterStub.throwsException(new RuntimeException("Something happened"))
+    val sut = new AggregateReporter(List(failingReporter))
+
+    Stream
+      .range(0, 100)
+      .covary[IO]
+      .observe(_.as(MutantTestedEvent(100)).through(sut.mutantTested))
+      .compile
+      .count
+      .assertEquals(100L)
   }
 
   val runReport = createFinishedRunEvent()
@@ -72,9 +87,39 @@ class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestD
 
   }
 
+  test("onRunFinished should not cancel slower reporters when a reporter throws an exception") {
+    val failingReporter = ReporterStub.throwsException(new RuntimeException("Something happened"))
+
+    Ref[IO].of(false).flatMap { finished =>
+      val slowReporter = new Reporter {
+        override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] =
+          IO.sleep(50.millis) *> finished.set(true)
+      }
+      val sut = new AggregateReporter(List(failingReporter, slowReporter))
+
+      sut
+        .onRunFinished(runReport)
+        .interceptMessage[RuntimeException]("Something happened") >>
+        finished.get.assertEquals(true)
+    }
+  }
+
+  test("onRunFinished should raise all exceptions and log each with its reporter") {
+    val first = ReporterStub.throwsException(new RuntimeException("First"))
+    val second = ReporterStub.throwsException(new RuntimeException("Second"))
+    val sut = new AggregateReporter(List(first, second))
+
+    sut
+      .onRunFinished(runReport)
+      .intercept[CompositeFailure]
+      .map(e => assertEquals(e.all.map(_.getMessage).toList, List("First", "Second")))
+      .assertLoggedError("FailingReporter failed to report, java.lang.RuntimeException: First")
+      .assertLoggedError("FailingReporter failed to report, java.lang.RuntimeException: Second")
+  }
+
   val reporter1 = ReporterStub()
 
-  test("onRunFinished logging should log and throw if a reporter throws an exception") {
+  test("onRunFinished logging should throw if a reporter throws an exception") {
     val failingReporter = ReporterStub.throwsException(new RuntimeException("Something happened"))
     val sut = new AggregateReporter(List(failingReporter, reporter1))
 
@@ -90,6 +135,6 @@ class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestD
     sut.onRunFinished(runReport) >>
       consoleReporterStub.onRunFinishedCalls
         .assert(_.length == 1)
-        .assertNotLoggedWarn("Reporter failed to report")
+        .assertNotLoggedError("failed to report")
   }
 }
