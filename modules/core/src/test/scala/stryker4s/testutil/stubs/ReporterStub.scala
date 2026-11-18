@@ -25,7 +25,9 @@ object ReporterStub {
     }
   }
 
-  def throwsException(e: Exception): Reporter = new Reporter {
+  def throwsException(e: Exception): Reporter = new FailingReporter(e)
+
+  class FailingReporter(e: Exception) extends Reporter {
     override def mutantTested: Pipe[IO, MutantTestedEvent, Nothing] = _.evalMap(_ => IO.raiseError(e)).drain
     override def onRunFinished(runReport: FinishedRunEvent): IO[Unit] = IO.raiseError(e)
   }

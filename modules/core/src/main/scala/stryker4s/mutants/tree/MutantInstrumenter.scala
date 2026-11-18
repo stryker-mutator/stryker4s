@@ -80,7 +80,11 @@ class MutantInstrumenter(options: InstrumenterOptions)(implicit log: Logger) {
     }
 
     val mutations: MutantsWithId = mutantMap.map(_._2).toVector.toNev.get.flatten
-    val splice = spliceReplacements.result().toNes.map(SourceSplice(context.source.pos.input.text, _))
+    val source = context.source
+    val dialect = source.origin.dialectOpt.getOrElse(
+      throw new IllegalArgumentException("SourceSplice requires a source with a dialect set")
+    )
+    val splice = spliceReplacements.result().toNes.map(SourceSplice(source.text, dialect, _))
 
     MutatedFile(context.path, newTree, mutations, splice)
   }

@@ -5,13 +5,12 @@ import cats.syntax.all.*
 
 import stryker4s.config.{Config, ExcludedMutation}
 import stryker4s.extension.PartialFunctionOps.*
-import stryker4s.extension.TreeExtensions.PositionExtension
+import stryker4s.extension.TreeExtensions.{PositionExtension, PrintExtension}
 import stryker4s.mutation.*
 import stryker4s.plugin.api.*
 
 import scala.annotation.tailrec
 import scala.meta.*
-import scala.meta.prettyprinters.XtensionReprint
 
 import MutantMatcher.MutationMatcher
 
@@ -149,9 +148,8 @@ class MutantMatcherImpl(customMutators: Seq[CustomMutator] = Nil)(implicit confi
       val tree = mutationToTerm(mutations)
 
       val (location, description, replacement) = mutations match {
-        case r: RegularExpression       => (r.location, r.description.some, r.replacement)
-        case s: SubstitutionMutation[?] => (original.pos.toLocation, none, s.treeSyntax)
-        case _                          => (original.pos.toLocation, none, tree.reprint())
+        case r: RegularExpression => (r.location, r.description.some, r.replacement)
+        case _                    => (original.pos.toLocation, none, tree.syntaxFor(config.scalaDialect))
       }
 
       val metadata = MutantMetadata(

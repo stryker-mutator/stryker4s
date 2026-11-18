@@ -21,6 +21,16 @@ object TreeExtensions {
       case _                => none
     }
 
+  implicit final class PrintExtension(val thisTree: Tree) extends AnyVal {
+
+    /** Source code of this tree for the explicitly given dialect
+      */
+    def syntaxFor(dialect: Dialect): String = {
+      implicit val d: Dialect = dialect
+      thisTree.syntax
+    }
+  }
+
   implicit final class FindExtension(val thisTree: Tree) extends AnyVal {
 
     /** Searches for the given statement in the tree

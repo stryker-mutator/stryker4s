@@ -36,9 +36,9 @@ object Dependencies {
 
     val fansi = "0.5.1"
 
-    val fs2 = "3.14.0"
+    val fs2 = "3.15.0"
 
-    val hocon = "1.4.9"
+    val hocon = "1.4.10"
 
     val mill = "1.3.1"
 
@@ -52,7 +52,7 @@ object Dependencies {
 
     val slf4j = "2.0.20"
 
-    val sttp = "4.1.0"
+    val sttp = "4.1.3"
 
     val testInterface = "1.0"
 

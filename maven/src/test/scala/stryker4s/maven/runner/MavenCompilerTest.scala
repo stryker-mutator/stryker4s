@@ -15,7 +15,8 @@ class MavenCompilerTest extends Stryker4sSuite {
       "-Wdead-code",
       "-Ywarn-dead-code",
       "-Wvalue-discard",
-      "-Ywarn-value-discard"
+      "-Ywarn-value-discard",
+      "-new-syntax"
     )
     blocked.foreach(option =>
       assert(MavenCompiler.isBlocklistedScalacOption(option), s"expected $option to be blocked")

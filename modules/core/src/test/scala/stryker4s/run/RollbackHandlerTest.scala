@@ -23,7 +23,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     rollbackableTree.asserting { tree =>
       val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
       val mutantMetadata =
-        MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
+        MutantMetadata(mutantTree.text, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
       val mutants = NonEmptyVector.of(
         MutantWithId(
           MutantId(1),
@@ -65,7 +65,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     rollbackableTree.asserting { tree =>
       val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
       val mutantMetadata =
-        MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
+        MutantMetadata(mutantTree.text, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
 
       //
       val nonExistentMutantId = MutantId(2)
@@ -93,7 +93,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     rollbackableTree.asserting { tree =>
       val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
       val mutantMetadata =
-        MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
+        MutantMetadata(mutantTree.text, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
       val mutants = NonEmptyVector.of(
         MutantWithId(
           MutantId(1),
@@ -129,7 +129,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     rollbackableTree.asserting { tree =>
       val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
       val mutantMetadata =
-        MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
+        MutantMetadata(mutantTree.text, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
       val mutants = NonEmptyVector.of(
         MutantWithId(
           MutantId(1),
@@ -166,7 +166,7 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     rollbackableTree.asserting { tree =>
       val mutantTree = tree.find("Files.forall(Paths.get(a))".parseTerm).value
       val mutantMetadata =
-        MutantMetadata(mutantTree.syntax, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
+        MutantMetadata(mutantTree.text, "Files.forall(Paths.get(a))", "MethodExpression", mutantTree.pos, none)
       val mutants = NonEmptyVector.of(
         MutantWithId(
           MutantId(1),
@@ -213,13 +213,13 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
     val mutants = NonEmptyVector.of(
       MutantWithId(
         MutantId(0),
-        MutatedCode("x > 15".parseTerm, MutantMetadata(original.syntax, "x > 15", "GreaterThan", original.pos, none))
+        MutatedCode("x > 15".parseTerm, MutantMetadata(original.text, "x > 15", "GreaterThan", original.pos, none))
       ),
       MutantWithId(
         MutantId(1),
         MutatedCode(
           "x <= 15".parseTerm,
-          MutantMetadata(original.syntax, "x <= 15", "GreaterThan", original.pos, none)
+          MutantMetadata(original.text, "x <= 15", "GreaterThan", original.pos, none)
         )
       )
     )
@@ -243,6 +243,35 @@ class RollbackHandlerTest extends Stryker4sIOSuite with LogMatchers {
       result.compileErrors.loneElement._2.map(_.status),
       mutants.map(_ => MutantStatus.CompileError).toVector
     )
+  }
+
+  test("rollbackFiles should print the rolled back file with the configured scala dialect") {
+    implicit val dialect: Dialect = dialects.Scala3
+    val source = """object Foo {
+                   |  def bar(xs: Int*): Boolean = baz(xs*) && x >= 15
+                   |}""".stripMargin.parseSource
+    val original = source.find("baz(xs*) && x >= 15".parseTerm).value
+    def mutant(id: Int, code: String) =
+      MutantWithId(
+        MutantId(id),
+        MutatedCode(code.parseTerm, MutantMetadata(original.text, code, "GreaterThan", original.pos, none))
+      )
+    val mutants = NonEmptyVector.of(mutant(0, "baz(xs*) && x > 15"), mutant(1, "baz(xs*) && x <= 15"))
+    val path = Path("foo/bar.scala")
+    val instrumenter = new MutantInstrumenter(InstrumenterOptions.testRunner)
+    val scala3Sut = RollbackHandler(instrumenter)
+    val mutatedFile =
+      instrumenter.instrumentFile(SourceContext(source, path), Map(PlaceableTree(original) -> mutants))
+
+    val onDisk = mutatedFile.mutatedSourceText[Pure].compile.string
+    val errors = NonEmptyList.of(CompilerErrMsg("error0", path.toString, 1, onDisk.indexOf("x > 15").some))
+
+    val result = scala3Sut.rollbackFiles(errors, Vector(mutatedFile)).value
+
+    val rolledBack = result.newFiles.loneElement.mutatedSourceText[Pure].compile.string
+    assert(rolledBack.contains("baz(xs*)"), rolledBack)
+    assert(!rolledBack.contains(": _*"), rolledBack)
+    assert(!rolledBack.contains("x > 15"), rolledBack)
   }
 
   def rollbackableTree = FileUtil.getResourceAsString("rollbackTest/RollbackableTree.scala").map(_.parse[Source].get)
