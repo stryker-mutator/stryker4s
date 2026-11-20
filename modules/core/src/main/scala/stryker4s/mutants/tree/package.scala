@@ -1,20 +1,13 @@
 package stryker4s.mutants
 
 import cats.data.{NonEmptyList, NonEmptyVector}
-import stryker4s.model.{IgnoredMutationReason, MutantWithId, MutatedCode, PlaceableTree}
+import stryker4s.model.MutantWithId
 
-import scala.meta.{Term, Tree}
+import scala.meta.Term
 
 package object tree {
 
-  type Mutations = NonEmptyVector[MutatedCode]
-
-  type IgnoredMutation = (MutatedCode, IgnoredMutationReason)
-  type IgnoredMutations = NonEmptyVector[IgnoredMutation]
-
   type MutantsWithId = NonEmptyVector[MutantWithId]
-
-  type MutationMatcher = PartialFunction[Tree, PlaceableTree => Mutations]
 
   type MutantCoverageTermFn = (NonEmptyList[Int]) => Term
 

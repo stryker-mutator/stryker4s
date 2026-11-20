@@ -1,0 +1,78 @@
+package stryker4s.plugin.api
+
+import stryker4s.testkit.Stryker4sSuite
+
+import scala.meta.*
+
+class PlaceableTreeSubstituteTest extends Stryker4sSuite {
+
+  /** Re-parsing a snippet loses the position it had inside the enclosing tree, so tests that need a positioned sub-term
+    * look it up in the real tree by syntax instead of parsing it separately.
+    */
+  private def subTerm(within: Tree, syntax: String): Term =
+    within.collect { case sub: Term if sub.syntax == syntax => sub }.head
+
+  test("substitute should replace the whole tree when it is itself the original") {
+    val tree = "a.orElse(b)".parseTerm
+
+    val result = PlaceableTree(tree).substitute(tree, "a".parseTerm).value
+
+    assertEquals(result.syntax, "a")
+  }
+
+  test("substitute should keep the surrounding context of a nested original") {
+    val tree = "IO.sleep(d).as(q).timeout(l)".parseTerm
+    val original = subTerm(tree, "IO.sleep(d)")
+
+    val result = PlaceableTree(tree).substitute(original, "IO.unit".parseTerm).value
+
+    assertEquals(result.syntax, "IO.unit.as(q).timeout(l)")
+  }
+
+  test("substitute should replace a deeply nested original") {
+    val tree = "xs.map(x => f(x) + 1)".parseTerm
+    val original = subTerm(tree, "f(x)")
+
+    val result = PlaceableTree(tree).substitute(original, "g(x)".parseTerm).value
+
+    assertEquals(result.syntax, "xs.map(x => g(x) + 1)")
+  }
+
+  test("substitute should replace only the occurrence at the original's position") {
+    val tree = "f(a) + f(a)".parseTerm
+    val original = tree.collect { case t: Term.Apply => t }.head
+
+    val result = PlaceableTree(tree).substitute(original, "b".parseTerm).value
+
+    assertEquals(result.syntax, "b + f(a)")
+  }
+
+  test("substitute should find a re-created equivalent of the original") {
+    val tree = "f(a) + f(a)".parseTerm
+    val original = tree.collect { case t: Term.Apply => t }.head
+    val recreated = "f(a) + f(a)".parseTerm.collect { case t: Term.Apply => t }.head
+
+    val result = PlaceableTree(tree).substitute(recreated, "b".parseTerm).value
+
+    assertEquals(result.syntax, "b + f(a)")
+    assert(original ne recreated)
+  }
+
+  test("substitute should find the original by reference identity") {
+    val tree = "wrap(inner)".parseTerm
+    val original = tree.collect { case t @ Term.Name("inner") => t }.head
+
+    val result = PlaceableTree(tree).substitute(original, "replaced".parseTerm).value
+
+    assertEquals(result.syntax, "wrap(replaced)")
+  }
+
+  test("substitute should return a SubstitutionFailed when the original is not in the tree") {
+    val tree = "a.orElse(b)".parseTerm
+
+    val result = PlaceableTree(tree).substitute("somethingElse".parseTerm, "a".parseTerm)
+
+    assertEquals(result.leftValue.original, "somethingElse")
+    assertEquals(result.leftValue.statement, "a.orElse(b)")
+  }
+}

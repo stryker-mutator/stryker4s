@@ -8,6 +8,7 @@ import stryker4s.extension.TreeExtensions.{treeEq, AncestorsExtension, Transform
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.model.SourceReplacement.*
+import stryker4s.plugin.api.*
 
 import scala.collection.immutable.SortedSet
 import scala.meta.*

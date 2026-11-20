@@ -118,6 +118,14 @@ object Settings {
     )
   )
 
+  lazy val pluginApiSettings: Seq[Setting[?]] = Seq(
+    moduleName := "stryker4s-plugin-api",
+    libraryDependencies ++= Seq(
+      Dependencies.catsCore,
+      Dependencies.scalameta
+    ) ++ Dependencies.mutationTestingMetrics
+  )
+
   lazy val testkitSettings: Seq[Setting[?]] = Seq(
     moduleName := "stryker4s-testkit",
     libraryDependencies ++= Seq(

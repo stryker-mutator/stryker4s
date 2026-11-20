@@ -1,6 +1,6 @@
 package stryker4s.report
 
-import cats.effect.{IO, Ref}
+import cats.effect.{Deferred, IO, Ref}
 import fs2.{CompositeFailure, Stream}
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.TestData
@@ -35,17 +35,36 @@ class AggregateReporterTest extends Stryker4sIOSuite with LogMatchers with TestD
   }
 
   test("mutantTested should report to all reporters even if a first reporter fails") {
-    val reporter1 = ReporterStub()
-    val failingReporter = ReporterStub.throwsException(new RuntimeException("Something happened"))
-    val sut = new AggregateReporter(List(failingReporter, reporter1))
+    Deferred[IO, Unit].flatMap { failed =>
+      val reporter1 = ReporterStub()
+      class FailingReporter extends Reporter {
+        override def mutantTested: fs2.Pipe[IO, MutantTestedEvent, Nothing] =
+          _.evalMap(_ => IO.raiseError[Nothing](new RuntimeException("Something happened")))
+            .onFinalize(failed.complete(()).void)
+      }
+      val failingReporter = new FailingReporter
+      val sut = new AggregateReporter(List(failingReporter, reporter1))
+      val events = (1 to 100).map(MutantTestedEvent(_)).toList
 
-    Stream(MutantTestedEvent(1), MutantTestedEvent(2))
+      (Stream.emit(events.head) ++ Stream.exec(failed.get) ++ Stream.emits(events.tail))
+        .through(sut.mutantTested)
+        .compile
+        .drain
+        .assertLoggedError(
+          s"${failingReporter.getClass.getSimpleName} failed to report, java.lang.RuntimeException: Something happened"
+        ) >> reporter1.mutantTestedCalls.assertEquals(events)
+    }
+  }
+
+  test("mutantTested should propagate input stream failures") {
+    val sut = new AggregateReporter(List(ReporterStub()))
+
+    Stream
+      .raiseError[IO](new RuntimeException("Input failed"))
       .through(sut.mutantTested)
       .compile
       .drain
-      .assertLoggedError(
-        "FailingReporter failed to report, java.lang.RuntimeException: Something happened"
-      ) >> reporter1.mutantTestedCalls.assert(_.length == 2)
+      .interceptMessage[RuntimeException]("Input failed")
   }
 
   test("mutantTested should keep consuming the input when all reporters fail") {

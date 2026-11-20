@@ -10,6 +10,7 @@ import stryker4s.config.Config
 import stryker4s.extension.TreeExtensions.FindExtension
 import stryker4s.model.*
 import stryker4s.mutants.tree.{InstrumenterOptions, MutantInstrumenter}
+import stryker4s.plugin.api.*
 import stryker4s.testkit.{FileUtil, LogMatchers, Stryker4sIOSuite}
 
 import scala.meta.*

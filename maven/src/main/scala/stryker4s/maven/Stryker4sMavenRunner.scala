@@ -38,6 +38,12 @@ class Stryker4sMavenRunner(
 
   override def extraConfigSources: List[ConfigSource[IO]] = List(new MavenConfigSource[IO](project))
 
+  /** Parent-first, so `stryker4s.plugin.api` classes resolve to Stryker4s's own copy; closed when the run ends. */
+  override def customMutatorClassLoader: Resource[IO, ClassLoader] = Resource.fromAutoCloseable(IO.blocking {
+    val urls = project.getTestClasspathElements().asScala.map(Path(_).toNioPath.toUri.toURL).toArray
+    new java.net.URLClassLoader(urls, getClass.getClassLoader)
+  })
+
   override def resolveTestRunners(
       tmpDir: Path
   )(using config: Config): Either[NonEmptyList[CompilerErrMsg], NonEmptyList[Resource[IO, TestRunner]]] = {
