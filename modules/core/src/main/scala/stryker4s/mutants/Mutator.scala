@@ -12,7 +12,8 @@ import stryker4s.config.Config
 import stryker4s.log.Logger
 import stryker4s.model.*
 import stryker4s.mutants.findmutants.MutantFinder
-import stryker4s.mutants.tree.{IgnoredMutation, MutantCollector, MutantInstrumenter, MutantsWithId, Mutations}
+import stryker4s.mutants.tree.{MutantCollector, MutantInstrumenter, MutantsWithId}
+import stryker4s.plugin.api.{IgnoredMutation, Mutations, PlaceableTree}
 
 import java.util.concurrent.atomic.AtomicInteger
 

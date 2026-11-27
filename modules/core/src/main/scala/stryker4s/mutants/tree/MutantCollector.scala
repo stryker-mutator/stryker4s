@@ -2,9 +2,9 @@ package stryker4s.mutants.tree
 
 import cats.Monoid
 import stryker4s.extension.TreeExtensions.*
-import stryker4s.model.PlaceableTree
 import stryker4s.mutants.TreeTraverser
 import stryker4s.mutants.findmutants.MutantMatcher
+import stryker4s.plugin.api.*
 
 import scala.meta.Tree
 

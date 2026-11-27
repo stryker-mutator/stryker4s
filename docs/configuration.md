@@ -172,7 +172,11 @@ With `excluded-mutations`, you can turn off certain mutations in the project. Al
 - `StringLiteral`
 - `MethodExpression`
 
-### `thresholds` (`object`)
+### Custom mutator plugins
+
+Third-party mutators are discovered through Java's `ServiceLoader`. See [Custom mutators](./custom-mutators.md) for how to write one.
+
+#### thresholds
 
 **Config file:** `thresholds{ high=80, low=60, break=0 }`  
 **Sbt:** `strykerThresholdsHigh := 80; strykerThresholdsLow := 60; strykerThresholdsBreak := 0`  

@@ -7,6 +7,7 @@ import stryker4s.command.runner.ProcessTestRunner
 import stryker4s.config.Config
 import stryker4s.model.*
 import stryker4s.mutation.GreaterThan
+import stryker4s.plugin.api.{MutantMetadata, MutatedCode}
 import stryker4s.run.process.{Command, ProcessRunner}
 import stryker4s.testkit.{LogMatchers, Stryker4sIOSuite}
 import stryker4s.testutil.stubs.TestProcessRunner
