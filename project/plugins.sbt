@@ -3,5 +3,5 @@ addSbtPlugin("io.stryker-mutator" % "sbt-stryker4s" % "1.1.1")
 addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.7")
 
 // Protobuf plugin and its dependencies
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.1.0-RC2")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.1.0-RC3")
 libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "1.0.0-alpha.6"
