@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2](https://github.com/stryker-mutator/stryker4s/compare/v1.1.1...v1.1.2) (2026-11-28)
+
+
+### Bug Fixes
+
+* print mutation switches with correct scala dialect ([#2204](https://github.com/stryker-mutator/stryker4s/issues/2204)) ([460035f](https://github.com/stryker-mutator/stryker4s/commit/460035f0e60c125ea5980529a57f33b92098ca17))
+* **report:** continue to report when one reporter stops with an error ([#2209](https://github.com/stryker-mutator/stryker4s/issues/2209)) ([7b66841](https://github.com/stryker-mutator/stryker4s/commit/7b66841073aacd7a1fceabf5c69c530572f13cfd))
+* use correct 3.9 dialect for 3.9 configuration ([#2202](https://github.com/stryker-mutator/stryker4s/issues/2202)) ([30c6555](https://github.com/stryker-mutator/stryker4s/commit/30c6555ef5149e4c2f4db7f46c6474b385598e48))
+
 ## [1.1.1](https://github.com/stryker-mutator/stryker4s/compare/v1.1.0...v1.1.1) (2026-07-30)
 
 
